@@ -97,3 +97,17 @@ strict = true
 warn_unused_configs = true
 warn_unreachable = true
 ignore_missing_imports = true
+
+# --- pylint ---------------------------------------------------------------
+[tool.pylint.main]
+py-version = "3.11"
+
+[tool.pylint.format]
+max-line-length = 88
+
+[tool.pylint."messages control"]
+disable = [
+  "missing-module-docstring",
+  "missing-class-docstring",
+  "missing-function-docstring",
+]
