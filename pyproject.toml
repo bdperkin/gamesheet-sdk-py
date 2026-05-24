@@ -46,6 +46,7 @@ dev = [
   "mypy>=1.10",
   "types-requests>=2.32",
   "build>=1.2",
+  "tox>=4.21",
 ]
 
 [project.scripts]
@@ -131,3 +132,39 @@ disable = [
   "missing-class-docstring",
   "missing-function-docstring",
 ]
+
+# --- tox ------------------------------------------------------------------
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+requires = tox>=4.21
+env_list = py311, py312, py313, py314, lint, type, pylint
+
+[testenv]
+description = Run the pytest suite under {base_python}
+package = editable
+extras = dev
+commands = pytest --cov {posargs}
+
+[testenv:lint]
+description = Check formatting with black and lint with flake8 (reads pyproject.toml via Flake8-pyproject)
+skip_install = true
+deps =
+    black>=26.3
+    flake8>=7.1
+    Flake8-pyproject>=1.2
+commands =
+    black --check src tests
+    flake8 src tests
+
+[testenv:type]
+description = Type-check with mypy --strict
+extras = dev
+commands = mypy src
+
+[testenv:pylint]
+description = Lint with pylint (config in pyproject.toml)
+extras = dev
+deps = pylint>=4.0
+commands = pylint src tests
+"""

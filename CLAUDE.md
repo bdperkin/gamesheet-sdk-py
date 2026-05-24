@@ -40,6 +40,14 @@ pre-commit run --all-files
 
 # Type check (strict mode is on)
 mypy src
+
+# Tox: orchestrates all of the above in isolated venvs (config in [tool.tox])
+tox                 # full matrix: py311..py314 + lint + type + pylint
+tox -e lint         # just black --check + flake8
+tox -e type         # just mypy
+tox -e pylint       # just pylint
+tox -e py311        # tests on a specific interpreter (must be installed)
+tox -e py314 -- -k test_version_is_string  # pass args to pytest after --
 ```
 
 The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_sdk.cli:main`).
