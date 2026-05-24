@@ -1,0 +1,99 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "gamesheet-sdk-py"
+version = "0.0.1"
+description = "Unofficial Python SDK and CLI for the GameSheet Inc. platform — automates WebUI procedures where a native API is absent."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [
+  { name = "bdperkin" },
+]
+keywords = ["gamesheet", "hockey", "sports", "sdk", "cli", "automation", "scraper"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Typing :: Typed",
+]
+dependencies = [
+  "requests>=2.32",
+  "beautifulsoup4>=4.12",
+  "playwright>=1.45",
+  "lxml>=5.2",
+  "pydantic>=2.7",
+  "click>=8.1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2",
+  "pytest-cov>=5.0",
+  "black>=24.4",
+  "flake8>=7.1",
+  "pre-commit>=3.7",
+  "mypy>=1.10",
+  "types-requests>=2.32",
+  "build>=1.2",
+]
+
+[project.scripts]
+gamesheet-sdk-py = "gamesheet_sdk.cli:main"
+
+[project.urls]
+Homepage      = "https://github.com/bdperkin/gamesheet-sdk-py"
+Repository    = "https://github.com/bdperkin/gamesheet-sdk-py"
+Issues        = "https://github.com/bdperkin/gamesheet-sdk-py/issues"
+Documentation = "https://github.com/bdperkin/gamesheet-sdk-py#readme"
+
+# --- Hatch ----------------------------------------------------------------
+[tool.hatch.build.targets.wheel]
+packages = ["src/gamesheet_sdk"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "src/gamesheet_sdk",
+  "tests",
+  "docs",
+  "README.md",
+  "LICENSE",
+  "pyproject.toml",
+]
+
+# --- Black ----------------------------------------------------------------
+[tool.black]
+line-length = 88
+target-version = ["py311", "py312"]
+include = '\.pyi?$'
+
+# --- pytest ---------------------------------------------------------------
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra --strict-markers --strict-config"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+# --- coverage -------------------------------------------------------------
+[tool.coverage.run]
+branch = true
+source = ["gamesheet_sdk"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+# --- mypy -----------------------------------------------------------------
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_configs = true
+warn_unreachable = true
+ignore_missing_imports = true
