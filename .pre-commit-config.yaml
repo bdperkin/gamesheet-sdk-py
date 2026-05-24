@@ -20,7 +20,7 @@ repos:
         args: ["--fix=lf"]
 
   - repo: https://github.com/psf/black
-    rev: 24.4.2
+    rev: 26.3.1
     hooks:
       - id: black
         language_version: python3
@@ -29,4 +29,4 @@ repos:
     rev: 7.1.0
     hooks:
       - id: flake8
-        additional_dependencies: []
+        additional_dependencies: ["Flake8-pyproject>=1.2"]

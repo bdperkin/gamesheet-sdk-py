@@ -48,6 +48,6 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
 
 - **`src/` layout.** Tests import via the installed package; `pyproject.toml` also sets `pythonpath = ["src"]` so `pytest` works without an install, but workflows that need the CLI or Playwright still require `pip install -e ".[dev]"`.
 - **Typed package.** `py.typed` is shipped (PEP 561) and `[tool.mypy] strict = true` is enabled — all new code must be fully annotated and pass `mypy --strict`.
-- **Python 3.11+.** Use modern syntax (`from __future__ import annotations`, `X | None`, etc.) as `cli.py` already does.
+- **Python 3.11–3.14.** Use modern syntax (`from __future__ import annotations`, `X | None`, etc.) as `cli.py` already does.
 - **Formatting/lint.** Black (line length 88) + flake8 with `extend-select = B950` and `E203, E501, W503` ignored. Pre-commit also runs trailing-whitespace, EOF, YAML/TOML, merge-conflict, and large-file (>512 KB) checks. `pre-commit.ci` auto-fixes PRs and runs weekly autoupdates.
 - **Dependency note.** `click>=8.1` is declared in `pyproject.toml` but `cli.py` currently uses `argparse`. If extending the CLI, pick one and standardize — don't mix.
