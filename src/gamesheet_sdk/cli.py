@@ -11,10 +11,12 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import sys
 from typing import Any
 
 import click
+import colorlog
 
 from . import __version__
 from .associations import list_associations as _list_associations_action
@@ -78,18 +80,40 @@ def cli(
 
 
 def _configure_logging(verbose: int) -> None:
-    """Configure root logging based on the verbosity count (0, 1, 2+)."""
+    """Configure root logging based on the verbosity count (0, 1, 2+).
+
+    Uses :class:`colorlog.ColoredFormatter` to add ANSI color codes to
+    each log level when stderr is a TTY and the user has not set the
+    ``NO_COLOR`` environment variable (https://no-color.org/). Falls
+    back to a plain :class:`logging.Formatter` for non-interactive
+    output (e.g. piped to a file or running in CI), so escape codes
+    never leak into log files.
+    """
     if verbose >= 2:
         level = logging.DEBUG
     elif verbose == 1:
         level = logging.INFO
     else:
         level = logging.WARNING
-    logging.basicConfig(
-        level=level,
-        format="%(levelname)s %(name)s: %(message)s",
-        force=True,  # let repeat calls re-set the level
-    )
+
+    handler = logging.StreamHandler()  # defaults to sys.stderr
+    if _should_color(handler):
+        handler.setFormatter(
+            colorlog.ColoredFormatter(
+                "%(log_color)s%(levelname)s%(reset)s %(name)s: %(message)s",
+            )
+        )
+    else:
+        handler.setFormatter(logging.Formatter("%(levelname)s %(name)s: %(message)s"))
+    logging.basicConfig(level=level, handlers=[handler], force=True)
+
+
+def _should_color(handler: logging.StreamHandler[Any]) -> bool:
+    """Return True iff the handler's stream is a TTY and color is permitted."""
+    if os.environ.get("NO_COLOR"):
+        return False
+    stream = getattr(handler, "stream", None)
+    return bool(stream is not None and getattr(stream, "isatty", lambda: False)())
 
 
 @cli.command("login")

@@ -61,6 +61,7 @@ These are required and installed automatically by `pip install gamesheet-sdk-py`
 | `pydantic`          | `>=2.7`  | Data validation for SDK models.                      |
 | `pydantic-settings` | `>=2.0`  | Env-driven resolution of `Config`.                   |
 | `click`             | `>=8.1`  | Subcommand framework for the `gamesheet-sdk-py` CLI. |
+| `colorlog`          | `>=6.8`  | ANSI-coloured log levels in the CLI (TTY-only).      |
 
 If you change `[project.dependencies]` in `pyproject.toml`, update this
 table in the same commit.

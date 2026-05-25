@@ -122,6 +122,7 @@ repos:
           - "pydantic-settings>=2.0"
           - "playwright>=1.45"
           - "click>=8.1"
+          - "colorlog>=6.8"
 
   # ----- Sphinx markup linting (local hook because the upstream sphinx-lint
   #       hook is types:[rst] only, and this project authors docs in MyST
@@ -161,3 +162,4 @@ repos:
           - "pydantic>=2.7"
           - "pydantic-settings>=2.0"
           - "click>=8.1"
+          - "colorlog>=6.8"

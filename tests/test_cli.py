@@ -8,8 +8,10 @@ from __future__ import annotations
 
 import json
 import logging
+import sys
 from unittest.mock import MagicMock, patch
 
+import colorlog
 import pytest
 from click.testing import CliRunner
 
@@ -307,3 +309,41 @@ def test_list_associations_other_error_exits_one(
     result = runner.invoke(cli, ["list-associations"])
     assert result.exit_code == 1
     assert "GameSheet error" in result.output
+
+
+# ---------- color-aware logging configuration ----------------------------
+
+
+def test_configure_logging_uses_colored_formatter_on_tty(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+
+    monkeypatch.delenv("NO_COLOR", raising=False)
+    monkeypatch.setattr(sys.stderr, "isatty", lambda: True, raising=False)
+    _configure_logging(0)
+    handler = logging.getLogger().handlers[0]
+    assert isinstance(handler.formatter, colorlog.ColoredFormatter)
+
+
+def test_configure_logging_uses_plain_formatter_when_not_a_tty(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+
+    monkeypatch.delenv("NO_COLOR", raising=False)
+    monkeypatch.setattr(sys.stderr, "isatty", lambda: False, raising=False)
+    _configure_logging(0)
+    handler = logging.getLogger().handlers[0]
+    assert not isinstance(handler.formatter, colorlog.ColoredFormatter)
+    assert isinstance(handler.formatter, logging.Formatter)
+
+
+def test_configure_logging_honors_no_color_env_var(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A user-set NO_COLOR env var disables ANSI even on a TTY."""
+
+    monkeypatch.setenv("NO_COLOR", "1")
+    monkeypatch.setattr(sys.stderr, "isatty", lambda: True, raising=False)
+    _configure_logging(0)
+    handler = logging.getLogger().handlers[0]
+    assert not isinstance(handler.formatter, colorlog.ColoredFormatter)
