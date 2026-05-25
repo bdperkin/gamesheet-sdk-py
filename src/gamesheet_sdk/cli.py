@@ -26,7 +26,9 @@ from .auth import (
     load_refresh_token,
 )
 from .auth import login as _login_action
-from .auth import save_tokens
+from .auth import (
+    save_tokens,
+)
 from .browser import BrowserSession
 from .config import Config
 from .exceptions import AuthenticationError, GameSheetError
