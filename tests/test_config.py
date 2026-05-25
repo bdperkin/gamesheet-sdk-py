@@ -2,20 +2,11 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import pytest
 
 from gamesheet_sdk import Config
-
-
-@pytest.fixture(autouse=True)
-def _clear_gamesheet_env(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Strip any ambient ``GAMESHEET_*`` env vars so tests see clean defaults."""
-    for key in list(os.environ):
-        if key.startswith("GAMESHEET_"):
-            monkeypatch.delenv(key, raising=False)
 
 
 def test_defaults() -> None:
@@ -94,3 +85,22 @@ def test_extra_env_vars_are_ignored(monkeypatch: pytest.MonkeyPatch) -> None:
     """`GAMESHEET_*` env vars that don't match a field should not raise."""
     monkeypatch.setenv("GAMESHEET_NONEXISTENT_FIELD", "value")
     Config()  # Must not raise.
+
+
+def test_browser_state_path_default_uses_xdg_cache_home(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
+    cfg = Config()
+    assert (
+        cfg.browser_state_path == tmp_path / "gamesheet-sdk-py" / "browser-state.json"
+    )
+
+
+def test_browser_headless_default_true() -> None:
+    assert Config().browser_headless is True
+
+
+def test_browser_headless_env_var(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("GAMESHEET_BROWSER_HEADLESS", "false")
+    assert Config().browser_headless is False

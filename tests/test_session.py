@@ -5,31 +5,12 @@
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 
 import pytest
 import responses
 
 from gamesheet_sdk import Config, Session
-
-
-@pytest.fixture(autouse=True)
-def _clear_gamesheet_env(monkeypatch: pytest.MonkeyPatch) -> None:
-    for key in list(os.environ):
-        if key.startswith("GAMESHEET_"):
-            monkeypatch.delenv(key, raising=False)
-
-
-@pytest.fixture
-def config(tmp_path: Path) -> Config:
-    """A Config that targets an in-tree tmp session-state file."""
-    return Config(
-        base_url="https://test.example",
-        session_path=tmp_path / "session.json",
-        request_retries=0,
-        timeout=1.0,
-    )
 
 
 def test_default_user_agent_is_version_stamped(config: Config) -> None:

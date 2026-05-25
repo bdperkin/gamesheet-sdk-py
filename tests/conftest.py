@@ -2,7 +2,38 @@
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
+
 import pytest
+
+from gamesheet_sdk import Config
+
+
+@pytest.fixture(autouse=True)
+def _clear_gamesheet_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Strip any ambient ``GAMESHEET_*`` env vars so every test sees defaults."""
+    for key in list(os.environ):
+        if key.startswith("GAMESHEET_"):
+            monkeypatch.delenv(key, raising=False)
+
+
+@pytest.fixture
+def config(tmp_path: Path) -> Config:
+    """A Config that keeps all on-disk state inside a per-test tmp dir.
+
+    Single shared fixture for both HTTP-session and browser-session
+    tests; using one definition avoids the pylint ``duplicate-code``
+    warning that fires when near-identical fixtures live in two test
+    modules.
+    """
+    return Config(
+        base_url="https://test.example",
+        session_path=tmp_path / "session.json",
+        browser_state_path=tmp_path / "browser-state.json",
+        request_retries=0,
+        timeout=1.0,
+    )
 
 
 @pytest.fixture(scope="module")

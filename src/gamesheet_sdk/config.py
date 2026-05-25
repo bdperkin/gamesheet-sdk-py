@@ -28,6 +28,12 @@ def _default_session_path() -> Path:
     return Path(xdg).expanduser() / "gamesheet-sdk-py" / "session.json"
 
 
+def _default_browser_state_path() -> Path:
+    """Return the XDG-compliant default path for Playwright storage state."""
+    xdg = os.environ.get("XDG_CACHE_HOME") or "~/.cache"
+    return Path(xdg).expanduser() / "gamesheet-sdk-py" / "browser-state.json"
+
+
 class Config(BaseSettings):
     """Resolved configuration for an SDK session."""
 
@@ -69,4 +75,12 @@ class Config(BaseSettings):
         default=3,
         description="Automatic retries on 5xx responses and connection errors.",
         ge=0,
+    )
+    browser_state_path: Path = Field(
+        default_factory=_default_browser_state_path,
+        description="Where to persist Playwright storage state between runs.",
+    )
+    browser_headless: bool = Field(
+        default=True,
+        description="Launch the Playwright browser in headless mode.",
     )
