@@ -276,7 +276,9 @@ commands = sphinx-build -b doctest docs docs/_build/doctest
 [testenv:docs-lint]
 description = Lint Sphinx source files with sphinx-lint
 extras = docs
-commands = sphinx-lint -i docs/_build -i docs/_autosummary docs
+# -i matches paths by substring, so prefix-free names skip generated dirs
+# at any depth (e.g. docs/reference/_autosummary/ from autosummary stubs).
+commands = sphinx-lint -i _build -i _autosummary docs
 
 [testenv:docs-serve]
 description = Live-reload preview at http://127.0.0.1:8000
