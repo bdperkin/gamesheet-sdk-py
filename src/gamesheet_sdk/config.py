@@ -43,8 +43,8 @@ class Config(BaseSettings):
     )
 
     base_url: str = Field(
-        default="https://gamesheet.com",
-        description="Root URL of the GameSheet WebUI.",
+        default="https://gamesheet.app",
+        description="Root URL of the GameSheet WebUI (the dashboard app).",
     )
     username: str | None = Field(
         default=None,

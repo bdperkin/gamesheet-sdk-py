@@ -140,5 +140,5 @@ def test_default_config_when_none_passed(
     """`Session()` with no Config should construct a default Config."""
     monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
     sess = Session()
-    assert sess.config.base_url == "https://gamesheet.com"
+    assert sess.config.base_url == "https://gamesheet.app"
     sess.close()

@@ -11,7 +11,7 @@ from gamesheet_sdk import Config
 
 def test_defaults() -> None:
     cfg = Config()
-    assert cfg.base_url == "https://gamesheet.com"
+    assert cfg.base_url == "https://gamesheet.app"
     assert cfg.username is None
     assert cfg.password is None
     assert cfg.timeout == 30.0
