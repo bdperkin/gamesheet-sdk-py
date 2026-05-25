@@ -24,9 +24,6 @@ When adding a how-to guide to this section:
 
 ```{toctree}
 :maxdepth: 1
-```
 
-```{note}
-No how-to guides have been written yet. When you add one, list it in the
-toctree above.
+install-in-github-actions
 ```
