@@ -126,8 +126,7 @@ def login_command(
             _login_action(session, email=email, password=password, timeout=timeout)
     except AuthenticationError as exc:
         click.secho(f"Login failed: {exc}", fg="red", err=True)
-        ctx.exit(1)
-        return  # narrows type for static analysis; ctx.exit() raises
+        ctx.exit(1)  # raises; nothing after this point in the except runs
     click.secho("Login succeeded.", fg="green")
 
 
