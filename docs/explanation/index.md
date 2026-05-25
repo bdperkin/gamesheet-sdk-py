@@ -25,5 +25,6 @@ When adding an explanation to this section:
 ```{toctree}
 :maxdepth: 1
 
+why-webui-automation
 diataxis
 ```
