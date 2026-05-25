@@ -15,6 +15,7 @@ reason.
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 from typing import Any
@@ -23,6 +24,7 @@ from playwright.sync_api import Response
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from .browser import BrowserSession
+from .config import Config
 from .exceptions import AuthenticationError
 
 LOGIN_PATH = "/associations"
@@ -214,6 +216,34 @@ def _settle_post_login(session: BrowserSession, path: str) -> None:
             path,
             _POST_LOGIN_NAVIGATION_TIMEOUT_MS // 1000,
         )
+
+
+def load_access_token(config: Config) -> str | None:
+    """Read the SPA's access token from the saved browser storage state.
+
+    Returns the value of the ``accessToken`` localStorage entry for the
+    SPA's origin (``Config.base_url``), or ``None`` if the storage state
+    file is missing, unreadable, or does not contain a token. The
+    returned string is the raw JWT and is intended to be attached to
+    HTTP requests as ``Authorization: Bearer <token>`` via
+    :meth:`Session.set_bearer_token`.
+    """
+    path = config.browser_state_path
+    if not path.exists():
+        return None
+    try:
+        state: dict[str, Any] = json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError):
+        _LOGGER.warning("Failed to read browser storage state from %s.", path)
+        return None
+    for origin in state.get("origins", []):
+        if origin.get("origin") != config.base_url:
+            continue
+        for kv in origin.get("localStorage", []):
+            if kv.get("name") == "accessToken":  # nosec B105 - localStorage key
+                value = kv.get("value")
+                return value if isinstance(value, str) and value else None
+    return None
 
 
 def _firebase_error_message(response: Response) -> str:

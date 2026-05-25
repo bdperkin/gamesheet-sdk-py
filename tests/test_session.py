@@ -142,3 +142,16 @@ def test_default_config_when_none_passed(
     sess = Session()
     assert sess.config.base_url == "https://gamesheet.app"
     sess.close()
+
+
+def test_set_bearer_token_attaches_authorization_header(config: Config) -> None:
+    with Session(config) as sess:
+        sess.set_bearer_token("eyJhbGci.test.jwt")
+        assert sess.headers["Authorization"] == "Bearer eyJhbGci.test.jwt"
+
+
+def test_set_bearer_token_replaces_existing(config: Config) -> None:
+    with Session(config) as sess:
+        sess.set_bearer_token("old")
+        sess.set_bearer_token("new")
+        assert sess.headers["Authorization"] == "Bearer new"

@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from unittest.mock import MagicMock, patch
 
@@ -15,7 +16,7 @@ from click.testing import CliRunner
 from gamesheet_sdk import __version__
 from gamesheet_sdk.auth import LOGIN_PATH
 from gamesheet_sdk.cli import _configure_logging, cli, main
-from gamesheet_sdk.exceptions import AuthenticationError
+from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
 
 @pytest.fixture
@@ -215,3 +216,85 @@ def test_main_propagates_systemexit_int() -> None:
 def test_main_login_path_constant_matches_auth_module() -> None:
     """Trivial smoke: LOGIN_PATH is what cli ends up wiring auth.login to."""
     assert LOGIN_PATH.startswith("/")
+
+
+# ---------- list-associations subcommand --------------------------------
+
+
+def _stub_associations(*ids_and_titles: tuple[str, str]) -> list[object]:
+    """Build fake Association objects without needing pydantic instantiation."""
+    out = []
+    for aid, title in ids_and_titles:
+        a = MagicMock()
+        a.id = aid
+        a.title = title
+        a.model_dump.return_value = {"id": aid, "title": title}
+        out.append(a)
+    return out
+
+
+@patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_associations_default_table_format(
+    _mock_load: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.return_value = _stub_associations(
+        ("11", "Hockey Time Productions"),
+        ("40", "SuperSeries AAA"),
+    )
+    result = runner.invoke(cli, ["list-associations"])
+    assert result.exit_code == 0, result.output
+    assert "11\tHockey Time Productions" in result.output
+    assert "40\tSuperSeries AAA" in result.output
+
+
+@patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_associations_json_format(
+    _mock_load: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.return_value = _stub_associations(("11", "Hockey Time"))
+    result = runner.invoke(cli, ["list-associations", "--format", "json"])
+    assert result.exit_code == 0, result.output
+    data = json.loads(result.output)
+    assert data == [{"id": "11", "title": "Hockey Time"}]
+
+
+@patch("gamesheet_sdk.cli.load_access_token", return_value=None)
+def test_list_associations_missing_token_exits_one(
+    _mock_load: MagicMock, runner: CliRunner
+) -> None:
+    result = runner.invoke(cli, ["list-associations"])
+    assert result.exit_code == 1
+    assert "No access token" in result.output
+    assert "Run `gamesheet-sdk-py login`" in result.output
+
+
+@patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_associations_authentication_error_exits_one(
+    _mock_load: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.side_effect = AuthenticationError("HTTP 401")
+    result = runner.invoke(cli, ["list-associations"])
+    assert result.exit_code == 1
+    assert "Authentication required" in result.output
+
+
+@patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_associations_other_error_exits_one(
+    _mock_load: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.side_effect = GameSheetError("HTTP 500")
+    result = runner.invoke(cli, ["list-associations"])
+    assert result.exit_code == 1
+    assert "GameSheet error" in result.output

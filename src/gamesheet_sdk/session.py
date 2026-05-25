@@ -92,6 +92,13 @@ class Session:
         """
         return self._http.headers
 
+    def set_bearer_token(self, token: str) -> None:
+        """Attach ``Authorization: Bearer <token>`` to all subsequent requests.
+
+        Convenience for ``s.headers["Authorization"] = f"Bearer {token}"``.
+        """
+        self._http.headers["Authorization"] = f"Bearer {token}"
+
     # -- request methods --------------------------------------------------
 
     def request(

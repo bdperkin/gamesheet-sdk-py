@@ -15,18 +15,22 @@ except ImportError:  # pragma: no cover - fallback only fires uninstalled
     except PackageNotFoundError:
         __version__ = "0+unknown"
 
-from .auth import login
+from .associations import Association, list_associations
+from .auth import load_access_token, login
 from .browser import BrowserSession
 from .config import Config
 from .exceptions import AuthenticationError, GameSheetError
 from .session import Session
 
 __all__ = [
+    "Association",
     "AuthenticationError",
     "BrowserSession",
     "Config",
     "GameSheetError",
     "Session",
     "__version__",
+    "list_associations",
+    "load_access_token",
     "login",
 ]

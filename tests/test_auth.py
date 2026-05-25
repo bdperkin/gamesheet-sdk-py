@@ -11,7 +11,7 @@ import pytest
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from gamesheet_sdk import AuthenticationError, BrowserSession, Config, login
-from gamesheet_sdk.auth import LOGIN_PATH, POST_LOGIN_PATH
+from gamesheet_sdk.auth import LOGIN_PATH, POST_LOGIN_PATH, load_access_token
 
 
 def _make_response(url: str, status: int, body: Any = None) -> MagicMock:
@@ -349,3 +349,51 @@ def test_login_short_circuit_respects_post_login_path_disable(
 
     # Only the initial form-probe navigation; no settle.
     fake_browser_session.goto.assert_called_once_with(LOGIN_PATH, wait_until="load")
+
+
+# ---------- load_access_token ----------------------------------------------
+
+
+def test_load_access_token_missing_state_file_returns_none(config: Config) -> None:
+    assert not config.browser_state_path.exists()
+    assert load_access_token(config) is None
+
+
+def test_load_access_token_corrupt_state_file_returns_none(config: Config) -> None:
+    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
+    config.browser_state_path.write_text("{ this is not json")
+    assert load_access_token(config) is None
+
+
+def test_load_access_token_state_without_token_returns_none(config: Config) -> None:
+    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
+    config.browser_state_path.write_text(
+        '{"cookies": [], "origins": ['
+        '{"origin": "https://test.example", "localStorage": ['
+        '{"name": "irrelevant", "value": "x"}'
+        "]}]}"
+    )
+    assert load_access_token(config) is None
+
+
+def test_load_access_token_returns_value_when_present(config: Config) -> None:
+    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
+    config.browser_state_path.write_text(
+        '{"cookies": [], "origins": ['
+        '{"origin": "https://test.example", "localStorage": ['
+        '{"name": "accessToken", "value": "eyJhbGci.test.jwt"}'
+        "]}]}"
+    )
+    assert load_access_token(config) == "eyJhbGci.test.jwt"
+
+
+def test_load_access_token_ignores_other_origins(config: Config) -> None:
+    """An accessToken for a different origin must not match."""
+    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
+    config.browser_state_path.write_text(
+        '{"cookies": [], "origins": ['
+        '{"origin": "https://different.example", "localStorage": ['
+        '{"name": "accessToken", "value": "wrong-origin-token"}'
+        "]}]}"
+    )
+    assert load_access_token(config) is None

@@ -9,6 +9,7 @@ for callers that imported it directly.
 
 from __future__ import annotations
 
+import json
 import logging
 import sys
 from typing import Any
@@ -16,10 +17,13 @@ from typing import Any
 import click
 
 from . import __version__
+from .associations import list_associations as _list_associations_action
+from .auth import load_access_token
 from .auth import login as _login_action
 from .browser import BrowserSession
 from .config import Config
-from .exceptions import AuthenticationError
+from .exceptions import AuthenticationError, GameSheetError
+from .session import Session
 
 
 @click.group(
@@ -128,6 +132,59 @@ def login_command(
         click.secho(f"Login failed: {exc}", fg="red", err=True)
         ctx.exit(1)  # raises; nothing after this point in the except runs
     click.secho("Login succeeded.", fg="green")
+
+
+@cli.command("list-associations")
+@click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["table", "json"]),
+    default="table",
+    show_default=True,
+    help="Output format: tab-separated table or JSON array.",
+)
+@click.pass_context
+def list_associations_command(
+    ctx: click.Context,
+    output_format: str,
+) -> None:
+    """List the associations the signed-in user can see.
+
+    Requires a saved session from `gamesheet-sdk-py login` -- the bearer
+    token is read out of the browser storage state on disk and attached
+    to the HTTP request. No browser is launched.
+    """
+    config: Config = ctx.obj
+    token = load_access_token(config)
+    if token is None:
+        click.secho(
+            "No access token found. Run `gamesheet-sdk-py login` first.",
+            fg="red",
+            err=True,
+        )
+        ctx.exit(1)
+    try:
+        with Session(config) as session:
+            session.set_bearer_token(token or "")
+            associations = _list_associations_action(session)
+    except AuthenticationError as exc:
+        click.secho(f"Authentication required: {exc}", fg="red", err=True)
+        ctx.exit(1)  # raises; control does not return
+    except GameSheetError as exc:
+        click.secho(f"GameSheet error: {exc}", fg="red", err=True)
+        ctx.exit(1)  # raises; control does not return
+
+    if output_format == "json":
+        click.echo(
+            json.dumps(
+                [a.model_dump(mode="json") for a in associations],
+                indent=2,
+                sort_keys=True,
+            )
+        )
+    else:
+        for assoc in associations:
+            click.echo(f"{assoc.id}\t{assoc.title}")
 
 
 def main(  # pylint: disable=too-many-return-statements
