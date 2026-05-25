@@ -32,4 +32,5 @@ Hand-written reference pages should:
 
 api
 cli
+supported-configurations
 ```
