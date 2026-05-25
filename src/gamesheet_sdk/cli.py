@@ -100,7 +100,19 @@ def _configure_logging(verbose: int) -> None:
     if _should_color(handler):
         handler.setFormatter(
             colorlog.ColoredFormatter(
-                "%(log_color)s%(levelname)s%(reset)s %(name)s: %(message)s",
+                "%(log_color)s%(levelname)-8s%(reset)s "
+                "%(message_log_color)s%(message)s",
+                datefmt=None,
+                reset=True,
+                log_colors={
+                    "DEBUG": "cyan",
+                    "INFO": "green",
+                    "WARNING": "yellow",
+                    "ERROR": "red",
+                    "CRITICAL": "red,bg_white",
+                },
+                secondary_log_colors={"message": {"ERROR": "red", "CRITICAL": "red"}},
+                style="%",
             )
         )
     else:
