@@ -26,9 +26,6 @@ When adding a tutorial to this section:
 
 ```{toctree}
 :maxdepth: 1
-```
 
-```{note}
-No tutorials have been written yet. When you add one, list it in the toctree
-above.
+getting-started
 ```
