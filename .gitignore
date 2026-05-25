@@ -93,7 +93,7 @@ test-results/
 
 # ---- Sphinx documentation ----
 docs/_build/
-docs/_autosummary/
+_autosummary/
 
 # ---- Local scratch ----
 *.log

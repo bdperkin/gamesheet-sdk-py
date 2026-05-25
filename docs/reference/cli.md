@@ -15,4 +15,4 @@ match the shipped binary.
 ## See also
 
 - {mod}`gamesheet_sdk.cli` — module reference (auto-generated).
-- {ref}`api:submodules` — the same parser rendered as a Python API.
+- {ref}`reference/api:submodules` — the same parser rendered as a Python API.

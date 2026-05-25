@@ -10,43 +10,59 @@ is absent, and may break without warning when the UI changes.
 Unofficial Python SDK and command-line interface for the
 [GameSheet Inc.](https://gamesheet.com) platform.
 
+## The four documentation quadrants
+
+This documentation is organized following the [Diátaxis](https://diataxis.fr/)
+framework, which separates technical writing into four kinds with distinct
+audiences and purposes. Pick the entry point that matches *your current need*,
+not the topic you're interested in. (For background on why we split things this
+way, see {doc}`explanation/diataxis`.)
+
 ::::{grid} 1 1 2 2
 :gutter: 3
 
-:::{grid-item-card} 📦 Installation
-:link: https://github.com/bdperkin/gamesheet-sdk-py#installation
-`pip install gamesheet-sdk-py` and `python -m playwright install chromium` for
-browser-driven flows.
-:::
-
-:::{grid-item-card} 🐍 API reference
-:link: api
+:::{grid-item-card} 🎓 Tutorials
+:link: tutorials/index
 :link-type: doc
-Browse every public module, class, and function in the {mod}`gamesheet_sdk`
-package. Generated from source by `sphinx.ext.autosummary`.
+
+**Learning-oriented.** Guided lessons that take a beginner from zero to a
+working result, step by step.
 :::
 
-:::{grid-item-card} 🖥 CLI reference
-:link: cli
+:::{grid-item-card} 🧭 How-to guides
+:link: how-to/index
 :link-type: doc
-Every option of the `gamesheet-sdk-py` command, rendered from the live
-`argparse` parser by `sphinx-argparse`.
+
+**Task-oriented.** Recipes for users who already understand the SDK and need a
+focused solution to a specific problem.
 :::
 
-:::{grid-item-card} 🔗 Cross-references
-:link: https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
-Links to {py:class}`requests.Session`, {py:mod}`json`, and other dependencies
-resolve automatically via Sphinx intersphinx.
+:::{grid-item-card} 📖 Reference
+:link: reference/index
+:link-type: doc
+
+**Information-oriented.** Exhaustive technical descriptions of every module,
+class, function, and CLI option — most of it generated from source.
 :::
+
+:::{grid-item-card} 💡 Explanation
+:link: explanation/index
+:link-type: doc
+
+**Understanding-oriented.** Background discussion of design choices,
+constraints, and trade-offs.
+:::
+
 ::::
 
-## Contents
-
 ```{toctree}
+:hidden:
 :maxdepth: 2
 
-api
-cli
+tutorials/index
+how-to/index
+reference/index
+explanation/index
 ```
 
 ## Indices

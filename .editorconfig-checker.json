@@ -1,0 +1,10 @@
+{
+  "Exclude": [
+    "_build",
+    "_autosummary",
+    "\\.tox",
+    "\\.venv",
+    "\\.mypy_cache",
+    "\\.pytest_cache"
+  ]
+}
