@@ -20,6 +20,7 @@ import time
 from typing import Any
 
 from playwright.sync_api import Response
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from .browser import BrowserSession
 from .exceptions import AuthenticationError
@@ -27,12 +28,23 @@ from .exceptions import AuthenticationError
 LOGIN_PATH = "/users/sign_in"
 """Path of the login form, relative to :attr:`Config.base_url`."""
 
+POST_LOGIN_PATH = "/associations"
+"""Default destination after a successful login.
+
+Navigating here after the auth round-trip lets the SPA fetch the user's
+permissions, association list, and any other post-login state that the
+dashboard caches in cookies / localStorage. Without this navigation the
+saved browser state captures only "authenticated, pre-routing", which
+makes subsequent runs look unprivileged to the SPA.
+"""
+
 _FIREBASE_AUTH_HOST = "identitytoolkit.googleapis.com"
 _FIREBASE_AUTH_PATH = ":signInWithPassword"
 _TOKEN_EXCHANGE_PATH = "/api/token"  # nosec B105 - URL path, not a credential
 
 _DEFAULT_TIMEOUT_S = 15.0
 _POLL_INTERVAL_MS = 100
+_POST_LOGIN_NAVIGATION_TIMEOUT_MS = 30_000
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -43,6 +55,7 @@ def login(
     password: str | None = None,
     *,
     timeout: float | None = None,
+    post_login_path: str | None = POST_LOGIN_PATH,
 ) -> None:
     """Log into the GameSheet dashboard, leaving the session authenticated.
 
@@ -62,9 +75,17 @@ def login(
         ``session.config.password.get_secret_value()``.
     :param timeout: Seconds to wait for the auth backend round-trip
         (default 15).
+    :param post_login_path: Path to navigate to after the auth round-trip
+        succeeds. The SPA performs its real routing and post-login data
+        fetches when it reaches this page, so the saved storage state
+        afterwards captures a fully-settled session (cookies + any
+        SPA-cached state) rather than just the bare auth cookie. Pass
+        ``None`` to skip the post-login navigation entirely. Default is
+        :data:`POST_LOGIN_PATH`.
     :raises AuthenticationError: On missing credentials, Firebase
         rejection, ``/api/token`` failure, or backend silence past the
-        timeout.
+        timeout. Post-login navigation failures are logged at WARNING
+        but do not raise -- auth already succeeded by that point.
     """
     cfg = session.config
     if email is None:
@@ -118,6 +139,8 @@ def login(
                         f"GameSheet token exchange failed (HTTP {tok.status})."
                     )
                 _LOGGER.info("Login succeeded for %s.", email)
+                if post_login_path is not None:
+                    _settle_post_login(session, post_login_path)
                 return
         page.wait_for_timeout(_POLL_INTERVAL_MS)
 
@@ -129,6 +152,36 @@ def login(
 
 def _is_firebase_signin(url: str) -> bool:
     return _FIREBASE_AUTH_HOST in url and _FIREBASE_AUTH_PATH in url
+
+
+def _settle_post_login(session: BrowserSession, path: str) -> None:
+    """Navigate to ``path`` and wait for the SPA to settle.
+
+    The auth round-trip is only the first half of a real login: the SPA
+    needs to actually route to a real page (e.g. /associations) for its
+    permissions and association data to load, which is what populates the
+    cookies and localStorage that subsequent runs will reuse. Without
+    this step the saved storage state looks "logged in" but the SPA's
+    React state has never finished initializing -- subsequent loads of
+    the same state surface as "Insufficient Privileges" because the
+    permissions cache was never populated.
+
+    Failures here are *not* fatal: auth itself already succeeded, and
+    long-polling endpoints can prevent ``networkidle`` from ever firing.
+    """
+    try:
+        session.goto(
+            path,
+            wait_until="networkidle",
+            timeout=_POST_LOGIN_NAVIGATION_TIMEOUT_MS,
+        )
+    except PlaywrightTimeoutError:
+        _LOGGER.debug(
+            "Post-login navigation to %s did not reach networkidle in %ds; "
+            "auth succeeded so proceeding anyway.",
+            path,
+            _POST_LOGIN_NAVIGATION_TIMEOUT_MS // 1000,
+        )
 
 
 def _firebase_error_message(response: Response) -> str:

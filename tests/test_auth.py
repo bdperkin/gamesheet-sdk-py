@@ -8,9 +8,10 @@ from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from gamesheet_sdk import AuthenticationError, BrowserSession, Config, login
-from gamesheet_sdk.auth import LOGIN_PATH
+from gamesheet_sdk.auth import LOGIN_PATH, POST_LOGIN_PATH
 
 
 def _make_response(url: str, status: int, body: Any = None) -> MagicMock:
@@ -155,8 +156,74 @@ def test_login_succeeds_when_firebase_and_token_both_200(
 
     login(fake_browser_session, email="a@b.c", password="x")
 
-    fake_browser_session.goto.assert_called_once_with(LOGIN_PATH, wait_until="load")
+    # Two navigations: to the login form, then to the post-login destination.
+    assert fake_browser_session.goto.call_count == 2
+    fake_browser_session.goto.assert_any_call(LOGIN_PATH, wait_until="load")
+    fake_browser_session.goto.assert_any_call(
+        POST_LOGIN_PATH, wait_until="networkidle", timeout=30_000
+    )
     page.click.assert_called_once_with("button[type=submit]")
+
+
+def test_login_post_login_path_can_be_disabled(
+    fake_browser_session: MagicMock,
+) -> None:
+    page = fake_browser_session.goto.return_value
+    page.staged_responses = [
+        _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
+        _make_response(_TOKEN_URL, 200, {}),
+    ]
+
+    login(
+        fake_browser_session,
+        email="a@b.c",
+        password="x",
+        post_login_path=None,
+    )
+
+    # Only the navigation to the login form should have happened.
+    fake_browser_session.goto.assert_called_once_with(LOGIN_PATH, wait_until="load")
+
+
+def test_login_custom_post_login_path(fake_browser_session: MagicMock) -> None:
+    page = fake_browser_session.goto.return_value
+    page.staged_responses = [
+        _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
+        _make_response(_TOKEN_URL, 200, {}),
+    ]
+
+    login(
+        fake_browser_session,
+        email="a@b.c",
+        password="x",
+        post_login_path="/dashboard",
+    )
+
+    fake_browser_session.goto.assert_any_call(
+        "/dashboard", wait_until="networkidle", timeout=30_000
+    )
+
+
+def test_login_post_login_navigation_timeout_is_swallowed(
+    fake_browser_session: MagicMock,
+) -> None:
+    """networkidle never firing should NOT fail an already-successful auth."""
+    page = fake_browser_session.goto.return_value
+    page.staged_responses = [
+        _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
+        _make_response(_TOKEN_URL, 200, {}),
+    ]
+
+    def goto_side_effect(path: str, **kwargs: Any) -> Any:
+        del kwargs
+        if path == POST_LOGIN_PATH:
+            raise PlaywrightTimeoutError("networkidle never fired")
+        return page
+
+    fake_browser_session.goto.side_effect = goto_side_effect
+
+    # Must not raise; auth already succeeded by this point.
+    login(fake_browser_session, email="a@b.c", password="x")
 
 
 # ---------- firebase failures --------------------------------------------
