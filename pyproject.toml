@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling>=1.24"]
+requires = ["hatchling>=1.24", "hatch-vcs>=0.4"]
 build-backend = "hatchling.build"
 
 [project]
 name = "gamesheet-sdk-py"
-version = "0.0.1"
+dynamic = ["version"]
 description = "Unofficial Python SDK and CLI for the GameSheet Inc. platform — automates WebUI procedures where a native API is absent."
 readme = "README.md"
 requires-python = ">=3.11,<3.15"
@@ -78,6 +78,12 @@ Issues        = "https://github.com/bdperkin/gamesheet-sdk-py/issues"
 Documentation = "https://github.com/bdperkin/gamesheet-sdk-py#readme"
 
 # --- Hatch ----------------------------------------------------------------
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/gamesheet_sdk/_version.py"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/gamesheet_sdk"]
 

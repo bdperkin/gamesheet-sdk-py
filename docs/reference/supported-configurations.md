@@ -93,3 +93,20 @@ Install combinations:
 | PyPI    | [`gamesheet-sdk-py`](https://pypi.org/project/gamesheet-sdk-py/)          |
 | Source  | <https://github.com/bdperkin/gamesheet-sdk-py>                            |
 | Type    | Pure-Python wheel; ships `py.typed` (PEP 561) so type checkers see hints. |
+
+## How the package version is derived
+
+The version is **not** written in `pyproject.toml`. It is derived at build time
+by [hatch-vcs](https://github.com/ofek/hatch-vcs) from the most recent matching
+git tag (default tag pattern, e.g. `v1.2.3`).
+
+- At a tagged commit: version is exactly the tag (e.g. `v0.0.1` → `0.0.1`).
+- After a tag, with extra commits: version becomes a `guess-next-dev` form
+  like `0.0.2.dev3+gabcdef0` (next-patch dev, plus commit count and short
+  hash).
+- With uncommitted changes in the working tree: the build appends a
+  `.dXXXXXXXX` "dirty" date suffix.
+
+The generated `src/gamesheet_sdk/_version.py` carries the resolved version into
+the installed package; `gamesheet_sdk.__version__` reads from it. The file is
+written by hatch-vcs's build hook and is gitignored.

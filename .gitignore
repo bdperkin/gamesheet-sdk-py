@@ -95,6 +95,9 @@ test-results/
 docs/_build/
 _autosummary/
 
+# ---- hatch-vcs generated version file ----
+src/gamesheet_sdk/_version.py
+
 # ---- Local scratch ----
 *.log
 .local/
