@@ -119,6 +119,21 @@ repos:
           - "mypy>=1.10"
           - "types-requests>=2.32"
 
+  # ----- Sphinx markup linting (local hook because the upstream sphinx-lint
+  #       hook is types:[rst] only, and this project authors docs in MyST
+  #       markdown) ------------------------------------------------------
+  - repo: local
+    hooks:
+      - id: sphinx-lint
+        name: sphinx-lint
+        entry: sphinx-lint
+        language: python
+        types_or: [markdown, rst]
+        files: ^docs/
+        require_serial: true
+        additional_dependencies:
+          - "sphinx-lint>=1.0"
+
   # ----- Python: pylint (local hook; project runtime deps duplicated here
   #       so pylint can resolve imports in the isolated pre-commit venv) ----
   - repo: local

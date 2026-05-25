@@ -50,6 +50,16 @@ tox -e security              # bandit -r src (config in [tool.bandit])
 tox -e files-check           # codespell, yamllint, validate-pyproject, editorconfig-checker, mdformat --check
 tox -e fix                   # apply formatters in place: isort, black, mdformat
 tox -e py314 -- -k test_name # pass args to pytest after --
+
+# Sphinx documentation (extras: pip install -e ".[docs]")
+tox -e docs                  # HTML (two-pass: warm-up + strict -n -W)
+tox -e docs-lint             # sphinx-lint over docs/
+tox -e docs-doctest          # run doctest examples
+tox -e docs-linkcheck        # check external links
+tox -e docs-epub             # EPUB
+tox -e docs-man              # man pages
+tox -e docs-pdf              # PDF (needs LaTeX/pdflatex/latexmk on PATH)
+tox -e docs-serve            # sphinx-autobuild live-reload preview
 ```
 
 The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_sdk.cli:main`).
@@ -59,5 +69,6 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
 - **`src/` layout.** Tests import via the installed package; `pyproject.toml` also sets `pythonpath = ["src"]` so `pytest` works without an install, but workflows that need the CLI or Playwright still require `pip install -e ".[dev]"`.
 - **Typed package.** `py.typed` is shipped (PEP 561) and `[tool.mypy] strict = true` is enabled — all new code must be fully annotated and pass `mypy --strict`.
 - **Python 3.11–3.14.** Use modern syntax (`from __future__ import annotations`, `X | None`, etc.) as `cli.py` already does.
-- **Formatting/lint pipeline.** Python: black (88), isort (`profile = "black"`), flake8 (via `Flake8-pyproject` reading `[tool.flake8]`), pyupgrade (`--py311-plus`), mypy (`--strict`), pylint, bandit (`[tool.bandit]`). Non-Python: codespell (`[tool.codespell]`), yamllint (`-d relaxed`), validate-pyproject, editorconfig-checker, mdformat (+ mdformat-gfm). All wired into pre-commit, tox (envs: `lint`, `type`, `pylint`, `security`, `files-check`, plus `fix` for auto-apply), and GitHub Actions (CI calls tox). mypy + pylint in pre-commit use `local` hooks because (a) pre-commit/mirrors-mypy tags currently drift ahead of upstream mypy on PyPI, and (b) pylint needs the project's runtime deps duplicated in `additional_dependencies` to resolve imports inside the isolated hook venv. `pre-commit.ci` auto-fixes PRs and runs weekly autoupdates.
+- **Formatting/lint pipeline.** Python: black (88), isort (`profile = "black"`), flake8 (via `Flake8-pyproject` reading `[tool.flake8]`), pyupgrade (`--py311-plus`), mypy (`--strict`), pylint, bandit (`[tool.bandit]`). Non-Python: codespell (`[tool.codespell]`), yamllint (`-d relaxed`), validate-pyproject, editorconfig-checker, mdformat (+ mdformat-gfm), sphinx-lint. All wired into pre-commit, tox (envs: `lint`, `type`, `pylint`, `security`, `files-check`, plus `fix` for auto-apply), and GitHub Actions (CI calls tox). mypy + pylint in pre-commit use `local` hooks because (a) pre-commit/mirrors-mypy tags currently drift ahead of upstream mypy on PyPI, and (b) pylint needs the project's runtime deps duplicated in `additional_dependencies` to resolve imports inside the isolated hook venv. `pre-commit.ci` auto-fixes PRs and runs weekly autoupdates.
+- **Documentation.** Sphinx (Furo theme, MyST-Parser for markdown sources) lives under `docs/`. `conf.py` enables autodoc + autosummary (API), `sphinx-argparse` (CLI from the live `build_parser`), intersphinx (cross-refs to stdlib/requests/pydantic/click), autosectionlabel, napoleon, todo, copybutton, sphinx-design. Output formats: HTML, EPUB, man, LaTeX/PDF. Strict-mode build (`-n -W`) runs two-pass to satisfy autosummary's stub-then-toctree ordering. Built and link-checked by `.github/workflows/docs.yml`; `_build/` and `_autosummary/` are gitignored.
 - **Dependency note.** `click>=8.1` is declared in `pyproject.toml` but `cli.py` currently uses `argparse`. If extending the CLI, pick one and standardize — don't mix.

@@ -91,6 +91,10 @@ test-results/
 *~
 .DS_Store
 
+# ---- Sphinx documentation ----
+docs/_build/
+docs/_autosummary/
+
 # ---- Local scratch ----
 *.log
 .local/

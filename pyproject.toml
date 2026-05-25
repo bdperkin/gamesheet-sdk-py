@@ -57,6 +57,16 @@ dev = [
   "validate-pyproject>=0.25",
   "editorconfig-checker>=3.6",
 ]
+docs = [
+  "sphinx>=7.3",
+  "furo>=2024.5",
+  "myst-parser[linkify]>=3.0",
+  "sphinx-copybutton>=0.5",
+  "sphinx-design>=0.5",
+  "sphinx-argparse>=0.4",
+  "sphinx-lint>=0.9",
+  "sphinx-autobuild>=2024.4",
+]
 
 [project.scripts]
 gamesheet-sdk-py = "gamesheet_sdk.cli:main"
@@ -160,7 +170,7 @@ disable = [
 legacy_tox_ini = """
 [tox]
 requires = tox>=4.21
-env_list = py311, py312, py313, py314, lint, type, pylint, security, files-check
+env_list = py311, py312, py313, py314, lint, type, pylint, security, files-check, docs, docs-lint
 
 [testenv]
 description = Run the pytest suite under {base_python}
@@ -227,4 +237,49 @@ commands =
     isort src tests
     black src tests
     mdformat CLAUDE.md README.md docs
+
+[testenv:docs]
+description = Build the HTML documentation (two-pass; strict on second pass)
+extras = docs
+commands =
+    sphinx-build -b html docs docs/_build/html
+    sphinx-build -b html -n -W --keep-going docs docs/_build/html
+
+[testenv:docs-epub]
+description = Build the EPUB documentation
+extras = docs
+commands = sphinx-build -b epub docs docs/_build/epub
+
+[testenv:docs-man]
+description = Build the man-page documentation
+extras = docs
+commands = sphinx-build -b man docs docs/_build/man
+
+[testenv:docs-pdf]
+description = Build the PDF documentation (requires LaTeX / pdflatex / latexmk on PATH)
+extras = docs
+allowlist_externals = make
+commands =
+    sphinx-build -b latex docs docs/_build/latex
+    make -C docs/_build/latex all-pdf
+
+[testenv:docs-linkcheck]
+description = Check for broken external links in the documentation
+extras = docs
+commands = sphinx-build -b linkcheck docs docs/_build/linkcheck
+
+[testenv:docs-doctest]
+description = Run doctest examples embedded in the documentation
+extras = docs
+commands = sphinx-build -b doctest docs docs/_build/doctest
+
+[testenv:docs-lint]
+description = Lint Sphinx source files with sphinx-lint
+extras = docs
+commands = sphinx-lint -i docs/_build -i docs/_autosummary docs
+
+[testenv:docs-serve]
+description = Live-reload preview at http://127.0.0.1:8000
+extras = docs
+commands = sphinx-autobuild docs docs/_build/html {posargs}
 """
