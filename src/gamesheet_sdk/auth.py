@@ -8,7 +8,7 @@ GameSheet session cookie.
 
 Success of the login is determined by watching *both* of those network
 calls, not by waiting for the page URL to change. On failure the SPA
-renders an inline error and the URL never leaves ``/users/sign_in``, so
+renders an inline error and the URL never leaves ``/associations``, so
 a URL-change check would just time out instead of surfacing the actual
 reason.
 """
@@ -25,8 +25,19 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from .browser import BrowserSession
 from .exceptions import AuthenticationError
 
-LOGIN_PATH = "/users/sign_in"
-"""Path of the login form, relative to :attr:`Config.base_url`."""
+LOGIN_PATH = "/associations"
+"""Path on which the SDK drives the login form, relative to
+:attr:`Config.base_url`.
+
+GameSheet's SPA renders the login form inline at the same route that
+becomes the authenticated dashboard, rather than at a dedicated
+``/users/sign_in`` route. Driving the form here -- instead of at
+``/users/sign_in``, which is also valid HTML but is a *separate* React
+app instance -- lets the same SPA instance handle the unauthenticated
+to authenticated transition in place, so its post-login data fetches
+happen with context preserved and the saved storage state captures a
+fully-settled session.
+"""
 
 POST_LOGIN_PATH = "/associations"
 """Default destination after a successful login.

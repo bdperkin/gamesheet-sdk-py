@@ -215,9 +215,11 @@ def test_login_post_login_navigation_timeout_is_swallowed(
     ]
 
     def goto_side_effect(path: str, **kwargs: Any) -> Any:
-        del kwargs
-        if path == POST_LOGIN_PATH:
+        # The post-login navigation is the one that asks for networkidle;
+        # the initial form-load navigation uses wait_until="load".
+        if kwargs.get("wait_until") == "networkidle":
             raise PlaywrightTimeoutError("networkidle never fired")
+        del path
         return page
 
     fake_browser_session.goto.side_effect = goto_side_effect
