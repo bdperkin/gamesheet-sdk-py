@@ -7,18 +7,48 @@ fresh dev version on the next commit.
 ## What you need
 
 - Push access to `main` and permission to push tags.
-- A one-time PyPI Trusted Publisher set up for the project at
-  <https://pypi.org/manage/project/gamesheet-sdk-py/settings/publishing/>
-  with the following values:
+- A one-time PyPI Trusted Publisher configured for the project, with the
+  following values (this is what the release workflow's OIDC token is
+  matched against on PyPI's side):
 
 | Field             | Value              |
 | ----------------- | ------------------ |
+| PyPI Project Name | `gamesheet-sdk-py` |
 | Owner             | `bdperkin`         |
-| Repository        | `gamesheet-sdk-py` |
+| Repository name   | `gamesheet-sdk-py` |
 | Workflow filename | `release.yml`      |
 | Environment name  | `pypi`             |
 
-No API tokens are involved on either side once this is configured.
+Where you enter those values depends on whether the project has any
+releases on PyPI yet — see {ref}`first-time-setup` immediately below. No
+API tokens are involved on either side once it is configured.
+
+(first-time-setup)=
+
+### First-time setup: pending publisher
+
+Before the project's first release, PyPI does not know `gamesheet-sdk-py`
+exists, so the per-project settings URL returns 404. Instead, register a
+**pending publisher** at
+<https://pypi.org/manage/account/publishing/>:
+
+1. Sign in to PyPI.
+1. Scroll to the **"Add a new pending publisher"** form (the second form on the page; the first is for projects you already own).
+1. Fill in the table values above and click **Add**.
+
+The first time the release workflow runs (after your first
+`git push origin vX.Y.Z`), PyPI matches its OIDC claim against the
+pending publisher, creates the `gamesheet-sdk-py` project, and converts
+the pending entry into a real per-project publisher. From then on, the
+pending form is no longer used; manage the publisher at the per-project
+URL below.
+
+### After the first release: per-project page
+
+Once `gamesheet-sdk-py` exists on PyPI, add, edit, or remove publishers
+at <https://pypi.org/manage/project/gamesheet-sdk-py/settings/publishing/>
+using the same table values. This is also where you would add a second
+publisher for a fork or a staging workflow.
 
 ## Step 1 — Confirm the latest CI on `main` is green
 
