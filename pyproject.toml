@@ -47,6 +47,15 @@ dev = [
   "types-requests>=2.32",
   "build>=1.2",
   "tox>=4.21",
+  "isort>=5.13",
+  "pyupgrade>=3.19",
+  "bandit[toml]>=1.7",
+  "codespell>=2.4",
+  "mdformat>=0.7",
+  "mdformat-gfm>=0.4",
+  "yamllint>=1.38",
+  "validate-pyproject>=0.25",
+  "editorconfig-checker>=3.6",
 ]
 
 [project.scripts]
@@ -77,6 +86,19 @@ include = [
 line-length = 88
 target-version = ["py311", "py312", "py313", "py314"]
 include = '\.pyi?$'
+
+# --- isort ----------------------------------------------------------------
+[tool.isort]
+profile = "black"
+line_length = 88
+
+# --- bandit ---------------------------------------------------------------
+[tool.bandit]
+exclude_dirs = ["tests", ".venv", ".tox"]
+
+# --- codespell ------------------------------------------------------------
+[tool.codespell]
+skip = ".git,.tox,.venv,.mypy_cache,.pytest_cache,*.pyc,.coverage,.gitignore,LICENSE,*.lock"
 
 # --- flake8 (requires Flake8-pyproject plugin) ----------------------------
 [tool.flake8]
@@ -138,7 +160,7 @@ disable = [
 legacy_tox_ini = """
 [tox]
 requires = tox>=4.21
-env_list = py311, py312, py313, py314, lint, type, pylint
+env_list = py311, py312, py313, py314, lint, type, pylint, security, files-check
 
 [testenv]
 description = Run the pytest suite under {base_python}
@@ -147,14 +169,16 @@ extras = dev
 commands = pytest --cov {posargs}
 
 [testenv:lint]
-description = Check formatting with black and lint with flake8 (reads pyproject.toml via Flake8-pyproject)
+description = Python style checks (black --check, isort --check, flake8 via Flake8-pyproject)
 skip_install = true
 deps =
     black>=26.3
+    isort>=5.13
     flake8>=7.1
     Flake8-pyproject>=1.2
 commands =
     black --check src tests
+    isort --check src tests
     flake8 src tests
 
 [testenv:type]
@@ -167,4 +191,40 @@ description = Lint with pylint (config in pyproject.toml)
 extras = dev
 deps = pylint>=4.0
 commands = pylint src tests
+
+[testenv:security]
+description = Security scan with bandit (config in [tool.bandit])
+skip_install = true
+deps = bandit[toml]>=1.7
+commands = bandit -c pyproject.toml -r src
+
+[testenv:files-check]
+description = Non-Python file checks (codespell, yamllint, validate-pyproject, editorconfig-checker, mdformat --check)
+skip_install = true
+deps =
+    codespell>=2.4
+    yamllint>=1.38
+    validate-pyproject>=0.25
+    editorconfig-checker>=3.6
+    mdformat>=0.7
+    mdformat-gfm>=0.4
+commands =
+    codespell
+    yamllint -d relaxed .pre-commit-config.yaml .github/workflows
+    validate-pyproject pyproject.toml
+    ec
+    mdformat --check CLAUDE.md README.md docs
+
+[testenv:fix]
+description = Apply auto-formatters in place (isort, black, mdformat)
+skip_install = true
+deps =
+    black>=26.3
+    isort>=5.13
+    mdformat>=0.7
+    mdformat-gfm>=0.4
+commands =
+    isort src tests
+    black src tests
+    mdformat CLAUDE.md README.md docs
 """

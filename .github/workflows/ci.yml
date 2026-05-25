@@ -11,6 +11,7 @@ concurrency:
 
 jobs:
   test:
+    name: pytest (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -27,17 +28,39 @@ jobs:
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      - name: Install package with dev extras
-        run: pip install -e ".[dev]"
+      - name: Install tox
+        run: pip install 'tox>=4.21'
 
-      - name: Install Playwright browsers
-        run: python -m playwright install --with-deps chromium
+      - name: Run tests via tox
+        run: tox -e "py$(echo '${{ matrix.python-version }}' | tr -d .)"
 
-      - name: Lint and format checks (pre-commit)
-        uses: pre-commit/action@v3.0.1
+  quality:
+    name: Quality (lint, type, security, files-check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Type check (mypy --strict)
-        run: mypy src
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
 
-      - name: Tests
-        run: pytest --cov
+      - name: Install tox
+        run: pip install 'tox>=4.21'
+
+      - name: Run quality checks via tox
+        run: tox -e lint,type,security,files-check
+
+  pre-commit:
+    name: pre-commit hooks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - uses: pre-commit/action@v3.0.1

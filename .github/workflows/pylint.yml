@@ -27,10 +27,8 @@ jobs:
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      - name: Install package and pylint
-        run: |
-          pip install -e .
-          pip install pylint
+      - name: Install tox
+        run: pip install 'tox>=4.21'
 
-      - name: Run pylint
-        run: pylint src tests
+      - name: Run pylint via tox
+        run: tox -e pylint

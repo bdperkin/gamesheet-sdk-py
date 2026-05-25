@@ -42,12 +42,14 @@ pre-commit run --all-files
 mypy src
 
 # Tox: orchestrates all of the above in isolated venvs (config in [tool.tox])
-tox                 # full matrix: py311..py314 + lint + type + pylint
-tox -e lint         # just black --check + flake8
-tox -e type         # just mypy
-tox -e pylint       # just pylint
-tox -e py311        # tests on a specific interpreter (must be installed)
-tox -e py314 -- -k test_version_is_string  # pass args to pytest after --
+tox                          # py311..py314 + lint + type + pylint + security + files-check
+tox -e lint                  # black --check, isort --check, flake8
+tox -e type                  # mypy --strict
+tox -e pylint                # pylint
+tox -e security              # bandit -r src (config in [tool.bandit])
+tox -e files-check           # codespell, yamllint, validate-pyproject, editorconfig-checker, mdformat --check
+tox -e fix                   # apply formatters in place: isort, black, mdformat
+tox -e py314 -- -k test_name # pass args to pytest after --
 ```
 
 The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_sdk.cli:main`).
@@ -57,5 +59,5 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
 - **`src/` layout.** Tests import via the installed package; `pyproject.toml` also sets `pythonpath = ["src"]` so `pytest` works without an install, but workflows that need the CLI or Playwright still require `pip install -e ".[dev]"`.
 - **Typed package.** `py.typed` is shipped (PEP 561) and `[tool.mypy] strict = true` is enabled — all new code must be fully annotated and pass `mypy --strict`.
 - **Python 3.11–3.14.** Use modern syntax (`from __future__ import annotations`, `X | None`, etc.) as `cli.py` already does.
-- **Formatting/lint.** Black (line length 88) + flake8 with `extend-select = B950` and `E203, E501, W503` ignored. Pre-commit also runs trailing-whitespace, EOF, YAML/TOML, merge-conflict, and large-file (>512 KB) checks. `pre-commit.ci` auto-fixes PRs and runs weekly autoupdates.
+- **Formatting/lint pipeline.** Python: black (88), isort (`profile = "black"`), flake8 (with `Flake8-pyproject` reading `[tool.flake8]`), pyupgrade (`--py311-plus`), pylint, bandit (config in `[tool.bandit]`). Non-Python: codespell (`[tool.codespell]`), yamllint (`-d relaxed`), validate-pyproject, editorconfig-checker, mdformat (+ mdformat-gfm). All wired into pre-commit, tox (env per concern: `lint`, `type`, `pylint`, `security`, `files-check`, plus `fix` for auto-apply), and GitHub Actions (CI calls tox). `pre-commit.ci` auto-fixes PRs and runs weekly autoupdates.
 - **Dependency note.** `click>=8.1` is declared in `pyproject.toml` but `cli.py` currently uses `argparse`. If extending the CLI, pick one and standardize — don't mix.

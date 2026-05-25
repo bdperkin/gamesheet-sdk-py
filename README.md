@@ -7,8 +7,6 @@
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue.svg)](https://www.python.org/downloads/)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/bdperkin/gamesheet-sdk-py/main.svg)](https://results.pre-commit.ci/latest/github/bdperkin/gamesheet-sdk-py/main)
 
----
-
 ## ⚠️ Disclaimer
 
 This project is **not affiliated with, endorsed by, or sponsored by GameSheet Inc.**
