@@ -26,5 +26,6 @@ When adding an explanation to this section:
 :maxdepth: 1
 
 why-webui-automation
+branch-protection
 diataxis
 ```

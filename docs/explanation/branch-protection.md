@@ -1,0 +1,129 @@
+# Why `main` is branch-protected the way it is
+
+The `main` branch on this repository has classic branch protection
+configured. This page documents what is enforced, what is deliberately
+*not* enforced, and why each knob is set the way it is. The settings
+themselves live in repository configuration, not in the tree, so without
+a write-up like this the rationale is invisible to anyone reading the
+code.
+
+## The shape of the protection
+
+| Setting                            | Value   | Effect on `main`                                                               |
+| ---------------------------------- | ------- | ------------------------------------------------------------------------------ |
+| Required status checks             | 13      | A PR cannot merge until every one of them is green.                            |
+| `strict` (up-to-date branch)       | `false` | A PR branch does not have to be rebased onto the latest `main` before merging. |
+| Required PR reviews                | none    | No human approval is enforced.                                                 |
+| `enforce_admins`                   | `false` | Repository admins bypass *all* of the rules above.                             |
+| `required_linear_history`          | `true`  | Merge commits are rejected — squash or rebase only.                            |
+| `allow_force_pushes`               | `false` | Force-pushes are rejected for non-admins.                                      |
+| `allow_deletions`                  | `false` | The branch itself cannot be deleted.                                           |
+| `required_conversation_resolution` | `true`  | PR review threads must be marked resolved before merge.                        |
+
+The 13 required contexts are: `pre-commit hooks`, `Quality (lint, type, security, files-check)`, `pytest (py3.11)` through `pytest (py3.14)`,
+`pylint (3.11)` through `pylint (3.14)`, `Build & lint (HTML, EPUB, man, doctest)`, `Analyze (python)`, and `Analyze (actions)`. Two CI jobs are
+deliberately *excluded* from the required list:
+
+- **`Link check (external, informational)`** — `continue-on-error: true`
+  by design (external links flap), so it would block merges for reasons
+  outside the contributor's control.
+- **`Deploy to GitHub Pages`** — only triggers on `push` to `main`,
+  never on a PR, so requiring it would create an unsatisfiable
+  precondition.
+
+## Why protect at all
+
+The project is currently solo and pushes directly to `main`, so on the
+surface branch protection looks like ceremony. It is in place for two
+forward-looking reasons:
+
+- **Drive-by contributors.** The first PR a stranger opens should
+  meet the same bar as the maintainer's own commits, and that bar
+  should not depend on the maintainer remembering to run the full
+  matrix. Required checks make the bar mechanical.
+- **A guard rail for the maintainer.** Even with admin bypass, the
+  protection nudges the maintainer toward PR-based workflows for any
+  non-trivial change — and the linear-history and no-force-push rules
+  make it harder to accidentally rewrite published history (which, on
+  a project that publishes to PyPI, is a release-management hazard).
+
+## Why these specific choices
+
+### `enforce_admins: false`
+
+The maintainer is the sole admin and pushes directly to `main` for
+routine fixes (docs, lint, dependency bumps). Setting
+`enforce_admins: true` would force every such commit through a PR with
+the full check matrix. For a solo alpha that's a productivity tax with
+no security upside — there is no second pair of eyes available to gate
+on. When the project grows past one person, flipping this to `true`
+becomes worthwhile.
+
+### `strict: false`
+
+Strict mode requires every PR branch to be up-to-date with `main`
+before merge — i.e. another rebase-and-recheck round-trip every time
+the base branch moves. On a low-traffic alpha repo the protection that
+buys (rejecting a PR whose merge would silently break against newer
+`main`) is almost never engaged. The friction it adds (every PR needs a
+final "update branch" click) is paid every time. Easy to flip on later.
+
+### No required PR reviews
+
+Solo project. Requiring approvals when there is no second reviewer
+just blocks merges. The setting is `required_pull_request_reviews: null` rather than "1 approval", because the latter would still require
+a *PR-shaped* event (so direct pushes would break), whereas `null`
+leaves the maintainer's direct-push workflow alone entirely.
+
+### `required_linear_history: true`
+
+Merge commits make the history harder to read and harder to bisect.
+Linear history (squash or rebase) keeps `main`'s log a clean
+left-to-right line, which matches how `git describe` derives version
+numbers in {doc}`../reference/supported-configurations` and how the
+`Deploy to GitHub Pages` workflow's gating on `github.ref == 'refs/heads/main'` is meant to behave (one published commit per
+release-worthy state).
+
+### `allow_force_pushes: false` and `allow_deletions: false`
+
+These are protection against the *worst* kind of accident — losing
+published history that downstream users may have pinned via git refs.
+Admins bypass them, but a fat-fingered `git push --force` from a
+non-admin (or from a misconfigured CI bot) is now rejected by the
+server rather than silently rewriting published commits.
+
+### `required_conversation_resolution: true`
+
+Cheap to have on; biggest payoff is the first time someone forgets to
+mark "we agreed not to do X" resolved before merging the PR that did X.
+
+## How to inspect or change it
+
+The protection settings are managed through the GitHub API. The
+maintainer can read them with:
+
+```console
+$ gh api repos/bdperkin/gamesheet-sdk-py/branches/main/protection
+```
+
+and replace them entirely with a `PUT` to the same URL (the API is
+replace-not-merge — every field must be specified on every change).
+
+Adjustments worth thinking about as the project matures:
+
+- Add new CI check names to `required_status_checks.contexts` as new
+  jobs are introduced, so they actually gate merges.
+- Flip `enforce_admins` to `true` once there is more than one
+  maintainer.
+- Flip `strict` to `true` if PRs start landing fast enough that
+  base-branch drift becomes a real problem.
+- Add `required_pull_request_reviews` with `required_approving_review_count: 1`
+  the moment a second reviewer exists.
+
+## See also
+
+- {doc}`../reference/supported-configurations` — what each required
+  check actually checks.
+- {doc}`../how-to/cut-a-release` — the one workflow that pushes a tag
+  (which bypasses branch-protection entirely, since tags aren't
+  branches) and is gated by its own per-job checks.
