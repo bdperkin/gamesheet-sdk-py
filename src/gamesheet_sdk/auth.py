@@ -18,14 +18,17 @@ from __future__ import annotations
 import json
 import logging
 import time
+from collections.abc import Callable
 from typing import Any
 
+import requests
 from playwright.sync_api import Response
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from .browser import BrowserSession
 from .config import Config
-from .exceptions import AuthenticationError
+from .exceptions import AuthenticationError, GameSheetError
+from .session import Session
 
 LOGIN_PATH = "/associations"
 """Path on which the SDK drives the login form, relative to
@@ -54,6 +57,11 @@ makes subsequent runs look unprivileged to the SPA.
 _FIREBASE_AUTH_HOST = "identitytoolkit.googleapis.com"
 _FIREBASE_AUTH_PATH = ":signInWithPassword"
 _TOKEN_EXCHANGE_PATH = "/api/token"  # nosec B105 - URL path, not a credential
+
+REFRESH_URL = "https://gateway-authserver-awy26srzoa-nn.a.run.app/auth/v4/refresh"
+"""Endpoint that mints a fresh access token from a valid refresh token."""
+
+_REFRESH_TIMEOUT_S = 30.0
 
 _DEFAULT_TIMEOUT_S = 15.0
 _POLL_INTERVAL_MS = 100
@@ -223,11 +231,23 @@ def load_access_token(config: Config) -> str | None:
 
     Returns the value of the ``accessToken`` localStorage entry for the
     SPA's origin (``Config.base_url``), or ``None`` if the storage state
-    file is missing, unreadable, or does not contain a token. The
-    returned string is the raw JWT and is intended to be attached to
-    HTTP requests as ``Authorization: Bearer <token>`` via
-    :meth:`Session.set_bearer_token`.
+    file is missing, unreadable, or does not contain a token. Intended
+    to be attached to HTTP requests via :meth:`Session.set_bearer_token`.
     """
+    return _load_local_storage_value(config, "accessToken")  # nosec B105
+
+
+def load_refresh_token(config: Config) -> str | None:
+    """Read the SPA's refresh token from the saved browser storage state.
+
+    Companion to :func:`load_access_token`. Used to drive
+    :func:`refresh_access_token` and :class:`AuthenticatedSession`.
+    """
+    return _load_local_storage_value(config, "refreshToken")  # nosec B105
+
+
+def _load_local_storage_value(config: Config, name: str) -> str | None:
+    """Read one localStorage entry for ``config.base_url`` from the saved state."""
     path = config.browser_state_path
     if not path.exists():
         return None
@@ -240,10 +260,184 @@ def load_access_token(config: Config) -> str | None:
         if origin.get("origin") != config.base_url:
             continue
         for kv in origin.get("localStorage", []):
-            if kv.get("name") == "accessToken":  # nosec B105 - localStorage key
+            if kv.get("name") == name:
                 value = kv.get("value")
                 return value if isinstance(value, str) and value else None
     return None
+
+
+def save_tokens(
+    config: Config,
+    *,
+    access: str,
+    refresh: str | None = None,
+    roles: str | None = None,
+) -> None:
+    """Persist new token values back into the saved browser storage state.
+
+    Reads :attr:`Config.browser_state_path` (or starts with an empty
+    state if it is missing or malformed), updates the localStorage
+    entries for ``config.base_url`` in place, and writes the file back.
+
+    Only the keys that were passed are written; unspecified ones are
+    left alone. The companion ``BrowserSession`` saves the same file
+    structurally, so updates from either path are mutually compatible.
+    """
+    path = config.browser_state_path
+    state: dict[str, Any]
+    if path.exists():
+        try:
+            state = json.loads(path.read_text())
+        except json.JSONDecodeError:
+            state = {"cookies": [], "origins": []}
+    else:
+        state = {"cookies": [], "origins": []}
+
+    origins = state.setdefault("origins", [])
+    origin_entry: dict[str, Any] | None = None
+    for origin in origins:
+        if origin.get("origin") == config.base_url:
+            origin_entry = origin
+            break
+    if origin_entry is None:
+        origin_entry = {"origin": config.base_url, "localStorage": []}
+        origins.append(origin_entry)
+
+    ls: list[dict[str, str]] = origin_entry.setdefault("localStorage", [])
+    by_name = {kv.get("name"): kv for kv in ls}
+
+    updates: dict[str, str] = {"accessToken": access}  # nosec B105
+    if refresh is not None:
+        updates["refreshToken"] = refresh  # nosec B105
+    if roles is not None:
+        updates["rolesToken"] = roles  # nosec B105
+
+    for entry_name, value in updates.items():
+        existing = by_name.get(entry_name)
+        if existing is not None:
+            existing["value"] = value
+        else:
+            ls.append({"name": entry_name, "value": value})
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(state, indent=2, sort_keys=True))
+
+
+def refresh_access_token(
+    refresh_token: str,
+    *,
+    user_agent: str | None = None,
+    timeout: float = _REFRESH_TIMEOUT_S,
+) -> dict[str, str]:
+    """Exchange ``refresh_token`` for a fresh ``{access, refresh, roles}`` bundle.
+
+    POSTs to :data:`REFRESH_URL` with ``Authorization: Bearer <refresh_token>``
+    and an empty JSON body. The gateway returns a new access token (10-min
+    TTL), a new refresh token (long TTL, replaces the one you sent), and
+    a roles token.
+
+    Standalone HTTP call -- no :class:`Session` needed, so it can be used
+    from inside :class:`AuthenticatedSession`'s retry path without
+    recursing.
+
+    :raises AuthenticationError: If the refresh token is rejected (401).
+    :raises GameSheetError: For any other non-2xx response.
+    """
+    headers = {
+        "Authorization": f"Bearer {refresh_token}",
+        "Content-Type": "application/json",
+    }
+    if user_agent is not None:
+        headers["User-Agent"] = user_agent
+    response = requests.post(REFRESH_URL, json={}, headers=headers, timeout=timeout)
+    if response.status_code == 401:
+        raise AuthenticationError(
+            "Refresh token rejected. Run `gamesheet-sdk-py login` to "
+            "re-authenticate."
+        )
+    if response.status_code >= 400:
+        raise GameSheetError(
+            f"Token refresh failed: HTTP {response.status_code}: "
+            f"{response.text[:200]!r}"
+        )
+    body = response.json()
+    return {
+        "access": body["access"],
+        "refresh": body["refresh"],
+        "roles": body["roles"],
+    }
+
+
+OnRefreshCallback = Callable[[dict[str, str]], None]
+
+
+class AuthenticatedSession(Session):
+    """A :class:`Session` that auto-refreshes its bearer on 401.
+
+    Wraps :class:`Session` with the refresh-on-401 pattern that every
+    bearer-authenticated API client ends up needing. Construction takes
+    the current access + refresh tokens; the access token is attached as
+    the bearer automatically. On any 401 response, the session calls
+    :func:`refresh_access_token` against :data:`REFRESH_URL`, updates
+    its bearer, optionally invokes ``on_refresh`` with the new token
+    bundle, and retries the original request *once*. If the refresh
+    itself fails the original 401 propagates to the caller, who can
+    decide whether to log in again.
+
+    Example::
+
+        with AuthenticatedSession(
+            config,
+            access_token=load_access_token(config),
+            refresh_token=load_refresh_token(config),
+            on_refresh=lambda tokens: save_tokens(config, **tokens),
+        ) as s:
+            for assoc in list_associations(s):
+                ...
+    """
+
+    def __init__(
+        self,
+        config: Config | None = None,
+        *,
+        access_token: str,
+        refresh_token: str,
+        on_refresh: OnRefreshCallback | None = None,
+    ) -> None:
+        super().__init__(config)
+        self._refresh_token = refresh_token
+        self._on_refresh = on_refresh
+        self.set_bearer_token(access_token)
+
+    def request(
+        self,
+        method: str,
+        url: str,
+        *,
+        timeout: float | None = None,
+        **kwargs: Any,
+    ) -> requests.Response:
+        response = super().request(method, url, timeout=timeout, **kwargs)
+        if response.status_code != 401:
+            return response
+        try:
+            new_tokens = refresh_access_token(
+                self._refresh_token,
+                user_agent=str(self._http.headers.get("User-Agent", "")) or None,
+                timeout=self.config.timeout,
+            )
+        except (AuthenticationError, GameSheetError) as exc:
+            _LOGGER.warning("Token refresh failed: %s; surfacing 401.", exc)
+            return response
+        self.set_bearer_token(new_tokens["access"])
+        self._refresh_token = new_tokens["refresh"]
+        if self._on_refresh is not None:
+            try:
+                self._on_refresh(new_tokens)
+            except OSError as exc:  # pragma: no cover - disk failure path
+                _LOGGER.warning("on_refresh callback failed to persist: %s", exc)
+        _LOGGER.info("Refreshed access token; retrying %s %s.", method, url)
+        return super().request(method, url, timeout=timeout, **kwargs)
 
 
 def _firebase_error_message(response: Response) -> str:

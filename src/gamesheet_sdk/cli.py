@@ -18,12 +18,16 @@ import click
 
 from . import __version__
 from .associations import list_associations as _list_associations_action
-from .auth import load_access_token
+from .auth import (
+    AuthenticatedSession,
+    load_access_token,
+    load_refresh_token,
+)
 from .auth import login as _login_action
+from .auth import save_tokens
 from .browser import BrowserSession
 from .config import Config
 from .exceptions import AuthenticationError, GameSheetError
-from .session import Session
 
 
 @click.group(
@@ -155,17 +159,26 @@ def list_associations_command(
     to the HTTP request. No browser is launched.
     """
     config: Config = ctx.obj
-    token = load_access_token(config)
-    if token is None:
+    access = load_access_token(config)
+    refresh = load_refresh_token(config)
+    if access is None or refresh is None:
         click.secho(
-            "No access token found. Run `gamesheet-sdk-py login` first.",
+            "No saved session. Run `gamesheet-sdk-py login` first.",
             fg="red",
             err=True,
         )
         ctx.exit(1)
+
+    def persist(tokens: dict[str, str]) -> None:
+        save_tokens(config, **tokens)
+
     try:
-        with Session(config) as session:
-            session.set_bearer_token(token or "")
+        with AuthenticatedSession(
+            config,
+            access_token=access or "",
+            refresh_token=refresh or "",
+            on_refresh=persist,
+        ) as session:
             associations = _list_associations_action(session)
     except AuthenticationError as exc:
         click.secho(f"Authentication required: {exc}", fg="red", err=True)

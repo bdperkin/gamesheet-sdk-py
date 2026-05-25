@@ -16,7 +16,14 @@ except ImportError:  # pragma: no cover - fallback only fires uninstalled
         __version__ = "0+unknown"
 
 from .associations import Association, list_associations
-from .auth import load_access_token, login
+from .auth import (
+    AuthenticatedSession,
+    load_access_token,
+    load_refresh_token,
+    login,
+    refresh_access_token,
+    save_tokens,
+)
 from .browser import BrowserSession
 from .config import Config
 from .exceptions import AuthenticationError, GameSheetError
@@ -24,6 +31,7 @@ from .session import Session
 
 __all__ = [
     "Association",
+    "AuthenticatedSession",
     "AuthenticationError",
     "BrowserSession",
     "Config",
@@ -32,5 +40,8 @@ __all__ = [
     "__version__",
     "list_associations",
     "load_access_token",
+    "load_refresh_token",
     "login",
+    "refresh_access_token",
+    "save_tokens",
 ]

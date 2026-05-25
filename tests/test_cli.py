@@ -234,9 +234,11 @@ def _stub_associations(*ids_and_titles: tuple[str, str]) -> list[object]:
 
 
 @patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
 @patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
 def test_list_associations_default_table_format(
-    _mock_load: MagicMock,
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
     mock_list: MagicMock,
     runner: CliRunner,
 ) -> None:
@@ -251,9 +253,11 @@ def test_list_associations_default_table_format(
 
 
 @patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
 @patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
 def test_list_associations_json_format(
-    _mock_load: MagicMock,
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
     mock_list: MagicMock,
     runner: CliRunner,
 ) -> None:
@@ -264,20 +268,23 @@ def test_list_associations_json_format(
     assert data == [{"id": "11", "title": "Hockey Time"}]
 
 
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value=None)
 @patch("gamesheet_sdk.cli.load_access_token", return_value=None)
 def test_list_associations_missing_token_exits_one(
-    _mock_load: MagicMock, runner: CliRunner
+    _mock_load_access: MagicMock, _mock_load_refresh: MagicMock, runner: CliRunner
 ) -> None:
     result = runner.invoke(cli, ["list-associations"])
     assert result.exit_code == 1
-    assert "No access token" in result.output
+    assert "No saved session" in result.output
     assert "Run `gamesheet-sdk-py login`" in result.output
 
 
 @patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
 @patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
 def test_list_associations_authentication_error_exits_one(
-    _mock_load: MagicMock,
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
     mock_list: MagicMock,
     runner: CliRunner,
 ) -> None:
@@ -288,9 +295,11 @@ def test_list_associations_authentication_error_exits_one(
 
 
 @patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
 @patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
 def test_list_associations_other_error_exits_one(
-    _mock_load: MagicMock,
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
     mock_list: MagicMock,
     runner: CliRunner,
 ) -> None:

@@ -4,14 +4,30 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
+import responses
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
-from gamesheet_sdk import AuthenticationError, BrowserSession, Config, login
-from gamesheet_sdk.auth import LOGIN_PATH, POST_LOGIN_PATH, load_access_token
+from gamesheet_sdk import (
+    AuthenticatedSession,
+    AuthenticationError,
+    BrowserSession,
+    Config,
+    GameSheetError,
+    login,
+)
+from gamesheet_sdk.auth import (
+    LOGIN_PATH,
+    POST_LOGIN_PATH,
+    REFRESH_URL,
+    load_access_token,
+    refresh_access_token,
+    save_tokens,
+)
 
 
 def _make_response(url: str, status: int, body: Any = None) -> MagicMock:
@@ -397,3 +413,200 @@ def test_load_access_token_ignores_other_origins(config: Config) -> None:
         "]}]}"
     )
     assert load_access_token(config) is None
+
+
+# ---------- save_tokens ---------------------------------------------------
+
+
+def test_save_tokens_creates_state_file(config: Config) -> None:
+
+    assert not config.browser_state_path.exists()
+    save_tokens(config, access="new-access", refresh="new-refresh", roles="new-roles")
+    assert config.browser_state_path.exists()
+    state = json.loads(config.browser_state_path.read_text())
+    origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
+    by_name = {kv["name"]: kv["value"] for kv in origin["localStorage"]}
+    assert by_name["accessToken"] == "new-access"
+    assert by_name["refreshToken"] == "new-refresh"
+    assert by_name["rolesToken"] == "new-roles"
+
+
+def test_save_tokens_updates_existing_state(config: Config) -> None:
+
+    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
+    initial = {
+        "cookies": [{"name": "preserve", "value": "me", "domain": "test.example"}],
+        "origins": [
+            {
+                "origin": config.base_url,
+                "localStorage": [
+                    {"name": "accessToken", "value": "old-access"},
+                    {"name": "refreshToken", "value": "old-refresh"},
+                    {"name": "unrelated", "value": "kept"},
+                ],
+            }
+        ],
+    }
+    config.browser_state_path.write_text(json.dumps(initial))
+
+    save_tokens(config, access="ACCESS-NEW", refresh="REFRESH-NEW")
+
+    state = json.loads(config.browser_state_path.read_text())
+    # Cookies preserved
+    assert state["cookies"][0]["name"] == "preserve"
+    # localStorage values updated, unrelated entries kept
+    origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
+    by_name = {kv["name"]: kv["value"] for kv in origin["localStorage"]}
+    assert by_name["accessToken"] == "ACCESS-NEW"
+    assert by_name["refreshToken"] == "REFRESH-NEW"
+    assert by_name["unrelated"] == "kept"
+
+
+def test_save_tokens_recovers_from_corrupt_state(config: Config) -> None:
+
+    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
+    config.browser_state_path.write_text("{ corrupt")
+    save_tokens(config, access="A", refresh="R")
+    state = json.loads(config.browser_state_path.read_text())
+    origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
+    by_name = {kv["name"]: kv["value"] for kv in origin["localStorage"]}
+    assert by_name == {"accessToken": "A", "refreshToken": "R"}
+
+
+# ---------- refresh_access_token -----------------------------------------
+
+
+@responses.activate
+def test_refresh_access_token_happy_path() -> None:
+
+    responses.add(
+        responses.POST,
+        REFRESH_URL,
+        json={"access": "A2", "refresh": "R2", "roles": "Rol2"},
+        status=200,
+    )
+    result = refresh_access_token("OLD-REFRESH", user_agent="ua/1.0")
+    assert result == {"access": "A2", "refresh": "R2", "roles": "Rol2"}
+    # Bearer must be the *refresh* token, not access
+    sent = responses.calls[0].request
+    assert sent.headers["Authorization"] == "Bearer OLD-REFRESH"
+    assert sent.headers["Content-Type"] == "application/json"
+    assert sent.headers["User-Agent"] == "ua/1.0"
+    assert sent.body in (b"{}", "{}")
+
+
+@responses.activate
+def test_refresh_access_token_401_raises_authentication_error() -> None:
+
+    responses.add(responses.POST, REFRESH_URL, json={"errors": [{}]}, status=401)
+    with pytest.raises(AuthenticationError, match="Refresh token rejected"):
+        refresh_access_token("DEAD-REFRESH")
+
+
+@responses.activate
+def test_refresh_access_token_other_failure_raises_gamesheet_error() -> None:
+
+    responses.add(responses.POST, REFRESH_URL, status=500, body="boom")
+    with pytest.raises(GameSheetError, match="HTTP 500"):
+        refresh_access_token("R")
+
+
+# ---------- AuthenticatedSession -----------------------------------------
+
+
+@responses.activate
+def test_authenticated_session_passthrough_when_200(config: Config) -> None:
+
+    responses.add(
+        responses.GET, "https://test.example/x", json={"ok": True}, status=200
+    )
+    with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
+        resp = session.get("/x")
+    assert resp.status_code == 200
+    sent = responses.calls[0].request
+    assert sent.headers["Authorization"] == "Bearer A1"
+
+
+@responses.activate
+def test_authenticated_session_refreshes_and_retries_on_401(config: Config) -> None:
+
+    # 1st: 401, refresh, 2nd: 200 with the new bearer.
+    responses.add(responses.GET, "https://test.example/x", json={"err": 1}, status=401)
+    responses.add(
+        responses.POST,
+        REFRESH_URL,
+        json={"access": "A2", "refresh": "R2", "roles": "Rol2"},
+        status=200,
+    )
+    responses.add(
+        responses.GET, "https://test.example/x", json={"ok": True}, status=200
+    )
+
+    persisted: list[dict[str, str]] = []
+    with AuthenticatedSession(
+        config,
+        access_token="A1",
+        refresh_token="R1",
+        on_refresh=persisted.append,
+    ) as session:
+        resp = session.get("/x")
+    assert resp.status_code == 200
+    assert resp.json() == {"ok": True}
+    assert persisted == [{"access": "A2", "refresh": "R2", "roles": "Rol2"}]
+
+    # Three calls: original GET, refresh, retried GET.
+    assert len(responses.calls) == 3
+    assert responses.calls[0].request.headers["Authorization"] == "Bearer A1"
+    assert responses.calls[1].request.url == REFRESH_URL
+    assert responses.calls[1].request.headers["Authorization"] == "Bearer R1"
+    assert responses.calls[2].request.headers["Authorization"] == "Bearer A2"
+
+
+@responses.activate
+def test_authenticated_session_propagates_401_when_refresh_fails(
+    config: Config,
+) -> None:
+
+    responses.add(responses.GET, "https://test.example/x", json={"err": 1}, status=401)
+    responses.add(responses.POST, REFRESH_URL, status=401, json={"errors": [{}]})
+
+    with AuthenticatedSession(
+        config, access_token="A1", refresh_token="DEAD"
+    ) as session:
+        resp = session.get("/x")
+    # Original 401 surfaces to the caller; no further retries.
+    assert resp.status_code == 401
+    assert len(responses.calls) == 2
+
+
+@responses.activate
+def test_authenticated_session_does_not_retry_when_refresh_returns_500(
+    config: Config,
+) -> None:
+
+    responses.add(responses.GET, "https://test.example/x", status=401)
+    responses.add(responses.POST, REFRESH_URL, status=500, body="boom")
+
+    with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
+        resp = session.get("/x")
+    assert resp.status_code == 401  # original surfaces
+    assert len(responses.calls) == 2  # no retry of /x
+
+
+@responses.activate
+def test_authenticated_session_post_also_triggers_refresh(config: Config) -> None:
+    """The retry applies to writes too -- POST is not skipped here, since
+    the failure was 401 (auth), not a network/server hiccup."""
+
+    responses.add(responses.POST, "https://test.example/mutate", status=401)
+    responses.add(
+        responses.POST,
+        REFRESH_URL,
+        json={"access": "A2", "refresh": "R2", "roles": "Rol2"},
+        status=200,
+    )
+    responses.add(responses.POST, "https://test.example/mutate", status=201)
+
+    with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
+        resp = session.post("/mutate")
+    assert resp.status_code == 201
