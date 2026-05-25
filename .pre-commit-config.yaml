@@ -103,3 +103,39 @@ repos:
       - id: bandit
         args: ["-c", "pyproject.toml"]
         additional_dependencies: ["bandit[toml]"]
+
+  # ----- Python: type checking (local hook because pre-commit/mirrors-mypy
+  #       currently tags ahead of the upstream mypy releases on PyPI) ------
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: mypy
+        language: python
+        types: [python]
+        pass_filenames: false
+        args: ["--strict", "src"]
+        additional_dependencies:
+          - "mypy>=1.10"
+          - "types-requests>=2.32"
+
+  # ----- Python: pylint (local hook; project runtime deps duplicated here
+  #       so pylint can resolve imports in the isolated pre-commit venv) ----
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: pylint
+        language: python
+        types: [python]
+        require_serial: true
+        pass_filenames: false
+        args: ["src", "tests"]
+        additional_dependencies:
+          - "pylint>=4.0"
+          - "requests>=2.32"
+          - "beautifulsoup4>=4.12"
+          - "playwright>=1.45"
+          - "lxml>=5.2"
+          - "pydantic>=2.7"
+          - "click>=8.1"
