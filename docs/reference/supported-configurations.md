@@ -62,6 +62,9 @@ These are required and installed automatically by `pip install gamesheet-sdk-py`
 | `pydantic-settings` | `>=2.0`  | Env-driven resolution of `Config`.                   |
 | `click`             | `>=8.1`  | Subcommand framework for the `gamesheet-sdk-py` CLI. |
 | `colorlog`          | `>=6.8`  | ANSI-coloured log levels in the CLI (TTY-only).      |
+| `tabulate`          | `>=0.9`  | Human-readable table formats for CLI output.         |
+| `rich`              | `>=13`   | Syntax-highlighted JSON / YAML output to a TTY.      |
+| `PyYAML`            | `>=6.0`  | YAML output for CLI workflows.                       |
 
 If you change `[project.dependencies]` in `pyproject.toml`, update this
 table in the same commit.

@@ -9,10 +9,12 @@ from __future__ import annotations
 import json
 import logging
 import sys
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import colorlog
 import pytest
+import yaml
 from click.testing import CliRunner
 
 from gamesheet_sdk import __version__
@@ -250,8 +252,10 @@ def test_list_associations_default_table_format(
     )
     result = runner.invoke(cli, ["list-associations"])
     assert result.exit_code == 0, result.output
-    assert "11\tHockey Time Productions" in result.output
-    assert "40\tSuperSeries AAA" in result.output
+    # Default --format is tabulate's "simple": id and title appear on the same
+    # row, no fixed separator. Just assert both pairs are present.
+    assert "11" in result.output and "Hockey Time Productions" in result.output
+    assert "40" in result.output and "SuperSeries AAA" in result.output
 
 
 @patch("gamesheet_sdk.cli._list_associations_action")
@@ -347,3 +351,124 @@ def test_configure_logging_honors_no_color_env_var(
     _configure_logging(0)
     handler = logging.getLogger().handlers[0]
     assert not isinstance(handler.formatter, colorlog.ColoredFormatter)
+
+
+# ---------- list-associations: new --format / --output / --columns -------
+
+
+@patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_associations_csv_format(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.return_value = _stub_associations(("11", "Hockey Time"))
+    result = runner.invoke(cli, ["list-associations", "--format", "csv"])
+    assert result.exit_code == 0, result.output
+    lines = result.output.strip().splitlines()
+    assert lines[0] == "id,title"
+    assert lines[1] == "11,Hockey Time"
+
+
+@patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_associations_yaml_format(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.return_value = _stub_associations(("11", "Hockey Time"))
+    result = runner.invoke(cli, ["list-associations", "--format", "yaml"])
+    assert result.exit_code == 0, result.output
+    data = yaml.safe_load(result.output)
+    assert data == [{"id": "11", "title": "Hockey Time"}]
+
+
+@patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_associations_grid_format(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.return_value = _stub_associations(("11", "Hockey Time"))
+    result = runner.invoke(cli, ["list-associations", "--format", "grid"])
+    assert result.exit_code == 0, result.output
+    # Grid uses ASCII +/-/| corners. Just check one cell.
+    assert "+" in result.output
+    assert "Hockey Time" in result.output
+
+
+@patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_associations_unknown_format_returns_two(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    del mock_list
+    result = runner.invoke(cli, ["list-associations", "--format", "not-real"])
+    # click's Choice gives usage error -> 2.
+    assert result.exit_code == 2
+
+
+@patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_associations_writes_to_output_file(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+    tmp_path: Path,
+) -> None:
+    mock_list.return_value = _stub_associations(("11", "Hockey Time"))
+    out_path = tmp_path / "associations.csv"
+    result = runner.invoke(
+        cli,
+        [
+            "list-associations",
+            "--format",
+            "csv",
+            "--output",
+            str(out_path),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    # Nothing on stdout (it all went to the file).
+    assert result.output.strip() == ""
+    contents = out_path.read_text()
+    assert contents.startswith("id,title")
+    assert "11,Hockey Time" in contents
+
+
+@patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_associations_columns_filter(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    a = MagicMock()
+    a.model_dump.return_value = {"id": "11", "title": "Hockey", "logo": "x.png"}
+    mock_list.return_value = [a]
+    result = runner.invoke(
+        cli,
+        ["list-associations", "--format", "csv", "--columns", "title,id"],
+    )
+    assert result.exit_code == 0, result.output
+    lines = result.output.strip().splitlines()
+    assert lines[0] == "title,id"
+    assert lines[1] == "Hockey,11"
+    assert "logo" not in result.output

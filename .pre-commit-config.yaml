@@ -84,7 +84,11 @@ repos:
 
   # ----- Python: formatting ------------------------------------------------
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 26.5.1
+    # 26.5.1 was tagged on the mirror but the corresponding PyPI black
+    # release was yanked; pin to the latest version actually available
+    # on PyPI so the hook env can install. pre-commit.ci autoupdate may
+    # try to re-bump; resist until the mirror catches up.
+    rev: 26.3.1
     hooks:
       - id: black
         language_version: python3
@@ -118,11 +122,16 @@ repos:
         additional_dependencies:
           - "mypy>=1.10"
           - "types-requests>=2.32"
+          - "types-PyYAML>=6.0"
+          - "types-tabulate>=0.9"
           - "pydantic>=2.7"
           - "pydantic-settings>=2.0"
           - "playwright>=1.45"
           - "click>=8.1"
           - "colorlog>=6.8"
+          - "tabulate>=0.9"
+          - "rich>=13"
+          - "PyYAML>=6.0"
 
   # ----- Sphinx markup linting (local hook because the upstream sphinx-lint
   #       hook is types:[rst] only, and this project authors docs in MyST
@@ -163,3 +172,6 @@ repos:
           - "pydantic-settings>=2.0"
           - "click>=8.1"
           - "colorlog>=6.8"
+          - "tabulate>=0.9"
+          - "rich>=13"
+          - "PyYAML>=6.0"

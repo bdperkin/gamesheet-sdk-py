@@ -35,6 +35,9 @@ dependencies = [
   "pydantic-settings>=2.0",
   "click>=8.1",
   "colorlog>=6.8",
+  "tabulate>=0.9",
+  "rich>=13",
+  "PyYAML>=6.0",
 ]
 
 [project.optional-dependencies]
@@ -50,6 +53,8 @@ dev = [
   "pre-commit>=3.7",
   "mypy>=1.10",
   "types-requests>=2.32",
+  "types-PyYAML>=6.0",
+  "types-tabulate>=0.9",
   "build>=1.2",
   "tox>=4.21",
   "isort>=5.13",

@@ -9,7 +9,6 @@ for callers that imported it directly.
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 import sys
@@ -32,6 +31,7 @@ from .auth import (
 from .browser import BrowserSession
 from .config import Config
 from .exceptions import AuthenticationError, GameSheetError
+from .output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
 
 
 @click.group(
@@ -179,16 +179,42 @@ def login_command(
 @cli.command("list-associations")
 @click.option(
     "--format",
+    "-F",
     "output_format",
-    type=click.Choice(["table", "json"]),
-    default="table",
+    type=click.Choice(list(ALL_FORMATS), case_sensitive=False),
+    default=DEFAULT_FORMAT,
     show_default=True,
-    help="Output format: tab-separated table or JSON array.",
+    help=(
+        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
+        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
+        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
+        "latex_longtable."
+    ),
+)
+@click.option(
+    "--output",
+    "-o",
+    "output_path",
+    type=click.Path(dir_okay=False, writable=True),
+    default=None,
+    help="Write to this file instead of stdout.",
+)
+@click.option(
+    "--columns",
+    "-c",
+    "columns_spec",
+    default=None,
+    help=(
+        "Comma-separated list of column names to include (default: all "
+        "columns the API returns)."
+    ),
 )
 @click.pass_context
 def list_associations_command(
     ctx: click.Context,
     output_format: str,
+    output_path: str | None,
+    columns_spec: str | None,
 ) -> None:
     """List the associations the signed-in user can see.
 
@@ -225,17 +251,14 @@ def list_associations_command(
         click.secho(f"GameSheet error: {exc}", fg="red", err=True)
         ctx.exit(1)  # raises; control does not return
 
-    if output_format == "json":
-        click.echo(
-            json.dumps(
-                [a.model_dump(mode="json") for a in associations],
-                indent=2,
-                sort_keys=True,
-            )
-        )
-    else:
-        for assoc in associations:
-            click.echo(f"{assoc.id}\t{assoc.title}")
+    rows = [assoc.model_dump(mode="json") for assoc in associations]
+    columns = (
+        [c.strip() for c in columns_spec.split(",") if c.strip()]
+        if columns_spec
+        else None
+    )
+    rendered = render(rows, fmt=output_format, columns=columns)
+    write_output(rendered, output_path, fmt=output_format)
 
 
 def main(  # pylint: disable=too-many-return-statements
