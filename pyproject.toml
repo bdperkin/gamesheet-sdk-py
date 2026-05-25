@@ -39,6 +39,8 @@ dependencies = [
 dev = [
   "pytest>=8.2",
   "pytest-cov>=5.0",
+  "pytest-recording>=0.13",
+  "pytest-playwright>=0.5",
   "black>=26.3",
   "flake8>=7.1",
   "Flake8-pyproject>=1.2",
@@ -136,9 +138,16 @@ per-file-ignores = ["tests/*:S101"]
 # --- pytest ---------------------------------------------------------------
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "-ra --strict-markers --strict-config"
+# --block-network is pytest-recording: any test that opens a socket without
+# replaying a VCR cassette (or escaping via @pytest.mark.allow_hosts) fails.
+# This forces the test suite to stay deterministic and offline-capable.
+addopts = "-ra --strict-markers --strict-config --block-network"
 testpaths = ["tests"]
 pythonpath = ["src"]
+markers = [
+  "vcr: replay HTTP from a VCR cassette under tests/cassettes/",
+  "browser: drives a real headless Chromium via Playwright (slow; skip with -m 'not browser')",
+]
 
 # --- coverage -------------------------------------------------------------
 [tool.coverage.run]
@@ -148,6 +157,9 @@ source = ["gamesheet_sdk"]
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
+# Coverage floor: pytest --cov fails if total coverage drops below this.
+# Current is ~89%; raise as the suite grows.
+fail_under = 80
 
 # --- mypy -----------------------------------------------------------------
 [tool.mypy]

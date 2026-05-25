@@ -26,4 +26,5 @@ When adding a how-to guide to this section:
 :maxdepth: 1
 
 install-in-github-actions
+cut-a-release
 ```

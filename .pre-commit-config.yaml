@@ -148,6 +148,7 @@ repos:
         args: ["src", "tests"]
         additional_dependencies:
           - "pylint>=4.0"
+          - "pytest>=8.2"
           - "requests>=2.32"
           - "beautifulsoup4>=4.12"
           - "playwright>=1.45"
