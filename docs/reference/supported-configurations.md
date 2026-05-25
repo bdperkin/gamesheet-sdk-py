@@ -52,14 +52,15 @@ For caching the install across CI runs, see
 
 These are required and installed automatically by `pip install gamesheet-sdk-py`:
 
-| Package          | Floor    | Purpose                                              |
-| ---------------- | -------- | ---------------------------------------------------- |
-| `requests`       | `>=2.32` | HTTP client for the lightweight code path.           |
-| `beautifulsoup4` | `>=4.12` | HTML parsing.                                        |
-| `lxml`           | `>=5.2`  | Parser backend used by beautifulsoup4.               |
-| `playwright`     | `>=1.45` | Headless-browser automation for the heavy code path. |
-| `pydantic`       | `>=2.7`  | Data validation for SDK models.                      |
-| `click`          | `>=8.1`  | Declared; the CLI currently uses argparse.           |
+| Package             | Floor    | Purpose                                              |
+| ------------------- | -------- | ---------------------------------------------------- |
+| `requests`          | `>=2.32` | HTTP client for the lightweight code path.           |
+| `beautifulsoup4`    | `>=4.12` | HTML parsing.                                        |
+| `lxml`              | `>=5.2`  | Parser backend used by beautifulsoup4.               |
+| `playwright`        | `>=1.45` | Headless-browser automation for the heavy code path. |
+| `pydantic`          | `>=2.7`  | Data validation for SDK models.                      |
+| `pydantic-settings` | `>=2.0`  | Env-driven resolution of `Config`.                   |
+| `click`             | `>=8.1`  | Declared; the CLI currently uses argparse.           |
 
 If you change `[project.dependencies]` in `pyproject.toml`, update this
 table in the same commit.
