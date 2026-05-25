@@ -56,6 +56,10 @@ _TOKEN_EXCHANGE_PATH = "/api/token"  # nosec B105 - URL path, not a credential
 _DEFAULT_TIMEOUT_S = 15.0
 _POLL_INTERVAL_MS = 100
 _POST_LOGIN_NAVIGATION_TIMEOUT_MS = 30_000
+# Generous window for the unauthenticated landing page to render the form
+# if it's going to. If a saved storage state already authenticates the
+# user, the SPA renders the dashboard instead and no #email ever appears.
+_FORM_DETECTION_TIMEOUT_MS = 5_000
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -111,10 +115,27 @@ def login(
         )
 
     timeout_s = timeout if timeout is not None else _DEFAULT_TIMEOUT_S
-    timeout_ms = int(timeout_s * 1000)
 
     page = session.goto(LOGIN_PATH, wait_until="load")
-    page.wait_for_selector("#email", timeout=timeout_ms)
+
+    # The SPA renders the login form when unauthenticated and the dashboard
+    # when authenticated. Probe briefly for the form: if it does not show
+    # up, a saved storage state has already authenticated this session and
+    # there is nothing for us to do but the post-login settle step.
+    try:
+        page.wait_for_selector("#email", timeout=_FORM_DETECTION_TIMEOUT_MS)
+    except PlaywrightTimeoutError:
+        _LOGGER.warning(
+            "No login form at %s within %.0fs; assuming the saved session at "
+            "%s already authenticates this user. Delete that file to force "
+            "a fresh login (e.g. to switch accounts).",
+            LOGIN_PATH,
+            _FORM_DETECTION_TIMEOUT_MS / 1000,
+            cfg.browser_state_path,
+        )
+        if post_login_path is not None:
+            _settle_post_login(session, post_login_path)
+        return
 
     # Subscribe to the two responses we care about before triggering the
     # submit. Storing each only once protects against the SPA retrying.

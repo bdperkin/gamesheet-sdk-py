@@ -298,9 +298,11 @@ def test_login_no_responses_times_out(fake_browser_session: MagicMock) -> None:
         login(fake_browser_session, email="a@b.c", password="x", timeout=0.01)
 
 
-def test_login_custom_timeout_applies_to_wait_for_selector(
+def test_login_form_detection_uses_fixed_timeout(
     fake_browser_session: MagicMock,
 ) -> None:
+    """The probe for the login form uses a fixed short timeout (the user's
+    `timeout=` parameter only governs the auth-response wait loop)."""
     page = fake_browser_session.goto.return_value
     page.staged_responses = [
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
@@ -309,4 +311,41 @@ def test_login_custom_timeout_applies_to_wait_for_selector(
 
     login(fake_browser_session, email="a@b.c", password="x", timeout=2.0)
 
-    page.wait_for_selector.assert_called_once_with("#email", timeout=2000)
+    page.wait_for_selector.assert_called_once_with("#email", timeout=5_000)
+
+
+def test_login_short_circuits_when_saved_session_already_authenticates(
+    fake_browser_session: MagicMock,
+) -> None:
+    """If the unauth landing page renders no login form, the saved storage
+    state is already authenticating this user; login() should return cleanly
+    without filling or submitting anything."""
+    page = fake_browser_session.goto.return_value
+    page.wait_for_selector.side_effect = PlaywrightTimeoutError("no #email")
+
+    login(fake_browser_session, email="a@b.c", password="x")
+
+    page.fill.assert_not_called()
+    page.click.assert_not_called()
+    # Post-login navigation still runs so the saved state gets re-flushed.
+    fake_browser_session.goto.assert_any_call(
+        POST_LOGIN_PATH, wait_until="networkidle", timeout=30_000
+    )
+
+
+def test_login_short_circuit_respects_post_login_path_disable(
+    fake_browser_session: MagicMock,
+) -> None:
+    """post_login_path=None still applies on the short-circuit path."""
+    page = fake_browser_session.goto.return_value
+    page.wait_for_selector.side_effect = PlaywrightTimeoutError("no #email")
+
+    login(
+        fake_browser_session,
+        email="a@b.c",
+        password="x",
+        post_login_path=None,
+    )
+
+    # Only the initial form-probe navigation; no settle.
+    fake_browser_session.goto.assert_called_once_with(LOGIN_PATH, wait_until="load")
