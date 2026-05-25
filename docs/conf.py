@@ -31,7 +31,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_design",
     # CLI documentation
-    "sphinxarg.ext",
+    "sphinx_click",
 ]
 
 source_suffix = {

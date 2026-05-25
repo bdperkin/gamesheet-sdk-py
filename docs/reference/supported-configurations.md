@@ -60,7 +60,7 @@ These are required and installed automatically by `pip install gamesheet-sdk-py`
 | `playwright`        | `>=1.45` | Headless-browser automation for the heavy code path. |
 | `pydantic`          | `>=2.7`  | Data validation for SDK models.                      |
 | `pydantic-settings` | `>=2.0`  | Env-driven resolution of `Config`.                   |
-| `click`             | `>=8.1`  | Declared; the CLI currently uses argparse.           |
+| `click`             | `>=8.1`  | Subcommand framework for the `gamesheet-sdk-py` CLI. |
 
 If you change `[project.dependencies]` in `pyproject.toml`, update this
 table in the same commit.

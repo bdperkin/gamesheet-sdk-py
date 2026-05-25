@@ -67,7 +67,7 @@ docs = [
   "myst-parser[linkify]>=3.0",
   "sphinx-copybutton>=0.5",
   "sphinx-design>=0.5",
-  "sphinx-argparse>=0.4",
+  "sphinx-click>=6.0",
   "sphinx-lint>=0.9",
   "sphinx-autobuild>=2024.4",
 ]
@@ -170,6 +170,13 @@ strict = true
 warn_unused_configs = true
 warn_unreachable = true
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# click's decorators look "untyped" to mypy --strict (their generic return
+# types don't propagate cleanly through @click.option chains). Relaxing the
+# rule just for cli.py keeps strict-mode honest everywhere else.
+module = "gamesheet_sdk.cli"
+disallow_untyped_decorators = false
 
 # --- pylint ---------------------------------------------------------------
 [tool.pylint.main]
