@@ -67,3 +67,10 @@ jobs:
           cache: pip
           cache-dependency-path: pyproject.toml
       - uses: pre-commit/action@v3.0.1
+        env:
+          # On push events to main, GitHub Actions checks the branch out by
+          # name, so HEAD is on main and `no-commit-to-branch` would always
+          # fail in CI. The guard already ran locally on pre-commit/pre-push
+          # — skipping it here keeps every other hook active without
+          # blocking pushes that have legitimately reached main.
+          SKIP: no-commit-to-branch
