@@ -25,41 +25,37 @@ import requests
 from playwright.sync_api import Response
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
-from .browser import BrowserSession
-from .config import Config
-from .exceptions import AuthenticationError, GameSheetError
-from .session import Session
+from gamesheet_sdk.browser import BrowserSession
+from gamesheet_sdk.config import Config
+from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.session import Session
 
+# Path on which the SDK drives the login form, relative to
+# :attr:`Config.base_url`.
+# GameSheet's SPA renders the login form inline at the same route that
+# becomes the authenticated dashboard, rather than at a dedicated
+# ``/users/sign_in`` route. Driving the form here -- instead of at
+# ``/users/sign_in``, which is also valid HTML but is a *separate* React
+# app instance -- lets the same SPA instance handle the unauthenticated
+# to authenticated transition in place, so its post-login data fetches
+# happen with context preserved and the saved storage state captures a
+# fully-settled session.
 LOGIN_PATH = "/associations"
-"""Path on which the SDK drives the login form, relative to
-:attr:`Config.base_url`.
 
-GameSheet's SPA renders the login form inline at the same route that
-becomes the authenticated dashboard, rather than at a dedicated
-``/users/sign_in`` route. Driving the form here -- instead of at
-``/users/sign_in``, which is also valid HTML but is a *separate* React
-app instance -- lets the same SPA instance handle the unauthenticated
-to authenticated transition in place, so its post-login data fetches
-happen with context preserved and the saved storage state captures a
-fully-settled session.
-"""
-
+# Default destination after a successful login.
+# Navigating here after the auth round-trip lets the SPA fetch the user's
+# permissions, association list, and any other post-login state that the
+# dashboard caches in cookies / localStorage. Without this navigation the
+# saved browser state captures only "authenticated, pre-routing", which
+# makes subsequent runs look unprivileged to the SPA.
 POST_LOGIN_PATH = "/associations"
-"""Default destination after a successful login.
-
-Navigating here after the auth round-trip lets the SPA fetch the user's
-permissions, association list, and any other post-login state that the
-dashboard caches in cookies / localStorage. Without this navigation the
-saved browser state captures only "authenticated, pre-routing", which
-makes subsequent runs look unprivileged to the SPA.
-"""
 
 _FIREBASE_AUTH_HOST = "identitytoolkit.googleapis.com"
 _FIREBASE_AUTH_PATH = ":signInWithPassword"
 _TOKEN_EXCHANGE_PATH = "/api/token"  # nosec B105 - URL path, not a credential
 
+# Endpoint that mints a fresh access token from a valid refresh token.
 REFRESH_URL = "https://gateway-authserver-awy26srzoa-nn.a.run.app/auth/v4/refresh"
-"""Endpoint that mints a fresh access token from a valid refresh token."""
 
 _REFRESH_TIMEOUT_S = 30.0
 
@@ -177,9 +173,7 @@ def login(
             tok = captured["token"]
             if tok is not None:
                 if tok.status != 200:
-                    raise AuthenticationError(
-                        f"GameSheet token exchange failed (HTTP {tok.status})."
-                    )
+                    raise AuthenticationError(f"GameSheet token exchange failed (HTTP {tok.status}).")
                 _LOGGER.info("Login succeeded for %s.", email)
                 if post_login_path is not None:
                     _settle_post_login(session, post_login_path)
@@ -351,14 +345,10 @@ def refresh_access_token(
         headers["User-Agent"] = user_agent
     response = requests.post(REFRESH_URL, json={}, headers=headers, timeout=timeout)
     if response.status_code == 401:
-        raise AuthenticationError(
-            "Refresh token rejected. Run `gamesheet-sdk-py login` to "
-            "re-authenticate."
-        )
+        raise AuthenticationError("Refresh token rejected. Run `gamesheet-sdk-py login` to re-authenticate.")
     if response.status_code >= 400:
         raise GameSheetError(
-            f"Token refresh failed: HTTP {response.status_code}: "
-            f"{response.text[:200]!r}"
+            f"Token refresh failed: HTTP {response.status_code}: " f"{response.text[:200]!r}"
         )
     body = response.json()
     return {

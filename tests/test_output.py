@@ -76,9 +76,8 @@ def test_render_csv_header_and_rows() -> None:
 def test_render_tsv_uses_tab_delimiter() -> None:
     out = render(_ROWS, fmt="tsv")
     assert "\t" in out.splitlines()[0]
-    assert (
-        "," not in out.splitlines()[0]
-    )  # commas in titles would be quoted; no titles have them
+    # commas in titles would be quoted; no titles have them
+    assert "," not in out.splitlines()[0]
 
 
 @pytest.mark.parametrize("fmt", list(TABULATE_FORMATS))

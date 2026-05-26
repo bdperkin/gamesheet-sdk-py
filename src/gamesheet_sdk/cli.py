@@ -17,21 +17,21 @@ from typing import Any
 import click
 import colorlog
 
-from . import __version__
-from .associations import list_associations as _list_associations_action
-from .auth import (
+from gamesheet_sdk import __version__
+from gamesheet_sdk.associations import list_associations as _list_associations_action
+from gamesheet_sdk.auth import (
     AuthenticatedSession,
     load_access_token,
     load_refresh_token,
 )
-from .auth import login as _login_action
-from .auth import (
+from gamesheet_sdk.auth import login as _login_action
+from gamesheet_sdk.auth import (
     save_tokens,
 )
-from .browser import BrowserSession
-from .config import Config
-from .exceptions import AuthenticationError, GameSheetError
-from .output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
+from gamesheet_sdk.browser import BrowserSession
+from gamesheet_sdk.config import Config
+from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
 
 
 @click.group(
@@ -102,8 +102,7 @@ def _configure_logging(verbose: int) -> None:
     if _should_color(handler):
         handler.setFormatter(
             colorlog.ColoredFormatter(
-                "%(log_color)s%(levelname)-8s%(reset)s "
-                "%(message_log_color)s%(message)s",
+                "%(log_color)s%(levelname)-8s%(reset)s %(message_log_color)s%(message)s",
                 datefmt=None,
                 reset=True,
                 log_colors={
@@ -204,10 +203,7 @@ def login_command(
     "-c",
     "columns_spec",
     default=None,
-    help=(
-        "Comma-separated list of column names to include (default: all "
-        "columns the API returns)."
-    ),
+    help=("Comma-separated list of column names to include (default: all " "columns the API returns)."),
 )
 @click.pass_context
 def list_associations_command(
@@ -218,9 +214,9 @@ def list_associations_command(
 ) -> None:
     """List the associations the signed-in user can see.
 
-    Requires a saved session from `gamesheet-sdk-py login` -- the bearer
-    token is read out of the browser storage state on disk and attached
-    to the HTTP request. No browser is launched.
+    Requires a saved session from `gamesheet-sdk-py login` -- the bearer token is read
+    out of the browser storage state on disk and attached to the HTTP request. No
+    browser is launched.
     """
     config: Config = ctx.obj
     access = load_access_token(config)
@@ -252,11 +248,7 @@ def list_associations_command(
         ctx.exit(1)  # raises; control does not return
 
     rows = [assoc.model_dump(mode="json") for assoc in associations]
-    columns = (
-        [c.strip() for c in columns_spec.split(",") if c.strip()]
-        if columns_spec
-        else None
-    )
+    columns = [c.strip() for c in columns_spec.split(",") if c.strip()] if columns_spec else None
     rendered = render(rows, fmt=output_format, columns=columns)
     write_output(rendered, output_path, fmt=output_format)
 

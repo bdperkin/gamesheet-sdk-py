@@ -18,8 +18,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .exceptions import AuthenticationError, GameSheetError
-from .session import Session
+from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.session import Session
 
 _ENDPOINT = "/api/associations"
 _JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
@@ -68,8 +68,7 @@ def list_associations(session: Session) -> list[Association]:
         )
     if response.status_code >= 400:
         raise GameSheetError(
-            f"GET {_ENDPOINT} returned HTTP {response.status_code}: "
-            f"{response.text[:200]!r}"
+            f"GET {_ENDPOINT} returned HTTP {response.status_code}: " f"{response.text[:200]!r}"
         )
     body: dict[str, Any] = response.json()
     return [_parse(item) for item in body.get("data", [])]

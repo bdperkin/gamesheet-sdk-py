@@ -34,6 +34,7 @@ import yaml
 from rich.console import Console
 from rich.syntax import Syntax
 
+# Every ``tablefmt`` value :func:`render` accepts from tabulate.
 TABULATE_FORMATS: tuple[str, ...] = (
     "plain",
     "simple",
@@ -49,16 +50,15 @@ TABULATE_FORMATS: tuple[str, ...] = (
     "latex_booktabs",
     "latex_longtable",
 )
-"""Every ``tablefmt`` value :func:`render` accepts from tabulate."""
 
+# Machine-friendly formats :func:`render` renders without tabulate.
 DATA_FORMATS: tuple[str, ...] = ("json", "yaml", "csv", "tsv")
-"""Machine-friendly formats :func:`render` renders without tabulate."""
 
+# Union of every format :func:`render` understands.
 ALL_FORMATS: tuple[str, ...] = DATA_FORMATS + TABULATE_FORMATS
-"""Union of every format :func:`render` understands."""
 
+# Format used when the caller does not specify one.
 DEFAULT_FORMAT = "simple"
-"""Format used when the caller does not specify one."""
 
 
 def render(
@@ -78,9 +78,7 @@ def render(
     :raises ValueError: If ``fmt`` is not in :data:`ALL_FORMATS`.
     """
     if fmt not in ALL_FORMATS:
-        raise ValueError(
-            f"Unknown format: {fmt!r}. Expected one of " f"{', '.join(ALL_FORMATS)}."
-        )
+        raise ValueError(f"Unknown format: {fmt!r}. Expected one of " f"{', '.join(ALL_FORMATS)}.")
     effective_columns = columns if columns is not None else _derive_columns(rows)
 
     if fmt == "json":
@@ -154,9 +152,7 @@ def _render_dsv(
     )
     writer.writeheader()
     for row in rows:
-        writer.writerow(
-            {key: ("" if value is None else value) for key, value in row.items()}
-        )
+        writer.writerow({key: ("" if value is None else value) for key, value in row.items()})
     return buf.getvalue().rstrip("\n")
 
 

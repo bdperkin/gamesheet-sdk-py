@@ -65,9 +65,7 @@ def test_list_associations_parses_jsonapi_response(config: Config) -> None:
     assert [a.id for a in result] == ["11", "40"]
     assert result[0].title == "Hockey Time Productions"
     assert result[0].logo == ""
-    assert result[0].created_at == datetime(
-        2023, 5, 1, 20, 29, 9, 306_920, tzinfo=timezone.utc
-    )
+    assert result[0].created_at == datetime(2023, 5, 1, 20, 29, 9, 306_920, tzinfo=timezone.utc)
     assert result[1].logo == "https://example/logo.png"
 
 

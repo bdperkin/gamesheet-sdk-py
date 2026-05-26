@@ -1,7 +1,7 @@
 # gamesheet-sdk-py
 
 > **Unofficial** Python SDK and command-line interface for the
-> [GameSheet Inc.](https://gamesheet.com) platform.
+> [GameSheet Inc.](https://gamesheetinc.com) platform.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue.svg)](https://www.python.org/downloads/)
@@ -61,7 +61,7 @@ gamesheet-sdk-py --help
 
 ## Project layout
 
-```
+```bash
 gamesheet-sdk-py/
 ├── src/gamesheet_sdk/   # library source
 ├── tests/                  # pytest suite

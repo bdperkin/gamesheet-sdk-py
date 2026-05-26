@@ -8,7 +8,7 @@ is absent, and may break without warning when the UI changes.
 ```
 
 Unofficial Python SDK and command-line interface for the
-[GameSheet Inc.](https://gamesheet.com) platform.
+[GameSheet Inc.](https://gamesheetinc.com) platform.
 
 ## The four documentation quadrants
 

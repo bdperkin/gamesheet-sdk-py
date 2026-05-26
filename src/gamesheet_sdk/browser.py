@@ -27,7 +27,7 @@ from playwright.sync_api import (
     sync_playwright,
 )
 
-from .config import Config
+from gamesheet_sdk.config import Config
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -160,9 +160,7 @@ class BrowserSession:
         try:
             loaded: dict[str, Any] = json.loads(path.read_text())
         except (OSError, json.JSONDecodeError) as exc:
-            _LOGGER.warning(
-                "Failed to load browser storage state from %s: %s", path, exc
-            )
+            _LOGGER.warning("Failed to load browser storage state from %s: %s", path, exc)
             return None
         return loaded
 
