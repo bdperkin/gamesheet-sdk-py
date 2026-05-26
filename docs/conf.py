@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name
 """Sphinx configuration for the gamesheet-sdk-py documentation."""
 
 from __future__ import annotations
@@ -7,7 +8,7 @@ from importlib import metadata
 # -- Project information -----------------------------------------------------
 project = "gamesheet-sdk-py"
 author = "bdperkin"
-copyright = f"2026, {author}"
+copyright = f"2026, {author}"  # pylint: disable=redefined-builtin
 release = metadata.version("gamesheet-sdk-py")
 version = ".".join(release.split(".")[:2])
 

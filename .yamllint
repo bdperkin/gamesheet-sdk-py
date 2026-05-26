@@ -1,0 +1,21 @@
+# Example .yamllint file
+extends: default
+
+ignore: |
+  /.tox/
+  /.venv/
+
+rules:
+  # Overriding a rule from 'default'
+  line-length:
+    max: 240
+    level: warning
+
+  # Disabling a rule entirely
+  document-start: disable
+  truthy: disable
+
+  # Customizing indentation
+  indentation:
+    spaces: 2
+    indent-sequences: true

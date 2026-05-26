@@ -34,7 +34,7 @@ def _default_browser_state_path() -> Path:
     return Path(xdg).expanduser() / "gamesheet-sdk-py" / "browser-state.json"
 
 
-class Config(BaseSettings):
+class Config(BaseSettings):  # pylint: disable=too-few-public-methods
     """Resolved configuration for an SDK session."""
 
     model_config = SettingsConfigDict(

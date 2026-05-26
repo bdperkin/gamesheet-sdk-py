@@ -67,9 +67,7 @@ def test_negative_retries_rejected() -> None:
         Config(request_retries=-1)
 
 
-def test_session_path_default_uses_xdg_cache_home(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
+def test_session_path_default_uses_xdg_cache_home(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
     cfg = Config()
     assert cfg.session_path == tmp_path / "gamesheet-sdk-py" / "session.json"
@@ -92,9 +90,7 @@ def test_browser_state_path_default_uses_xdg_cache_home(
 ) -> None:
     monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
     cfg = Config()
-    assert (
-        cfg.browser_state_path == tmp_path / "gamesheet-sdk-py" / "browser-state.json"
-    )
+    assert cfg.browser_state_path == tmp_path / "gamesheet-sdk-py" / "browser-state.json"
 
 
 def test_browser_headless_default_true() -> None:

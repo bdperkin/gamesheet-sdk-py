@@ -94,9 +94,7 @@ def test_save_creates_parent_dirs(config: Config) -> None:
     assert names == {"foo": "bar"}
 
 
-def test_corrupt_cookie_file_does_not_crash(
-    config: Config, caplog: pytest.LogCaptureFixture
-) -> None:
+def test_corrupt_cookie_file_does_not_crash(config: Config, caplog: pytest.LogCaptureFixture) -> None:
     """A malformed session.json should be ignored with a warning, not raise."""
     config.session_path.parent.mkdir(parents=True, exist_ok=True)
     config.session_path.write_text("{ this is not json")
@@ -123,9 +121,7 @@ def test_explicit_timeout_overrides_default(config: Config) -> None:
         captured["called"] = True
         return (200, {}, "ok")
 
-    responses.add_callback(
-        responses.GET, "https://test.example/timed", callback=callback
-    )
+    responses.add_callback(responses.GET, "https://test.example/timed", callback=callback)
     with Session(config) as sess:
         # Explicit timeout is accepted; we cannot easily assert the value
         # reaches urllib3 without deeper plumbing, but the call must succeed.
@@ -134,9 +130,7 @@ def test_explicit_timeout_overrides_default(config: Config) -> None:
     assert captured["called"] is True
 
 
-def test_default_config_when_none_passed(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
+def test_default_config_when_none_passed(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     """`Session()` with no Config should construct a default Config."""
     monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
     sess = Session()

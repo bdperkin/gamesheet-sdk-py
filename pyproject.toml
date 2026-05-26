@@ -1,24 +1,26 @@
 [build-system]
-requires = ["hatchling>=1.24", "hatch-vcs>=0.4"]
 build-backend = "hatchling.build"
+requires = [ "hatch-vcs>=0.4", "hatchling>=1.24" ]
 
 [project]
 name = "gamesheet-sdk-py"
-dynamic = ["version"]
-description = "Unofficial Python SDK and CLI for the GameSheet Inc. platform — automates WebUI procedures where a native API is absent."
+description = """\
+  Unofficial Python SDK and CLI for the GameSheet Inc. platform — automates WebUI procedures where a native API is \
+  absent.\
+  """
 readme = "README.md"
-requires-python = ">=3.11,<3.15"
+keywords = [ "automation", "cli", "gamesheet", "hockey", "scraper", "sdk", "sports" ]
 license = { file = "LICENSE" }
 authors = [
-  { name = "bdperkin" },
+  { name = "bdperkin", email = "bdperkin@gmail.com" },
 ]
-keywords = ["gamesheet", "hockey", "sports", "sdk", "cli", "automation", "scraper"]
+requires-python = ">=3.11,<3.15"
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
@@ -26,79 +28,65 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
   "Typing :: Typed",
 ]
+dynamic = [ "version" ]
 dependencies = [
-  "requests>=2.32",
   "beautifulsoup4>=4.12",
-  "playwright>=1.45",
-  "lxml>=5.2",
-  "pydantic>=2.7",
-  "pydantic-settings>=2.0",
   "click>=8.1",
   "colorlog>=6.8",
-  "tabulate>=0.9",
+  "lxml>=5.2",
+  "playwright>=1.45",
+  "pydantic>=2.7",
+  "pydantic-settings>=2",
+  "pyyaml>=6",
+  "requests>=2.32",
   "rich>=13",
-  "PyYAML>=6.0",
+  "tabulate>=0.9",
 ]
-
-[project.optional-dependencies]
-dev = [
-  "pytest>=8.2",
-  "pytest-cov>=5.0",
-  "pytest-recording>=0.13",
-  "pytest-playwright>=0.5",
-  "responses>=0.25",
-  "black>=26.3",
-  "flake8>=7.1",
-  "Flake8-pyproject>=1.2",
-  "pre-commit>=3.7",
-  "mypy>=1.10",
-  "types-requests>=2.32",
-  "types-PyYAML>=6.0",
-  "types-tabulate>=0.9",
-  "build>=1.2",
-  "tox>=4.21",
-  "isort>=5.13",
-  "pyupgrade>=3.19",
+optional-dependencies.dev = [
   "bandit[toml]>=1.7",
+  "black>=26.3",
+  "build>=1.2",
   "codespell>=2.4",
+  "editorconfig-checker>=3.6",
+  "flake8>=7.1",
+  "flake8-pyproject>=1.2",
+  "isort>=5.13",
   "mdformat>=0.7",
   "mdformat-gfm>=0.4",
-  "yamllint>=1.38",
+  "mypy>=1.10",
+  "pre-commit>=3.7",
+  "pytest>=8.2",
+  "pytest-cov>=5",
+  "pytest-playwright>=0.5",
+  "pytest-recording>=0.13",
+  "pyupgrade>=3.19",
+  "responses>=0.25",
+  "tox>=4.21",
+  "types-pyyaml>=6",
+  "types-requests>=2.32",
+  "types-tabulate>=0.9",
   "validate-pyproject>=0.25",
-  "editorconfig-checker>=3.6",
+  "yamllint>=1.38",
 ]
-docs = [
-  "sphinx>=7.3",
+optional-dependencies.docs = [
   "furo>=2024.5",
-  "myst-parser[linkify]>=3.0",
+  "myst-parser[linkify]>=3",
+  "sphinx>=7.3",
+  "sphinx-autobuild>=2024.4",
+  "sphinx-click>=6",
   "sphinx-copybutton>=0.5",
   "sphinx-design>=0.5",
-  "sphinx-click>=6.0",
   "sphinx-lint>=0.9",
-  "sphinx-autobuild>=2024.4",
 ]
+urls.Documentation = "https://github.com/bdperkin/gamesheet-sdk-py#readme"
+urls.Homepage = "https://github.com/bdperkin/gamesheet-sdk-py"
+urls.Issues = "https://github.com/bdperkin/gamesheet-sdk-py/issues"
+urls.Repository = "https://github.com/bdperkin/gamesheet-sdk-py"
+scripts.gamesheet-sdk-py = "gamesheet_sdk.cli:main"
 
-[project.scripts]
-gamesheet-sdk-py = "gamesheet_sdk.cli:main"
-
-[project.urls]
-Homepage      = "https://github.com/bdperkin/gamesheet-sdk-py"
-Repository    = "https://github.com/bdperkin/gamesheet-sdk-py"
-Issues        = "https://github.com/bdperkin/gamesheet-sdk-py/issues"
-Documentation = "https://github.com/bdperkin/gamesheet-sdk-py#readme"
-
-# --- Hatch ----------------------------------------------------------------
-[tool.hatch.version]
-source = "vcs"
-
-[tool.hatch.build.hooks.vcs]
-version-file = "src/gamesheet_sdk/_version.py"
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/gamesheet_sdk"]
-
-[tool.hatch.build.targets.sdist]
-include = [
+[tool.hatch]
+build.hooks.vcs.version-file = "src/gamesheet_sdk/_version.py"
+build.targets.sdist.include = [
   "src/gamesheet_sdk",
   "tests",
   "docs",
@@ -106,31 +94,33 @@ include = [
   "LICENSE",
   "pyproject.toml",
 ]
+build.targets.wheel.packages = [ "src/gamesheet_sdk" ]
+# --- Hatch ----------------------------------------------------------------
+version.source = "vcs"
+
+# --- autopep8 -------------------------------------------------------------
+[tool.autopep8]
+max_line_length = 110
+aggressive = 1
+in-place = true
+recursive = true
 
 # --- Black ----------------------------------------------------------------
 [tool.black]
-line-length = 88
-target-version = ["py311", "py312", "py313", "py314"]
-include = '\.pyi?$'
+line-length = 110
+target-version = [ "py311", "py312", "py313", "py314" ]
+include = "\\.pyi?$"
 
 # --- isort ----------------------------------------------------------------
 [tool.isort]
 profile = "black"
-line_length = 88
-
-# --- bandit ---------------------------------------------------------------
-[tool.bandit]
-exclude_dirs = ["tests", ".venv", ".tox"]
-
-# --- codespell ------------------------------------------------------------
-[tool.codespell]
-skip = ".git,.tox,.venv,.mypy_cache,.pytest_cache,*.pyc,.coverage,.gitignore,LICENSE,*.lock"
+line_length = 110
 
 # --- flake8 (requires Flake8-pyproject plugin) ----------------------------
 [tool.flake8]
-max-line-length = 88
-extend-select = ["B950"]
-extend-ignore = ["E203", "E501", "W503"]
+max-line-length = 110
+extend-select = [ "B950" ]
+extend-ignore = [ "E203", "E501", "W503" ]
 exclude = [
   ".git",
   "__pycache__",
@@ -141,33 +131,37 @@ exclude = [
   ".eggs",
   "*.egg-info",
 ]
-per-file-ignores = ["tests/*:S101"]
+per-file-ignores = [ "tests/*:S101" ]
 
-# --- pytest ---------------------------------------------------------------
-[tool.pytest.ini_options]
-minversion = "8.0"
-# --block-network is pytest-recording: any test that opens a socket without
-# replaying a VCR cassette (or escaping via @pytest.mark.allow_hosts) fails.
-# This forces the test suite to stay deterministic and offline-capable.
-addopts = "-ra --strict-markers --strict-config --block-network"
-testpaths = ["tests"]
-pythonpath = ["src"]
-markers = [
-  "vcr: replay HTTP from a VCR cassette under tests/cassettes/",
-  "browser: drives a real headless Chromium via Playwright (slow; skip with -m 'not browser')",
+# --- pylint ----------------------------------------------------------------
+[tool.pylint]
+"messages control".disable = [
+  "missing-module-docstring",
+  "missing-class-docstring",
+  "missing-function-docstring",
 ]
+format.max-line-length = 110
+# --- pylint ---------------------------------------------------------------
+main.py-version = "3.11"
 
-# --- coverage -------------------------------------------------------------
-[tool.coverage.run]
-branch = true
-source = ["gamesheet_sdk"]
+# --- codespell ------------------------------------------------------------
+[tool.codespell]
+skip = ".git,.tox,.venv,.mypy_cache,.pytest_cache,*.pyc,.coverage,.gitignore,LICENSE,*.lock,./docs/_build"
 
-[tool.coverage.report]
-show_missing = true
-skip_covered = true
-# Coverage floor: pytest --cov fails if total coverage drops below this.
-# Current is ~89%; raise as the suite grows.
-fail_under = 80
+# --- docformatter ----------------------------------------------------------
+[tool.docformatter]
+wrap_length = 110
+wrap_summaries = 110
+wrap_descriptions = 110
+black = true
+style = "pep257"
+make_summary_multi_line = false
+close_quotes_on_newline = false
+pre_summary_newline = false
+
+# --- bandit ---------------------------------------------------------------
+[tool.bandit]
+exclude_dirs = [ "tests", ".venv", ".tox" ]
 
 # --- mypy -----------------------------------------------------------------
 [tool.mypy]
@@ -176,145 +170,59 @@ strict = true
 warn_unused_configs = true
 warn_unreachable = true
 ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-# click's decorators look "untyped" to mypy --strict (their generic return
-# types don't propagate cleanly through @click.option chains). Relaxing the
-# rule just for cli.py keeps strict-mode honest everywhere else.
-module = "gamesheet_sdk.cli"
-disallow_untyped_decorators = false
-
-# --- pylint ---------------------------------------------------------------
-[tool.pylint.main]
-py-version = "3.11"
-
-[tool.pylint.format]
-max-line-length = 88
-
-[tool.pylint."messages control"]
-disable = [
-  "missing-module-docstring",
-  "missing-class-docstring",
-  "missing-function-docstring",
+explicit_package_bases = false
+mypy_path = "src"
+namespace_packages = false
+overrides = [
+  # click's decorators look "untyped" to mypy --strict (their generic return
+  # types don't propagate cleanly through @click.option chains). Relaxing the
+  # rule just for cli.py keeps strict-mode honest everywhere else.
+  { module = "gamesheet_sdk.cli", disallow_untyped_decorators = false },
+  { module = "tests.*", disable_error_code = [
+    "arg-type",
+    "call-arg",
+    "return-value",
+    "untyped-decorator",
+    "var-annotated",
+  ] },
 ]
+
+# --- pytest ---------------------------------------------------------------
+[tool.pytest]
+ini_options.minversion = "8.0"
+# --block-network is pytest-recording: any test that opens a socket without
+# replaying a VCR cassette (or escaping via @pytest.mark.allow_hosts) fails.
+# This forces the test suite to stay deterministic and offline-capable.
+ini_options.addopts = "-ra --strict-markers --strict-config --block-network"
+ini_options.testpaths = [ "tests" ]
+ini_options.pythonpath = [ "src" ]
+ini_options.markers = [
+  "vcr: replay HTTP from a VCR cassette under tests/cassettes/",
+  "browser: drives a real headless Chromium via Playwright (slow; skip with -m 'not browser')",
+]
+
+[tool.coverage]
+# --- coverage -------------------------------------------------------------
+run.branch = true
+run.source = [ "gamesheet_sdk" ]
+# Coverage floor: pytest --cov fails if total coverage drops below this.
+# Current is ~89%; raise as the suite grows.
+report.fail_under = 80
+report.show_missing = true
+report.skip_covered = true
+
+# --- pyroma ---------------------------------------------------------------
+[tool.pyroma]
+# Fail the command if the score is lower than the given number (out of 10)
+min_score = 10
 
 # --- tox ------------------------------------------------------------------
 [tool.tox]
-legacy_tox_ini = """
-[tox]
-requires = tox>=4.21
-env_list = py311, py312, py313, py314, lint, type, pylint, security, files-check, docs, docs-lint
 
-[testenv]
-description = Run the pytest suite under {base_python}
-package = editable
-extras = dev
-commands = pytest --cov {posargs}
-
-[testenv:lint]
-description = Python style checks (black --check, isort --check, flake8 via Flake8-pyproject)
-skip_install = true
-deps =
-    black>=26.3
-    isort>=5.13
-    flake8>=7.1
-    Flake8-pyproject>=1.2
-commands =
-    black --check src tests
-    isort --check src tests
-    flake8 src tests
-
-[testenv:type]
-description = Type-check with mypy --strict
-extras = dev
-commands = mypy src
-
-[testenv:pylint]
-description = Lint with pylint (config in pyproject.toml)
-extras = dev
-deps = pylint>=4.0
-commands = pylint src tests
-
-[testenv:security]
-description = Security scan with bandit (config in [tool.bandit])
-skip_install = true
-deps = bandit[toml]>=1.7
-commands = bandit -c pyproject.toml -r src
-
-[testenv:files-check]
-description = Non-Python file checks (codespell, yamllint, validate-pyproject, editorconfig-checker, mdformat --check)
-skip_install = true
-deps =
-    codespell>=2.4
-    yamllint>=1.38
-    validate-pyproject>=0.25
-    editorconfig-checker>=3.6
-    mdformat>=0.7
-    mdformat-gfm>=0.4
-commands =
-    codespell
-    yamllint -d relaxed .pre-commit-config.yaml .github/workflows
-    validate-pyproject pyproject.toml
-    ec
-    mdformat --check CLAUDE.md README.md docs
-
-[testenv:fix]
-description = Apply auto-formatters in place (isort, black, mdformat)
-skip_install = true
-deps =
-    black>=26.3
-    isort>=5.13
-    mdformat>=0.7
-    mdformat-gfm>=0.4
-commands =
-    isort src tests
-    black src tests
-    mdformat CLAUDE.md README.md docs
-
-[testenv:docs]
-description = Build the HTML documentation (two-pass; strict on second pass)
-extras = docs
-commands =
-    sphinx-build -b html docs docs/_build/html
-    sphinx-build -b html -n -W --keep-going docs docs/_build/html
-
-[testenv:docs-epub]
-description = Build the EPUB documentation
-extras = docs
-commands = sphinx-build -b epub docs docs/_build/epub
-
-[testenv:docs-man]
-description = Build the man-page documentation
-extras = docs
-commands = sphinx-build -b man docs docs/_build/man
-
-[testenv:docs-pdf]
-description = Build the PDF documentation (requires LaTeX / pdflatex / latexmk on PATH)
-extras = docs
-allowlist_externals = make
-commands =
-    sphinx-build -b latex docs docs/_build/latex
-    make -C docs/_build/latex all-pdf
-
-[testenv:docs-linkcheck]
-description = Check for broken external links in the documentation
-extras = docs
-commands = sphinx-build -b linkcheck docs docs/_build/linkcheck
-
-[testenv:docs-doctest]
-description = Run doctest examples embedded in the documentation
-extras = docs
-commands = sphinx-build -b doctest docs docs/_build/doctest
-
-[testenv:docs-lint]
-description = Lint Sphinx source files with sphinx-lint
-extras = docs
-# -i matches paths by substring, so prefix-free names skip generated dirs
-# at any depth (e.g. docs/reference/_autosummary/ from autosummary stubs).
-commands = sphinx-lint -i _build -i _autosummary docs
-
-[testenv:docs-serve]
-description = Live-reload preview at http://127.0.0.1:8000
-extras = docs
-commands = sphinx-autobuild docs docs/_build/html {posargs}
-"""
+# --- PyMarkdown -----------------------------------------------------------
+[tool.pymarkdown]
+plugins.commands-show-output.enabled = false
+plugins.line-length.enabled = true
+plugins.line-length.line_length = 220
+plugins.line-length.heading_line_length = 220
+plugins.line-length.code_block_line_length = 220

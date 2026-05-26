@@ -29,7 +29,7 @@ from requests.adapters import HTTPAdapter
 from requests.cookies import RequestsCookieJar, create_cookie
 from urllib3.util.retry import Retry
 
-from .config import Config
+from gamesheet_sdk.config import Config
 
 
 def _default_user_agent() -> str:
@@ -79,7 +79,10 @@ class Session:
 
     @property
     def cookies(self) -> RequestsCookieJar:
-        """Underlying cookie jar. Mutating this affects subsequent requests."""
+        """Underlying cookie jar.
+
+        Mutating this affects subsequent requests.
+        """
         return self._http.cookies
 
     @property
@@ -124,19 +127,31 @@ class Session:
         return self._http.request(method, full_url, timeout=effective_timeout, **kwargs)
 
     def get(self, url: str, **kwargs: Any) -> requests.Response:
-        """Send a GET request. See :meth:`request`."""
+        """Send a GET request.
+
+        See :meth:`request`.
+        """
         return self.request("GET", url, **kwargs)
 
     def post(self, url: str, **kwargs: Any) -> requests.Response:
-        """Send a POST request. See :meth:`request`."""
+        """Send a POST request.
+
+        See :meth:`request`.
+        """
         return self.request("POST", url, **kwargs)
 
     def put(self, url: str, **kwargs: Any) -> requests.Response:
-        """Send a PUT request. See :meth:`request`."""
+        """Send a PUT request.
+
+        See :meth:`request`.
+        """
         return self.request("PUT", url, **kwargs)
 
     def delete(self, url: str, **kwargs: Any) -> requests.Response:
-        """Send a DELETE request. See :meth:`request`."""
+        """Send a DELETE request.
+
+        See :meth:`request`.
+        """
         return self.request("DELETE", url, **kwargs)
 
     # -- lifecycle --------------------------------------------------------

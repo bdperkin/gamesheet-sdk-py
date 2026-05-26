@@ -223,7 +223,5 @@ def test_goto_resolves_url_and_returns_page(config: Config) -> None:
         returned = bs.goto("/login", wait_until="domcontentloaded")
         bs.close()
 
-    page.goto.assert_called_once_with(
-        "https://test.example/login", wait_until="domcontentloaded"
-    )
+    page.goto.assert_called_once_with("https://test.example/login", wait_until="domcontentloaded")
     assert returned is page

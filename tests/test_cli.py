@@ -80,9 +80,7 @@ def test_configure_logging_vvv_clamps_to_debug() -> None:
 
 
 @patch("gamesheet_sdk.cli._login_action")
-def test_login_succeeds_with_explicit_credentials(
-    mock_login: MagicMock, runner: CliRunner
-) -> None:
+def test_login_succeeds_with_explicit_credentials(mock_login: MagicMock, runner: CliRunner) -> None:
     result = runner.invoke(
         cli,
         ["login", "--email", "alice@example.com", "--password", "hunter2"],
@@ -142,9 +140,7 @@ def test_login_reads_credentials_from_env(
 
 
 @patch("gamesheet_sdk.cli._login_action")
-def test_login_prompts_when_no_credentials_anywhere(
-    mock_login: MagicMock, runner: CliRunner
-) -> None:
+def test_login_prompts_when_no_credentials_anywhere(mock_login: MagicMock, runner: CliRunner) -> None:
     """Without --email/--password and without env vars, click prompts."""
     result = runner.invoke(
         cli,

@@ -40,8 +40,8 @@ def config(tmp_path: Path) -> Config:
 def vcr_config() -> dict[str, object]:
     """Defaults applied to every @pytest.mark.vcr test.
 
-    Sensitive headers and body fields are scrubbed before cassettes are
-    written, so recordings can be committed without leaking credentials.
+    Sensitive headers and body fields are scrubbed before cassettes are written, so
+    recordings can be committed without leaking credentials.
     """
     return {
         "filter_headers": [

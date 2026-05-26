@@ -1,9 +1,12 @@
-"""gamesheet_sdk — unofficial Python SDK for the GameSheet Inc. platform."""
+"""gamesheet_sdk — unofficial Python SDK for the GameSheet Inc.
+
+platform.
+"""
 
 from __future__ import annotations
 
 try:
-    from ._version import __version__
+    from gamesheet_sdk._version import __version__
 except ImportError:  # pragma: no cover - fallback only fires uninstalled
     # _version.py is written by hatch-vcs at build time; when running from
     # a source tree that hasn't been built (or an editable install that
@@ -15,8 +18,8 @@ except ImportError:  # pragma: no cover - fallback only fires uninstalled
     except PackageNotFoundError:
         __version__ = "0+unknown"
 
-from .associations import Association, list_associations
-from .auth import (
+from gamesheet_sdk.associations import Association, list_associations
+from gamesheet_sdk.auth import (
     AuthenticatedSession,
     load_access_token,
     load_refresh_token,
@@ -24,17 +27,17 @@ from .auth import (
     refresh_access_token,
     save_tokens,
 )
-from .browser import BrowserSession
-from .config import Config
-from .exceptions import AuthenticationError, GameSheetError
-from .output import (
+from gamesheet_sdk.browser import BrowserSession
+from gamesheet_sdk.config import Config
+from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.output import (
     ALL_FORMATS,
     DATA_FORMATS,
     DEFAULT_FORMAT,
     TABULATE_FORMATS,
     render,
 )
-from .session import Session
+from gamesheet_sdk.session import Session
 
 __all__ = [
     "ALL_FORMATS",
