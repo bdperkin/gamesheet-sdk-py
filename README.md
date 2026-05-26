@@ -60,18 +60,56 @@ WebUI** (using a combination of HTTP requests, HTML parsing, and headless-browse
 automation) in order to perform routine tasks programmatically.
 
 Because this approach depends on the structure of a third-party web interface,
-**it may break without warning** whenever GameSheet ships UI changes. Always
-review the project's CHANGELOG before upgrading in production.
+**it may break without warning** whenever GameSheet ships UI changes. Check the
+[GitHub Releases](https://github.com/bdperkin/gamesheet-sdk-py/releases) page for
+release notes before upgrading in production.
 
 Use of this software must comply with the GameSheet Inc. Terms of Service. You
 are responsible for any automation you perform against accounts you control.
 
+## Table of contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick start](#quick-start)
+- [Configuration](#configuration)
+- [CLI usage](#cli-usage)
+- [Documentation](#documentation)
+- [Project layout](#project-layout)
+- [Development](#development)
+- [Contributing](#contributing)
+- [Security](#security)
+- [License](#license)
+
 ## Features
 
-- Pythonic wrappers over common GameSheet WebUI workflows
-- A `gamesheet-sdk-py` command-line interface for one-off scripting and shell pipelines
-- Typed (PEP 561) — ships a `py.typed` marker for static analysis
-- First-class support for headless automation via [Playwright](https://playwright.dev/python/)
+- **`login` flow** — authenticates against the GameSheet dashboard with
+  [Playwright](https://playwright.dev/python/), persists the auth cookie and
+  Playwright storage state so subsequent commands run without a browser.
+- **`AuthenticatedSession`** — a `requests`-backed HTTP layer that attaches the
+  saved bearer token, transparently refreshes it on 401, and re-persists rotated
+  tokens via a user-supplied callback.
+- **`BrowserSession`** — a Playwright wrapper that opens Chromium with the
+  saved storage state for any flow that genuinely needs a real browser (headed
+  mode available via `--no-headless` for debugging).
+- **`list-associations`** — first concrete read-only command; lists the
+  associations the signed-in user can see.
+- **Pluggable output** — `render()` produces JSON, YAML, CSV, TSV, or any of 13
+  human-readable tabulate formats (`simple`, `grid`, `fancy_grid`, `rst`,
+  `html`, `latex`, …).
+- **Typed (PEP 561)** — ships a `py.typed` marker and passes `mypy --strict`.
+- **Config from env or kwargs** — `pydantic-settings` resolves `GAMESHEET_*`
+  environment variables with CLI overrides taking precedence.
+
+## Requirements
+
+- **Python 3.11, 3.12, 3.13, or 3.14** (declared in `pyproject.toml`)
+- **Chromium binary** managed by Playwright — required for the `login` flow
+  and any other browser-driven workflow. Install once per machine with
+  `python -m playwright install chromium`.
+- Any modern Linux, macOS, or Windows host on which Python and Playwright
+  Chromium run.
 
 ## Installation
 
@@ -93,51 +131,181 @@ python -m playwright install chromium
 
 ## Quick start
 
-```python
-from gamesheet_sdk import __version__
-
-print(__version__)
-```
+Authenticate once, then list the associations on your account:
 
 ```bash
-gamesheet-sdk-py --help
+# Credentials can also be supplied via GAMESHEET_USERNAME / GAMESHEET_PASSWORD;
+# omit the flags to be prompted interactively.
+gamesheet-sdk-py login --email you@example.com
+
+# Subsequent commands reuse the saved session — no browser, no re-prompt.
+gamesheet-sdk-py list-associations --format json
 ```
+
+Or from Python:
+
+```python
+from gamesheet_sdk import (
+    AuthenticatedSession,
+    Config,
+    list_associations,
+    load_access_token,
+    load_refresh_token,
+    save_tokens,
+)
+
+config = Config()  # reads GAMESHEET_* env vars; CLI args > env > defaults
+access = load_access_token(config)
+refresh = load_refresh_token(config)
+
+with AuthenticatedSession(
+    config,
+    access_token=access or "",
+    refresh_token=refresh or "",
+    on_refresh=lambda tokens: save_tokens(config, **tokens),
+) as session:
+    for assoc in list_associations(session):
+        print(assoc.name)
+```
+
+## Configuration
+
+`Config` is a `pydantic-settings` model. Values resolve in this order:
+
+1. Keyword arguments passed to `Config(...)` (or CLI flags like `--base-url`).
+1. `GAMESHEET_`-prefixed environment variables.
+1. Built-in defaults.
+
+| Environment variable           | Purpose                                              | Default                                               |
+| ------------------------------ | ---------------------------------------------------- | ----------------------------------------------------- |
+| `GAMESHEET_BASE_URL`           | Root URL of the GameSheet WebUI                      | `https://gamesheet.app`                               |
+| `GAMESHEET_USERNAME`           | Account email (CLI `--email` overrides)              | *unset*                                               |
+| `GAMESHEET_PASSWORD`           | Account password (CLI `--password` overrides)        | *unset*                                               |
+| `GAMESHEET_TIMEOUT`            | Default per-request HTTP timeout in seconds          | `30`                                                  |
+| `GAMESHEET_REQUEST_RETRIES`    | Auto-retries on 5xx and connection errors            | `3`                                                   |
+| `GAMESHEET_USER_AGENT`         | Override the HTTP `User-Agent` header                | requests default                                      |
+| `GAMESHEET_VERIFY_SSL`         | TLS certificate verification                         | `true`                                                |
+| `GAMESHEET_SESSION_PATH`       | Where to persist cookie state                        | `$XDG_CACHE_HOME/gamesheet-sdk-py/session.json`       |
+| `GAMESHEET_BROWSER_STATE_PATH` | Where to persist Playwright storage state            | `$XDG_CACHE_HOME/gamesheet-sdk-py/browser-state.json` |
+| `GAMESHEET_BROWSER_HEADLESS`   | Launch Playwright in headless mode (`--no-headless`) | `true`                                                |
+
+## CLI usage
+
+```console
+$ gamesheet-sdk-py --help
+Usage: gamesheet-sdk-py [OPTIONS] COMMAND [ARGS]...
+
+  Unofficial CLI for the GameSheet Inc. platform.
+
+Options:
+  --version       Show the version and exit.
+  -v, --verbose   Increase logging verbosity. -v sets INFO; -vv sets DEBUG.
+  --base-url URL  Override Config.base_url for this invocation.
+  --no-headless   Run browser-driven flows with a visible window (for
+                  debugging).
+  -h, --help      Show this message and exit.
+
+Commands:
+  list-associations  List the associations the signed-in user can see.
+  login              Authenticate and persist a GameSheet session.
+```
+
+Render formats accepted by `list-associations --format`:
+
+- **Data:** `json`, `yaml`, `csv`, `tsv`
+- **Tables (via [tabulate](https://github.com/astanin/python-tabulate)):**
+  `plain`, `simple` (default), `grid`, `fancy_grid`, `pipe`, `orgtbl`, `rst`,
+  `mediawiki`, `html`, `latex`, `latex_raw`, `latex_booktabs`, `latex_longtable`
+
+## Documentation
+
+Full documentation is published on GitHub Pages:
+**<https://bdperkin.github.io/gamesheet-sdk-py/>**
+
+The docs are organized following the [Diátaxis](https://diataxis.fr/)
+framework into tutorials, how-to guides, reference, and explanation. The
+reference section (API + CLI) is generated from source, so it cannot drift
+from the shipped package.
 
 ## Project layout
 
-```bash
+```text
 gamesheet-sdk-py/
-├── src/gamesheet_sdk/   # library source
-├── tests/                  # pytest suite
-├── docs/                   # additional documentation
-├── pyproject.toml          # PEP 621 metadata + Hatch build
-├── .pre-commit-config.yaml # hooks run locally and on pre-commit.ci
-└── LICENSE                 # MIT
+├── src/gamesheet_sdk/
+│   ├── __init__.py            # public re-exports + __version__
+│   ├── associations.py        # list-associations action + model
+│   ├── auth.py                # login, token persistence, AuthenticatedSession
+│   ├── browser.py             # Playwright BrowserSession wrapper
+│   ├── cli.py                 # click entry point — `gamesheet-sdk-py`
+│   ├── config.py              # pydantic-settings Config (GAMESHEET_*)
+│   ├── exceptions.py          # GameSheetError, AuthenticationError
+│   ├── output.py              # render() — json/yaml/csv/tsv + tabulate
+│   ├── session.py             # base requests.Session subclass
+│   └── py.typed               # PEP 561 marker
+├── tests/                     # pytest suite (VCR cassettes + Playwright)
+├── docs/                      # Sphinx (Diátaxis) — published to GH Pages
+├── .github/workflows/         # ci, codeql, docs, pylint, release, deps
+├── pyproject.toml             # PEP 621 metadata + Hatch + tool config
+├── tox.ini                    # tox envs: lint, type, security, files-check, …
+├── .pre-commit-config.yaml    # runs locally and on pre-commit.ci
+├── SECURITY.md                # vulnerability reporting policy
+└── LICENSE                    # MIT
 ```
 
 ## Development
 
 ```bash
-# 1. Create an isolated environment
+# 1. Create an isolated environment and install dev + docs extras
 python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev,docs]"
+python -m playwright install chromium
 
-# 2. Install with dev extras
-pip install -e ".[dev]"
-
-# 3. Install hook scripts
+# 2. Install pre-commit hooks
 pre-commit install
 
-# 4. Run the test suite
-pytest
+# 3. Run the test suite (network is blocked unless replayed via VCR)
+pytest                       # everything
+pytest -m "not browser"      # skip slow real-Chromium tests
+pytest --cov                 # with coverage (fail_under = 80)
 
-# 5. Run all hooks against the repo
-pre-commit run --all-files
+# 4. Run individual quality gates
+pre-commit run --all-files   # every hook
+mypy src                     # strict mode
 ```
+
+`tox` orchestrates everything in isolated venvs:
+
+```bash
+tox                  # py311..py314 + lint + type + pylint + security + files-check
+tox -e lint          # black --check, isort --check, flake8
+tox -e type          # mypy --strict
+tox -e security      # bandit
+tox -e files-check   # codespell, yamllint, validate-pyproject, …
+tox -e fix           # auto-apply isort, black, mdformat
+tox -e docs          # build the Sphinx HTML docs
+tox -e docs-serve    # live-reload preview
+```
+
+The package version is **derived from `git describe`** via `hatch-vcs` — never
+edit a version literal. To cut a release, tag the commit (`git tag -a vX.Y.Z`
+then `git push origin vX.Y.Z`); the `release.yml` workflow builds, publishes
+to PyPI via Trusted Publishing (OIDC), and creates a GitHub Release.
 
 ## Contributing
 
-Issues and pull requests are welcome. Please run `pre-commit run --all-files`
-and `pytest` before opening a PR.
+Issues and pull requests are welcome.
+
+Before opening a PR:
+
+- Run `pre-commit run --all-files` and `pytest` (or `tox` to cover both plus lint/type/security in isolated envs).
+- New code must be fully annotated and pass `mypy --strict`.
+- New documentation pages belong in one of the four Diátaxis quadrants under `docs/` — see [`docs/explanation/diataxis.md`](docs/explanation/diataxis.md) for guidance.
+
+## Security
+
+To report a vulnerability, see [SECURITY.md](SECURITY.md). Please do not
+open public issues for security reports — use the private reporting channel
+documented there.
 
 ## License
 
