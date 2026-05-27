@@ -62,6 +62,7 @@ tox -e type                  # mypy --strict
 tox -e pylint                # pylint
 tox -e security              # bandit -r src (config in [tool.bandit])
 tox -e files-check           # codespell, yamllint, validate-pyproject, editorconfig-checker, mdformat --check
+tox -e metrics               # radon cc -s -a + radon mi -s over src (cyclomatic complexity + maintainability index)
 tox -e fix                   # apply formatters in place: isort, black, mdformat
 tox -e py314 -- -k test_name # pass args to pytest after --
 
@@ -102,11 +103,24 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
 - **Python 3.11–3.14.** Use modern syntax (`from __future__ import annotations`, `X | None`, etc.) as `cli.py` already does.
 
 - **Formatting/lint pipeline.** Python: black (88), isort (`profile = "black"`), flake8 (via `Flake8-pyproject` reading `[tool.flake8]`), pyupgrade
-  (`--py311-plus`), mypy (`--strict`), pylint, bandit (`[tool.bandit]`). Non-Python: codespell (`[tool.codespell]`), yamllint (`-d relaxed`),
-  validate-pyproject, editorconfig-checker, mdformat (+ mdformat-gfm), sphinx-lint. All wired into pre-commit, tox (envs: `lint`, `type`, `pylint`,
-  `security`, `files-check`, plus `fix` for auto-apply), and GitHub Actions (CI calls tox). mypy + pylint in pre-commit use `local` hooks because (a)
-  pre-commit/mirrors-mypy tags currently drift ahead of upstream mypy on PyPI, and (b) pylint needs the project's runtime deps duplicated in
-  `additional_dependencies` to resolve imports inside the isolated hook venv. `pre-commit.ci` auto-fixes PRs and runs weekly autoupdates.
+  (`--py311-plus`), mypy (`--strict`), pylint, bandit (`[tool.bandit]`), xenon (complexity gate — see below). Non-Python: codespell
+  (`[tool.codespell]`), yamllint (`-d relaxed`), validate-pyproject, editorconfig-checker, mdformat (+ mdformat-gfm), sphinx-lint. All wired into
+  pre-commit, tox (envs: `lint`, `type`, `pylint`, `security`, `files-check`, `metrics`, plus `fix` for auto-apply), and GitHub Actions (CI calls
+  tox). mypy + pylint in pre-commit use `local` hooks because (a) pre-commit/mirrors-mypy tags currently drift ahead of upstream mypy on PyPI, and
+  (b) pylint needs the project's runtime deps duplicated in `additional_dependencies` to resolve imports inside the isolated hook venv.
+  `pre-commit.ci` auto-fixes PRs and runs weekly autoupdates.
+
+- **Complexity gate.** A `xenon` pre-commit hook enforces
+  `--max-absolute=A --max-modules=A --max-average=B` against `src/` on every commit (`pass_filenames: false`, runs the whole package as one
+  analysis). Translation: **every block (function / method / class) must stay at cyclomatic-complexity grade A (cc ≤ 5)**; every module must
+  average grade A; the project as a whole must average grade B or better. As of the gate landing the project average is 2.43 with zero blocks
+  above A. `tox -e metrics` runs `radon cc -s -a` + `radon mi -s` to report the actual numbers — useful before pushing a function that's growing
+  conditionals. When you find yourself adding a fourth `if` / `except` / `for` / `and` / `or` to a block, extract a helper instead — see how
+  `auth.py:login` is decomposed into `_resolve_email` + `_resolve_password` + `_wait_for_login_form` + `_attach_response_capture` +
+  `_submit_login_form` + `_await_auth_outcome` for the pattern. **CodeQL data-flow gotcha worth preserving:** don't return a sensitive value
+  (password, token, secret) bundled in the same tuple / list / dict as a non-sensitive sibling that downstream code logs. CodeQL's taint analyzer
+  treats both elements as tainted, which fires
+  `py/clear-text-logging-sensitive-data` on perfectly innocent `email` log calls. Keep credential resolvers split (one helper per secret).
 
 - **Documentation.** Sphinx (Furo theme, MyST-Parser for markdown sources) lives under `docs/`. `conf.py` enables autodoc + autosummary (API),
   `sphinx-click` (CLI rendered live from the `gamesheet_sdk.cli:cli` group — so it always tracks the shipped click tree, including nested resource
