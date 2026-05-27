@@ -5,14 +5,24 @@ Built on click. The pyproject.toml entry point is
 around the click group ``cli`` so the original
 ``main(argv: list[str] | None = None) -> int`` contract is preserved
 for callers that imported it directly.
+
+The CLI follows a resource-oriented (noun-first) layout: each resource
+gets its own :class:`ResourceGroup` whose canonical verbs are
+``create``, ``get``, ``list``, ``update``, and ``delete`` (with the
+conventional aliases ``add/new``, ``show/view``, ``ls``, ``set/edit``,
+and ``rm/remove`` respectively). Invoking a resource group with no
+sub-command implicitly runs ``list``. ``login`` remains a root-level
+global operation.
 """
 
 from __future__ import annotations
 
+import functools
 import logging
 import os
 import sys
-from typing import Any
+from collections.abc import Callable, Iterable, Mapping
+from typing import Any, TypeVar, cast
 
 import click
 import colorlog
@@ -32,6 +42,102 @@ from gamesheet_sdk.browser import BrowserSession
 from gamesheet_sdk.config import Config
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
+
+F = TypeVar("F", bound=Callable[..., Any])
+
+
+class ResourceGroup(click.Group):
+    """A :class:`click.Group` for resource-oriented sub-command trees.
+
+    Adds two pieces of architectural plumbing on top of the stock group.
+
+    **Aliases.** Pass ``aliases={"list": ("ls",), "delete": ("rm", "remove")}`` and ``ls`` resolves to the
+    same callback as ``list`` without re-binding it. The canonical name is what shows up in tracebacks and
+    ``--help`` output; aliases appear in parentheses next to it.
+
+    **Default sub-command.** Pass ``default="list"`` and a bare invocation of the group implicitly runs
+    ``list``. Explicit sub-command calls still flow through normally.
+    """
+
+    def __init__(
+        self,
+        *args: Any,
+        default: str | None = None,
+        aliases: Mapping[str, Iterable[str]] | None = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        self.default_cmd_name = default
+        # Flatten {canonical: (alt, ...)} into {alt: canonical} for O(1)
+        # lookup in get_command.
+        self._aliases: dict[str, str] = {}
+        if aliases:
+            for target, alts in aliases.items():
+                for alt in alts:
+                    self._aliases[alt] = target
+
+    def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
+        cmd = super().get_command(ctx, cmd_name)
+        if cmd is not None:
+            return cmd
+        target = self._aliases.get(cmd_name)
+        if target is None:
+            return None
+        return super().get_command(ctx, target)
+
+    def parse_args(self, ctx: click.Context, args: list[str]) -> list[str]:
+        # When the group is invoked with no further args, inject the
+        # configured default sub-command so the rest of click's parsing
+        # machinery treats it exactly like an explicit call.
+        if not args and self.default_cmd_name is not None:
+            args = [self.default_cmd_name]
+        return super().parse_args(ctx, args)
+
+    def format_commands(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:
+        """Render the command list with aliases in parentheses."""
+        rows: list[tuple[str, str]] = []
+        for name in self.list_commands(ctx):
+            cmd = self.get_command(ctx, name)
+            if cmd is None or cmd.hidden:
+                continue
+            alts = sorted(a for a, t in self._aliases.items() if t == name)
+            label = f"{name} ({', '.join(alts)})" if alts else name
+            rows.append((label, cmd.get_short_help_str(limit=80)))
+        if rows:
+            with formatter.section("Commands"):
+                formatter.write_dl(rows)
+
+
+def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
+    """Decorator: gate a click command with a ``[y/N]`` confirmation.
+
+    Adds a ``--force/-f`` flag to the wrapped command. The flag skips
+    the prompt (suitable for automation/CI); without it the command
+    aborts unless the user confirms interactively. Intended for use on
+    any ``delete``/``rm``/``remove`` sub-command across resource groups.
+    """
+
+    def decorator(f: F) -> F:
+        @click.option(
+            "--force",
+            "-f",
+            is_flag=True,
+            default=False,
+            help="Skip the interactive confirmation prompt.",
+        )
+        @functools.wraps(f)
+        def wrapper(*args: Any, force: bool = False, **kwargs: Any) -> Any:
+            if not force:
+                click.confirm(
+                    f"Really delete {target}?",
+                    abort=True,
+                    default=False,
+                )
+            return f(*args, **kwargs)
+
+        return cast("F", wrapper)
+
+    return decorator
 
 
 @click.group(
@@ -175,7 +281,31 @@ def login_command(
     click.secho("Login succeeded.", fg="green")
 
 
-@cli.command("list-associations")
+@cli.group(
+    "associations",
+    cls=ResourceGroup,
+    default="list",
+    aliases={
+        "list": ("ls",),
+        # The remaining canonical → alias mappings are listed here so the
+        # next contributor adding create/get/update/delete sub-commands
+        # gets the muscle-memory mapping for free. They have no effect
+        # until matching @associations_group.command() callables exist.
+        "create": ("add", "new"),
+        "get": ("show", "view"),
+        "update": ("set", "edit"),
+        "delete": ("rm", "remove"),
+    },
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
+def associations_group() -> None:
+    """Manage GameSheet associations.
+
+    Invoking ``associations`` with no sub-command runs ``list`` by default.
+    """
+
+
+@associations_group.command("list")
 @click.option(
     "--format",
     "-F",
@@ -206,7 +336,7 @@ def login_command(
     help=("Comma-separated list of column names to include (default: all " "columns the API returns)."),
 )
 @click.pass_context
-def list_associations_command(
+def associations_list_command(
     ctx: click.Context,
     output_format: str,
     output_path: str | None,

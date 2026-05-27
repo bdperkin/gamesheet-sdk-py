@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import click
 import colorlog
 import pytest
 import yaml
@@ -19,7 +20,13 @@ from click.testing import CliRunner
 
 from gamesheet_sdk import __version__
 from gamesheet_sdk.auth import LOGIN_PATH
-from gamesheet_sdk.cli import _configure_logging, cli, main
+from gamesheet_sdk.cli import (
+    ResourceGroup,
+    _configure_logging,
+    cli,
+    confirm_destructive,
+    main,
+)
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
 
@@ -218,7 +225,7 @@ def test_main_login_path_constant_matches_auth_module() -> None:
     assert LOGIN_PATH.startswith("/")
 
 
-# ---------- list-associations subcommand --------------------------------
+# ---------- associations list subcommand --------------------------------
 
 
 def _stub_associations(*ids_and_titles: tuple[str, str]) -> list[object]:
@@ -246,7 +253,7 @@ def test_list_associations_default_table_format(
         ("11", "Hockey Time Productions"),
         ("40", "SuperSeries AAA"),
     )
-    result = runner.invoke(cli, ["list-associations"])
+    result = runner.invoke(cli, ["associations", "list"])
     assert result.exit_code == 0, result.output
     # Default --format is tabulate's "simple": id and title appear on the same
     # row, no fixed separator. Just assert both pairs are present.
@@ -264,7 +271,7 @@ def test_list_associations_json_format(
     runner: CliRunner,
 ) -> None:
     mock_list.return_value = _stub_associations(("11", "Hockey Time"))
-    result = runner.invoke(cli, ["list-associations", "--format", "json"])
+    result = runner.invoke(cli, ["associations", "list", "--format", "json"])
     assert result.exit_code == 0, result.output
     data = json.loads(result.output)
     assert data == [{"id": "11", "title": "Hockey Time"}]
@@ -275,7 +282,7 @@ def test_list_associations_json_format(
 def test_list_associations_missing_token_exits_one(
     _mock_load_access: MagicMock, _mock_load_refresh: MagicMock, runner: CliRunner
 ) -> None:
-    result = runner.invoke(cli, ["list-associations"])
+    result = runner.invoke(cli, ["associations", "list"])
     assert result.exit_code == 1
     assert "No saved session" in result.output
     assert "Run `gamesheet-sdk-py login`" in result.output
@@ -291,7 +298,7 @@ def test_list_associations_authentication_error_exits_one(
     runner: CliRunner,
 ) -> None:
     mock_list.side_effect = AuthenticationError("HTTP 401")
-    result = runner.invoke(cli, ["list-associations"])
+    result = runner.invoke(cli, ["associations", "list"])
     assert result.exit_code == 1
     assert "Authentication required" in result.output
 
@@ -306,7 +313,7 @@ def test_list_associations_other_error_exits_one(
     runner: CliRunner,
 ) -> None:
     mock_list.side_effect = GameSheetError("HTTP 500")
-    result = runner.invoke(cli, ["list-associations"])
+    result = runner.invoke(cli, ["associations", "list"])
     assert result.exit_code == 1
     assert "GameSheet error" in result.output
 
@@ -349,7 +356,7 @@ def test_configure_logging_honors_no_color_env_var(
     assert not isinstance(handler.formatter, colorlog.ColoredFormatter)
 
 
-# ---------- list-associations: new --format / --output / --columns -------
+# ---------- associations list: --format / --output / --columns ----------
 
 
 @patch("gamesheet_sdk.cli._list_associations_action")
@@ -362,7 +369,7 @@ def test_list_associations_csv_format(
     runner: CliRunner,
 ) -> None:
     mock_list.return_value = _stub_associations(("11", "Hockey Time"))
-    result = runner.invoke(cli, ["list-associations", "--format", "csv"])
+    result = runner.invoke(cli, ["associations", "list", "--format", "csv"])
     assert result.exit_code == 0, result.output
     lines = result.output.strip().splitlines()
     assert lines[0] == "id,title"
@@ -379,7 +386,7 @@ def test_list_associations_yaml_format(
     runner: CliRunner,
 ) -> None:
     mock_list.return_value = _stub_associations(("11", "Hockey Time"))
-    result = runner.invoke(cli, ["list-associations", "--format", "yaml"])
+    result = runner.invoke(cli, ["associations", "list", "--format", "yaml"])
     assert result.exit_code == 0, result.output
     data = yaml.safe_load(result.output)
     assert data == [{"id": "11", "title": "Hockey Time"}]
@@ -395,7 +402,7 @@ def test_list_associations_grid_format(
     runner: CliRunner,
 ) -> None:
     mock_list.return_value = _stub_associations(("11", "Hockey Time"))
-    result = runner.invoke(cli, ["list-associations", "--format", "grid"])
+    result = runner.invoke(cli, ["associations", "list", "--format", "grid"])
     assert result.exit_code == 0, result.output
     # Grid uses ASCII +/-/| corners. Just check one cell.
     assert "+" in result.output
@@ -412,7 +419,7 @@ def test_list_associations_unknown_format_returns_two(
     runner: CliRunner,
 ) -> None:
     del mock_list
-    result = runner.invoke(cli, ["list-associations", "--format", "not-real"])
+    result = runner.invoke(cli, ["associations", "list", "--format", "not-real"])
     # click's Choice gives usage error -> 2.
     assert result.exit_code == 2
 
@@ -432,7 +439,8 @@ def test_list_associations_writes_to_output_file(
     result = runner.invoke(
         cli,
         [
-            "list-associations",
+            "associations",
+            "list",
             "--format",
             "csv",
             "--output",
@@ -461,10 +469,133 @@ def test_list_associations_columns_filter(
     mock_list.return_value = [a]
     result = runner.invoke(
         cli,
-        ["list-associations", "--format", "csv", "--columns", "title,id"],
+        ["associations", "list", "--format", "csv", "--columns", "title,id"],
     )
     assert result.exit_code == 0, result.output
     lines = result.output.strip().splitlines()
     assert lines[0] == "title,id"
     assert lines[1] == "Hockey,11"
     assert "logo" not in result.output
+
+
+# ---------- ResourceGroup: aliases + default sub-command -----------------
+
+
+@patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_associations_no_subcommand_defaults_to_list(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    """`associations` with no sub-command implicitly runs `list`."""
+    mock_list.return_value = _stub_associations(("11", "Hockey Time"))
+    result = runner.invoke(cli, ["associations"])
+    assert result.exit_code == 0, result.output
+    assert "Hockey Time" in result.output
+    mock_list.assert_called_once()
+
+
+@patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_associations_ls_alias_runs_list(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    """`associations ls` resolves to the `list` callback."""
+    mock_list.return_value = _stub_associations(("11", "Hockey Time"))
+    result = runner.invoke(cli, ["associations", "ls", "--format", "json"])
+    assert result.exit_code == 0, result.output
+    data = json.loads(result.output)
+    assert data == [{"id": "11", "title": "Hockey Time"}]
+
+
+def test_associations_help_lists_canonical_and_aliases(runner: CliRunner) -> None:
+    """`associations --help` shows the canonical name with aliases in parens."""
+    result = runner.invoke(cli, ["associations", "--help"])
+    assert result.exit_code == 0, result.output
+    assert "list (ls)" in result.output
+
+
+def test_root_help_no_longer_lists_flat_list_associations(runner: CliRunner) -> None:
+    """The old flat `list-associations` command has been removed from root."""
+    result = runner.invoke(cli, ["--help"])
+    assert result.exit_code == 0
+    assert "list-associations" not in result.output
+    assert "associations" in result.output
+
+
+def test_unknown_associations_subcommand_returns_two(runner: CliRunner) -> None:
+    result = runner.invoke(cli, ["associations", "not-a-verb"])
+    assert result.exit_code == 2
+
+
+def test_resource_group_alias_table_is_flat() -> None:
+    """ResourceGroup flattens {canonical: (alts,)} into {alt: canonical}."""
+    grp = ResourceGroup(
+        "demo",
+        aliases={"list": ("ls",), "delete": ("rm", "remove")},
+    )
+    assert grp._aliases == {"ls": "list", "rm": "delete", "remove": "delete"}
+
+
+# ---------- confirm_destructive helper -----------------------------------
+
+
+def test_confirm_destructive_aborts_without_force(runner: CliRunner) -> None:
+    """No `--force` and a negative prompt response aborts."""
+
+    @click.command("delete")
+    @confirm_destructive("the demo resource")
+    def demo_delete() -> None:
+        click.echo("deleted")
+
+    result = runner.invoke(demo_delete, [], input="n\n")
+    # Aborted confirmations exit with click's standard abort code (1).
+    assert result.exit_code != 0
+    assert "deleted" not in result.output
+    assert "Really delete the demo resource" in result.output
+
+
+def test_confirm_destructive_runs_with_force(runner: CliRunner) -> None:
+    """`--force` skips the prompt and runs the wrapped command."""
+
+    @click.command("delete")
+    @confirm_destructive("the demo resource")
+    def demo_delete() -> None:
+        click.echo("deleted")
+
+    result = runner.invoke(demo_delete, ["--force"])
+    assert result.exit_code == 0, result.output
+    assert "deleted" in result.output
+
+
+def test_confirm_destructive_runs_on_yes(runner: CliRunner) -> None:
+    """A 'y' at the prompt runs the wrapped command."""
+
+    @click.command("delete")
+    @confirm_destructive("the demo resource")
+    def demo_delete() -> None:
+        click.echo("deleted")
+
+    result = runner.invoke(demo_delete, [], input="y\n")
+    assert result.exit_code == 0, result.output
+    assert "deleted" in result.output
+
+
+def test_confirm_destructive_short_force_alias(runner: CliRunner) -> None:
+    """`-f` is the documented short form of `--force`."""
+
+    @click.command("delete")
+    @confirm_destructive("the demo resource")
+    def demo_delete() -> None:
+        click.echo("deleted")
+
+    result = runner.invoke(demo_delete, ["-f"])
+    assert result.exit_code == 0, result.output
+    assert "deleted" in result.output
