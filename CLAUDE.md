@@ -14,7 +14,19 @@ functionality is implemented by **automating the GameSheet WebUI** via a combina
 Because behavior depends on a third-party UI, expect breakage on vendor changes. When adding or fixing a workflow, prefer the lightest mechanism that works
 (HTTP > HTML parse > headless browser) — headless automation is the slowest and most fragile path.
 
-The package is alpha and currently a skeleton: only `__init__.py` and `cli.py` exist under `src/gamesheet_sdk/`. Most domain modules are yet to be written.
+The package is alpha. Modules under `src/gamesheet_sdk/`:
+
+- `__init__.py` — public re-exports + `__version__`
+- `associations.py` — `Association` pydantic model + `list_associations()` action
+- `auth.py` — `login()` flow, token persistence (`load_access_token`, `load_refresh_token`, `save_tokens`), `AuthenticatedSession` HTTP layer with auto-refresh on 401
+- `browser.py` — `BrowserSession` Playwright wrapper
+- `cli.py` — click entry point (`gamesheet-sdk-py`), `ResourceGroup` class, `confirm_destructive` decorator
+- `config.py` — `pydantic-settings` `Config` (resolves `GAMESHEET_*` env vars; CLI args > env > defaults)
+- `exceptions.py` — `GameSheetError`, `AuthenticationError`
+- `output.py` — `render()` for JSON / YAML / CSV / TSV / 13 tabulate formats + `write_output()`
+- `session.py` — base `requests.Session` subclass
+
+Future domain modules (teams, games, players, …) attach the same way: a thin action function in a domain module, a corresponding `ResourceGroup` in `cli.py`.
 
 ## Common commands
 
@@ -90,14 +102,21 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
   pre-commit/mirrors-mypy tags currently drift ahead of upstream mypy on PyPI, and (b) pylint needs the project's runtime deps duplicated in
   `additional_dependencies` to resolve imports inside the isolated hook venv. `pre-commit.ci` auto-fixes PRs and runs weekly autoupdates.
 - **Documentation.** Sphinx (Furo theme, MyST-Parser for markdown sources) lives under `docs/`. `conf.py` enables autodoc + autosummary (API),
-  `sphinx-argparse` (CLI from the live `build_parser`), intersphinx (cross-refs to stdlib/requests/pydantic/click), autosectionlabel, napoleon, todo,
-  copybutton, sphinx-design. Output formats: HTML, EPUB, man, LaTeX/PDF. Strict-mode build (`-n -W`) runs two-pass to satisfy autosummary's
-  stub-then-toctree ordering. Built, link-checked, and deployed to GitHub Pages by `.github/workflows/docs.yml`; `_build/` and `_autosummary/` are
-  gitignored.
+  `sphinx-click` (CLI rendered live from the `gamesheet_sdk.cli:cli` group — so it always tracks the shipped click tree, including nested resource
+  groups), intersphinx (cross-refs to stdlib/requests/pydantic/click), autosectionlabel, napoleon, todo, copybutton, sphinx-design. Output formats:
+  HTML, EPUB, man, LaTeX/PDF. Strict-mode build (`-n -W`) runs two-pass to satisfy autosummary's stub-then-toctree ordering. Built, link-checked, and
+  deployed to GitHub Pages by `.github/workflows/docs.yml`; `_build/` and `_autosummary/` are gitignored.
 - **Documentation organization — Diátaxis.** Every doc page belongs to exactly one of four quadrants under `docs/`: `tutorials/` (learning-oriented),
   `how-to/` (task-oriented), `reference/` (information-oriented), or `explanation/` (understanding-oriented). When adding a page, pick the quadrant by
   asking *what is the reader's need?*, not *what is the topic?* — a topic may have a page in more than one quadrant (e.g. an "auth" how-to *and* an "auth"
   reference page). The `docs/explanation/diataxis.md` page is the in-tree primer; the canonical source is [diataxis.fr](https://diataxis.fr/).
-- **CLI framework.** `src/gamesheet_sdk/cli.py` is a click group (`cli`) with a thin `main(argv)` wrapper for the `gamesheet-sdk-py` entry point. New
-  subcommands attach via `@cli.command("name")`; the group callback builds a `Config` (with `--base-url` / `--no-headless` / `-v` overrides applied) and stows
-  it in `ctx.obj` so subcommands pull it via `@click.pass_context`. The Sphinx CLI reference is generated from the click tree by `sphinx-click`.
+- **CLI framework.** `src/gamesheet_sdk/cli.py` is a click group (`cli`) with a thin `main(argv) -> int` wrapper for the `gamesheet-sdk-py` entry
+  point. The root group's callback builds a `Config` (with `--base-url` / `--no-headless` / `-v` overrides applied) and stows it in `ctx.obj`, so any
+  subcommand pulls it via `@click.pass_context`. The CLI uses a **resource-oriented (noun-first) layout**: each resource (e.g. `associations`) gets a
+  nested `ResourceGroup` whose canonical verbs are `create`, `get`, `list`, `update`, `delete` with the aliases `add/new`, `show/view`, `ls`,
+  `set/edit`, `rm/remove`. `login` stays at the root as a global operation. New CLI surface attaches like:
+  - **New verb on an existing resource** — `@<resource>_group.command("verb")`; aliases come from the group's `aliases=` table so no extra wiring.
+  - **New resource** — `@cli.group("resource", cls=ResourceGroup, default="list", aliases={...})` for the group, then attach verbs to it. `default="list"`
+    makes a bare `gamesheet-sdk-py <resource>` implicitly run `list`.
+  - **Destructive verbs** (`delete`/`rm`/`remove`) — wrap with `@confirm_destructive("<target>")` so the command gains `--force/-f` and a `[y/N]` prompt.
+    The Sphinx CLI reference is regenerated from the click tree by `sphinx-click` on every docs build, so it always tracks shipping behavior.
