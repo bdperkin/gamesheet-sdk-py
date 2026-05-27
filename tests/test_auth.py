@@ -87,13 +87,13 @@ def fake_browser_session(config: Config) -> MagicMock:
 
 
 def test_login_missing_email_raises(fake_browser_session: MagicMock) -> None:
-    with pytest.raises(AuthenticationError, match="email and password"):
+    with pytest.raises(AuthenticationError, match="requires an email"):
         login(fake_browser_session, password="hunter2")
     fake_browser_session.goto.assert_not_called()
 
 
 def test_login_missing_password_raises(fake_browser_session: MagicMock) -> None:
-    with pytest.raises(AuthenticationError, match="email and password"):
+    with pytest.raises(AuthenticationError, match="requires a password"):
         login(fake_browser_session, email="alice@example.com")
     fake_browser_session.goto.assert_not_called()
 
@@ -101,7 +101,8 @@ def test_login_missing_password_raises(fake_browser_session: MagicMock) -> None:
 def test_login_empty_string_credentials_raise(
     fake_browser_session: MagicMock,
 ) -> None:
-    with pytest.raises(AuthenticationError, match="email and password"):
+    # Empty email is rejected before the (also empty) password is ever inspected.
+    with pytest.raises(AuthenticationError, match="requires an email"):
         login(fake_browser_session, email="", password="")
     fake_browser_session.goto.assert_not_called()
 

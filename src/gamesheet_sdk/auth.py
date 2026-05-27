@@ -108,7 +108,8 @@ def login(
         timeout. Post-login navigation failures are logged at WARNING
         but do not raise -- auth already succeeded by that point.
     """
-    email, password = _resolve_credentials(session.config, email, password)
+    email = _resolve_email(session.config, email)
+    password = _resolve_password(session.config, password)
     timeout_s = timeout if timeout is not None else _DEFAULT_TIMEOUT_S
 
     page = session.goto(LOGIN_PATH, wait_until="load")
@@ -127,30 +128,29 @@ def login(
         _settle_post_login(session, post_login_path)
 
 
-def _resolve_credentials(
-    cfg: Config,
-    email: str | None,
-    password: str | None,
-) -> tuple[str, str]:
-    """Fall through arg → ``GAMESHEET_*`` env → Config defaults, then validate."""
+def _resolve_email(cfg: Config, email: str | None) -> str:
+    """Fall through arg → ``GAMESHEET_USERNAME`` → :attr:`Config.username`."""
     if email is None:
         email = cfg.username
-    if password is None:
-        password = _password_from_config(cfg)
-    if not email or not password:
-        raise AuthenticationError(
-            "Login requires an email and password. Pass them explicitly or "
-            "set GAMESHEET_USERNAME and GAMESHEET_PASSWORD."
-        )
-    return email, password
+    if not email:
+        raise AuthenticationError("Login requires an email. Pass it explicitly or set GAMESHEET_USERNAME.")
+    return email
 
 
-def _password_from_config(cfg: Config) -> str | None:
-    """Unwrap :class:`SecretStr` to a plain string, or ``None`` if unset."""
-    if cfg.password is None:
-        return None
-    # pylint: disable-next=no-member  # pylint mis-types SecretStr as FieldInfo
-    return cfg.password.get_secret_value()
+def _resolve_password(cfg: Config, password: str | None) -> str:
+    """Fall through arg → ``GAMESHEET_PASSWORD`` → :attr:`Config.password`.
+
+    Kept separate from :func:`_resolve_email` so the secret never flows through
+    a shared return value with the non-sensitive email — that pairing was
+    enough to trip CodeQL's data-flow analyzer into flagging downstream
+    ``email`` logging as clear-text password logging.
+    """
+    if password is None and cfg.password is not None:
+        # pylint: disable-next=no-member  # pylint mis-types SecretStr as FieldInfo
+        password = cfg.password.get_secret_value()
+    if not password:
+        raise AuthenticationError("Login requires a password. Pass it explicitly or set GAMESHEET_PASSWORD.")
+    return password
 
 
 def _wait_for_login_form(page: Any, cfg: Config) -> bool:
