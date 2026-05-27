@@ -221,6 +221,21 @@ repos:
         args: ['-c', 'pyproject.toml']
         additional_dependencies: ['bandit[toml]']
 
+  # ----- Python: complexity gate --------------------------------------------
+  # xenon enforces hard cyclomatic-complexity ceilings on every commit.
+  #   --max-absolute=A: no single block (function/method/class) above grade A
+  #   --max-modules=A : no module above grade A
+  #   --max-average=B : project-wide average must stay at grade B or better
+  # `radon` (above, via tox -e metrics) reports the actual numbers; xenon
+  # turns those numbers into a pass/fail gate.
+  - repo: https://github.com/rubik/xenon
+    rev: v0.9.3
+    hooks:
+      - id: xenon
+        args: ['--max-absolute=A', '--max-modules=A', '--max-average=B', 'src']
+        pass_filenames: false
+        stages: [pre-commit]
+
   # ----- Python: type checking ----------------------------------------------
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.20.1

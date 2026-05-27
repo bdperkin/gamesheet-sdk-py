@@ -102,17 +102,24 @@ class ResourceGroup(click.Group):
 
     def format_commands(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:
         """Render the command list with aliases in parentheses."""
-        rows: list[tuple[str, str]] = []
+        rows = list(self._visible_command_rows(ctx))
+        if rows:
+            with formatter.section("Commands"):
+                formatter.write_dl(rows)
+
+    def _visible_command_rows(self, ctx: click.Context) -> Iterable[tuple[str, str]]:
+        """Yield ``(label, short_help)`` for each non-hidden canonical command."""
         for name in self.list_commands(ctx):
             cmd = self.get_command(ctx, name)
             if cmd is None or cmd.hidden:
                 continue
-            alts = sorted(a for a, t in self._aliases.items() if t == name)
-            label = f"{name} ({', '.join(alts)})" if alts else name
-            rows.append((label, cmd.get_short_help_str(limit=80)))
-        if rows:
-            with formatter.section("Commands"):
-                formatter.write_dl(rows)
+            yield self._command_row(name, cmd)
+
+    def _command_row(self, name: str, cmd: click.Command) -> tuple[str, str]:
+        """Build the ``"list (ls)"`` label + short-help pair for one command."""
+        alts = sorted(a for a, t in self._aliases.items() if t == name)
+        label = f"{name} ({', '.join(alts)})" if alts else name
+        return label, cmd.get_short_help_str(limit=80)
 
     def shell_complete(
         self,
@@ -128,17 +135,40 @@ class ResourceGroup(click.Group):
         """
         results = list(super().shell_complete(ctx, incomplete))
         seen = {item.value for item in results}
-        for alias, target in self._aliases.items():
-            if alias in seen or not alias.startswith(incomplete):
-                continue
-            cmd = self.commands.get(target)
-            if cmd is None or cmd.hidden:
-                continue
-            short = cmd.get_short_help_str()
-            help_text = f"(alias for {target}) {short}".rstrip()
-            results.append(click.shell_completion.CompletionItem(alias, help=help_text))
-            seen.add(alias)
+        results.extend(self._alias_completion_items(incomplete, seen))
         return results
+
+    def _alias_completion_items(
+        self,
+        incomplete: str,
+        seen: set[str],
+    ) -> list[click.shell_completion.CompletionItem]:
+        """Build the alias-only completion items not already in ``seen``."""
+        items: list[click.shell_completion.CompletionItem] = []
+        for alias, target in self._aliases.items():
+            item = self._alias_item_if_visible(alias, target, incomplete, seen)
+            if item is None:
+                continue
+            items.append(item)
+            seen.add(alias)
+        return items
+
+    def _alias_item_if_visible(
+        self,
+        alias: str,
+        target: str,
+        incomplete: str,
+        seen: set[str],
+    ) -> click.shell_completion.CompletionItem | None:
+        """Return a CompletionItem for ``alias`` if it should surface, else ``None``."""
+        if alias in seen or not alias.startswith(incomplete):
+            return None
+        cmd = self.commands.get(target)
+        if cmd is None or cmd.hidden:
+            return None
+        short = cmd.get_short_help_str()
+        help_text = f"(alias for {target}) {short}".rstrip()
+        return click.shell_completion.CompletionItem(alias, help=help_text)
 
 
 def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
@@ -427,6 +457,15 @@ def associations_list_command(
     browser is launched.
     """
     config: Config = ctx.obj
+    session = _build_associations_session(ctx, config)
+    associations = _list_associations_or_exit(session)
+    rows = [assoc.model_dump(mode="json") for assoc in associations]
+    rendered = render(rows, fmt=output_format, columns=_parse_columns_spec(columns_spec))
+    write_output(rendered, output_path, fmt=output_format)
+
+
+def _build_associations_session(ctx: click.Context, config: Config) -> AuthenticatedSession:
+    """Open an :class:`AuthenticatedSession` from the saved tokens, exiting on miss."""
     access = load_access_token(config)
     refresh = load_refresh_token(config)
     if access is None or refresh is None:
@@ -436,34 +475,38 @@ def associations_list_command(
             err=True,
         )
         ctx.exit(1)
+    return AuthenticatedSession(
+        config,
+        access_token=access or "",
+        refresh_token=refresh or "",
+        on_refresh=lambda tokens: save_tokens(config, **tokens),
+    )
 
-    def persist(tokens: dict[str, str]) -> None:
-        save_tokens(config, **tokens)
 
+def _list_associations_or_exit(session: AuthenticatedSession) -> list[Any]:
+    """Run the list action, mapping known errors to a red message + ``Exit(1)``."""
     try:
-        with AuthenticatedSession(
-            config,
-            access_token=access or "",
-            refresh_token=refresh or "",
-            on_refresh=persist,
-        ) as session:
-            associations = _list_associations_action(session)
+        with session:
+            return list(_list_associations_action(session))
     except AuthenticationError as exc:
         click.secho(f"Authentication required: {exc}", fg="red", err=True)
-        ctx.exit(1)  # raises; control does not return
+        raise click.exceptions.Exit(1) from exc
     except GameSheetError as exc:
         click.secho(f"GameSheet error: {exc}", fg="red", err=True)
-        ctx.exit(1)  # raises; control does not return
-
-    rows = [assoc.model_dump(mode="json") for assoc in associations]
-    columns = [c.strip() for c in columns_spec.split(",") if c.strip()] if columns_spec else None
-    rendered = render(rows, fmt=output_format, columns=columns)
-    write_output(rendered, output_path, fmt=output_format)
+        raise click.exceptions.Exit(1) from exc
 
 
-def main(  # pylint: disable=too-many-return-statements
-    argv: list[str] | None = None,
-) -> int:
+def _parse_columns_spec(spec: str | None) -> list[str] | None:
+    """Split ``"a,b, c"`` into ``["a", "b", "c"]``; return ``None`` if empty."""
+    if not spec:
+        return None
+    columns = [c.strip() for c in spec.split(",") if c.strip()]
+    if not columns:
+        return None
+    return columns
+
+
+def main(argv: list[str] | None = None) -> int:
     """Entry-point wrapper. Returns an int exit code.
 
     Calls into the click ``cli`` group with ``standalone_mode=False`` so
@@ -472,26 +515,38 @@ def main(  # pylint: disable=too-many-return-statements
     ``main(argv) -> int`` contract.
     """
     try:
-        cli.main(
-            args=argv,
-            prog_name="gamesheet-sdk-py",
-            standalone_mode=False,
-        )
-    except click.exceptions.Exit as exc:
+        cli.main(args=argv, prog_name="gamesheet-sdk-py", standalone_mode=False)
+        return 0
+    except (
+        click.exceptions.Exit,
+        click.exceptions.UsageError,
+        click.exceptions.Abort,
+        SystemExit,
+    ) as exc:
+        return _resolve_exit(exc)
+
+
+def _resolve_exit(exc: BaseException) -> int:
+    """Map a click/Python exit-style exception to its conventional exit code."""
+    if isinstance(exc, click.exceptions.Exit):
         return int(exc.exit_code)
-    except click.exceptions.UsageError as exc:
+    if isinstance(exc, click.exceptions.UsageError):
         exc.show()
         return 2
-    except click.exceptions.Abort:
+    if isinstance(exc, click.exceptions.Abort):
         click.echo("Aborted.", err=True)
         return 1
-    except SystemExit as exc:
-        if exc.code is None:
-            return 0
-        if isinstance(exc.code, int):
-            return exc.code
-        return 1
-    return 0
+    return _resolve_system_exit(exc)
+
+
+def _resolve_system_exit(exc: BaseException) -> int:
+    """Mirror Python's :class:`SystemExit` code-to-int convention."""
+    code = getattr(exc, "code", None)
+    if code is None:
+        return 0
+    if isinstance(code, int):
+        return code
+    return 1
 
 
 if __name__ == "__main__":

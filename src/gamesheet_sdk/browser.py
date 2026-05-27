@@ -109,10 +109,19 @@ class BrowserSession:
         """
         if self._closed:
             return
+        self._safe_save()
+        self._release_playwright()
+        self._closed = True
+
+    def _safe_save(self) -> None:
+        """Persist storage state, demoting disk errors to a warning."""
         try:
             self.save()
         except OSError as exc:  # pragma: no cover - rare disk failure path
             _LOGGER.warning("Failed to save browser storage state: %s", exc)
+
+    def _release_playwright(self) -> None:
+        """Close the context/browser/playwright handles and drop our refs."""
         if self._context is not None:
             self._context.close()
         if self._browser is not None:
@@ -122,7 +131,6 @@ class BrowserSession:
         self._context = None
         self._browser = None
         self._playwright = None
-        self._closed = True
 
     def __enter__(self) -> BrowserSession:
         return self

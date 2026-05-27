@@ -26,6 +26,7 @@ import csv
 import io
 import json
 import sys
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -80,22 +81,42 @@ def render(
     if fmt not in ALL_FORMATS:
         raise ValueError(f"Unknown format: {fmt!r}. Expected one of " f"{', '.join(ALL_FORMATS)}.")
     effective_columns = columns if columns is not None else _derive_columns(rows)
+    renderer = _DATA_RENDERERS.get(fmt)
+    if renderer is not None:
+        return renderer(rows, effective_columns)
+    return _render_tabulate(rows, effective_columns, fmt)
 
-    if fmt == "json":
-        return json.dumps(rows, indent=2, sort_keys=True, default=str)
-    if fmt == "yaml":
-        return yaml.safe_dump(rows, sort_keys=True, default_flow_style=False).rstrip()
-    if fmt == "csv":
-        return _render_dsv(rows, effective_columns, delimiter=",")
-    if fmt == "tsv":
-        return _render_dsv(rows, effective_columns, delimiter="\t")
-    # fmt is in TABULATE_FORMATS by virtue of the ALL_FORMATS check above.
-    table_rows = [[row.get(col, "") for col in effective_columns] for row in rows]
-    return _tabulate.tabulate(
-        table_rows,
-        headers=effective_columns,
-        tablefmt=fmt,
-    )
+
+def _render_json(rows: list[dict[str, Any]], _columns: list[str]) -> str:
+    return json.dumps(rows, indent=2, sort_keys=True, default=str)
+
+
+def _render_yaml(rows: list[dict[str, Any]], _columns: list[str]) -> str:
+    return yaml.safe_dump(rows, sort_keys=True, default_flow_style=False).rstrip()
+
+
+def _render_csv(rows: list[dict[str, Any]], columns: list[str]) -> str:
+    return _render_dsv(rows, columns, delimiter=",")
+
+
+def _render_tsv(rows: list[dict[str, Any]], columns: list[str]) -> str:
+    return _render_dsv(rows, columns, delimiter="\t")
+
+
+def _render_tabulate(rows: list[dict[str, Any]], columns: list[str], fmt: str) -> str:
+    table_rows = [[row.get(col, "") for col in columns] for row in rows]
+    return _tabulate.tabulate(table_rows, headers=columns, tablefmt=fmt)
+
+
+# Dispatch table for the non-tabulate ("data") formats. Keeps :func:`render`
+# branchless across the format axis; tabulate formats fall through to
+# :func:`_render_tabulate`.
+_DATA_RENDERERS: dict[str, Callable[[list[dict[str, Any]], list[str]], str]] = {
+    "json": _render_json,
+    "yaml": _render_yaml,
+    "csv": _render_csv,
+    "tsv": _render_tsv,
+}
 
 
 def write_output(
