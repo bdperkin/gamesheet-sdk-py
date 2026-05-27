@@ -25,6 +25,7 @@ from collections.abc import Callable, Iterable, Mapping
 from typing import Any, TypeVar, cast
 
 import click
+import click.shell_completion
 import colorlog
 
 from gamesheet_sdk import __version__
@@ -89,7 +90,13 @@ class ResourceGroup(click.Group):
         # When the group is invoked with no further args, inject the
         # configured default sub-command so the rest of click's parsing
         # machinery treats it exactly like an explicit call.
-        if not args and self.default_cmd_name is not None:
+        #
+        # Skip the injection when click is parsing for shell completion
+        # (``resilient_parsing=True``). Otherwise click's completion
+        # walker would silently descend into the default sub-command,
+        # and a bare ``gamesheet-sdk-py associations <TAB>`` would yield
+        # the leaf command's options instead of the group's verbs.
+        if not args and self.default_cmd_name is not None and not ctx.resilient_parsing:
             args = [self.default_cmd_name]
         return super().parse_args(ctx, args)
 
@@ -106,6 +113,32 @@ class ResourceGroup(click.Group):
         if rows:
             with formatter.section("Commands"):
                 formatter.write_dl(rows)
+
+    def shell_complete(
+        self,
+        ctx: click.Context,
+        incomplete: str,
+    ) -> list[click.shell_completion.CompletionItem]:
+        """Tab-completion candidates for this group.
+
+        Augments click's stock list (canonical sub-commands, plus options inherited from
+        parent groups via the chained-completion walk) with any registered aliases whose
+        underlying command is visible. Hidden commands and aliases pointing at hidden
+        commands are skipped, matching click's default visibility rules.
+        """
+        results = list(super().shell_complete(ctx, incomplete))
+        seen = {item.value for item in results}
+        for alias, target in self._aliases.items():
+            if alias in seen or not alias.startswith(incomplete):
+                continue
+            cmd = self.commands.get(target)
+            if cmd is None or cmd.hidden:
+                continue
+            short = cmd.get_short_help_str()
+            help_text = f"(alias for {target}) {short}".rstrip()
+            results.append(click.shell_completion.CompletionItem(alias, help=help_text))
+            seen.add(alias)
+        return results
 
 
 def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
@@ -279,6 +312,51 @@ def login_command(
         click.secho(f"Login failed: {exc}", fg="red", err=True)
         ctx.exit(1)  # raises; nothing after this point in the except runs
     click.secho("Login succeeded.", fg="green")
+
+
+# The completion subcommand instantiates click's per-shell completion
+# class for the root `cli` group and prints the source script. Click
+# derives this env-var name from the entry-point automatically when it
+# auto-detects completion mode; we hard-code the same string so the
+# script the user sources matches what click expects at runtime.
+_COMPLETE_ENV_VAR = "_GAMESHEET_SDK_PY_COMPLETE"
+
+
+@cli.command("completion")
+@click.argument(
+    "shell",
+    type=click.Choice(["bash", "zsh", "fish"], case_sensitive=False),
+    metavar="SHELL",
+)
+def completion_command(shell: str) -> None:
+    """Print a SHELL completion script to stdout.
+
+    SHELL must be one of ``bash``, ``zsh``, ``fish``. The emitted script
+    teaches the shell to tab-complete sub-commands (including aliases
+    like ``ls`` for ``list``), option names, and choice values such as
+    ``--format``.
+
+    \b
+    Bash (current session):
+        eval "$(gamesheet-sdk-py completion bash)"
+
+    \b
+    Bash (permanent):
+        gamesheet-sdk-py completion bash >> ~/.bashrc
+
+    \b
+    Zsh (permanent):
+        gamesheet-sdk-py completion zsh >> ~/.zshrc
+
+    \b
+    Fish (permanent — fish auto-loads ~/.config/fish/completions/):
+        gamesheet-sdk-py completion fish > ~/.config/fish/completions/gamesheet-sdk-py.fish
+    """
+    comp_cls = click.shell_completion.get_completion_class(shell.lower())
+    if comp_cls is None:  # pragma: no cover — click registers all three above
+        raise click.ClickException(f"No completion class registered for shell '{shell}'.")
+    comp = comp_cls(cli, {}, "gamesheet-sdk-py", _COMPLETE_ENV_VAR)
+    click.echo(comp.source())
 
 
 @cli.group(
