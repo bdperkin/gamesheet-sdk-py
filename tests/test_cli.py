@@ -16,6 +16,7 @@ import click
 import colorlog
 import pytest
 import yaml
+from click.shell_completion import BashComplete
 from click.testing import CliRunner
 
 from gamesheet_sdk import __version__
@@ -599,3 +600,117 @@ def test_confirm_destructive_short_force_alias(runner: CliRunner) -> None:
     result = runner.invoke(demo_delete, ["-f"])
     assert result.exit_code == 0, result.output
     assert "deleted" in result.output
+
+
+# ---------- shell completion --------------------------------------------
+
+
+def test_completion_bash_script_contains_env_var(runner: CliRunner) -> None:
+    """`completion bash` prints a script that wires up the env var."""
+    result = runner.invoke(cli, ["completion", "bash"])
+    assert result.exit_code == 0, result.output
+    assert "_GAMESHEET_SDK_PY_COMPLETE" in result.output
+    assert "bash_complete" in result.output
+
+
+def test_completion_zsh_script_contains_env_var(runner: CliRunner) -> None:
+    result = runner.invoke(cli, ["completion", "zsh"])
+    assert result.exit_code == 0, result.output
+    assert "_GAMESHEET_SDK_PY_COMPLETE" in result.output
+
+
+def test_completion_fish_script_contains_env_var(runner: CliRunner) -> None:
+    result = runner.invoke(cli, ["completion", "fish"])
+    assert result.exit_code == 0, result.output
+    assert "_GAMESHEET_SDK_PY_COMPLETE" in result.output
+
+
+def test_completion_invalid_shell_returns_two(runner: CliRunner) -> None:
+    """An unsupported shell name fails Choice validation -> exit 2."""
+    result = runner.invoke(cli, ["completion", "tcsh"])
+    assert result.exit_code == 2
+    assert "tcsh" in result.output
+
+
+def test_completion_shell_arg_is_case_insensitive(runner: CliRunner) -> None:
+    """``BASH`` resolves the same completion class as ``bash``."""
+    result = runner.invoke(cli, ["completion", "BASH"])
+    assert result.exit_code == 0, result.output
+    assert "_GAMESHEET_SDK_PY_COMPLETE" in result.output
+
+
+def test_resource_group_shell_complete_includes_alias() -> None:
+    """`associations <TAB>` enumerates both canonical and alias names."""
+    assoc = cli.commands["associations"]
+    ctx = click.Context(assoc, info_name="associations", parent=click.Context(cli))
+    items = assoc.shell_complete(ctx, "")
+    values = {item.value for item in items}
+    assert "list" in values
+    assert "ls" in values
+
+
+def test_resource_group_shell_complete_alias_help_marks_alias() -> None:
+    """The alias completion item's help text identifies it as an alias."""
+    assoc = cli.commands["associations"]
+    ctx = click.Context(assoc, info_name="associations", parent=click.Context(cli))
+    items = {item.value: item for item in assoc.shell_complete(ctx, "")}
+    assert items["ls"].help is not None
+    assert "alias for list" in items["ls"].help
+
+
+def test_resource_group_shell_complete_respects_prefix() -> None:
+    """`associations l<TAB>` only returns candidates that start with the prefix."""
+    assoc = cli.commands["associations"]
+    ctx = click.Context(assoc, info_name="associations", parent=click.Context(cli))
+    items = assoc.shell_complete(ctx, "l")
+    values = {item.value for item in items}
+    assert values == {"list", "ls"}
+
+
+def test_resource_group_shell_complete_skips_hidden_command_and_its_alias() -> None:
+    """Hidden canonical commands and aliases pointing at them don't surface."""
+    group = ResourceGroup(
+        "demo",
+        aliases={"list": ("ls",), "show": ("s",)},
+    )
+
+    @group.command("list", hidden=True)
+    def _hidden_list() -> None:
+        pass
+
+    @group.command("show")
+    def _visible_show() -> None:
+        pass
+
+    ctx = click.Context(group, info_name="demo")
+    items = group.shell_complete(ctx, "")
+    values = {item.value for item in items}
+    assert values == {"show", "s"}
+
+
+def test_format_choice_shell_complete_lists_every_choice() -> None:
+    """`associations list --format <TAB>` suggests every Choice value."""
+    assoc = cli.commands["associations"]
+    assert isinstance(assoc, click.Group)
+    list_cmd = assoc.commands["list"]
+    format_param = next(p for p in list_cmd.params if p.name == "output_format")
+    ctx = click.Context(list_cmd)
+    items = format_param.shell_complete(ctx, "")
+    values = {item.value for item in items}
+    for fmt in ("json", "yaml", "csv", "tsv", "simple", "grid", "html", "latex"):
+        assert fmt in values, f"Missing completion for {fmt}"
+
+
+def test_completion_does_not_descend_into_default_subcommand() -> None:
+    """`associations <TAB>` must surface the group's verbs, not list's options.
+
+    Regression guard: ResourceGroup.parse_args injects ``default`` when
+    invoked bare, but it must skip that injection during click's
+    completion walk (``resilient_parsing=True``) — otherwise click
+    descends into ``list`` and tab-completion silently breaks.
+    """
+    sc = BashComplete(cli, {}, "gamesheet-sdk-py", "_GAMESHEET_SDK_PY_COMPLETE")
+    completions = sc.get_completions(["associations"], "")
+    values = {c.value for c in completions}
+    assert "list" in values
+    assert "ls" in values
