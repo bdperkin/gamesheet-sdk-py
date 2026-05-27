@@ -20,7 +20,7 @@ The package is alpha. Modules under `src/gamesheet_sdk/`:
 - `associations.py` — `Association` pydantic model + `list_associations()` action
 - `auth.py` — `login()` flow, token persistence (`load_access_token`, `load_refresh_token`, `save_tokens`), `AuthenticatedSession` HTTP layer with auto-refresh on 401
 - `browser.py` — `BrowserSession` Playwright wrapper
-- `cli.py` — click entry point (`gamesheet-sdk-py`), `ResourceGroup` class, `confirm_destructive` decorator
+- `cli.py` — click entry point (`gamesheet-sdk-py`), `ResourceGroup` class, `confirm_destructive` decorator, `completion` subcommand emitting bash/zsh/fish completion scripts
 - `config.py` — `pydantic-settings` `Config` (resolves `GAMESHEET_*` env vars; CLI args > env > defaults)
 - `exceptions.py` — `GameSheetError`, `AuthenticationError`
 - `output.py` — `render()` for JSON / YAML / CSV / TSV / 13 tabulate formats + `write_output()`
@@ -82,41 +82,59 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
 
 - **`src/` layout.** Tests import via the installed package; `pyproject.toml` also sets `pythonpath = ["src"]` so `pytest` works without an install, but
   workflows that need the CLI or Playwright still require `pip install -e ".[dev]"`.
+
 - **Typed package.** `py.typed` is shipped (PEP 561) and `[tool.mypy] strict = true` is enabled — all new code must be fully annotated and pass `mypy --strict`.
+
 - **Dynamic versioning.** The package version is *not* in `pyproject.toml`. `[tool.hatch.version]` uses `source = "vcs"` (hatch-vcs) to derive it from
   `git describe`. A `_version.py` is written into `src/gamesheet_sdk/` at build time and is gitignored; `__init__.py` imports `__version__` from it, falling
   back to `importlib.metadata` when running uninstalled. To cut a release, tag the commit (`git tag -a vX.Y.Z -m '...'` then `git push origin vX.Y.Z`) —
   never edit a version literal. Untagged commits get setuptools-scm's `guess-next-dev` form like `0.0.2.dev1+gHASH`. Tag pushes trigger
   `.github/workflows/release.yml` which builds, verifies tag-vs-version, publishes to PyPI via Trusted Publishing (OIDC, no tokens), and creates a GitHub
   Release; see `docs/how-to/cut-a-release.md`.
+
 - **Testing patterns.** Pytest is configured with `--block-network` (via `pytest-recording`), so any test that opens a socket without a VCR cassette fails.
   Two markers (declared in `[tool.pytest.ini_options].markers`, enforced by `--strict-markers`): `@pytest.mark.vcr` replays HTTP from `tests/cassettes/`
   (sensitive headers/params scrubbed in `tests/conftest.py`); `@pytest.mark.browser` opts in to a real headless Chromium via `pytest-playwright`. Run only
   fast tests with `pytest -m "not browser"`. Coverage floor is `[tool.coverage.report] fail_under = 80`.
+
 - **Dependency updates.** `pre-commit.ci` autoupdates pre-commit hook revs weekly. `.github/dependabot.yml` opens grouped weekly PRs for Python runtime deps, Python dev deps, and GitHub Actions versions — three PRs/week max.
+
 - **Python 3.11–3.14.** Use modern syntax (`from __future__ import annotations`, `X | None`, etc.) as `cli.py` already does.
+
 - **Formatting/lint pipeline.** Python: black (88), isort (`profile = "black"`), flake8 (via `Flake8-pyproject` reading `[tool.flake8]`), pyupgrade
   (`--py311-plus`), mypy (`--strict`), pylint, bandit (`[tool.bandit]`). Non-Python: codespell (`[tool.codespell]`), yamllint (`-d relaxed`),
   validate-pyproject, editorconfig-checker, mdformat (+ mdformat-gfm), sphinx-lint. All wired into pre-commit, tox (envs: `lint`, `type`, `pylint`,
   `security`, `files-check`, plus `fix` for auto-apply), and GitHub Actions (CI calls tox). mypy + pylint in pre-commit use `local` hooks because (a)
   pre-commit/mirrors-mypy tags currently drift ahead of upstream mypy on PyPI, and (b) pylint needs the project's runtime deps duplicated in
   `additional_dependencies` to resolve imports inside the isolated hook venv. `pre-commit.ci` auto-fixes PRs and runs weekly autoupdates.
+
 - **Documentation.** Sphinx (Furo theme, MyST-Parser for markdown sources) lives under `docs/`. `conf.py` enables autodoc + autosummary (API),
   `sphinx-click` (CLI rendered live from the `gamesheet_sdk.cli:cli` group — so it always tracks the shipped click tree, including nested resource
   groups), intersphinx (cross-refs to stdlib/requests/pydantic/click), autosectionlabel, napoleon, todo, copybutton, sphinx-design. Output formats:
   HTML, EPUB, man, LaTeX/PDF. Strict-mode build (`-n -W`) runs two-pass to satisfy autosummary's stub-then-toctree ordering. Built, link-checked, and
   deployed to GitHub Pages by `.github/workflows/docs.yml`; `_build/` and `_autosummary/` are gitignored.
+
 - **Documentation organization — Diátaxis.** Every doc page belongs to exactly one of four quadrants under `docs/`: `tutorials/` (learning-oriented),
   `how-to/` (task-oriented), `reference/` (information-oriented), or `explanation/` (understanding-oriented). When adding a page, pick the quadrant by
   asking *what is the reader's need?*, not *what is the topic?* — a topic may have a page in more than one quadrant (e.g. an "auth" how-to *and* an "auth"
   reference page). The `docs/explanation/diataxis.md` page is the in-tree primer; the canonical source is [diataxis.fr](https://diataxis.fr/).
+
 - **CLI framework.** `src/gamesheet_sdk/cli.py` is a click group (`cli`) with a thin `main(argv) -> int` wrapper for the `gamesheet-sdk-py` entry
   point. The root group's callback builds a `Config` (with `--base-url` / `--no-headless` / `-v` overrides applied) and stows it in `ctx.obj`, so any
   subcommand pulls it via `@click.pass_context`. The CLI uses a **resource-oriented (noun-first) layout**: each resource (e.g. `associations`) gets a
   nested `ResourceGroup` whose canonical verbs are `create`, `get`, `list`, `update`, `delete` with the aliases `add/new`, `show/view`, `ls`,
   `set/edit`, `rm/remove`. `login` stays at the root as a global operation. New CLI surface attaches like:
+
   - **New verb on an existing resource** — `@<resource>_group.command("verb")`; aliases come from the group's `aliases=` table so no extra wiring.
   - **New resource** — `@cli.group("resource", cls=ResourceGroup, default="list", aliases={...})` for the group, then attach verbs to it. `default="list"`
     makes a bare `gamesheet-sdk-py <resource>` implicitly run `list`.
   - **Destructive verbs** (`delete`/`rm`/`remove`) — wrap with `@confirm_destructive("<target>")` so the command gains `--force/-f` and a `[y/N]` prompt.
-    The Sphinx CLI reference is regenerated from the click tree by `sphinx-click` on every docs build, so it always tracks shipping behavior.
+
+  **Tab-completion.** `gamesheet-sdk-py completion {bash,zsh,fish}` prints a sourceable script (uses click's built-in `shell_completion` via the
+  `_GAMESHEET_SDK_PY_COMPLETE` env var; no third-party dep). `ResourceGroup.shell_complete` overrides click's default to also enumerate aliases
+  (`ls`, `rm`, …) so tab-completion stays in sync with the verb table. **Gotcha worth preserving:** `ResourceGroup.parse_args` gates its
+  default-subcommand injection on `not ctx.resilient_parsing` — without that guard, click's completion walker descends silently into the leaf
+  command and `gamesheet-sdk-py associations <TAB>` returns nothing. A regression test (`test_completion_does_not_descend_into_default_subcommand`)
+  pins this.
+
+  The Sphinx CLI reference is regenerated from the click tree by `sphinx-click` on every docs build, so it always tracks shipping behavior.
