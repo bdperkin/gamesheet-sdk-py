@@ -108,26 +108,53 @@ def login(
         timeout. Post-login navigation failures are logged at WARNING
         but do not raise -- auth already succeeded by that point.
     """
-    cfg = session.config
-    if email is None:
-        email = cfg.username
-    if password is None and cfg.password is not None:
-        # pylint: disable-next=no-member  # pylint mis-types SecretStr as FieldInfo
-        password = cfg.password.get_secret_value()
-    if not email or not password:
-        raise AuthenticationError(
-            "Login requires an email and password. Pass them explicitly or "
-            "set GAMESHEET_USERNAME and GAMESHEET_PASSWORD."
-        )
-
+    email = _resolve_email(session.config, email)
+    password = _resolve_password(session.config, password)
     timeout_s = timeout if timeout is not None else _DEFAULT_TIMEOUT_S
 
     page = session.goto(LOGIN_PATH, wait_until="load")
+    if not _wait_for_login_form(page, session.config):
+        # Saved storage state already authenticates; just settle and return.
+        if post_login_path is not None:
+            _settle_post_login(session, post_login_path)
+        return
 
-    # The SPA renders the login form when unauthenticated and the dashboard
-    # when authenticated. Probe briefly for the form: if it does not show
-    # up, a saved storage state has already authenticated this session and
-    # there is nothing for us to do but the post-login settle step.
+    captured = _attach_response_capture(page)
+    _submit_login_form(page, email, password)
+    _await_auth_outcome(
+        page, captured, deadline=time.monotonic() + timeout_s, email=email, timeout_s=timeout_s
+    )
+    if post_login_path is not None:
+        _settle_post_login(session, post_login_path)
+
+
+def _resolve_email(cfg: Config, email: str | None) -> str:
+    """Fall through arg → ``GAMESHEET_USERNAME`` → :attr:`Config.username`."""
+    if email is None:
+        email = cfg.username
+    if not email:
+        raise AuthenticationError("Login requires an email. Pass it explicitly or set GAMESHEET_USERNAME.")
+    return email
+
+
+def _resolve_password(cfg: Config, password: str | None) -> str:
+    """Fall through arg → ``GAMESHEET_PASSWORD`` → :attr:`Config.password`.
+
+    Kept separate from :func:`_resolve_email` so the secret never flows through
+    a shared return value with the non-sensitive email — that pairing was
+    enough to trip CodeQL's data-flow analyzer into flagging downstream
+    ``email`` logging as clear-text password logging.
+    """
+    if password is None and cfg.password is not None:
+        # pylint: disable-next=no-member  # pylint mis-types SecretStr as FieldInfo
+        password = cfg.password.get_secret_value()
+    if not password:
+        raise AuthenticationError("Login requires a password. Pass it explicitly or set GAMESHEET_PASSWORD.")
+    return password
+
+
+def _wait_for_login_form(page: Any, cfg: Config) -> bool:
+    """Return ``True`` if the form rendered, ``False`` if already authenticated."""
     try:
         page.wait_for_selector("#email", timeout=_FORM_DETECTION_TIMEOUT_MS)
     except PlaywrightTimeoutError:
@@ -139,17 +166,14 @@ def login(
             _FORM_DETECTION_TIMEOUT_MS / 1000,
             cfg.browser_state_path,
         )
-        if post_login_path is not None:
-            _settle_post_login(session, post_login_path)
-        return
+        return False
+    return True
 
-    # Subscribe to the two responses we care about before triggering the
-    # submit. Storing each only once protects against the SPA retrying.
+
+def _attach_response_capture(page: Any) -> dict[str, Response | None]:
+    """Hook a listener that captures the first Firebase and token responses."""
     # nosec B105 - "token" is a dict key, not a credential
-    captured: dict[str, Response | None] = {
-        "firebase": None,
-        "token": None,
-    }  # nosec B105
+    captured: dict[str, Response | None] = {"firebase": None, "token": None}  # nosec B105
 
     def on_response(response: Response) -> None:
         if _is_firebase_signin(response.url) and captured["firebase"] is None:
@@ -158,32 +182,56 @@ def login(
             captured["token"] = response
 
     page.on("response", on_response)
+    return captured
 
+
+def _submit_login_form(page: Any, email: str, password: str) -> None:
     page.fill("#email", email)
     page.fill("#password", password)
     page.click("button[type=submit]")
 
-    deadline = time.monotonic() + timeout_s
-    while time.monotonic() < deadline:
-        fb = captured["firebase"]
-        if fb is not None:
-            if fb.status != 200:
-                msg = _firebase_error_message(fb)
-                raise AuthenticationError(f"Login rejected by Firebase: {msg}")
-            tok = captured["token"]
-            if tok is not None:
-                if tok.status != 200:
-                    raise AuthenticationError(f"GameSheet token exchange failed (HTTP {tok.status}).")
-                _LOGGER.info("Login succeeded for %s.", email)
-                if post_login_path is not None:
-                    _settle_post_login(session, post_login_path)
-                return
-        page.wait_for_timeout(_POLL_INTERVAL_MS)
 
+def _await_auth_outcome(
+    page: Any,
+    captured: dict[str, Response | None],
+    *,
+    deadline: float,
+    email: str,
+    timeout_s: float,
+) -> None:
+    """Poll until both auth responses arrive; raise on failure or timeout."""
+    while time.monotonic() < deadline:
+        if _auth_round_trip_complete(captured, email):
+            return
+        page.wait_for_timeout(_POLL_INTERVAL_MS)
     raise AuthenticationError(
         f"Login flow did not complete within {timeout_s:.0f}s. "
         "Auth backend returned no response. Try `--no-headless -vv` to debug."
     )
+
+
+def _auth_round_trip_complete(captured: dict[str, Response | None], email: str) -> bool:
+    """Return ``True`` once both halves have landed successfully."""
+    fb = captured["firebase"]
+    if fb is None:
+        return False
+    _raise_for_firebase_error(fb)
+    tok = captured["token"]
+    if tok is None:
+        return False
+    _raise_for_token_error(tok)
+    _LOGGER.info("Login succeeded for %s.", email)
+    return True
+
+
+def _raise_for_firebase_error(response: Response) -> None:
+    if response.status != 200:
+        raise AuthenticationError(f"Login rejected by Firebase: {_firebase_error_message(response)}")
+
+
+def _raise_for_token_error(response: Response) -> None:
+    if response.status != 200:
+        raise AuthenticationError(f"GameSheet token exchange failed (HTTP {response.status}).")
 
 
 def _is_firebase_signin(url: str) -> bool:
@@ -242,21 +290,33 @@ def load_refresh_token(config: Config) -> str | None:
 
 def _load_local_storage_value(config: Config, name: str) -> str | None:
     """Read one localStorage entry for ``config.base_url`` from the saved state."""
-    path = config.browser_state_path
+    state = _read_state_file(config.browser_state_path)
+    if state is None:
+        return None
+    value = _lookup_local_storage(state, config.base_url, name)
+    return value if isinstance(value, str) and value else None
+
+
+def _read_state_file(path: Any) -> dict[str, Any] | None:
+    """Parse the browser storage state JSON, or return ``None`` on miss/error."""
     if not path.exists():
         return None
     try:
-        state: dict[str, Any] = json.loads(path.read_text())
+        loaded: dict[str, Any] = json.loads(path.read_text())
     except (OSError, json.JSONDecodeError):
         _LOGGER.warning("Failed to read browser storage state from %s.", path)
         return None
+    return loaded
+
+
+def _lookup_local_storage(state: dict[str, Any], base_url: str, name: str) -> Any:
+    """Return the named localStorage value for ``base_url``, or ``None``."""
     for origin in state.get("origins", []):
-        if origin.get("origin") != config.base_url:
+        if origin.get("origin") != base_url:
             continue
         for kv in origin.get("localStorage", []):
             if kv.get("name") == name:
-                value = kv.get("value")
-                return value if isinstance(value, str) and value else None
+                return kv.get("value")
     return None
 
 
@@ -278,43 +338,61 @@ def save_tokens(
     structurally, so updates from either path are mutually compatible.
     """
     path = config.browser_state_path
-    state: dict[str, Any]
-    if path.exists():
-        try:
-            state = json.loads(path.read_text())
-        except json.JSONDecodeError:
-            state = {"cookies": [], "origins": []}
-    else:
-        state = {"cookies": [], "origins": []}
-
-    origins = state.setdefault("origins", [])
-    origin_entry: dict[str, Any] | None = None
-    for origin in origins:
-        if origin.get("origin") == config.base_url:
-            origin_entry = origin
-            break
-    if origin_entry is None:
-        origin_entry = {"origin": config.base_url, "localStorage": []}
-        origins.append(origin_entry)
-
+    state = _read_state_or_empty(path)
+    origin_entry = _origin_entry_for(state, config.base_url)
     ls: list[dict[str, str]] = origin_entry.setdefault("localStorage", [])
-    by_name = {kv.get("name"): kv for kv in ls}
+    _apply_local_storage_updates(ls, _build_token_updates(access=access, refresh=refresh, roles=roles))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(state, indent=2, sort_keys=True))
 
+
+def _read_state_or_empty(path: Any) -> dict[str, Any]:
+    """Like :func:`_read_state_file` but returns an empty skeleton on miss/error."""
+    empty: dict[str, Any] = {"cookies": [], "origins": []}
+    if not path.exists():
+        return empty
+    try:
+        loaded: dict[str, Any] = json.loads(path.read_text())
+    except json.JSONDecodeError:
+        return empty
+    return loaded
+
+
+def _origin_entry_for(state: dict[str, Any], base_url: str) -> dict[str, Any]:
+    """Return the origin entry for ``base_url``, creating it if absent."""
+    origins: list[dict[str, Any]] = state.setdefault("origins", [])
+    for origin in origins:
+        if origin.get("origin") == base_url:
+            return origin
+    new_entry: dict[str, Any] = {"origin": base_url, "localStorage": []}
+    origins.append(new_entry)
+    return new_entry
+
+
+def _build_token_updates(
+    *,
+    access: str,
+    refresh: str | None,
+    roles: str | None,
+) -> dict[str, str]:
+    """Build a localStorage-update dict from the present keyword arguments."""
     updates: dict[str, str] = {"accessToken": access}  # nosec B105
     if refresh is not None:
         updates["refreshToken"] = refresh  # nosec B105
     if roles is not None:
         updates["rolesToken"] = roles  # nosec B105
+    return updates
 
-    for entry_name, value in updates.items():
-        existing = by_name.get(entry_name)
+
+def _apply_local_storage_updates(ls: list[dict[str, str]], updates: dict[str, str]) -> None:
+    """Upsert each ``name → value`` pair into the localStorage list."""
+    by_name = {kv.get("name"): kv for kv in ls}
+    for name, value in updates.items():
+        existing = by_name.get(name)
         if existing is not None:
             existing["value"] = value
         else:
-            ls.append({"name": entry_name, "value": value})
-
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(state, indent=2, sort_keys=True))
+            ls.append({"name": name, "value": value})
 
 
 def refresh_access_token(
@@ -410,6 +488,13 @@ class AuthenticatedSession(Session):
         response = super().request(method, url, timeout=timeout, **kwargs)
         if response.status_code != 401:
             return response
+        if not self._try_refresh():
+            return response
+        _LOGGER.info("Refreshed access token; retrying %s %s.", method, url)
+        return super().request(method, url, timeout=timeout, **kwargs)
+
+    def _try_refresh(self) -> bool:
+        """Run a single refresh round-trip; return whether the retry should happen."""
         try:
             new_tokens = refresh_access_token(
                 self._refresh_token,
@@ -418,16 +503,20 @@ class AuthenticatedSession(Session):
             )
         except (AuthenticationError, GameSheetError) as exc:
             _LOGGER.warning("Token refresh failed: %s; surfacing 401.", exc)
-            return response
+            return False
         self.set_bearer_token(new_tokens["access"])
         self._refresh_token = new_tokens["refresh"]
-        if self._on_refresh is not None:
-            try:
-                self._on_refresh(new_tokens)
-            except OSError as exc:  # pragma: no cover - disk failure path
-                _LOGGER.warning("on_refresh callback failed to persist: %s", exc)
-        _LOGGER.info("Refreshed access token; retrying %s %s.", method, url)
-        return super().request(method, url, timeout=timeout, **kwargs)
+        self._notify_refresh(new_tokens)
+        return True
+
+    def _notify_refresh(self, new_tokens: dict[str, str]) -> None:
+        """Invoke the optional persistence callback, swallowing disk errors."""
+        if self._on_refresh is None:
+            return
+        try:
+            self._on_refresh(new_tokens)
+        except OSError as exc:  # pragma: no cover - disk failure path
+            _LOGGER.warning("on_refresh callback failed to persist: %s", exc)
 
 
 def _firebase_error_message(response: Response) -> str:
