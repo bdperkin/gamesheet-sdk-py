@@ -129,22 +129,39 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
 - **Testing patterns.** Pytest is configured with `--block-network` (via `pytest-recording`), so any test that opens a socket without a VCR cassette
   fails. Two markers (declared in `[tool.pytest.ini_options].markers`, enforced by `--strict-markers`): `@pytest.mark.vcr` replays HTTP from
   `tests/cassettes/` (sensitive headers/params scrubbed in `tests/conftest.py`); `@pytest.mark.browser` opts in to a real headless Chromium via
-  `pytest-playwright`. Run only fast tests with `pytest -m "not browser"`. Coverage floor is `[tool.coverage.report] fail_under = 80`.
+  `pytest-playwright`. Run only fast tests with `pytest -m "not browser"`. Local coverage floor is `[tool.coverage.report] fail_under = 80`; on top of
+  that, `.codecov.yml` declares project coverage target 90% (1% drop tolerated) and patch coverage 80% on newly-introduced lines, plus test-analytics
+  for flaky-test detection (alert after 2 flaky runs) and a >10% slowdown alert. `coverage.xml` and JUnit XML are uploaded to Codecov by
+  `.github/workflows/codecov.yml` (per-PR matrix) and `comprehensive-tests.yml` (nightly, multi-OS).
 
 - **Dependency updates.** `pre-commit.ci` configuration lives inline in `.pre-commit-config.yaml` under the top-level `ci:` key (the only path that
-  service reads). It pins `python_version: "3.11"`, runs `autoupdate_schedule: weekly`, auto-fixes formatting on PRs (`autofix_prs: true`), and skips
-  `pyright` on the hosted runner (heavier deps than pre-commit.ci can practically install). Autoupdates land as PRs (empty `autoupdate_branch`), not
-  auto-merges. `.github/dependabot.yml` opens grouped weekly PRs for Python runtime deps, Python dev deps, and GitHub Actions versions — three
-  PRs/week max.
+  service reads). It pins `python_version: "3.11"`, runs `autoupdate_schedule: weekly`, and auto-fixes formatting on PRs (`autofix_prs: true`). Three
+  hooks are listed in `ci.skip` — they still run in GitHub Actions where there is no 250 MiB tier limit and `python -m venv` works:
+
+  - `pyright` — deps don't fit pre-commit.ci's tier.
+  - `flake8` — `[flake8-plugins]` pulls fastapi, pandas-vet, flake8-django, etc., exceeding 250 MiB.
+  - `pyroma` — introspects via `python -m build`, which calls `python -m venv`; pre-commit.ci's bundled Python lacks `ensurepip`, so the build env
+    can't bootstrap pip.
+
+  Autoupdates land as PRs (empty `autoupdate_branch`), not auto-merges. `.github/dependabot.yml` opens grouped weekly PRs for Python runtime deps,
+  Python dev deps, and GitHub Actions versions — three PRs/week max.
 
 - **CI workflow layout.** GitHub Actions is fanned out into per-category workflow files under `.github/workflows/`: a small `ci.yml` build/install
   sanity check, `tests.yml` (pytest matrix py3.11–3.14), `docs.yml` (HTML/EPUB/man/PDF/lint/linkcheck/doctest as parallel jobs + a Pages deploy gated
-  on `push` to main), `pre-commit.yml`, plus one workflow per tool category: `type_checkers.yml`, `code_quality_linters_-_static_analysis.yml`,
-  `code_style_-_formatting_-automated_fixers-.yml`, `code_cleaners_-_dead_code_detectors.yml`, `configuration_file_linters_-_formatters.yml`,
-  `documentation_-_docstring_tools.yml`, `documentation_-_markdown_tools.yml`, `security-_metrics_-_complexity.yml`, and `comprehensive-tests.yml`.
-  Plus the GitHub-supplied `codeql.yml`, `dependency-review.yml`, and `release.yml`. Each tool runs as its own matrixed job (py3.11–3.14) installing
-  the `tox-workdir` plugin and invoking the matching tox env. Job display names are the bare tool name (e.g. `mypy (py3.11)`, `pytest (py3.12)`) so
-  the Checks UI stays scannable.
+  on `push` to main), `pre-commit.yml`, `codecov.yml` (per-PR pytest matrix with coverage + JUnit uploads to Codecov), plus one workflow per tool
+  category: `type_checkers.yml`, `code_quality_linters_-_static_analysis.yml`, `code_style_-_formatting_-automated_fixers-.yml`,
+  `code_cleaners_-_dead_code_detectors.yml`, `configuration_file_linters_-_formatters.yml`, `documentation_-_docstring_tools.yml`,
+  `documentation_-_markdown_tools.yml`, `security-_metrics_-_complexity.yml`, and `comprehensive-tests.yml` (nightly, multi-OS; also uploads to
+  Codecov). Plus the GitHub-supplied `codeql.yml`, `dependency-review.yml`, and `release.yml`. Each tool runs as its own matrixed job (py3.11–3.14)
+  installing the `tox-workdir` plugin and invoking the matching tox env. Job display names are the bare tool name (e.g. `mypy (py3.11)`,
+  `pytest (py3.12)`) so the Checks UI stays scannable.
+
+  **Trigger layout (uniform across every per-category workflow):** `push:` fires on every branch (no `branches:` filter), so feature-branch work gets
+  CI before a PR exists. `pull_request:` is scoped to `types: [opened, reopened]` — the default would also include `synchronize` (every push to a PR
+  branch), which would duplicate every run. With this scoping each push fires exactly once. As a safety net, `concurrency.group` is
+  `${{ github.workflow }}-${{ github.head_ref || github.ref_name }}` so any unintended overlap collapses via `cancel-in-progress: true`. The
+  exceptions are `codeql.yml`/`dependency-review.yml`/`release.yml` (kept on their original GitHub-supplied triggers) and the `codecov.yml` workflow
+  (still `push: branches: [main]` + `pull_request: branches: [main]` for now).
 
 - **Python 3.11–3.14.** Use modern syntax (`from __future__ import annotations`, `X | None`, etc.) as `cli.py` already does.
 
@@ -164,9 +181,12 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
   - **Meta:** sync-pre-commit-deps.
 
   mypy + pylint in pre-commit use `local` hooks because (a) pre-commit/mirrors-mypy tags currently drift ahead of upstream mypy on PyPI, and (b)
-  pylint needs the project's runtime deps duplicated in `additional_dependencies` to resolve imports inside the isolated hook venv. The same
-  `gamesheet-sdk-py[<extra>]` self-reference is used to inject project deps into other hooks that need to import the package (deptry, pyrefly, pyroma,
-  etc.). pyroma additionally needs `hatchling` + `hatch-vcs` as deps because it imports the build backend during introspection.
+  pylint needs the project's runtime deps duplicated in `additional_dependencies` to resolve imports inside the isolated hook venv. Every hook's
+  `additional_dependencies` is consolidated to a single `gamesheet-sdk-py[<extras>]` self-reference (e.g. `gamesheet-sdk-py[mypy,pytest,type-stubs]`,
+  `gamesheet-sdk-py[pylint,pytest]`, `gamesheet-sdk-py[pyrefly,pytest]`, `gamesheet-sdk-py[deptry,pytest,type-stubs]`) so `pyproject.toml`'s
+  `optional-dependencies.*` groups are the single source of truth for what each tool needs. The `[pyroma]` extra includes `virtualenv` so pyroma can
+  introspect the build backend; loose `hatchling` / `hatch-vcs` deps are no longer needed because pyroma is skipped on pre-commit.ci (see above) and
+  runs locally / in GitHub Actions where the project's build backend is already present.
 
 - **Complexity gate.** A `xenon` pre-commit hook enforces `--max-absolute=A --max-modules=A --max-average=B` against `src/` on every commit
   (`pass_filenames: false`, runs the whole package as one analysis). Translation: **every block (function / method / class) must stay at

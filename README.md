@@ -11,6 +11,7 @@
 [![Dependency review](https://github.com/bdperkin/gamesheet-sdk-py/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/bdperkin/gamesheet-sdk-py/actions/workflows/dependency-review.yml)
 [![pre-commit](https://github.com/bdperkin/gamesheet-sdk-py/actions/workflows/pre-commit.yml/badge.svg?branch=main)](https://github.com/bdperkin/gamesheet-sdk-py/actions/workflows/pre-commit.yml)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/bdperkin/gamesheet-sdk-py/main.svg)](https://results.pre-commit.ci/latest/github/bdperkin/gamesheet-sdk-py/main)
+[![codecov](https://codecov.io/gh/bdperkin/gamesheet-sdk-py/graph/badge.svg?token=8608BKui41)](https://codecov.io/gh/bdperkin/gamesheet-sdk-py)
 
 <!-- Code Quality -->
 
@@ -268,6 +269,7 @@ gamesheet-sdk-py/
 ├── pyproject.toml             # PEP 621 metadata + Hatch + tool config + extras
 ├── tox.ini                    # ~45 per-tool envs + labels (tests / docs / pre-commit)
 ├── .pre-commit-config.yaml    # local hooks + pre-commit.ci settings (inline `ci:` block)
+├── .codecov.yml               # Codecov targets (project 90% / patch 80%) + analytics
 ├── SECURITY.md                # vulnerability reporting policy
 └── LICENSE                    # MIT
 ```
@@ -286,7 +288,7 @@ pre-commit install
 # 3. Run the test suite (network is blocked unless replayed via VCR)
 pytest                              # everything
 pytest -m "not browser"             # skip slow real-Chromium tests
-pytest --cov                        # with coverage (fail_under = 80)
+pytest --cov                        # with coverage (local floor: fail_under = 80)
 
 # 4. Run quality gates
 pre-commit run --all-files          # every hook (mypy, pylint, pyright, bandit, xenon, …)
@@ -311,23 +313,30 @@ make docs-serve    # live-reload preview
 make clean         # caches + build artifacts
 ```
 
+### Coverage
+
+Local pytest runs enforce `fail_under = 80` (see `[tool.coverage.report]`). On every push, the `codecov.yml` workflow uploads `coverage.xml` and JUnit
+XML to [Codecov](https://codecov.io/gh/bdperkin/gamesheet-sdk-py), which gates PRs against `.codecov.yml` targets — **project coverage ≥ 90%** (1%
+drop tolerated) and **patch coverage ≥ 80%** on newly-introduced lines. Codecov test-analytics tracks flaky tests and a >10% performance regression
+alert.
+
 ### Tox
 
-Tox orchestrates ~45 per-tool envs (one per linter / formatter / type checker / doc builder), four matrixed `pytest-py3{11..14}` envs, and a
-fix-everything `fix` env. Selected envs and label groups:
+Tox orchestrates ~45 per-tool envs (one per linter / formatter / type checker / doc builder), a single `pytest` env, and a fix-everything `fix` env.
+Selected envs and label groups:
 
 ```bash
 tox -l                # list every available env
-tox -m tests          # all test envs (sanity + pytest-py3{11..14})
+tox -m tests          # all test envs (sanity build/install + pytest)
 tox -m docs           # docs, docs-lint, docs-linkcheck, docs-doctest, docs-epub, docs-man, docs-pdf, docs-serve
 tox -m pre-commit     # run pre-commit hooks
-tox -e pytest         # the runtime pytest env (no Python matrix)
+tox -e pytest         # the runtime pytest env (Python matrix lives in tests.yml on CI)
 tox -e mypy           # mypy --strict
 tox -e pylint         # pylint
 tox -e bandit         # bandit security scan
 tox -e metrics        # radon cc + radon mi (complexity)
 tox -e fix            # apply isort, black, mdformat in place
-tox -e py314 -- -k test_name   # pass args to pytest after `--`
+tox -e pytest -- -k test_name  # pass args to pytest after `--`
 ```
 
 Every `pyproject.toml` `optional-dependencies.*` group has a matching tox env that pulls only that extra — so `tox -e mypy` runs in an isolated venv

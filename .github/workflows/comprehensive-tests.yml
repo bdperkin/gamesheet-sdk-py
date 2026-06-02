@@ -45,6 +45,14 @@ jobs:
       - name: Run full test suite
         run: |
           pytest -v --cov --cov-report=xml --cov-report=term
+      - name: Upload coverage to Codecov
+        if: success()
+        uses: codecov/codecov-action@v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          flags: nightly-${{ matrix.os }}-py${{ matrix.python-version }}
+          name: nightly-${{ matrix.os }}-py${{ matrix.python-version }}
 
   retry-on-failure:
     name: Retry Failed Jobs

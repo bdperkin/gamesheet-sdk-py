@@ -1,0 +1,47 @@
+# Codecov configuration
+# Docs: https://docs.codecov.com/docs/codecov-yaml
+
+coverage:
+  status:
+    project:
+      default:
+        target: 90% # Maintain 90%+ coverage
+        threshold: 1% # Allow 1% decrease
+        if_ci_failed: error # Report error if CI fails
+
+    patch:
+      default:
+        target: 80% # New code should have 80%+ coverage
+        threshold: 5% # Allow 5% variance for new code
+
+  range: 70..100 # Red at 70%, green at 100%
+
+comment:
+  layout: "header, diff, files, footer"
+  behavior: default # Comment on every PR
+  require_changes: false # Comment even if no coverage change
+
+ignore:
+  - "tests/**" # Ignore test files in coverage
+  - "docs/**" # Ignore documentation
+  - "**/__init__.py" # Ignore package init files
+
+flags:
+  unittests:
+    carryforward: true # Use previous coverage if upload fails
+
+# Test Analytics configuration
+# Docs: https://docs.codecov.com/docs/test-analytics
+test_analytics:
+  enabled: true
+
+  # Flaky test detection
+  notifications:
+    flaky_tests:
+      enabled: true
+      threshold: 2 # Alert after 2 flaky runs
+
+  # Performance tracking
+  performance:
+    enabled: true
+    threshold: 10% # Alert if tests slow down >10%
