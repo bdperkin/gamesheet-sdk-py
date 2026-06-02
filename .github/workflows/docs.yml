@@ -2,13 +2,13 @@ name: Docs
 
 on:
   push:
-    branches: [main]
 
   pull_request:
+    types: [opened, reopened]
 
 concurrency:
   # Pages deploys must serialize on `main`; PRs serialize per-branch.
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
@@ -18,7 +18,6 @@ jobs:
   docs:
     name: HTML documentation build
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v6
       - name: Set up Python 3.11
@@ -35,7 +34,6 @@ jobs:
   docs-epub:
     name: EPUB documentation build
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v6
       - name: Set up Python 3.11
@@ -52,7 +50,6 @@ jobs:
   docs-man:
     name: man-page documentation build
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v6
       - name: Set up Python 3.11
@@ -69,7 +66,6 @@ jobs:
   docs-pdf:
     name: PDF documentation build
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Update apt cache and install packages
         run: |
@@ -90,7 +86,6 @@ jobs:
   docs-lint:
     name: Python documentation issues check
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v6
       - name: Set up Python 3.11
@@ -107,7 +102,6 @@ jobs:
   docs-linkcheck:
     name: Broken external link check
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v6
       - name: Set up Python 3.11
@@ -124,7 +118,6 @@ jobs:
   docs-doctest:
     name: Embedded doctest examples tests
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v6
       - name: Set up Python 3.11
