@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING, cast
+
+# pylint: disable=wrong-import-position
+if TYPE_CHECKING:
+    from pathlib import Path
+    from pydantic import SecretStr
 
 import pytest
 
@@ -16,7 +21,7 @@ def test_defaults() -> None:
     assert cfg.password is None
     assert cfg.timeout == 30.0
     assert cfg.request_retries == 3
-    assert cfg.verify_ssl is True
+    assert cfg.verify_ssl
     assert cfg.user_agent is None
 
 
@@ -46,25 +51,25 @@ def test_init_kwargs_override_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_password_is_redacted_in_repr() -> None:
-    cfg = Config(password="hunter2")
+    cfg = Config(password=cast("SecretStr", "hunter2"))
     rendered = repr(cfg)
     assert "hunter2" not in rendered
     assert "SecretStr" in rendered or "**********" in rendered
 
 
 def test_negative_timeout_rejected() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011
         Config(timeout=-1.0)
 
 
 def test_zero_timeout_rejected() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011
         Config(timeout=0.0)
 
 
 def test_negative_retries_rejected() -> None:
-    with pytest.raises(ValueError):
-        Config(request_retries=-1)
+    with pytest.raises(ValueError):  # noqa: PT011
+        Config(request_retries=-1)  # pyrefly: ignore[bad-argument-type]  # intentional invalid value
 
 
 def test_session_path_default_uses_xdg_cache_home(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -86,7 +91,8 @@ def test_extra_env_vars_are_ignored(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_browser_state_path_default_uses_xdg_cache_home(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
 ) -> None:
     monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
     cfg = Config()
@@ -94,9 +100,9 @@ def test_browser_state_path_default_uses_xdg_cache_home(
 
 
 def test_browser_headless_default_true() -> None:
-    assert Config().browser_headless is True
+    assert Config().browser_headless
 
 
 def test_browser_headless_env_var(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GAMESHEET_BROWSER_HEADLESS", "false")
-    assert Config().browser_headless is False
+    assert not Config().browser_headless

@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 from unittest.mock import MagicMock
 
 import pytest
@@ -29,6 +29,10 @@ from gamesheet_sdk.auth import (
     save_tokens,
 )
 
+# pylint: disable=wrong-import-position
+if TYPE_CHECKING:
+    from pydantic import SecretStr
+
 
 def _make_response(url: str, status: int, body: Any = None) -> MagicMock:
     """Build a MagicMock that quacks like a playwright Response."""
@@ -43,16 +47,15 @@ def _make_response(url: str, status: int, body: Any = None) -> MagicMock:
 
 
 _FIREBASE_URL = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=X"
-_TOKEN_URL = "https://gamesheet.app/api/token"
+_TOKEN_URL = "https://gamesheet.app/api/token"  # noqa: S105 # nosec B105
 
 
 @pytest.fixture
 def fake_browser_session(config: Config) -> MagicMock:
     """A BrowserSession-spec'd mock whose page captures a response listener.
 
-    The page's ``click`` is wired to fire whatever responses the test
-    has staged via the ``staged_responses`` attribute; the test sets
-    that list to control what arrives after submit.
+    The page's ``click`` is wired to fire whatever responses the test has staged via the ``staged_responses``
+    attribute; the test sets that list to control what arrives after submit.
     """
     sess = MagicMock(spec=BrowserSession)
     sess.config = config
@@ -79,7 +82,7 @@ def fake_browser_session(config: Config) -> MagicMock:
 
     # Make wait_for_timeout actually advance the clock a little so loops
     # don't spin entirely in zero real time.
-    page.wait_for_timeout.side_effect = lambda ms: None
+    page.wait_for_timeout.side_effect = lambda _ms: None
     return sess
 
 
@@ -113,7 +116,7 @@ def test_login_reads_credentials_from_config(
     fake_browser_session.config = Config(
         base_url="https://test.example",
         username="bob@example.com",
-        password="s3cret",
+        password=cast("SecretStr", "s3cret"),
     )
     fake_browser_session.goto.return_value.staged_responses = [
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
@@ -143,7 +146,7 @@ def test_login_args_override_config(fake_browser_session: MagicMock) -> None:
     fake_browser_session.config = Config(
         base_url="https://test.example",
         username="bob@example.com",
-        password="s3cret",
+        password=cast("SecretStr", "s3cret"),
     )
     page = fake_browser_session.goto.return_value
     page.staged_responses = [
@@ -229,7 +232,8 @@ def test_login_post_login_navigation_timeout_is_swallowed(
         # The post-login navigation is the one that asks for networkidle;
         # the initial form-load navigation uses wait_until="load".
         if kwargs.get("wait_until") == "networkidle":
-            raise PlaywrightTimeoutError("networkidle never fired")
+            _err_msg = "networkidle never fired"
+            raise PlaywrightTimeoutError(_err_msg)
         del path
         return page
 
@@ -272,7 +276,7 @@ def test_login_firebase_failure_without_parseable_body(
     fake_browser_session: MagicMock,
 ) -> None:
     page = fake_browser_session.goto.return_value
-    page.staged_responses = [_make_response(_FIREBASE_URL, 500, body=None)]
+    page.staged_responses = [_make_response(_FIREBASE_URL, 500)]
 
     with pytest.raises(AuthenticationError) as exc_info:
         login(fake_browser_session, email="a@b.c", password="x")
@@ -310,8 +314,8 @@ def test_login_no_responses_times_out(fake_browser_session: MagicMock) -> None:
 def test_login_form_detection_uses_fixed_timeout(
     fake_browser_session: MagicMock,
 ) -> None:
-    """The probe for the login form uses a fixed short timeout (the user's `timeout=`
-    parameter only governs the auth-response wait loop)."""
+    """The probe for the login form uses a fixed short timeout (the user's `timeout=` parameter only governs
+    the auth-response wait loop)."""
     page = fake_browser_session.goto.return_value
     page.staged_responses = [
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
@@ -326,9 +330,8 @@ def test_login_form_detection_uses_fixed_timeout(
 def test_login_short_circuits_when_saved_session_already_authenticates(
     fake_browser_session: MagicMock,
 ) -> None:
-    """If the unauth landing page renders no login form, the saved storage state is
-    already authenticating this user; login() should return cleanly without filling or
-    submitting anything."""
+    """If the unauth landing page renders no login form, the saved storage state is already authenticating
+    this user; login() should return cleanly without filling or submitting anything."""
     page = fake_browser_session.goto.return_value
     page.wait_for_selector.side_effect = PlaywrightTimeoutError("no #email")
 
@@ -378,7 +381,7 @@ def test_load_access_token_state_without_token_returns_none(config: Config) -> N
         '{"cookies": [], "origins": ['
         '{"origin": "https://test.example", "localStorage": ['
         '{"name": "irrelevant", "value": "x"}'
-        "]}]}"
+        "]}]}",
     )
     assert load_access_token(config) is None
 
@@ -389,7 +392,7 @@ def test_load_access_token_returns_value_when_present(config: Config) -> None:
         '{"cookies": [], "origins": ['
         '{"origin": "https://test.example", "localStorage": ['
         '{"name": "accessToken", "value": "eyJhbGci.test.jwt"}'
-        "]}]}"
+        "]}]}",
     )
     assert load_access_token(config) == "eyJhbGci.test.jwt"
 
@@ -401,7 +404,7 @@ def test_load_access_token_ignores_other_origins(config: Config) -> None:
         '{"cookies": [], "origins": ['
         '{"origin": "https://different.example", "localStorage": ['
         '{"name": "accessToken", "value": "wrong-origin-token"}'
-        "]}]}"
+        "]}]}",
     )
     assert load_access_token(config) is None
 
@@ -410,7 +413,6 @@ def test_load_access_token_ignores_other_origins(config: Config) -> None:
 
 
 def test_save_tokens_creates_state_file(config: Config) -> None:
-
     assert not config.browser_state_path.exists()
     save_tokens(config, access="new-access", refresh="new-refresh", roles="new-roles")
     assert config.browser_state_path.exists()
@@ -423,7 +425,6 @@ def test_save_tokens_creates_state_file(config: Config) -> None:
 
 
 def test_save_tokens_updates_existing_state(config: Config) -> None:
-
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     initial = {
         "cookies": [{"name": "preserve", "value": "me", "domain": "test.example"}],
@@ -435,7 +436,7 @@ def test_save_tokens_updates_existing_state(config: Config) -> None:
                     {"name": "refreshToken", "value": "old-refresh"},
                     {"name": "unrelated", "value": "kept"},
                 ],
-            }
+            },
         ],
     }
     config.browser_state_path.write_text(json.dumps(initial))
@@ -454,7 +455,6 @@ def test_save_tokens_updates_existing_state(config: Config) -> None:
 
 
 def test_save_tokens_recovers_from_corrupt_state(config: Config) -> None:
-
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     config.browser_state_path.write_text("{ corrupt")
     save_tokens(config, access="A", refresh="R")
@@ -469,7 +469,6 @@ def test_save_tokens_recovers_from_corrupt_state(config: Config) -> None:
 
 @responses.activate
 def test_refresh_access_token_happy_path() -> None:
-
     responses.add(
         responses.POST,
         REFRESH_URL,
@@ -488,7 +487,6 @@ def test_refresh_access_token_happy_path() -> None:
 
 @responses.activate
 def test_refresh_access_token_401_raises_authentication_error() -> None:
-
     responses.add(responses.POST, REFRESH_URL, json={"errors": [{}]}, status=401)
     with pytest.raises(AuthenticationError, match="Refresh token rejected"):
         refresh_access_token("DEAD-REFRESH")
@@ -496,7 +494,6 @@ def test_refresh_access_token_401_raises_authentication_error() -> None:
 
 @responses.activate
 def test_refresh_access_token_other_failure_raises_gamesheet_error() -> None:
-
     responses.add(responses.POST, REFRESH_URL, status=500, body="boom")
     with pytest.raises(GameSheetError, match="HTTP 500"):
         refresh_access_token("R")
@@ -507,7 +504,6 @@ def test_refresh_access_token_other_failure_raises_gamesheet_error() -> None:
 
 @responses.activate
 def test_authenticated_session_passthrough_when_200(config: Config) -> None:
-
     responses.add(responses.GET, "https://test.example/x", json={"ok": True}, status=200)
     with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
         resp = session.get("/x")
@@ -518,7 +514,6 @@ def test_authenticated_session_passthrough_when_200(config: Config) -> None:
 
 @responses.activate
 def test_authenticated_session_refreshes_and_retries_on_401(config: Config) -> None:
-
     # 1st: 401, refresh, 2nd: 200 with the new bearer.
     responses.add(responses.GET, "https://test.example/x", json={"err": 1}, status=401)
     responses.add(
@@ -553,7 +548,6 @@ def test_authenticated_session_refreshes_and_retries_on_401(config: Config) -> N
 def test_authenticated_session_propagates_401_when_refresh_fails(
     config: Config,
 ) -> None:
-
     responses.add(responses.GET, "https://test.example/x", json={"err": 1}, status=401)
     responses.add(responses.POST, REFRESH_URL, status=401, json={"errors": [{}]})
 
@@ -568,7 +562,6 @@ def test_authenticated_session_propagates_401_when_refresh_fails(
 def test_authenticated_session_does_not_retry_when_refresh_returns_500(
     config: Config,
 ) -> None:
-
     responses.add(responses.GET, "https://test.example/x", status=401)
     responses.add(responses.POST, REFRESH_URL, status=500, body="boom")
 
@@ -580,9 +573,8 @@ def test_authenticated_session_does_not_retry_when_refresh_returns_500(
 
 @responses.activate
 def test_authenticated_session_post_also_triggers_refresh(config: Config) -> None:
-    """The retry applies to writes too -- POST is not skipped here, since the failure
-    was 401 (auth), not a network/server hiccup."""
-
+    """The retry applies to writes too -- POST is not skipped here, since the failure was 401 (auth), not a
+    network/server hiccup."""
     responses.add(responses.POST, "https://test.example/mutate", status=401)
     responses.add(
         responses.POST,

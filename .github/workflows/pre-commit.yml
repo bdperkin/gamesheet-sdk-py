@@ -1,0 +1,36 @@
+name: Run code formatters, linters, and security checks against all files
+
+on:
+  push:
+    branches: [main]
+
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pre-commit:
+    name: pre-commit (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - uses: pre-commit/action@v3.0.1
+        env:
+          # On push events to main, GitHub Actions checks the branch out by
+          # name, so HEAD is on main and `no-commit-to-branch` would always
+          # fail in CI. The guard already ran locally on pre-commit/pre-push
+          # — skipping it here keeps every other hook active without
+          # blocking pushes that have legitimately reached main.
+          SKIP: no-commit-to-branch

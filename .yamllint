@@ -1,21 +1,34 @@
-# Example .yamllint file
+# ==============================================================================
+# YAML Lint Configuration
+# ==============================================================================
+
+# Inherit the base ruleset from the default yamllint configuration[cite: 2]
 extends: default
 
+# ------------------------------------------------------------------------------
+# Global Ignored Paths
+# ------------------------------------------------------------------------------
+# Ignore specific directories and files from being linted (e.g., virtual envs)[cite: 2]
 ignore: |
   /.tox/
   /.venv/
 
+# ------------------------------------------------------------------------------
+# Rule Customizations & Overrides
+# ------------------------------------------------------------------------------
 rules:
-  # Overriding a rule from 'default'
+  # Line Length: Set a generous limit for long configuration lines or strings[cite: 2]
   line-length:
-    max: 240
-    level: warning
+    max: 240 # Allow up to 240 characters per line before triggering an issue[cite: 2]
+    level: warning # Treat violations as a warning rather than a hard failure[cite: 2]
 
-  # Disabling a rule entirely
-  document-start: disable
-  truthy: disable
-
-  # Customizing indentation
+  # Indentation: Enforce strict and consistent spacing standards[cite: 2]
   indentation:
-    spaces: 2
-    indent-sequences: true
+    spaces: 2 # Standardize on 2 spaces for nested blocks[cite: 2]
+    indent-sequences: true # Enforce correct indentation for sequence/list items (-)[cite: 2]
+
+  # Document Start: Disable the mandate for '---' at the top of every file[cite: 2]
+  document-start: disable
+
+  # Truthy: Disable strict enforcement of boolean values (allows yes/no, true/false)[cite: 2]
+  truthy: disable

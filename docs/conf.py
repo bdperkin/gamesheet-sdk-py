@@ -1,14 +1,16 @@
+# noqa: INP001
 # pylint: disable=invalid-name
 """Sphinx configuration for the gamesheet-sdk-py documentation."""
 
 from __future__ import annotations
 
 from importlib import metadata
+from pathlib import Path
 
 # -- Project information -----------------------------------------------------
 project = "gamesheet-sdk-py"
 author = "bdperkin"
-copyright = f"2026, {author}"  # pylint: disable=redefined-builtin
+copyright = f"2026, {author}"  # noqa: A001 # pylint: disable=redefined-builtin
 release = metadata.version("gamesheet-sdk-py")
 version = ".".join(release.split(".")[:2])
 
@@ -40,7 +42,29 @@ source_suffix = {
     ".rst": "restructuredtext",
 }
 master_doc = "index"
+
+# 1. Define your base/fallback exclusions that Sphinx should always ignore
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "_autosummary"]
+
+# 2. Look for .gitignore at the project root (usually one level up from /docs)
+# Adjust the path if your conf.py location is structured differently
+project_root = Path(__file__).parent.parent
+gitignore_path = Path(project_root, ".gitignore")
+
+if Path(gitignore_path).exists():
+    with gitignore_path.open(encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            # Skip empty lines, comments, or negation rules
+            if not line or line.startswith(("#", "!")):
+                continue
+
+            # Sphinx expect patterns, strip leading/trailing slashes for safety
+            # e.g., "/.tox/" becomes ".tox"
+            clean_pattern = line.strip("/")
+
+            if clean_pattern and clean_pattern not in exclude_patterns:
+                exclude_patterns.append(clean_pattern)
 templates_path = ["_templates"]
 
 # -- Automatic API documentation --------------------------------------------
@@ -67,7 +91,6 @@ napoleon_use_rtype = False
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "requests": ("https://requests.readthedocs.io/en/latest/", None),
-    "bs4": ("https://www.crummy.com/software/BeautifulSoup/bs4/doc/", None),
     "pydantic": ("https://docs.pydantic.dev/latest/", None),
     "click": ("https://click.palletsprojects.com/en/stable/", None),
 }
@@ -130,10 +153,6 @@ latex_documents = [
         "manual",
     ),
 ]
-latex_elements = {
-    "papersize": "letterpaper",
-    "pointsize": "11pt",
-}
 
 # -- Link-check options -----------------------------------------------------
 linkcheck_retries = 2

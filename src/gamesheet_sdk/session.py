@@ -17,16 +17,24 @@ from __future__ import annotations
 
 import json
 import logging
-from collections.abc import MutableMapping
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _resolved_version
-from types import TracebackType
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
+
+# pylint: disable=wrong-import-position
+if TYPE_CHECKING:
+    from types import TracebackType
+    from collections.abc import Iterable, MutableMapping
+    from http.cookiejar import Cookie  # noqa: F401
+
 from urllib.parse import urljoin
 
 import requests
 from requests.adapters import HTTPAdapter
-from requests.cookies import RequestsCookieJar, create_cookie
+from requests.cookies import create_cookie  # pyright: ignore[reportUnknownVariableType]
+from requests.cookies import (
+    RequestsCookieJar,
+)
 from urllib3.util.retry import Retry
 
 from gamesheet_sdk.config import Config
@@ -35,9 +43,8 @@ from gamesheet_sdk.config import Config
 def _default_user_agent() -> str:
     """Build the SDK's default ``User-Agent`` from installed metadata.
 
-    Reads from the package's distribution metadata (which `hatch-vcs`
-    populates at build time) rather than importing ``__version__`` from
-    the parent module, so this module stays free of cyclic imports.
+    Reads from the package's distribution metadata (which `hatch-vcs` populates at build time) rather than
+    importing ``__version__`` from the parent module, so this module stays free of cyclic imports.
     """
     try:
         ver = _resolved_version("gamesheet-sdk-py")
@@ -70,6 +77,47 @@ class Session:
     ``with``, call :meth:`Session.close` explicitly to save state.
     """
 
+    # -- internals --------------------------------------------------------
+
+    def _build_http_session(self) -> requests.Session:
+        s = requests.Session()
+        s.headers["User-Agent"] = self.config.user_agent or _default_user_agent()
+        retry = Retry(
+            total=self.config.request_retries,
+            connect=self.config.request_retries,
+            read=self.config.request_retries,
+            backoff_factor=0.5,
+            status_forcelist=list(_DEFAULT_RETRY_STATUSES),
+            allowed_methods=list(_DEFAULT_RETRY_METHODS),
+            raise_on_status=False,
+        )
+        adapter = HTTPAdapter(max_retries=retry)
+        s.mount("https://", adapter)
+        s.mount("http://", adapter)
+        return s
+
+    def _load_cookies(self) -> None:
+        path = self.config.session_path
+        if not path.exists():
+            return
+        try:
+            data = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError) as exc:
+            _LOGGER.warning("Failed to load session cookies from %s: %s", path, exc)
+            return
+        for raw in data.get("cookies", []):
+            cookie = create_cookie(  # type: ignore[no-untyped-call]
+                name=raw["name"],
+                value=raw["value"],
+                domain=raw.get("domain", ""),
+                path=raw.get("path", "/"),
+                secure=raw.get("secure", False),
+                expires=raw.get("expires"),
+            )
+            self._http.cookies.set_cookie(  # pyright: ignore[reportUnknownMemberType]
+                cookie,  # pyright: ignore[reportUnknownArgumentType]
+            )
+
     def __init__(self, config: Config | None = None) -> None:
         self.config = config or Config()
         self._http = self._build_http_session()
@@ -89,11 +137,10 @@ class Session:
     def headers(self) -> MutableMapping[str, str | bytes]:
         """Default headers attached to every request from this session.
 
-        The underlying mapping is a case-insensitive dict (as supplied
-        by :class:`requests.Session`), but the declared return type
-        matches the stub for :attr:`requests.Session.headers`.
+        The underlying mapping is a case-insensitive dict (as supplied by :class:`requests.Session`), but the
+        declared return type matches the stub for :attr:`requests.Session.headers`.
         """
-        return self._http.headers
+        return self._http.headers  # type: ignore[reportReturnType,unused-ignore]
 
     def set_bearer_token(self, token: str) -> None:
         """Attach ``Authorization: Bearer <token>`` to all subsequent requests.
@@ -101,6 +148,11 @@ class Session:
         Convenience for ``s.headers["Authorization"] = f"Bearer {token}"``.
         """
         self._http.headers["Authorization"] = f"Bearer {token}"
+
+    def _resolve(self, url: str) -> str:
+        if url.startswith(("http://", "https://")):
+            return url
+        return urljoin(self.config.base_url.rstrip("/") + "/", url.lstrip("/"))
 
     # -- request methods --------------------------------------------------
 
@@ -114,13 +166,11 @@ class Session:
     ) -> requests.Response:
         """Send an HTTP request, resolving ``url`` against the configured base URL.
 
-        :param method: HTTP verb (GET, POST, etc.).
-        :param url: Absolute URL, or a path relative to
-            :attr:`Config.base_url`.
-        :param timeout: Per-request timeout override; falls back to
-            :attr:`Config.timeout` if not supplied.
-        :param kwargs: Forwarded to :meth:`requests.Session.request`.
-        :returns: The :class:`requests.Response` returned by the server.
+        :param method: HTTP verb (GET, POST, etc.). :param url: Absolute URL, or a path
+        relative to     :attr:`Config.base_url`. :param timeout: Per-request timeout
+        override; falls back to     :attr:`Config.timeout` if not supplied. :param
+        kwargs: Forwarded to :meth:`requests.Session.request`. :returns: The
+        :class:`requests.Response` returned by the server.
         """
         full_url = self._resolve(url)
         effective_timeout = timeout if timeout is not None else self.config.timeout
@@ -159,24 +209,22 @@ class Session:
     def save(self) -> None:
         """Persist the current cookie state to :attr:`Config.session_path`.
 
-        The on-disk format preserves the full cookie attribute set
-        (``domain``, ``path``, ``secure``, ``expires``) so that reloaded
-        cookies are sent against the correct scopes.
+        The on-disk format preserves the full cookie attribute set (``domain``, ``path``, ``secure``,
+        ``expires``) so that reloaded cookies are sent against the correct scopes.
         """
         path = self.config.session_path
         path.parent.mkdir(parents=True, exist_ok=True)
-        cookies: list[dict[str, Any]] = []
-        for cookie in self._http.cookies:
-            cookies.append(
-                {
-                    "name": cookie.name,
-                    "value": cookie.value,
-                    "domain": cookie.domain,
-                    "path": cookie.path,
-                    "secure": cookie.secure,
-                    "expires": cookie.expires,
-                }
-            )
+        cookies: list[dict[str, Any]] = [
+            {
+                "name": cookie.name,
+                "value": cookie.value,
+                "domain": cookie.domain,
+                "path": cookie.path,
+                "secure": cookie.secure,
+                "expires": cookie.expires,
+            }
+            for cookie in cast("Iterable[Cookie]", self._http.cookies)
+        ]
         path.write_text(json.dumps({"cookies": cookies}, indent=2, sort_keys=True))
 
     def close(self) -> None:
@@ -192,54 +240,8 @@ class Session:
 
     def __exit__(
         self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
+        _exc_type: type[BaseException] | None,
+        _exc_val: BaseException | None,
+        _exc_tb: TracebackType | None,
     ) -> None:
         self.close()
-
-    # -- internals --------------------------------------------------------
-
-    def _build_http_session(self) -> requests.Session:
-        s = requests.Session()
-        s.headers["User-Agent"] = self.config.user_agent or _default_user_agent()
-        s.verify = self.config.verify_ssl
-
-        retry = Retry(
-            total=self.config.request_retries,
-            connect=self.config.request_retries,
-            read=self.config.request_retries,
-            backoff_factor=0.5,
-            status_forcelist=list(_DEFAULT_RETRY_STATUSES),
-            allowed_methods=list(_DEFAULT_RETRY_METHODS),
-            raise_on_status=False,
-        )
-        adapter = HTTPAdapter(max_retries=retry)
-        s.mount("https://", adapter)
-        s.mount("http://", adapter)
-        return s
-
-    def _load_cookies(self) -> None:
-        path = self.config.session_path
-        if not path.exists():
-            return
-        try:
-            data = json.loads(path.read_text())
-        except (OSError, json.JSONDecodeError) as exc:
-            _LOGGER.warning("Failed to load session cookies from %s: %s", path, exc)
-            return
-        for raw in data.get("cookies", []):
-            cookie = create_cookie(  # type: ignore[no-untyped-call]
-                name=raw["name"],
-                value=raw["value"],
-                domain=raw.get("domain", ""),
-                path=raw.get("path", "/"),
-                secure=raw.get("secure", False),
-                expires=raw.get("expires"),
-            )
-            self._http.cookies.set_cookie(cookie)
-
-    def _resolve(self, url: str) -> str:
-        if url.startswith(("http://", "https://")):
-            return url
-        return urljoin(self.config.base_url.rstrip("/") + "/", url.lstrip("/"))

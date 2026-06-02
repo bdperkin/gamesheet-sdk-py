@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+# pylint: disable=wrong-import-position
+if TYPE_CHECKING:
+    from pathlib import Path
 
 import pytest
 
@@ -20,12 +24,10 @@ def _clear_gamesheet_env(monkeypatch: pytest.MonkeyPatch) -> None:
 
 @pytest.fixture
 def config(tmp_path: Path) -> Config:
-    """A Config that keeps all on-disk state inside a per-test tmp dir.
+    """Build a Config that keeps all on-disk state inside a per-test tmp dir.
 
-    Single shared fixture for both HTTP-session and browser-session
-    tests; using one definition avoids the pylint ``duplicate-code``
-    warning that fires when near-identical fixtures live in two test
-    modules.
+    Single shared fixture for both HTTP-session and browser-session tests; using one definition avoids the
+    pylint ``duplicate-code`` warning that fires when near- identical fixtures live in two test modules.
     """
     return Config(
         base_url="https://test.example",
@@ -40,8 +42,8 @@ def config(tmp_path: Path) -> Config:
 def vcr_config() -> dict[str, object]:
     """Defaults applied to every @pytest.mark.vcr test.
 
-    Sensitive headers and body fields are scrubbed before cassettes are written, so
-    recordings can be committed without leaking credentials.
+    Sensitive headers and body fields are scrubbed before cassettes are written, so recordings can be
+    committed without leaking credentials.
     """
     return {
         "filter_headers": [
@@ -69,8 +71,7 @@ def vcr_config() -> dict[str, object]:
 def browser_type_launch_args() -> dict[str, object]:
     """Defaults for the pytest-playwright `browser` fixture.
 
-    Tests opt in to a real browser by adding @pytest.mark.browser and
-    requesting the `page` / `context` / `browser` fixtures from
-    pytest-playwright. They are skipped via `pytest -m 'not browser'`.
+    Tests opt in to a real browser by adding @pytest.mark.browser and requesting the `page` / `context` /
+    `browser` fixtures from pytest-playwright. They are skipped via `pytest -m 'not browser'`.
     """
     return {"headless": True}

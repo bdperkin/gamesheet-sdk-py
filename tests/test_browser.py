@@ -1,10 +1,8 @@
 """Tests for :mod:`gamesheet_sdk.browser`.
 
-Most cases exercise the lazy lifecycle without launching a real
-browser; one lifecycle test mocks Playwright end-to-end to verify
-``_start`` / ``close`` plumbing. A separate ``@pytest.mark.browser``
-suite (not in this file yet) will exercise the real engine once
-the first browser-driven feature lands.
+Most cases exercise the lazy lifecycle without launching a real browser; one lifecycle test mocks Playwright
+end-to-end to verify ``_start`` / ``close`` plumbing. A separate ``@pytest.mark.browser`` suite (not in this
+file yet) will exercise the real engine once the first browser-driven feature lands.
 """
 
 # pylint: disable=redefined-outer-name,protected-access
@@ -91,7 +89,8 @@ def test_load_storage_state_reads_json(config: Config) -> None:
 
 
 def test_load_storage_state_corrupt_warns_and_returns_none(
-    config: Config, caplog: pytest.LogCaptureFixture
+    config: Config,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     config.browser_state_path.write_text("{ not valid json")
@@ -121,7 +120,7 @@ def test_save_writes_state_to_disk(config: Config) -> None:
 def test_save_creates_parent_dirs(config: Config) -> None:
     nested = config.browser_state_path.parent / "deep" / "nest" / "state.json"
     config.browser_state_path = nested
-    fake_state = {"cookies": [], "origins": []}
+    fake_state: dict[str, Any] = {"cookies": [], "origins": []}
     fake_context = MagicMock()
     fake_context.storage_state.return_value = fake_state
 
@@ -197,7 +196,7 @@ def test_close_tears_down_in_order(config: Config) -> None:
     browser.close.assert_called_once_with()
     pw_runtime.stop.assert_called_once_with()
     assert bs._context is None
-    assert bs._closed is True
+    assert bs._closed
 
 
 def test_context_manager_saves_on_exit(config: Config) -> None:
@@ -205,9 +204,8 @@ def test_context_manager_saves_on_exit(config: Config) -> None:
     pw_factory, _, _, context = _mock_playwright_chain()
     context.storage_state.return_value = fake_state
 
-    with patch("gamesheet_sdk.browser.sync_playwright", pw_factory):
-        with BrowserSession(config) as bs:
-            _ = bs.context  # force start
+    with patch("gamesheet_sdk.browser.sync_playwright", pw_factory), BrowserSession(config) as bs:
+        _ = bs.context  # force start
 
     assert config.browser_state_path.exists()
     assert json.loads(config.browser_state_path.read_text()) == fake_state

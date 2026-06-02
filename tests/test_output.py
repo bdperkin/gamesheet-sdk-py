@@ -7,7 +7,11 @@ from __future__ import annotations
 import json
 import sys
 from datetime import datetime, timezone
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+# pylint: disable=wrong-import-position
+if TYPE_CHECKING:
+    from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -66,8 +70,7 @@ def test_render_yaml_round_trips() -> None:
 
 
 def test_render_csv_header_and_rows() -> None:
-    out = render(_ROWS, fmt="csv")
-    lines = out.splitlines()
+    lines = render(_ROWS, fmt="csv").splitlines()
     assert lines[0] == "id,title,logo"
     assert lines[1] == "11,Hockey Time,"
     assert lines[2] == "40,SuperSeries AAA,https://x/logo.png"
@@ -149,9 +152,11 @@ def test_write_output_json_to_tty_uses_rich_syntax(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(sys.stdout, "isatty", lambda: True, raising=False)
-    with patch("gamesheet_sdk.output.Console") as mock_console:
-        with patch("gamesheet_sdk.output.Syntax") as mock_syntax:
-            write_output('{"x": 1}', None, fmt="json")
+    with (
+        patch("gamesheet_sdk.output.Console") as mock_console,
+        patch("gamesheet_sdk.output.Syntax") as mock_syntax,
+    ):
+        write_output('{"x": 1}', None, fmt="json")
     mock_console.assert_called_once_with()
     mock_console.return_value.print.assert_called_once()
     args, kwargs = mock_syntax.call_args
@@ -164,9 +169,11 @@ def test_write_output_yaml_to_tty_uses_rich_syntax(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(sys.stdout, "isatty", lambda: True, raising=False)
-    with patch("gamesheet_sdk.output.Console") as mock_console:
-        with patch("gamesheet_sdk.output.Syntax") as mock_syntax:
-            write_output("a: 1\n", None, fmt="yaml")
+    with (
+        patch("gamesheet_sdk.output.Console") as mock_console,
+        patch("gamesheet_sdk.output.Syntax") as mock_syntax,
+    ):
+        write_output("a: 1\n", None, fmt="yaml")
     mock_console.assert_called_once_with()
     args, _ = mock_syntax.call_args
     assert args[1] == "yaml"

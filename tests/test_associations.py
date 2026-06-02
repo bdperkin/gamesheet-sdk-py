@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from typing import cast
 
 import pytest
 import responses
@@ -54,7 +55,7 @@ def test_list_associations_parses_jsonapi_response(config: Config) -> None:
                         "updated_at": "2024-06-15T12:00:00Z",
                     },
                 },
-            ]
+            ],
         ),
         status=200,
     )
@@ -65,6 +66,7 @@ def test_list_associations_parses_jsonapi_response(config: Config) -> None:
     assert [a.id for a in result] == ["11", "40"]
     assert result[0].title == "Hockey Time Productions"
     assert result[0].logo == ""
+    assert result[0].created_at == datetime(2023, 5, 1, 20, 29, 9, 306_920, tzinfo=timezone.utc)
     assert result[0].created_at == datetime(2023, 5, 1, 20, 29, 9, 306_920, tzinfo=timezone.utc)
     assert result[1].logo == "https://example/logo.png"
 
@@ -87,7 +89,7 @@ def test_list_associations_empty_data_returns_empty_list(config: Config) -> None
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
-        assert list_associations(session) == []
+        assert not list_associations(session)
 
 
 @responses.activate
@@ -120,8 +122,8 @@ def test_association_model_ignores_unknown_attributes() -> None:
         id="11",
         title="X",
         logo="",
-        created_at="2023-01-01T00:00:00Z",
-        updated_at="2023-01-01T00:00:00Z",
-        unexpected_future_attr="ignored",
+        created_at=cast("datetime", "2023-01-01T00:00:00Z"),
+        updated_at=cast("datetime", "2023-01-01T00:00:00Z"),
+        unexpected_future_attr="ignored",  # type: ignore[call-arg]
     )
     assert a.title == "X"

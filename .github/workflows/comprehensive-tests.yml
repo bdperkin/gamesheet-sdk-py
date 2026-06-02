@@ -1,0 +1,82 @@
+name: Comprehensive Testing
+
+on:
+  schedule:
+    # Run every night at 2 AM UTC
+    - cron: "0 2 * * *"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  comprehensive-test:
+    name: Test on ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # Required for hatch-vcs version detection
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Cache tool directories
+        uses: actions/cache@v5
+        with:
+          path: |
+            .pytest_cache
+            .mypy_cache
+          key: >-
+            tools-${{ runner.os }}-py${{ matrix.python-version }}-
+            ${{ hashFiles('src/**/*.py', 'tests/**/*.py') }}
+          restore-keys: |
+            tools-${{ runner.os }}-py${{ matrix.python-version }}-
+            tools-${{ runner.os }}-
+      - name: Install dependencies
+        run: pip install -e ".[dev]" --system
+      - name: Run full test suite
+        run: |
+          pytest -v --cov --cov-report=xml --cov-report=term
+
+  retry-on-failure:
+    name: Retry Failed Jobs
+    needs: [comprehensive-test]
+    if: failure()
+    runs-on: ubuntu-latest
+    outputs:
+      should_create_issue: ${{ steps.check-attempt.outputs.should_create_issue }}
+    steps:
+      - name: Check if this is first attempt
+        id: check-attempt
+        run: |
+          echo "run_attempt=${{ github.run_attempt }}" >> $GITHUB_OUTPUT
+          if [ "${{ github.run_attempt }}" = "1" ]; then
+            echo "should_create_issue=false" >> $GITHUB_OUTPUT
+            echo "🔄 First failure detected - will retry automatically"
+          else
+            echo "should_create_issue=true" >> $GITHUB_OUTPUT
+            echo "❌ Retry also failed - will create issue"
+          fi
+      - name: Trigger automatic retry (first attempt only)
+        if: github.run_attempt == 1
+        uses: actions/github-script@v7
+        with:
+          script: |
+            console.log('🔄 Triggering automatic retry of failed jobs...');
+            // Wait 60 seconds before retrying to allow transient issues to resolve
+            await new Promise(resolve => setTimeout(resolve, 60000));
+            // Re-run only the failed jobs
+            await github.rest.actions.reRunWorkflowFailedJobs({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId
+            });
+            console.log('✅ Retry triggered successfully');
