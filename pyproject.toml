@@ -199,6 +199,7 @@ optional-dependencies.pyright = [
 ]
 optional-dependencies.pyroma = [
   "pyroma",
+  "virtualenv",
 ]
 optional-dependencies.pytest = [
   "pytest",
@@ -443,6 +444,9 @@ recursive = true
 black = true
 wrap-summaries = 110
 wrap-descriptions = 110
+exclude = [
+  ".venv",
+]
 description = "Automatically reformats Python docstrings to follow PEP 257 description and spacing conventions."
 
 ## ## interrogate - Docstring coverage checker
@@ -627,6 +631,9 @@ recursive = true
 ## ## mdformat - Markdown formatter
 [tool.mdformat]
 end_of_line = "lf"
+exclude = [
+  ".venv/**",
+]
 number = true
 validate = true
 wrap = 150

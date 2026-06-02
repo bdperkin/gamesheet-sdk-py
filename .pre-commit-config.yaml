@@ -20,10 +20,19 @@ ci:
   autofix_commit_msg: "style: Auto-fixes from pre-commit.ci"
   autofix_prs: true
 
-  # Skip certain hooks in CI (if needed)
-  # Empty list = run all hooks
+  # Skip certain hooks in CI (if needed). Skipped hooks still run in
+  # GitHub Actions, where there is no 250 MiB tier limit on hook envs
+  # and `python -m venv` works:
+  # - pyright: deps don't fit pre-commit.ci's tier
+  # - flake8: [flake8-plugins] (fastapi, pandas-vet, flake8-django, …)
+  #   exceeds 250 MiB
+  # - pyroma: introspects via `python -m build`, which calls
+  #   `python -m venv`; pre-commit.ci's bundled Python lacks
+  #   `ensurepip`, so the build env can't bootstrap pip
   skip:
     - pyright
+    - flake8
+    - pyroma
 
   # Require all hooks to pass before autoupdate
   # Empty string = create PR for review (recommended)
@@ -104,7 +113,6 @@ repos:
         language: python
         additional_dependencies:
           - gamesheet-sdk-py[editorconfig-checker]
-          - editorconfig-checker
 
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.38.0
@@ -124,9 +132,9 @@ repos:
     rev: 1.0.0
     hooks:
       - id: mdformat # mdformat
+        language_version: python3.13
         additional_dependencies:
           - gamesheet-sdk-py[mdformat]
-          - mdformat-gfm
           - mdformat-pyproject
 
   # ------------------------------------------------------------------------------
@@ -154,9 +162,6 @@ repos:
       - id: pyroma # Check package with Pyroma
         additional_dependencies:
           - gamesheet-sdk-py[pyroma]
-          - hatch-vcs
-          - hatchling
-          - virtualenv
 
   # ------------------------------------------------------------------------------
   ### Code Style & Formatting (Automated Fixers)
@@ -225,8 +230,7 @@ repos:
       - id: deptry # deptry
         language: python
         additional_dependencies:
-          - gamesheet-sdk-py[pytest]
-          - gamesheet-sdk-py[type-stubs]
+          - gamesheet-sdk-py[deptry,pytest,type-stubs]
 
   # ------------------------------------------------------------------------------
   ### Documentation & Docstring Tools
@@ -273,7 +277,7 @@ repos:
       - id: flake8 # flake8
         additional_dependencies:
           - flake8-pyproject
-          - gamesheet-sdk-py[flake8-plugins]
+          - gamesheet-sdk-py[flake8,flake8-plugins]
 
   - repo: https://github.com/dosisod/refurb
     rev: v2.3.1
@@ -285,19 +289,14 @@ repos:
     hooks:
       - id: pylint # pylint
         additional_dependencies:
-          - gamesheet-sdk-py[pylint]
-          - pylint-per-file-ignores
-          - pytest
-          - responses
+          - gamesheet-sdk-py[pylint,pytest]
 
   - repo: https://github.com/facebook/pyrefly-pre-commit
     rev: 1.0.0
     hooks:
       - id: pyrefly-check # pyrefly check
         additional_dependencies:
-          - gamesheet-sdk-py[pyrefly]
-          - pytest
-          - responses
+          - gamesheet-sdk-py[pyrefly,pytest]
 
   # ------------------------------------------------------------------------------
   ### Security, Metrics & Complexity
@@ -323,23 +322,14 @@ repos:
     hooks:
       - id: pyright # pyright
         additional_dependencies:
-          - gamesheet-sdk-py[pyright]
-          - pytest
-          - responses
+          - gamesheet-sdk-py[pyright,pytest]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.20.1
     hooks:
       - id: mypy # mypy
         additional_dependencies:
-          - gamesheet-sdk-py[mypy]
-          - gamesheet-sdk-py[pytest]
-          - gamesheet-sdk-py[type-stubs]
-          - pytest
-          - responses
-          - types-pyyaml
-          - types-requests
-          - types-tabulate
+          - gamesheet-sdk-py[mypy,pytest,type-stubs]
 
   # ------------------------------------------------------------------------------
   ## Out-of-the-box Pre-Commit Hook Updates
