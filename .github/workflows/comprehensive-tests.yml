@@ -41,17 +41,24 @@ jobs:
             tools-${{ runner.os }}-py${{ matrix.python-version }}-
             tools-${{ runner.os }}-
       - name: Install dependencies
-        run: pip install -e ".[dev]" --system
+        run: pip install -e ".[pytest]"
       - name: Run full test suite
         run: |
           pytest -v --cov --cov-report=xml --cov-report=term
+      - name: Compute Codecov per-version flag
+        if: success()
+        id: pyflag
+        shell: bash
+        run: |
+          pyflag="py$(echo "${{ matrix.python-version }}" | tr '.' '-')"
+          echo "value=${pyflag}" >> "$GITHUB_OUTPUT"
       - name: Upload coverage to Codecov
         if: success()
         uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
-          flags: nightly-${{ matrix.os }}-py${{ matrix.python-version }}
+          flags: nightly,${{ matrix.os }},${{ steps.pyflag.outputs.value }}
           name: nightly-${{ matrix.os }}-py${{ matrix.python-version }}
 
   retry-on-failure:
