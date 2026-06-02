@@ -5,7 +5,11 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+# pylint: disable=wrong-import-position
+if TYPE_CHECKING:
+    from pathlib import Path
 
 import pytest
 import responses
@@ -15,7 +19,9 @@ from gamesheet_sdk import Config, Session
 
 def test_default_user_agent_is_version_stamped(config: Config) -> None:
     with Session(config) as sess:
-        ua = sess.headers["User-Agent"]
+        # Session.headers is typed `str | bytes` (matches the requests stub);
+        # the SDK only ever stores a str, so narrow here for static checkers.
+        ua = str(sess.headers["User-Agent"])
     assert ua.startswith("gamesheet-sdk-py/")
     assert "github.com/bdperkin/gamesheet-sdk-py" in ua
 

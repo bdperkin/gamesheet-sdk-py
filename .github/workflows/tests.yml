@@ -1,8 +1,9 @@
-name: Pylint
+name: Run all tests
 
 on:
   push:
     branches: [main]
+
   pull_request:
 
 concurrency:
@@ -13,25 +14,26 @@ permissions:
   contents: read
 
 jobs:
-  pylint:
+  pytest:
+    name: pytest (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
-
+        python-version:
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
     steps:
       - uses: actions/checkout@v6
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: pyproject.toml
-
       - name: Install tox
-        run: pip install 'tox>=4.21'
-
-      - name: Run pylint via tox
-        run: tox -e pylint
+        run: pip install tox-workdir
+      - name: Run pytest via tox
+        run: tox -e pytest

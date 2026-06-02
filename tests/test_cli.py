@@ -9,7 +9,11 @@ from __future__ import annotations
 import json
 import logging
 import sys
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+# pylint: disable=wrong-import-position
+if TYPE_CHECKING:
+    from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import click
@@ -229,7 +233,7 @@ def test_main_login_path_constant_matches_auth_module() -> None:
 # ---------- associations list subcommand --------------------------------
 
 
-def _stub_associations(*ids_and_titles: tuple[str, str]) -> list[object]:
+def _stub_associations(*ids_and_titles: tuple[str, str]) -> list[MagicMock]:
     """Build fake Association objects without needing pydantic instantiation."""
     out = []
     for aid, title in ids_and_titles:
@@ -258,8 +262,10 @@ def test_list_associations_default_table_format(
     assert result.exit_code == 0, result.output
     # Default --format is tabulate's "simple": id and title appear on the same
     # row, no fixed separator. Just assert both pairs are present.
-    assert "11" in result.output and "Hockey Time Productions" in result.output
-    assert "40" in result.output and "SuperSeries AAA" in result.output
+    assert "11" in result.output
+    assert "Hockey Time Productions" in result.output
+    assert "40" in result.output
+    assert "SuperSeries AAA" in result.output
 
 
 @patch("gamesheet_sdk.cli._list_associations_action")
@@ -281,7 +287,9 @@ def test_list_associations_json_format(
 @patch("gamesheet_sdk.cli.load_refresh_token", return_value=None)
 @patch("gamesheet_sdk.cli.load_access_token", return_value=None)
 def test_list_associations_missing_token_exits_one(
-    _mock_load_access: MagicMock, _mock_load_refresh: MagicMock, runner: CliRunner
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    runner: CliRunner,
 ) -> None:
     result = runner.invoke(cli, ["associations", "list"])
     assert result.exit_code == 1
@@ -325,7 +333,6 @@ def test_list_associations_other_error_exits_one(
 def test_configure_logging_uses_colored_formatter_on_tty(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-
     monkeypatch.delenv("NO_COLOR", raising=False)
     monkeypatch.setattr(sys.stderr, "isatty", lambda: True, raising=False)
     _configure_logging(0)
@@ -336,9 +343,8 @@ def test_configure_logging_uses_colored_formatter_on_tty(
 def test_configure_logging_uses_plain_formatter_when_not_a_tty(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-
     monkeypatch.delenv("NO_COLOR", raising=False)
-    monkeypatch.setattr(sys.stderr, "isatty", lambda: False, raising=False)
+    monkeypatch.setattr(sys.stderr, "isatty", bool, raising=False)
     _configure_logging(0)
     handler = logging.getLogger().handlers[0]
     assert not isinstance(handler.formatter, colorlog.ColoredFormatter)
@@ -349,7 +355,6 @@ def test_configure_logging_honors_no_color_env_var(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """A user-set NO_COLOR env var disables ANSI even on a TTY."""
-
     monkeypatch.setenv("NO_COLOR", "1")
     monkeypatch.setattr(sys.stderr, "isatty", lambda: True, raising=False)
     _configure_logging(0)
@@ -709,8 +714,10 @@ def test_completion_does_not_descend_into_default_subcommand() -> None:
     completion walk (``resilient_parsing=True``) — otherwise click
     descends into ``list`` and tab-completion silently breaks.
     """
-    sc = BashComplete(cli, {}, "gamesheet-sdk-py", "_GAMESHEET_SDK_PY_COMPLETE")
-    completions = sc.get_completions(["associations"], "")
+    completions = BashComplete(cli, {}, "gamesheet-sdk-py", "_GAMESHEET_SDK_PY_COMPLETE").get_completions(
+        ["associations"],
+        "",
+    )
     values = {c.value for c in completions}
     assert "list" in values
     assert "ls" in values

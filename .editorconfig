@@ -1,18 +1,29 @@
+# Top-most EditorConfig file. Tells plugins not to look in parent directories.
 root = true
 
+# ==============================================================================
+# Global Rules (Applies to all files unless overridden below)
+# ==============================================================================
 [*]
-charset = utf-8
-end_of_line = lf
-indent_style = space
-indent_size = 4
-insert_final_newline = true
-trim_trailing_whitespace = true
+charset                  = utf-8       # Use UTF-8 character encoding
+end_of_line              = lf          # Use Unix-style line endings (Line Feed)
+indent_style             = space       # Use spaces instead of tabs for indentation
+indent_size              = 4           # Default indentation is 4 spaces
+insert_final_newline     = true        # Ensure files end with a trailing newline
+trim_trailing_whitespace = true        # Remove trailing whitespace before saving
 
+# ==============================================================================
+# Format-Specific Overrides
+# ==============================================================================
+
+# Data & Documentation Formats (Prefer 2-space indentation)
 [*.{yml,yaml,json,toml,md}]
-indent_size = 2
+indent_size              = 2
 
+# Configuration Files
 [.yamllint]
-indent_size = 2
+indent_size              = 2
 
+# Build Automations (Makefiles strictly require physical tabs)
 [Makefile]
-indent_style = tab
+indent_style             = tab         # Tabs are syntactically required by Make

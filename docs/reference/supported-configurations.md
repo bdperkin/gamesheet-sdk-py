@@ -1,36 +1,31 @@
 # Supported configurations
 
-This page enumerates the Python versions, operating systems, browsers, and
-dependencies that `gamesheet-sdk-py` officially supports. The authoritative
-source for everything below is `pyproject.toml`; this page mirrors it for
-lookup convenience.
+This page enumerates the Python versions, operating systems, browsers, and dependencies that `gamesheet-sdk-py` officially supports. The authoritative
+source for everything below is `pyproject.toml`; this page mirrors it for lookup convenience.
 
 ## Python versions
 
-| Version | Status        |
-| ------- | ------------- |
-| 3.11    | Supported     |
-| 3.12    | Supported     |
-| 3.13    | Supported     |
-| 3.14    | Supported     |
-| ≤ 3.10  | Not supported |
-| ≥ 3.15  | Not supported |
+| Version  | Status        |
+| -------- | ------------- |
+| 3.11     | Supported     |
+| 3.12     | Supported     |
+| 3.13     | Supported     |
+| 3.14     | Supported     |
+| \<= 3.10 | Not supported |
+| >= 3.15  | Not supported |
 
-The constraint is enforced in `pyproject.toml` as
-`requires-python = ">=3.11,<3.15"`. Installing on an unsupported interpreter
-will be rejected by pip.
+The constraint is enforced in `pyproject.toml` as `requires-python = ">=3.11,<3.15"`. Installing on an unsupported interpreter will be rejected by
+pip.
 
 ## Operating systems
 
-The SDK runs anywhere CPython 3.11–3.14 runs *and* Playwright can install
-Chromium. In practice that means:
+The SDK runs anywhere CPython 3.11–3.14 runs _and_ Playwright can install Chromium. In practice that means:
 
 - Linux: `x86_64`, `aarch64`
 - macOS: `x86_64`, `arm64` (Apple Silicon)
 - Windows: `x86_64`
 
-Other targets (Linux 32-bit, BSD, etc.) are not tested. They may work for
-SDK operations that do not require Playwright; they will fail at
+Other targets (Linux 32-bit, BSD, etc.) are not tested. They may work for SDK operations that do not require Playwright; they will fail at
 `python -m playwright install chromium`.
 
 ## Bundled browser
@@ -45,8 +40,7 @@ Workflows that need a real browser drive headless Chromium via Playwright.
 | Cache location   | `~/.cache/ms-playwright/` (analogous user-cache path on Windows)  |
 | Approximate size | 150 MB on disk                                                    |
 
-For caching the install across CI runs, see
-{doc}`../how-to/install-in-github-actions`.
+For caching the install across CI runs, see {doc}`../how-to/install-in-github-actions`.
 
 ## Runtime dependencies
 
@@ -55,8 +49,6 @@ These are required and installed automatically by `pip install gamesheet-sdk-py`
 | Package             | Floor    | Purpose                                              |
 | ------------------- | -------- | ---------------------------------------------------- |
 | `requests`          | `>=2.32` | HTTP client for the lightweight code path.           |
-| `beautifulsoup4`    | `>=4.12` | HTML parsing.                                        |
-| `lxml`              | `>=5.2`  | Parser backend used by beautifulsoup4.               |
 | `playwright`        | `>=1.45` | Headless-browser automation for the heavy code path. |
 | `pydantic`          | `>=2.7`  | Data validation for SDK models.                      |
 | `pydantic-settings` | `>=2.0`  | Env-driven resolution of `Config`.                   |
@@ -66,21 +58,17 @@ These are required and installed automatically by `pip install gamesheet-sdk-py`
 | `rich`              | `>=13`   | Syntax-highlighted JSON / YAML output to a TTY.      |
 | `PyYAML`            | `>=6.0`  | YAML output for CLI workflows.                       |
 
-If you change `[project.dependencies]` in `pyproject.toml`, update this
-table in the same commit.
+If you change `[project.dependencies]` in `pyproject.toml`, update this table in the same commit.
 
 ## Optional dependency groups
 
 The package declares two extras via `[project.optional-dependencies]`:
 
-- **`dev`** — everything used to develop, test, lint, and release the
-  package: `pytest`, `pytest-cov`, `black`, `isort`, `flake8`,
-  `Flake8-pyproject`, `pre-commit`, `mypy`, `types-requests`, `pyupgrade`,
-  `bandit[toml]`, `codespell`, `mdformat`, `mdformat-gfm`, `yamllint`,
-  `validate-pyproject`, `editorconfig-checker`, `tox`, `build`.
-- **`docs`** — Sphinx and its plugins: `sphinx`, `furo`,
-  `myst-parser[linkify]`, `sphinx-copybutton`, `sphinx-design`,
-  `sphinx-argparse`, `sphinx-lint`, `sphinx-autobuild`.
+- **`dev`** — everything used to develop, test, lint, and release the package: `pytest`, `pytest-cov`, `black`, `isort`, `flake8`, `flake8-pyproject`,
+  `pre-commit`, `mypy`, `types-requests`, `pyupgrade`, `bandit[toml]`, `codespell`, `mdformat`, `mdformat-gfm`, `yamllint`, `validate-pyproject`,
+  `editorconfig-checker`, `tox`, `build`.
+- **`docs`** — Sphinx and its plugins: `sphinx`, `furo`, `myst-parser[linkify]`, `sphinx-copybutton`, `sphinx-design`, `sphinx-argparse`,
+  `sphinx-lint`, `sphinx-autobuild`.
 
 Install combinations:
 
@@ -101,17 +89,13 @@ Install combinations:
 
 ## How the package version is derived
 
-The version is **not** written in `pyproject.toml`. It is derived at build time
-by [hatch-vcs](https://github.com/ofek/hatch-vcs) from the most recent matching
-git tag (default tag pattern, e.g. `v1.2.3`).
+The version is **not** written in `pyproject.toml`. It is derived at build time by [hatch-vcs](https://github.com/ofek/hatch-vcs) from the most recent
+matching git tag (default tag pattern, e.g. `v1.2.3`).
 
 - At a tagged commit: version is exactly the tag (e.g. `v0.0.1` → `0.0.1`).
-- After a tag, with extra commits: version becomes a `guess-next-dev` form
-  like `0.0.2.dev3+gabcdef0` (next-patch dev, plus commit count and short
+- After a tag, with extra commits: version becomes a `guess-next-dev` form like `0.0.2.dev3+gabcdef0` (next-patch dev, plus commit count and short
   hash).
-- With uncommitted changes in the working tree: the build appends a
-  `.dXXXXXXXX` "dirty" date suffix.
+- With uncommitted changes in the working tree: the build appends a `.dXXXXXXXX` "dirty" date suffix.
 
-The generated `src/gamesheet_sdk/_version.py` carries the resolved version into
-the installed package; `gamesheet_sdk.__version__` reads from it. The file is
-written by hatch-vcs's build hook and is gitignored.
+The generated `src/gamesheet_sdk/_version.py` carries the resolved version into the installed package; `gamesheet_sdk.__version__` reads from it. The
+file is written by hatch-vcs's build hook and is gitignored.

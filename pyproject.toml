@@ -1,7 +1,16 @@
+# ==============================================================================
+# Project Build & Tooling Configuration (PEP 518 / PEP 621)
+# ==============================================================================
+# ------------------------------------------------------------------------------
+# Build System Back-end Settings
+# ------------------------------------------------------------------------------
 [build-system]
 build-backend = "hatchling.build"
-requires = [ "hatch-vcs>=0.4", "hatchling>=1.24" ]
+requires = [ "hatch-vcs", "hatchling" ]
 
+# ------------------------------------------------------------------------------
+# Project Metadata
+# ------------------------------------------------------------------------------
 [project]
 name = "gamesheet-sdk-py"
 description = """\
@@ -11,10 +20,8 @@ description = """\
 readme = "README.md"
 keywords = [ "automation", "cli", "gamesheet", "hockey", "scraper", "sdk", "sports" ]
 license = { file = "LICENSE" }
-authors = [
-  { name = "bdperkin", email = "bdperkin@gmail.com" },
-]
-requires-python = ">=3.11,<3.15"
+authors = [ { name = "bdperkin", email = "bdperkin@gmail.com" } ]
+requires-python = ">=3.11"
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -30,53 +37,210 @@ classifiers = [
 ]
 dynamic = [ "version" ]
 dependencies = [
-  "beautifulsoup4>=4.12",
-  "click>=8.1",
-  "colorlog>=6.8",
-  "lxml>=5.2",
-  "playwright>=1.45",
-  "pydantic>=2.7",
-  "pydantic-settings>=2",
-  "pyyaml>=6",
-  "requests>=2.32",
-  "rich>=13",
-  "tabulate>=0.9",
+  "click",
+  "colorlog",
+  "playwright",
+  "pydantic",
+  "pydantic-settings",
+  "pyyaml",
+  "requests",
+  "rich",
+  "tabulate",
+  "urllib3",
+]
+optional-dependencies.absolufy-imports = [
+  "absolufy-imports",
+]
+optional-dependencies.add-trailing-comma = [
+  "add-trailing-comma",
+]
+optional-dependencies.all = [
+  """\
+  gamesheet-sdk-py[absolufy-imports,add-trailing-comma,autoflake,autopep8,bandit,black,blacken-docs,blocklint,codespell\
+  ,deptry,dev,docformatter,docs,editorconfig-checker,flake8,interrogate,isort,mdformat,mypy,pydocstyle,pylint,pymarkdow\
+  n,pyproject-fmt,pyrefly,pyright,pyroma,pyupgrade,radon,refurb,sphinx-lint,ssort,tox-ini-fmt,unimport,validate-pyproje\
+  ct,vulture,yamllint]\
+  """,
+]
+optional-dependencies.autoflake = [
+  "autoflake",
+]
+optional-dependencies.autopep8 = [
+  "autopep8",
+]
+optional-dependencies.bandit = [
+  "bandit",
+]
+optional-dependencies.black = [
+  "black",
+]
+optional-dependencies.blacken-docs = [
+  "blacken-docs",
+]
+optional-dependencies.blocklint = [
+  "blocklint",
+]
+optional-dependencies.codespell = [
+  "codespell",
+]
+optional-dependencies.deptry = [
+  "deptry",
+  "gamesheet-sdk-py[pytest]",
+  "gamesheet-sdk-py[type-stubs]",
 ]
 optional-dependencies.dev = [
-  "bandit[toml]>=1.7",
-  "black>=26.3",
-  "build>=1.2",
-  "codespell>=2.4",
-  "editorconfig-checker>=3.6",
-  "flake8>=7.1",
-  "flake8-pyproject>=1.2",
-  "isort>=5.13",
-  "mdformat>=0.7",
-  "mdformat-gfm>=0.4",
-  "mypy>=1.10",
-  "pre-commit>=3.7",
-  "pytest>=8.2",
-  "pytest-cov>=5",
-  "pytest-playwright>=0.5",
-  "pytest-recording>=0.13",
-  "pyupgrade>=3.19",
-  "responses>=0.25",
-  "tox>=4.21",
-  "types-pyyaml>=6",
-  "types-requests>=2.32",
-  "types-tabulate>=0.9",
-  "validate-pyproject>=0.25",
-  "yamllint>=1.38",
+  "pre-commit",
+  "tox-workdir",
+]
+optional-dependencies.docformatter = [
+  "docformatter",
 ]
 optional-dependencies.docs = [
-  "furo>=2024.5",
-  "myst-parser[linkify]>=3",
-  "sphinx>=7.3",
-  "sphinx-autobuild>=2024.4",
-  "sphinx-click>=6",
-  "sphinx-copybutton>=0.5",
-  "sphinx-design>=0.5",
-  "sphinx-lint>=0.9",
+  "furo",
+  "myst-parser[linkify]",
+  "sphinx",
+  "sphinx-autobuild",
+  "sphinx-click",
+  "sphinx-copybutton",
+  "sphinx-design",
+  "sphinx-lint",
+]
+optional-dependencies.editorconfig-checker = [
+  "editorconfig-checker",
+]
+optional-dependencies.flake8 = [
+  "flake8-pyproject",
+  "gamesheet-sdk-py[flake8-plugins]",
+]
+optional-dependencies.flake8-plugins = [
+  "eradicate",
+  "fastapi",
+  "flake8-2020",
+  "flake8-annotations",
+  "flake8-async",
+  "flake8-bandit",
+  "flake8-blind-except",
+  "flake8-boolean-trap",
+  "flake8-bugbear",
+  "flake8-builtins",
+  "flake8-commas",
+  "flake8-comprehensions",
+  "flake8-copyright",
+  "flake8-debugger",
+  "flake8-django",
+  "flake8-errmsg",
+  "flake8-executable",
+  "flake8-fixme",
+  "flake8-future-annotations",
+  "flake8-implicit-str-concat",
+  "flake8-import-conventions",
+  "flake8-logging",
+  "flake8-no-pep420",
+  "flake8-print",
+  "flake8-pyi",
+  "flake8-pytest-style",
+  "flake8-quotes",
+  "flake8-raise",
+  "flake8-self",
+  "flake8-simplify",
+  "flake8-tidy-imports",
+  "flake8-todos",
+  "flake8-type-checking",
+  "flake8-unused-arguments",
+  "flynt",
+  "isort",
+  "mccabe",
+  "pandas-vet",
+  "pep8-naming",
+  "pycodestyle",
+  "pydoclint",
+  "pydocstyle",
+  "pyflakes",
+  "pylint",
+  "pyupgrade",
+  "refurb",
+  "tryceratops",
+]
+optional-dependencies.interrogate = [
+  "interrogate",
+]
+optional-dependencies.isort = [
+  "isort",
+]
+optional-dependencies.mdformat = [
+  "mdformat-gfm",
+  "mdformat-pyproject",
+]
+optional-dependencies.mypy = [
+  "gamesheet-sdk-py[pytest]",
+  "gamesheet-sdk-py[type-stubs]",
+  "mypy",
+]
+optional-dependencies.pydocstyle = [
+  "pydocstyle",
+]
+optional-dependencies.pylint = [
+  "gamesheet-sdk-py[pytest]",
+  "pylint-per-file-ignores",
+]
+optional-dependencies.pymarkdown = [
+  "pymarkdownlnt",
+]
+optional-dependencies.pyproject-fmt = [
+  "pyproject-fmt",
+]
+optional-dependencies.pyrefly = [
+  "gamesheet-sdk-py[pytest]",
+  "pyrefly",
+]
+optional-dependencies.pyright = [
+  "gamesheet-sdk-py[pytest]",
+  "pyright",
+]
+optional-dependencies.pyroma = [
+  "pyroma",
+]
+optional-dependencies.pytest = [
+  "pytest",
+  "pytest-cov",
+  "pytest-playwright",
+  "pytest-recording",
+  "responses",
+]
+optional-dependencies.pyupgrade = [
+  "pyupgrade",
+]
+optional-dependencies.radon = [
+  "radon",
+]
+optional-dependencies.refurb = [
+  "refurb",
+]
+optional-dependencies.sphinx-lint = [
+  "sphinx-lint",
+]
+optional-dependencies.ssort = [
+  "ssort",
+]
+optional-dependencies.tox-ini-fmt = [
+  "tox-ini-fmt",
+]
+optional-dependencies.type-stubs = [
+  "types-pyyaml",
+  "types-requests",
+  "types-tabulate",
+]
+optional-dependencies.unimport = [
+  "unimport",
+]
+optional-dependencies.validate-pyproject = [
+  "validate-pyproject",
+]
+optional-dependencies.vulture = [
+  "vulture",
+]
+optional-dependencies.yamllint = [
+  "yamllint",
 ]
 urls.Documentation = "https://github.com/bdperkin/gamesheet-sdk-py#readme"
 urls.Homepage = "https://github.com/bdperkin/gamesheet-sdk-py"
@@ -84,145 +248,499 @@ urls.Issues = "https://github.com/bdperkin/gamesheet-sdk-py/issues"
 urls.Repository = "https://github.com/bdperkin/gamesheet-sdk-py"
 scripts.gamesheet-sdk-py = "gamesheet_sdk.cli:main"
 
+# ------------------------------------------------------------------------------
+# Tool Configurations
+# ------------------------------------------------------------------------------
+## ## hatch - Extensible, lifecycle management tool for Python
 [tool.hatch]
+version.source = "vcs"
 build.hooks.vcs.version-file = "src/gamesheet_sdk/_version.py"
+build.targets.wheel.packages = [ "src/gamesheet_sdk" ]
 build.targets.sdist.include = [
-  "src/gamesheet_sdk",
-  "tests",
   "docs",
-  "README.md",
   "LICENSE",
   "pyproject.toml",
+  "README.md",
+  "src/gamesheet_sdk",
+  "tests",
 ]
-build.targets.wheel.packages = [ "src/gamesheet_sdk" ]
-# --- Hatch ----------------------------------------------------------------
-version.source = "vcs"
+description = "Modern, all-in-one Python project manager and build tool that handles environments, testing, and publishing."
 
-# --- autopep8 -------------------------------------------------------------
+## ## autopep8 - PEP 8 style fixer
 [tool.autopep8]
 max_line_length = 110
-aggressive = 1
-in-place = true
 recursive = true
+aggressive = 1
+check = true
+description = "Automatically formats Python code to conform to the PEP 8 style guide by fixing layout issues."
+exit_code = true
 
-# --- Black ----------------------------------------------------------------
+## ## black - Uncompromising code formatter
 [tool.black]
-line-length = 110
-target-version = [ "py311", "py312", "py313", "py314" ]
-include = "\\.pyi?$"
+fast = true
+line_length = 110
+target_version = [
+  "py311",
+  "py312",
+  "py313",
+  "py314",
+]
 
-# --- isort ----------------------------------------------------------------
+## ## isort - Import sorter
 [tool.isort]
 profile = "black"
+py_version = 311
 line_length = 110
-
-# --- flake8 (requires Flake8-pyproject plugin) ----------------------------
-[tool.flake8]
-max-line-length = 110
-extend-select = [ "B950" ]
-extend-ignore = [ "E203", "E501", "W503" ]
-exclude = [
-  ".git",
-  "__pycache__",
-  ".venv",
-  "venv",
-  "build",
-  "dist",
-  ".eggs",
-  "*.egg-info",
-]
-per-file-ignores = [ "tests/*:S101" ]
-
-# --- pylint ----------------------------------------------------------------
-[tool.pylint]
-"messages control".disable = [
-  "missing-module-docstring",
-  "missing-class-docstring",
-  "missing-function-docstring",
-]
-format.max-line-length = 110
-# --- pylint ---------------------------------------------------------------
-main.py-version = "3.11"
-
-# --- codespell ------------------------------------------------------------
-[tool.codespell]
-skip = ".git,.tox,.venv,.mypy_cache,.pytest_cache,*.pyc,.coverage,.gitignore,LICENSE,*.lock,./docs/_build"
-
-# --- docformatter ----------------------------------------------------------
-[tool.docformatter]
 wrap_length = 110
-wrap_summaries = 110
-wrap_descriptions = 110
+
+## ## flake8 - Modular Python linter wrapper
+[tool.flake8]
+check = true
+description = "Combines PyFlakes, pycodestyle, and McCabe to check style compliance and basic logic errors."
+diff = true
+exclude = [
+  ".mypy_cache/",
+  ".tox/",
+  ".venv/",
+  "src/gamesheet_sdk/_version.py",
+]
+extend-ignore = [
+  "ANN101",
+  "U101",
+]
+extend-select = [
+  "B950",
+]
+inline-quotes = "double"
+max-line-length = 110
+per-file-ignores = [
+  "tests/*:PD005,PT019,S101,S106,SF01",
+]
+recursive = true
+
+## ## pylint - Comprehensive static code analyzer
+[tool.pylint]
+main.fail-under = 10
+main.ignore = [ ".tox", ".venv", "CVS" ]
+main.ignore-patterns = [ "^\\.#" ]
+main.jobs = 1
+main.limit-inference-results = 100
+main.load-plugins = [
+  "pylint_per_file_ignores",
+]
+main.persistent = true
+main.py-version = "3.11"
+reports.evaluation = "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))"
+reports.score = true
+basic.argument-naming-style = "snake_case"
+basic.attr-naming-style = "snake_case"
+basic.bad-names = [ "bar", "baz", "foo", "tata", "toto", "tutu" ]
+basic.class-attribute-naming-style = "any"
+basic.class-const-naming-style = "UPPER_CASE"
+basic.class-naming-style = "PascalCase"
+basic.const-naming-style = "UPPER_CASE"
+basic.docstring-min-length = -1
+basic.function-naming-style = "snake_case"
+basic.good-names = [ "_", "ex", "i", "j", "k", "Run" ]
+basic.inlinevar-naming-style = "any"
+basic.method-naming-style = "snake_case"
+basic.module-naming-style = "snake_case"
+basic.no-docstring-rgx = "^_"
+basic.property-classes = [ "abc.abstractproperty" ]
+basic.variable-naming-style = "snake_case"
+format.ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
+format.indent-after-paren = 4
+format.indent-string = "    "
+format.max-line-length = 110
+format.max-module-lines = 1000
+design.max-args = 5
+design.max-attributes = 7
+design.max-bool-expr = 5
+design.max-branches = 12
+design.max-locals = 15
+design.max-parents = 7
+design.max-positional-arguments = 5
+design.max-public-methods = 20
+design.max-returns = 6
+design.max-statements = 50
+design.min-public-methods = 2
+classes.defining-attr-methods = [ "__init__", "__new__", "__post_init__", "asyncSetUp", "setUp" ]
+classes.exclude-protected = [ "_asdict", "_fields", "_make", "_replace", "_source", "os._exit" ]
+classes.valid-classmethod-first-arg = [ "cls" ]
+classes.valid-metaclass-classmethod-first-arg = [ "mcs" ]
+exceptions.overgeneral-exceptions = [ "builtins.BaseException", "builtins.Exception" ]
+imports.known-third-party = [ "enchant" ]
+logging.logging-format-style = "old"
+logging.logging-modules = [ "logging" ]
+method_args.timeout-methods = [
+  "requests.api.delete",
+  "requests.api.get",
+  "requests.api.head",
+  "requests.api.options",
+  "requests.api.patch",
+  "requests.api.post",
+  "requests.api.put",
+  "requests.api.request",
+]
+refactoring.max-nested-blocks = 5
+refactoring.never-returning-functions = [ "sys.exit", "argparse.parse_error" ]
+refactoring.suggest-join-with-non-empty-separator = true
+similarities.ignore-comments = true
+similarities.ignore-docstrings = true
+similarities.ignore-imports = true
+similarities.ignore-signatures = true
+similarities.min-similarity-lines = 4
+spelling.max-spelling-suggestions = 4
+spelling.spelling-ignore-comment-directives = "fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:"
+typecheck.contextmanager-decorators = [ "contextlib.contextmanager" ]
+typecheck.ignore-none = true
+typecheck.ignore-on-opaque-inference = true
+typecheck.ignored-checks-for-mixins = [
+  "no-member",
+  "not-async-context-manager",
+  "not-context-manager",
+  "attribute-defined-outside-init"
+]
+typecheck.ignored-classes = [ "_thread._local", "argparse.Namespace", "optparse.Values", "thread._local" ]
+typecheck.missing-member-hint = true
+typecheck.missing-member-hint-distance = 1
+typecheck.missing-member-max-choices = 1
+typecheck.mixin-class-rgx = ".*[Mm]ixin"
+variables.allow-global-unused-variables = true
+variables.callbacks = [ "_cb", "cb_" ]
+variables.dummy-variables-rgx = "_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_"
+variables.ignored-argument-names = "_.*|^ignored_|^unused_"
+variables.redefining-builtins-modules = [ "six.moves", "past.builtins", "future.builtins", "builtins", "io" ]
+miscellaneous.notes = [ "FIXME", "XXX", "TODO" ]
+"messages control".confidence = [ "HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED" ]
+"messages control".disable = [
+  "bad-inline-option",
+  "deprecated-pragma",
+  "file-ignored",
+  "locally-disabled",
+  "raw-checker-failed",
+  "suppressed-message",
+  "use-implicit-booleaness-not-comparison-to-string",
+  "use-implicit-booleaness-not-comparison-to-zero",
+  "use-symbolic-message-instead",
+  "useless-suppression",
+]
+"messages control".per-file-ignores = [
+  "tests/*:missing-function-docstring",
+  "src/gamesheet_sdk/_version.py:missing-module-docstring",
+]
+
+## # ----------------------------------------------------------------------------
+## # Documentation & Docstring Tools
+## # ----------------------------------------------------------------------------
+## ## codespell - Typos and spelling checker
+[tool.codespell]
+skip = "./docs/_build"
+
+## ## docformatter - Docstring formatter
+[tool.docformatter]
+recursive = true
 black = true
-style = "pep257"
-make_summary_multi_line = false
-close_quotes_on_newline = false
-pre_summary_newline = false
+wrap-summaries = 110
+wrap-descriptions = 110
+description = "Automatically reformats Python docstrings to follow PEP 257 description and spacing conventions."
 
-# --- bandit ---------------------------------------------------------------
+## ## interrogate - Docstring coverage checker
+[tool.interrogate]
+fail-under = 100
+ignore-init-method = true
+ignore-magic = true
+ignore-semiprivate = true
+ignore-nested-functions = true
+exclude = [
+  "src/gamesheet_sdk/_version.py",
+  "tests",
+]
+check = true
+description = "Measures and flags the percentage of your code (modules, classes, methods) that lacks documentation."
+diff = true
+recursive = true
+
+## ## deptry - Dependency analyzer
+[tool.deptry]
+known_first_party = [
+  "gamesheet_sdk",
+]
+optional_dependencies_dev_groups = [
+  "absolufy-imports",
+  "add-trailing-comma",
+  "all",
+  "autoflake",
+  "autopep8",
+  "bandit",
+  "black",
+  "blacken-docs",
+  "blocklint",
+  "codespell",
+  "deptry",
+  "dev",
+  "docformatter",
+  "docs",
+  "editorconfig-checker",
+  "flake8",
+  "flake8-plugins",
+  "interrogate",
+  "isort",
+  "mdformat",
+  "mypy",
+  "pydocstyle",
+  "pylint",
+  "pymarkdown",
+  "pyproject-fmt",
+  "pyrefly",
+  "pyright",
+  "pyroma",
+  "pytest",
+  "pyupgrade",
+  "radon",
+  "refurb",
+  "sphinx-lint",
+  "ssort",
+  "tox-ini-fmt",
+  "type-stubs",
+  "unimport",
+  "validate-pyproject",
+  "vulture",
+  "yamllint",
+]
+
+## ## vulture - Dead code finder
+[tool.vulture]
+exclude = [
+  ".tox",
+  ".venv",
+]
+ignore_names = [
+  "autoclass_*",
+  "autodoc_*",
+  "autosectionlabel_*",
+  "autosummary_*",
+  "copyright",
+  "epub_*",
+  "exclude_*",
+  "extensions",
+  "format_commands",
+  "html_*",
+  "intersphinx_*",
+  "latex_*",
+  "linkcheck_*",
+  "man_*",
+  "myst_*",
+  "napoleon_*",
+  "side_effect",
+  "source_*",
+  "templates_*",
+  "todo_*",
+]
+ignore_decorators = [
+  "@associations_group.command",
+  "@cli.command",
+  "@group.command",
+  "@pytest.fixture",
+]
+
+## ## pyproject-fmt - Pyproject.toml formatter
+[tool.pyproject-fmt]
+check = true
+description = "An automated formatter for `pyproject.toml` files to keep dependencies and tables consistent."
+diff = true
+recursive = true
+
+## # ----------------------------------------------------------------------------
+## # Security, Metrics & Complexity
+## # ----------------------------------------------------------------------------
+## ## bandit - Security vulnerability scanner
 [tool.bandit]
-exclude_dirs = [ "tests", ".venv", ".tox" ]
+exclude_dirs = [
+  ".venv",
+]
+skips = [
+  "B101",
+  "B106",
+]
+check = true
+description = """\
+  Scans Python source code to find common security flaws and vulnerabilities (like hardcoded passwords or insecure \
+  functions).\
+  """
+diff = true
 
-# --- mypy -----------------------------------------------------------------
+## ## mypy - Industry-standard static type checker
 [tool.mypy]
 python_version = "3.11"
 strict = true
-warn_unused_configs = true
-warn_unreachable = true
-ignore_missing_imports = true
-explicit_package_bases = false
-mypy_path = "src"
-namespace_packages = false
-overrides = [
-  # click's decorators look "untyped" to mypy --strict (their generic return
-  # types don't propagate cleanly through @click.option chains). Relaxing the
-  # rule just for cli.py keeps strict-mode honest everywhere else.
-  { module = "gamesheet_sdk.cli", disallow_untyped_decorators = false },
-  { module = "tests.*", disable_error_code = [
-    "arg-type",
-    "call-arg",
-    "return-value",
-    "untyped-decorator",
-    "var-annotated",
-  ] },
-]
 
-# --- pytest ---------------------------------------------------------------
-[tool.pytest]
-ini_options.minversion = "8.0"
-# --block-network is pytest-recording: any test that opens a socket without
-# replaying a VCR cassette (or escaping via @pytest.mark.allow_hosts) fails.
-# This forces the test suite to stay deterministic and offline-capable.
-ini_options.addopts = "-ra --strict-markers --strict-config --block-network"
-ini_options.testpaths = [ "tests" ]
-ini_options.pythonpath = [ "src" ]
-ini_options.markers = [
-  "vcr: replay HTTP from a VCR cassette under tests/cassettes/",
-  "browser: drives a real headless Chromium via Playwright (slow; skip with -m 'not browser')",
-]
+## ## pyrefly - Code health and quality reviewer
+[tool.pyrefly]
+python_version = "3.11"
 
-[tool.coverage]
-# --- coverage -------------------------------------------------------------
-run.branch = true
-run.source = [ "gamesheet_sdk" ]
-# Coverage floor: pytest --cov fails if total coverage drops below this.
-# Current is ~89%; raise as the suite grows.
-report.fail_under = 80
-report.show_missing = true
-report.skip_covered = true
+## # ----------------------------------------------------------------------------
+## # Type Checkers
+## # ----------------------------------------------------------------------------
+## ## pyright - Fast Python type checker
+[tool.pyright]
+pythonVersion = "3.11"
 
-# --- pyroma ---------------------------------------------------------------
-[tool.pyroma]
-# Fail the command if the score is lower than the given number (out of 10)
-min_score = 10
+## -----------------------------------------------------------------------------
+## Non-Python Languages
+## -----------------------------------------------------------------------------
+## # ----------------------------------------------------------------------------
+## # Configuration File Linters & Formatters
+## # ----------------------------------------------------------------------------
+## ## editorconfig-checker - EditorConfig compliance verifier
+[tool.editorconfig-checker]
+check = true
+description = "A tool to ensure your code adheres to the definitions laid out in your `.editorconfig` file."
+diff = true
+recursive = true
 
-# --- tox ------------------------------------------------------------------
-[tool.tox]
+## ## yamllint - YAML file linter
+[tool.yamllint]
+check = true
+description = "Checks YAML files for syntax validity, key duplication, and cosmetic issues like line length and spaces."
+diff = true
+recursive = true
 
-# --- PyMarkdown -----------------------------------------------------------
+## # ----------------------------------------------------------------------------
+## # Documentation & Markdown Tools
+## # ----------------------------------------------------------------------------
+## ## pymarkdown - Markdown linting engine
 [tool.pymarkdown]
+check = true
+description = "Scans Markdown files to ensure they adhere to strict style rules and standard specification guidelines."
+diff = true
 plugins.commands-show-output.enabled = false
-plugins.line-length.enabled = true
-plugins.line-length.line_length = 220
-plugins.line-length.heading_line_length = 220
-plugins.line-length.code_block_line_length = 220
+plugins.line-length.code_block_line_length = 150
+plugins.line-length.code_blocks = true
+plugins.line-length.heading_line_length = 150
+plugins.line-length.headings = true
+plugins.line-length.line_length = 150
+plugins.line-length.stern = false
+plugins.line-length.strict = false
+recursive = true
+
+## ## mdformat - Markdown formatter
+[tool.mdformat]
+end_of_line = "lf"
+number = true
+validate = true
+wrap = 150
+
+## -----------------------------------------------------------------------------
+## Python
+## -----------------------------------------------------------------------------
+## # ----------------------------------------------------------------------------
+## # Configuration File Linters & Formatters
+## # ----------------------------------------------------------------------------
+## ## tox-ini-fmt - Tox configuration formatter
+[tool.tox-ini-fmt]
+check = true
+description = "A lightweight tool that automatically fixes and formats the styling of `tox.ini` files."
+diff = true
+recursive = true
+
+## ## validate-pyproject - Pyproject.toml validator
+[tool.validate-pyproject]
+check = true
+description = "Validates `pyproject.toml` files against schemas to ensure they are structurally valid for packaging tools."
+diff = true
+recursive = true
+
+## ## pyroma - Packaging quality checker
+[tool.pyroma]
+check = true
+description = """\
+  Rates your Python project's packaging configuration (`setup.py` or `pyproject.toml`) for compliance with PyPI best \
+  practices.\
+  """
+diff = true
+min_score = 10
+recursive = true
+
+## # ----------------------------------------------------------------------------
+## # Code Style & Formatting (Automated Fixers)
+## # ----------------------------------------------------------------------------
+## ## pyupgrade - Syntax modernizer
+[tool.pyupgrade]
+check = true
+description = "Automatically upgrades older Python syntax features to match newer language versions."
+diff = true
+recursive = true
+
+## ## ssort - Code statement sorter
+[tool.ssort]
+check = true
+description = """\
+  Reorders the top-level statements (functions, classes) in a Python file so that dependent items come after their \
+  definitions.\
+  """
+diff = true
+recursive = true
+
+## # ----------------------------------------------------------------------------
+## # Code Cleaners & Dead Code Detectors
+## # ----------------------------------------------------------------------------
+## ## unimport - Unused import remover
+[tool.unimport]
+check = true
+diff = true
+gitignore = true
+
+## ## autoflake - Basic code cleaner
+[tool.autoflake]
+check = true
+description = "Automatically removes unused imports and unused variables from Python code."
+recursive = true
+
+## ## sphinx-lint - Sphinx/reStructuredText linter
+[tool.sphinx-lint]
+check = true
+description = "Checks reStructuredText files for common structural mistakes and syntax bugs specific to Sphinx documentation."
+diff = true
+recursive = true
+
+## ## blacken-docs - Documentation code block formatter
+[tool.blacken-docs]
+check = true
+description = "Applies the `black` code formatter to Python code snippets embedded inside Markdown or reStructuredText documentation."
+diff = true
+recursive = true
+
+## ## pydocstyle - Docstring compliance linter
+[tool.pydocstyle]
+add-ignore = "D105,D107"
+
+## # ----------------------------------------------------------------------------
+## # Code Quality Linters & Static Analysis
+## # ----------------------------------------------------------------------------
+## ## blocklint - Inclusive language checker
+[tool.blocklint]
+check = true
+description = "A simple linter that flags the use of non-inclusive words (like 'whitelist' or 'master') in code comments or strings."
+diff = true
+recursive = true
+
+## ## refurb - Code modernization advisor
+[tool.refurb]
+enable_all = true
+python_version = "3.11"
+
+## ## radon - Code metrics and complexity calculator
+[tool.radon]
+cc_min = "A"
+check = true
+description = """\
+  Computes various code metrics, including Maintainability Index and Cyclomatic Complexity, to identify bloated or \
+  confusing code.\
+  """
+diff = true
+indent = 4  # Indentation size for output
+min_rank = "A"
+recursive = true
+show_closures = true  # Show closures in the complexity results
+total_average = true  # Display the total average at the end

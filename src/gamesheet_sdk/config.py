@@ -37,7 +37,7 @@ def _default_browser_state_path() -> Path:
 class Config(BaseSettings):  # pylint: disable=too-few-public-methods
     """Resolved configuration for an SDK session."""
 
-    model_config = SettingsConfigDict(
+    model_config = SettingsConfigDict(  # noqa: F841
         env_prefix="GAMESHEET_",
         extra="ignore",
     )

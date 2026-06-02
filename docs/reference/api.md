@@ -1,9 +1,7 @@
 # API Reference
 
-The {mod}`gamesheet_sdk` package exposes Pythonic wrappers around the GameSheet
-platform. Stubs for each module below are generated from source on every
-documentation build by `sphinx.ext.autosummary` and dropped under
-`_autosummary/`.
+The {mod}`gamesheet_sdk` package exposes Pythonic wrappers around the GameSheet platform. Stubs for each module below are generated from source on
+every documentation build by `sphinx.ext.autosummary` and dropped under `_autosummary/`.
 
 ## Module index
 
