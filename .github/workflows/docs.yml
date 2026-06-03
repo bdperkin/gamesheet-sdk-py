@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # hatch-vcs needs tags to compute the version
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
         with:
@@ -36,6 +38,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # hatch-vcs needs tags to compute the version
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
         with:
@@ -52,6 +56,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # hatch-vcs needs tags to compute the version
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
         with:
@@ -72,6 +78,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y latexmk texlive-latex-recommended tex-gyre texlive-latex-extra
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # hatch-vcs needs tags to compute the version
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
         with:
@@ -88,6 +96,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # hatch-vcs needs tags to compute the version
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
         with:
@@ -104,6 +114,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # hatch-vcs needs tags to compute the version
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
         with:
@@ -120,6 +132,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # hatch-vcs needs tags to compute the version
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
         with:
@@ -136,6 +150,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # hatch-vcs needs tags to compute the version
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
         with:
