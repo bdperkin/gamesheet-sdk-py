@@ -721,3 +721,135 @@ def test_completion_does_not_descend_into_default_subcommand() -> None:
     values = {c.value for c in completions}
     assert "list" in values
     assert "ls" in values
+
+
+# ---------- ResourceGroup with no aliases (line 75) -------------------------
+
+
+def test_resource_group_no_aliases_initializes_empty() -> None:
+    """ResourceGroup without aliases should initialize with empty alias map."""
+    grp = ResourceGroup("demo")  # no aliases param
+    assert not grp._aliases
+
+
+# ---------- _visible_command_rows with hidden command (line 118) ------------
+
+
+def test_resource_group_format_commands_excludes_hidden() -> None:
+    """Hidden commands should not appear in the formatted command list."""
+    group = ResourceGroup("demo", aliases={"list": ("ls",)})
+
+    @group.command("list", hidden=True)
+    def _hidden() -> None:
+        pass
+
+    @group.command("show")
+    def _visible() -> None:
+        pass
+
+    ctx = click.Context(group)
+    formatter = click.HelpFormatter()
+    group.format_commands(ctx, formatter)
+    output = formatter.getvalue()
+    assert "list" not in output
+    assert "ls" not in output
+    assert "show" in output
+
+
+# ---------- format_commands with empty rows (line 124) ----------------------
+
+
+def test_resource_group_format_commands_empty_group() -> None:
+    """A group with no commands should not write a Commands section."""
+    group = ResourceGroup("demo")
+    ctx = click.Context(group)
+    formatter = click.HelpFormatter()
+    group.format_commands(ctx, formatter)
+    output = formatter.getvalue()
+    assert "Commands" not in output
+
+
+# ---------- _parse_columns_spec empty result (line 452) ---------------------
+
+
+@patch("gamesheet_sdk.cli._list_associations_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_associations_empty_columns_spec(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    """Empty or whitespace-only --columns should be treated as None."""
+    mock_list.return_value = _stub_associations(("11", "Hockey"))
+    result = runner.invoke(
+        cli,
+        ["associations", "list", "--format", "csv", "--columns", "  "],
+    )
+    assert result.exit_code == 0, result.output
+    # All columns should be present when columns spec is empty
+    assert "id" in result.output
+    assert "title" in result.output
+
+
+# ---------- _resolve_system_exit with code=None (line 510) ------------------
+
+
+def test_main_systemexit_none_returns_zero() -> None:
+    """SystemExit with code=None should return 0."""
+    with patch("gamesheet_sdk.cli._login_action", side_effect=SystemExit(None)):
+        rc = main(["login", "--email", "a@b.c", "--password", "x"])
+    assert rc == 0
+
+
+# ---------- _resolve_system_exit with non-int code (line 513) ---------------
+
+
+def test_main_systemexit_string_returns_one() -> None:
+    """SystemExit with a string code should return 1."""
+    with patch("gamesheet_sdk.cli._login_action", side_effect=SystemExit("error message")):
+        rc = main(["login", "--email", "a@b.c", "--password", "x"])
+    assert rc == 1
+
+
+# ---------- click.exceptions.Exit (line 519) --------------------------------
+
+
+def test_main_click_exit_returns_code() -> None:
+    """click.exceptions.Exit should return its exit_code.
+
+    This tests the case where cli.main() itself raises Exit (not a command).
+    """
+    with patch.object(cli, "main", side_effect=click.exceptions.Exit(42)):
+        rc = main([])
+    assert rc == 42
+
+
+# ---------- click.exceptions.Abort (lines 524-525) --------------------------
+
+
+def test_main_click_abort_returns_one() -> None:
+    """click.exceptions.Abort should return 1."""
+    with patch("gamesheet_sdk.cli._login_action", side_effect=click.exceptions.Abort):
+        rc = main(["login", "--email", "a@b.c", "--password", "x"])
+    assert rc == 1
+
+
+# ---------- __main__ block (line 549) ----------------------------------------
+
+
+def test_cli_module_main_block() -> None:
+    """The __name__ == '__main__' block should be executable via python -m."""
+    import subprocess  # noqa: S404 # nosec B404 # pylint: disable=import-outside-toplevel
+
+    # Run the module as __main__ with --version to verify it works
+    result = subprocess.run(  # noqa: S603 # nosec B603
+        [sys.executable, "-m", "gamesheet_sdk.cli", "--version"],
+        capture_output=True,
+        text=True,
+        timeout=5,
+        check=False,  # We check returncode explicitly below
+    )
+    assert result.returncode == 0
+    assert __version__ in result.stdout

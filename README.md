@@ -269,7 +269,7 @@ gamesheet-sdk-py/
 ├── pyproject.toml             # PEP 621 metadata + Hatch + tool config + extras
 ├── tox.ini                    # ~45 per-tool envs + labels (tests / docs / pre-commit)
 ├── .pre-commit-config.yaml    # local hooks + pre-commit.ci settings (inline `ci:` block)
-├── .codecov.yml               # Codecov targets (project 90% / patch 80%) + analytics
+├── .codecov.yml               # Codecov targets (project 100% / patch 100%) + analytics
 ├── SECURITY.md                # vulnerability reporting policy
 └── LICENSE                    # MIT
 ```
@@ -288,7 +288,7 @@ pre-commit install
 # 3. Run the test suite (network is blocked unless replayed via VCR)
 pytest                              # everything
 pytest -m "not browser"             # skip slow real-Chromium tests
-pytest --cov                        # with coverage (local floor: fail_under = 80)
+pytest --cov                        # with coverage (local floor: fail_under = 100)
 
 # 4. Run quality gates
 pre-commit run --all-files          # every hook (mypy, pylint, pyright, bandit, xenon, …)
@@ -315,10 +315,10 @@ make clean         # caches + build artifacts
 
 ### Coverage
 
-Local pytest runs enforce `fail_under = 80` (see `[tool.coverage.report]`). On every push, the `codecov.yml` workflow uploads `coverage.xml` and JUnit
-XML to [Codecov](https://codecov.io/gh/bdperkin/gamesheet-sdk-py), which gates PRs against `.codecov.yml` targets — **project coverage ≥ 90%** (1%
-drop tolerated) and **patch coverage ≥ 80%** on newly-introduced lines. Codecov test-analytics tracks flaky tests and a >10% performance regression
-alert.
+Local pytest runs enforce `fail_under = 100` (see `[tool.coverage.report]`). On every push, the `codecov.yml` workflow uploads `coverage.xml` and
+JUnit XML to [Codecov](https://codecov.io/gh/bdperkin/gamesheet-sdk-py), which gates PRs against `.codecov.yml` targets — **project coverage = 100%**
+(0% drop tolerated) and **patch coverage = 100%** on newly-introduced lines. Codecov test-analytics tracks flaky tests and a >10% performance
+regression alert.
 
 ### Tox
 

@@ -129,10 +129,10 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
 - **Testing patterns.** Pytest is configured with `--block-network` (via `pytest-recording`), so any test that opens a socket without a VCR cassette
   fails. Two markers (declared in `[tool.pytest.ini_options].markers`, enforced by `--strict-markers`): `@pytest.mark.vcr` replays HTTP from
   `tests/cassettes/` (sensitive headers/params scrubbed in `tests/conftest.py`); `@pytest.mark.browser` opts in to a real headless Chromium via
-  `pytest-playwright`. Run only fast tests with `pytest -m "not browser"`. Local coverage floor is `[tool.coverage.report] fail_under = 80`; on top of
-  that, `.codecov.yml` declares project coverage target 90% (1% drop tolerated) and patch coverage 80% on newly-introduced lines, plus test-analytics
-  for flaky-test detection (alert after 2 flaky runs) and a >10% slowdown alert. `coverage.xml` and JUnit XML are uploaded to Codecov by
-  `.github/workflows/codecov.yml` (per-PR matrix) and `comprehensive-tests.yml` (nightly, multi-OS).
+  `pytest-playwright`. Run only fast tests with `pytest -m "not browser"`. Local coverage floor is `[tool.coverage.report] fail_under = 100`; on top
+  of that, `.codecov.yml` declares project coverage target 100% (0% drop tolerated) and patch coverage 100% on newly-introduced lines, plus
+  test-analytics for flaky-test detection (alert after 2 flaky runs) and a >10% slowdown alert. `coverage.xml` and JUnit XML are uploaded to Codecov
+  by `.github/workflows/codecov.yml` (per-PR matrix) and `comprehensive-tests.yml` (nightly, multi-OS).
 
 - **Dependency updates.** `pre-commit.ci` configuration lives inline in `.pre-commit-config.yaml` under the top-level `ci:` key (the only path that
   service reads). It pins `python_version: "3.11"`, runs `autoupdate_schedule: weekly`, and auto-fixes formatting on PRs (`autofix_prs: true`). Three

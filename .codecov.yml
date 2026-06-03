@@ -13,20 +13,20 @@ codecov:
 coverage:
   precision: 2
   round: down
-  range: 70..100 # red at <=70, green at >=100
+  range: 95..100 # red at <=95, green at 100
 
   status:
     project:
       default:
-        target: 90%
-        threshold: 1% # 1% drop tolerated
+        target: 100%
+        threshold: 0% # no drops tolerated - maintain 100%
         if_ci_failed: error
         if_no_uploads: error
 
     patch:
       default:
-        target: 80%
-        threshold: 5%
+        target: 100% # all new code must be fully covered
+        threshold: 0% # no exceptions
         if_ci_failed: error
 
     changes:
@@ -48,9 +48,11 @@ flag_management:
     carryforward: true
     statuses:
       - type: project
-        target: 90%
+        target: 100%
+        threshold: 0%
       - type: patch
-        target: 80%
+        target: 100%
+        threshold: 0%
   individual_flags:
     - name: unittests
       paths:
@@ -100,9 +102,11 @@ component_management:
   default_rules:
     statuses:
       - type: project
-        target: 90%
+        target: 100%
+        threshold: 0%
       - type: patch
-        target: 80%
+        target: 100%
+        threshold: 0%
   individual_components:
     - component_id: cli
       name: CLI
@@ -163,6 +167,7 @@ ignore:
   - "docs/**" # Sphinx sources
   - "**/__init__.py" # re-export modules
   - "**/_version.py" # hatch-vcs generated
+
 
 # ---------------------------------------------------------------------------
 # Test Analytics
