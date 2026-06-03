@@ -432,6 +432,7 @@ miscellaneous.notes = [ "FIXME", "XXX", "TODO" ]
   "src/gamesheet_sdk/_version.py:missing-module-docstring",
   "src/gamesheet_sdk/leagues.py:duplicate-code",
   "src/gamesheet_sdk/associations.py:duplicate-code",
+  "src/gamesheet_sdk/seasons.py:duplicate-code",
   "docs/conf.py:duplicate-code",
 ]
 
@@ -551,6 +552,7 @@ ignore_decorators = [
   "@group.command",
   "@leagues_group.command",
   "@pytest.fixture",
+  "@seasons_group.command",
 ]
 
 ## ## pyproject-fmt - Pyproject.toml formatter
