@@ -91,6 +91,8 @@ control.
   shortcut both run the same action).
 - **`leagues list`** — read-only command to list leagues within a specified association (resource-oriented CLI; `ls` alias works the same as
   associations).
+- **`seasons list`** — read-only command to list seasons within a specified league (resource-oriented CLI; `ls` alias works the same as
+  associations/leagues).
 - **Pluggable output** — `render()` produces JSON, YAML, CSV, TSV, or any of 13 human-readable tabulate formats (`simple`, `grid`, `fancy_grid`,
   `rst`, `html`, `latex`, …).
 - **Shell completion** — `gamesheet-sdk-py completion {bash,zsh,fish}` prints a sourceable script that tab-completes sub-commands (including aliases),
@@ -140,6 +142,9 @@ gamesheet-sdk-py associations list --format json   # also: `associations ls`, or
 
 # List leagues within a specific association (replace 38 with your association ID)
 gamesheet-sdk-py leagues list 38 --format json     # also: `leagues ls 38`
+
+# List seasons within a specific league (replace 1148580 with your league ID)
+gamesheet-sdk-py seasons list 1148580 --format json     # also: `seasons ls 1148580`
 ```
 
 Or from Python:
@@ -150,6 +155,7 @@ from gamesheet_sdk import (
     Config,
     list_associations,
     list_leagues,
+    list_seasons,
     load_access_token,
     load_refresh_token,
     save_tokens,
@@ -172,6 +178,10 @@ with AuthenticatedSession(
         # List leagues for each association
         for league in list_leagues(session, assoc.id):
             print(f"  League: {league.title}")
+
+            # List seasons for each league
+            for season in list_seasons(session, league.id):
+                print(f"    Season: {season.title}")
 ```
 
 ## Configuration

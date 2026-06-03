@@ -38,6 +38,7 @@ from gamesheet_sdk.output import (
     TABULATE_FORMATS,
     render,
 )
+from gamesheet_sdk.seasons import Season, list_seasons
 from gamesheet_sdk.session import Session
 
 __all__ = [
@@ -51,11 +52,13 @@ __all__ = [
     "DEFAULT_FORMAT",
     "GameSheetError",
     "League",
+    "Season",
     "Session",
     "TABULATE_FORMATS",
     "__version__",
     "list_associations",
     "list_leagues",
+    "list_seasons",
     "load_access_token",
     "load_refresh_token",
     "login",

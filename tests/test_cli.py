@@ -1063,3 +1063,212 @@ def test_leagues_missing_association_id_shows_error(runner: CliRunner) -> None:
     result = runner.invoke(cli, ["leagues", "list"])
     assert result.exit_code == 2  # Usage error
     assert "ASSOCIATION_ID" in result.output or "Missing argument" in result.output
+
+
+# ---------- seasons list subcommand --------------------------------------
+
+
+def _stub_seasons(*id_title_pairs: tuple[str, str]) -> list[MagicMock]:
+    """Build fake Season objects without needing pydantic instantiation."""
+    out = []
+    for sid, title in id_title_pairs:
+        s = MagicMock()
+        s.id = sid
+        s.title = title
+        s.league_id = "1148580"
+        s.model_dump.return_value = {
+            "id": sid,
+            "title": title,
+            "league_id": "1148580",
+        }
+        out.append(s)
+    return out
+
+
+@patch("gamesheet_sdk.cli._list_seasons_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_seasons_default_table_format(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.return_value = _stub_seasons(
+        ("501", "2024-2025"),
+        ("502", "2023-2024"),
+    )
+    result = runner.invoke(cli, ["seasons", "list", "1148580"])
+    assert result.exit_code == 0, result.output
+    assert "501" in result.output
+    assert "2024-2025" in result.output
+    assert "502" in result.output
+    assert "2023-2024" in result.output
+
+
+@patch("gamesheet_sdk.cli._list_seasons_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_seasons_json_format(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.return_value = _stub_seasons(("501", "2024-2025"))
+    result = runner.invoke(cli, ["seasons", "list", "1148580", "--format", "json"])
+    assert result.exit_code == 0, result.output
+    data = json.loads(result.output)
+    assert data == [{"id": "501", "title": "2024-2025", "league_id": "1148580"}]
+
+
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value=None)
+@patch("gamesheet_sdk.cli.load_access_token", return_value=None)
+def test_list_seasons_missing_token_exits_one(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    runner: CliRunner,
+) -> None:
+    result = runner.invoke(cli, ["seasons", "list", "1148580"])
+    assert result.exit_code == 1
+    assert "No saved session" in result.output
+    assert "Run `gamesheet-sdk-py login`" in result.output
+
+
+@patch("gamesheet_sdk.cli._list_seasons_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_seasons_authentication_error_exits_one(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.side_effect = AuthenticationError("HTTP 401")
+    result = runner.invoke(cli, ["seasons", "list", "1148580"])
+    assert result.exit_code == 1
+    assert "Authentication required" in result.output
+
+
+@patch("gamesheet_sdk.cli._list_seasons_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_seasons_other_error_exits_one(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.side_effect = GameSheetError("HTTP 500")
+    result = runner.invoke(cli, ["seasons", "list", "1148580"])
+    assert result.exit_code == 1
+    assert "GameSheet error" in result.output
+
+
+@patch("gamesheet_sdk.cli._list_seasons_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_seasons_csv_format(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.return_value = _stub_seasons(("501", "2024-2025"))
+    result = runner.invoke(cli, ["seasons", "list", "1148580", "--format", "csv"])
+    assert result.exit_code == 0, result.output
+    lines = result.output.strip().splitlines()
+    assert "title" in lines[0]
+    assert "501" in lines[1]
+    assert "2024-2025" in lines[1]
+
+
+@patch("gamesheet_sdk.cli._list_seasons_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_seasons_yaml_format(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.return_value = _stub_seasons(("501", "2024-2025"))
+    result = runner.invoke(cli, ["seasons", "list", "1148580", "--format", "yaml"])
+    assert result.exit_code == 0, result.output
+    data = yaml.safe_load(result.output)
+    assert data == [{"id": "501", "title": "2024-2025", "league_id": "1148580"}]
+
+
+@patch("gamesheet_sdk.cli._list_seasons_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_seasons_output_to_file(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+    tmp_path: Path,
+) -> None:
+    mock_list.return_value = _stub_seasons(("501", "2024-2025"))
+    output_file = tmp_path / "seasons.json"
+    result = runner.invoke(
+        cli,
+        ["seasons", "list", "1148580", "--format", "json", "--output", str(output_file)],
+    )
+    assert result.exit_code == 0, result.output
+    data = json.loads(output_file.read_text())
+    assert data == [{"id": "501", "title": "2024-2025", "league_id": "1148580"}]
+
+
+@patch("gamesheet_sdk.cli._list_seasons_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_seasons_columns_filter(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.return_value = _stub_seasons(("501", "2024-2025"))
+    result = runner.invoke(
+        cli,
+        ["seasons", "list", "1148580", "--format", "csv", "--columns", "id,title"],
+    )
+    assert result.exit_code == 0, result.output
+    lines = result.output.strip().splitlines()
+    assert lines[0] == "id,title"
+    assert lines[1] == "501,2024-2025"
+
+
+def test_seasons_group_has_help_option(runner: CliRunner) -> None:
+    """The seasons group should accept -h and --help."""
+    result_short = runner.invoke(cli, ["seasons", "-h"])
+    assert result_short.exit_code == 0
+    assert "seasons" in result_short.output.lower()
+
+    result_long = runner.invoke(cli, ["seasons", "--help"])
+    assert result_long.exit_code == 0
+    assert "seasons" in result_long.output.lower()
+
+
+def test_seasons_list_alias_works(runner: CliRunner) -> None:
+    """The 'ls' alias should invoke the list command."""
+    with (
+        patch("gamesheet_sdk.cli._list_seasons_action") as mock_list,
+        patch(
+            "gamesheet_sdk.cli.load_refresh_token",
+            return_value="refresh-tok",
+        ),
+        patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok"),
+    ):
+        mock_list.return_value = []
+        result = runner.invoke(cli, ["seasons", "ls", "1148580"])
+        assert result.exit_code == 0
+        mock_list.assert_called_once()
+
+
+def test_seasons_missing_league_id_shows_error(runner: CliRunner) -> None:
+    """Calling 'seasons list' without a league ID should show an error."""
+    result = runner.invoke(cli, ["seasons", "list"])
+    assert result.exit_code == 2  # Usage error
+    assert "LEAGUE_ID" in result.output or "Missing argument" in result.output
