@@ -311,6 +311,20 @@ def test_login_no_responses_times_out(fake_browser_session: MagicMock) -> None:
         login(fake_browser_session, email="a@b.c", password="x", timeout=0.01)
 
 
+def test_login_firebase_success_but_token_missing_times_out(
+    fake_browser_session: MagicMock,
+) -> None:
+    """Firebase succeeds but token exchange never arrives - should timeout."""
+    page = fake_browser_session.goto.return_value
+    page.staged_responses = [
+        _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
+        # No token response - simulates token exchange being blocked or delayed
+    ]
+
+    with pytest.raises(AuthenticationError, match="did not complete"):
+        login(fake_browser_session, email="a@b.c", password="x", timeout=0.01)
+
+
 def test_login_form_detection_uses_fixed_timeout(
     fake_browser_session: MagicMock,
 ) -> None:
@@ -587,3 +601,202 @@ def test_authenticated_session_post_also_triggers_refresh(config: Config) -> Non
     with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
         resp = session.post("/mutate")
     assert resp.status_code == 201
+
+
+# ---------- token response capture (line 131) -------------------------------
+
+
+def test_login_captures_token_response_separately(
+    fake_browser_session: MagicMock,
+) -> None:
+    """The token response is captured as the second half of the auth flow."""
+    page = fake_browser_session.goto.return_value
+    # Stage responses in order: firebase first, then token exchange
+    page.staged_responses = [
+        _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
+        _make_response(_TOKEN_URL, 200, {}),
+    ]
+
+    login(fake_browser_session, email="a@b.c", password="x")
+
+    # Should succeed when both responses arrive
+    assert fake_browser_session.goto.call_count == 2
+
+
+def test_login_ignores_duplicate_token_responses(
+    fake_browser_session: MagicMock,
+) -> None:
+    """Only the first token response is captured; duplicates are ignored."""
+    page = fake_browser_session.goto.return_value
+    # Stage duplicate token responses - only first should be captured
+    page.staged_responses = [
+        _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
+        _make_response(_TOKEN_URL, 200, {}),
+        _make_response(_TOKEN_URL, 200, {}),  # duplicate, should be ignored
+    ]
+
+    login(fake_browser_session, email="a@b.c", password="x")
+
+    # Should still succeed - duplicates don't break anything
+    assert fake_browser_session.goto.call_count == 2
+
+
+# ---------- firebase error without structured body (line 159) ----------------
+
+
+def test_login_firebase_error_with_non_dict_error_field(
+    fake_browser_session: MagicMock,
+) -> None:
+    """Firebase error response with non-dict error field falls back to HTTP status."""
+    page = fake_browser_session.goto.return_value
+    page.staged_responses = [
+        _make_response(_FIREBASE_URL, 403, {"error": "string-not-dict"}),
+    ]
+
+    with pytest.raises(AuthenticationError) as exc_info:
+        login(fake_browser_session, email="a@b.c", password="x")
+
+    assert "HTTP 403" in str(exc_info.value)
+
+
+# ---------- token response arrives before firebase (line 182) ----------------
+
+
+def test_login_handles_token_response_arriving_first(
+    fake_browser_session: MagicMock,
+) -> None:
+    """Token response can arrive before firebase response; both must be present."""
+    page = fake_browser_session.goto.return_value
+    # Stage token first, then firebase — atypical order
+    page.staged_responses = [
+        _make_response(_TOKEN_URL, 200, {}),
+        _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
+    ]
+
+    login(fake_browser_session, email="a@b.c", password="x")
+
+    # Should still succeed when both are present
+    assert fake_browser_session.goto.call_count == 2
+
+
+# ---------- load_refresh_token (line 348) ------------------------------------
+
+
+def test_load_refresh_token_returns_value_when_present(config: Config) -> None:
+    # pylint: disable=import-outside-toplevel
+    from gamesheet_sdk.auth import load_refresh_token as _load_refresh_token
+
+    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
+    config.browser_state_path.write_text(
+        '{"cookies": [], "origins": ['
+        '{"origin": "https://test.example", "localStorage": ['
+        '{"name": "refreshToken", "value": "eyJhbGci.refresh.jwt"}'
+        "]}]}",
+    )
+    assert _load_refresh_token(config) == "eyJhbGci.refresh.jwt"
+
+
+# ---------- _origin_entry_for existing origin match (line 367) --------------
+
+
+def test_save_tokens_finds_existing_origin(config: Config) -> None:
+    """save_tokens should reuse an existing origin entry for the base_url."""
+    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
+    initial = {
+        "cookies": [],
+        "origins": [
+            {
+                "origin": config.base_url,
+                "localStorage": [{"name": "old", "value": "v"}],
+            },
+        ],
+    }
+    config.browser_state_path.write_text(json.dumps(initial))
+
+    save_tokens(config, access="A")
+
+    state = json.loads(config.browser_state_path.read_text())
+    # Should still be exactly one origin entry
+    assert len(state["origins"]) == 1
+    assert state["origins"][0]["origin"] == config.base_url
+
+
+# ---------- _build_token_updates with refresh and roles (lines 382, 384) ----
+
+
+def test_save_tokens_omits_refresh_when_not_provided(config: Config) -> None:
+    """save_tokens with only access token should not write refreshToken."""
+    save_tokens(config, access="ACCESS-ONLY")
+    state = json.loads(config.browser_state_path.read_text())
+    origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
+    by_name = {kv["name"]: kv["value"] for kv in origin["localStorage"]}
+    assert "accessToken" in by_name
+    assert "refreshToken" not in by_name
+    assert "rolesToken" not in by_name
+
+
+def test_save_tokens_includes_roles_when_provided(config: Config) -> None:
+    """save_tokens with roles should write rolesToken."""
+    save_tokens(config, access="A", roles="ROLES")
+    state = json.loads(config.browser_state_path.read_text())
+    origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
+    by_name = {kv["name"]: kv["value"] for kv in origin["localStorage"]}
+    assert by_name["rolesToken"] == "ROLES"
+
+
+# ---------- firebase error message edge cases (line 157->159) ---------------
+
+
+def test_firebase_error_message_with_non_string_message(
+    fake_browser_session: MagicMock,
+) -> None:
+    """Firebase error with non-string message field falls back to HTTP status."""
+    page = fake_browser_session.goto.return_value
+    # error.message is an int, not a string
+    page.staged_responses = [
+        _make_response(_FIREBASE_URL, 403, {"error": {"message": 12345}}),
+    ]
+
+    with pytest.raises(AuthenticationError) as exc_info:
+        login(fake_browser_session, email="a@b.c", password="x")
+
+    assert "HTTP 403" in str(exc_info.value)
+
+
+# ---------- _origin_entry_for with multiple origins (line 367->366) ---------
+
+
+def test_save_tokens_with_multiple_origins_finds_correct_one(config: Config) -> None:
+    """save_tokens should find the correct origin when multiple exist."""
+    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
+    initial = {
+        "cookies": [],
+        "origins": [
+            {
+                "origin": "https://other1.example",
+                "localStorage": [{"name": "other", "value": "v1"}],
+            },
+            {
+                "origin": "https://other2.example",
+                "localStorage": [{"name": "other", "value": "v2"}],
+            },
+            {
+                "origin": config.base_url,
+                "localStorage": [{"name": "old", "value": "v3"}],
+            },
+        ],
+    }
+    config.browser_state_path.write_text(json.dumps(initial))
+
+    save_tokens(config, access="NEW")
+
+    state = json.loads(config.browser_state_path.read_text())
+    # Should still have all three origins
+    assert len(state["origins"]) == 3
+    # The correct origin should be updated
+    target_origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
+    by_name = {kv["name"]: kv["value"] for kv in target_origin["localStorage"]}
+    assert by_name["accessToken"] == "NEW"
+    # Other origins should be unchanged
+    other1 = next(o for o in state["origins"] if o["origin"] == "https://other1.example")
+    assert other1["localStorage"][0]["value"] == "v1"

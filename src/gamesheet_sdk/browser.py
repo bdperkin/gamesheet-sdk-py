@@ -101,7 +101,8 @@ class BrowserSession:
             raise RuntimeError(_err_msg)
         if self._context is None:
             self._start()
-        if self._context is None:
+        if self._context is None:  # pragma: no cover
+            # Defensive check: _start() either succeeds (sets _context) or raises
             _err_msg = "BrowserSession did not start"
             raise ValueError(_err_msg)
         return self._context

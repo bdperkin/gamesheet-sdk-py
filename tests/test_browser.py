@@ -223,3 +223,26 @@ def test_goto_resolves_url_and_returns_page(config: Config) -> None:
 
     page.goto.assert_called_once_with("https://test.example/login", wait_until="domcontentloaded")
     assert returned is page
+
+
+# ---------- _start failure path (lines 105-106) -----------------------------
+
+
+def test_context_raises_when_start_leaves_context_none(config: Config) -> None:
+    """Accessing context when _start somehow completes without setting _context should raise ValueError.
+
+    This is a defensive check for an edge case that shouldn't happen in normal
+    operation - _start() will either succeed (setting _context) or raise an
+    exception. This test directly manipulates internal state to exercise the
+    safety check.
+    """
+    bs = BrowserSession(config)
+    # Bypass _start() entirely and directly access the property with _context=None
+    # This simulates the pathological case where _start completed without
+    # setting _context or raising (which shouldn't happen in practice).
+    with patch.object(bs, "_start") as mock_start:
+        # _start is called but leaves _context as None
+        mock_start.return_value = None
+        bs._context = None  # explicitly keep it None
+        with pytest.raises(ValueError, match="did not start"):
+            _ = bs.context

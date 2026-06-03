@@ -608,7 +608,7 @@ report.exclude_also = [
   "if TYPE_CHECKING:",
   "raise NotImplementedError",
 ]
-report.fail_under = 80
+report.fail_under = 100
 report.show_missing = true
 
 ## -----------------------------------------------------------------------------
