@@ -52,14 +52,35 @@ jobs:
         run: |
           pyflag="py$(echo "${{ matrix.python-version }}" | tr '.' '-')"
           echo "value=${pyflag}" >> "$GITHUB_OUTPUT"
-      - name: Upload coverage to Codecov
+      # Codecov requires one flag per upload. Upload the same coverage.xml
+      # three times so the same data feeds the `nightly` aggregate, the
+      # per-OS flag, and the per-Python-version flag.
+      - name: Upload coverage to Codecov (nightly)
         if: success()
         uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
-          flags: nightly,${{ matrix.os }},${{ steps.pyflag.outputs.value }}
-          name: nightly-${{ matrix.os }}-py${{ matrix.python-version }}
+          flags: nightly
+          name: nightly-${{ matrix.os }}-py${{ matrix.python-version }}-nightly
+
+      - name: Upload coverage to Codecov (${{ matrix.os }})
+        if: success()
+        uses: codecov/codecov-action@v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          flags: ${{ matrix.os }}
+          name: nightly-${{ matrix.os }}-py${{ matrix.python-version }}-os
+
+      - name: Upload coverage to Codecov (${{ steps.pyflag.outputs.value }})
+        if: success()
+        uses: codecov/codecov-action@v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          flags: ${{ steps.pyflag.outputs.value }}
+          name: nightly-${{ matrix.os }}-py${{ matrix.python-version }}-pyver
 
   retry-on-failure:
     name: Retry Failed Jobs

@@ -60,13 +60,31 @@ jobs:
           pytest --cov --cov-report=xml --cov-report=term \
             --junitxml=junit-py${{ matrix.python-version }}.xml
 
-      - name: Upload coverage to Codecov
+      # Codecov requires one flag per upload. Upload the same coverage.xml
+      # twice so the same data feeds both the `unittests` aggregate and
+      # the per-Python-version (py3-XX) flag.
+      - name: Upload coverage to Codecov (unittests)
         uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
-          flags: unittests,${{ matrix.py-flag }}
-          name: codecov-${{ matrix.python-version }}
+          flags: unittests
+          name: codecov-${{ matrix.python-version }}-unittests
+          # On pull_request events, $GITHUB_SHA is a synthesized merge
+          # commit; attribute the upload to the PR head SHA instead so
+          # the Codecov UI's commit page (which uses head SHA) shows it.
+          override_commit: ${{ github.event.pull_request.head.sha || github.sha }}
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: Upload coverage to Codecov (${{ matrix.py-flag }})
+        uses: codecov/codecov-action@v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          flags: ${{ matrix.py-flag }}
+          name: codecov-${{ matrix.py-flag }}
+          override_commit: ${{ github.event.pull_request.head.sha || github.sha }}
           fail_ci_if_error: false
           verbose: true
 
@@ -77,5 +95,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: junit-py${{ matrix.python-version }}.xml
           report_type: test_results
+          override_commit: ${{ github.event.pull_request.head.sha || github.sha }}
           fail_ci_if_error: false
           verbose: true
