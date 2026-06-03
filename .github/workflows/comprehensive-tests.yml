@@ -75,7 +75,7 @@ jobs:
           fi
       - name: Trigger automatic retry (first attempt only)
         if: github.run_attempt == 1
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             console.log('🔄 Triggering automatic retry of failed jobs...');
