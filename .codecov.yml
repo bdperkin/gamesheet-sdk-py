@@ -1,47 +1,179 @@
 # Codecov configuration
-# Docs: https://docs.codecov.com/docs/codecov-yaml
+# Reference: https://docs.codecov.com/docs/codecov-yaml
 
+codecov:
+  branch: main
+  require_ci_to_pass: true
+  notify:
+    wait_for_ci: true
+
+# ---------------------------------------------------------------------------
+# Project + patch + changes coverage gates
+# ---------------------------------------------------------------------------
 coverage:
+  precision: 2
+  round: down
+  range: 70..100 # red at <=70, green at >=100
+
   status:
     project:
       default:
-        target: 90% # Maintain 90%+ coverage
-        threshold: 1% # Allow 1% decrease
-        if_ci_failed: error # Report error if CI fails
+        target: 90%
+        threshold: 1% # 1% drop tolerated
+        if_ci_failed: error
+        if_no_uploads: error
 
     patch:
       default:
-        target: 80% # New code should have 80%+ coverage
-        threshold: 5% # Allow 5% variance for new code
+        target: 80%
+        threshold: 5%
+        if_ci_failed: error
 
-  range: 70..100 # Red at 70%, green at 100%
+    changes:
+      default:
+        if_ci_failed: error
 
+# ---------------------------------------------------------------------------
+# Coverage data organized BY UPLOAD (flags)
+#
+# Each codecov-action upload tags its data with one or more flags. The
+# per-PR pytest matrix tags coverage with `unittests` + a `py3-XX` per-
+# Python-version flag; the nightly comprehensive run tags with `nightly`
+# plus per-os/per-python sub-flags. `carryforward: true` means a missing
+# upload re-uses the previous report instead of nuking the status.
+# ---------------------------------------------------------------------------
+flag_management:
+  default_rules:
+    carryforward: true
+    statuses:
+      - type: project
+        target: 90%
+      - type: patch
+        target: 80%
+  individual_flags:
+    - name: unittests
+      paths:
+        - src/
+      carryforward: true
+    - name: nightly
+      paths:
+        - src/
+      carryforward: true
+    - name: py3-11
+      paths:
+        - src/
+      carryforward: true
+    - name: py3-12
+      paths:
+        - src/
+      carryforward: true
+    - name: py3-13
+      paths:
+        - src/
+      carryforward: true
+    - name: py3-14
+      paths:
+        - src/
+      carryforward: true
+    - name: ubuntu-latest
+      paths:
+        - src/
+      carryforward: true
+    - name: macos-latest
+      paths:
+        - src/
+      carryforward: true
+    - name: windows-latest
+      paths:
+        - src/
+      carryforward: true
+
+# ---------------------------------------------------------------------------
+# Coverage data organized BY FILE PATHS (components)
+#
+# Each component computes its own project/patch coverage status, so a
+# regression in `auth` shows up independently from `cli`. Mirrors the SDK
+# module layout under src/gamesheet_sdk/.
+# ---------------------------------------------------------------------------
+component_management:
+  default_rules:
+    statuses:
+      - type: project
+        target: 90%
+      - type: patch
+        target: 80%
+  individual_components:
+    - component_id: cli
+      name: CLI
+      paths:
+        - src/gamesheet_sdk/cli.py
+    - component_id: auth
+      name: Authentication
+      paths:
+        - src/gamesheet_sdk/auth.py
+    - component_id: browser
+      name: Browser
+      paths:
+        - src/gamesheet_sdk/browser.py
+    - component_id: session
+      name: Session
+      paths:
+        - src/gamesheet_sdk/session.py
+    - component_id: associations
+      name: Associations
+      paths:
+        - src/gamesheet_sdk/associations.py
+    - component_id: config
+      name: Config
+      paths:
+        - src/gamesheet_sdk/config.py
+    - component_id: output
+      name: Output
+      paths:
+        - src/gamesheet_sdk/output.py
+    - component_id: exceptions
+      name: Exceptions
+      paths:
+        - src/gamesheet_sdk/exceptions.py
+
+# ---------------------------------------------------------------------------
+# Customized reporting preferences
+# ---------------------------------------------------------------------------
 comment:
-  layout: "header, diff, files, footer"
+  # Layout sections in display order
+  layout: "header, diff, flags, components, files, footer"
   behavior: default # Comment on every PR
   require_changes: false # Comment even if no coverage change
+  require_base: false
+  require_head: true
+  show_carryforward_flags: true
+  hide_project_coverage: false
 
+# Inline GitHub Checks annotations (shows uncovered lines in the PR diff
+# view)
+github_checks:
+  annotations: true
+
+# ---------------------------------------------------------------------------
+# Files / paths to ignore in coverage
+# ---------------------------------------------------------------------------
 ignore:
-  - "tests/**" # Ignore test files in coverage
-  - "docs/**" # Ignore documentation
-  - "**/__init__.py" # Ignore package init files
+  - "tests/**" # test code itself
+  - "docs/**" # Sphinx sources
+  - "**/__init__.py" # re-export modules
+  - "**/_version.py" # hatch-vcs generated
 
-flags:
-  unittests:
-    carryforward: true # Use previous coverage if upload fails
-
-# Test Analytics configuration
-# Docs: https://docs.codecov.com/docs/test-analytics
-test_analytics:
-  enabled: true
-
-  # Flaky test detection
-  notifications:
-    flaky_tests:
-      enabled: true
-      threshold: 2 # Alert after 2 flaky runs
-
-  # Performance tracking
-  performance:
-    enabled: true
-    threshold: 10% # Alert if tests slow down >10%
+# ---------------------------------------------------------------------------
+# Test Analytics
+#
+# Codecov's Test Analytics (failed-test detection, flaky-test detection,
+# and test-performance tracking) is enabled by uploading JUnit XML via
+# the codecov-action's `report_type: test_results` input — already wired
+# in .github/workflows/codecov.yml (per-PR matrix) and
+# .github/workflows/comprehensive-tests.yml (nightly multi-OS). There is
+# no top-level `test_analytics:` codecov.yml key; thresholds and
+# alert preferences are managed in the Codecov dashboard under the
+# project's "Tests" tab once JUnit data lands.
+#
+# Reference: https://docs.codecov.com/docs/test-analytics
+# ---------------------------------------------------------------------------

@@ -16,7 +16,15 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        include:
+          - python-version: "3.11"
+            py-flag: "py3-11"
+          - python-version: "3.12"
+            py-flag: "py3-12"
+          - python-version: "3.13"
+            py-flag: "py3-13"
+          - python-version: "3.14"
+            py-flag: "py3-14"
 
     steps:
       - name: Checkout code
@@ -57,7 +65,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
-          flags: unittests
+          flags: unittests,${{ matrix.py-flag }}
           name: codecov-${{ matrix.python-version }}
           fail_ci_if_error: false
           verbose: true
