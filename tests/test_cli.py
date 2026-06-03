@@ -853,3 +853,213 @@ def test_cli_module_main_block() -> None:
     )
     assert result.returncode == 0
     assert __version__ in result.stdout
+
+
+# ---------- leagues list subcommand --------------------------------------
+
+
+def _stub_leagues(*id_title_pairs: tuple[str, str]) -> list[MagicMock]:
+    """Build fake League objects without needing pydantic instantiation."""
+    out = []
+    for lid, title in id_title_pairs:
+        lg = MagicMock()
+        lg.id = lid
+        lg.title = title
+        lg.association_id = "38"
+        lg.model_dump.return_value = {
+            "id": lid,
+            "title": title,
+            "association_id": "38",
+        }
+        out.append(lg)
+    return out
+
+
+@patch("gamesheet_sdk.cli._list_leagues_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_leagues_default_table_format(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.return_value = _stub_leagues(
+        ("101", "18U AAA"),
+        ("102", "16U AA"),
+    )
+    result = runner.invoke(cli, ["leagues", "list", "38"])
+    assert result.exit_code == 0, result.output
+    assert "101" in result.output
+    assert "18U AAA" in result.output
+    assert "102" in result.output
+    assert "16U AA" in result.output
+
+
+@patch("gamesheet_sdk.cli._list_leagues_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_leagues_json_format(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.return_value = _stub_leagues(("101", "18U AAA"))
+    result = runner.invoke(cli, ["leagues", "list", "38", "--format", "json"])
+    assert result.exit_code == 0, result.output
+    data = json.loads(result.output)
+    assert data == [{"id": "101", "title": "18U AAA", "association_id": "38"}]
+
+
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value=None)
+@patch("gamesheet_sdk.cli.load_access_token", return_value=None)
+def test_list_leagues_missing_token_exits_one(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    runner: CliRunner,
+) -> None:
+    result = runner.invoke(cli, ["leagues", "list", "38"])
+    assert result.exit_code == 1
+    assert "No saved session" in result.output
+    assert "Run `gamesheet-sdk-py login`" in result.output
+
+
+@patch("gamesheet_sdk.cli._list_leagues_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_leagues_authentication_error_exits_one(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.side_effect = AuthenticationError("HTTP 401")
+    result = runner.invoke(cli, ["leagues", "list", "38"])
+    assert result.exit_code == 1
+    assert "Authentication required" in result.output
+
+
+@patch("gamesheet_sdk.cli._list_leagues_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_leagues_other_error_exits_one(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.side_effect = GameSheetError("HTTP 500")
+    result = runner.invoke(cli, ["leagues", "list", "38"])
+    assert result.exit_code == 1
+    assert "GameSheet error" in result.output
+
+
+@patch("gamesheet_sdk.cli._list_leagues_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_leagues_csv_format(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.return_value = _stub_leagues(("101", "18U AAA"))
+    result = runner.invoke(cli, ["leagues", "list", "38", "--format", "csv"])
+    assert result.exit_code == 0, result.output
+    lines = result.output.strip().splitlines()
+    assert "id" in lines[0]
+    assert "title" in lines[0]
+    assert "101" in lines[1]
+    assert "18U AAA" in lines[1]
+
+
+@patch("gamesheet_sdk.cli._list_leagues_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_leagues_yaml_format(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.return_value = _stub_leagues(("101", "18U AAA"))
+    result = runner.invoke(cli, ["leagues", "list", "38", "--format", "yaml"])
+    assert result.exit_code == 0, result.output
+    data = yaml.safe_load(result.output)
+    assert data == [{"id": "101", "title": "18U AAA", "association_id": "38"}]
+
+
+@patch("gamesheet_sdk.cli._list_leagues_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_leagues_output_to_file(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+    tmp_path: Path,
+) -> None:
+    mock_list.return_value = _stub_leagues(("101", "18U AAA"))
+    output_file = tmp_path / "leagues.json"
+    result = runner.invoke(
+        cli,
+        ["leagues", "list", "38", "--format", "json", "--output", str(output_file)],
+    )
+    assert result.exit_code == 0, result.output
+    data = json.loads(output_file.read_text())
+    assert data == [{"id": "101", "title": "18U AAA", "association_id": "38"}]
+
+
+@patch("gamesheet_sdk.cli._list_leagues_action")
+@patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh-tok")
+@patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok")
+def test_list_leagues_columns_filter(
+    _mock_load_access: MagicMock,
+    _mock_load_refresh: MagicMock,
+    mock_list: MagicMock,
+    runner: CliRunner,
+) -> None:
+    mock_list.return_value = _stub_leagues(("101", "18U AAA"))
+    result = runner.invoke(
+        cli,
+        ["leagues", "list", "38", "--format", "csv", "--columns", "id,title"],
+    )
+    assert result.exit_code == 0, result.output
+    lines = result.output.strip().splitlines()
+    assert lines[0] == "id,title"
+    assert lines[1] == "101,18U AAA"
+
+
+def test_leagues_group_has_help_option(runner: CliRunner) -> None:
+    """The leagues group should accept -h and --help."""
+    result_short = runner.invoke(cli, ["leagues", "-h"])
+    assert result_short.exit_code == 0
+    assert "leagues" in result_short.output.lower()
+
+    result_long = runner.invoke(cli, ["leagues", "--help"])
+    assert result_long.exit_code == 0
+    assert "leagues" in result_long.output.lower()
+
+
+def test_leagues_list_alias_works(runner: CliRunner) -> None:
+    """The 'ls' alias should invoke the list command."""
+    with (
+        patch("gamesheet_sdk.cli._list_leagues_action") as mock_list,
+        patch(
+            "gamesheet_sdk.cli.load_refresh_token",
+            return_value="refresh-tok",
+        ),
+        patch("gamesheet_sdk.cli.load_access_token", return_value="bearer-tok"),
+    ):
+        mock_list.return_value = []
+        result = runner.invoke(cli, ["leagues", "ls", "38"])
+        assert result.exit_code == 0
+        mock_list.assert_called_once()
+
+
+def test_leagues_missing_association_id_shows_error(runner: CliRunner) -> None:
+    """Calling 'leagues list' without an association ID should show an error."""
+    result = runner.invoke(cli, ["leagues", "list"])
+    assert result.exit_code == 2  # Usage error
+    assert "ASSOCIATION_ID" in result.output or "Missing argument" in result.output

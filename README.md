@@ -87,8 +87,10 @@ control.
   rotated tokens via a user-supplied callback.
 - **`BrowserSession`** — a Playwright wrapper that opens Chromium with the saved storage state for any flow that genuinely needs a real browser
   (headed mode available via `--no-headless` for debugging).
-- **`associations list`** — first concrete read-only command (resource-oriented CLI; `ls` alias and a bare `gamesheet-sdk-py associations` shortcut
-  both run the same action).
+- **`associations list`** — read-only command to list associations (resource-oriented CLI; `ls` alias and a bare `gamesheet-sdk-py associations`
+  shortcut both run the same action).
+- **`leagues list`** — read-only command to list leagues within a specified association (resource-oriented CLI; `ls` alias works the same as
+  associations).
 - **Pluggable output** — `render()` produces JSON, YAML, CSV, TSV, or any of 13 human-readable tabulate formats (`simple`, `grid`, `fancy_grid`,
   `rst`, `html`, `latex`, …).
 - **Shell completion** — `gamesheet-sdk-py completion {bash,zsh,fish}` prints a sourceable script that tab-completes sub-commands (including aliases),
@@ -135,6 +137,9 @@ gamesheet-sdk-py login --email you@example.com
 
 # Subsequent commands reuse the saved session — no browser, no re-prompt.
 gamesheet-sdk-py associations list --format json   # also: `associations ls`, or bare `associations`
+
+# List leagues within a specific association (replace 38 with your association ID)
+gamesheet-sdk-py leagues list 38 --format json     # also: `leagues ls 38`
 ```
 
 Or from Python:
@@ -144,6 +149,7 @@ from gamesheet_sdk import (
     AuthenticatedSession,
     Config,
     list_associations,
+    list_leagues,
     load_access_token,
     load_refresh_token,
     save_tokens,
@@ -159,8 +165,13 @@ with AuthenticatedSession(
     refresh_token=refresh or "",
     on_refresh=lambda tokens: save_tokens(config, **tokens),
 ) as session:
+    # List all associations
     for assoc in list_associations(session):
-        print(assoc.name)
+        print(f"Association: {assoc.title}")
+
+        # List leagues for each association
+        for league in list_leagues(session, assoc.id):
+            print(f"  League: {league.title}")
 ```
 
 ## Configuration

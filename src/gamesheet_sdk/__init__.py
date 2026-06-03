@@ -30,6 +30,7 @@ from gamesheet_sdk.auth import (
 from gamesheet_sdk.browser import BrowserSession
 from gamesheet_sdk.config import Config
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.leagues import League, list_leagues
 from gamesheet_sdk.output import (
     ALL_FORMATS,
     DATA_FORMATS,
@@ -49,10 +50,12 @@ __all__ = [
     "DATA_FORMATS",
     "DEFAULT_FORMAT",
     "GameSheetError",
+    "League",
     "Session",
     "TABULATE_FORMATS",
     "__version__",
     "list_associations",
+    "list_leagues",
     "load_access_token",
     "load_refresh_token",
     "login",
