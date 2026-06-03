@@ -590,6 +590,27 @@ python_version = "3.11"
 [tool.pyright]
 pythonVersion = "3.11"
 
+[tool.coverage]
+run.branch = true
+run.parallel = false
+## ## coverage - Test coverage measurement
+## Without this block, `pytest --cov` has no source path to instrument
+## and emits an empty coverage.xml — which Codecov registers as an
+## upload but with no data, surfacing as "No report uploaded" on every
+## flag and component. See https://coverage.readthedocs.io/
+run.source = [ "src/gamesheet_sdk" ]
+## Collapse coverage from the installed package onto the src layout so
+## paths in coverage.xml match the component / flag path filters in
+## .codecov.yml.
+paths.source = [ "src/gamesheet_sdk", "*/site-packages/gamesheet_sdk" ]
+report.exclude_also = [
+  "@overload",
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError",
+]
+report.fail_under = 80
+report.show_missing = true
+
 ## -----------------------------------------------------------------------------
 ## Non-Python Languages
 ## -----------------------------------------------------------------------------
