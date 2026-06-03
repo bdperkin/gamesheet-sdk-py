@@ -427,8 +427,12 @@ miscellaneous.notes = [ "FIXME", "XXX", "TODO" ]
   "useless-suppression",
 ]
 "messages control".per-file-ignores = [
-  "tests/*:missing-function-docstring",
+  "tests/*:missing-function-docstring,duplicate-code",
+  "tests/test_cli.py:too-many-lines",
   "src/gamesheet_sdk/_version.py:missing-module-docstring",
+  "src/gamesheet_sdk/leagues.py:duplicate-code",
+  "src/gamesheet_sdk/associations.py:duplicate-code",
+  "docs/conf.py:duplicate-code",
 ]
 
 ## # ----------------------------------------------------------------------------
@@ -545,6 +549,7 @@ ignore_decorators = [
   "@associations_group.command",
   "@cli.command",
   "@group.command",
+  "@leagues_group.command",
   "@pytest.fixture",
 ]
 
