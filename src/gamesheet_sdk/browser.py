@@ -1,12 +1,10 @@
 """Reusable Playwright browser session for the JS-heavy WebUI path.
 
 Sibling of :mod:`gamesheet_sdk.session` with matching shape:
-
 - One context owning cookies and localStorage.
 - Storage state persisted via :attr:`Config.browser_state_path`.
 - Base-URL resolution against :attr:`Config.base_url`.
 - Context-manager that saves state on exit.
-
 Browsers are heavyweight, so :class:`BrowserSession` starts Playwright
 lazily on first reach for the browser; bare construction is free.
 """
@@ -16,10 +14,6 @@ from __future__ import annotations
 import json
 import logging
 from typing import TYPE_CHECKING, Any
-
-# pylint: disable=wrong-import-position
-if TYPE_CHECKING:
-    from types import TracebackType
 from urllib.parse import urljoin
 
 from playwright.sync_api import (
@@ -32,6 +26,9 @@ from playwright.sync_api import (
 
 from gamesheet_sdk.config import Config
 
+if TYPE_CHECKING:
+
+    from types import TracebackType
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -41,17 +38,15 @@ class BrowserSession:
     Mirror of :class:`gamesheet_sdk.Session` for flows where ``requests``
     is not enough (single-page apps, anti-bot challenges, anything that
     needs a real engine to render).
-
     Example::
-
         from gamesheet_sdk import BrowserSession, Config
-
         with BrowserSession(Config()) as bs:
             page = bs.goto("/login")
             page.fill("input[name='email']", "...")
     """
 
     def __init__(self, config: Config | None = None) -> None:
+
         self.config = config or Config()
         self._playwright: Playwright | None = None
         self._browser: Browser | None = None
@@ -59,14 +54,18 @@ class BrowserSession:
         self._closed = False
 
     def _load_storage_state(self) -> dict[str, Any] | None:
+
         path = self.config.browser_state_path
         if not path.exists():
+
             return None
+
         try:
             loaded: dict[str, Any] = json.loads(path.read_text())
         except (OSError, json.JSONDecodeError) as exc:
             _LOGGER.warning("Failed to load browser storage state from %s: %s", path, exc)
             return None
+
         return loaded
 
     # -- internals --------------------------------------------------------
@@ -79,6 +78,7 @@ class BrowserSession:
         )
         storage_state = self._load_storage_state()
         if storage_state is not None:
+
             # storage_state is read back from the JSON Playwright itself
             # wrote; matches the StorageState TypedDict structurally.
             self._context = self._browser.new_context(
@@ -97,11 +97,14 @@ class BrowserSession:
         reaches for the browser is effectively free.
         """
         if self._closed:
+
             _err_msg = "BrowserSession has been closed"
             raise RuntimeError(_err_msg)
         if self._context is None:
+
             self._start()
         if self._context is None:  # pragma: no cover
+
             # Defensive check: _start() either succeeds (sets _context) or raises
             _err_msg = "BrowserSession did not start"
             raise ValueError(_err_msg)
@@ -112,8 +115,11 @@ class BrowserSession:
         return self.context.new_page()
 
     def _resolve(self, url: str) -> str:
+
         if url.startswith(("http://", "https://", "data:", "file:", "about:")):
+
             return url
+
         return urljoin(self.config.base_url.rstrip("/") + "/", url.lstrip("/"))
 
     def goto(self, url: str, **kwargs: Any) -> Page:
@@ -135,6 +141,7 @@ class BrowserSession:
         already been called.
         """
         if self._context is None:
+
             return
         path = self.config.browser_state_path
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -151,10 +158,13 @@ class BrowserSession:
     def _release_playwright(self) -> None:
         """Close the context/browser/playwright handles and drop our refs."""
         if self._context is not None:
+
             self._context.close()
         if self._browser is not None:
+
             self._browser.close()
         if self._playwright is not None:
+
             self._playwright.stop()
         self._context = None
         self._browser = None
@@ -166,12 +176,14 @@ class BrowserSession:
         Idempotent: calling :meth:`close` more than once is safe.
         """
         if self._closed:
+
             return
         self._safe_save()
         self._release_playwright()
         self._closed = True
 
     def __enter__(self) -> BrowserSession:
+
         return self
 
     def __exit__(

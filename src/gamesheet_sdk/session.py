@@ -1,14 +1,13 @@
 """Reusable HTTP session for talking to the GameSheet WebUI.
 
-Wraps :class:`requests.Session` with the bits every WebUI workflow
-needs and nobody wants to wire up by hand:
+Wraps :class:`requests.Session` with the bits every WebUI workflow.
 
+needs and nobody wants to wire up by hand:
 - A pinned, version-stamped ``User-Agent``.
 - Configurable base URL so callers can hand in relative paths.
 - Cookie persistence to disk between process invocations.
 - Retries on 5xx and connection errors for idempotent methods.
 - POST is intentionally excluded from retries (no double-submission).
-
 Direct access to the cookie jar and default headers is via
 :attr:`Session.cookies` and :attr:`Session.headers`.
 """
@@ -20,13 +19,6 @@ import logging
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _resolved_version
 from typing import TYPE_CHECKING, Any, cast
-
-# pylint: disable=wrong-import-position
-if TYPE_CHECKING:
-    from types import TracebackType
-    from collections.abc import Iterable, MutableMapping
-    from http.cookiejar import Cookie  # noqa: F401
-
 from urllib.parse import urljoin
 
 import requests
@@ -38,6 +30,12 @@ from requests.cookies import (
 from urllib3.util.retry import Retry
 
 from gamesheet_sdk.config import Config
+
+if TYPE_CHECKING:
+
+    from collections.abc import Iterable, MutableMapping
+    from http.cookiejar import Cookie  # noqa: F401
+    from types import TracebackType
 
 
 def _default_user_agent() -> str:
@@ -54,7 +52,6 @@ def _default_user_agent() -> str:
 
 
 _LOGGER = logging.getLogger(__name__)
-
 # Retry on transient server-side and gateway errors only.
 _DEFAULT_RETRY_STATUSES = frozenset({500, 502, 503, 504})
 # Idempotent methods are safe to retry. POST is excluded so we never
@@ -66,13 +63,10 @@ class Session:
     """A ``requests.Session`` wrapper configured for GameSheet WebUI access.
 
     Example::
-
         from gamesheet_sdk import Config, Session
-
         with Session(Config()) as s:
             resp = s.get("/api/leagues")
             resp.raise_for_status()
-
     The context-manager form persists cookies on exit. If you do not use
     ``with``, call :meth:`Session.close` explicitly to save state.
     """
@@ -80,6 +74,7 @@ class Session:
     # -- internals --------------------------------------------------------
 
     def _build_http_session(self) -> requests.Session:
+
         s = requests.Session()
         s.headers["User-Agent"] = self.config.user_agent or _default_user_agent()
         retry = Retry(
@@ -97,8 +92,10 @@ class Session:
         return s
 
     def _load_cookies(self) -> None:
+
         path = self.config.session_path
         if not path.exists():
+
             return
         try:
             data = json.loads(path.read_text())
@@ -106,6 +103,7 @@ class Session:
             _LOGGER.warning("Failed to load session cookies from %s: %s", path, exc)
             return
         for raw in data.get("cookies", []):
+
             cookie = create_cookie(  # type: ignore[no-untyped-call]
                 name=raw["name"],
                 value=raw["value"],
@@ -119,6 +117,7 @@ class Session:
             )
 
     def __init__(self, config: Config | None = None) -> None:
+
         self.config = config or Config()
         self._http = self._build_http_session()
         self._load_cookies()
@@ -150,8 +149,11 @@ class Session:
         self._http.headers["Authorization"] = f"Bearer {token}"
 
     def _resolve(self, url: str) -> str:
+
         if url.startswith(("http://", "https://")):
+
             return url
+
         return urljoin(self.config.base_url.rstrip("/") + "/", url.lstrip("/"))
 
     # -- request methods --------------------------------------------------
@@ -236,6 +238,7 @@ class Session:
         self._http.close()
 
     def __enter__(self) -> Session:
+
         return self
 
     def __exit__(

@@ -111,6 +111,7 @@ optional-dependencies.editorconfig-checker = [
 optional-dependencies.flake8 = [
   "flake8-pyproject",
   "gamesheet-sdk-py[flake8-plugins]",
+  "gamesheet-sdk-py[pylint]",
 ]
 optional-dependencies.flake8-plugins = [
   "eradicate",
@@ -353,7 +354,7 @@ format.ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
 format.indent-after-paren = 4
 format.indent-string = "    "
 format.max-line-length = 110
-format.max-module-lines = 1000
+format.max-module-lines = 500
 design.max-args = 5
 design.max-attributes = 7
 design.max-bool-expr = 5
@@ -415,25 +416,11 @@ variables.redefining-builtins-modules = [ "six.moves", "past.builtins", "future.
 miscellaneous.notes = [ "FIXME", "XXX", "TODO" ]
 "messages control".confidence = [ "HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED" ]
 "messages control".disable = [
-  "bad-inline-option",
-  "deprecated-pragma",
-  "file-ignored",
-  "locally-disabled",
-  "raw-checker-failed",
-  "suppressed-message",
-  "use-implicit-booleaness-not-comparison-to-string",
-  "use-implicit-booleaness-not-comparison-to-zero",
-  "use-symbolic-message-instead",
-  "useless-suppression",
+  "duplicate-code",
 ]
 "messages control".per-file-ignores = [
-  "tests/*:missing-function-docstring,duplicate-code",
-  "tests/test_cli.py:too-many-lines",
   "src/gamesheet_sdk/_version.py:missing-module-docstring",
-  "src/gamesheet_sdk/leagues.py:duplicate-code",
-  "src/gamesheet_sdk/associations.py:duplicate-code",
-  "src/gamesheet_sdk/seasons.py:duplicate-code",
-  "docs/conf.py:duplicate-code",
+  "tests/**:import-outside-toplevel,missing-function-docstring",
 ]
 
 ## # ----------------------------------------------------------------------------
@@ -728,8 +715,6 @@ recursive = true
 ## # ----------------------------------------------------------------------------
 ## ## unimport - Unused import remover
 [tool.unimport]
-check = true
-diff = true
 gitignore = true
 
 ## ## autoflake - Basic code cleaner

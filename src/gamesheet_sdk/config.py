@@ -1,14 +1,11 @@
 """Configuration for an SDK session.
 
 Values are resolved by `pydantic-settings`_ in the following precedence:
-
 1. Keyword arguments passed to :class:`Config`.
 2. ``GAMESHEET_``-prefixed environment variables.
 3. Built-in defaults defined on the model below.
-
 A TOML config-file source is not loaded yet; it can be added later by
 overriding ``settings_customise_sources`` without changing the public API.
-
 .. _pydantic-settings:
     https://docs.pydantic.dev/latest/concepts/pydantic_settings/
 """
@@ -34,14 +31,13 @@ def _default_browser_state_path() -> Path:
     return Path(xdg).expanduser() / "gamesheet-sdk-py" / "browser-state.json"
 
 
-class Config(BaseSettings):  # pylint: disable=too-few-public-methods
+class Config(BaseSettings):
     """Resolved configuration for an SDK session."""
 
     model_config = SettingsConfigDict(  # noqa: F841
         env_prefix="GAMESHEET_",
         extra="ignore",
     )
-
     base_url: str = Field(
         default="https://gamesheet.app",
         description="Root URL of the GameSheet WebUI (the dashboard app).",

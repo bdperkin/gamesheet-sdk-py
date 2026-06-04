@@ -1,7 +1,6 @@
 """Tests for :mod:`gamesheet_sdk.seasons`."""
 
 # pylint: disable=redefined-outer-name,protected-access
-
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -32,6 +31,7 @@ def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
 
 @responses.activate
 def test_list_seasons_parses_jsonapi_response(config: Config) -> None:
+
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -78,7 +78,6 @@ def test_list_seasons_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_seasons(session, _LEAGUE_ID)
-
     assert [s.id for s in result] == ["501", "502"]
     assert result[0].title == "2024-2025"
     assert result[0].league_id == _LEAGUE_ID
@@ -89,11 +88,11 @@ def test_list_seasons_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_seasons_sends_bearer_and_jsonapi_accept(config: Config) -> None:
+
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_seasons(session, _LEAGUE_ID)
-
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
@@ -102,6 +101,7 @@ def test_list_seasons_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
 @responses.activate
 def test_list_seasons_empty_data_returns_empty_list(config: Config) -> None:
+
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -110,6 +110,7 @@ def test_list_seasons_empty_data_returns_empty_list(config: Config) -> None:
 
 @responses.activate
 def test_list_seasons_401_raises_authentication_error(config: Config) -> None:
+
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -134,6 +135,7 @@ def test_list_seasons_other_failure_raises_gamesheet_error(
 
 
 def test_season_model_ignores_unknown_attributes() -> None:
+
     s = Season(
         id="501",
         league_id="1148580",
@@ -181,11 +183,9 @@ def test_list_seasons_filters_by_league_id(config: Config) -> None:
         ),
         status=200,
     )
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = list_seasons(session, "1148580")
-
     # Should only return the season for league 1148580, not the one for league 999
     assert len(result) == 1
     assert result[0].id == "501"
@@ -194,8 +194,6 @@ def test_list_seasons_filters_by_league_id(config: Config) -> None:
 
 
 # Tests for get_season
-
-
 _SEASON_ID = "15020"
 _SEASON_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}"
 
@@ -207,6 +205,7 @@ def _detail_payload(data: dict[str, object]) -> dict[str, object]:
 
 @responses.activate
 def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:
+
     responses.add(
         responses.GET,
         _SEASON_ENDPOINT,
@@ -244,7 +243,6 @@ def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = get_season(session, _SEASON_ID)
-
     assert result.id == _SEASON_ID
     assert result.title == "Test Season 2026-2027"
     assert result.association_id == "38"
@@ -266,6 +264,7 @@ def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_get_season_sends_bearer_and_jsonapi_accept(config: Config) -> None:
+
     responses.add(
         responses.GET,
         _SEASON_ENDPOINT,
@@ -294,7 +293,6 @@ def test_get_season_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("test-token")
         get_season(session, _SEASON_ID)
-
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer test-token"
@@ -303,6 +301,7 @@ def test_get_season_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
 @responses.activate
 def test_get_season_401_raises_authentication_error(config: Config) -> None:
+
     responses.add(
         responses.GET,
         _SEASON_ENDPOINT,
@@ -317,6 +316,7 @@ def test_get_season_401_raises_authentication_error(config: Config) -> None:
 
 @responses.activate
 def test_get_season_404_raises_gamesheet_error(config: Config) -> None:
+
     responses.add(responses.GET, _SEASON_ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -326,6 +326,7 @@ def test_get_season_404_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_get_season_other_failure_raises_gamesheet_error(config: Config) -> None:
+
     responses.add(responses.GET, _SEASON_ENDPOINT, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -334,6 +335,7 @@ def test_get_season_other_failure_raises_gamesheet_error(config: Config) -> None
 
 
 def test_season_detail_model_ignores_unknown_attributes() -> None:
+
     sd = SeasonDetail(
         id="15020",
         association_id="38",

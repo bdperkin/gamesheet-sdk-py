@@ -2,29 +2,24 @@
 
 A season is a time period during which games are played within a league (e.g., "2024-2025", "Fall 2024",
 etc.). Each season belongs to exactly one league. The dashboard displays seasons after navigating into a
-league view.
-
-This module talks to the GameSheet JSON:API at ``/api/seasons?league_id={league_id}`` directly with the
-lightweight :class:`gamesheet_sdk.Session` path -- no Playwright needed for read-only access once a bearer
-token has been obtained (typically by reading the SPA's ``accessToken`` from the saved browser storage state
-via :func:`gamesheet_sdk.auth.load_access_token`).
+league view. This module talks to the GameSheet JSON:API at ``/api/seasons?league_id={league_id}`` directly
+with the lightweight :class:`gamesheet_sdk.Session` path -- no Playwright needed for read-only access once a
+bearer token has been obtained (typically by reading the SPA's ``accessToken`` from the saved browser storage
+state via :func:`gamesheet_sdk.auth.load_access_token`).
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-# pylint: disable=wrong-import-position
-if TYPE_CHECKING:
-    from gamesheet_sdk.session import Session
-
 from datetime import datetime  # noqa: TC003
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
-# pylint: disable=ungrouped-imports
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
+if TYPE_CHECKING:
+
+    from gamesheet_sdk.session import Session
 _ENDPOINT = "/api/seasons"
 _JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
 
@@ -97,11 +92,9 @@ def _parse_detail(data: dict[str, Any]) -> SeasonDetail:
     """Flatten a detailed JSON:API resource object into a :class:`SeasonDetail`."""
     attrs = data.get("attributes", {})
     relationships = data.get("relationships", {})
-
     # Extract IDs from relationships
     association_id = relationships.get("association", {}).get("data", {}).get("id", "")
     league_id = relationships.get("league", {}).get("data", {}).get("id", "")
-
     return SeasonDetail(
         id=data["id"],
         association_id=association_id,
@@ -115,10 +108,8 @@ def list_seasons(session: Session, league_id: str) -> list[Season]:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     Note: The GameSheet API returns all seasons, so this function filters client-side to only
     include seasons that belong to the specified league (via the relationships.league.data.id field).
-
     :param session: An authenticated :class:`Session`.
     :param league_id: The league identifier whose seasons to list.
     :returns: A list of :class:`Season`, in the order the server returned them. The list may be
@@ -132,12 +123,14 @@ def list_seasons(session: Session, league_id: str) -> list[Season]:
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
     )
     if response.status_code == 401:
+
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
             "`gamesheet-sdk-py login` to refresh and try again.",
         )
         raise AuthenticationError(_err_msg)
     if response.status_code >= 400:
+
         _err_msg = (f"GET {_ENDPOINT} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
@@ -151,7 +144,6 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     :param session: An authenticated :class:`Session`.
     :param season_id: The season identifier to retrieve.
     :returns: A :class:`SeasonDetail` with complete season information.
@@ -165,12 +157,14 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
     )
     if response.status_code == 401:
+
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
             "`gamesheet-sdk-py login` to refresh and try again.",
         )
         raise AuthenticationError(_err_msg)
     if response.status_code >= 400:
+
         _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
