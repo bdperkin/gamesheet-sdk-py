@@ -15,9 +15,10 @@ from gamesheet_sdk import (
     Config,
     GameSheetError,
     Session,
+    get_season,
     list_seasons,
 )
-from gamesheet_sdk.seasons import Season
+from gamesheet_sdk.seasons import Season, SeasonDetail
 
 _BASE = "https://test.example"
 _LEAGUE_ID = "1148580"
@@ -190,3 +191,161 @@ def test_list_seasons_filters_by_league_id(config: Config) -> None:
     assert result[0].id == "501"
     assert result[0].league_id == "1148580"
     assert result[0].title == "League 1148580 Season"
+
+
+# Tests for get_season
+
+
+_SEASON_ID = "15020"
+_SEASON_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}"
+
+
+def _detail_payload(data: dict[str, object]) -> dict[str, object]:
+    """Build a JSON:API ``{"data": {...}}`` body for a single resource."""
+    return {"data": data}
+
+
+@responses.activate
+def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:
+    responses.add(
+        responses.GET,
+        _SEASON_ENDPOINT,
+        json=_detail_payload(
+            {
+                "type": "seasons",
+                "id": _SEASON_ID,
+                "attributes": {
+                    "title": "Test Season 2026-2027",
+                    "external_id": "558772B8-DAF4-4848-B7CA-1FB620F2BA52",
+                    "start_date": "2026-05-15",
+                    "end_date": "2027-08-15",
+                    "sport": "hockey",
+                    "stats_year": "2026-2027",
+                    "live_scoring_mode": "public",
+                    "player_of_the_game": None,
+                    "flagging_criteria": {"penalty": True, "unlocked": True},
+                    "flagged_penalties": ["BDG-MAJ", "CHG-MAJ"],
+                    "settings": {
+                        "penalty_lengths": ["2", "5", "10"],
+                        "goal_value": 1,
+                    },
+                    "vendor_data": {},
+                    "created_at": "2026-05-15T17:41:04.363363Z",
+                    "updated_at": "2026-05-15T22:24:22.122544Z",
+                },
+                "relationships": {
+                    "association": {"data": {"type": "associations", "id": "38"}},
+                    "league": {"data": {"type": "leagues", "id": _LEAGUE_ID}},
+                },
+            },
+        ),
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("any-non-empty-token")
+        result = get_season(session, _SEASON_ID)
+
+    assert result.id == _SEASON_ID
+    assert result.title == "Test Season 2026-2027"
+    assert result.association_id == "38"
+    assert result.league_id == _LEAGUE_ID
+    assert result.external_id == "558772B8-DAF4-4848-B7CA-1FB620F2BA52"
+    assert result.start_date == "2026-05-15"
+    assert result.end_date == "2027-08-15"
+    assert result.sport == "hockey"
+    assert result.stats_year == "2026-2027"
+    assert result.live_scoring_mode == "public"
+    assert result.player_of_the_game is None
+    assert result.flagging_criteria == {"penalty": True, "unlocked": True}
+    assert result.flagged_penalties == ["BDG-MAJ", "CHG-MAJ"]
+    assert result.settings == {"penalty_lengths": ["2", "5", "10"], "goal_value": 1}
+    assert result.vendor_data == {}
+    assert result.created_at == datetime(2026, 5, 15, 17, 41, 4, 363363, tzinfo=timezone.utc)
+    assert result.updated_at == datetime(2026, 5, 15, 22, 24, 22, 122544, tzinfo=timezone.utc)
+
+
+@responses.activate
+def test_get_season_sends_bearer_and_jsonapi_accept(config: Config) -> None:
+    responses.add(
+        responses.GET,
+        _SEASON_ENDPOINT,
+        json=_detail_payload(
+            {
+                "type": "seasons",
+                "id": _SEASON_ID,
+                "attributes": {
+                    "title": "Test",
+                    "external_id": "uuid",
+                    "start_date": "2026-01-01",
+                    "end_date": "2026-12-31",
+                    "sport": "hockey",
+                    "stats_year": "2026",
+                    "created_at": "2026-01-01T00:00:00Z",
+                    "updated_at": "2026-01-01T00:00:00Z",
+                },
+                "relationships": {
+                    "association": {"data": {"type": "associations", "id": "1"}},
+                    "league": {"data": {"type": "leagues", "id": "2"}},
+                },
+            },
+        ),
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("test-token")
+        get_season(session, _SEASON_ID)
+
+    assert len(responses.calls) == 1
+    req = responses.calls[0].request
+    assert req.headers["Authorization"] == "Bearer test-token"
+    assert req.headers["Accept"] == "application/vnd.api+json"
+
+
+@responses.activate
+def test_get_season_401_raises_authentication_error(config: Config) -> None:
+    responses.add(
+        responses.GET,
+        _SEASON_ENDPOINT,
+        json={"errors": [{"detail": "Token expired"}]},
+        status=401,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("stale")
+        with pytest.raises(AuthenticationError, match="HTTP 401"):
+            get_season(session, _SEASON_ID)
+
+
+@responses.activate
+def test_get_season_404_raises_gamesheet_error(config: Config) -> None:
+    responses.add(responses.GET, _SEASON_ENDPOINT, status=404, body="Not found")
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        with pytest.raises(GameSheetError, match="HTTP 404"):
+            get_season(session, _SEASON_ID)
+
+
+@responses.activate
+def test_get_season_other_failure_raises_gamesheet_error(config: Config) -> None:
+    responses.add(responses.GET, _SEASON_ENDPOINT, status=500, body="boom")
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        with pytest.raises(GameSheetError, match="HTTP 500"):
+            get_season(session, _SEASON_ID)
+
+
+def test_season_detail_model_ignores_unknown_attributes() -> None:
+    sd = SeasonDetail(
+        id="15020",
+        association_id="38",
+        league_id="1148580",
+        title="Test",
+        external_id="uuid",
+        start_date="2026-01-01",
+        end_date="2026-12-31",
+        sport="hockey",
+        stats_year="2026",
+        created_at=cast("datetime", "2024-01-01T00:00:00Z"),
+        updated_at=cast("datetime", "2024-01-01T00:00:00Z"),
+        unexpected_future_attr="ignored",  # type: ignore[call-arg]
+    )
+    assert sd.title == "Test"

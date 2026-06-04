@@ -38,7 +38,7 @@ from gamesheet_sdk.output import (
     TABULATE_FORMATS,
     render,
 )
-from gamesheet_sdk.seasons import Season, list_seasons
+from gamesheet_sdk.seasons import Season, SeasonDetail, get_season, list_seasons
 from gamesheet_sdk.session import Session
 
 __all__ = [
@@ -53,9 +53,11 @@ __all__ = [
     "GameSheetError",
     "League",
     "Season",
+    "SeasonDetail",
     "Session",
     "TABULATE_FORMATS",
     "__version__",
+    "get_season",
     "list_associations",
     "list_leagues",
     "list_seasons",
