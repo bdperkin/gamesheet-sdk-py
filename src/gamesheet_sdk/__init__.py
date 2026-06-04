@@ -30,6 +30,7 @@ from gamesheet_sdk.auth import (
 from gamesheet_sdk.browser import BrowserSession
 from gamesheet_sdk.config import Config
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.ipad_keys import IPadKey, list_ipad_keys
 from gamesheet_sdk.leagues import League, list_leagues
 from gamesheet_sdk.output import (
     ALL_FORMATS,
@@ -51,6 +52,7 @@ __all__ = [
     "DATA_FORMATS",
     "DEFAULT_FORMAT",
     "GameSheetError",
+    "IPadKey",
     "League",
     "Season",
     "SeasonDetail",
@@ -59,6 +61,7 @@ __all__ = [
     "__version__",
     "get_season",
     "list_associations",
+    "list_ipad_keys",
     "list_leagues",
     "list_seasons",
     "load_access_token",

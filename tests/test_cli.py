@@ -1270,3 +1270,238 @@ def test_season_get_with_no_saved_tokens(runner: CliRunner) -> None:
         result = runner.invoke(cli, ["season", "get", "15020"])
         assert result.exit_code == 1
         assert "No saved session" in result.output or "login" in result.output.lower()
+
+
+def test_ipad_keys_get_alias_show_works(runner: CliRunner) -> None:
+    """The ipad-keys show alias should work the same as get."""
+    with (
+        patch("gamesheet_sdk.cli.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.cli._list_ipad_keys_action") as mock_action,
+    ):
+        from gamesheet_sdk.ipad_keys import IPadKey  # pylint: disable=import-outside-toplevel
+
+        mock_action.return_value = [
+            IPadKey(
+                id="3567",
+                value="ipad-test-kw",
+                description="Test Key",
+                roles=[],
+                live_scoring_scopes=["read", "write"],
+                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+            ),
+        ]
+        result = runner.invoke(cli, ["ipad-keys", "show", "15020"])
+        assert result.exit_code == 0
+        assert "ipad-test-kw" in result.output
+
+
+def test_ipad_keys_get_alias_view_works(runner: CliRunner) -> None:
+    """The ipad-keys view alias should work the same as get."""
+    with (
+        patch("gamesheet_sdk.cli.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.cli._list_ipad_keys_action") as mock_action,
+    ):
+        from gamesheet_sdk.ipad_keys import IPadKey  # pylint: disable=import-outside-toplevel
+
+        mock_action.return_value = [
+            IPadKey(
+                id="3567",
+                value="ipad-test-kw",
+                description="Test Key",
+                roles=[],
+                live_scoring_scopes=["read", "write"],
+                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+            ),
+        ]
+        result = runner.invoke(cli, ["ipad-keys", "view", "15020"])
+        assert result.exit_code == 0
+        assert "ipad-test-kw" in result.output
+
+
+def test_ipad_keys_default_command_is_get(runner: CliRunner) -> None:
+    """Bare 'ipad-keys' with no args shows help mentioning get as default."""
+    result = runner.invoke(cli, ["ipad-keys", "--help"])
+    assert result.exit_code == 0
+    # Help should mention that get is available
+    assert "get" in result.output.lower() or "show" in result.output.lower()
+
+
+def test_ipad_keys_get_json_output(runner: CliRunner) -> None:
+    """Ipad-keys get should support JSON output."""
+    with (
+        patch("gamesheet_sdk.cli.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.cli._list_ipad_keys_action") as mock_action,
+    ):
+        from gamesheet_sdk.ipad_keys import IPadKey  # pylint: disable=import-outside-toplevel
+
+        mock_action.return_value = [
+            IPadKey(
+                id="3567",
+                value="ipad-test-kw",
+                description="Test Key",
+                roles=[{"title": "app"}],
+                live_scoring_scopes=["read", "write"],
+                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+            ),
+        ]
+        result = runner.invoke(cli, ["ipad-keys", "get", "15020", "-F", "json"])
+        assert result.exit_code == 0
+        import json  # pylint: disable=import-outside-toplevel
+
+        data = json.loads(result.output)
+        assert len(data) == 1
+        assert data[0]["id"] == "3567"
+        assert data[0]["value"] == "ipad-test-kw"
+
+
+def test_ipad_keys_get_yaml_output(runner: CliRunner) -> None:
+    """Ipad-keys get should support YAML output."""
+    with (
+        patch("gamesheet_sdk.cli.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.cli._list_ipad_keys_action") as mock_action,
+    ):
+        from gamesheet_sdk.ipad_keys import IPadKey  # pylint: disable=import-outside-toplevel
+
+        mock_action.return_value = [
+            IPadKey(
+                id="3567",
+                value="ipad-test-kw",
+                description="Test Key",
+                roles=[],
+                live_scoring_scopes=["read"],
+                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+            ),
+        ]
+        result = runner.invoke(cli, ["ipad-keys", "get", "15020", "-F", "yaml"])
+        assert result.exit_code == 0
+        assert "id: '3567'" in result.output or 'id: "3567"' in result.output
+        assert "ipad-test-kw" in result.output
+
+
+def test_ipad_keys_get_columns_filter(runner: CliRunner) -> None:
+    """Ipad-keys get should support column filtering."""
+    with (
+        patch("gamesheet_sdk.cli.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.cli._list_ipad_keys_action") as mock_action,
+    ):
+        from gamesheet_sdk.ipad_keys import IPadKey  # pylint: disable=import-outside-toplevel
+
+        mock_action.return_value = [
+            IPadKey(
+                id="3567",
+                value="ipad-test-kw",
+                description="Test Key",
+                roles=[],
+                live_scoring_scopes=["read", "write"],
+                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+            ),
+        ]
+        result = runner.invoke(cli, ["ipad-keys", "get", "15020", "-c", "id,value"])
+        assert result.exit_code == 0
+        # Check that id and value are in the output
+        assert "id" in result.output.lower() or "3567" in result.output
+        assert "value" in result.output.lower() or "ipad-test-kw" in result.output
+
+
+def test_ipad_keys_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
+    """Ipad-keys get should write to file when -o is specified."""
+    output_file = tmp_path / "output.json"
+    with (
+        patch("gamesheet_sdk.cli.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.cli._list_ipad_keys_action") as mock_action,
+    ):
+        from gamesheet_sdk.ipad_keys import IPadKey  # pylint: disable=import-outside-toplevel
+
+        mock_action.return_value = [
+            IPadKey(
+                id="3567",
+                value="ipad-test-kw",
+                description="Test Key",
+                roles=[],
+                live_scoring_scopes=["read"],
+                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+            ),
+        ]
+        result = runner.invoke(cli, ["ipad-keys", "get", "15020", "-F", "json", "-o", str(output_file)])
+        assert result.exit_code == 0
+        assert output_file.exists()
+        import json  # pylint: disable=import-outside-toplevel
+
+        data = json.loads(output_file.read_text())
+        assert len(data) == 1
+        assert data[0]["id"] == "3567"
+
+
+def test_ipad_keys_get_table_format(runner: CliRunner) -> None:
+    """Ipad-keys get should output table format by default."""
+    with (
+        patch("gamesheet_sdk.cli.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.cli._list_ipad_keys_action") as mock_action,
+    ):
+        from gamesheet_sdk.ipad_keys import IPadKey  # pylint: disable=import-outside-toplevel
+
+        mock_action.return_value = [
+            IPadKey(
+                id="3567",
+                value="ipad-test-kw",
+                description="Test Key",
+                roles=[],
+                live_scoring_scopes=["read", "write"],
+                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+            ),
+        ]
+        result = runner.invoke(cli, ["ipad-keys", "get", "15020"])
+        assert result.exit_code == 0
+        # Table format should have column headers and the value
+        assert "ipad-test-kw" in result.output
+
+
+def test_ipad_keys_get_grid_format(runner: CliRunner) -> None:
+    """Ipad-keys get should support grid table format."""
+    with (
+        patch("gamesheet_sdk.cli.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.cli.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.cli._list_ipad_keys_action") as mock_action,
+    ):
+        from gamesheet_sdk.ipad_keys import IPadKey  # pylint: disable=import-outside-toplevel
+
+        mock_action.return_value = [
+            IPadKey(
+                id="3567",
+                value="ipad-test-kw",
+                description="Test Key",
+                roles=[],
+                live_scoring_scopes=["read"],
+                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+            ),
+        ]
+        result = runner.invoke(cli, ["ipad-keys", "get", "15020", "-F", "grid"])
+        assert result.exit_code == 0
+        # Grid format has border characters
+        assert "+" in result.output or "|" in result.output
+
+
+def test_ipad_keys_get_with_no_saved_tokens(runner: CliRunner) -> None:
+    """Ipad-keys get should exit with error when no tokens are saved."""
+    with (
+        patch("gamesheet_sdk.cli.load_access_token", return_value=None),
+        patch("gamesheet_sdk.cli.load_refresh_token", return_value=None),
+    ):
+        result = runner.invoke(cli, ["ipad-keys", "get", "15020"])
+        assert result.exit_code == 1
+        assert "No saved session" in result.output or "login" in result.output.lower()
