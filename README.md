@@ -93,6 +93,8 @@ control.
   associations).
 - **`seasons list`** — read-only command to list seasons within a specified league (resource-oriented CLI; `ls` alias works the same as
   associations/leagues).
+- **`season get`** — read-only command to get detailed information about a specific season, including settings, penalty codes, flagging criteria, and
+  more (resource-oriented CLI; `show` and `view` aliases available, with `get` as the default).
 - **Pluggable output** — `render()` produces JSON, YAML, CSV, TSV, or any of 13 human-readable tabulate formats (`simple`, `grid`, `fancy_grid`,
   `rst`, `html`, `latex`, …).
 - **Shell completion** — `gamesheet-sdk-py completion {bash,zsh,fish}` prints a sourceable script that tab-completes sub-commands (including aliases),
@@ -145,6 +147,10 @@ gamesheet-sdk-py leagues list 38 --format json     # also: `leagues ls 38`
 
 # List seasons within a specific league (replace 1148580 with your league ID)
 gamesheet-sdk-py seasons list 1148580 --format json     # also: `seasons ls 1148580`
+
+# Get detailed information about a specific season (replace 15020 with your season ID)
+gamesheet-sdk-py season get 15020 --format json          # also: `season show 15020` or `season view 15020`
+gamesheet-sdk-py season get 15020 --fields id,title,sport,start_date,end_date  # Filter to specific fields
 ```
 
 Or from Python:
@@ -153,6 +159,7 @@ Or from Python:
 from gamesheet_sdk import (
     AuthenticatedSession,
     Config,
+    get_season,
     list_associations,
     list_leagues,
     list_seasons,
@@ -182,6 +189,12 @@ with AuthenticatedSession(
             # List seasons for each league
             for season in list_seasons(session, league.id):
                 print(f"    Season: {season.title}")
+
+                # Get detailed information about a specific season
+                season_detail = get_season(session, season.id)
+                print(
+                    f"      Sport: {season_detail.sport}, Dates: {season_detail.start_date} to {season_detail.end_date}"
+                )
 ```
 
 ## Configuration

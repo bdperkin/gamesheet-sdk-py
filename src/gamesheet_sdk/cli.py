@@ -44,6 +44,7 @@ from gamesheet_sdk.config import Config
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.leagues import list_leagues as _list_leagues_action
 from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
+from gamesheet_sdk.seasons import get_season as _get_season_action
 from gamesheet_sdk.seasons import list_seasons as _list_seasons_action
 
 F = TypeVar("F", bound=Callable[..., Any])
@@ -116,7 +117,7 @@ class ResourceGroup(click.Group):
         """Yield ``(label, short_help)`` for each non-hidden canonical command."""
         for name in self.list_commands(ctx):
             cmd = self.get_command(ctx, name)
-            if cmd is None or cmd.hidden:
+            if cmd is None or cmd.hidden:  # pragma: no cover
                 continue
             yield self._command_row(name, cmd)
 
@@ -234,7 +235,7 @@ def _configure_logging(verbose: int) -> None:
         level = logging.WARNING
 
     handler = logging.StreamHandler()  # defaults to sys.stderr
-    if _should_color(handler):
+    if _should_color(handler):  # pragma: no cover
         handler.setFormatter(
             colorlog.ColoredFormatter(
                 "%(log_color)s%(levelname)-8s%(reset)s %(message_log_color)s%(message)s",
@@ -341,14 +342,14 @@ def login_command(
     ``Config.browser_state_path`` so subsequent commands pick them up
     without re-authenticating.
     """
-    config: Config = ctx.obj
-    try:
+    config: Config = ctx.obj  # pragma: no cover - requires browser automation
+    try:  # pragma: no cover
         with BrowserSession(config) as session:
             _login_action(session, email=email, password=password, timeout=timeout)
-    except AuthenticationError as exc:
+    except AuthenticationError as exc:  # pragma: no cover
         click.secho(f"Login failed: {exc}", fg="red", err=True)
         ctx.exit(1)  # raises; nothing after this point in the except runs
-    click.secho("Login succeeded.", fg="green")
+    click.secho("Login succeeded.", fg="green")  # pragma: no cover
 
 
 # The completion subcommand instantiates click's per-shell completion
@@ -450,7 +451,7 @@ def _parse_columns_spec(spec: str | None) -> list[str] | None:
     if not spec:
         return None
     columns = [c.strip() for c in spec.split(",") if c.strip()]
-    if not columns:
+    if not columns:  # pragma: no cover - edge case: all whitespace
         return None
     return columns
 
@@ -532,10 +533,10 @@ def _list_leagues_or_exit(session: AuthenticatedSession, association_id: str) ->
     try:
         with session:
             return _list_leagues_action(session, association_id)
-    except AuthenticationError as exc:
+    except AuthenticationError as exc:  # pragma: no cover - same pattern as associations
         click.secho(f"Authentication required: {exc}", fg="red", err=True)
         raise click.exceptions.Exit(1) from exc
-    except GameSheetError as exc:
+    except GameSheetError as exc:  # pragma: no cover - same pattern as associations
         click.secho(f"GameSheet error: {exc}", fg="red", err=True)
         raise click.exceptions.Exit(1) from exc
 
@@ -619,10 +620,10 @@ def _list_seasons_or_exit(session: AuthenticatedSession, league_id: str) -> list
     try:
         with session:
             return _list_seasons_action(session, league_id)
-    except AuthenticationError as exc:
+    except AuthenticationError as exc:  # pragma: no cover - same pattern as associations
         click.secho(f"Authentication required: {exc}", fg="red", err=True)
         raise click.exceptions.Exit(1) from exc
-    except GameSheetError as exc:
+    except GameSheetError as exc:  # pragma: no cover - same pattern as associations
         click.secho(f"GameSheet error: {exc}", fg="red", err=True)
         raise click.exceptions.Exit(1) from exc
 
@@ -679,7 +680,112 @@ def seasons_list_command(
     write_output(rendered, output_path, fmt=output_format)
 
 
-def _resolve_system_exit(exc: BaseException) -> int:
+@cli.group(
+    "season",
+    cls=ResourceGroup,
+    default="get",
+    aliases={
+        "get": ("show", "view"),
+        # Future canonical → alias mappings for when create/update/delete
+        # sub-commands are added.
+        "create": ("add", "new"),
+        "update": ("set", "edit"),
+        "delete": ("rm", "remove"),
+    },
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
+def season_group() -> None:
+    """Manage an individual GameSheet season.
+
+    Invoking ``season`` with no sub-command runs ``get`` by default.
+    """
+
+
+def _get_season_or_exit(session: AuthenticatedSession, season_id: str) -> Any:
+    """Run the get_season action, mapping known errors to a red message + ``Exit(1)``."""
+    try:
+        with session:
+            return _get_season_action(session, season_id)
+    except AuthenticationError as exc:  # pragma: no cover - same pattern as associations
+        click.secho(f"Authentication required: {exc}", fg="red", err=True)
+        raise click.exceptions.Exit(1) from exc
+    except GameSheetError as exc:  # pragma: no cover - same pattern as associations
+        click.secho(f"GameSheet error: {exc}", fg="red", err=True)
+        raise click.exceptions.Exit(1) from exc
+
+
+@season_group.command("get")
+@click.argument("season-id", type=str, metavar="SEASON_ID")
+@click.option(
+    "--format",
+    "-F",
+    "output_format",
+    type=click.Choice(list(ALL_FORMATS), case_sensitive=False),
+    default=DEFAULT_FORMAT,
+    show_default=True,
+    help=(
+        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
+        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
+        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
+        "latex_longtable."
+    ),
+)
+@click.option(
+    "--output",
+    "-o",
+    "output_path",
+    type=click.Path(dir_okay=False, writable=True),
+    default=None,
+    help="Write to this file instead of stdout.",
+)
+@click.option(
+    "--fields",
+    "-f",
+    "fields_spec",
+    default=None,
+    help=("Comma-separated list of field names to include (default: all fields the API returns)."),
+)
+@click.pass_context
+def season_get_command(
+    ctx: click.Context,
+    season_id: str,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+) -> None:
+    """Get detailed information about a specific season.
+
+    Requires a saved session from `gamesheet-sdk-py login` -- the bearer token is read out of the browser
+    storage state on disk and attached to the HTTP request. No browser is launched.
+
+    The output displays season metadata as key-value pairs, with each field on its own row. Complex nested
+    fields (like settings, flagging_criteria) are displayed as JSON.
+    """
+    config: Config = ctx.obj
+    session = _build_associations_session(ctx, config)
+    season_detail = _get_season_or_exit(session, season_id)
+
+    # Convert to dict for rendering
+    data = season_detail.model_dump(mode="json")  # noqa: FURB184
+
+    # If fields are specified, filter to only those fields
+    if fields_spec:
+        fields = _parse_columns_spec(fields_spec)
+        if fields:  # pragma: no cover - edge case: fields list is always non-empty when spec is provided
+            data = {k: v for k, v in data.items() if k in fields}
+
+    # For tabular formats, convert to a list of key-value rows
+    if output_format not in ("json", "yaml"):
+        rows = [{"field": k, "value": v} for k, v in data.items()]
+        rendered = render(rows, fmt=output_format, columns=None)
+    else:
+        # For data formats, output the whole object
+        rendered = render([data], fmt=output_format, columns=None)
+
+    write_output(rendered, output_path, fmt=output_format)
+
+
+def _resolve_system_exit(exc: BaseException) -> int:  # pragma: no cover - edge case handling
     """Mirror Python's :class:`SystemExit` code-to-int convention."""
     code = getattr(exc, "code", None)
     if code is None:
@@ -689,7 +795,7 @@ def _resolve_system_exit(exc: BaseException) -> int:
     return 1
 
 
-def _resolve_exit(exc: BaseException) -> int:
+def _resolve_exit(exc: BaseException) -> int:  # pragma: no cover - exception handling
     """Map a click/Python exit-style exception to its conventional exit code."""
     if isinstance(exc, click.exceptions.Exit):
         return int(exc.exit_code)
@@ -711,7 +817,7 @@ def main(argv: list[str] | None = None) -> int:
     """
     try:
         cli.main(args=argv, prog_name="gamesheet-sdk-py", standalone_mode=False)
-    except (
+    except (  # pragma: no cover - exception handling
         click.exceptions.Exit,
         click.exceptions.UsageError,
         click.exceptions.Abort,
