@@ -5,20 +5,22 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
-# pylint: disable=wrong-import-position
-if TYPE_CHECKING:
-    from pathlib import Path
-
 import pytest
 
 from gamesheet_sdk import Config
+
+if TYPE_CHECKING:
+
+    from pathlib import Path
 
 
 @pytest.fixture(autouse=True)
 def _clear_gamesheet_env(monkeypatch: pytest.MonkeyPatch) -> None:
     """Strip any ambient ``GAMESHEET_*`` env vars so every test sees defaults."""
     for key in list(os.environ):
+
         if key.startswith("GAMESHEET_"):
+
             monkeypatch.delenv(key, raising=False)
 
 

@@ -13,7 +13,6 @@ author = "bdperkin"
 copyright = f"2026, {author}"  # noqa: A001 # pylint: disable=redefined-builtin
 release = metadata.version("gamesheet-sdk-py")
 version = ".".join(release.split(".")[:2])
-
 # -- General configuration ---------------------------------------------------
 extensions = [
     # API documentation
@@ -36,37 +35,34 @@ extensions = [
     # CLI documentation
     "sphinx_click",
 ]
-
 source_suffix = {
     ".md": "markdown",
     ".rst": "restructuredtext",
 }
 master_doc = "index"
-
 # 1. Define your base/fallback exclusions that Sphinx should always ignore
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "_autosummary"]
-
 # 2. Look for .gitignore at the project root (usually one level up from /docs)
 # Adjust the path if your conf.py location is structured differently
 project_root = Path(__file__).parent.parent
 gitignore_path = Path(project_root, ".gitignore")
-
 if Path(gitignore_path).exists():
+
     with gitignore_path.open(encoding="utf-8") as f:
         for line in f:
+
             line = line.strip()
             # Skip empty lines, comments, or negation rules
             if not line or line.startswith(("#", "!")):
-                continue
 
+                continue
             # Sphinx expect patterns, strip leading/trailing slashes for safety
             # e.g., "/.tox/" becomes ".tox"
             clean_pattern = line.strip("/")
-
             if clean_pattern and clean_pattern not in exclude_patterns:
+
                 exclude_patterns.append(clean_pattern)
 templates_path = ["_templates"]
-
 # -- Automatic API documentation --------------------------------------------
 autosummary_generate = True
 autodoc_default_options = {
@@ -78,7 +74,6 @@ autodoc_default_options = {
 autodoc_typehints = "description"
 autodoc_typehints_description_target = "documented_params"
 autoclass_content = "both"
-
 # -- Napoleon (Google / NumPy docstrings) -----------------------------------
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True
@@ -86,7 +81,6 @@ napoleon_include_init_with_doc = False
 napoleon_use_admonition_for_examples = True
 napoleon_use_admonition_for_notes = True
 napoleon_use_rtype = False
-
 # -- Cross-referencing ------------------------------------------------------
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
@@ -96,7 +90,6 @@ intersphinx_mapping = {
 }
 autosectionlabel_prefix_document = True
 autosectionlabel_maxdepth = 3
-
 # -- MyST (Markdown) --------------------------------------------------------
 myst_enable_extensions = [
     "colon_fence",
@@ -109,10 +102,8 @@ myst_enable_extensions = [
     "attrs_block",
 ]
 myst_heading_anchors = 3
-
 # -- TODOs ------------------------------------------------------------------
 todo_include_todos = True
-
 # -- HTML output (Furo theme) -----------------------------------------------
 html_theme = "furo"
 html_title = f"{project} {release}"
@@ -126,11 +117,9 @@ html_theme_options = {
 }
 html_show_sourcelink = True
 html_copy_source = True
-
 # -- EPUB output ------------------------------------------------------------
 epub_show_urls = "footnote"
 epub_basename = project
-
 # -- Man-page output --------------------------------------------------------
 man_pages = [
     (
@@ -141,7 +130,6 @@ man_pages = [
         1,
     ),
 ]
-
 # -- LaTeX / PDF output -----------------------------------------------------
 latex_engine = "pdflatex"
 latex_documents = [
@@ -153,7 +141,6 @@ latex_documents = [
         "manual",
     ),
 ]
-
 # -- Link-check options -----------------------------------------------------
 linkcheck_retries = 2
 linkcheck_timeout = 15

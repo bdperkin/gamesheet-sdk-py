@@ -1,23 +1,23 @@
 """Tests for :mod:`gamesheet_sdk.session`."""
 
 # pylint: disable=redefined-outer-name  # pytest fixtures are accessed by name
-
 from __future__ import annotations
 
 import json
 from typing import TYPE_CHECKING
-
-# pylint: disable=wrong-import-position
-if TYPE_CHECKING:
-    from pathlib import Path
 
 import pytest
 import responses
 
 from gamesheet_sdk import Config, Session
 
+if TYPE_CHECKING:
+
+    from pathlib import Path
+
 
 def test_default_user_agent_is_version_stamped(config: Config) -> None:
+
     with Session(config) as sess:
         # Session.headers is typed `str | bytes` (matches the requests stub);
         # the SDK only ever stores a str, so narrow here for static checkers.
@@ -27,6 +27,7 @@ def test_default_user_agent_is_version_stamped(config: Config) -> None:
 
 
 def test_user_agent_override(config: Config) -> None:
+
     config.user_agent = "custom-agent/1.0"
     with Session(config) as sess:
         assert sess.headers["User-Agent"] == "custom-agent/1.0"
@@ -34,6 +35,7 @@ def test_user_agent_override(config: Config) -> None:
 
 @responses.activate
 def test_relative_url_resolves_against_base(config: Config) -> None:
+
     responses.add(
         responses.GET,
         "https://test.example/api/leagues",
@@ -48,6 +50,7 @@ def test_relative_url_resolves_against_base(config: Config) -> None:
 
 @responses.activate
 def test_absolute_url_used_verbatim(config: Config) -> None:
+
     responses.add(
         responses.GET,
         "https://other.example/foo",
@@ -61,6 +64,7 @@ def test_absolute_url_used_verbatim(config: Config) -> None:
 
 @responses.activate
 def test_post_put_delete_resolve_too(config: Config) -> None:
+
     responses.add(responses.POST, "https://test.example/a", status=201)
     responses.add(responses.PUT, "https://test.example/b", status=204)
     responses.add(responses.DELETE, "https://test.example/c", status=204)
@@ -72,6 +76,7 @@ def test_post_put_delete_resolve_too(config: Config) -> None:
 
 @responses.activate
 def test_cookies_persist_across_session_lifecycles(config: Config) -> None:
+
     responses.add(
         responses.GET,
         "https://test.example/login",
@@ -81,7 +86,6 @@ def test_cookies_persist_across_session_lifecycles(config: Config) -> None:
     with Session(config) as sess:
         sess.get("/login")
         assert sess.cookies.get("auth") == "token123"
-
     assert config.session_path.exists()
     # A fresh Session against the same config picks the cookie back up.
     with Session(config) as sess2:
@@ -89,6 +93,7 @@ def test_cookies_persist_across_session_lifecycles(config: Config) -> None:
 
 
 def test_save_creates_parent_dirs(config: Config) -> None:
+
     nested = config.session_path.parent / "deep" / "nest" / "session.json"
     config.session_path = nested
     sess = Session(config)
@@ -112,6 +117,7 @@ def test_corrupt_cookie_file_does_not_crash(config: Config, caplog: pytest.LogCa
 
 
 def test_missing_cookie_file_is_silent(config: Config) -> None:
+
     assert not config.session_path.exists()
     sess = Session(config)
     assert len(sess.cookies) == 0
@@ -124,6 +130,7 @@ def test_explicit_timeout_overrides_default(config: Config) -> None:
     captured: dict[str, object] = {}
 
     def callback(_req: object) -> tuple[int, dict[str, str], str]:
+
         captured["called"] = True
         return (200, {}, "ok")
 
@@ -145,12 +152,14 @@ def test_default_config_when_none_passed(monkeypatch: pytest.MonkeyPatch, tmp_pa
 
 
 def test_set_bearer_token_attaches_authorization_header(config: Config) -> None:
+
     with Session(config) as sess:
         sess.set_bearer_token("eyJhbGci.test.jwt")
         assert sess.headers["Authorization"] == "Bearer eyJhbGci.test.jwt"
 
 
 def test_set_bearer_token_replaces_existing(config: Config) -> None:
+
     with Session(config) as sess:
         sess.set_bearer_token("old")
         sess.set_bearer_token("new")

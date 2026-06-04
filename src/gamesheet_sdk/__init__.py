@@ -17,7 +17,6 @@ except ImportError:  # pragma: no cover - fallback only fires uninstalled
         __version__ = version("gamesheet-sdk-py")
     except PackageNotFoundError:
         __version__ = "0+unknown"
-
 from gamesheet_sdk.associations import Association, list_associations
 from gamesheet_sdk.auth import (
     AuthenticatedSession,

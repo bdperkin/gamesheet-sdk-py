@@ -2,29 +2,24 @@
 
 A league is a division, tier, or other grouping within an association (e.g., "18U AAA", "Bantam", etc.). Each
 league belongs to exactly one association. The dashboard displays leagues after navigating into an association
-view.
-
-This module talks to the GameSheet JSON:API at ``/api/associations/{association_id}/leagues`` directly with
-the lightweight :class:`gamesheet_sdk.Session` path -- no Playwright needed for read-only access once a bearer
-token has been obtained (typically by reading the SPA's ``accessToken`` from the saved browser storage state
-via :func:`gamesheet_sdk.auth.load_access_token`).
+view. This module talks to the GameSheet JSON:API at ``/api/associations/{association_id}/leagues`` directly
+with the lightweight :class:`gamesheet_sdk.Session` path -- no Playwright needed for read-only access once a
+bearer token has been obtained (typically by reading the SPA's ``accessToken`` from the saved browser storage
+state via :func:`gamesheet_sdk.auth.load_access_token`).
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-# pylint: disable=wrong-import-position
-if TYPE_CHECKING:
-    from gamesheet_sdk.session import Session
-
 from datetime import datetime  # noqa: TC003
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
-# pylint: disable=ungrouped-imports
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
+if TYPE_CHECKING:
+
+    from gamesheet_sdk.session import Session
 _ENDPOINT_TEMPLATE = "/api/associations/{association_id}/leagues"
 _JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
 
@@ -58,7 +53,6 @@ def list_leagues(session: Session, association_id: str) -> list[League]:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     :param session: An authenticated :class:`Session`.
     :param association_id: The association identifier whose leagues to list.
     :returns: A list of :class:`League`, in the order the server returned them. The list may be
@@ -73,12 +67,14 @@ def list_leagues(session: Session, association_id: str) -> list[League]:
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
     )
     if response.status_code == 401:
+
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
             "`gamesheet-sdk-py login` to refresh and try again.",
         )
         raise AuthenticationError(_err_msg)
     if response.status_code >= 400:
+
         _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()

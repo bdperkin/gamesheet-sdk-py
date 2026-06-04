@@ -1,7 +1,6 @@
 """Tests for :mod:`gamesheet_sdk.leagues`."""
 
 # pylint: disable=redefined-outer-name,protected-access
-
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -31,6 +30,7 @@ def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
 
 @responses.activate
 def test_list_leagues_parses_jsonapi_response(config: Config) -> None:
+
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -61,7 +61,6 @@ def test_list_leagues_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_leagues(session, _ASSOCIATION_ID)
-
     assert [lg.id for lg in result] == ["101", "102"]
     assert result[0].title == "18U AAA"
     assert result[0].association_id == _ASSOCIATION_ID
@@ -72,11 +71,11 @@ def test_list_leagues_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_leagues_sends_bearer_and_jsonapi_accept(config: Config) -> None:
+
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_leagues(session, _ASSOCIATION_ID)
-
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
@@ -85,6 +84,7 @@ def test_list_leagues_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
 @responses.activate
 def test_list_leagues_empty_data_returns_empty_list(config: Config) -> None:
+
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -93,6 +93,7 @@ def test_list_leagues_empty_data_returns_empty_list(config: Config) -> None:
 
 @responses.activate
 def test_list_leagues_401_raises_authentication_error(config: Config) -> None:
+
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -117,6 +118,7 @@ def test_list_leagues_other_failure_raises_gamesheet_error(
 
 
 def test_league_model_ignores_unknown_attributes() -> None:
+
     lg = League(
         id="101",
         association_id="38",
@@ -136,10 +138,8 @@ def test_list_leagues_constructs_correct_endpoint_for_association(
     association_id = "42"
     endpoint = f"{_BASE}/api/associations/{association_id}/leagues"
     responses.add(responses.GET, endpoint, json=_payload([]), status=200)
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_leagues(session, association_id)
-
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == endpoint

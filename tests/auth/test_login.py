@@ -1,36 +1,24 @@
-"""Tests for :mod:`gamesheet_sdk.auth`."""
+"""Tests for login flow and credential handling."""
 
 # pylint: disable=redefined-outer-name,protected-access
-
 from __future__ import annotations
 
-import json
 from typing import TYPE_CHECKING, Any, cast
 from unittest.mock import MagicMock
 
 import pytest
-import responses
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from gamesheet_sdk import (
-    AuthenticatedSession,
     AuthenticationError,
     BrowserSession,
     Config,
-    GameSheetError,
     login,
 )
-from gamesheet_sdk.auth import (
-    LOGIN_PATH,
-    POST_LOGIN_PATH,
-    REFRESH_URL,
-    load_access_token,
-    refresh_access_token,
-    save_tokens,
-)
+from gamesheet_sdk.auth.constants import LOGIN_PATH, POST_LOGIN_PATH
 
-# pylint: disable=wrong-import-position
 if TYPE_CHECKING:
+
     from pydantic import SecretStr
 
 
@@ -40,6 +28,7 @@ def _make_response(url: str, status: int, body: Any = None) -> MagicMock:
     r.url = url
     r.status = status
     if body is not None:
+
         r.json.return_value = body
     else:
         r.json.side_effect = ValueError("no body")
@@ -59,27 +48,26 @@ def fake_browser_session(config: Config) -> MagicMock:
     """
     sess = MagicMock(spec=BrowserSession)
     sess.config = config
-
     page = MagicMock(name="page")
     sess.goto.return_value = page
-
     # Capture the response callback the production code registers.
     listeners: dict[str, Any] = {}
 
     def register(event: str, callback: Any) -> None:
+
         listeners[event] = callback
 
     page.on.side_effect = register
-
     # Default: no staged responses (simulates timeout).
     page.staged_responses = []
 
     def click(_selector: str) -> None:
+
         for response in page.staged_responses:
+
             listeners["response"](response)
 
     page.click.side_effect = click
-
     # Make wait_for_timeout actually advance the clock a little so loops
     # don't spin entirely in zero real time.
     page.wait_for_timeout.side_effect = lambda _ms: None
@@ -90,12 +78,14 @@ def fake_browser_session(config: Config) -> MagicMock:
 
 
 def test_login_missing_email_raises(fake_browser_session: MagicMock) -> None:
+
     with pytest.raises(AuthenticationError, match="requires an email"):
         login(fake_browser_session, password="hunter2")
     fake_browser_session.goto.assert_not_called()
 
 
 def test_login_missing_password_raises(fake_browser_session: MagicMock) -> None:
+
     with pytest.raises(AuthenticationError, match="requires a password"):
         login(fake_browser_session, email="alice@example.com")
     fake_browser_session.goto.assert_not_called()
@@ -127,22 +117,24 @@ def test_login_reads_credentials_from_config(
     listeners: dict[str, Any] = {}
 
     def register(ev: str, cb: Any) -> None:
+
         listeners[ev] = cb
 
     def click(_selector: str) -> None:
+
         for response in page.staged_responses:
+
             listeners["response"](response)
 
     page.on.side_effect = register
     page.click.side_effect = click
-
     login(fake_browser_session)
-
     page.fill.assert_any_call("#email", "bob@example.com")
     page.fill.assert_any_call("#password", "s3cret")
 
 
 def test_login_args_override_config(fake_browser_session: MagicMock) -> None:
+
     fake_browser_session.config = Config(
         base_url="https://test.example",
         username="bob@example.com",
@@ -153,9 +145,7 @@ def test_login_args_override_config(fake_browser_session: MagicMock) -> None:
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
         _make_response(_TOKEN_URL, 200, {}),
     ]
-
     login(fake_browser_session, email="alice@example.com", password="other")
-
     page.fill.assert_any_call("#email", "alice@example.com")
     page.fill.assert_any_call("#password", "other")
 
@@ -171,9 +161,7 @@ def test_login_succeeds_when_firebase_and_token_both_200(
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
         _make_response(_TOKEN_URL, 200, {}),
     ]
-
     login(fake_browser_session, email="a@b.c", password="x")
-
     # Two navigations: to the login form, then to the post-login destination.
     assert fake_browser_session.goto.call_count == 2
     fake_browser_session.goto.assert_any_call(LOGIN_PATH, wait_until="load")
@@ -189,32 +177,29 @@ def test_login_post_login_path_can_be_disabled(
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
         _make_response(_TOKEN_URL, 200, {}),
     ]
-
     login(
         fake_browser_session,
         email="a@b.c",
         password="x",
         post_login_path=None,
     )
-
     # Only the navigation to the login form should have happened.
     fake_browser_session.goto.assert_called_once_with(LOGIN_PATH, wait_until="load")
 
 
 def test_login_custom_post_login_path(fake_browser_session: MagicMock) -> None:
+
     page = fake_browser_session.goto.return_value
     page.staged_responses = [
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
         _make_response(_TOKEN_URL, 200, {}),
     ]
-
     login(
         fake_browser_session,
         email="a@b.c",
         password="x",
         post_login_path="/dashboard",
     )
-
     fake_browser_session.goto.assert_any_call("/dashboard", wait_until="networkidle", timeout=30_000)
 
 
@@ -229,16 +214,17 @@ def test_login_post_login_navigation_timeout_is_swallowed(
     ]
 
     def goto_side_effect(path: str, **kwargs: Any) -> Any:
+
         # The post-login navigation is the one that asks for networkidle;
         # the initial form-load navigation uses wait_until="load".
         if kwargs.get("wait_until") == "networkidle":
+
             _err_msg = "networkidle never fired"
             raise PlaywrightTimeoutError(_err_msg)
         del path
         return page
 
     fake_browser_session.goto.side_effect = goto_side_effect
-
     # Must not raise; auth already succeeded by this point.
     login(fake_browser_session, email="a@b.c", password="x")
 
@@ -256,6 +242,7 @@ def test_login_post_login_navigation_timeout_is_swallowed(
     ],
 )
 def test_login_surfaces_firebase_error_code(fake_browser_session: MagicMock, firebase_message: str) -> None:
+
     page = fake_browser_session.goto.return_value
     page.staged_responses = [
         _make_response(
@@ -264,10 +251,8 @@ def test_login_surfaces_firebase_error_code(fake_browser_session: MagicMock, fir
             {"error": {"code": 400, "message": firebase_message}},
         ),
     ]
-
     with pytest.raises(AuthenticationError) as exc_info:
         login(fake_browser_session, email="a@b.c", password="bad")
-
     assert firebase_message in str(exc_info.value)
     assert "Firebase" in str(exc_info.value)
 
@@ -277,10 +262,8 @@ def test_login_firebase_failure_without_parseable_body(
 ) -> None:
     page = fake_browser_session.goto.return_value
     page.staged_responses = [_make_response(_FIREBASE_URL, 500)]
-
     with pytest.raises(AuthenticationError) as exc_info:
         login(fake_browser_session, email="a@b.c", password="x")
-
     assert "HTTP 500" in str(exc_info.value)
 
 
@@ -295,7 +278,6 @@ def test_login_token_exchange_failure_raises(
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
         _make_response(_TOKEN_URL, 401, {}),
     ]
-
     with pytest.raises(AuthenticationError, match="token exchange failed"):
         login(fake_browser_session, email="a@b.c", password="x")
 
@@ -304,9 +286,9 @@ def test_login_token_exchange_failure_raises(
 
 
 def test_login_no_responses_times_out(fake_browser_session: MagicMock) -> None:
+
     page = fake_browser_session.goto.return_value
     page.staged_responses = []  # nothing arrives
-
     with pytest.raises(AuthenticationError, match="did not complete"):
         login(fake_browser_session, email="a@b.c", password="x", timeout=0.01)
 
@@ -320,7 +302,6 @@ def test_login_firebase_success_but_token_missing_times_out(
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
         # No token response - simulates token exchange being blocked or delayed
     ]
-
     with pytest.raises(AuthenticationError, match="did not complete"):
         login(fake_browser_session, email="a@b.c", password="x", timeout=0.01)
 
@@ -335,9 +316,7 @@ def test_login_form_detection_uses_fixed_timeout(
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
         _make_response(_TOKEN_URL, 200, {}),
     ]
-
     login(fake_browser_session, email="a@b.c", password="x", timeout=2.0)
-
     page.wait_for_selector.assert_called_once_with("#email", timeout=5_000)
 
 
@@ -348,9 +327,7 @@ def test_login_short_circuits_when_saved_session_already_authenticates(
     this user; login() should return cleanly without filling or submitting anything."""
     page = fake_browser_session.goto.return_value
     page.wait_for_selector.side_effect = PlaywrightTimeoutError("no #email")
-
     login(fake_browser_session, email="a@b.c", password="x")
-
     page.fill.assert_not_called()
     page.click.assert_not_called()
     # Post-login navigation still runs so the saved state gets re-flushed.
@@ -363,247 +340,14 @@ def test_login_short_circuit_respects_post_login_path_disable(
     """post_login_path=None still applies on the short-circuit path."""
     page = fake_browser_session.goto.return_value
     page.wait_for_selector.side_effect = PlaywrightTimeoutError("no #email")
-
     login(
         fake_browser_session,
         email="a@b.c",
         password="x",
         post_login_path=None,
     )
-
     # Only the initial form-probe navigation; no settle.
     fake_browser_session.goto.assert_called_once_with(LOGIN_PATH, wait_until="load")
-
-
-# ---------- load_access_token ----------------------------------------------
-
-
-def test_load_access_token_missing_state_file_returns_none(config: Config) -> None:
-    assert not config.browser_state_path.exists()
-    assert load_access_token(config) is None
-
-
-def test_load_access_token_corrupt_state_file_returns_none(config: Config) -> None:
-    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
-    config.browser_state_path.write_text("{ this is not json")
-    assert load_access_token(config) is None
-
-
-def test_load_access_token_state_without_token_returns_none(config: Config) -> None:
-    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
-    config.browser_state_path.write_text(
-        '{"cookies": [], "origins": ['
-        '{"origin": "https://test.example", "localStorage": ['
-        '{"name": "irrelevant", "value": "x"}'
-        "]}]}",
-    )
-    assert load_access_token(config) is None
-
-
-def test_load_access_token_returns_value_when_present(config: Config) -> None:
-    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
-    config.browser_state_path.write_text(
-        '{"cookies": [], "origins": ['
-        '{"origin": "https://test.example", "localStorage": ['
-        '{"name": "accessToken", "value": "eyJhbGci.test.jwt"}'
-        "]}]}",
-    )
-    assert load_access_token(config) == "eyJhbGci.test.jwt"
-
-
-def test_load_access_token_ignores_other_origins(config: Config) -> None:
-    """An accessToken for a different origin must not match."""
-    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
-    config.browser_state_path.write_text(
-        '{"cookies": [], "origins": ['
-        '{"origin": "https://different.example", "localStorage": ['
-        '{"name": "accessToken", "value": "wrong-origin-token"}'
-        "]}]}",
-    )
-    assert load_access_token(config) is None
-
-
-# ---------- save_tokens ---------------------------------------------------
-
-
-def test_save_tokens_creates_state_file(config: Config) -> None:
-    assert not config.browser_state_path.exists()
-    save_tokens(config, access="new-access", refresh="new-refresh", roles="new-roles")
-    assert config.browser_state_path.exists()
-    state = json.loads(config.browser_state_path.read_text())
-    origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
-    by_name = {kv["name"]: kv["value"] for kv in origin["localStorage"]}
-    assert by_name["accessToken"] == "new-access"
-    assert by_name["refreshToken"] == "new-refresh"
-    assert by_name["rolesToken"] == "new-roles"
-
-
-def test_save_tokens_updates_existing_state(config: Config) -> None:
-    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
-    initial = {
-        "cookies": [{"name": "preserve", "value": "me", "domain": "test.example"}],
-        "origins": [
-            {
-                "origin": config.base_url,
-                "localStorage": [
-                    {"name": "accessToken", "value": "old-access"},
-                    {"name": "refreshToken", "value": "old-refresh"},
-                    {"name": "unrelated", "value": "kept"},
-                ],
-            },
-        ],
-    }
-    config.browser_state_path.write_text(json.dumps(initial))
-
-    save_tokens(config, access="ACCESS-NEW", refresh="REFRESH-NEW")
-
-    state = json.loads(config.browser_state_path.read_text())
-    # Cookies preserved
-    assert state["cookies"][0]["name"] == "preserve"
-    # localStorage values updated, unrelated entries kept
-    origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
-    by_name = {kv["name"]: kv["value"] for kv in origin["localStorage"]}
-    assert by_name["accessToken"] == "ACCESS-NEW"
-    assert by_name["refreshToken"] == "REFRESH-NEW"
-    assert by_name["unrelated"] == "kept"
-
-
-def test_save_tokens_recovers_from_corrupt_state(config: Config) -> None:
-    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
-    config.browser_state_path.write_text("{ corrupt")
-    save_tokens(config, access="A", refresh="R")
-    state = json.loads(config.browser_state_path.read_text())
-    origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
-    by_name = {kv["name"]: kv["value"] for kv in origin["localStorage"]}
-    assert by_name == {"accessToken": "A", "refreshToken": "R"}
-
-
-# ---------- refresh_access_token -----------------------------------------
-
-
-@responses.activate
-def test_refresh_access_token_happy_path() -> None:
-    responses.add(
-        responses.POST,
-        REFRESH_URL,
-        json={"access": "A2", "refresh": "R2", "roles": "Rol2"},
-        status=200,
-    )
-    result = refresh_access_token("OLD-REFRESH", user_agent="ua/1.0")
-    assert result == {"access": "A2", "refresh": "R2", "roles": "Rol2"}
-    # Bearer must be the *refresh* token, not access
-    sent = responses.calls[0].request
-    assert sent.headers["Authorization"] == "Bearer OLD-REFRESH"
-    assert sent.headers["Content-Type"] == "application/json"
-    assert sent.headers["User-Agent"] == "ua/1.0"
-    assert sent.body in (b"{}", "{}")
-
-
-@responses.activate
-def test_refresh_access_token_401_raises_authentication_error() -> None:
-    responses.add(responses.POST, REFRESH_URL, json={"errors": [{}]}, status=401)
-    with pytest.raises(AuthenticationError, match="Refresh token rejected"):
-        refresh_access_token("DEAD-REFRESH")
-
-
-@responses.activate
-def test_refresh_access_token_other_failure_raises_gamesheet_error() -> None:
-    responses.add(responses.POST, REFRESH_URL, status=500, body="boom")
-    with pytest.raises(GameSheetError, match="HTTP 500"):
-        refresh_access_token("R")
-
-
-# ---------- AuthenticatedSession -----------------------------------------
-
-
-@responses.activate
-def test_authenticated_session_passthrough_when_200(config: Config) -> None:
-    responses.add(responses.GET, "https://test.example/x", json={"ok": True}, status=200)
-    with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
-        resp = session.get("/x")
-    assert resp.status_code == 200
-    sent = responses.calls[0].request
-    assert sent.headers["Authorization"] == "Bearer A1"
-
-
-@responses.activate
-def test_authenticated_session_refreshes_and_retries_on_401(config: Config) -> None:
-    # 1st: 401, refresh, 2nd: 200 with the new bearer.
-    responses.add(responses.GET, "https://test.example/x", json={"err": 1}, status=401)
-    responses.add(
-        responses.POST,
-        REFRESH_URL,
-        json={"access": "A2", "refresh": "R2", "roles": "Rol2"},
-        status=200,
-    )
-    responses.add(responses.GET, "https://test.example/x", json={"ok": True}, status=200)
-
-    persisted: list[dict[str, str]] = []
-    with AuthenticatedSession(
-        config,
-        access_token="A1",
-        refresh_token="R1",
-        on_refresh=persisted.append,
-    ) as session:
-        resp = session.get("/x")
-    assert resp.status_code == 200
-    assert resp.json() == {"ok": True}
-    assert persisted == [{"access": "A2", "refresh": "R2", "roles": "Rol2"}]
-
-    # Three calls: original GET, refresh, retried GET.
-    assert len(responses.calls) == 3
-    assert responses.calls[0].request.headers["Authorization"] == "Bearer A1"
-    assert responses.calls[1].request.url == REFRESH_URL
-    assert responses.calls[1].request.headers["Authorization"] == "Bearer R1"
-    assert responses.calls[2].request.headers["Authorization"] == "Bearer A2"
-
-
-@responses.activate
-def test_authenticated_session_propagates_401_when_refresh_fails(
-    config: Config,
-) -> None:
-    responses.add(responses.GET, "https://test.example/x", json={"err": 1}, status=401)
-    responses.add(responses.POST, REFRESH_URL, status=401, json={"errors": [{}]})
-
-    with AuthenticatedSession(config, access_token="A1", refresh_token="DEAD") as session:
-        resp = session.get("/x")
-    # Original 401 surfaces to the caller; no further retries.
-    assert resp.status_code == 401
-    assert len(responses.calls) == 2
-
-
-@responses.activate
-def test_authenticated_session_does_not_retry_when_refresh_returns_500(
-    config: Config,
-) -> None:
-    responses.add(responses.GET, "https://test.example/x", status=401)
-    responses.add(responses.POST, REFRESH_URL, status=500, body="boom")
-
-    with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
-        resp = session.get("/x")
-    assert resp.status_code == 401  # original surfaces
-    assert len(responses.calls) == 2  # no retry of /x
-
-
-@responses.activate
-def test_authenticated_session_post_also_triggers_refresh(config: Config) -> None:
-    """The retry applies to writes too -- POST is not skipped here, since the failure was 401 (auth), not a
-    network/server hiccup."""
-    responses.add(responses.POST, "https://test.example/mutate", status=401)
-    responses.add(
-        responses.POST,
-        REFRESH_URL,
-        json={"access": "A2", "refresh": "R2", "roles": "Rol2"},
-        status=200,
-    )
-    responses.add(responses.POST, "https://test.example/mutate", status=201)
-
-    with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
-        resp = session.post("/mutate")
-    assert resp.status_code == 201
-
-
-# ---------- token response capture (line 131) -------------------------------
 
 
 def test_login_captures_token_response_separately(
@@ -616,9 +360,7 @@ def test_login_captures_token_response_separately(
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
         _make_response(_TOKEN_URL, 200, {}),
     ]
-
     login(fake_browser_session, email="a@b.c", password="x")
-
     # Should succeed when both responses arrive
     assert fake_browser_session.goto.call_count == 2
 
@@ -634,9 +376,7 @@ def test_login_ignores_duplicate_token_responses(
         _make_response(_TOKEN_URL, 200, {}),
         _make_response(_TOKEN_URL, 200, {}),  # duplicate, should be ignored
     ]
-
     login(fake_browser_session, email="a@b.c", password="x")
-
     # Should still succeed - duplicates don't break anything
     assert fake_browser_session.goto.call_count == 2
 
@@ -652,10 +392,8 @@ def test_login_firebase_error_with_non_dict_error_field(
     page.staged_responses = [
         _make_response(_FIREBASE_URL, 403, {"error": "string-not-dict"}),
     ]
-
     with pytest.raises(AuthenticationError) as exc_info:
         login(fake_browser_session, email="a@b.c", password="x")
-
     assert "HTTP 403" in str(exc_info.value)
 
 
@@ -672,78 +410,12 @@ def test_login_handles_token_response_arriving_first(
         _make_response(_TOKEN_URL, 200, {}),
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
     ]
-
     login(fake_browser_session, email="a@b.c", password="x")
-
     # Should still succeed when both are present
     assert fake_browser_session.goto.call_count == 2
 
 
 # ---------- load_refresh_token (line 348) ------------------------------------
-
-
-def test_load_refresh_token_returns_value_when_present(config: Config) -> None:
-    # pylint: disable=import-outside-toplevel
-    from gamesheet_sdk.auth import load_refresh_token as _load_refresh_token
-
-    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
-    config.browser_state_path.write_text(
-        '{"cookies": [], "origins": ['
-        '{"origin": "https://test.example", "localStorage": ['
-        '{"name": "refreshToken", "value": "eyJhbGci.refresh.jwt"}'
-        "]}]}",
-    )
-    assert _load_refresh_token(config) == "eyJhbGci.refresh.jwt"
-
-
-# ---------- _origin_entry_for existing origin match (line 367) --------------
-
-
-def test_save_tokens_finds_existing_origin(config: Config) -> None:
-    """save_tokens should reuse an existing origin entry for the base_url."""
-    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
-    initial = {
-        "cookies": [],
-        "origins": [
-            {
-                "origin": config.base_url,
-                "localStorage": [{"name": "old", "value": "v"}],
-            },
-        ],
-    }
-    config.browser_state_path.write_text(json.dumps(initial))
-
-    save_tokens(config, access="A")
-
-    state = json.loads(config.browser_state_path.read_text())
-    # Should still be exactly one origin entry
-    assert len(state["origins"]) == 1
-    assert state["origins"][0]["origin"] == config.base_url
-
-
-# ---------- _build_token_updates with refresh and roles (lines 382, 384) ----
-
-
-def test_save_tokens_omits_refresh_when_not_provided(config: Config) -> None:
-    """save_tokens with only access token should not write refreshToken."""
-    save_tokens(config, access="ACCESS-ONLY")
-    state = json.loads(config.browser_state_path.read_text())
-    origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
-    by_name = {kv["name"]: kv["value"] for kv in origin["localStorage"]}
-    assert "accessToken" in by_name
-    assert "refreshToken" not in by_name
-    assert "rolesToken" not in by_name
-
-
-def test_save_tokens_includes_roles_when_provided(config: Config) -> None:
-    """save_tokens with roles should write rolesToken."""
-    save_tokens(config, access="A", roles="ROLES")
-    state = json.loads(config.browser_state_path.read_text())
-    origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
-    by_name = {kv["name"]: kv["value"] for kv in origin["localStorage"]}
-    assert by_name["rolesToken"] == "ROLES"
-
-
 # ---------- firebase error message edge cases (line 157->159) ---------------
 
 
@@ -756,47 +428,9 @@ def test_firebase_error_message_with_non_string_message(
     page.staged_responses = [
         _make_response(_FIREBASE_URL, 403, {"error": {"message": 12345}}),
     ]
-
     with pytest.raises(AuthenticationError) as exc_info:
         login(fake_browser_session, email="a@b.c", password="x")
-
     assert "HTTP 403" in str(exc_info.value)
 
 
 # ---------- _origin_entry_for with multiple origins (line 367->366) ---------
-
-
-def test_save_tokens_with_multiple_origins_finds_correct_one(config: Config) -> None:
-    """save_tokens should find the correct origin when multiple exist."""
-    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
-    initial = {
-        "cookies": [],
-        "origins": [
-            {
-                "origin": "https://other1.example",
-                "localStorage": [{"name": "other", "value": "v1"}],
-            },
-            {
-                "origin": "https://other2.example",
-                "localStorage": [{"name": "other", "value": "v2"}],
-            },
-            {
-                "origin": config.base_url,
-                "localStorage": [{"name": "old", "value": "v3"}],
-            },
-        ],
-    }
-    config.browser_state_path.write_text(json.dumps(initial))
-
-    save_tokens(config, access="NEW")
-
-    state = json.loads(config.browser_state_path.read_text())
-    # Should still have all three origins
-    assert len(state["origins"]) == 3
-    # The correct origin should be updated
-    target_origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
-    by_name = {kv["name"]: kv["value"] for kv in target_origin["localStorage"]}
-    assert by_name["accessToken"] == "NEW"
-    # Other origins should be unchanged
-    other1 = next(o for o in state["origins"] if o["origin"] == "https://other1.example")
-    assert other1["localStorage"][0]["value"] == "v1"

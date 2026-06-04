@@ -1,7 +1,6 @@
 """Tests for :mod:`gamesheet_sdk.associations`."""
 
 # pylint: disable=redefined-outer-name,protected-access
-
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -30,6 +29,7 @@ def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
 
 @responses.activate
 def test_list_associations_parses_jsonapi_response(config: Config) -> None:
+
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -62,7 +62,6 @@ def test_list_associations_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_associations(session)
-
     assert [a.id for a in result] == ["11", "40"]
     assert result[0].title == "Hockey Time Productions"
     assert result[0].logo == ""
@@ -73,11 +72,11 @@ def test_list_associations_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_associations_sends_bearer_and_jsonapi_accept(config: Config) -> None:
+
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_associations(session)
-
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
@@ -86,6 +85,7 @@ def test_list_associations_sends_bearer_and_jsonapi_accept(config: Config) -> No
 
 @responses.activate
 def test_list_associations_empty_data_returns_empty_list(config: Config) -> None:
+
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -94,6 +94,7 @@ def test_list_associations_empty_data_returns_empty_list(config: Config) -> None
 
 @responses.activate
 def test_list_associations_401_raises_authentication_error(config: Config) -> None:
+
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -118,6 +119,7 @@ def test_list_associations_other_failure_raises_gamesheet_error(
 
 
 def test_association_model_ignores_unknown_attributes() -> None:
+
     a = Association(
         id="11",
         title="X",

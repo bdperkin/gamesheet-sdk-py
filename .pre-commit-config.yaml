@@ -277,7 +277,7 @@ repos:
       - id: flake8 # flake8
         additional_dependencies:
           - flake8-pyproject
-          - gamesheet-sdk-py[flake8,flake8-plugins]
+          - gamesheet-sdk-py[flake8,flake8-plugins,pylint]
 
   - repo: https://github.com/dosisod/refurb
     rev: v2.3.1
@@ -290,6 +290,7 @@ repos:
       - id: pylint # pylint
         additional_dependencies:
           - gamesheet-sdk-py[pylint,pytest]
+          - pylint-per-file-ignores
 
   - repo: https://github.com/facebook/pyrefly-pre-commit
     rev: 1.0.0
