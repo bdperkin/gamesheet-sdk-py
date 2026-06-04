@@ -151,6 +151,10 @@ gamesheet-sdk-py seasons list 1148580 --format json     # also: `seasons ls 1148
 # Get detailed information about a specific season (replace 15020 with your season ID)
 gamesheet-sdk-py season get 15020 --format json          # also: `season show 15020` or `season view 15020`
 gamesheet-sdk-py season get 15020 --fields id,title,sport,start_date,end_date  # Filter to specific fields
+
+# Get iPad / Scoring Access Keys for a specific season (replace 15020 with your season ID)
+gamesheet-sdk-py ipad-keys get 15020 --format json       # also: `ipad-keys show 15020` or `ipad-keys view 15020`
+gamesheet-sdk-py ipad-keys get 15020 --columns id,value,description  # Filter to specific columns
 ```
 
 Or from Python:
@@ -161,6 +165,7 @@ from gamesheet_sdk import (
     Config,
     get_season,
     list_associations,
+    list_ipad_keys,
     list_leagues,
     list_seasons,
     load_access_token,
@@ -195,6 +200,11 @@ with AuthenticatedSession(
                 print(
                     f"      Sport: {season_detail.sport}, Dates: {season_detail.start_date} to {season_detail.end_date}"
                 )
+
+                # Get iPad / Scoring Access Keys for the season
+                ipad_keys = list_ipad_keys(session, season.id)
+                for key in ipad_keys:
+                    print(f"        iPad Key: {key.value} - {key.description}")
 ```
 
 ## Configuration

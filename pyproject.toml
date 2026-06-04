@@ -554,6 +554,7 @@ ignore_decorators = [
   "@cli.command",
   "@confirm_destructive",
   "@group.command",
+  "@ipad_keys_group.command",
   "@leagues_group.command",
   "@pytest.fixture",
   "@season_group.command",
