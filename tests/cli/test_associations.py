@@ -1,6 +1,5 @@
 """Tests for associations command group."""
 
-# pylint: disable=redefined-outer-name,protected-access
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any

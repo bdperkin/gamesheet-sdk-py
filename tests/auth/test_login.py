@@ -1,6 +1,5 @@
 """Tests for login flow and credential handling."""
 
-# pylint: disable=redefined-outer-name,protected-access
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
@@ -309,8 +308,6 @@ def test_login_firebase_success_but_token_missing_times_out(
 def test_login_form_detection_uses_fixed_timeout(
     fake_browser_session: MagicMock,
 ) -> None:
-    """The probe for the login form uses a fixed short timeout (the user's `timeout=` parameter only governs
-    the auth-response wait loop)."""
     page = fake_browser_session.goto.return_value
     page.staged_responses = [
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
@@ -323,8 +320,6 @@ def test_login_form_detection_uses_fixed_timeout(
 def test_login_short_circuits_when_saved_session_already_authenticates(
     fake_browser_session: MagicMock,
 ) -> None:
-    """If the unauth landing page renders no login form, the saved storage state is already authenticating
-    this user; login() should return cleanly without filling or submitting anything."""
     page = fake_browser_session.goto.return_value
     page.wait_for_selector.side_effect = PlaywrightTimeoutError("no #email")
     login(fake_browser_session, email="a@b.c", password="x")

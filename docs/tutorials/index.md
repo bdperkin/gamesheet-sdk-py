@@ -4,8 +4,8 @@
 >
 > — [diataxis.fr/tutorials](https://diataxis.fr/tutorials/)
 
-Tutorials are **learning-oriented**. The reader is a beginner. They follow what the author tells them, step by step, and at the end they have built
-something they didn't know how to build before.
+Tutorials are **learning-oriented**. The reader is a beginner. They follow what the author tells them, step by step, and at the end they have built something
+they didn't know how to build before.
 
 ## Authoring guidance
 
@@ -21,4 +21,7 @@ When adding a tutorial to this section:
 :maxdepth: 1
 
 getting-started
+authentication-workflow
+using-cli-commands
+working-with-api
 ```

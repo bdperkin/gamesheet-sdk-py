@@ -2,6 +2,9 @@
   "Exclude": [
     "_build",
     "_autosummary",
+    "_templates",
+    "docs/README\\.md",
+    "docs/how-to/cut-a-release\\.md",
     "\\.tox",
     "\\.venv",
     "\\.mypy_cache",

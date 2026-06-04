@@ -6,6 +6,26 @@ view. This module talks to the GameSheet JSON:API at ``/api/associations/{associ
 with the lightweight :class:`gamesheet_sdk.Session` path -- no Playwright needed for read-only access once a
 bearer token has been obtained (typically by reading the SPA's ``accessToken`` from the saved browser storage
 state via :func:`gamesheet_sdk.auth.load_access_token`).
+
+Example
+-------
+Retrieve all leagues for a given association:
+
+.. code-block:: python
+
+    from gamesheet_sdk.auth import load_access_token
+    from gamesheet_sdk.leagues import list_leagues
+    from gamesheet_sdk.session import Session
+
+    # Create authenticated session
+    session = Session(base_url="https://play.gamesheet.app")
+    token = load_access_token()
+    session.set_bearer_token(token)
+
+    # List leagues for association "12345"
+    leagues = list_leagues(session, association_id="12345")
+    for league in leagues:
+        print(f"{league.title} (ID: {league.id})")
 """
 
 from __future__ import annotations
@@ -39,7 +59,17 @@ class League(BaseModel):
 
 
 def _parse(item: dict[str, Any], association_id: str) -> League:
-    """Flatten a JSON:API resource object into a :class:`League`."""
+    """Flatten a JSON:API resource object into a :class:`League`.
+
+    Extracts the ``id`` from the top-level resource object and merges ``attributes`` to produce a flat
+    pydantic model. Internal helper for :func:`list_leagues`.
+
+    :param item: A single JSON:API resource object from the ``data`` array, with top-level ``id`` and nested
+        ``attributes``.
+    :param association_id: The parent association identifier to attach to the resulting model.
+    :returns: A populated :class:`League` instance.
+    :raises KeyError: If ``item`` lacks an ``id`` field (malformed JSON:API response).
+    """
     attrs = item.get("attributes", {})
     return League(
         id=item["id"],
@@ -55,10 +85,10 @@ def list_leagues(session: Session, association_id: str) -> list[League]:
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
     :param association_id: The association identifier whose leagues to list.
-    :returns: A list of :class:`League`, in the order the server returned them. The list may be
-        empty if the association has no leagues.
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or
-        expired -- run ``gamesheet-sdk-py login`` to refresh).
+    :returns: A list of :class:`League`, in the order the server returned them. The list may be empty if the
+        association has no leagues.
+    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
+        run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response.
     """
     endpoint = _ENDPOINT_TEMPLATE.format(association_id=association_id)
@@ -73,6 +103,14 @@ def list_leagues(session: Session, association_id: str) -> list[League]:
             "`gamesheet-sdk-py login` to refresh and try again.",
         )
         raise AuthenticationError(_err_msg)
+    if response.status_code == 404:
+
+        _err_msg = (
+            f"Association '{association_id}' not found (HTTP 404). "
+            f"Make sure you're using a valid association ID. "
+            f"To see all associations you have access to, run: gamesheet-sdk-py associations list",
+        )
+        raise GameSheetError(_err_msg)
     if response.status_code >= 400:
 
         _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)

@@ -11,9 +11,9 @@ Unofficial Python SDK and command-line interface for the [GameSheet Inc.](https:
 
 ## The four documentation quadrants
 
-This documentation is organized following the [Diátaxis](https://diataxis.fr/) framework, which separates technical writing into four kinds with
-distinct audiences and purposes. Pick the entry point that matches _your current need_, not the topic you're interested in. (For background on why we
-split things this way, see {doc}`explanation/diataxis`.)
+This documentation is organized following the [Diátaxis](https://diataxis.fr/) framework, which separates technical writing into four kinds with distinct
+audiences and purposes. Pick the entry point that matches _your current need_, not the topic you're interested in. (For background on why we split things this
+way, see {doc}`explanation/diataxis`.)
 
 ::::{grid} 1 1 2 2 :gutter: 3
 

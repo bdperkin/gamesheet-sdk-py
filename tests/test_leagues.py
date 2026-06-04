@@ -1,6 +1,5 @@
 """Tests for :mod:`gamesheet_sdk.leagues`."""
 
-# pylint: disable=redefined-outer-name,protected-access
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -103,6 +102,20 @@ def test_list_leagues_401_raises_authentication_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
+            list_leagues(session, _ASSOCIATION_ID)
+
+
+@responses.activate
+def test_list_leagues_404_raises_helpful_gamesheet_error(
+    config: Config,
+) -> None:
+    responses.add(responses.GET, _ENDPOINT, status=404, body="Not found")
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        with pytest.raises(
+            GameSheetError,
+            match=r"Association '.*' not found.*valid association ID.*associations list",
+        ):
             list_leagues(session, _ASSOCIATION_ID)
 
 

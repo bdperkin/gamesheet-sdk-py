@@ -6,6 +6,29 @@ module talks to the GameSheet JSON:API at ``/api/associations`` directly with th
 :class:`gamesheet_sdk.Session` path -- no Playwright needed for read-only access once a bearer token has been
 obtained (typically by reading the SPA's ``accessToken`` from the saved browser storage state via
 :func:`gamesheet_sdk.auth.load_access_token`).
+
+Examples:
+    Retrieve all associations accessible by the authenticated user::
+
+        from gamesheet_sdk.auth import load_access_token
+        from gamesheet_sdk.session import Session
+        from gamesheet_sdk.associations import list_associations
+
+        # Load the saved access token from previous login
+        token = load_access_token()
+
+        # Create an authenticated session
+        session = Session(base_url="https://gamesheet.app")
+        session.set_bearer_token(token)
+
+        # Fetch all associations
+        associations = list_associations(session)
+
+        # Display results
+        for assoc in associations:
+            print(f"{assoc.title} (ID: {assoc.id})")
+            print(f"  Created: {assoc.created_at}")
+            print(f"  Logo: {assoc.logo or '(none)'}")
 """
 
 from __future__ import annotations
@@ -28,6 +51,13 @@ class Association(BaseModel):
     """A single association.
 
     Maps the ``data[*]`` items in the JSON:API response of ``GET /api/associations`` to a flat typed model.
+
+    Attributes:
+        id: Association identifier (string in JSON:API).
+        title: Display name of the association.
+        logo: Logo asset URL, possibly empty string.
+        created_at: When the association was created.
+        updated_at: Last time the association was updated.
     """
 
     id: str = Field(description="Association identifier (string in JSON:API).")  # noqa: A003
@@ -38,7 +68,11 @@ class Association(BaseModel):
 
 
 def _parse(item: dict[str, Any]) -> Association:
-    """Flatten a JSON:API resource object into an :class:`Association`."""
+    """Flatten a JSON:API resource object into an :class:`Association`.
+
+    :param item: A JSON:API resource object with ``id`` and ``attributes`` keys.
+    :returns: An :class:`Association` instance with flattened fields.
+    """
     return Association(id=item["id"], **item.get("attributes", {}))
 
 
@@ -46,12 +80,12 @@ def list_associations(session: Session) -> list[Association]:
     """Return every association the authenticated user can see.
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
-    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401. :param session: An
-    authenticated :class:`Session`. :returns: A list of :class:`Association`, in the order the server
-    returned them. The list may be empty if the user has access to no associations.
-
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired
-        -- run ``gamesheet-sdk-py login`` to refresh).
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :returns: A list of :class:`Association`, in the order the server returned them. The list may be empty if
+        the user has access to no associations.
+    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
+        run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response.
     """
     response = session.get(

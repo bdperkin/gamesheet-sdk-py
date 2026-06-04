@@ -1,6 +1,5 @@
 """Tests for shell completion command."""
 
-# pylint: disable=redefined-outer-name,protected-access
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

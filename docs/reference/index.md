@@ -4,12 +4,10 @@
 >
 > — [diataxis.fr/reference](https://diataxis.fr/reference/)
 
-Reference is **information-oriented**. It describes the SDK as it actually is — every module, class, function, and CLI option — so that users can look
-things up while doing their work. It does not teach, it does not motivate, and it does not solve problems. {doc}`Other quadrants <../index>` do those
-jobs.
+Reference is **information-oriented**. It describes the SDK as it actually is — every module, class, function, and CLI option — so that users can look things up
+while doing their work. It does not teach, it does not motivate, and it does not solve problems. {doc}`Other quadrants <../index>` do those jobs.
 
-Most of this section is generated from source by `sphinx.ext.autodoc`, `sphinx.ext.autosummary`, and `sphinx-argparse`, so it cannot drift from the
-shipped binary.
+Most of this section is generated from source by `sphinx.ext.autodoc`, `sphinx.ext.autosummary`, and `sphinx_click`, so it cannot drift from the shipped binary.
 
 ## Authoring guidance
 

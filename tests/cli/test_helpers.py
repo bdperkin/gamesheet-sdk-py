@@ -1,6 +1,5 @@
 """Tests for CLI helper functions and ResourceGroup internals."""
 
-# pylint: disable=redefined-outer-name,protected-access
 from __future__ import annotations
 
 import os

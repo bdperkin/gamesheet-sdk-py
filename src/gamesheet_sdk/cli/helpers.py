@@ -47,11 +47,18 @@ def build_authenticated_session(
 def run_action_or_exit(session: AuthenticatedSession, action: Any, *args: Any) -> Any:
     """Run an action function with error handling.
 
-    :param session: The authenticated session.
-    :param action: The action function to call.
-    :param args: Arguments to pass to the action.
-    :returns: The result of the action.
-    :raises click.exceptions.Exit: On authentication or API errors.
+    Wraps the action call in the session's context manager and catches :exc:`AuthenticationError` and
+    :exc:`GameSheetError`. On either exception, prints a user-friendly error message to stderr and exits with
+    code 1. The session context manager ensures proper cleanup (e.g., closing connections) regardless of
+    success or failure.
+
+    :param session: The authenticated session to use as a context manager.
+    :param action: A callable that takes ``session`` and ``*args`` and returns a result. Typically a domain
+        action function (e.g., ``list_associations``, ``list_leagues``).
+    :param args: Positional arguments passed to ``action`` after ``session``.
+    :returns: The result of ``action(session, *args)`` on success.
+    :raises click.exceptions.Exit: If ``action`` raises :exc:`AuthenticationError` or :exc:`GameSheetError`.
+        Exit code is 1 in both cases.
     """
     try:
         with session:

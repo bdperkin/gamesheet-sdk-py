@@ -5,7 +5,6 @@ end-to-end to verify ``_start`` / ``close`` plumbing. A separate ``@pytest.mark.
 file yet) will exercise the real engine once the first browser-driven feature lands.
 """
 
-# pylint: disable=redefined-outer-name,protected-access
 # - redefined-outer-name: pytest fixtures share names with the params they bind
 # - protected-access: tests legitimately inspect Session/BrowserSession internals
 from __future__ import annotations

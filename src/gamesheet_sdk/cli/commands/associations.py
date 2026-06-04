@@ -1,4 +1,29 @@
-"""Associations command group."""
+"""Associations command group.
+
+This module provides the CLI interface for managing GameSheet associations, which represent the
+top-level organizational unit in the GameSheet platform. An association corresponds to a league
+operator (hockey association, tournament series, district body, etc.).
+
+The command group provides sub-commands for listing associations accessible to the authenticated user.
+When invoked without a sub-command, it defaults to the ``list`` operation.
+
+Examples:
+    List all associations in simple table format::
+
+        $ gamesheet-sdk-py associations
+
+    List associations in JSON format::
+
+        $ gamesheet-sdk-py associations list --format json
+
+    List associations with selected columns only::
+
+        $ gamesheet-sdk-py associations list --columns id,title,created_at
+
+    Save associations to a file::
+
+        $ gamesheet-sdk-py associations list --format yaml --output associations.yaml
+"""
 
 from __future__ import annotations
 
@@ -72,8 +97,40 @@ def associations_list_command(
 ) -> None:
     """List all associations on your GameSheet account.
 
-    Requires a saved session from `gamesheet-sdk-py login` -- the bearer token is read out of the browser
+    Requires a saved session from ``gamesheet-sdk-py login`` -- the bearer token is read out of the browser
     storage state on disk and attached to the HTTP request. No browser is launched.
+
+    The command retrieves all associations accessible by the authenticated user and renders them in the
+    specified output format. By default, output is written to stdout in simple table format, but can be
+    redirected to a file and rendered in various data or human-readable formats.
+
+    :param ctx: Click context object containing the application :class:`~gamesheet_sdk.config.Config` in
+        ``ctx.obj``.
+    :param output_format: Output format name (json, yaml, csv, tsv, or any tabulate format like simple, grid,
+        etc.). Defaults to ``simple``.
+    :param output_path: Optional file path to write output. If ``None``, writes to stdout.
+    :param columns_spec: Optional comma-separated list of column names to include in output (e.g.,
+        ``"id,title,created_at"``). If ``None``, includes all columns returned by the API.
+    :returns: None. Writes formatted output to stdout or the specified file.
+    :raises click.exceptions.Exit: If no saved session exists (exit code 1), authentication fails, or the API
+        returns an error.
+
+    Examples:
+        List all associations in default format::
+
+            $ gamesheet-sdk-py associations list
+
+        List associations in JSON format::
+
+            $ gamesheet-sdk-py associations list --format json
+
+        List associations with only id and title columns::
+
+            $ gamesheet-sdk-py associations list --columns id,title
+
+        Save associations to a YAML file::
+
+            $ gamesheet-sdk-py associations list --format yaml --output assocs.yaml
     """
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)

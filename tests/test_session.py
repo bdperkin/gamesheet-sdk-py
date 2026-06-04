@@ -1,6 +1,5 @@
 """Tests for :mod:`gamesheet_sdk.session`."""
 
-# pylint: disable=redefined-outer-name  # pytest fixtures are accessed by name
 from __future__ import annotations
 
 import json

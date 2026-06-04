@@ -191,8 +191,16 @@ docs-pdf: _check-tox ## Build PDF docs via LaTeX (needs pdflatex + latexmk on PA
 	tox -e docs-pdf
 
 .PHONY: docs-lint
-docs-lint: _check-tox ## sphinx-lint over docs/
+docs-lint: _check-tox ## sphinx-lint over docs/ + API freshness check
 	tox -e docs-lint
+
+.PHONY: docs-api
+docs-api: ## Generate API documentation using sphinx-apidoc
+	python docs/generate_api_docs.py
+
+.PHONY: docs-check
+docs-check: ## Check if API docs are up-to-date with source
+	python docs/check_api_freshness.py
 
 .PHONY: docs-linkcheck
 docs-linkcheck: _check-tox ## Check external links in docs

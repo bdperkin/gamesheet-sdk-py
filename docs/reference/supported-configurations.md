@@ -1,7 +1,7 @@
 # Supported configurations
 
-This page enumerates the Python versions, operating systems, browsers, and dependencies that `gamesheet-sdk-py` officially supports. The authoritative
-source for everything below is `pyproject.toml`; this page mirrors it for lookup convenience.
+This page enumerates the Python versions, operating systems, browsers, and dependencies that `gamesheet-sdk-py` officially supports. The authoritative source
+for everything below is `pyproject.toml`; this page mirrors it for lookup convenience.
 
 ## Python versions
 
@@ -12,10 +12,8 @@ source for everything below is `pyproject.toml`; this page mirrors it for lookup
 | 3.13     | Supported     |
 | 3.14     | Supported     |
 | \<= 3.10 | Not supported |
-| >= 3.15  | Not supported |
 
-The constraint is enforced in `pyproject.toml` as `requires-python = ">=3.11,<3.15"`. Installing on an unsupported interpreter will be rejected by
-pip.
+The constraint is enforced in `pyproject.toml` as `requires-python = ">=3.11"`. Installing on an unsupported interpreter will be rejected by pip.
 
 ## Operating systems
 
@@ -46,38 +44,68 @@ For caching the install across CI runs, see {doc}`../how-to/install-in-github-ac
 
 These are required and installed automatically by `pip install gamesheet-sdk-py`:
 
-| Package             | Floor    | Purpose                                              |
-| ------------------- | -------- | ---------------------------------------------------- |
-| `requests`          | `>=2.32` | HTTP client for the lightweight code path.           |
-| `playwright`        | `>=1.45` | Headless-browser automation for the heavy code path. |
-| `pydantic`          | `>=2.7`  | Data validation for SDK models.                      |
-| `pydantic-settings` | `>=2.0`  | Env-driven resolution of `Config`.                   |
-| `click`             | `>=8.1`  | Subcommand framework for the `gamesheet-sdk-py` CLI. |
-| `colorlog`          | `>=6.8`  | ANSI-coloured log levels in the CLI (TTY-only).      |
-| `tabulate`          | `>=0.9`  | Human-readable table formats for CLI output.         |
-| `rich`              | `>=13`   | Syntax-highlighted JSON / YAML output to a TTY.      |
-| `PyYAML`            | `>=6.0`  | YAML output for CLI workflows.                       |
+| Package             | Purpose                                              |
+| ------------------- | ---------------------------------------------------- |
+| `click`             | Subcommand framework for the `gamesheet-sdk-py` CLI. |
+| `colorlog`          | ANSI-coloured log levels in the CLI (TTY-only).      |
+| `playwright`        | Headless-browser automation for the heavy code path. |
+| `pydantic`          | Data validation for SDK models.                      |
+| `pydantic-settings` | Env-driven resolution of `Config`.                   |
+| `pyyaml`            | YAML output for CLI workflows.                       |
+| `requests`          | HTTP client for the lightweight code path.           |
+| `rich`              | Syntax-highlighted JSON / YAML output to a TTY.      |
+| `tabulate`          | Human-readable table formats for CLI output.         |
+| `urllib3`           | HTTP connection pooling and request retries.         |
 
 If you change `[project.dependencies]` in `pyproject.toml`, update this table in the same commit.
 
 ## Optional dependency groups
 
-The package declares two extras via `[project.optional-dependencies]`:
+The package declares many extras via `[project.optional-dependencies]`. The two most important are:
 
-- **`dev`** — everything used to develop, test, lint, and release the package: `pytest`, `pytest-cov`, `black`, `isort`, `flake8`, `flake8-pyproject`,
-  `pre-commit`, `mypy`, `types-requests`, `pyupgrade`, `bandit[toml]`, `codespell`, `mdformat`, `mdformat-gfm`, `yamllint`, `validate-pyproject`,
-  `editorconfig-checker`, `tox`, `build`.
-- **`docs`** — Sphinx and its plugins: `sphinx`, `furo`, `myst-parser[linkify]`, `sphinx-copybutton`, `sphinx-design`, `sphinx-argparse`,
-  `sphinx-lint`, `sphinx-autobuild`.
+- **`dev`** — minimal development setup: `pre-commit`, `tox-workdir`.
+- **`docs`** — Sphinx and its plugins: `sphinx`, `furo`, `myst-parser[linkify]`, `sphinx-copybutton`, `sphinx-design`, `sphinx-click`, `sphinx-lint`,
+  `sphinx-autobuild`.
+- **`all`** — includes every tool extra declared in the project (pytest, mypy, pylint, flake8, bandit, formatters, linters, type checkers, etc.). This is the
+  one-line install for full local development capability.
 
-Install combinations:
+### Core extras
 
-| Command                        | What it gets you             |
-| ------------------------------ | ---------------------------- |
-| `pip install gamesheet-sdk-py` | Runtime deps only.           |
-| `pip install -e ".[dev]"`      | Runtime + development tools. |
-| `pip install -e ".[docs]"`     | Runtime + Sphinx toolchain.  |
-| `pip install -e ".[dev,docs]"` | Everything.                  |
+| Extra        | Contents                                                                                                       |
+| ------------ | -------------------------------------------------------------------------------------------------------------- |
+| `dev`        | `pre-commit`, `tox-workdir`                                                                                    |
+| `docs`       | `sphinx`, `furo`, `myst-parser[linkify]`, `sphinx-copybutton`, `sphinx-design`, `sphinx-click`, `sphinx-lint`, |
+|              | `sphinx-autobuild`                                                                                             |
+| `pytest`     | `pytest`, `pytest-cov`, `pytest-playwright`, `pytest-recording`, `responses`                                   |
+| `type-stubs` | `types-pyyaml`, `types-requests`, `types-tabulate`                                                             |
+| `mypy`       | `mypy`, `gamesheet-sdk-py[pytest,type-stubs]`                                                                  |
+| `pyright`    | `pyright`, `gamesheet-sdk-py[pytest]`                                                                          |
+| `pylint`     | `gamesheet-sdk-py[pytest]`, `pylint-per-file-ignores`                                                          |
+| `flake8`     | `flake8-pyproject`, `gamesheet-sdk-py[flake8-plugins,pylint]`                                                  |
+| `all`        | Includes every extra listed in this table plus all individual tool extras                                      |
+
+### Individual tool extras
+
+Each linter, formatter, type checker, and quality tool is isolated to its own extra. Examples include:
+
+- **Formatters**: `black`, `isort`, `autopep8`, `pyupgrade`, `autoflake`, `ssort`, `add-trailing-comma`, `absolufy-imports`
+- **Linters**: `bandit`, `refurb`, `pyrefly`, `blocklint`, `vulture`, `deptry`, `unimport`
+- **Doc tools**: `codespell`, `blacken-docs`, `docformatter`, `interrogate`, `pydocstyle`, `sphinx-lint`, `pymarkdown`, `mdformat`
+- **Config file tools**: `yamllint`, `tox-ini-fmt`, `pyproject-fmt`, `validate-pyproject`, `editorconfig-checker`, `pyroma`
+- **Metrics**: `radon`
+
+See `[project.optional-dependencies]` in `pyproject.toml` for the complete list.
+
+### Install combinations
+
+| Command                            | What it gets you                                   |
+| ---------------------------------- | -------------------------------------------------- |
+| `pip install gamesheet-sdk-py`     | Runtime deps only.                                 |
+| `pip install -e ".[dev]"`          | Runtime + pre-commit hooks + tox workdir support.  |
+| `pip install -e ".[docs]"`         | Runtime + Sphinx toolchain.                        |
+| `pip install -e ".[dev,pytest]"`   | Runtime + dev tools + testing suite.               |
+| `pip install -e ".[all]"`          | Everything (all tools, all extras).                |
+| `pip install -e ".[dev,docs,all]"` | Equivalent to `[all]` (all is already exhaustive). |
 
 ## Distribution
 
@@ -89,13 +117,12 @@ Install combinations:
 
 ## How the package version is derived
 
-The version is **not** written in `pyproject.toml`. It is derived at build time by [hatch-vcs](https://github.com/ofek/hatch-vcs) from the most recent
-matching git tag (default tag pattern, e.g. `v1.2.3`).
+The version is **not** written in `pyproject.toml`. It is derived at build time by [hatch-vcs](https://github.com/ofek/hatch-vcs) from the most recent matching
+git tag (default tag pattern, e.g. `v1.2.3`).
 
 - At a tagged commit: version is exactly the tag (e.g. `v0.0.1` → `0.0.1`).
-- After a tag, with extra commits: version becomes a `guess-next-dev` form like `0.0.2.dev3+gabcdef0` (next-patch dev, plus commit count and short
-  hash).
+- After a tag, with extra commits: version becomes a `guess-next-dev` form like `0.0.2.dev3+gabcdef0` (next-patch dev, plus commit count and short hash).
 - With uncommitted changes in the working tree: the build appends a `.dXXXXXXXX` "dirty" date suffix.
 
-The generated `src/gamesheet_sdk/_version.py` carries the resolved version into the installed package; `gamesheet_sdk.__version__` reads from it. The
-file is written by hatch-vcs's build hook and is gitignored.
+The generated `src/gamesheet_sdk/_version.py` carries the resolved version into the installed package; `gamesheet_sdk.__version__` reads from it. The file is
+written by hatch-vcs's build hook and is gitignored.

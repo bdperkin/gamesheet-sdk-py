@@ -1,4 +1,28 @@
-"""Main CLI entry point and root command group."""
+"""Main CLI entry point and root command group.
+
+This module provides the top-level ``gamesheet-sdk-py`` command-line interface.
+The :func:`cli` function is the root click group that all resource-based subcommands
+attach to, and :func:`main` is the entry-point wrapper that returns an integer exit
+code for the package's console script.
+
+Examples
+--------
+Basic usage (show help)::
+
+    $ gamesheet-sdk-py --help
+
+Login to GameSheet::
+
+    $ gamesheet-sdk-py login
+
+List associations with verbose logging::
+
+    $ gamesheet-sdk-py -v associations list
+
+Show browser window during headless operations::
+
+    $ gamesheet-sdk-py --no-headless login
+"""
 
 from __future__ import annotations
 
@@ -43,7 +67,7 @@ from gamesheet_sdk.config import Config
     help="Increase logging verbosity (-v = INFO, -vv = DEBUG).",
 )
 @click.pass_context
-def cli(
+def cli(  # noqa: DOC105
     ctx: click.Context,
     base_url: str | None,
     *,
@@ -52,7 +76,41 @@ def cli(
 ) -> None:
     """Unofficial SDK for the GameSheet Inc.
 
-    platform. Automates the WebUI via headless browser or direct HTTP where a public API is absent.
+    platform.
+        Root command group for the ``gamesheet-sdk-py`` CLI. Automates the GameSheet
+        WebUI via headless browser or direct HTTP where a public API is absent.
+
+        This callback constructs a :class:`~gamesheet_sdk.config.Config` instance
+        from the provided options and environment variables, then stores it in
+        ``ctx.obj`` for subcommands to access via ``@click.pass_context``.
+
+        If invoked without a subcommand, displays help output.
+
+        :param ctx: Click context object.
+        :type ctx: click.Context
+        :param base_url: Optional GameSheet base URL override. If not provided,
+            defaults to the value from ``GAMESHEET_BASE_URL`` environment variable
+            or ``https://gamesheet.app``.
+        :type base_url: str | None
+        :param no_headless: When True, displays the browser window during Playwright
+            flows instead of running headless. Useful for debugging.
+        :type no_headless: bool
+        :param verbose: Logging verbosity level (0=WARNING, 1=INFO, 2+=DEBUG).
+        :type verbose: int
+
+        Examples
+        --------
+        Show help::
+
+            $ gamesheet-sdk-py
+
+        Use a custom base URL::
+
+            $ gamesheet-sdk-py --base-url https://custom.gamesheet.app associations list
+
+        Enable debug logging::
+
+            $ gamesheet-sdk-py -vv login
     """
     _configure_logging(verbose)
     overrides: dict[str, Any] = {}
@@ -80,11 +138,22 @@ cli.add_command(ipad_keys_group)
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Entry-point wrapper.
+    """Entry-point wrapper for the gamesheet-sdk-py console script.
 
-    Returns an int exit code. Calls into the click ``cli`` group with ``standalone_mode=False`` so click's
-    control-flow exceptions are converted to integer returns rather than ``sys.exit()`` calls, preserving the
-    original ``main(argv) -> int`` contract.
+    Invokes the :func:`cli` click group with ``standalone_mode=False`` so that
+    click's control-flow exceptions:
+        * :exc:`click.exceptions.Exit`
+        * :exc:`click.exceptions.UsageError`
+        * :exc:`click.exceptions.Abort`
+    are converted to integer exit codes rather than triggering ``sys.exit()``
+    calls.  This preserves the ``main(argv) -> int`` contract expected by test
+    harnesses and allows the caller to control process exit.
+
+    :param argv: Optional command-line arguments to parse. If ``None``, defaults to ``sys.argv[1:]`` (click's
+        standard behavior).
+    :type argv: list[str] | None
+    :returns: Exit code. 0 indicates success, non-zero indicates failure.
+    :rtype: int
     """
     try:
         cli.main(args=argv, prog_name="gamesheet-sdk-py", standalone_mode=False)

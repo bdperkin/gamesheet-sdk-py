@@ -1,6 +1,5 @@
 """Tests for season detail command."""
 
-# pylint: disable=redefined-outer-name,protected-access
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -47,7 +46,7 @@ def test_season_get_alias_show_works(runner: CliRunner) -> None:
             created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
             updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
         )
-        result = runner.invoke(cli, ["season", "show", "15020"])
+        result = runner.invoke(cli, ["season", "show", "--season-id", "15020"])
         assert result.exit_code == 0
         mock_get.assert_called_once()
 
@@ -75,7 +74,7 @@ def test_season_get_alias_view_works(runner: CliRunner) -> None:
             created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
             updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
         )
-        result = runner.invoke(cli, ["season", "view", "15020"])
+        result = runner.invoke(cli, ["season", "view", "--season-id", "15020"])
         assert result.exit_code == 0
         mock_get.assert_called_once()
 
@@ -92,7 +91,7 @@ def test_season_missing_season_id_shows_error(runner: CliRunner) -> None:
     """Calling 'season get' without a season ID should show an error."""
     result = runner.invoke(cli, ["season", "get"])
     assert result.exit_code == 2  # Usage error
-    assert "SEASON_ID" in result.output or "Missing argument" in result.output
+    assert "season-id" in result.output.lower() or "missing option" in result.output.lower()
 
 
 def test_season_get_json_output(runner: CliRunner) -> None:
@@ -118,7 +117,7 @@ def test_season_get_json_output(runner: CliRunner) -> None:
             created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
             updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
         )
-        result = runner.invoke(cli, ["season", "get", "15020", "--format", "json"])
+        result = runner.invoke(cli, ["season", "get", "--season-id", "15020", "--format", "json"])
         assert result.exit_code == 0
         assert '"id": "15020"' in result.output
         assert '"title": "Test Season 2026"' in result.output
@@ -148,7 +147,7 @@ def test_season_get_yaml_output(runner: CliRunner) -> None:
             created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
             updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
         )
-        result = runner.invoke(cli, ["season", "get", "15020", "--format", "yaml"])
+        result = runner.invoke(cli, ["season", "get", "--season-id", "15020", "--format", "yaml"])
         assert result.exit_code == 0
         assert "id:" in result.output or "id :" in result.output
         assert "Test Season" in result.output
@@ -177,7 +176,7 @@ def test_season_get_fields_filter(runner: CliRunner) -> None:
             created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
             updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
         )
-        result = runner.invoke(cli, ["season", "get", "15020", "--fields", "id,title,sport"])
+        result = runner.invoke(cli, ["season", "get", "--season-id", "15020", "--fields", "id,title,sport"])
         assert result.exit_code == 0
         assert "15020" in result.output
         assert "Test Season" in result.output
@@ -209,7 +208,7 @@ def test_season_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
         )
         result = runner.invoke(
             cli,
-            ["season", "get", "15020", "--format", "json", "--output", str(output_file)],
+            ["season", "get", "--season-id", "15020", "--format", "json", "--output", str(output_file)],
         )
         assert result.exit_code == 0
         assert output_file.exists()
@@ -240,7 +239,7 @@ def test_season_get_table_format(runner: CliRunner) -> None:
             created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
             updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
         )
-        result = runner.invoke(cli, ["season", "get", "15020", "--format", "simple"])
+        result = runner.invoke(cli, ["season", "get", "--season-id", "15020", "--format", "simple"])
         assert result.exit_code == 0
         # Should have field and value columns
         assert "field" in result.output.lower() or "15020" in result.output
@@ -270,7 +269,7 @@ def test_season_get_grid_format(runner: CliRunner) -> None:
             created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
             updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
         )
-        result = runner.invoke(cli, ["season", "get", "15020", "--format", "grid"])
+        result = runner.invoke(cli, ["season", "get", "--season-id", "15020", "--format", "grid"])
         assert result.exit_code == 0
         # Grid format should have borders
         assert "+" in result.output or "|" in result.output
@@ -282,6 +281,34 @@ def test_season_get_with_no_saved_tokens(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=None),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=None),
     ):
-        result = runner.invoke(cli, ["season", "get", "15020"])
+        result = runner.invoke(cli, ["season", "get", "--season-id", "15020"])
         assert result.exit_code == 1
         assert "No saved session" in result.output or "login" in result.output.lower()
+
+
+def test_season_get_with_env_var(runner: CliRunner) -> None:
+    """The season ID can be provided via GAMESHEET_SEASON_ID environment variable."""
+    with (
+        patch("gamesheet_sdk.cli.commands.season._get_season_action") as mock_get,
+        patch(
+            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            return_value="refresh-tok",
+        ),
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+    ):
+        mock_get.return_value = SeasonDetail(
+            id="15020",
+            association_id="38",
+            league_id="1148580",
+            title="Test Season",
+            external_id="uuid",
+            start_date="2026-01-01",
+            end_date="2026-12-31",
+            sport="hockey",
+            stats_year="2026",
+            created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+            updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+        )
+        result = runner.invoke(cli, ["season", "get"], env={"GAMESHEET_SEASON_ID": "15020"})
+        assert result.exit_code == 0
+        mock_get.assert_called_once()

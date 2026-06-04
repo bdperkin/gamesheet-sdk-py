@@ -32,7 +32,13 @@ def seasons_group() -> None:
 
 
 @seasons_group.command("list")
-@click.argument("league-id", type=str, metavar="LEAGUE_ID")
+@click.option(
+    "--league-id",
+    type=str,
+    envvar="GAMESHEET_LEAGUE_ID",
+    required=True,
+    help="League ID to list seasons for.",
+)
 @click.option(
     "--format",
     "-F",
@@ -72,8 +78,9 @@ def seasons_list_command(
 ) -> None:
     """List the seasons in the specified league.
 
-    Requires a saved session from `gamesheet-sdk-py login` -- the bearer token is read out of the browser
-    storage state on disk and attached to the HTTP request. No browser is launched.
+    The league ID can be provided via --league-id or the GAMESHEET_LEAGUE_ID environment variable. Requires a
+    saved session from `gamesheet-sdk-py login` -- the bearer token is read out of the browser storage state
+    on disk and attached to the HTTP request. No browser is launched.
     """
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)

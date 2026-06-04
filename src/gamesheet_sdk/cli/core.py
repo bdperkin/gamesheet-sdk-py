@@ -1,6 +1,34 @@
 """Core CLI framework components.
 
 Contains the ResourceGroup class, decorators, and helper functions used across all CLI commands.
+
+This module provides the foundational infrastructure for building resource-oriented CLI interfaces:
+
+- :class:`ResourceGroup`: A click.Group subclass with alias support and default sub-commands
+- :func:`confirm_destructive`: Decorator adding confirmation prompts to destructive operations
+- Logging configuration with color support
+- Column specification parsing for tabular output
+- Exit code resolution for click exceptions
+
+Example::
+
+    from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
+
+    # Create a resource group with aliases and a default command
+    @cli.group("users", cls=ResourceGroup, default="list", aliases={
+        "list": ("ls",),
+        "delete": ("rm", "remove"),
+    })
+    def users_group():
+        pass
+
+    # Add a destructive command with confirmation
+    @users_group.command("delete")
+    @click.argument("user_id")
+    @confirm_destructive("this user")
+    def delete_user(user_id):
+        # Implementation here
+        pass
 """
 
 from __future__ import annotations
@@ -82,13 +110,22 @@ class ResourceGroup(click.Group):
         return super().parse_args(ctx, args)
 
     def _command_row(self, name: str, cmd: click.Command) -> tuple[str, str]:
-        """Build the ``"list (ls)"`` label + short-help pair for one command."""
+        """Build the ``"list (ls)"`` label + short-help pair for one command.
+
+        :param name: Canonical command name.
+        :param cmd: The click Command object.
+        :returns: A tuple of (label, short_help) where label includes aliases in parentheses if any exist.
+        """
         alts = sorted(a for a, t in self._aliases.items() if t == name)
         label = f"{name} ({', '.join(alts)})" if alts else name
         return label, cmd.get_short_help_str(limit=80)
 
     def _visible_command_rows(self, ctx: click.Context) -> Iterable[tuple[str, str]]:
-        """Yield ``(label, short_help)`` for each non-hidden canonical command."""
+        """Yield ``(label, short_help)`` for each non-hidden canonical command.
+
+        :param ctx: The click context for resolving commands.
+        :returns: An iterable of (label, short_help) tuples for visible commands.
+        """
         for name in self.list_commands(ctx):
 
             cmd = self.get_command(ctx, name)
@@ -112,7 +149,14 @@ class ResourceGroup(click.Group):
         incomplete: str,
         seen: set[str],
     ) -> click.shell_completion.CompletionItem | None:
-        """Return a CompletionItem for ``alias`` if it should surface, else ``None``."""
+        """Return a CompletionItem for ``alias`` if it should surface, else ``None``.
+
+        :param alias: The alias name to check.
+        :param target: The canonical command name that the alias points to.
+        :param incomplete: The partial command string being completed.
+        :param seen: Set of already-seen completion values to avoid duplicates.
+        :returns: A CompletionItem for the alias if it's visible and matches, otherwise ``None``.
+        """
         if alias in seen or not alias.startswith(incomplete):
 
             return None
@@ -131,7 +175,12 @@ class ResourceGroup(click.Group):
         incomplete: str,
         seen: set[str],
     ) -> list[click.shell_completion.CompletionItem]:
-        """Build the alias-only completion items not already in ``seen``."""
+        """Build the alias-only completion items not already in ``seen``.
+
+        :param incomplete: The partial command string being completed.
+        :param seen: Set of already-seen completion values; mutated in-place to track new aliases.
+        :returns: List of CompletionItems for visible aliases matching the incomplete string.
+        """
         items: list[click.shell_completion.CompletionItem] = []
         for alias, target in self._aliases.items():
 
@@ -166,10 +215,26 @@ def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
 
     Decorated commands gain a ``--force`` flag. When not set, the user is prompted ``"Delete {target}?
     [y/N]"``. Answering anything other than ``y`` or ``yes`` aborts with ``Exit(1)``.
+
     :param target: The resource name shown in the prompt (e.g., ``"this association"``).
+    :returns: A decorator that wraps the command function with confirmation logic.
+
+    Example::
+
+        @cli.command("delete")
+        @click.argument("resource_id")
+        @confirm_destructive("this association")
+        def delete_association(resource_id: str):
+            # Deletion logic here
+            pass
     """
 
     def decorator(f: F) -> F:
+        """Actual decorator that adds the --force option and confirmation logic.
+
+        :param f: The command function to decorate.
+        :returns: The wrapped function with confirmation prompt and --force support.
+        """
 
         @click.option(
             "--force",
@@ -179,7 +244,14 @@ def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
         )
         @functools.wraps(f)
         def wrapper(*args: Any, force: bool = False, **kwargs: Any) -> Any:
+            """Execute the decorated function with optional confirmation.
 
+            :param args: Positional arguments passed to the original function.
+            :param force: If True, skip confirmation and proceed immediately.
+            :param kwargs: Keyword arguments passed to the original function.
+            :returns: The return value of the decorated function.
+            :raises click.exceptions.Exit: With code 1 if the user declines confirmation.
+            """
             if not force:
 
                 confirmed = click.confirm(f"Delete {target}?", default=False)
@@ -196,7 +268,13 @@ def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
 
 
 def _should_color(handler: logging.StreamHandler[Any]) -> bool:  # pragma: no cover
-    """Return True if the handler's stream supports color."""
+    """Return True if the handler's stream supports color.
+
+    Checks for the ``NO_COLOR`` environment variable and whether the stream is a TTY.
+
+    :param handler: The logging StreamHandler to check.
+    :returns: True if color output is supported and not disabled, False otherwise.
+    """
     if "NO_COLOR" in os.environ:
 
         return False
@@ -243,8 +321,19 @@ def _configure_logging(verbose: int) -> None:
 def parse_columns_spec(spec: str | None) -> list[str] | None:
     """Parse a comma-separated column specification.
 
-    :param spec: e.g., ``"id,title,created_at"`` or ``None``.
-    :returns: A list of column names, or ``None`` if ``spec`` is ``None``.
+    Whitespace around column names is stripped. Empty strings and whitespace-only columns are filtered out.
+
+    :param spec: A comma-separated string of column names (e.g., ``"id,title,created_at"``) or ``None``.
+    :returns: A list of column names, or ``None`` if ``spec`` is ``None`` or contains only whitespace.
+
+    Example::
+
+        >>> parse_columns_spec("id, name, created_at")
+        ['id', 'name', 'created_at']
+        >>> parse_columns_spec(None)
+        None
+        >>> parse_columns_spec("  ")
+        None
     """
     if spec is None:
 
@@ -259,7 +348,16 @@ def parse_columns_spec(spec: str | None) -> list[str] | None:
 
 
 def resolve_system_exit(exc: BaseException) -> int:  # pragma: no cover - edge case handling
-    """Mirror Python's :class:`SystemExit` code-to-int convention."""
+    """Mirror Python's :class:`SystemExit` code-to-int convention.
+
+    Extracts the exit code from a SystemExit exception following Python's standard behavior:
+    - ``None`` code → 0 (success)
+    - Integer code → the integer itself
+    - Any other code → 1 (failure)
+
+    :param exc: A BaseException, typically a SystemExit.
+    :returns: An integer exit code (0 for success, non-zero for failure).
+    """
     code = getattr(exc, "code", None)
     if code is None:
 
@@ -273,7 +371,18 @@ def resolve_system_exit(exc: BaseException) -> int:  # pragma: no cover - edge c
 
 
 def resolve_exit(exc: BaseException) -> int:  # pragma: no cover - exception handling
-    """Map a click/Python exit-style exception to its conventional exit code."""
+    """Map a click/Python exit-style exception to its conventional exit code.
+
+    Handles click-specific exceptions and delegates to :func:`resolve_system_exit` for standard Python exits:
+    - :class:`click.exceptions.Exit` → the exception's exit_code
+    - :class:`click.exceptions.UsageError` → 2 (after showing the error)
+    - :class:`click.exceptions.Abort` → 1 (after printing "Aborted.")
+    - Other exceptions → delegated to :func:`resolve_system_exit`
+
+    :param exc: The exception to resolve.
+    :returns: An integer exit code following Unix conventions (0 = success, 1 = general error, 2 = usage
+        error).
+    """
     if isinstance(exc, click.exceptions.Exit):
 
         return int(exc.exit_code)
