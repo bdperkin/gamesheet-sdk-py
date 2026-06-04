@@ -1,6 +1,5 @@
 """Tests for :mod:`gamesheet_sdk.output`."""
 
-# pylint: disable=redefined-outer-name,protected-access
 from __future__ import annotations
 
 import json

@@ -1,0 +1,20 @@
+{
+  "accepted_shebangs": [
+    "python"
+  ],
+  "input_style": "guess",
+  "output": {
+    "convert_epytext_markup": "false",
+    "first_line": true,
+    "max_line_length": 110,
+    "realign": true,
+    "remove_type_back_ticks": "true",
+    "replace_quotes": "\"\"\"",
+    "separate_keywords": false,
+    "standard_indent": "    ",
+    "tab_length": 4,
+    "use_optional": false,
+    "use_types": true
+  },
+  "output_style": "rest"
+}

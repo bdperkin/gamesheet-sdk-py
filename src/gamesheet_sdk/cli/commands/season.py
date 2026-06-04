@@ -32,7 +32,13 @@ def season_group() -> None:
 
 
 @season_group.command("get")
-@click.argument("season-id", type=str, metavar="SEASON_ID")
+@click.option(
+    "--season-id",
+    type=str,
+    envvar="GAMESHEET_SEASON_ID",
+    required=True,
+    help="Season ID to retrieve details for.",
+)
 @click.option(
     "--format",
     "-F",
@@ -72,10 +78,11 @@ def season_get_command(
 ) -> None:
     """Get detailed information about a specific season.
 
-    Requires a saved session from `gamesheet-sdk-py login` -- the bearer token is read out of the browser
-    storage state on disk and attached to the HTTP request. No browser is launched. The output displays season
-    metadata as key-value pairs, with each field on its own row. Complex nested fields (like settings,
-    flagging_criteria) are displayed as JSON.
+    The season ID can be provided via --season-id or the GAMESHEET_SEASON_ID environment variable. Requires a
+    saved session from `gamesheet-sdk-py login` -- the bearer token is read out of the browser storage state
+    on disk and attached to the HTTP request. No browser is launched. The output displays season metadata as
+    key-value pairs, with each field on its own row. Complex nested fields (like settings, flagging_criteria)
+    are displayed as JSON.
     """
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)

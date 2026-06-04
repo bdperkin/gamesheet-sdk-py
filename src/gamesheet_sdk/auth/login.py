@@ -30,7 +30,15 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def _resolve_email(cfg: Config, email: str | None) -> str:
-    """Fall through arg → GAMESHEET_USERNAME → Config.username."""
+    """Resolve the login email from explicit argument, environment variable, or config.
+
+    Falls through: explicit ``email`` argument → ``GAMESHEET_USERNAME`` env var → ``Config.username``.
+
+    :param cfg: Configuration object containing username from env/defaults.
+    :param email: Explicit email address, or None to fall back to config.
+    :returns: The resolved email address.
+    :raises AuthenticationError: If no email is available from any source.
+    """
     if email is None:
 
         email = cfg.username
@@ -59,7 +67,16 @@ def _resolve_password(cfg: Config, password: str | None) -> str:
 
 
 def _wait_for_login_form(page: Any, cfg: Config) -> bool:
-    """Return True if the form rendered, False if already authenticated."""
+    """Wait for the login form to appear, or detect an already-authenticated session.
+
+    Waits up to :data:`FORM_DETECTION_TIMEOUT_MS` for the ``#email`` input field. If the timeout fires, the
+    saved browser state at ``cfg.browser_state_path`` already authenticates this user, so no login form is
+    needed.
+
+    :param page: Playwright page object currently at the login URL.
+    :param cfg: Configuration object containing browser state path for logging.
+    :returns: True if the login form rendered (credentials are needed), False if already authenticated.
+    """
     try:
         page.wait_for_selector("#email", timeout=FORM_DETECTION_TIMEOUT_MS)
     except PlaywrightTimeoutError:
@@ -77,12 +94,25 @@ def _wait_for_login_form(page: Any, cfg: Config) -> bool:
 
 
 def _is_firebase_signin(url: str) -> bool:
+    """Check whether a URL is a Firebase Auth signInWithPassword endpoint.
 
+    :param url: The URL to test.
+    :returns: True if the URL matches Firebase Auth host and path constants, False otherwise.
+    """
     return FIREBASE_AUTH_HOST in url and FIREBASE_AUTH_PATH in url
 
 
 def _attach_response_capture(page: Any) -> dict[str, Response | None]:
-    """Attach a listener that captures the first Firebase and token responses."""
+    """Attach a Playwright response listener to capture Firebase and token exchange responses.
+
+    Registers a ``page.on("response", ...)`` handler that saves the first Firebase signInWithPassword response
+    and the first GameSheet token exchange response into a shared dict. The handler stays active for the life
+    of the page, but only the first match for each key is stored.
+
+    :param page: Playwright page object on which to register the response listener.
+    :returns: A dict with keys ``"firebase"`` and ``"token"``, both initially None. The registered handler
+        populates them as matching responses arrive.
+    """
     captured: dict[str, Response | None] = {"firebase": None, "token": None}  # noqa: S105 # nosec B105
 
     def on_response(response: Response) -> None:
@@ -98,7 +128,14 @@ def _attach_response_capture(page: Any) -> dict[str, Response | None]:
 
 
 def _submit_login_form(page: Any, email: str, password: str) -> None:
+    """Fill in the login form and submit it.
 
+    :param page: Playwright page object showing the login form.
+    :param email: Email address to enter into the ``#email`` input.
+    :param password: Password to enter into the ``#password`` input.
+    :returns: None. The form submission triggers background network calls captured by
+        :func:`_attach_response_capture`.
+    """
     page.fill("#email", email)
     page.fill("#password", password)
     page.click("button[type=submit]")
@@ -127,7 +164,13 @@ def _firebase_error_message(response: Response) -> str:
 
 
 def _raise_for_firebase_error(response: Response) -> None:
+    """Raise AuthenticationError if the Firebase Auth response indicates failure.
 
+    :param response: Playwright Response object from the Firebase signInWithPassword call.
+    :returns: None on success (HTTP 200).
+    :raises AuthenticationError: If the response status is not 200. The exception message includes the
+        Firebase error code extracted by :func:`_firebase_error_message`.
+    """
     if response.status != 200:
 
         _err_msg = f"Login rejected by Firebase: {_firebase_error_message(response)}"
@@ -135,7 +178,12 @@ def _raise_for_firebase_error(response: Response) -> None:
 
 
 def _raise_for_token_error(response: Response) -> None:
+    """Raise AuthenticationError if the GameSheet token exchange response indicates failure.
 
+    :param response: Playwright Response object from the /api/token exchange call.
+    :returns: None on success (HTTP 200).
+    :raises AuthenticationError: If the response status is not 200.
+    """
     if response.status != 200:
 
         _err_msg = f"GameSheet token exchange failed (HTTP {response.status})."
@@ -143,7 +191,16 @@ def _raise_for_token_error(response: Response) -> None:
 
 
 def _auth_round_trip_complete(captured: dict[str, Response | None], email: str) -> bool:
-    """Return True once both halves have landed successfully."""
+    """Check whether both Firebase Auth and token exchange have completed successfully.
+
+    :param captured: Dict populated by :func:`_attach_response_capture` containing ``"firebase"`` and
+        ``"token"`` response objects.
+    :param email: Email address being logged in, used for success logging.
+    :returns: True if both responses have arrived and both returned HTTP 200, False if either is still
+        pending.
+    :raises AuthenticationError: If either response arrived but returned a non-200 status (via
+        :func:`_raise_for_firebase_error` or :func:`_raise_for_token_error`).
+    """
     fb = captured["firebase"]
     if fb is None:
 
@@ -168,7 +225,21 @@ def _await_auth_outcome(
     email: str,
     timeout_s: float,
 ) -> None:
-    """Poll until both auth responses arrive; raise on failure or timeout."""
+    """Poll until both Firebase Auth and token exchange responses arrive, or timeout expires.
+
+    Checks :func:`_auth_round_trip_complete` in a loop with :data:`POLL_INTERVAL_MS` sleeps. Raises on
+    explicit auth failure (via ``_auth_round_trip_complete``) or if the deadline passes with no response.
+
+    :param page: Playwright page object used for polling waits.
+    :param captured: Dict populated by :func:`_attach_response_capture`, checked each iteration.
+    :param deadline: Absolute time (from ``time.monotonic()``) at which to give up.
+    :param email: Email address being logged in, passed through to :func:`_auth_round_trip_complete` for
+        logging.
+    :param timeout_s: Total timeout in seconds, used only in the timeout error message.
+    :returns: None on success (both responses landed with HTTP 200).
+    :raises AuthenticationError: If auth responses indicate failure (via :func:`_auth_round_trip_complete`),
+        or if the deadline passes with no responses.
+    """
     while time.monotonic() < deadline:
 
         if _auth_round_trip_complete(captured, email):
@@ -228,7 +299,7 @@ def login(
     :param email: Login email; falls back to ``session.config.username``.
     :param password: Login password; falls back to ``session.config.password.get_secret_value()``.
     :param timeout: Seconds to wait for the auth backend round-trip (default 15).
-    :param post_login_path: Path to navigate to after the auth round-trip succeeds. The SPA performs its real
+    :param post_login_path: Path to navigate to after the auth round- trip succeeds. The SPA performs its real
     routing and post-login data fetches when it reaches this page, so the saved storage state afterwards
     captures a fully-settled session (cookies + any SPA-cached state) rather than just the bare auth cookie.
     Pass None to skip the post-login navigation entirely. Default is :data:`POST_LOGIN_PATH`.

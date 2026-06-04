@@ -100,5 +100,6 @@ src/gamesheet_sdk/_version.py
 
 # ---- Local scratch ----
 *.log
+*.patch
 .local/
 secrets.toml

@@ -112,10 +112,10 @@ def list_seasons(session: Session, league_id: str) -> list[Season]:
     include seasons that belong to the specified league (via the relationships.league.data.id field).
     :param session: An authenticated :class:`Session`.
     :param league_id: The league identifier whose seasons to list.
-    :returns: A list of :class:`Season`, in the order the server returned them. The list may be
-        empty if the league has no seasons.
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or
-        expired -- run ``gamesheet-sdk-py login`` to refresh).
+    :returns: A list of :class:`Season`, in the order the server returned them. The list may be empty if the
+        league has no seasons.
+    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
+        run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response.
     """
     response = session.get(
@@ -147,8 +147,8 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
     :param session: An authenticated :class:`Session`.
     :param season_id: The season identifier to retrieve.
     :returns: A :class:`SeasonDetail` with complete season information.
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or
-        expired -- run ``gamesheet-sdk-py login`` to refresh).
+    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
+        run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response (including 404 if the season doesn't exist).
     """
     endpoint = f"{_ENDPOINT}/{season_id}"
@@ -163,6 +163,14 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
             "`gamesheet-sdk-py login` to refresh and try again.",
         )
         raise AuthenticationError(_err_msg)
+    if response.status_code == 404:
+
+        _err_msg = (
+            f"Season '{season_id}' not found (HTTP 404). "
+            f"Make sure you're using a valid season ID, not a league ID. "
+            f"To get valid season IDs, run: gamesheet-sdk-py seasons list --league-id <LEAGUE_ID>",
+        )
+        raise GameSheetError(_err_msg)
     if response.status_code >= 400:
 
         _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)

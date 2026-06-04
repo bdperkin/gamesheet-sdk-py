@@ -62,10 +62,10 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
     :param season_id: The season identifier whose iPad keys to list.
-    :returns: A list of :class:`IPadKey`, in the order the server returned them. The list may be
-        empty if the season has no iPad keys configured.
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or
-        expired -- run ``gamesheet-sdk-py login`` to refresh).
+    :returns: A list of :class:`IPadKey`, in the order the server returned them. The list may be empty if the
+        season has no iPad keys configured.
+    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
+        run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response.
     """
     response = session.get(
@@ -80,6 +80,14 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
             "`gamesheet-sdk-py login` to refresh and try again.",
         )
         raise AuthenticationError(_err_msg)
+    if response.status_code == 404:
+
+        _err_msg = (
+            f"No iPad keys found or invalid season ID '{season_id}' (HTTP 404). "
+            f"Make sure you're using a valid season ID, not a league ID. "
+            f"To get valid season IDs, run: gamesheet-sdk-py seasons list --league-id <LEAGUE_ID>",
+        )
+        raise GameSheetError(_err_msg)
     if response.status_code >= 400:
 
         _err_msg = (f"GET {_ENDPOINT} returned HTTP {response.status_code}: {response.text[:200]!r}",)

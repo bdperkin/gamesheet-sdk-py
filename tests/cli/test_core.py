@@ -1,6 +1,5 @@
 """Tests for core CLI functionality (main group, config options)."""
 
-# pylint: disable=redefined-outer-name,protected-access
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

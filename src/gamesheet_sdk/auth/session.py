@@ -28,7 +28,15 @@ class AuthenticatedSession(Session):
     :data:`REFRESH_URL`, updates its bearer, optionally invokes ``on_refresh`` with the new token bundle, and
     retries the original request *once*. If the refresh itself fails the original 401 propagates to the
     caller, who can decide whether to log in again.
+
     Example::
+
+        from gamesheet_sdk.auth import load_access_token, load_refresh_token, save_tokens
+        from gamesheet_sdk.auth.session import AuthenticatedSession
+        from gamesheet_sdk.associations import list_associations
+        from gamesheet_sdk.config import Config
+
+        config = Config()
         with AuthenticatedSession(
             config,
             access_token=load_access_token(config),
@@ -36,8 +44,7 @@ class AuthenticatedSession(Session):
             on_refresh=lambda tokens: save_tokens(config, **tokens),
         ) as s:
             for assoc in list_associations(s):
-
-                ...
+                print(assoc.name)
     """
 
     def __init__(
@@ -88,7 +95,23 @@ class AuthenticatedSession(Session):
         timeout: float | None = None,
         **kwargs: Any,
     ) -> requests.Response:
-        """Send a request, refreshing the bearer and retrying once on 401."""
+        """Send a request, refreshing the bearer and retrying once on 401.
+
+        Performs the request using the parent :class:`~gamesheet_sdk.session.Session.request` method. If the
+        response status is 401 Unauthorized, attempts to refresh the access token using the stored refresh
+        token, updates the bearer token, invokes the ``on_refresh`` callback if provided, and retries the
+        original request exactly once.
+
+        :param method: HTTP method (GET, POST, PUT, DELETE, etc.).
+        :param url: Target URL for the request.
+        :param timeout: Request timeout in seconds. If None, uses the timeout from
+            :attr:`~gamesheet_sdk.session.Session.config`.
+        :param kwargs: Additional keyword arguments passed through to :meth:`requests.Session.request` (e.g.,
+            headers, json, data, params).
+        :returns: HTTP response object from the request. If token refresh fails, returns the original 401
+            response without raising an exception.
+        :raises requests.RequestException: On network or HTTP errors other than 401.
+        """
         response = super().request(method, url, timeout=timeout, **kwargs)
         if response.status_code != 401:
 

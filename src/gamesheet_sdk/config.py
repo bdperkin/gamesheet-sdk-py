@@ -20,19 +20,101 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 def _default_session_path() -> Path:
-    """Return the XDG-compliant default path for persisted session state."""
+    """Return the XDG-compliant default path for persisted session state.
+
+    :returns: Path to session.json under XDG_CACHE_HOME or ~/.cache
+    :rtype: Path
+    """
     xdg = os.environ.get("XDG_CACHE_HOME") or "~/.cache"
     return Path(xdg).expanduser() / "gamesheet-sdk-py" / "session.json"
 
 
 def _default_browser_state_path() -> Path:
-    """Return the XDG-compliant default path for Playwright storage state."""
+    """Return the XDG-compliant default path for Playwright storage state.
+
+    :returns: Path to browser-state.json under XDG_CACHE_HOME or ~/.cache
+    :rtype: Path
+    """
     xdg = os.environ.get("XDG_CACHE_HOME") or "~/.cache"
     return Path(xdg).expanduser() / "gamesheet-sdk-py" / "browser-state.json"
 
 
 class Config(BaseSettings):
-    """Resolved configuration for an SDK session."""
+    """Resolved configuration for an SDK session.
+
+    This class extends :class:`pydantic_settings.BaseSettings` to provide
+    layered configuration resolution. Values are resolved in the following
+    precedence order:
+
+    1. Keyword arguments passed to the :class:`Config` constructor
+    2. Environment variables prefixed with ``GAMESHEET_``
+    3. Field defaults defined on the model
+
+    All fields have sensible defaults, so you can instantiate an empty
+    :class:`Config` for testing or override only the specific values you need.
+
+    :var base_url: Root URL of the GameSheet WebUI (the dashboard app)
+    :vartype base_url: str
+    :var username: GameSheet account username/email
+    :vartype username: str | None
+    :var password: GameSheet account password (stored as SecretStr)
+    :vartype password: SecretStr | None
+    :var session_path: Where to persist cookie state between runs
+    :vartype session_path: Path
+    :var timeout: Default per-request HTTP timeout in seconds (must be > 0)
+    :vartype timeout: float
+    :var user_agent: Override the default User-Agent header sent by the Session
+    :vartype user_agent: str | None
+    :var verify_ssl: Whether to verify TLS certificates on outgoing requests
+    :vartype verify_ssl: bool
+    :var request_retries: Automatic retries on 5xx responses and connection errors
+    :vartype request_retries: int
+    :var browser_state_path: Where to persist Playwright storage state between runs
+    :vartype browser_state_path: Path
+    :var browser_headless: Launch the Playwright browser in headless mode
+    :vartype browser_headless: bool
+
+    **Examples:**
+
+    Create a default config that picks up environment variables:
+
+    .. code-block:: python
+
+        from gamesheet_sdk import Config
+
+        # Reads GAMESHEET_USERNAME, GAMESHEET_PASSWORD, etc. if set
+        config = Config()
+
+    Override specific fields programmatically:
+
+    .. code-block:: python
+
+        from gamesheet_sdk import Config
+
+        config = Config(
+            username="user@example.com",
+            timeout=60.0,
+            browser_headless=False,
+        )
+
+    Use environment variables to configure the SDK:
+
+    .. code-block:: bash
+
+        export GAMESHEET_USERNAME="user@example.com"
+        export GAMESHEET_PASSWORD="secret"
+        export GAMESHEET_TIMEOUT="60.0"
+
+    Then in Python:
+
+    .. code-block:: python
+
+        from gamesheet_sdk import Config
+
+        config = Config()  # Picks up the env vars above
+        print(config.username)  # "user@example.com"
+        print(config.timeout)  # 60.0
+    """
 
     model_config = SettingsConfigDict(  # noqa: F841
         env_prefix="GAMESHEET_",

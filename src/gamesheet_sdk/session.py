@@ -74,7 +74,14 @@ class Session:
     # -- internals --------------------------------------------------------
 
     def _build_http_session(self) -> requests.Session:
+        """Construct and configure the underlying :class:`requests.Session`.
 
+        Attaches a User-Agent header and mounts an HTTPAdapter with retry logic for transient server-side and
+        network errors. Retries apply only to idempotent methods (GET, HEAD, OPTIONS, PUT, DELETE); POST is
+        excluded to avoid double-submission.
+
+        :returns: A configured :class:`requests.Session` instance.
+        """
         s = requests.Session()
         s.headers["User-Agent"] = self.config.user_agent or _default_user_agent()
         retry = Retry(
@@ -92,7 +99,14 @@ class Session:
         return s
 
     def _load_cookies(self) -> None:
+        """Restore cookies from disk if :attr:`Config.session_path` exists.
 
+        Reads JSON-serialized cookie data and populates the underlying session's cookie jar. If the file does
+        not exist or cannot be parsed, the method logs a warning and continues with an empty jar.
+
+        This method is called automatically during :meth:`__init__` to restore session state from a previous
+        run.
+        """
         path = self.config.session_path
         if not path.exists():
 
@@ -117,7 +131,6 @@ class Session:
             )
 
     def __init__(self, config: Config | None = None) -> None:
-
         self.config = config or Config()
         self._http = self._build_http_session()
         self._load_cookies()
@@ -149,7 +162,14 @@ class Session:
         self._http.headers["Authorization"] = f"Bearer {token}"
 
     def _resolve(self, url: str) -> str:
+        """Resolve a relative URL against the configured base URL.
 
+        Absolute URLs (starting with ``http://`` or ``https://``) are returned as-is. Relative paths are
+        joined to :attr:`Config.base_url`.
+
+        :param url: An absolute URL or a path relative to the base URL.
+        :returns: The fully-qualified URL.
+        """
         if url.startswith(("http://", "https://")):
 
             return url
@@ -168,11 +188,11 @@ class Session:
     ) -> requests.Response:
         """Send an HTTP request, resolving ``url`` against the configured base URL.
 
-        :param method: HTTP verb (GET, POST, etc.). :param url: Absolute URL, or a path
-        relative to     :attr:`Config.base_url`. :param timeout: Per-request timeout
-        override; falls back to     :attr:`Config.timeout` if not supplied. :param
-        kwargs: Forwarded to :meth:`requests.Session.request`. :returns: The
-        :class:`requests.Response` returned by the server.
+        :param method: HTTP verb (GET, POST, etc.).
+        :param url: Absolute URL, or a path relative to :attr:`Config.base_url`.
+        :param timeout: Per-request timeout override; falls back to :attr:`Config.timeout` if not supplied.
+        :param kwargs: Forwarded to :meth:`requests.Session.request`.
+        :returns: The :class:`requests.Response` returned by the server.
         """
         full_url = self._resolve(url)
         effective_timeout = timeout if timeout is not None else self.config.timeout
@@ -238,7 +258,10 @@ class Session:
         self._http.close()
 
     def __enter__(self) -> Session:
+        """Enter the context manager, returning the Session instance.
 
+        :returns: This Session instance for use in the ``with`` block.
+        """
         return self
 
     def __exit__(
@@ -247,4 +270,13 @@ class Session:
         _exc_val: BaseException | None,
         _exc_tb: TracebackType | None,
     ) -> None:
+        """Exit the context manager, persisting cookies and closing the session.
+
+        Called automatically at the end of a ``with`` block. Delegates to :meth:`close` to save state and
+        release resources.
+
+        :param _exc_type: Exception type if an exception occurred, otherwise None.
+        :param _exc_val: Exception instance if an exception occurred, otherwise None.
+        :param _exc_tb: Traceback if an exception occurred, otherwise None.
+        """
         self.close()

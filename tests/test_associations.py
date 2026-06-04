@@ -1,6 +1,5 @@
 """Tests for :mod:`gamesheet_sdk.associations`."""
 
-# pylint: disable=redefined-outer-name,protected-access
 from __future__ import annotations
 
 from datetime import datetime, timezone

@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+"""Generate API documentation using sphinx-apidoc.
+
+This script discovers all Python modules in src/gamesheet_sdk and generates ReStructuredText files with
+automodule directives. It runs automatically during the docs build process.
+"""
+
+from __future__ import annotations
+
+import subprocess  # noqa: S404 # nosec B404
+import sys
+from pathlib import Path
+
+# Paths relative to this script's location
+DOCS_DIR = Path(__file__).parent
+PROJECT_ROOT = DOCS_DIR.parent
+SRC_DIR = PROJECT_ROOT / "src"
+PACKAGE_DIR = SRC_DIR / "gamesheet_sdk"
+OUTPUT_DIR = DOCS_DIR / "reference" / "_autosummary"
+
+
+def main() -> int:
+    """Run sphinx-apidoc to generate API documentation."""
+    # Ensure output directory exists
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Run sphinx-apidoc
+    cmd = [
+        "sphinx-apidoc",
+        "--force",  # Overwrite existing files
+        "--separate",  # Put each module on its own page
+        "--module-first",  # Put module docs before submodule docs
+        "--no-toc",  # Don't create a table of contents file
+        "--implicit-namespaces",  # Support PEP 420 namespace packages
+        "--output-dir",
+        str(OUTPUT_DIR),
+        str(PACKAGE_DIR),
+        # Exclude patterns
+        str(PACKAGE_DIR / "_version.py"),  # Generated file
+        "*/tests/*",  # Test files
+        "**/test_*.py",  # Test files
+    ]
+
+    print(f"Running: {' '.join(cmd)}")  # noqa: T201
+    result = subprocess.run(cmd, check=False)  # noqa: S603 # nosec B603
+
+    if result.returncode != 0:
+        print(f"sphinx-apidoc failed with exit code {result.returncode}", file=sys.stderr)  # noqa: T201
+        return result.returncode
+
+    print(f"API documentation generated in {OUTPUT_DIR}")  # noqa: T201
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

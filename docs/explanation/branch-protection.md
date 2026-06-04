@@ -1,14 +1,14 @@
 # Why `main` is branch-protected the way it is
 
-The `main` branch on this repository has classic branch protection configured. This page documents what is enforced, what is deliberately _not_
-enforced, and why each knob is set the way it is. The settings themselves live in repository configuration, not in the tree, so without a write-up
-like this the rationale is invisible to anyone reading the code.
+The `main` branch on this repository has classic branch protection configured. This page documents what is enforced, what is deliberately _not_ enforced, and
+why each knob is set the way it is. The settings themselves live in repository configuration, not in the tree, so without a write-up like this the rationale is
+invisible to anyone reading the code.
 
 ## The shape of the protection
 
 | Setting                            | Value   | Effect on `main`                                                               |
 | ---------------------------------- | ------- | ------------------------------------------------------------------------------ |
-| Required status checks             | 13      | A PR cannot merge until every one of them is green.                            |
+| Required status checks             | 24      | A PR cannot merge until every one of them is green.                            |
 | `strict` (up-to-date branch)       | `false` | A PR branch does not have to be rebased onto the latest `main` before merging. |
 | Required PR reviews                | none    | No human approval is enforced.                                                 |
 | `enforce_admins`                   | `false` | Repository admins bypass _all_ of the rules above.                             |
@@ -17,56 +17,74 @@ like this the rationale is invisible to anyone reading the code.
 | `allow_deletions`                  | `false` | The branch itself cannot be deleted.                                           |
 | `required_conversation_resolution` | `true`  | PR review threads must be marked resolved before merge.                        |
 
-The 13 required contexts are: `pre-commit hooks`, `Quality (lint, type, security, files-check)`, `pytest (py3.11)` through `pytest (py3.14)`,
-`pylint (3.11)` through `pylint (3.14)`, `Build & lint (HTML, EPUB, man, doctest)`, `Analyze (python)`, and `Analyze (actions)`. Two CI jobs are
-deliberately _excluded_ from the required list:
+The 24 required status checks enforce a comprehensive quality gate across multiple dimensions. The required contexts are:
 
-- **`Link check (external, informational)`** — `continue-on-error: true` by design (external links flap), so it would block merges for reasons outside
-  the contributor's control.
-- **`Deploy to GitHub Pages`** — only triggers on `push` to `main`, never on a PR, so requiring it would create an unsatisfiable precondition.
+- **Test suite:** `pytest (py3.11)` through `pytest (py3.14)` — 4 checks ensuring correctness across all supported Python versions.
+- **Build & install sanity:** `sanity (py3.11)` through `sanity (py3.14)` — 4 checks verifying the package builds and installs cleanly.
+- **Type checkers:** `mypy (py3.11)` through `mypy (py3.14)` — 4 checks running strict type checking across the matrix.
+- **Static analysis:** `pylint (py3.11)` through `pylint (py3.14)` — 4 checks for code-quality linting.
+- **Security scanning:** `bandit (py3.11)` through `bandit (py3.14)` — 4 checks for security vulnerabilities.
+- **Pre-commit suite:** `pre-commit (py)` — 1 check running the full formatting/lint/security/config-file pipeline.
+- **CodeQL analysis:** `Analyze (python)` and `Analyze (actions)` — 2 checks for deep static analysis and vulnerability detection.
+- **Documentation build:** `Build HTML for GitHub Pages` — 1 check ensuring the docs build successfully.
+
+Two CI jobs are deliberately _excluded_ from the required list:
+
+- **`Broken external link check`** (formerly "Link check (external, informational)") — `continue-on-error: true` by design (external links flap), so it would
+  block merges for reasons outside the contributor's control.
+- **`Deploy to GitHub Pages`** — only triggers on `push` to `main` after `Build HTML for GitHub Pages` succeeds, so it's a deployment step rather than a merge
+  gate.
+
+## Why `Build HTML for GitHub Pages` is now required
+
+Earlier versions of this branch protection excluded the documentation build from the required list, reasoning that it "only triggers on `push` to `main`, never
+on a PR, so requiring it would create an unsatisfiable precondition." The workflow has since been restructured: `Build HTML for GitHub Pages` now runs on both
+`push` and `pull_request` events (with `types: [opened, reopened]`), while the _deployment_ step (`Deploy to GitHub Pages`) remains gated on `push` to `main`.
+This split means PRs can (and must) prove the docs build successfully before merge, while the actual Pages publish happens only after the merge lands on `main`.
+Requiring the build check catches Sphinx errors, broken cross-references, and MyST syntax issues in the PR review phase rather than post-merge.
 
 ## Why protect at all
 
-The project is currently solo and pushes directly to `main`, so on the surface branch protection looks like ceremony. It is in place for two
-forward-looking reasons:
+The project is currently solo and pushes directly to `main`, so on the surface branch protection looks like ceremony. It is in place for two forward-looking
+reasons:
 
-- **Drive-by contributors.** The first PR a stranger opens should meet the same bar as the maintainer's own commits, and that bar should not depend on
-  the maintainer remembering to run the full matrix. Required checks make the bar mechanical.
-- **A guard rail for the maintainer.** Even with admin bypass, the protection nudges the maintainer toward PR-based workflows for any non-trivial
-  change — and the linear-history and no-force-push rules make it harder to accidentally rewrite published history (which, on a project that publishes
-  to PyPI, is a release-management hazard).
+- **Drive-by contributors.** The first PR a stranger opens should meet the same bar as the maintainer's own commits, and that bar should not depend on the
+  maintainer remembering to run the full matrix. Required checks make the bar mechanical.
+- **A guard rail for the maintainer.** Even with admin bypass, the protection nudges the maintainer toward PR-based workflows for any non-trivial change — and
+  the linear-history and no-force-push rules make it harder to accidentally rewrite published history (which, on a project that publishes to PyPI, is a
+  release-management hazard).
 
 ## Why these specific choices
 
 ### `enforce_admins: false`
 
-The maintainer is the sole admin and pushes directly to `main` for routine fixes (docs, lint, dependency bumps). Setting `enforce_admins: true` would
-force every such commit through a PR with the full check matrix. For a solo alpha that's a productivity tax with no security upside — there is no
-second pair of eyes available to gate on. When the project grows past one person, flipping this to `true` becomes worthwhile.
+The maintainer is the sole admin and pushes directly to `main` for routine fixes (docs, lint, dependency bumps). Setting `enforce_admins: true` would force
+every such commit through a PR with the full check matrix. For a solo alpha that's a productivity tax with no security upside — there is no second pair of eyes
+available to gate on. When the project grows past one person, flipping this to `true` becomes worthwhile.
 
 ### `strict: false`
 
-Strict mode requires every PR branch to be up-to-date with `main` before merge — i.e. another rebase-and-recheck round-trip every time the base branch
-moves. On a low-traffic alpha repo the protection that buys (rejecting a PR whose merge would silently break against newer `main`) is almost never
-engaged. The friction it adds (every PR needs a final "update branch" click) is paid every time. Easy to flip on later.
+Strict mode requires every PR branch to be up-to-date with `main` before merge — i.e. another rebase-and-recheck round-trip every time the base branch moves. On
+a low-traffic alpha repo the protection that buys (rejecting a PR whose merge would silently break against newer `main`) is almost never engaged. The friction
+it adds (every PR needs a final "update branch" click) is paid every time. Easy to flip on later.
 
 ### No required PR reviews
 
-Solo project. Requiring approvals when there is no second reviewer just blocks merges. The setting is `required_pull_request_reviews: null` rather
-than "1 approval", because the latter would still require a _PR-shaped_ event (so direct pushes would break), whereas `null` leaves the maintainer's
-direct-push workflow alone entirely.
+Solo project. Requiring approvals when there is no second reviewer just blocks merges. The setting is `required_pull_request_reviews: null` rather than "1
+approval", because the latter would still require a _PR-shaped_ event (so direct pushes would break), whereas `null` leaves the maintainer's direct-push
+workflow alone entirely.
 
 ### `required_linear_history: true`
 
-Merge commits make the history harder to read and harder to bisect. Linear history (squash or rebase) keeps `main`'s log a clean left-to-right line,
-which matches how `git describe` derives version numbers in {doc}`../reference/supported-configurations` and how the `Deploy to GitHub Pages`
-workflow's gating on `github.ref == 'refs/heads/main'` is meant to behave (one published commit per release-worthy state).
+Merge commits make the history harder to read and harder to bisect. Linear history (squash or rebase) keeps `main`'s log a clean left-to-right line, which
+matches how `git describe` derives version numbers in {doc}`../reference/supported-configurations` and how the `Deploy to GitHub Pages` workflow's gating on
+`github.ref == 'refs/heads/main'` is meant to behave (one published commit per release-worthy state).
 
 ### `allow_force_pushes: false` and `allow_deletions: false`
 
-These are protection against the _worst_ kind of accident — losing published history that downstream users may have pinned via git refs. Admins bypass
-them, but a fat-fingered `git push --force` from a non-admin (or from a misconfigured CI bot) is now rejected by the server rather than silently
-rewriting published commits.
+These are protection against the _worst_ kind of accident — losing published history that downstream users may have pinned via git refs. Admins bypass them, but
+a fat-fingered `git push --force` from a non-admin (or from a misconfigured CI bot) is now rejected by the server rather than silently rewriting published
+commits.
 
 ### `required_conversation_resolution: true`
 
@@ -92,5 +110,5 @@ Adjustments worth thinking about as the project matures:
 ## See also
 
 - {doc}`../reference/supported-configurations` — what each required check actually checks.
-- {doc}`../how-to/cut-a-release` — the one workflow that pushes a tag (which bypasses branch-protection entirely, since tags aren't branches) and is
-  gated by its own per-job checks.
+- {doc}`../how-to/cut-a-release` — the one workflow that pushes a tag (which bypasses branch-protection entirely, since tags aren't branches) and is gated by
+  its own per-job checks.

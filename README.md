@@ -55,14 +55,13 @@
 ## ⚠️ Disclaimer
 
 This project is **not affiliated with, endorsed by, or sponsored by GameSheet Inc.** GameSheet Inc. does not publish a public REST/GraphQL API for the
-operations this SDK covers. Where a native API is absent, this library **automates the GameSheet WebUI** (using a combination of HTTP requests, HTML
-parsing, and headless-browser automation) in order to perform routine tasks programmatically.
+operations this SDK covers. Where a native API is absent, this library **automates the GameSheet WebUI** (using a combination of HTTP requests, HTML parsing,
+and headless-browser automation) in order to perform routine tasks programmatically.
 
-Because this approach depends on the structure of a third-party web interface, **it may break without warning** whenever GameSheet ships UI changes.
-Check the [GitHub Releases](https://github.com/bdperkin/gamesheet-sdk-py/releases) page for release notes before upgrading in production.
+Because this approach depends on the structure of a third-party web interface, **it may break without warning** whenever GameSheet ships UI changes. Check the
+[GitHub Releases](https://github.com/bdperkin/gamesheet-sdk-py/releases) page for release notes before upgrading in production.
 
-Use of this software must comply with the GameSheet Inc. Terms of Service. You are responsible for any automation you perform against accounts you
-control.
+Use of this software must comply with the GameSheet Inc. Terms of Service. You are responsible for any automation you perform against accounts you control.
 
 ## Table of contents
 
@@ -81,24 +80,24 @@ control.
 
 ## Features
 
-- **`login` flow** — authenticates against the GameSheet dashboard with [Playwright](https://playwright.dev/python/), persists the auth cookie and
-  Playwright storage state so subsequent commands run without a browser.
-- **`AuthenticatedSession`** — a `requests`-backed HTTP layer that attaches the saved bearer token, transparently refreshes it on 401, and re-persists
-  rotated tokens via a user-supplied callback.
-- **`BrowserSession`** — a Playwright wrapper that opens Chromium with the saved storage state for any flow that genuinely needs a real browser
-  (headed mode available via `--no-headless` for debugging).
-- **`associations list`** — read-only command to list associations (resource-oriented CLI; `ls` alias and a bare `gamesheet-sdk-py associations`
-  shortcut both run the same action).
-- **`leagues list`** — read-only command to list leagues within a specified association (resource-oriented CLI; `ls` alias works the same as
-  associations).
-- **`seasons list`** — read-only command to list seasons within a specified league (resource-oriented CLI; `ls` alias works the same as
-  associations/leagues).
-- **`season get`** — read-only command to get detailed information about a specific season, including settings, penalty codes, flagging criteria, and
-  more (resource-oriented CLI; `show` and `view` aliases available, with `get` as the default).
-- **Pluggable output** — `render()` produces JSON, YAML, CSV, TSV, or any of 13 human-readable tabulate formats (`simple`, `grid`, `fancy_grid`,
-  `rst`, `html`, `latex`, …).
-- **Shell completion** — `gamesheet-sdk-py completion {bash,zsh,fish}` prints a sourceable script that tab-completes sub-commands (including aliases),
-  option names, and `--format` choices.
+- **`login` flow** — authenticates against the GameSheet dashboard with [Playwright](https://playwright.dev/python/), persists the auth cookie and Playwright
+  storage state so subsequent commands run without a browser.
+- **`AuthenticatedSession`** — a `requests`-backed HTTP layer that attaches the saved bearer token, transparently refreshes it on 401, and re-persists rotated
+  tokens via a user-supplied callback.
+- **`BrowserSession`** — a Playwright wrapper that opens Chromium with the saved storage state for any flow that genuinely needs a real browser (headed mode
+  available via `--no-headless` for debugging).
+- **`associations list`** — read-only command to list associations (resource-oriented CLI; `ls` alias and a bare `gamesheet-sdk-py associations` shortcut both
+  run the same action).
+- **`leagues list`** — read-only command to list leagues within a specified association (resource-oriented CLI; `ls` alias works the same as associations).
+- **`seasons list`** — read-only command to list seasons within a specified league (resource-oriented CLI; `ls` alias works the same as associations/leagues).
+- **`season get`** — read-only command to get detailed information about a specific season, including settings, penalty codes, flagging criteria, and more
+  (resource-oriented CLI; `show` and `view` aliases available, with `get` as the default).
+- **`ipad-keys get`** — read-only command to retrieve iPad / Scoring Access Keys for a specific season (resource-oriented CLI; `show` and `view` aliases
+  available, with `get` as the default).
+- **Pluggable output** — `render()` produces JSON, YAML, CSV, TSV, or any of 13 human-readable tabulate formats (`simple`, `grid`, `fancy_grid`, `rst`, `html`,
+  `latex`, …).
+- **Shell completion** — `gamesheet-sdk-py completion {bash,zsh,fish}` prints a sourceable script that tab-completes sub-commands (including aliases), option
+  names, and `--format` choices.
 - **Typed (PEP 561)** — ships a `py.typed` marker and passes `mypy --strict`.
 - **Config from env or kwargs** — `pydantic-settings` resolves `GAMESHEET_*` environment variables with CLI overrides taking precedence.
 
@@ -247,11 +246,15 @@ Options:
 Commands:
   associations  Manage GameSheet associations.
   completion    Print a SHELL completion script to stdout.
+  ipad-keys     Manage iPad / Scoring Access Keys.
+  leagues       Manage GameSheet leagues.
   login         Authenticate and persist a GameSheet session.
+  season        Manage a specific GameSheet season.
+  seasons       Manage GameSheet seasons.
 ```
 
-The CLI is **resource-oriented (noun-first)**: each resource gets a nested group whose canonical verbs are `create / get / list / update / delete`,
-with the aliases `add|new / show|view / ls / set|edit / rm|remove`. A bare `gamesheet-sdk-py <resource>` implicitly runs `list`.
+The CLI is **resource-oriented (noun-first)**: each resource gets a nested group whose canonical verbs are `create / get / list / update / delete`, with the
+aliases `add|new / show|view / ls / set|edit / rm|remove`. A bare `gamesheet-sdk-py <resource>` implicitly runs `list`.
 
 ```console
 $ gamesheet-sdk-py associations --help
@@ -285,8 +288,8 @@ gamesheet-sdk-py completion fish > ~/.config/fish/completions/gamesheet-sdk-py.f
 
 Full documentation is published on GitHub Pages: **<https://bdperkin.github.io/gamesheet-sdk-py/>**
 
-The docs are organized following the [Diátaxis](https://diataxis.fr/) framework into tutorials, how-to guides, reference, and explanation. The
-reference section (API + CLI) is generated from source, so it cannot drift from the shipped package.
+The docs are organized following the [Diátaxis](https://diataxis.fr/) framework into tutorials, how-to guides, reference, and explanation. The reference section
+(API + CLI) is generated from source, so it cannot drift from the shipped package.
 
 ## Project layout
 
@@ -295,9 +298,31 @@ gamesheet-sdk-py/
 ├── src/gamesheet_sdk/
 │   ├── __init__.py            # public re-exports + __version__
 │   ├── associations.py        # list_associations action + Association model
-│   ├── auth.py                # login, token persistence, AuthenticatedSession
+│   ├── leagues.py             # list_leagues action + League model
+│   ├── seasons.py             # list_seasons + get_season actions + Season/SeasonDetail models
+│   ├── ipad_keys.py           # list_ipad_keys action + IPadKey model
+│   ├── auth/                  # authentication package (modular structure)
+│   │   ├── __init__.py        # public auth API exports
+│   │   ├── login.py           # login flow implementation
+│   │   ├── session.py         # AuthenticatedSession HTTP layer
+│   │   ├── storage.py         # token persistence (load/save)
+│   │   ├── tokens.py          # token refresh logic
+│   │   └── constants.py       # auth-related constants
+│   ├── cli/                   # CLI framework package (modular structure)
+│   │   ├── __init__.py        # CLI entry point exports
+│   │   ├── main.py            # root click group + main() wrapper
+│   │   ├── core.py            # ResourceGroup, confirm_destructive, logging setup
+│   │   ├── helpers.py         # CLI utility functions
+│   │   └── commands/          # individual command modules
+│   │       ├── __init__.py    # command exports
+│   │       ├── login.py       # login command
+│   │       ├── associations.py # associations resource group
+│   │       ├── leagues.py     # leagues resource group
+│   │       ├── seasons.py     # seasons resource group
+│   │       ├── season.py      # season (singular) resource group
+│   │       ├── ipad_keys.py   # ipad-keys resource group
+│   │       └── completion.py  # shell completion command
 │   ├── browser.py             # Playwright BrowserSession wrapper
-│   ├── cli.py                 # click entry point — `gamesheet-sdk-py` (resource groups)
 │   ├── config.py              # pydantic-settings Config (GAMESHEET_*)
 │   ├── exceptions.py          # GameSheetError, AuthenticationError
 │   ├── output.py              # render() — json/yaml/csv/tsv + tabulate
@@ -317,6 +342,29 @@ gamesheet-sdk-py/
 ├── SECURITY.md                # vulnerability reporting policy
 └── LICENSE                    # MIT
 ```
+
+### Modular architecture
+
+The codebase is organized into focused packages to improve maintainability and separation of concerns:
+
+- **`auth/` package** — Authentication logic is split across multiple modules:
+
+  - `login.py` — Playwright-driven login flow
+  - `session.py` — `AuthenticatedSession` with automatic token refresh
+  - `storage.py` — Token persistence to disk (`load_access_token`, `load_refresh_token`, `save_tokens`)
+  - `tokens.py` — Token refresh logic
+  - `constants.py` — Auth-related constants (endpoints, timeouts)
+
+- **`cli/` package** — CLI framework is modularized:
+
+  - `main.py` — Root click group and `main()` entry point
+  - `core.py` — `ResourceGroup` class, `confirm_destructive` decorator, logging setup
+  - `helpers.py` — Shared CLI utility functions
+  - `commands/` — Each resource gets its own command module (associations, leagues, seasons, season, ipad_keys, login, completion)
+
+- **Resource modules** — Each domain resource (associations, leagues, seasons, ipad_keys) is a standalone module with pydantic models and action functions.
+
+This structure allows each concern to evolve independently while maintaining a simple public API through `__init__.py` re-exports.
 
 ## Development
 
@@ -359,15 +407,14 @@ make clean         # caches + build artifacts
 
 ### Coverage
 
-Local pytest runs enforce `fail_under = 100` (see `[tool.coverage.report]`). On every push, the `codecov.yml` workflow uploads `coverage.xml` and
-JUnit XML to [Codecov](https://codecov.io/gh/bdperkin/gamesheet-sdk-py), which gates PRs against `.codecov.yml` targets — **project coverage = 100%**
-(0% drop tolerated) and **patch coverage = 100%** on newly-introduced lines. Codecov test-analytics tracks flaky tests and a >10% performance
-regression alert.
+Local pytest runs enforce `fail_under = 100` (see `[tool.coverage.report]`). On every push, the `codecov.yml` workflow uploads `coverage.xml` and JUnit XML to
+[Codecov](https://codecov.io/gh/bdperkin/gamesheet-sdk-py), which gates PRs against `.codecov.yml` targets — **project coverage = 100%** (0% drop tolerated) and
+**patch coverage = 100%** on newly-introduced lines. Codecov test-analytics tracks flaky tests and a >10% performance regression alert.
 
 ### Tox
 
-Tox orchestrates ~45 per-tool envs (one per linter / formatter / type checker / doc builder), a single `pytest` env, and a fix-everything `fix` env.
-Selected envs and label groups:
+Tox orchestrates ~45 per-tool envs (one per linter / formatter / type checker / doc builder), a single `pytest` env, and a fix-everything `fix` env. Selected
+envs and label groups:
 
 ```bash
 tox -l                # list every available env
@@ -383,14 +430,13 @@ tox -e fix            # apply isort, black, mdformat in place
 tox -e pytest -- -k test_name  # pass args to pytest after `--`
 ```
 
-Every `pyproject.toml` `optional-dependencies.*` group has a matching tox env that pulls only that extra — so `tox -e mypy` runs in an isolated venv
-with just `mypy` + project imports, `tox -e pyright` with just `pyright`, etc.
+Every `pyproject.toml` `optional-dependencies.*` group has a matching tox env that pulls only that extra — so `tox -e mypy` runs in an isolated venv with just
+`mypy` + project imports, `tox -e pyright` with just `pyright`, etc.
 
 ### Releases
 
-The package version is **derived from `git describe`** via `hatch-vcs` — never edit a version literal. To cut a release, tag the commit
-(`git tag -a vX.Y.Z` then `git push origin vX.Y.Z`); the `release.yml` workflow builds, publishes to PyPI via Trusted Publishing (OIDC), and creates a
-GitHub Release.
+The package version is **derived from `git describe`** via `hatch-vcs` — never edit a version literal. To cut a release, tag the commit (`git tag -a vX.Y.Z`
+then `git push origin vX.Y.Z`); the `release.yml` workflow builds, publishes to PyPI via Trusted Publishing (OIDC), and creates a GitHub Release.
 
 ## Contributing
 
@@ -398,17 +444,17 @@ Issues and pull requests are welcome.
 
 Before opening a PR:
 
-- Run `make lint` (or `pre-commit run --all-files`) and `make test` (or `pytest`). To cover the full lint/type/security/docs matrix in isolated envs,
-  run `tox` — or scope it with the labels `tox -m tests`, `tox -m docs`, `tox -m pre-commit`.
-- New code must be fully annotated and pass `mypy --strict`. Every block must stay at cyclomatic-complexity grade A (cc ≤ 5) — the `xenon` pre-commit
-  hook enforces this on every commit. Run `make metrics` to see the numbers before you push.
-- New documentation pages belong in one of the four Diátaxis quadrants under `docs/` — see
-  [`docs/explanation/diataxis.md`](docs/explanation/diataxis.md) for guidance.
+- Run `make lint` (or `pre-commit run --all-files`) and `make test` (or `pytest`). To cover the full lint/type/security/docs matrix in isolated envs, run `tox`
+  — or scope it with the labels `tox -m tests`, `tox -m docs`, `tox -m pre-commit`.
+- New code must be fully annotated and pass `mypy --strict`. Every block must stay at cyclomatic-complexity grade A (cc ≤ 5) — the `xenon` pre-commit hook
+  enforces this on every commit. Run `make metrics` to see the numbers before you push.
+- New documentation pages belong in one of the four Diátaxis quadrants under `docs/` — see [`docs/explanation/diataxis.md`](docs/explanation/diataxis.md) for
+  guidance.
 
 ## Security
 
-To report a vulnerability, see [SECURITY.md](SECURITY.md). Please do not open public issues for security reports — use the private reporting channel
-documented there.
+To report a vulnerability, see [SECURITY.md](SECURITY.md). Please do not open public issues for security reports — use the private reporting channel documented
+there.
 
 ## License
 

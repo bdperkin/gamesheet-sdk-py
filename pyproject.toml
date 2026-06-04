@@ -57,9 +57,9 @@ optional-dependencies.add-trailing-comma = [
 optional-dependencies.all = [
   """\
   gamesheet-sdk-py[absolufy-imports,add-trailing-comma,autoflake,autopep8,bandit,black,blacken-docs,blocklint,codespell\
-  ,deptry,dev,docformatter,docs,editorconfig-checker,flake8,interrogate,isort,mdformat,mypy,pydocstyle,pylint,pymarkdow\
-  n,pyproject-fmt,pyrefly,pyright,pyroma,pyupgrade,radon,refurb,sphinx-lint,ssort,tox-ini-fmt,unimport,validate-pyproje\
-  ct,vulture,yamllint]\
+  ,deptry,dev,docconvert,docformatter,docs,editorconfig-checker,flake8,interrogate,isort,mdformat,mypy,pydocstyle,pylin\
+  t,pymarkdown,pyproject-fmt,pyrefly,pyright,pyroma,pyupgrade,radon,refurb,sphinx-lint,ssort,tox-ini-fmt,unimport,valid\
+  ate-pyproject,vulture,yamllint]\
   """,
 ]
 optional-dependencies.autoflake = [
@@ -91,6 +91,9 @@ optional-dependencies.deptry = [
 optional-dependencies.dev = [
   "pre-commit",
   "tox-workdir",
+]
+optional-dependencies.docconvert = [
+  "docconvert",
 ]
 optional-dependencies.docformatter = [
   "docformatter",
@@ -301,13 +304,22 @@ check = true
 description = "Combines PyFlakes, pycodestyle, and McCabe to check style compliance and basic logic errors."
 diff = true
 exclude = [
+  ".coverage",
+  "coverage.xml",
+  "dist/",
   ".mypy_cache/",
+  ".pytest_cache/",
+  "src/gamesheet_sdk/_version.py",
   ".tox/",
   ".venv/",
-  "src/gamesheet_sdk/_version.py",
 ]
 extend-ignore = [
   "ANN101",
+  "DOC103",
+  "DOC111",
+  "DOC402",
+  "DOC404",
+  "DOC502",
   "U101",
 ]
 extend-select = [
@@ -316,14 +328,28 @@ extend-select = [
 inline-quotes = "double"
 max-line-length = 110
 per-file-ignores = [
+  "docs/*:INP001",
   "tests/*:PD005,PT019,S101,S106,SF01",
 ]
 recursive = true
+style = "sphinx"
+arg-type-hints-in-signature = true
+arg-type-hints-in-docstring = false
+check-return-types = false
 
 ## ## pylint - Comprehensive static code analyzer
 [tool.pylint]
 main.fail-under = 10
-main.ignore = [ ".tox", ".venv", "CVS" ]
+main.ignore = [
+  ".coverage",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".tox",
+  ".venv",
+  "coverage.xml",
+  "dist",
+  "src/gamesheet_sdk/_version.py",
+]
 main.ignore-patterns = [ "^\\.#" ]
 main.jobs = 1
 main.limit-inference-results = 100
@@ -419,8 +445,9 @@ miscellaneous.notes = [ "FIXME", "XXX", "TODO" ]
   "duplicate-code",
 ]
 "messages control".per-file-ignores = [
+  "docs/conf.py:invalid-name",
   "src/gamesheet_sdk/_version.py:missing-module-docstring",
-  "tests/**:import-outside-toplevel,missing-function-docstring",
+  "tests/**:import-outside-toplevel,missing-function-docstring,protected-access,redefined-outer-name",
 ]
 
 ## # ----------------------------------------------------------------------------
@@ -437,6 +464,13 @@ black = true
 wrap-summaries = 110
 wrap-descriptions = 110
 exclude = [
+  ".coverage",
+  "coverage.xml",
+  "dist",
+  ".mypy_cache",
+  ".pytest_cache",
+  "src/gamesheet_sdk/_version.py",
+  ".tox",
   ".venv",
 ]
 description = "Automatically reformats Python docstrings to follow PEP 257 description and spacing conventions."
@@ -475,6 +509,7 @@ optional_dependencies_dev_groups = [
   "codespell",
   "deptry",
   "dev",
+  "docconvert",
   "docformatter",
   "docs",
   "editorconfig-checker",
@@ -508,8 +543,14 @@ optional_dependencies_dev_groups = [
 ## ## vulture - Dead code finder
 [tool.vulture]
 exclude = [
+  ".coverage",
+  ".mypy_cache",
+  ".pytest_cache",
   ".tox",
   ".venv",
+  "coverage.xml",
+  "dist",
+  "src/gamesheet_sdk/_version.py",
 ]
 ignore_names = [
   "autoclass_*",
@@ -561,7 +602,14 @@ recursive = true
 ## ## bandit - Security vulnerability scanner
 [tool.bandit]
 exclude_dirs = [
+  ".coverage",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".tox",
   ".venv",
+  "coverage.xml",
+  "dist",
+  "src/gamesheet_sdk/_version.py",
 ]
 skips = [
   "B101",
@@ -611,6 +659,24 @@ report.exclude_also = [
 report.fail_under = 100
 report.show_missing = true
 
+## ## docconvert - Docstring format
+[tool.docconvert]
+recursive = true
+black = true
+wrap-summaries = 110
+wrap-descriptions = 110
+exclude = [
+  ".coverage",
+  "coverage.xml",
+  "dist",
+  ".mypy_cache",
+  ".pytest_cache",
+  "src/gamesheet_sdk/_version.py",
+  ".tox",
+  ".venv",
+]
+description = "Check docstrings in existing Python files for correct format."
+
 ## -----------------------------------------------------------------------------
 ## Non-Python Languages
 ## -----------------------------------------------------------------------------
@@ -640,11 +706,11 @@ check = true
 description = "Scans Markdown files to ensure they adhere to strict style rules and standard specification guidelines."
 diff = true
 plugins.commands-show-output.enabled = false
-plugins.line-length.code_block_line_length = 150
+plugins.line-length.code_block_line_length = 160
 plugins.line-length.code_blocks = true
-plugins.line-length.heading_line_length = 150
+plugins.line-length.heading_line_length = 160
 plugins.line-length.headings = true
-plugins.line-length.line_length = 150
+plugins.line-length.line_length = 160
 plugins.line-length.stern = false
 plugins.line-length.strict = false
 recursive = true
@@ -653,11 +719,18 @@ recursive = true
 [tool.mdformat]
 end_of_line = "lf"
 exclude = [
+  ".coverage",
+  "coverage.xml",
+  "dist/**",
+  ".mypy_cache/**",
+  ".pytest_cache/**",
+  "src/gamesheet_sdk/_version.py",
+  ".tox/**",
   ".venv/**",
 ]
 number = true
 validate = true
-wrap = 150
+wrap = 160
 
 ## -----------------------------------------------------------------------------
 ## Python

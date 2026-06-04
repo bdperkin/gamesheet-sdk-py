@@ -1,6 +1,5 @@
 """Tests for token loading, saving, and refreshing."""
 
-# pylint: disable=redefined-outer-name,protected-access
 from __future__ import annotations
 
 import json

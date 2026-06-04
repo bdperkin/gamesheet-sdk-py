@@ -1,6 +1,5 @@
 """Tests for :mod:`gamesheet_sdk.ipad_keys`."""
 
-# pylint: disable=redefined-outer-name
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -110,6 +109,20 @@ def test_list_ipad_keys_401_raises_authentication_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
+            list_ipad_keys(session, _SEASON_ID)
+
+
+@responses.activate
+def test_list_ipad_keys_404_raises_helpful_gamesheet_error(
+    config: Config,
+) -> None:
+    responses.add(responses.GET, _ENDPOINT, status=404, body="Not found")
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        with pytest.raises(
+            GameSheetError,
+            match=r"No iPad keys found or invalid season ID.*valid season ID.*seasons list --league-id",
+        ):
             list_ipad_keys(session, _SEASON_ID)
 
 

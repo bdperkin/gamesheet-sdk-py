@@ -1,5 +1,3 @@
-# noqa: INP001
-# pylint: disable=invalid-name
 """Sphinx configuration for the gamesheet-sdk-py documentation."""
 
 from __future__ import annotations
@@ -65,15 +63,23 @@ if Path(gitignore_path).exists():
 templates_path = ["_templates"]
 # -- Automatic API documentation --------------------------------------------
 autosummary_generate = True
+autosummary_generate_overwrite = True
+autosummary_imported_members = False
+autosummary_ignore_module_all = False
 autodoc_default_options = {
     "members": True,
     "undoc-members": True,
     "show-inheritance": True,
+    "inherited-members": True,
     "member-order": "bysource",
+    "special-members": "__init__",
+    "exclude-members": "__weakref__",
 }
 autodoc_typehints = "description"
 autodoc_typehints_description_target = "documented_params"
+autodoc_class_signature = "separated"
 autoclass_content = "both"
+autodoc_member_order = "bysource"
 # -- Napoleon (Google / NumPy docstrings) -----------------------------------
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True

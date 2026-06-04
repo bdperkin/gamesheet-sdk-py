@@ -1,6 +1,5 @@
 """Tests for ipad-keys command."""
 
-# pylint: disable=redefined-outer-name,protected-access
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -33,7 +32,7 @@ def test_ipad_keys_get_alias_show_works(runner: CliRunner) -> None:
                 updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
             ),
         ]
-        result = runner.invoke(cli, ["ipad-keys", "show", "15020"])
+        result = runner.invoke(cli, ["ipad-keys", "show", "--season-id", "15020"])
         assert result.exit_code == 0
         assert "ipad-test-kw" in result.output
 
@@ -58,7 +57,7 @@ def test_ipad_keys_get_alias_view_works(runner: CliRunner) -> None:
                 updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
             ),
         ]
-        result = runner.invoke(cli, ["ipad-keys", "view", "15020"])
+        result = runner.invoke(cli, ["ipad-keys", "view", "--season-id", "15020"])
         assert result.exit_code == 0
         assert "ipad-test-kw" in result.output
 
@@ -91,7 +90,7 @@ def test_ipad_keys_get_json_output(runner: CliRunner) -> None:
                 updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
             ),
         ]
-        result = runner.invoke(cli, ["ipad-keys", "get", "15020", "-F", "json"])
+        result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020", "-F", "json"])
         assert result.exit_code == 0
         import json
 
@@ -121,7 +120,7 @@ def test_ipad_keys_get_yaml_output(runner: CliRunner) -> None:
                 updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
             ),
         ]
-        result = runner.invoke(cli, ["ipad-keys", "get", "15020", "-F", "yaml"])
+        result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020", "-F", "yaml"])
         assert result.exit_code == 0
         assert "id: '3567'" in result.output or 'id: "3567"' in result.output
         assert "ipad-test-kw" in result.output
@@ -147,7 +146,7 @@ def test_ipad_keys_get_columns_filter(runner: CliRunner) -> None:
                 updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
             ),
         ]
-        result = runner.invoke(cli, ["ipad-keys", "get", "15020", "-c", "id,value"])
+        result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020", "-c", "id,value"])
         assert result.exit_code == 0
         # Check that id and value are in the output
         assert "id" in result.output.lower() or "3567" in result.output
@@ -175,7 +174,10 @@ def test_ipad_keys_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
                 updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
             ),
         ]
-        result = runner.invoke(cli, ["ipad-keys", "get", "15020", "-F", "json", "-o", str(output_file)])
+        result = runner.invoke(
+            cli,
+            ["ipad-keys", "get", "--season-id", "15020", "-F", "json", "-o", str(output_file)],
+        )
         assert result.exit_code == 0
         assert output_file.exists()
         import json
@@ -205,7 +207,7 @@ def test_ipad_keys_get_table_format(runner: CliRunner) -> None:
                 updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
             ),
         ]
-        result = runner.invoke(cli, ["ipad-keys", "get", "15020"])
+        result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020"])
         assert result.exit_code == 0
         # Table format should have column headers and the value
         assert "ipad-test-kw" in result.output
@@ -231,7 +233,7 @@ def test_ipad_keys_get_grid_format(runner: CliRunner) -> None:
                 updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
             ),
         ]
-        result = runner.invoke(cli, ["ipad-keys", "get", "15020", "-F", "grid"])
+        result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020", "-F", "grid"])
         assert result.exit_code == 0
         # Grid format has border characters
         assert "+" in result.output or "|" in result.output
@@ -243,6 +245,31 @@ def test_ipad_keys_get_with_no_saved_tokens(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=None),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=None),
     ):
-        result = runner.invoke(cli, ["ipad-keys", "get", "15020"])
+        result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020"])
         assert result.exit_code == 1
         assert "No saved session" in result.output or "login" in result.output.lower()
+
+
+def test_ipad_keys_get_with_env_var(runner: CliRunner) -> None:
+    """The season ID can be provided via GAMESHEET_SEASON_ID environment variable."""
+    with (
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action") as mock_action,
+    ):
+        from gamesheet_sdk.ipad_keys import IPadKey
+
+        mock_action.return_value = [
+            IPadKey(
+                id="3567",
+                value="ipad-test-kw",
+                description="Test Key",
+                roles=[],
+                live_scoring_scopes=["read", "write"],
+                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+            ),
+        ]
+        result = runner.invoke(cli, ["ipad-keys", "get"], env={"GAMESHEET_SEASON_ID": "15020"})
+        assert result.exit_code == 0
+        mock_action.assert_called_once()

@@ -1,6 +1,5 @@
 """Tests for :mod:`gamesheet_sdk.seasons`."""
 
-# pylint: disable=redefined-outer-name,protected-access
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -320,7 +319,10 @@ def test_get_season_404_raises_gamesheet_error(config: Config) -> None:
     responses.add(responses.GET, _SEASON_ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
-        with pytest.raises(GameSheetError, match="HTTP 404"):
+        with pytest.raises(
+            GameSheetError,
+            match=r"Season '.*' not found.*valid season ID.*seasons list --league-id",
+        ):
             get_season(session, _SEASON_ID)
 
 

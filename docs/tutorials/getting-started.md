@@ -1,7 +1,7 @@
 # Getting started
 
-By the end of this tutorial you will have `gamesheet-sdk-py` installed into a fresh virtual environment, and you will have verified that it works both
-from the command line and from Python.
+By the end of this tutorial you will have `gamesheet-sdk-py` installed into a fresh virtual environment, and you will have verified that it works both from the
+command line and from Python.
 
 The whole walkthrough should take about five minutes.
 
@@ -51,8 +51,7 @@ Pip will pull in `requests`, `playwright`, `pydantic`, and `click`. Wait for it 
 
 ## Step 3 — Install the Playwright browser
 
-Some SDK workflows drive a headless browser, so you also need the Chromium binary that Playwright manages. Install it now so it's ready when you need
-it:
+Some SDK workflows drive a headless browser, so you also need the Chromium binary that Playwright manages. Install it now so it's ready when you need it:
 
 ```console
 (.venv) $ python -m playwright install chromium
@@ -77,16 +76,31 @@ Then ask for its help text:
 
 ```console
 (.venv) $ gamesheet-sdk-py --help
-usage: gamesheet-sdk-py [-h] [--version]
+Usage: gamesheet-sdk-py [OPTIONS] COMMAND [ARGS]...
 
-Unofficial CLI for the GameSheet Inc. platform.
+  Unofficial SDK for the GameSheet Inc. platform.
 
-options:
-  -h, --help  show this help message and exit
-  --version   show program's version number and exit
+  Root command group for the ``gamesheet-sdk-py`` CLI. Automates the GameSheet
+  WebUI via headless browser or direct HTTP where a public API is absent.
+
+Options:
+  --base-url TEXT         GameSheet base URL (default: https://gamesheet.app)
+  --no-headless           Show browser window during Playwright flows
+  -v, --verbose           Increase logging verbosity (-v = INFO, -vv = DEBUG)
+  --version               Show the version and exit.
+  --help                  Show this message and exit.
+
+Commands:
+  associations  List, view, and manage associations
+  completion    Print shell-completion script for bash / zsh / fish
+  ipad-keys     Retrieve Scoring Access Keys for an association
+  leagues       List, view, and manage leagues
+  login         Authenticate against GameSheet and store tokens
+  season        Get detailed information about a specific season
+  seasons       List seasons for a league
 ```
 
-If both commands print output and exit cleanly, the CLI is installed correctly.
+If the command prints output and exits cleanly, the CLI is installed correctly.
 
 ## Step 5 — Verify the Python API works
 
@@ -102,10 +116,85 @@ The SDK also imports as a Python package. Start the interpreter and ask it for t
 
 If the import succeeded and printed a version string, the package is installed correctly for Python use too.
 
+## Step 6 — Authentication quickstart
+
+Most SDK operations require authentication. The `login` command handles this for you by opening a headless browser, submitting your credentials, and saving the
+session tokens for future use.
+
+Try authenticating now (you will need a GameSheet account):
+
+```console
+(.venv) $ gamesheet-sdk-py login --email your.email@example.com
+Password: [your input is hidden]
+Login successful! Tokens saved.
+```
+
+```{note}
+The password prompt hides your input for security. You can also provide it via the ``--password`` option or the ``GAMESHEET_PASSWORD`` environment
+variable, but the interactive prompt is safer.
+```
+
+Your authentication tokens are now saved to `~/.local/share/gamesheet-sdk-py/browser_state` (on Linux; the location varies by OS). Subsequent commands will use
+these tokens automatically — no need to log in again until they expire.
+
+If you do not have a GameSheet account yet, you can skip this step. The CLI and Python API verification steps above confirm the SDK is working; you can return
+here when you are ready to authenticate.
+
+## Step 7 — Basic usage examples
+
+Once authenticated, you can query GameSheet resources. Try listing the associations on your account:
+
+```console
+(.venv) $ gamesheet-sdk-py associations list
+ID      Name
+------  -------------------------
+12345   Example Hockey Association
+67890   Another Association
+```
+
+You can also use the shorter alias `ls` instead of `list`:
+
+```console
+(.venv) $ gamesheet-sdk-py associations ls
+```
+
+The CLI supports multiple output formats. Try JSON:
+
+```console
+(.venv) $ gamesheet-sdk-py associations list --output json
+[
+  {
+    "id": 12345,
+    "name": "Example Hockey Association"
+  },
+  {
+    "id": 67890,
+    "name": "Another Association"
+  }
+]
+```
+
+Or YAML:
+
+```console
+(.venv) $ gamesheet-sdk-py associations list --output yaml
+- id: 12345
+  name: Example Hockey Association
+- id: 67890
+  name: Another Association
+```
+
+Each resource (associations, leagues, seasons, etc.) follows the same pattern. Use `--help` on any command to see its options:
+
+```console
+(.venv) $ gamesheet-sdk-py leagues --help
+(.venv) $ gamesheet-sdk-py seasons list --help
+```
+
 ## You're done
 
-You have a working `gamesheet-sdk-py` installation. Both the CLI and the Python API are reachable. The version you saw will increase as the SDK gains
-functionality.
+You have a working `gamesheet-sdk-py` installation. Both the CLI and the Python API are reachable. You have authenticated (or know how to do so when ready), and
+you have seen how to query resources and format the output. The version you saw will increase as the SDK gains functionality.
 
 ## Where to go next
 

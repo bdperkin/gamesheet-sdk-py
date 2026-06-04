@@ -1,6 +1,5 @@
 """Tests for AuthenticatedSession auto-refresh behavior."""
 
-# pylint: disable=redefined-outer-name,protected-access
 from __future__ import annotations
 
 from typing import Any
@@ -141,8 +140,6 @@ def test_authenticated_session_does_not_retry_when_refresh_returns_500(
 
 @responses.activate
 def test_authenticated_session_post_also_triggers_refresh(config: Config) -> None:
-    """The retry applies to writes too -- POST is not skipped here, since the failure was 401 (auth), not a
-    network/server hiccup."""
     responses.add(responses.POST, "https://test.example/mutate", status=401)
     responses.add(
         responses.POST,
