@@ -28,8 +28,8 @@ def test_ipad_keys_get_alias_show_works(runner: CliRunner) -> None:
                 description="Test Key",
                 roles=[],
                 live_scoring_scopes=["read", "write"],
-                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
-                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                created_at="2026-05-15T17:42:34Z",
+                updated_at="2026-05-15T17:42:34Z",
             ),
         ]
         result = runner.invoke(cli, ["ipad-keys", "show", "--season-id", "15020"])
@@ -53,8 +53,8 @@ def test_ipad_keys_get_alias_view_works(runner: CliRunner) -> None:
                 description="Test Key",
                 roles=[],
                 live_scoring_scopes=["read", "write"],
-                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
-                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                created_at="2026-05-15T17:42:34Z",
+                updated_at="2026-05-15T17:42:34Z",
             ),
         ]
         result = runner.invoke(cli, ["ipad-keys", "view", "--season-id", "15020"])
@@ -86,8 +86,8 @@ def test_ipad_keys_get_json_output(runner: CliRunner) -> None:
                 description="Test Key",
                 roles=[{"title": "app"}],
                 live_scoring_scopes=["read", "write"],
-                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
-                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                created_at="2026-05-15T17:42:34Z",
+                updated_at="2026-05-15T17:42:34Z",
             ),
         ]
         result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020", "-F", "json"])
@@ -116,8 +116,8 @@ def test_ipad_keys_get_yaml_output(runner: CliRunner) -> None:
                 description="Test Key",
                 roles=[],
                 live_scoring_scopes=["read"],
-                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
-                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                created_at="2026-05-15T17:42:34Z",
+                updated_at="2026-05-15T17:42:34Z",
             ),
         ]
         result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020", "-F", "yaml"])
@@ -142,8 +142,8 @@ def test_ipad_keys_get_columns_filter(runner: CliRunner) -> None:
                 description="Test Key",
                 roles=[],
                 live_scoring_scopes=["read", "write"],
-                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
-                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                created_at="2026-05-15T17:42:34Z",
+                updated_at="2026-05-15T17:42:34Z",
             ),
         ]
         result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020", "-c", "id,value"])
@@ -170,8 +170,8 @@ def test_ipad_keys_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
                 description="Test Key",
                 roles=[],
                 live_scoring_scopes=["read"],
-                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
-                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                created_at="2026-05-15T17:42:34Z",
+                updated_at="2026-05-15T17:42:34Z",
             ),
         ]
         result = runner.invoke(
@@ -203,8 +203,8 @@ def test_ipad_keys_get_table_format(runner: CliRunner) -> None:
                 description="Test Key",
                 roles=[],
                 live_scoring_scopes=["read", "write"],
-                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
-                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                created_at="2026-05-15T17:42:34Z",
+                updated_at="2026-05-15T17:42:34Z",
             ),
         ]
         result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020"])
@@ -229,8 +229,8 @@ def test_ipad_keys_get_grid_format(runner: CliRunner) -> None:
                 description="Test Key",
                 roles=[],
                 live_scoring_scopes=["read"],
-                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
-                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                created_at="2026-05-15T17:42:34Z",
+                updated_at="2026-05-15T17:42:34Z",
             ),
         ]
         result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020", "-F", "grid"])
@@ -266,8 +266,8 @@ def test_ipad_keys_get_with_env_var(runner: CliRunner) -> None:
                 description="Test Key",
                 roles=[],
                 live_scoring_scopes=["read", "write"],
-                created_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
-                updated_at="2026-05-15T17:42:34Z",  # type: ignore[arg-type]
+                created_at="2026-05-15T17:42:34Z",
+                updated_at="2026-05-15T17:42:34Z",
             ),
         ]
         result = runner.invoke(cli, ["ipad-keys", "get"], env={"GAMESHEET_SEASON_ID": "15020"})

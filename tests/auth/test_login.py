@@ -35,7 +35,7 @@ def _make_response(url: str, status: int, body: Any = None) -> MagicMock:
 
 
 _FIREBASE_URL = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=X"
-_TOKEN_URL = "https://gamesheet.app/api/token"  # noqa: S105 # nosec B105
+_TOKEN_URL = "https://gamesheet.app/api/token"  # nosec B105
 
 
 @pytest.fixture

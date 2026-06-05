@@ -138,7 +138,7 @@ def test_league_model_ignores_unknown_attributes() -> None:
         title="18U AAA",
         created_at=cast("datetime", "2023-01-01T00:00:00Z"),
         updated_at=cast("datetime", "2023-01-01T00:00:00Z"),
-        unexpected_future_attr="ignored",  # type: ignore[call-arg]
+        unexpected_future_attr="ignored",
     )
     assert lg.title == "18U AAA"
 

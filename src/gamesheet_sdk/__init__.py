@@ -78,6 +78,7 @@ from gamesheet_sdk.auth import (
 )
 from gamesheet_sdk.browser import BrowserSession
 from gamesheet_sdk.config import Config
+from gamesheet_sdk.divisions import Division, list_divisions
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.ipad_keys import IPadKey, list_ipad_keys
 from gamesheet_sdk.leagues import League, list_leagues
@@ -88,8 +89,10 @@ from gamesheet_sdk.output import (
     TABULATE_FORMATS,
     render,
 )
+from gamesheet_sdk.referees import Referee, list_referees
 from gamesheet_sdk.seasons import Season, SeasonDetail, get_season, list_seasons
 from gamesheet_sdk.session import Session
+from gamesheet_sdk.teams import Team, list_teams
 
 __all__ = [
     "ALL_FORMATS",
@@ -100,19 +103,25 @@ __all__ = [
     "Config",
     "DATA_FORMATS",
     "DEFAULT_FORMAT",
+    "Division",
     "GameSheetError",
     "IPadKey",
     "League",
+    "Referee",
     "Season",
     "SeasonDetail",
     "Session",
     "TABULATE_FORMATS",
+    "Team",
     "__version__",
     "get_season",
     "list_associations",
+    "list_divisions",
     "list_ipad_keys",
     "list_leagues",
+    "list_referees",
     "list_seasons",
+    "list_teams",
     "load_access_token",
     "load_refresh_token",
     "login",

@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 def build_authenticated_session(
     _ctx: click.Context,
     config: Config,
-) -> AuthenticatedSession:  # noqa: ARG001
+) -> AuthenticatedSession:
     """Build an AuthenticatedSession from saved tokens.
 
     :param _ctx: The click context.

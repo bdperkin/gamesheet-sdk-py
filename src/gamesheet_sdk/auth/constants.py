@@ -102,7 +102,7 @@ POST_LOGIN_PATH: Final[str] = "/associations"
 FIREBASE_AUTH_HOST: Final[str] = "identitytoolkit.googleapis.com"
 FIREBASE_AUTH_PATH: Final[str] = ":signInWithPassword"
 # GameSheet token exchange endpoint
-TOKEN_EXCHANGE_PATH: Final[str] = "/api/token"  # noqa: S105 # nosec B105
+TOKEN_EXCHANGE_PATH: Final[str] = "/api/token"
 # Endpoint that mints a fresh access token from a valid refresh token.
 REFRESH_URL: Final[str] = "https://gateway-authserver-awy26srzoa-nn.a.run.app/auth/v4/refresh"
 # Timeouts

@@ -10,7 +10,7 @@ Playwright needed for read-only access once a bearer token has been obtained (ty
 
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TC003
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
@@ -18,7 +18,6 @@ from pydantic import BaseModel, Field
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
 if TYPE_CHECKING:
-
     from gamesheet_sdk.session import Session
 _ENDPOINT = "/api/api-keys"
 _JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
@@ -31,7 +30,7 @@ class IPadKey(BaseModel):
     typed model.
     """
 
-    id: str = Field(description="API key identifier (string in JSON:API).")  # noqa: A003
+    id: str = Field(description="API key identifier (string in JSON:API).")
     value: str = Field(description="The actual key value (e.g., 'ipad-ncrr-kw').")
     description: str = Field(description="Human-readable description of the key.")
     roles: list[dict[str, Any]] = Field(

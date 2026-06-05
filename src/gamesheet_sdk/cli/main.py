@@ -35,11 +35,14 @@ from gamesheet_sdk import __version__
 from gamesheet_sdk.cli.commands import (
     associations_group,
     completion_command,
+    divisions_group,
     ipad_keys_group,
     leagues_group,
     login_command,
+    referees_group,
     season_group,
     seasons_group,
+    teams_group,
 )
 from gamesheet_sdk.cli.core import _configure_logging, resolve_exit
 from gamesheet_sdk.config import Config
@@ -67,51 +70,14 @@ from gamesheet_sdk.config import Config
     help="Increase logging verbosity (-v = INFO, -vv = DEBUG).",
 )
 @click.pass_context
-def cli(  # noqa: DOC105
+def cli(
     ctx: click.Context,
     base_url: str | None,
     *,
     no_headless: bool,
     verbose: int,
 ) -> None:
-    """Unofficial SDK for the GameSheet Inc.
-
-    platform.
-        Root command group for the ``gamesheet-sdk-py`` CLI. Automates the GameSheet
-        WebUI via headless browser or direct HTTP where a public API is absent.
-
-        This callback constructs a :class:`~gamesheet_sdk.config.Config` instance
-        from the provided options and environment variables, then stores it in
-        ``ctx.obj`` for subcommands to access via ``@click.pass_context``.
-
-        If invoked without a subcommand, displays help output.
-
-        :param ctx: Click context object.
-        :type ctx: click.Context
-        :param base_url: Optional GameSheet base URL override. If not provided,
-            defaults to the value from ``GAMESHEET_BASE_URL`` environment variable
-            or ``https://gamesheet.app``.
-        :type base_url: str | None
-        :param no_headless: When True, displays the browser window during Playwright
-            flows instead of running headless. Useful for debugging.
-        :type no_headless: bool
-        :param verbose: Logging verbosity level (0=WARNING, 1=INFO, 2+=DEBUG).
-        :type verbose: int
-
-        Examples
-        --------
-        Show help::
-
-            $ gamesheet-sdk-py
-
-        Use a custom base URL::
-
-            $ gamesheet-sdk-py --base-url https://custom.gamesheet.app associations list
-
-        Enable debug logging::
-
-            $ gamesheet-sdk-py -vv login
-    """
+    """Unofficial SDK for the GameSheet platform."""
     _configure_logging(verbose)
     overrides: dict[str, Any] = {}
     if base_url is not None:
@@ -134,6 +100,9 @@ cli.add_command(associations_group)
 cli.add_command(leagues_group)
 cli.add_command(seasons_group)
 cli.add_command(season_group)
+cli.add_command(divisions_group)
+cli.add_command(teams_group)
+cli.add_command(referees_group)
 cli.add_command(ipad_keys_group)
 
 

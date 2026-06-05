@@ -24,7 +24,7 @@ ci:
   # GitHub Actions, where there is no 250 MiB tier limit on hook envs
   # and `python -m venv` works:
   # - pyright: deps don't fit pre-commit.ci's tier
-  # - flake8: [flake8-plugins] (fastapi, pandas-vet, flake8-django, …)
+  # - flake8: [flake8-plugins] (fastapi, flake8-django, …)
   #   exceeds 250 MiB
   # - pyroma: introspects via `python -m build`, which calls
   #   `python -m venv`; pre-commit.ci's bundled Python lacks

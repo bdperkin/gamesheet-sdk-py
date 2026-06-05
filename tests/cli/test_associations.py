@@ -69,8 +69,8 @@ def test_associations_list_json_output(runner: CliRunner) -> None:
             Association(
                 id="1",
                 title="Test Association",
-                created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-                updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+                created_at="2024-01-01T00:00:00Z",
+                updated_at="2024-01-01T00:00:00Z",
             ),
         ]
         result = runner.invoke(cli, ["associations", "list", "--format", "json"])
@@ -93,8 +93,8 @@ def test_associations_list_yaml_output(runner: CliRunner) -> None:
             Association(
                 id="1",
                 title="Test Association",
-                created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-                updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+                created_at="2024-01-01T00:00:00Z",
+                updated_at="2024-01-01T00:00:00Z",
             ),
         ]
         result = runner.invoke(cli, ["associations", "list", "--format", "yaml"])
@@ -117,8 +117,8 @@ def test_associations_list_columns_filter(runner: CliRunner) -> None:
             Association(
                 id="1",
                 title="Test Association",
-                created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-                updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+                created_at="2024-01-01T00:00:00Z",
+                updated_at="2024-01-01T00:00:00Z",
             ),
         ]
         result = runner.invoke(cli, ["associations", "list", "--columns", "id,title"])
@@ -143,8 +143,8 @@ def test_associations_list_output_to_file(runner: CliRunner, tmp_path: Any) -> N
             Association(
                 id="1",
                 title="Test",
-                created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-                updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+                created_at="2024-01-01T00:00:00Z",
+                updated_at="2024-01-01T00:00:00Z",
             ),
         ]
         result = runner.invoke(
@@ -171,8 +171,8 @@ def test_associations_list_csv_output(runner: CliRunner) -> None:
             Association(
                 id="1",
                 title="Test Association",
-                created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-                updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+                created_at="2024-01-01T00:00:00Z",
+                updated_at="2024-01-01T00:00:00Z",
             ),
         ]
         result = runner.invoke(cli, ["associations", "list", "--format", "csv"])

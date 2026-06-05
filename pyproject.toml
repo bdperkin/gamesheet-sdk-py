@@ -154,7 +154,6 @@ optional-dependencies.flake8-plugins = [
   "flynt",
   "isort",
   "mccabe",
-  "pandas-vet",
   "pep8-naming",
   "pycodestyle",
   "pydoclint",
@@ -314,12 +313,14 @@ exclude = [
   ".venv/",
 ]
 extend-ignore = [
+  "A003",
   "ANN101",
   "DOC103",
   "DOC111",
   "DOC402",
   "DOC404",
   "DOC502",
+  "TC003",
   "U101",
 ]
 extend-select = [
@@ -329,7 +330,7 @@ inline-quotes = "double"
 max-line-length = 110
 per-file-ignores = [
   "docs/*:INP001",
-  "tests/*:PD005,PT019,S101,S106,SF01",
+  "tests/*:PT019,S101,S105,S106,SF01",
 ]
 recursive = true
 style = "sphinx"
@@ -581,12 +582,15 @@ ignore_decorators = [
   "@associations_group.command",
   "@cli.command",
   "@confirm_destructive",
+  "@divisions_group.command",
   "@group.command",
   "@ipad_keys_group.command",
   "@leagues_group.command",
   "@pytest.fixture",
+  "@referees_group.command",
   "@season_group.command",
   "@seasons_group.command",
+  "@teams_group.command",
 ]
 
 ## ## pyproject-fmt - Pyproject.toml formatter
@@ -626,6 +630,14 @@ diff = true
 [tool.mypy]
 python_version = "3.11"
 strict = true
+overrides = [
+  { module = [
+    "tests.*",
+  ], disable_error_code = [
+    "arg-type",
+    "call-arg",
+  ] },
+]
 
 ## ## pyrefly - Code health and quality reviewer
 [tool.pyrefly]
@@ -636,7 +648,36 @@ python_version = "3.11"
 ## # ----------------------------------------------------------------------------
 ## ## pyright - Fast Python type checker
 [tool.pyright]
+# Target environment settings
 pythonVersion = "3.11"
+pythonPlatform = "Linux"
+# Main severity mode: "standard" or "strict"
+typeCheckingMode = "standard"
+# Look into library code to extract type information if stubs are missing
+useLibraryCodeForTypes = true
+# Directories or files to include for type checking
+include = [ "." ]
+# Directories or files to exclude from type checking
+exclude = [
+  "**/__pycache__",
+  ".coverage",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".tox",
+  ".venv",
+  "coverage.xml",
+  "dist",
+  "src/gamesheet_sdk/_version.py",
+]
+# Ignore errors inside specific files
+ignore = []
+reportGeneralTypeIssues = "error"
+# Override specific rules
+reportMissingTypeStubs = "warning"
+reportUnknownMemberType = false
+executionEnvironments = [
+  { root = "tests", reportArgumentType = false, reportCallIssue = false },
+]
 
 [tool.coverage]
 run.branch = true
