@@ -21,10 +21,11 @@ PYTHON         ?= $(or $(DETECTED_PYTHON),python3)
 
 # --- Standard paths ----------------------------------------------------------
 
-VENV           := .venv
-PKG            := src/gamesheet_sdk
-DOCS_BUILD     := docs/_build
-DOCS_AUTOSUM   := docs/_autosummary
+VENV               := .venv
+PKG                := src/gamesheet_sdk
+DOCS_BUILD         := docs/_build
+DOCS_AUTOSUM       := docs/_autosummary
+DOCS_REF_AUTOSUM   := docs/reference/_autosummary
 
 # --- ANSI colors (used by help + status lines) -------------------------------
 
@@ -85,14 +86,14 @@ install: ## Editable install with [dev] extras + Playwright Chromium
 
 .PHONY: clean
 clean: ## Remove caches and build artifacts (preserves Git/hatch-vcs state)
-	@printf "$(CYAN)→$(RESET) clean: __pycache__, .pytest_cache, .mypy_cache, .coverage, dist/, coverage.xml\n"
+	@printf "$(CYAN)→$(RESET) clean: __pycache__, .pytest_cache, .mypy_cache, .ruff_cache, .coverage, dist/, coverage.xml\n"
 	@find . -type d -name '__pycache__' -prune -exec rm -rf {} +
-	@rm -rf .pytest_cache .mypy_cache .coverage dist coverage.xml
+	@rm -rf .pytest_cache .mypy_cache .ruff_cache .coverage dist coverage.xml
 
 .PHONY: clean-all
 clean-all: clean ## clean + remove .tox, $(VENV), and docs build dirs
-	@printf "$(CYAN)→$(RESET) clean-all: .tox, $(VENV), $(DOCS_BUILD), $(DOCS_AUTOSUM)\n"
-	@rm -rf .tox $(VENV) $(DOCS_BUILD) $(DOCS_AUTOSUM)
+	@printf "$(CYAN)→$(RESET) clean-all: .tox, $(VENV), $(DOCS_BUILD), $(DOCS_AUTOSUM), $(DOCS_REF_AUTOSUM)\n"
+	@rm -rf .tox $(VENV) $(DOCS_BUILD) $(DOCS_AUTOSUM) $(DOCS_REF_AUTOSUM)
 
 # =============================================================================
 # Virtual environments
