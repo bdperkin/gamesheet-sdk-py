@@ -45,6 +45,7 @@ dependencies = [
   "pyyaml",
   "requests",
   "rich",
+  "rich-click",
   "tabulate",
   "urllib3",
 ]
@@ -561,6 +562,8 @@ ignore_names = [
   "confirm_destructive",
   "copyright",
   "epub_*",
+  "ERRORS_EPILOGUE",
+  "ERRORS_SUGGESTION",
   "exclude_*",
   "extensions",
   "format_commands",
@@ -571,10 +574,14 @@ ignore_names = [
   "linkcheck_*",
   "list_cmd",
   "man_*",
+  "mock_stdout",
   "myst_*",
   "napoleon_*",
+  "OPTIONS_TABLE_COLUMN_TYPES",
+  "OPTIONS_TABLE_HELP_SECTIONS",
   "side_effect",
   "source_*",
+  "STYLE_ERRORS_SUGGESTION",
   "templates_*",
   "todo_*",
 ]
@@ -636,6 +643,12 @@ overrides = [
   ], disable_error_code = [
     "arg-type",
     "call-arg",
+    "untyped-decorator",
+  ] },
+  { module = [
+    "gamesheet_sdk.cli.*",
+  ], disable_error_code = [
+    "untyped-decorator",
   ] },
 ]
 

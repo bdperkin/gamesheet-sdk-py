@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-import click
+import rich_click as click
+from click.exceptions import Exit
 
 from gamesheet_sdk.auth.session import AuthenticatedSession
 from gamesheet_sdk.auth.tokens import load_access_token, load_refresh_token, save_tokens
@@ -24,7 +25,7 @@ def build_authenticated_session(
     :param _ctx: The click context.
     :param config: The application config.
     :returns: An AuthenticatedSession ready to use.
-    :raises click.exceptions.Exit: If no tokens are saved.
+    :raises Exit: If no tokens are saved.
     """
     access = load_access_token(config)
     refresh = load_refresh_token(config)
@@ -35,7 +36,7 @@ def build_authenticated_session(
             fg="red",
             err=True,
         )
-        raise click.exceptions.Exit(1)
+        raise Exit(1)
     return AuthenticatedSession(
         config,
         access_token=access,
@@ -57,15 +58,15 @@ def run_action_or_exit(session: AuthenticatedSession, action: Any, *args: Any) -
         action function (e.g., ``list_associations``, ``list_leagues``).
     :param args: Positional arguments passed to ``action`` after ``session``.
     :returns: The result of ``action(session, *args)`` on success.
-    :raises click.exceptions.Exit: If ``action`` raises :exc:`AuthenticationError` or :exc:`GameSheetError`.
-        Exit code is 1 in both cases.
+    :raises Exit: If ``action`` raises :exc:`AuthenticationError` or :exc:`GameSheetError`. Exit code is 1 in
+        both cases.
     """
     try:
         with session:
             return action(session, *args)
     except AuthenticationError as exc:  # pragma: no cover - same pattern across commands
         click.secho(f"Authentication required: {exc}", fg="red", err=True)
-        raise click.exceptions.Exit(1) from exc
+        raise Exit(1) from exc
     except GameSheetError as exc:  # pragma: no cover - same pattern across commands
         click.secho(f"GameSheet error: {exc}", fg="red", err=True)
-        raise click.exceptions.Exit(1) from exc
+        raise Exit(1) from exc

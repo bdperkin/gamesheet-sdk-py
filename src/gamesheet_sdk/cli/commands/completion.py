@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-import click
+import rich_click as click
+from click.exceptions import Exit
 
 
 @click.command("completion")
@@ -24,17 +25,20 @@ def completion_command(shell: str) -> None:
     # click's built-in completion uses an env-var protocol. We mimic what
     # click.shell_completion does internally but surface it as a subcommand.
     # pylint: disable-next=import-outside-toplevel
+    from click import get_current_context
+
+    # pylint: disable-next=import-outside-toplevel
     from click.shell_completion import get_completion_class
 
     cls = get_completion_class(shell)
     if cls is None:  # pragma: no cover - shell choice enum prevents this
 
         click.secho(f"Unsupported shell: {shell}", fg="red", err=True)
-        raise click.exceptions.Exit(1)
+        raise Exit(1)
     # Create the completion instance and echo its source
     complete_var = "_GAMESHEET_SDK_PY_COMPLETE"
     cli = None
-    ctx = click.get_current_context()
+    ctx = get_current_context()
     if ctx.parent:
 
         cli = ctx.parent.command

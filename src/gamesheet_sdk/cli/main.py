@@ -29,7 +29,8 @@ from __future__ import annotations
 import sys
 from typing import Any
 
-import click
+import rich_click as click
+from click.exceptions import Abort, Exit, UsageError
 
 from gamesheet_sdk import __version__
 from gamesheet_sdk.cli.commands import (
@@ -46,6 +47,51 @@ from gamesheet_sdk.cli.commands import (
 )
 from gamesheet_sdk.cli.core import _configure_logging, resolve_exit
 from gamesheet_sdk.config import Config
+
+# Configure rich-click for attractive help output
+click.rich_click.TEXT_MARKUP = "rich"  # Use rich markup (replaces USE_RICH_MARKUP and USE_MARKDOWN)
+click.rich_click.SHOW_ARGUMENTS = True
+click.rich_click.GROUP_ARGUMENTS_OPTIONS = True
+click.rich_click.STYLE_ERRORS_SUGGESTION = "magenta italic"
+click.rich_click.ERRORS_SUGGESTION = "Try running the '--help' flag for more information."
+click.rich_click.ERRORS_EPILOGUE = ""
+click.rich_click.MAX_WIDTH = 100
+# Use new options_table configuration (replaces SHOW_METAVARS_COLUMN and APPEND_METAVARS_HELP)
+click.rich_click.OPTIONS_TABLE_COLUMN_TYPES = ["required", "opt_short", "opt_long", "metavar", "help"]
+click.rich_click.OPTIONS_TABLE_HELP_SECTIONS = ["help", "deprecated", "envvar", "default", "required"]
+click.rich_click.OPTION_GROUPS = {
+    "gamesheet-sdk-py": [
+        {
+            "name": "Configuration Options",
+            "options": ["--base-url", "--no-headless"],
+        },
+        {
+            "name": "General Options",
+            "options": ["--verbose", "--version", "--help"],
+        },
+    ],
+}
+click.rich_click.COMMAND_GROUPS = {
+    "gamesheet-sdk-py": [
+        {
+            "name": "Authentication",
+            "commands": ["login", "completion"],
+        },
+        {
+            "name": "Resource Management",
+            "commands": [
+                "associations",
+                "leagues",
+                "seasons",
+                "season",
+                "divisions",
+                "teams",
+                "referees",
+                "ipad-keys",
+            ],
+        },
+    ],
+}
 
 
 @click.group(
@@ -111,9 +157,9 @@ def main(argv: list[str] | None = None) -> int:
 
     Invokes the :func:`cli` click group with ``standalone_mode=False`` so that
     click's control-flow exceptions:
-        * :exc:`click.exceptions.Exit`
-        * :exc:`click.exceptions.UsageError`
-        * :exc:`click.exceptions.Abort`
+        * :exc:`Exit`
+        * :exc:`UsageError`
+        * :exc:`Abort`
     are converted to integer exit codes rather than triggering ``sys.exit()``
     calls.  This preserves the ``main(argv) -> int`` contract expected by test
     harnesses and allows the caller to control process exit.
@@ -127,9 +173,9 @@ def main(argv: list[str] | None = None) -> int:
     try:
         cli.main(args=argv, prog_name="gamesheet-sdk-py", standalone_mode=False)
     except (  # pragma: no cover - exception handling
-        click.exceptions.Exit,
-        click.exceptions.UsageError,
-        click.exceptions.Abort,
+        Exit,
+        UsageError,
+        Abort,
         SystemExit,
     ) as exc:
         return resolve_exit(exc)

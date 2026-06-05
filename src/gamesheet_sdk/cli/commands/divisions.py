@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import click
+import rich_click as click
 
 from gamesheet_sdk.cli.core import ResourceGroup, parse_columns_spec
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
