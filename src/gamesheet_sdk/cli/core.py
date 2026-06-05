@@ -49,7 +49,7 @@ from rich_click import RichGroup
 F = TypeVar("F", bound=Callable[..., Any])
 
 
-class ResourceGroup(RichGroup):  # type: ignore[misc]
+class ResourceGroup(RichGroup):  # type: ignore[misc,unused-ignore]
     """A :class:`click.Group` for resource-oriented sub-command trees.
 
     Adds two pieces of architectural plumbing on top of the stock group.
