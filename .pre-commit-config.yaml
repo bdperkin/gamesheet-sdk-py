@@ -272,12 +272,11 @@ repos:
       - id: blocklint # blocklint
 
   - repo: https://github.com/pycqa/flake8
-    rev: 7.3.0
+    rev: d93590f5be797aabb60e3b09f2f52dddb02f349f  # 7.3.0
     hooks:
       - id: flake8 # flake8
         additional_dependencies:
           - flake8-pyproject
-          # Note: pandas-vet removed 2026-06-05, cache refresh
           - gamesheet-sdk-py[flake8,flake8-plugins,pylint]
 
   - repo: https://github.com/dosisod/refurb
