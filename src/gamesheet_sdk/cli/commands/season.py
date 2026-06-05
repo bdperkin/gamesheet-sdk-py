@@ -86,9 +86,8 @@ def season_get_command(
     """
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
-    season_detail = run_action_or_exit(session, _get_season_action, season_id)
     # Convert to dict for rendering
-    data = season_detail.model_dump(mode="json")  # noqa: FURB184
+    data = run_action_or_exit(session, _get_season_action, season_id).model_dump(mode="json")
     # If fields are specified, filter to only those fields
     if fields_spec:
 

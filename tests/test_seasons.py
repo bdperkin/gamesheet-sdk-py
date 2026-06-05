@@ -141,7 +141,7 @@ def test_season_model_ignores_unknown_attributes() -> None:
         title="2024-2025",
         created_at=cast("datetime", "2024-01-01T00:00:00Z"),
         updated_at=cast("datetime", "2024-01-01T00:00:00Z"),
-        unexpected_future_attr="ignored",  # type: ignore[call-arg]
+        unexpected_future_attr="ignored",
     )
     assert s.title == "2024-2025"
 
@@ -350,6 +350,6 @@ def test_season_detail_model_ignores_unknown_attributes() -> None:
         stats_year="2026",
         created_at=cast("datetime", "2024-01-01T00:00:00Z"),
         updated_at=cast("datetime", "2024-01-01T00:00:00Z"),
-        unexpected_future_attr="ignored",  # type: ignore[call-arg]
+        unexpected_future_attr="ignored",
     )
     assert sd.title == "Test"

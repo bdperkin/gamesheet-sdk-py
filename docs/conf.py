@@ -8,7 +8,8 @@ from pathlib import Path
 # -- Project information -----------------------------------------------------
 project = "gamesheet-sdk-py"
 author = "bdperkin"
-copyright = f"2026, {author}"  # noqa: A001 # pylint: disable=redefined-builtin
+# pylint: disable-next=redefined-builtin
+copyright = f"2026, {author}"  # noqa: A001
 release = metadata.version("gamesheet-sdk-py")
 version = ".".join(release.split(".")[:2])
 # -- General configuration ---------------------------------------------------

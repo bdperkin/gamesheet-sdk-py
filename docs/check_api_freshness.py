@@ -10,6 +10,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from rich import print as rprint
+
 # Paths
 DOCS_DIR = Path(__file__).parent
 PROJECT_ROOT = DOCS_DIR.parent
@@ -47,21 +49,24 @@ def main() -> int:
     oldest_doc = get_oldest_doc_mtime()
 
     if newest_source == 0.0:
-        print("ERROR: No source files found")  # noqa: T201
+        rprint("[bold red]ERROR:[/bold red] No source files found")
         return 1
 
     if oldest_doc == 0.0:
-        print("WARNING: No API documentation found. Run: python docs/generate_api_docs.py")  # noqa: T201
-        return 1
-
-    if newest_source > oldest_doc:
-        print(  # noqa: T201
-            "WARNING: Source files are newer than API documentation. "
-            "Run: python docs/generate_api_docs.py",
+        rprint(
+            "[bold yellow]WARNING:[/bold yellow] No API documentation "
+            "found. Run: [cyan]python docs/generate_api_docs.py[/cyan]",
         )
         return 1
 
-    print("✓ API documentation is up-to-date")  # noqa: T201
+    if newest_source > oldest_doc:
+        rprint(
+            "[bold yellow]WARNING:[/bold yellow] Source files are newer than API documentation. "
+            "Run: [cyan]python docs/generate_api_docs.py[/cyan]",
+        )
+        return 1
+
+    rprint("[bold green]✓[/bold green] API documentation is up-to-date")
     return 0
 
 

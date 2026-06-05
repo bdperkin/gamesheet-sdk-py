@@ -26,8 +26,7 @@ def test_resource_group_with_no_aliases() -> None:
 
         click.echo("listing")
 
-    runner = CliRunner()
-    result = runner.invoke(test_group, ["list"])  # noqa: FURB184
+    result = CliRunner().invoke(test_group, ["list"])
     assert result.exit_code == 0
     assert "listing" in result.output
 
@@ -175,8 +174,7 @@ def test_confirm_destructive_with_force() -> None:
 
         click.echo("deleted")
 
-    runner = CliRunner()
-    result = runner.invoke(delete_cmd, ["--force"])  # noqa: FURB184
+    result = CliRunner().invoke(delete_cmd, ["--force"])
     assert result.exit_code == 0
     assert "deleted" in result.output
     assert "Really delete" not in result.output
@@ -191,8 +189,7 @@ def test_confirm_destructive_without_force_confirmed() -> None:
 
         click.echo("deleted")
 
-    runner = CliRunner()
-    result = runner.invoke(delete_cmd, input="y\n")  # noqa: FURB184
+    result = CliRunner().invoke(delete_cmd, input="y\n")
     assert result.exit_code == 0
     assert "deleted" in result.output
 
@@ -206,8 +203,7 @@ def test_confirm_destructive_without_force_aborted() -> None:
 
         click.echo("deleted")
 
-    runner = CliRunner()
-    result = runner.invoke(delete_cmd, input="n\n")  # noqa: FURB184
+    result = CliRunner().invoke(delete_cmd, input="n\n")
     assert result.exit_code == 1
     assert "deleted" not in result.output
     assert "Aborted" in result.output or result.exit_code != 0

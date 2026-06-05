@@ -33,7 +33,7 @@ Examples:
 
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TC003
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
@@ -41,7 +41,6 @@ from pydantic import BaseModel, Field
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
 if TYPE_CHECKING:
-
     from gamesheet_sdk.session import Session
 _ENDPOINT = "/api/associations"
 _JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
@@ -60,11 +59,11 @@ class Association(BaseModel):
         updated_at: Last time the association was updated.
     """
 
-    id: str = Field(description="Association identifier (string in JSON:API).")  # noqa: A003
+    id: str = Field(description="Association identifier (string in JSON:API).")
     title: str = Field(description="Display name of the association.")
     logo: str = Field(default="", description="Logo asset URL, possibly empty.")
     created_at: datetime = Field(description="When the association was created.")
-    updated_at: datetime = Field(description="Last time the association was updated.")  # noqa: F841
+    updated_at: datetime = Field(description="Last time the association was updated.")
 
 
 def _parse(item: dict[str, Any]) -> Association:

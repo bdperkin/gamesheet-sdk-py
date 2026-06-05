@@ -23,9 +23,9 @@ from urllib.parse import urljoin
 
 import requests
 from requests.adapters import HTTPAdapter
-from requests.cookies import create_cookie  # pyright: ignore[reportUnknownVariableType]
 from requests.cookies import (
     RequestsCookieJar,
+    create_cookie,
 )
 from urllib3.util.retry import Retry
 
@@ -126,8 +126,8 @@ class Session:
                 secure=raw.get("secure", False),
                 expires=raw.get("expires"),
             )
-            self._http.cookies.set_cookie(  # pyright: ignore[reportUnknownMemberType]
-                cookie,  # pyright: ignore[reportUnknownArgumentType]
+            self._http.cookies.set_cookie(
+                cookie,
             )
 
     def __init__(self, config: Config | None = None) -> None:
@@ -152,7 +152,7 @@ class Session:
         The underlying mapping is a case-insensitive dict (as supplied by :class:`requests.Session`), but the
         declared return type matches the stub for :attr:`requests.Session.headers`.
         """
-        return self._http.headers  # type: ignore[reportReturnType,unused-ignore]
+        return self._http.headers  # pyright: ignore[reportReturnType]
 
     def set_bearer_token(self, token: str) -> None:
         """Attach ``Authorization: Bearer <token>`` to all subsequent requests.

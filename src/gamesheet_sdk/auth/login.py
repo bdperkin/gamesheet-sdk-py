@@ -155,7 +155,7 @@ def _firebase_error_message(response: Response) -> str:
     err = body.get("error")
     if isinstance(err, dict):
 
-        message = err.get("message")  # pyright: ignore[reportUnknownMemberType,reportUnknownVariableType]
+        message = err.get("message")
         if isinstance(message, str):
 
             return message

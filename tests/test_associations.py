@@ -125,6 +125,6 @@ def test_association_model_ignores_unknown_attributes() -> None:
         logo="",
         created_at=cast("datetime", "2023-01-01T00:00:00Z"),
         updated_at=cast("datetime", "2023-01-01T00:00:00Z"),
-        unexpected_future_attr="ignored",  # type: ignore[call-arg]
+        unexpected_future_attr="ignored",
     )
     assert a.title == "X"

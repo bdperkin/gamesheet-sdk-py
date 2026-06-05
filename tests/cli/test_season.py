@@ -43,8 +43,8 @@ def test_season_get_alias_show_works(runner: CliRunner) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-            updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+            created_at="2024-01-01T00:00:00Z",
+            updated_at="2024-01-01T00:00:00Z",
         )
         result = runner.invoke(cli, ["season", "show", "--season-id", "15020"])
         assert result.exit_code == 0
@@ -71,8 +71,8 @@ def test_season_get_alias_view_works(runner: CliRunner) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-            updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+            created_at="2024-01-01T00:00:00Z",
+            updated_at="2024-01-01T00:00:00Z",
         )
         result = runner.invoke(cli, ["season", "view", "--season-id", "15020"])
         assert result.exit_code == 0
@@ -114,8 +114,8 @@ def test_season_get_json_output(runner: CliRunner) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-            updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+            created_at="2024-01-01T00:00:00Z",
+            updated_at="2024-01-01T00:00:00Z",
         )
         result = runner.invoke(cli, ["season", "get", "--season-id", "15020", "--format", "json"])
         assert result.exit_code == 0
@@ -144,8 +144,8 @@ def test_season_get_yaml_output(runner: CliRunner) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-            updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+            created_at="2024-01-01T00:00:00Z",
+            updated_at="2024-01-01T00:00:00Z",
         )
         result = runner.invoke(cli, ["season", "get", "--season-id", "15020", "--format", "yaml"])
         assert result.exit_code == 0
@@ -173,8 +173,8 @@ def test_season_get_fields_filter(runner: CliRunner) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-            updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+            created_at="2024-01-01T00:00:00Z",
+            updated_at="2024-01-01T00:00:00Z",
         )
         result = runner.invoke(cli, ["season", "get", "--season-id", "15020", "--fields", "id,title,sport"])
         assert result.exit_code == 0
@@ -203,8 +203,8 @@ def test_season_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-            updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+            created_at="2024-01-01T00:00:00Z",
+            updated_at="2024-01-01T00:00:00Z",
         )
         result = runner.invoke(
             cli,
@@ -236,8 +236,8 @@ def test_season_get_table_format(runner: CliRunner) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-            updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+            created_at="2024-01-01T00:00:00Z",
+            updated_at="2024-01-01T00:00:00Z",
         )
         result = runner.invoke(cli, ["season", "get", "--season-id", "15020", "--format", "simple"])
         assert result.exit_code == 0
@@ -266,8 +266,8 @@ def test_season_get_grid_format(runner: CliRunner) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-            updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+            created_at="2024-01-01T00:00:00Z",
+            updated_at="2024-01-01T00:00:00Z",
         )
         result = runner.invoke(cli, ["season", "get", "--season-id", "15020", "--format", "grid"])
         assert result.exit_code == 0
@@ -306,8 +306,8 @@ def test_season_get_with_env_var(runner: CliRunner) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-            updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+            created_at="2024-01-01T00:00:00Z",
+            updated_at="2024-01-01T00:00:00Z",
         )
         result = runner.invoke(cli, ["season", "get"], env={"GAMESHEET_SEASON_ID": "15020"})
         assert result.exit_code == 0

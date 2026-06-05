@@ -10,7 +10,7 @@ state via :func:`gamesheet_sdk.auth.load_access_token`).
 
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TC003
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
@@ -18,7 +18,6 @@ from pydantic import BaseModel, Field
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
 if TYPE_CHECKING:
-
     from gamesheet_sdk.session import Session
 _ENDPOINT = "/api/seasons"
 _JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
@@ -31,11 +30,11 @@ class Season(BaseModel):
     model.
     """
 
-    id: str = Field(description="Season identifier (string in JSON:API).")  # noqa: A003
+    id: str = Field(description="Season identifier (string in JSON:API).")
     league_id: str = Field(description="Parent league identifier.")
     title: str = Field(description="Display name of the season.")
     created_at: datetime = Field(description="When the season was created.")
-    updated_at: datetime = Field(description="Last time the season was updated.")  # noqa: F841
+    updated_at: datetime = Field(description="Last time the season was updated.")
 
 
 class SeasonDetail(BaseModel):
@@ -45,7 +44,7 @@ class SeasonDetail(BaseModel):
     including all attributes and relationships.
     """
 
-    id: str = Field(description="Season identifier (string in JSON:API).")  # noqa: A003
+    id: str = Field(description="Season identifier (string in JSON:API).")
     association_id: str = Field(description="Parent association identifier.")
     league_id: str = Field(description="Parent league identifier.")
     title: str = Field(description="Display name of the season.")
@@ -73,7 +72,7 @@ class SeasonDetail(BaseModel):
     )
     vendor_data: dict[str, Any] = Field(default_factory=dict, description="Vendor-specific metadata.")
     created_at: datetime = Field(description="When the season was created.")
-    updated_at: datetime = Field(description="Last time the season was updated.")  # noqa: F841
+    updated_at: datetime = Field(description="Last time the season was updated.")
 
 
 def _parse(item: dict[str, Any]) -> Season:

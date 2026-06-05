@@ -147,6 +147,6 @@ def test_ipad_key_model_ignores_unknown_attributes() -> None:
         live_scoring_scopes=["read"],
         created_at=cast("datetime", "2026-01-01T00:00:00Z"),
         updated_at=cast("datetime", "2026-01-01T00:00:00Z"),
-        unexpected_future_attr="ignored",  # type: ignore[call-arg]
+        unexpected_future_attr="ignored",
     )
     assert key.value == "ipad-test-key"

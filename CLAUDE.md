@@ -27,21 +27,27 @@ The package is alpha. Structure under `src/gamesheet_sdk/`:
   - `core.py` — `ResourceGroup` class, `confirm_destructive` decorator, utility functions
   - `helpers.py` — shared command helpers
   - `main.py` — main CLI entry point (`cli` group and `main()` function)
-  - `commands/` — individual command modules (associations, completion, ipad_keys, leagues, login, season, seasons)
+  - `commands/` — individual command modules (associations, completion, divisions, ipad_keys, leagues, login, referees, season, seasons, teams)
 - `config.py` — `pydantic-settings` `Config` (resolves `GAMESHEET_*` env vars; CLI args > env > defaults)
+- `divisions.py` — `Division` model + `list_divisions()`
 - `exceptions.py` — `GameSheetError`, `AuthenticationError`
 - `output.py` — `render()` for JSON / YAML / CSV / TSV / 13 tabulate formats + `write_output()`
+- `referees.py` — `Referee` model + `list_referees()`
 - `session.py` — base `requests.Session` subclass
+- `teams.py` — `Team` model + `list_teams()`
 
 Domain modules (each provides pydantic models + action functions, plus a corresponding command module under `cli/commands/`):
 
 - `associations.py` — `Association` model + `list_associations()`
-- `ipad_keys.py` — `ScoringAccessKey` model + `get_ipad_keys()`
+- `divisions.py` — `Division` model + `list_divisions()`
+- `ipad_keys.py` — `IPadKey` model + `list_ipad_keys()`
 - `leagues.py` — `League` model + `list_leagues()`
-- `seasons.py` — `Season` model + `list_seasons()`, `get_season()`
+- `referees.py` — `Referee` model + `list_referees()`
+- `seasons.py` — `Season` and `SeasonDetail` models + `list_seasons()`, `get_season()`
+- `teams.py` — `Team` model + `list_teams()`
 
-Future domain modules (teams, games, players, …) attach the same way: a thin action function in a domain module, a pydantic model, and a corresponding command
-module in `cli/commands/`.
+Future domain modules (games, players, …) attach the same way: a thin action function in a domain module, a pydantic model, and a corresponding command module
+in `cli/commands/`.
 
 ## Common commands
 
@@ -152,7 +158,7 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
   in `ci.skip` — they still run in GitHub Actions where there is no 250 MiB tier limit and `python -m venv` works:
 
   - `pyright` — deps don't fit pre-commit.ci's tier.
-  - `flake8` — `[flake8-plugins]` pulls fastapi, pandas-vet, flake8-django, etc., exceeding 250 MiB.
+  - `flake8` — `[flake8-plugins]` pulls fastapi, flake8-django, etc., exceeding 250 MiB.
   - `pyroma` — introspects via `python -m build`, which calls `python -m venv`; pre-commit.ci's bundled Python lacks `ensurepip`, so the build env can't
     bootstrap pip.
 

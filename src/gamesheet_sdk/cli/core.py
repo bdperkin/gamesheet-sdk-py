@@ -189,7 +189,7 @@ class ResourceGroup(click.Group):
 
                 continue
             items.append(item)
-            seen.add(alias)  # noqa: PD005
+            seen.add(alias)
         return items
 
     def shell_complete(
@@ -389,7 +389,7 @@ def resolve_exit(exc: BaseException) -> int:  # pragma: no cover - exception han
 
     if isinstance(exc, click.exceptions.UsageError):
 
-        exc.show()  # pyright: ignore[reportUnknownMemberType]
+        exc.show()
         return 2
 
     if isinstance(exc, click.exceptions.Abort):

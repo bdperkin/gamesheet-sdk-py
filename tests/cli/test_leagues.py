@@ -61,8 +61,8 @@ def test_leagues_list_json_output(runner: CliRunner) -> None:
                 id="100",
                 association_id="38",
                 title="Test League",
-                created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-                updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+                created_at="2024-01-01T00:00:00Z",
+                updated_at="2024-01-01T00:00:00Z",
             ),
         ]
         result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--format", "json"])
@@ -86,8 +86,8 @@ def test_leagues_list_yaml_output(runner: CliRunner) -> None:
                 id="100",
                 association_id="38",
                 title="Test League",
-                created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-                updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+                created_at="2024-01-01T00:00:00Z",
+                updated_at="2024-01-01T00:00:00Z",
             ),
         ]
         result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--format", "yaml"])
@@ -111,8 +111,8 @@ def test_leagues_list_columns_filter(runner: CliRunner) -> None:
                 id="100",
                 association_id="38",
                 title="Test League",
-                created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-                updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+                created_at="2024-01-01T00:00:00Z",
+                updated_at="2024-01-01T00:00:00Z",
             ),
         ]
         result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--columns", "id,title"])
@@ -137,8 +137,8 @@ def test_leagues_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
                 id="100",
                 association_id="38",
                 title="Test",
-                created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-                updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+                created_at="2024-01-01T00:00:00Z",
+                updated_at="2024-01-01T00:00:00Z",
             ),
         ]
         result = runner.invoke(
@@ -166,8 +166,8 @@ def test_leagues_list_csv_output(runner: CliRunner) -> None:
                 id="100",
                 association_id="38",
                 title="Test League",
-                created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-                updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+                created_at="2024-01-01T00:00:00Z",
+                updated_at="2024-01-01T00:00:00Z",
             ),
         ]
         result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--format", "csv"])
@@ -200,8 +200,8 @@ def test_leagues_list_grid_format(runner: CliRunner) -> None:
                 id="100",
                 association_id="38",
                 title="Test League",
-                created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-                updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+                created_at="2024-01-01T00:00:00Z",
+                updated_at="2024-01-01T00:00:00Z",
             ),
         ]
         result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--format", "grid"])
@@ -225,8 +225,8 @@ def test_leagues_list_simple_format(runner: CliRunner) -> None:
                 id="100",
                 association_id="38",
                 title="Test League",
-                created_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
-                updated_at="2024-01-01T00:00:00Z",  # type: ignore[arg-type]
+                created_at="2024-01-01T00:00:00Z",
+                updated_at="2024-01-01T00:00:00Z",
             ),
         ]
         result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--format", "simple"])

@@ -51,7 +51,7 @@ ALL_FORMATS: tuple[str, ...] = DATA_FORMATS + TABULATE_FORMATS
 DEFAULT_FORMAT = "simple"
 
 
-def _render_json(rows: list[dict[str, Any]], _columns: list[str]) -> str:  # noqa: U101
+def _render_json(rows: list[dict[str, Any]], _columns: list[str]) -> str:
     """Render rows as indented, sorted JSON.
 
     :param rows: List of row dictionaries to serialize.
@@ -70,7 +70,7 @@ def _render_json(rows: list[dict[str, Any]], _columns: list[str]) -> str:  # noq
     return json.dumps(rows, indent=2, sort_keys=True, default=str)
 
 
-def _render_yaml(rows: list[dict[str, Any]], _columns: list[str]) -> str:  # noqa: U101
+def _render_yaml(rows: list[dict[str, Any]], _columns: list[str]) -> str:
     """Render rows as block-style YAML.
 
     :param rows: List of row dictionaries to serialize.

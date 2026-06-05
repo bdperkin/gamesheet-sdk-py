@@ -11,6 +11,8 @@ import subprocess  # noqa: S404 # nosec B404
 import sys
 from pathlib import Path
 
+from rich import print as rprint
+
 # Paths relative to this script's location
 DOCS_DIR = Path(__file__).parent
 PROJECT_ROOT = DOCS_DIR.parent
@@ -41,14 +43,17 @@ def main() -> int:
         "**/test_*.py",  # Test files
     ]
 
-    print(f"Running: {' '.join(cmd)}")  # noqa: T201
+    rprint(f"[bold]Running:[/bold] [cyan]{' '.join(cmd)}[/cyan]")
     result = subprocess.run(cmd, check=False)  # noqa: S603 # nosec B603
 
     if result.returncode != 0:
-        print(f"sphinx-apidoc failed with exit code {result.returncode}", file=sys.stderr)  # noqa: T201
+        rprint(
+            f"[bold red]sphinx-apidoc failed with exit code {result.returncode}[/bold red]",
+            file=sys.stderr,
+        )
         return result.returncode
 
-    print(f"API documentation generated in {OUTPUT_DIR}")  # noqa: T201
+    rprint(f"[bold green]✓[/bold green] API documentation generated in [cyan]{OUTPUT_DIR}[/cyan]")
     return 0
 
 

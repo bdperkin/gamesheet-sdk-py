@@ -30,7 +30,7 @@ Retrieve all leagues for a given association:
 
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TC003
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
@@ -38,7 +38,6 @@ from pydantic import BaseModel, Field
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
 if TYPE_CHECKING:
-
     from gamesheet_sdk.session import Session
 _ENDPOINT_TEMPLATE = "/api/associations/{association_id}/leagues"
 _JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
@@ -51,11 +50,11 @@ class League(BaseModel):
     typed model.
     """
 
-    id: str = Field(description="League identifier (string in JSON:API).")  # noqa: A003
+    id: str = Field(description="League identifier (string in JSON:API).")
     association_id: str = Field(description="Parent association identifier.")
     title: str = Field(description="Display name of the league.")
     created_at: datetime = Field(description="When the league was created.")
-    updated_at: datetime = Field(description="Last time the league was updated.")  # noqa: F841
+    updated_at: datetime = Field(description="Last time the league was updated.")
 
 
 def _parse(item: dict[str, Any], association_id: str) -> League:

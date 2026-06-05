@@ -43,7 +43,7 @@ def test_env_vars_are_picked_up(monkeypatch: pytest.MonkeyPatch) -> None:
     cfg = Config()
     assert cfg.username == "alice"
     assert cfg.password is not None
-    # pylint: disable-next=no-member  # pylint mis-types SecretStr as FieldInfo
+    # pylint: disable-next=no-member
     assert cfg.password.get_secret_value() == "hunter2"
     assert cfg.timeout == 10.0
 
@@ -65,19 +65,19 @@ def test_password_is_redacted_in_repr() -> None:
 
 def test_negative_timeout_rejected() -> None:
 
-    with pytest.raises(ValueError):  # noqa: PT011
+    with pytest.raises(ValueError, match=r"Input should be greater than 0"):
         Config(timeout=-1.0)
 
 
 def test_zero_timeout_rejected() -> None:
 
-    with pytest.raises(ValueError):  # noqa: PT011
+    with pytest.raises(ValueError, match=r"Input should be greater than 0"):
         Config(timeout=0.0)
 
 
 def test_negative_retries_rejected() -> None:
 
-    with pytest.raises(ValueError):  # noqa: PT011
+    with pytest.raises(ValueError, match=r"Input should be greater than or equal to 0"):
         Config(request_retries=-1)  # pyrefly: ignore[bad-argument-type]  # intentional invalid value
 
 
