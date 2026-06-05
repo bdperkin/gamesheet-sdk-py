@@ -35,7 +35,8 @@ Examples:
 
 from __future__ import annotations
 
-import click
+import rich_click as click
+from click.exceptions import Exit
 
 from gamesheet_sdk.auth.login import login as _login_action
 from gamesheet_sdk.browser import BrowserSession
@@ -119,5 +120,5 @@ def login_command(  # pragma: no cover - requires browser automation
             _login_action(session, email=email, password=password, timeout=timeout)
     except Exception as exc:  # pragma: no cover - browser errors
         click.secho(f"Login failed: {exc}", fg="red", err=True)
-        raise click.exceptions.Exit(1) from exc
+        raise Exit(1) from exc
     click.secho("Login successful! Tokens saved.", fg="green")

@@ -40,14 +40,16 @@ import sys
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any, TypeVar
 
-import click
-import click.shell_completion
 import colorlog
+import rich_click as click
+from click.exceptions import Abort, Exit, UsageError
+from click.shell_completion import CompletionItem
+from rich_click import RichGroup
 
 F = TypeVar("F", bound=Callable[..., Any])
 
 
-class ResourceGroup(click.Group):
+class ResourceGroup(RichGroup):  # type: ignore[misc,unused-ignore]
     """A :class:`click.Group` for resource-oriented sub-command trees.
 
     Adds two pieces of architectural plumbing on top of the stock group.
@@ -107,9 +109,10 @@ class ResourceGroup(click.Group):
         if not args and self.default_cmd_name is not None and not ctx.resilient_parsing:
 
             args = [self.default_cmd_name]
-        return super().parse_args(ctx, args)
+        result: list[str] = super().parse_args(ctx, args)
+        return result
 
-    def _command_row(self, name: str, cmd: click.Command) -> tuple[str, str]:
+    def _command_row(self, name: str, cmd: click.Command) -> tuple[str, str]:  # pragma: no cover
         """Build the ``"list (ls)"`` label + short-help pair for one command.
 
         :param name: Canonical command name.
@@ -120,7 +123,7 @@ class ResourceGroup(click.Group):
         label = f"{name} ({', '.join(alts)})" if alts else name
         return label, cmd.get_short_help_str(limit=80)
 
-    def _visible_command_rows(self, ctx: click.Context) -> Iterable[tuple[str, str]]:
+    def _visible_command_rows(self, ctx: click.Context) -> Iterable[tuple[str, str]]:  # pragma: no cover
         """Yield ``(label, short_help)`` for each non-hidden canonical command.
 
         :param ctx: The click context for resolving commands.
@@ -129,12 +132,12 @@ class ResourceGroup(click.Group):
         for name in self.list_commands(ctx):
 
             cmd = self.get_command(ctx, name)
-            if cmd is None or cmd.hidden:  # pragma: no cover
+            if cmd is None or cmd.hidden:
 
                 continue
             yield self._command_row(name, cmd)
 
-    def format_commands(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:
+    def format_commands(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:  # pragma: no cover
         """Render the command list with aliases in parentheses."""
         rows = list(self._visible_command_rows(ctx))
         if rows:
@@ -148,7 +151,7 @@ class ResourceGroup(click.Group):
         target: str,
         incomplete: str,
         seen: set[str],
-    ) -> click.shell_completion.CompletionItem | None:
+    ) -> CompletionItem | None:
         """Return a CompletionItem for ``alias`` if it should surface, else ``None``.
 
         :param alias: The alias name to check.
@@ -168,20 +171,20 @@ class ResourceGroup(click.Group):
 
         short = cmd.get_short_help_str()
         help_text = f"(alias for {target}) {short}".rstrip()
-        return click.shell_completion.CompletionItem(alias, help=help_text)
+        return CompletionItem(alias, help=help_text)
 
     def _alias_completion_items(
         self,
         incomplete: str,
         seen: set[str],
-    ) -> list[click.shell_completion.CompletionItem]:
+    ) -> list[CompletionItem]:
         """Build the alias-only completion items not already in ``seen``.
 
         :param incomplete: The partial command string being completed.
         :param seen: Set of already-seen completion values; mutated in-place to track new aliases.
         :returns: List of CompletionItems for visible aliases matching the incomplete string.
         """
-        items: list[click.shell_completion.CompletionItem] = []
+        items: list[CompletionItem] = []
         for alias, target in self._aliases.items():
 
             item = self._alias_item_if_visible(alias, target, incomplete, seen)
@@ -196,7 +199,7 @@ class ResourceGroup(click.Group):
         self,
         ctx: click.Context,
         incomplete: str,
-    ) -> list[click.shell_completion.CompletionItem]:
+    ) -> list[CompletionItem]:
         """Tab-completion candidates for this group.
 
         Augments click's stock list (canonical sub-commands, plus options inherited from parent groups via the
@@ -229,7 +232,7 @@ def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
             pass
     """
 
-    def decorator(f: F) -> F:
+    def decorator(f: F) -> Any:
         """Actual decorator that adds the --force option and confirmation logic.
 
         :param f: The command function to decorate.
@@ -250,7 +253,7 @@ def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
             :param force: If True, skip confirmation and proceed immediately.
             :param kwargs: Keyword arguments passed to the original function.
             :returns: The return value of the decorated function.
-            :raises click.exceptions.Exit: With code 1 if the user declines confirmation.
+            :raises Exit: With code 1 if the user declines confirmation.
             """
             if not force:
 
@@ -258,11 +261,11 @@ def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
                 if not confirmed:
 
                     click.echo("Aborted.", err=True)
-                    raise click.exceptions.Exit(1)
+                    raise Exit(1)
             # Remove force from kwargs before calling the original function
             return f(*args, **kwargs)
 
-        return wrapper  # type: ignore[return-value]
+        return wrapper
 
     return decorator
 
@@ -374,25 +377,25 @@ def resolve_exit(exc: BaseException) -> int:  # pragma: no cover - exception han
     """Map a click/Python exit-style exception to its conventional exit code.
 
     Handles click-specific exceptions and delegates to :func:`resolve_system_exit` for standard Python exits:
-    - :class:`click.exceptions.Exit` → the exception's exit_code
-    - :class:`click.exceptions.UsageError` → 2 (after showing the error)
-    - :class:`click.exceptions.Abort` → 1 (after printing "Aborted.")
+    - :class:`Exit` → the exception's exit_code
+    - :class:`UsageError` → 2 (after showing the error)
+    - :class:`Abort` → 1 (after printing "Aborted.")
     - Other exceptions → delegated to :func:`resolve_system_exit`
 
     :param exc: The exception to resolve.
     :returns: An integer exit code following Unix conventions (0 = success, 1 = general error, 2 = usage
         error).
     """
-    if isinstance(exc, click.exceptions.Exit):
+    if isinstance(exc, Exit):
 
         return int(exc.exit_code)
 
-    if isinstance(exc, click.exceptions.UsageError):
+    if isinstance(exc, UsageError):
 
         exc.show()
         return 2
 
-    if isinstance(exc, click.exceptions.Abort):
+    if isinstance(exc, Abort):
 
         click.echo("Aborted.", err=True)
         return 1

@@ -291,6 +291,7 @@ repos:
         additional_dependencies:
           - gamesheet-sdk-py[pylint,pytest]
           - pylint-per-file-ignores
+          - rich-click
 
   - repo: https://github.com/facebook/pyrefly-pre-commit
     rev: 1.0.0
@@ -298,6 +299,7 @@ repos:
       - id: pyrefly-check # pyrefly check
         additional_dependencies:
           - gamesheet-sdk-py[pyrefly,pytest]
+          - rich-click
 
   # ------------------------------------------------------------------------------
   ### Security, Metrics & Complexity
@@ -324,6 +326,7 @@ repos:
       - id: pyright # pyright
         additional_dependencies:
           - gamesheet-sdk-py[pyright,pytest]
+          - rich-click
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v2.1.0

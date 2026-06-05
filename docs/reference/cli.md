@@ -3,6 +3,17 @@
 The package installs a `gamesheet-sdk-py` console script whose entry point is {func}`gamesheet_sdk.cli.main`. The subcommand tree below is rendered live from
 the click group {data}`gamesheet_sdk.cli.cli` by `sphinx-click`, so the options always match the shipped binary.
 
+## Rich Help Output
+
+The CLI uses [rich-click](https://github.com/ewels/rich-click) to provide beautifully formatted help output with:
+
+- **Grouped options** — Configuration and general options are organized into separate sections for clarity
+- **Grouped commands** — Commands are categorized (Authentication, Resource Management) for easier navigation
+- **Rich formatting** — Tables, borders, and color-coded sections enhance readability
+- **Consistent styling** — All help pages follow the same visual design for a polished experience
+
+The rich-click integration requires minimal customization and works seamlessly with the existing Click-based CLI infrastructure.
+
 ```{eval-rst}
 .. click:: gamesheet_sdk.cli:cli
     :prog: gamesheet-sdk-py

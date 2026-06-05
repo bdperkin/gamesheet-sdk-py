@@ -27,7 +27,7 @@ Examples:
 
 from __future__ import annotations
 
-import click
+import rich_click as click
 
 from gamesheet_sdk.associations import list_associations as _list_associations_action
 from gamesheet_sdk.cli.core import ResourceGroup, parse_columns_spec
