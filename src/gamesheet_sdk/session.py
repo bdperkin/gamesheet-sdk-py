@@ -18,24 +18,22 @@ import json
 import logging
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _resolved_version
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Iterator
 from urllib.parse import urljoin
 
 import requests
 from requests.adapters import HTTPAdapter
-from requests.cookies import (
-    RequestsCookieJar,
-    create_cookie,
-)
 from urllib3.util.retry import Retry
 
 from gamesheet_sdk.config import Config
 
 if TYPE_CHECKING:
 
-    from collections.abc import Iterable, MutableMapping
-    from http.cookiejar import Cookie  # noqa: F401
+    from collections.abc import MutableMapping
+    from http.cookiejar import Cookie
     from types import TracebackType
+
+    from requests.cookies import RequestsCookieJar
 
 
 def _default_user_agent() -> str:
@@ -118,17 +116,18 @@ class Session:
             return
         for raw in data.get("cookies", []):
 
-            cookie = create_cookie(  # type: ignore[no-untyped-call]
-                name=raw["name"],
-                value=raw["value"],
-                domain=raw.get("domain", ""),
-                path=raw.get("path", "/"),
-                secure=raw.get("secure", False),
-                expires=raw.get("expires"),
-            )
-            self._http.cookies.set_cookie(
-                cookie,
-            )
+            # Create a dictionary of the cookie attributes
+            cookie_dict = {
+                "name": raw["name"],
+                "value": raw["value"],
+                "domain": raw.get("domain", ""),
+                "path": raw.get("path", "/"),
+                "secure": raw.get("secure", False),
+                "expires": raw.get("expires"),
+            }
+
+            # Add it directly to the session jar using keyword arguments
+            self._http.cookies.set(**cookie_dict)
 
     def __init__(self, config: Config | None = None) -> None:
         self.config = config or Config()
@@ -236,6 +235,7 @@ class Session:
         """
         path = self.config.session_path
         path.parent.mkdir(parents=True, exist_ok=True)
+        session_cookies: Iterator[Cookie] = iter(self._http.cookies)
         cookies: list[dict[str, Any]] = [
             {
                 "name": cookie.name,
@@ -245,7 +245,7 @@ class Session:
                 "secure": cookie.secure,
                 "expires": cookie.expires,
             }
-            for cookie in cast("Iterable[Cookie]", self._http.cookies)
+            for cookie in session_cookies
         ]
         path.write_text(json.dumps({"cookies": cookies}, indent=2, sort_keys=True))
 

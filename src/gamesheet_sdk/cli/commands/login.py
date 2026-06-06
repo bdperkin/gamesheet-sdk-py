@@ -35,12 +35,17 @@ Examples:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import rich_click as click
 from click.exceptions import Exit
 
 from gamesheet_sdk.auth.login import login as _login_action
 from gamesheet_sdk.browser import BrowserSession
 from gamesheet_sdk.config import Config
+
+if TYPE_CHECKING:
+    from rich_click import Context
 
 
 @click.command("login")
@@ -66,7 +71,7 @@ from gamesheet_sdk.config import Config
 )
 @click.pass_context
 def login_command(  # pragma: no cover - requires browser automation
-    ctx: click.Context,
+    ctx: Context,
     email: str | None,
     password: str | None,
     timeout: int,

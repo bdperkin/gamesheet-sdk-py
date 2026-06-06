@@ -219,6 +219,7 @@ optional-dependencies.radon = [
   "radon",
 ]
 optional-dependencies.refurb = [
+  "pydantic",
   "refurb",
 ]
 optional-dependencies.sphinx-lint = [
@@ -231,9 +232,15 @@ optional-dependencies.tox-ini-fmt = [
   "tox-ini-fmt",
 ]
 optional-dependencies.type-stubs = [
+  "types-certifi",
+  "types-click",
+  "types-docutils",
+  "types-greenlet",
+  "types-pygments",
   "types-pyyaml",
   "types-requests",
   "types-tabulate",
+  "types-urllib3",
 ]
 optional-dependencies.unimport = [
   "unimport",
@@ -457,7 +464,7 @@ miscellaneous.notes = [ "FIXME", "XXX", "TODO" ]
 ## # ----------------------------------------------------------------------------
 ## ## codespell - Typos and spelling checker
 [tool.codespell]
-skip = "./docs/_build"
+skip = "./docs/_build,./htmlcov"
 
 ## ## docformatter - Docstring formatter
 [tool.docformatter]
@@ -637,20 +644,7 @@ diff = true
 [tool.mypy]
 python_version = "3.11"
 strict = true
-overrides = [
-  { module = [
-    "tests.*",
-  ], disable_error_code = [
-    "arg-type",
-    "call-arg",
-    "untyped-decorator",
-  ] },
-  { module = [
-    "gamesheet_sdk.cli.*",
-  ], disable_error_code = [
-    "untyped-decorator",
-  ] },
-]
+plugins = [ "pydantic.mypy" ]
 
 ## ## pyrefly - Code health and quality reviewer
 [tool.pyrefly]
@@ -712,6 +706,11 @@ report.exclude_also = [
 ]
 report.fail_under = 100
 report.show_missing = true
+
+[tool.mypy-pydantic]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
 
 ## ## docconvert - Docstring format
 [tool.docconvert]

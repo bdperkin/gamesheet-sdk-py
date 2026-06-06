@@ -12,12 +12,13 @@ from gamesheet_sdk.auth.tokens import load_access_token, load_refresh_token, sav
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
 if TYPE_CHECKING:
+    from rich_click import Context
 
     from gamesheet_sdk.config import Config
 
 
 def build_authenticated_session(
-    _ctx: click.Context,
+    _ctx: Context,
     config: Config,
 ) -> AuthenticatedSession:
     """Build an AuthenticatedSession from saved tokens.

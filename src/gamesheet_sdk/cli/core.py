@@ -4,7 +4,7 @@ Contains the ResourceGroup class, decorators, and helper functions used across a
 
 This module provides the foundational infrastructure for building resource-oriented CLI interfaces:
 
-- :class:`ResourceGroup`: A click.Group subclass with alias support and default sub-commands
+- :class:`ResourceGroup`: A click.RichGroup subclass with alias support and default sub-commands
 - :func:`confirm_destructive`: Decorator adding confirmation prompts to destructive operations
 - Logging configuration with color support
 - Column specification parsing for tabular output
@@ -38,19 +38,21 @@ import logging
 import os
 import sys
 from collections.abc import Callable, Iterable, Mapping
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import colorlog
 import rich_click as click
 from click.exceptions import Abort, Exit, UsageError
 from click.shell_completion import CompletionItem
-from rich_click import RichGroup
+
+if TYPE_CHECKING:
+    from rich_click import Command, Context, HelpFormatter
 
 F = TypeVar("F", bound=Callable[..., Any])
 
 
-class ResourceGroup(RichGroup):  # type: ignore[misc,unused-ignore]
-    """A :class:`click.Group` for resource-oriented sub-command trees.
+class ResourceGroup(click.RichGroup):
+    """A :class:`click.RichGroup` for resource-oriented sub-command trees.
 
     Adds two pieces of architectural plumbing on top of the stock group.
     **Aliases.** Pass ``aliases={"list": ("ls",), "delete": ("rm", "remove")}`` and ``ls`` resolves to the
@@ -80,7 +82,7 @@ class ResourceGroup(RichGroup):  # type: ignore[misc,unused-ignore]
 
                     self._aliases[alt] = target
 
-    def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
+    def get_command(self, ctx: Context, cmd_name: str) -> Command | None:
         """Resolve ``cmd_name`` against the canonical commands.
 
         Falls back to aliases.
@@ -97,7 +99,7 @@ class ResourceGroup(RichGroup):  # type: ignore[misc,unused-ignore]
 
         return super().get_command(ctx, target)
 
-    def parse_args(self, ctx: click.Context, args: list[str]) -> list[str]:
+    def parse_args(self, ctx: Context, args: list[str]) -> list[str]:
         """Inject the default sub-command when invoked bare, then delegate to click.
 
         When the group is invoked with no further args, inject the configured default sub-command so the rest
@@ -112,18 +114,18 @@ class ResourceGroup(RichGroup):  # type: ignore[misc,unused-ignore]
         result: list[str] = super().parse_args(ctx, args)
         return result
 
-    def _command_row(self, name: str, cmd: click.Command) -> tuple[str, str]:  # pragma: no cover
+    def _command_row(self, name: str, cmd: Command) -> tuple[str, str]:  # pragma: no cover
         """Build the ``"list (ls)"`` label + short-help pair for one command.
 
         :param name: Canonical command name.
-        :param cmd: The click Command object.
+        :param cmd: The Command object.
         :returns: A tuple of (label, short_help) where label includes aliases in parentheses if any exist.
         """
         alts = sorted(a for a, t in self._aliases.items() if t == name)
         label = f"{name} ({', '.join(alts)})" if alts else name
         return label, cmd.get_short_help_str(limit=80)
 
-    def _visible_command_rows(self, ctx: click.Context) -> Iterable[tuple[str, str]]:  # pragma: no cover
+    def _visible_command_rows(self, ctx: Context) -> Iterable[tuple[str, str]]:  # pragma: no cover
         """Yield ``(label, short_help)`` for each non-hidden canonical command.
 
         :param ctx: The click context for resolving commands.
@@ -137,7 +139,7 @@ class ResourceGroup(RichGroup):  # type: ignore[misc,unused-ignore]
                 continue
             yield self._command_row(name, cmd)
 
-    def format_commands(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:  # pragma: no cover
+    def format_commands(self, ctx: Context, formatter: HelpFormatter) -> None:  # pragma: no cover
         """Render the command list with aliases in parentheses."""
         rows = list(self._visible_command_rows(ctx))
         if rows:
@@ -197,7 +199,7 @@ class ResourceGroup(RichGroup):  # type: ignore[misc,unused-ignore]
 
     def shell_complete(
         self,
-        ctx: click.Context,
+        ctx: Context,
         incomplete: str,
     ) -> list[CompletionItem]:
         """Tab-completion candidates for this group.
@@ -207,7 +209,14 @@ class ResourceGroup(RichGroup):  # type: ignore[misc,unused-ignore]
         commands and aliases pointing at hidden commands are skipped, matching click's default visibility
         rules.
         """
-        results = list(super().shell_complete(ctx, incomplete))
+        # Look up the super method safely
+        super_shell_complete = getattr(super(), "shell_complete", None)
+
+        if super_shell_complete is not None:
+            results = list(super_shell_complete(ctx, incomplete))
+        else:
+            results = []
+
         seen = {item.value for item in results}
         results.extend(self._alias_completion_items(incomplete, seen))
         return results

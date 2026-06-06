@@ -33,6 +33,7 @@ Examples:
 from __future__ import annotations
 
 import rich_click as click
+from rich_click import Choice, Context, Path
 
 from gamesheet_sdk.cli.core import ResourceGroup, parse_columns_spec
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
@@ -76,7 +77,7 @@ def leagues_group() -> None:
     "--format",
     "-F",
     "output_format",
-    type=click.Choice(list(ALL_FORMATS), case_sensitive=False),
+    type=Choice(list(ALL_FORMATS), case_sensitive=False),
     default=DEFAULT_FORMAT,
     show_default=True,
     help=(
@@ -90,7 +91,7 @@ def leagues_group() -> None:
     "--output",
     "-o",
     "output_path",
-    type=click.Path(dir_okay=False, writable=True),
+    type=Path(dir_okay=False, writable=True),
     default=None,
     help="Write to this file instead of stdout.",
 )
@@ -103,7 +104,7 @@ def leagues_group() -> None:
 )
 @click.pass_context
 def leagues_list_command(
-    ctx: click.Context,
+    ctx: Context,
     association_id: str,
     output_format: str,
     output_path: str | None,

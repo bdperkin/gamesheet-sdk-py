@@ -283,6 +283,8 @@ repos:
     rev: v2.3.1
     hooks:
       - id: refurb # refurb
+        additional_dependencies:
+          - pydantic
 
   - repo: https://github.com/pylint-dev/pylint
     rev: v4.0.5
@@ -334,6 +336,7 @@ repos:
       - id: mypy # mypy
         additional_dependencies:
           - gamesheet-sdk-py[mypy,pytest,type-stubs]
+          - rich-click
 
   # ------------------------------------------------------------------------------
   ## Out-of-the-box Pre-Commit Hook Updates
