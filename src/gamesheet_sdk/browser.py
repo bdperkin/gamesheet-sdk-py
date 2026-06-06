@@ -21,6 +21,7 @@ from playwright.sync_api import (
     BrowserContext,
     Page,
     Playwright,
+    StorageState,
     sync_playwright,
 )
 
@@ -52,7 +53,7 @@ class BrowserSession:
         self._context: BrowserContext | None = None
         self._closed = False
 
-    def _load_storage_state(self) -> dict[str, Any] | None:
+    def _load_storage_state(self) -> StorageState | None:
         """Load browser storage state from disk if it exists.
 
         :returns: A dictionary containing cookies and localStorage data, or ``None`` if the file does not
@@ -64,7 +65,7 @@ class BrowserSession:
             return None
 
         try:
-            loaded: dict[str, Any] = json.loads(path.read_text())
+            loaded: StorageState = json.loads(path.read_text())
         except (OSError, json.JSONDecodeError) as exc:
             _LOGGER.warning("Failed to load browser storage state from %s: %s", path, exc)
             return None
@@ -85,7 +86,7 @@ class BrowserSession:
             # storage_state is read back from the JSON Playwright itself
             # wrote; matches the StorageState TypedDict structurally.
             self._context = self._browser.new_context(
-                storage_state=storage_state,  # type: ignore[arg-type]
+                storage_state=storage_state,
             )
         else:
             self._context = self._browser.new_context()

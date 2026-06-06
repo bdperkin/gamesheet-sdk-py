@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from unittest.mock import Mock, patch
 
-import click
+import rich_click as click
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli import ResourceGroup, confirm_destructive

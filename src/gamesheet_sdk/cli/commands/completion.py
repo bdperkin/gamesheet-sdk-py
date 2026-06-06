@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import rich_click as click
 from click.exceptions import Exit
+from rich_click import Choice
 
 
 @click.command("completion")
 @click.argument(
     "shell",
-    type=click.Choice(["bash", "zsh", "fish"], case_sensitive=False),
+    type=Choice(["bash", "zsh", "fish"], case_sensitive=False),
 )
 def completion_command(shell: str) -> None:
     """Emit shell completion script for the specified shell.

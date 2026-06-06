@@ -27,7 +27,7 @@ Show browser window during headless operations::
 from __future__ import annotations
 
 import sys
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import rich_click as click
 from click.exceptions import Abort, Exit, UsageError
@@ -47,6 +47,9 @@ from gamesheet_sdk.cli.commands import (
 )
 from gamesheet_sdk.cli.core import _configure_logging, resolve_exit
 from gamesheet_sdk.config import Config
+
+if TYPE_CHECKING:
+    from rich_click import Context
 
 # Configure rich-click for attractive help output
 click.rich_click.TEXT_MARKUP = "rich"  # Use rich markup (replaces USE_RICH_MARKUP and USE_MARKDOWN)
@@ -117,7 +120,7 @@ click.rich_click.COMMAND_GROUPS = {
 )
 @click.pass_context
 def cli(
-    ctx: click.Context,
+    ctx: Context,
     base_url: str | None,
     *,
     no_headless: bool,

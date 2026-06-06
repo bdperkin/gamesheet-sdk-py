@@ -35,7 +35,7 @@ def test_rich_click_configuration_applied() -> None:
     # Verify key configuration settings
     assert click.rich_click.TEXT_MARKUP == "rich"
     assert click.rich_click.SHOW_ARGUMENTS is True
-    assert click.rich_click.GROUP_ARGUMENTS_OPTIONS is True
+    assert click.rich_click.GROUP_ARGUMENTS_OPTIONS
     assert click.rich_click.MAX_WIDTH == 100
 
 
