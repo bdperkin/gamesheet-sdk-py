@@ -16,7 +16,7 @@ import os
 from pathlib import Path
 
 from pydantic import Field, SecretStr
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 
 
 def _default_session_path() -> Path:
@@ -39,7 +39,7 @@ def _default_browser_state_path() -> Path:
     return Path(xdg).expanduser() / "gamesheet-sdk-py" / "browser-state.json"
 
 
-class Config(BaseSettings):
+class Config(BaseSettings, env_prefix="GAMESHEET_", extra="ignore"):
     """Resolved configuration for an SDK session.
 
     This class extends :class:`pydantic_settings.BaseSettings` to provide
@@ -116,10 +116,6 @@ class Config(BaseSettings):
         print(config.timeout)  # 60.0
     """
 
-    model_config = SettingsConfigDict(  # noqa: F841
-        env_prefix="GAMESHEET_",
-        extra="ignore",
-    )
     base_url: str = Field(
         default="https://gamesheet.app",
         description="Root URL of the GameSheet WebUI (the dashboard app).",
