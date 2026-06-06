@@ -214,7 +214,7 @@ class ResourceGroup(click.RichGroup):
 
         if super_shell_complete is not None:
             results = list(super_shell_complete(ctx, incomplete))
-        else:
+        else:  # pragma: no cover
             results = []
 
         seen = {item.value for item in results}
