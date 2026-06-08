@@ -46,9 +46,29 @@ jobs:
           path: dist/
           retention-days: 30
 
+  publish-test-pypi:
+    name: Publish to TestPyPI (Trusted Publishing)
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/gamesheet-sdk-py
+    permissions:
+      id-token: write
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
   publish-pypi:
     name: Publish to PyPI (Trusted Publishing)
-    needs: build
+    needs: publish-test-pypi
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -73,17 +93,59 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
       - name: Download distributions
         uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist/
-      - name: Create release with auto-generated notes
+      - name: Extract changelog for this version
+        id: changelog
+        run: |
+          pip install python-semantic-release
+
+          # Extract the changelog entry for this release
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          # Read CHANGELOG.md and extract the section for this version
+          if [ -f CHANGELOG.md ]; then
+            # Use awk to extract the section between [VERSION] and the next version header
+            CHANGELOG_CONTENT=$(awk "/^## \[${VERSION}\]/,/^## \[/" CHANGELOG.md | sed '$d' | tail -n +2)
+
+            if [ -n "$CHANGELOG_CONTENT" ]; then
+              echo "Found changelog content for version $VERSION"
+              # Save to file for multiline content
+              echo "$CHANGELOG_CONTENT" > /tmp/release_notes.md
+            else
+              echo "No specific changelog found for $VERSION, using auto-generated notes"
+              echo "" > /tmp/release_notes.md
+            fi
+          else
+            echo "CHANGELOG.md not found, using auto-generated notes"
+            echo "" > /tmp/release_notes.md
+          fi
+
+      - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "$GITHUB_REF_NAME" \
-            --generate-notes \
-            dist/*
+          if [ -s /tmp/release_notes.md ]; then
+            # Use changelog content if available
+            gh release create "$GITHUB_REF_NAME" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$GITHUB_REF_NAME" \
+              --notes-file /tmp/release_notes.md \
+              dist/*
+          else
+            # Fall back to auto-generated notes
+            gh release create "$GITHUB_REF_NAME" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$GITHUB_REF_NAME" \
+              --generate-notes \
+              dist/*
+          fi

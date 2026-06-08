@@ -142,8 +142,15 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
   `git describe`. A `_version.py` is written into `src/gamesheet_sdk/` at build time and is gitignored; `__init__.py` imports `__version__` from it, falling
   back to `importlib.metadata` when running uninstalled. To cut a release, tag the commit (`git tag -a vX.Y.Z -m '...'` then `git push origin vX.Y.Z`) — never
   edit a version literal. Untagged commits get setuptools-scm's `guess-next-dev` form like `0.0.2.dev1+gHASH`. Tag pushes trigger
-  `.github/workflows/release.yml` which builds, verifies tag-vs-version, publishes to PyPI via Trusted Publishing (OIDC, no tokens), and creates a GitHub
-  Release; see `docs/how-to/cut-a-release.md`.
+  `.github/workflows/release.yml` which builds, verifies tag-vs-version, publishes to TestPyPI then PyPI via Trusted Publishing (OIDC, no tokens), and creates a
+  GitHub Release with changelog content; see `docs/how-to/cut-a-release.md`.
+
+- **Automated changelog and versioning.** The project uses `python-semantic-release` (PSR) to automate changelog generation and versioning based on Conventional
+  Commits. On every merge to `main`, the `.github/workflows/changelog.yml` workflow updates `CHANGELOG.md` and commits it back. Version bumps follow patch-only
+  strategy until 1.0.0 (`major_on_zero = false` in `[tool.semantic_release]`), then standard semver (feat → minor, fix → patch, BREAKING CHANGE → major). **All
+  commits must follow Conventional Commits format** — enforced by the `conventional-pre-commit` hook at commit time. Common types: `feat:`, `fix:`, `docs:`,
+  `chore:`, `refactor:`, `test:`, `ci:`, `build:`. Scopes are optional but encouraged (e.g., `feat(cli):`, `fix(auth):`). Breaking changes require a `!` suffix
+  or footer: `feat!:` or `BREAKING CHANGE:` in the commit body.
 
 - **Testing patterns.** Pytest is configured with `--block-network` (via `pytest-recording`), so any test that opens a socket without a VCR cassette fails. Two
   markers (declared in `[tool.pytest.ini_options].markers`, enforced by `--strict-markers`): `@pytest.mark.vcr` replays HTTP from `tests/cassettes/` (sensitive
