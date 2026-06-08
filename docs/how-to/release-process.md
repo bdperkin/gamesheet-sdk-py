@@ -1,11 +1,12 @@
 # Release Process
 
-This document describes the automated release workflow for `gamesheet-sdk-py`.
+This document describes the fully automated release workflow for `gamesheet-sdk-py`.
 
 ## Overview
 
-The project uses [python-semantic-release](https://python-semantic-release.readthedocs.io/) (PSR) to automate version bumping, changelog generation, and
-releases based on [Conventional Commits](https://www.conventionalcommits.org/).
+The project uses [python-semantic-release](https://python-semantic-release.readthedocs.io/) (PSR) to **fully automate** version bumping, changelog generation, and releases based on [Conventional Commits](https://www.conventionalcommits.org/).
+
+**No manual tagging required!** Simply merge code to `main` and PSR handles everything.
 
 ## Workflow
 
@@ -51,39 +52,33 @@ git commit -m "docs: update installation instructions"
 git commit -m "feat!: redesign authentication flow" -m "BREAKING CHANGE: authentication tokens now require v2 format"
 ```
 
-### 2. Merge to Main
+### 2. Merge to Main - Fully Automated!
 
-When code is merged to `main`, normal CI workflows run (tests, linting, etc.) but no release or changelog update happens automatically.
+When code is merged to `main`:
 
-The `CHANGELOG.md` file can be updated manually or will be automatically updated when you create a release tag (see next section).
+1. **PSR analyzes commits** since the last release
+2. **Determines next version** based on conventional commits
+3. **Updates CHANGELOG.md** with new entries
+4. **Creates version commit** with message `chore(release): <version>`
+5. **Creates and pushes tag** (e.g., `v0.0.9`)
+6. **Tag push triggers release workflow:**
+   - Build distributions
+   - Publish to TestPyPI (validation)
+   - Publish to PyPI (production)
+   - Create GitHub Release with changelog
 
-### 3. Create a Release
+**You don't do anything except merge!** 🎉
 
-To publish a new release:
+### 3. When No Release is Needed
 
-1. **Determine the next version** based on commits since the last tag:
+If you merge commits that don't trigger a version bump (e.g., only `docs:`, `chore:`, `ci:`), PSR will:
 
-   - Until version 1.0.0: All changes bump patch only (`0.0.6` → `0.0.7`)
-   - After version 1.0.0: Standard semver applies
+- Detect no releasable changes
+- Skip version bump
+- Not create a tag
+- Not trigger the release workflow
 
-2. **Create and push a tag:**
-
-   ```bash
-   git tag -a v0.0.7 -m "Release v0.0.7"
-   git push origin v0.0.7
-   ```
-
-3. **Automated release workflow:**
-
-   - `release.yml` workflow triggers on tag push
-   - Builds sdist and wheel distributions
-   - Verifies built version matches tag
-   - Publishes to **TestPyPI** first (validation step)
-   - Publishes to **PyPI** (production)
-   - Creates GitHub Release with:
-     - Tag name as title
-     - Changelog excerpt for this version
-     - Distribution artifacts attached
+This is normal and expected!
 
 ## Version Strategy
 
@@ -91,14 +86,14 @@ To publish a new release:
 
 The project is in active development (0.x versions). Version bumps are:
 
-- **Any commit type**: patch bump (`0.0.6` → `0.0.7`)
-- **Breaking changes**: patch bump (`0.0.6` → `0.0.7`)
+- **Any releasable commit**: patch bump (`0.0.8` → `0.0.9`)
+- **Breaking changes**: patch bump (`0.0.8` → `0.0.9`)
 
 This is configured via `major_on_zero = false` in `[tool.semantic_release]`.
 
 ### After 1.0.0
 
-Standard semantic versioning:
+Standard semantic versioning will apply:
 
 - `fix:`, `perf:`, etc.: patch bump (`1.2.3` → `1.2.4`)
 - `feat:`: minor bump (`1.2.3` → `1.3.0`)
@@ -136,6 +131,43 @@ git commit -m "feat: add new feature"
 
 If your commit message doesn't follow Conventional Commits, the hook will reject it with an error message.
 
+## Complete Release Example
+
+Here's what happens when you merge a feature:
+
+```bash
+# 1. You create a feature branch
+git checkout -b feat/awesome-feature
+
+# 2. Make changes and commit (conventional commits enforced by hook)
+git commit -m "feat: add awesome feature"
+git commit -m "docs: update README with awesome feature"
+
+# 3. Push and create PR
+git push -u origin feat/awesome-feature
+gh pr create --fill
+
+# 4. Merge PR to main (via GitHub UI or CLI)
+gh pr merge --squash
+
+# 5. AUTOMATIC - PSR runs on main:
+#    - Analyzes commits: "feat:" found → version bump needed
+#    - Current version: v0.0.8
+#    - Next version: v0.0.9 (patch bump)
+#    - Updates CHANGELOG.md with feature entry
+#    - Creates commit: "chore(release): 0.0.9"
+#    - Creates tag: v0.0.9
+#    - Pushes tag
+
+# 6. AUTOMATIC - Tag push triggers release workflow:
+#    - Builds sdist + wheel
+#    - Publishes to TestPyPI
+#    - Publishes to PyPI
+#    - Creates GitHub Release with changelog
+
+# 7. Done! New version is live on PyPI 🎉
+```
+
 ## Troubleshooting
 
 ### Commit rejected by conventional-pre-commit
@@ -152,38 +184,22 @@ git commit -m "added a cool feature"
 git commit -m "feat: add cool feature"
 ```
 
-### CHANGELOG.md not updating
+### No release was created after merge
 
-**Problem:** Changelog workflow ran but no changes were committed.
+**Problem:** Merged PR but no release happened.
 
 **Possible causes:**
 
-1. No commits since last release that would appear in changelog
-2. All commits are types that don't generate changelog entries (e.g., `chore:`, `ci:`)
+1. All commits were non-releasable types (`docs:`, `chore:`, `ci:`, `refactor:`, `test:`)
+2. Only `fix:` or `feat:` commits trigger releases
 
-**Solution:** Commits with types `feat:`, `fix:`, `perf:`, and breaking changes generate changelog entries. Other types (docs, chore, test, ci, build, refactor)
-don't.
+**Solution:** This is normal! Not every merge needs a release. Only commits with types `feat:`, `fix:`, `perf:`, or breaking changes trigger releases.
 
 ### Version mismatch error in release workflow
 
-**Problem:** `release.yml` fails with "Tag-vs-built version mismatch"
+**Problem:** Build workflow fails with "Tag-vs-built version mismatch"
 
-**Causes:**
-
-1. Tag was created from a commit other than HEAD
-2. Tag format is incorrect (must be `vX.Y.Z`)
-
-**Solution:**
-
-```bash
-# Delete the tag locally and remotely
-git tag -d v0.0.7
-git push origin :refs/tags/v0.0.7
-
-# Create from current HEAD
-git tag -a v0.0.7 -m "Release v0.0.7"
-git push origin v0.0.7
-```
+**This should not happen** with full PSR automation, as PSR creates the tag from the exact commit where it updated the version. If this occurs, it's a bug in the automation.
 
 ### TestPyPI or PyPI publish fails
 
@@ -197,9 +213,48 @@ git push origin v0.0.7
 
 **Solution:**
 
-- For version conflicts: bump to next version
+- For version conflicts: This shouldn't happen with PSR automation
 - For Trusted Publishing: ensure GitHub environment names match PyPI configuration
 - Check workflow logs for specific error messages
+
+## Manual Intervention (Edge Cases)
+
+### If PSR Gets Confused
+
+In rare cases, you might need to manually fix things:
+
+```bash
+# If PSR created wrong version/tag, delete it:
+git tag -d v0.0.X
+git push origin :refs/tags/v0.0.X
+
+# Then trigger PSR manually:
+semantic-release version
+
+# Or if you need to skip PSR for one commit:
+git commit -m "chore(release): <message> [skip ci]"
+```
+
+### Testing PSR Locally
+
+```bash
+# Install PSR
+pip install "python-semantic-release>=9.0.0"
+
+# Dry-run to see what would happen
+semantic-release version --noop
+
+# See what version would be created
+semantic-release version --print-tag
+```
+
+## Workflow Files
+
+The automation is implemented in:
+
+- `.github/workflows/version-and-release.yml` - Main automation workflow
+- `pyproject.toml` - `[tool.semantic_release]` configuration
+- `.pre-commit-config.yaml` - Conventional commits enforcement
 
 ## References
 
