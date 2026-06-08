@@ -47,10 +47,11 @@ jobs:
           # Run semantic-release version to:
           # 1. Analyze commits since last release
           # 2. Determine next version
-          # 3. Update CHANGELOG.md
-          # 4. Commit changes
-          # 5. Create and push tag
-          semantic-release version
+          # 3. Update version in pyproject.toml
+          # 4. Update CHANGELOG.md
+          # 5. Commit changes
+          # 6. Create and push tag
+          semantic-release version --changelog
 
           # Check if a release was created
           if git describe --exact-match HEAD 2>/dev/null; then
