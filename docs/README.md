@@ -112,7 +112,12 @@ Documentation is organized using the [Diátaxis framework](https://diataxis.fr/)
 
 - **Tutorials** (`tutorials/`) - Learning-oriented, step-by-step lessons
 - **How-to guides** (`how-to/`) - Task-oriented, goal-focused recipes
+  - [Development Setup](how-to/development-setup.md) - Local development environment setup
+  - [Release Process](how-to/release-process.md) - Automated releases with Conventional Commits
 - **Reference** (`reference/`) - Information-oriented, technical descriptions
+  - [API Reference](reference/api.md) - Auto-generated Python API documentation
+  - [CLI Reference](reference/cli.md) - Command-line interface documentation
+  - [Configuration](reference/configuration.md) - Environment variables and settings
 - **Explanation** (`explanation/`) - Understanding-oriented, background and context
 
 See `docs/explanation/diataxis.md` for more details.

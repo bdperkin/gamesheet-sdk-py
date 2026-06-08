@@ -53,14 +53,9 @@ git commit -m "feat!: redesign authentication flow" -m "BREAKING CHANGE: authent
 
 ### 2. Merge to Main
 
-When code is merged to `main`:
+When code is merged to `main`, normal CI workflows run (tests, linting, etc.) but no release or changelog update happens automatically.
 
-1. The `changelog.yml` workflow runs automatically
-2. PSR analyzes commits since the last release
-3. `CHANGELOG.md` is updated with new entries
-4. Changes are committed back to `main` with `[skip ci]` to prevent loops
-
-**Note:** This step **only updates the changelog**, it does **not** create a release or bump the version.
+The `CHANGELOG.md` file can be updated manually or will be automatically updated when you create a release tag (see next section).
 
 ### 3. Create a Release
 
