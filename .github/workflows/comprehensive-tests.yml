@@ -57,7 +57,7 @@ jobs:
       # per-OS flag, and the per-Python-version flag.
       - name: Upload coverage to Codecov (nightly)
         if: success()
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
@@ -66,7 +66,7 @@ jobs:
 
       - name: Upload coverage to Codecov (${{ matrix.os }})
         if: success()
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
@@ -75,7 +75,7 @@ jobs:
 
       - name: Upload coverage to Codecov (${{ steps.pyflag.outputs.value }})
         if: success()
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
