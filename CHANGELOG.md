@@ -1,5 +1,7 @@
 # CHANGELOG
 
+<!--next-version-placeholder-->
+
 ## v0.1.5 (2026-06-08)
 
 ### Documentation
