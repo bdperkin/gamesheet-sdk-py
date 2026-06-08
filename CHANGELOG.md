@@ -2,6 +2,41 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.7 (2026-06-08)
+
+### Bug Fixes
+
+- **ci**: Add changelog insertion_flag for PSR update mode
+  ([#47](https://github.com/bdperkin/gamesheet-sdk-py/pull/47),
+  [`d79de88`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d79de886ae9ab20f5464e260f6752af420e2290b))
+
+- **ci**: Complete CI optimization - eliminate all duplicate workflow runs
+  ([#47](https://github.com/bdperkin/gamesheet-sdk-py/pull/47),
+  [`d79de88`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d79de886ae9ab20f5464e260f6752af420e2290b))
+
+- **ci**: Fix CHANGELOG generation and GitHub Release creation
+  ([#47](https://github.com/bdperkin/gamesheet-sdk-py/pull/47),
+  [`d79de88`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d79de886ae9ab20f5464e260f6752af420e2290b))
+
+- **ci**: Scope workflow triggers to eliminate duplicate runs
+  ([#47](https://github.com/bdperkin/gamesheet-sdk-py/pull/47),
+  [`d79de88`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d79de886ae9ab20f5464e260f6752af420e2290b))
+
+- **ci**: Skip all workflows on release commits to prevent duplicate runs
+  ([#47](https://github.com/bdperkin/gamesheet-sdk-py/pull/47),
+  [`d79de88`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d79de886ae9ab20f5464e260f6752af420e2290b))
+
+### Documentation
+
+- **changelog**: Add missing v0.1.5 entry
+  ([#47](https://github.com/bdperkin/gamesheet-sdk-py/pull/47),
+  [`d79de88`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d79de886ae9ab20f5464e260f6752af420e2290b))
+
+- **changelog**: Add missing v0.1.6 entry
+  ([#47](https://github.com/bdperkin/gamesheet-sdk-py/pull/47),
+  [`d79de88`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d79de886ae9ab20f5464e260f6752af420e2290b))
+
+
 ## v0.1.6 (2026-06-08)
 
 ### Bug Fixes
