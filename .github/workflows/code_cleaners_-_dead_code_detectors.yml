@@ -2,9 +2,10 @@ name: Code Cleaners & Dead Code Detectors
 
 on:
   push:
+    branches: [main]
 
   pull_request:
-    types: [opened, reopened]
+    types: [opened, reopened, synchronize]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}

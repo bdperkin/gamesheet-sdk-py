@@ -2,9 +2,10 @@ name: Docs
 
 on:
   push:
+    branches: [main]
 
   pull_request:
-    types: [opened, reopened]
+    types: [opened, reopened, synchronize]
 
 concurrency:
   # Pages deploys must serialize on `main`; PRs serialize per-branch.
