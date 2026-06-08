@@ -87,14 +87,21 @@ This is normal and expected!
 
 The project is in active development (0.x versions). Version bumps are:
 
-- **Any releasable commit**: patch bump (`0.0.8` → `0.0.9`)
-- **Breaking changes**: patch bump (`0.0.8` → `0.0.9`)
+- **Any releasable commit** (`feat:`, `fix:`, `perf:`): patch bump (`0.1.0` → `0.1.1`)
+- **Breaking changes**: major bump to 1.0.0 (`0.1.0` → `1.0.0`)
 
-This is configured via `major_on_zero = false` in `[tool.semantic_release]`.
+This is configured via custom parser options in `[tool.semantic_release.commit_parser_options]`:
+
+```toml
+[tool.semantic_release.commit_parser_options]
+minor_tags = []  # Empty - no minor bumps until 1.0.0
+patch_tags = ["feat", "fix", "perf"]  # All releasable commits trigger patch
+```
 
 ### After 1.0.0
 
-Standard semantic versioning will apply:
+Standard semantic versioning will apply. **To enable this**, remove the `[tool.semantic_release.commit_parser_options]` section from `pyproject.toml` to restore
+default behavior:
 
 - `fix:`, `perf:`, etc.: patch bump (`1.2.3` → `1.2.4`)
 - `feat:`: minor bump (`1.2.3` → `1.3.0`)
