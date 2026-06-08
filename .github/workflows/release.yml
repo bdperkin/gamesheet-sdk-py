@@ -183,8 +183,8 @@ jobs:
 
           # Read CHANGELOG.md and extract the section for this version
           if [ -f CHANGELOG.md ]; then
-            # Use awk to extract the section between [VERSION] and the next version header
-            CHANGELOG_CONTENT=$(awk "/^## \[${VERSION}\]/,/^## \[/" CHANGELOG.md | sed '$d' | tail -n +2)
+            # Try both formats: ## v0.1.5 and ## [0.1.5]
+            CHANGELOG_CONTENT=$(awk "/^## (v${VERSION}|\[${VERSION}\])/,/^## (v|\\[)/" CHANGELOG.md | sed '$d' | tail -n +2)
 
             if [ -n "$CHANGELOG_CONTENT" ]; then
               echo "Found changelog content for version $VERSION"
@@ -204,7 +204,11 @@ jobs:
         run: |
           TAG="${{ needs.version.outputs.tag }}"
 
-          if [ -s /tmp/release_notes.md ]; then
+          # Check if release already exists
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $TAG already exists, uploading assets"
+            gh release upload "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --clobber
+          elif [ -s /tmp/release_notes.md ]; then
             # Use changelog content if available
             gh release create "$TAG" \
               --repo "$GITHUB_REPOSITORY" \

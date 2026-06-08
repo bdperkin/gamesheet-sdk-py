@@ -731,6 +731,7 @@ branches.main.match = "main"
 branches.main.prerelease = false
 changelog.default_templates.changelog_file = "CHANGELOG.md"
 changelog.exclude_commit_patterns = []
+changelog.mode = "update"
 # Enable tag creation and pushing
 push = true
 tag = true
