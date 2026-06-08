@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## v0.1.5 (2026-06-08)
+
+### Documentation
+
+- Fix broken link in configure-release-token.md ([#45](https://github.com/bdperkin/gamesheet-sdk-py/pull/45),
+  [`61e1b66`](https://github.com/bdperkin/gamesheet-sdk-py/commit/61e1b66e2690b125cf7609e5265a8c421273a8a8))
+
+- **changelog**: Regenerate CHANGELOG with missing v0.1.1-v0.1.4 entries ([#44](https://github.com/bdperkin/gamesheet-sdk-py/pull/44),
+  [`8527c4f`](https://github.com/bdperkin/gamesheet-sdk-py/commit/8527c4fdd28ba5b579fee64f20cf50f058b7fa35))
+
+### Features
+
+- **ci**: Add PAT support for releases with branch protection ([#45](https://github.com/bdperkin/gamesheet-sdk-py/pull/45),
+  [`61e1b66`](https://github.com/bdperkin/gamesheet-sdk-py/commit/61e1b66e2690b125cf7609e5265a8c421273a8a8))
+
 ## v0.1.4 (2026-06-08)
 
 ### Bug Fixes
