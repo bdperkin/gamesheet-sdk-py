@@ -137,14 +137,12 @@ repos:
     rev: v0.9.37
     hooks:
       - id: pymarkdown # PyMarkdown
-        exclude: ^(CHANGELOG\.md|docs/how-to/release-process\.md)$
 
   - repo: https://github.com/executablebooks/mdformat
     rev: 1.0.0
     hooks:
       - id: mdformat # mdformat
         language_version: python3.13
-        exclude: ^CHANGELOG\.md$
         additional_dependencies:
           - gamesheet-sdk-py[mdformat]
           - mdformat-pyproject

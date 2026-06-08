@@ -52,17 +52,20 @@
 [![GitHub repo size](https://img.shields.io/github/repo-size/bdperkin/gamesheet-sdk-py.svg)](https://github.com/bdperkin/gamesheet-sdk-py)
 [![GitHub code size](https://img.shields.io/github/languages/code-size/bdperkin/gamesheet-sdk-py.svg)](https://github.com/bdperkin/gamesheet-sdk-py)
 
----
+______________________________________________________________________
 
 ## ⚠️ Disclaimer
 
-This project is **not affiliated with, endorsed by, or sponsored by GameSheet Inc.** GameSheet Inc. does not publish a public REST/GraphQL API for the operations this SDK covers. Where a native API is absent, this library **automates the GameSheet WebUI** (using HTTP requests, HTML parsing, and headless-browser automation).
+This project is **not affiliated with, endorsed by, or sponsored by GameSheet Inc.** GameSheet Inc. does not publish a public REST/GraphQL API for the
+operations this SDK covers. Where a native API is absent, this library **automates the GameSheet WebUI** (using HTTP requests, HTML parsing, and
+headless-browser automation).
 
-Because this approach depends on third-party UI structure, **it may break without warning** when GameSheet ships changes. Check the [GitHub Releases](https://github.com/bdperkin/gamesheet-sdk-py/releases) page before upgrading in production.
+Because this approach depends on third-party UI structure, **it may break without warning** when GameSheet ships changes. Check the
+[GitHub Releases](https://github.com/bdperkin/gamesheet-sdk-py/releases) page before upgrading in production.
 
 Use of this software must comply with the GameSheet Inc. Terms of Service. You are responsible for any automation you perform.
 
----
+______________________________________________________________________
 
 ## Quick Links
 
@@ -75,7 +78,7 @@ Use of this software must comply with the GameSheet Inc. Terms of Service. You a
 - **[Release Process](docs/how-to/release-process.md)** — Automated releases with Conventional Commits
 - **[CHANGELOG](CHANGELOG.md)** — Release history
 
----
+______________________________________________________________________
 
 ## Features
 
@@ -85,16 +88,17 @@ Use of this software must comply with the GameSheet Inc. Terms of Service. You a
 - **Multiple output formats** — JSON, YAML, CSV, TSV, or 13 tabulate table formats
 - **Shell completion** — Tab completion for bash, zsh, fish
 - **Typed (PEP 561)** — Ships `py.typed` marker, passes `mypy --strict`
-- **Automated releases** — [Conventional Commits](https://www.conventionalcommits.org/) + [python-semantic-release](https://python-semantic-release.readthedocs.io/)
+- **Automated releases** — [Conventional Commits](https://www.conventionalcommits.org/) +
+  [python-semantic-release](https://python-semantic-release.readthedocs.io/)
 
----
+______________________________________________________________________
 
 ## Requirements
 
 - **Python 3.11+** (3.11, 3.12, 3.13, or 3.14)
 - **Chromium** (managed by Playwright) — required for login flow
 
----
+______________________________________________________________________
 
 ## Installation
 
@@ -116,7 +120,7 @@ python -m playwright install chromium
 
 See [Development Setup](docs/how-to/development-setup.md) for detailed instructions.
 
----
+______________________________________________________________________
 
 ## Quick Start
 
@@ -192,7 +196,7 @@ with AuthenticatedSession(
                     print(f"        Key: {key.value}")
 ```
 
----
+______________________________________________________________________
 
 ## Configuration
 
@@ -206,7 +210,7 @@ export GAMESHEET_TIMEOUT=60
 gamesheet-sdk-py login
 ```
 
----
+______________________________________________________________________
 
 ## Documentation
 
@@ -219,7 +223,7 @@ The docs follow the [Diátaxis](https://diataxis.fr/) framework:
 - **[Reference](docs/reference/)** — API and CLI documentation
 - **[Explanation](docs/explanation/)** — Understanding the architecture
 
----
+______________________________________________________________________
 
 ## Project Status
 
@@ -230,7 +234,7 @@ The docs follow the [Diátaxis](https://diataxis.fr/) framework:
 - **Type checking:** `mypy --strict` passes
 - **Complexity:** All blocks at cyclomatic complexity grade A (cc ≤ 5)
 
----
+______________________________________________________________________
 
 ## Contributing
 
@@ -245,19 +249,19 @@ Contributions are welcome! Before opening a PR:
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
----
+______________________________________________________________________
 
 ## Security
 
 To report a vulnerability, see [SECURITY.md](SECURITY.md). Please use the private reporting channel — do not open public issues for security reports.
 
----
+______________________________________________________________________
 
 ## License
 
 Distributed under the [MIT License](LICENSE). © 2026 bdperkin.
 
----
+______________________________________________________________________
 
 ## Links
 

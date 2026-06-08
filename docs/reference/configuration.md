@@ -32,14 +32,11 @@ from gamesheet_sdk import Config
 config = Config()
 
 # Override via kwargs
-config = Config(
-    base_url="https://gamesheet.app",
-    timeout=60,
-    request_retries=5
-)
+config = Config(base_url="https://gamesheet.app", timeout=60, request_retries=5)
 
 # Mix env vars and kwargs (kwargs take precedence)
 import os
+
 os.environ["GAMESHEET_TIMEOUT"] = "45"
 config = Config(timeout=60)  # Uses 60, not 45
 ```

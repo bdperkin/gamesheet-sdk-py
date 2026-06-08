@@ -13,7 +13,7 @@ releases based on [Conventional Commits](https://www.conventionalcommits.org/).
 
 All commits **must** follow the Conventional Commits format:
 
-```
+```bash
 <type>[optional scope]: <description>
 
 [optional body]
@@ -63,27 +63,27 @@ To publish a new release:
 
 1. **Determine the next version** based on commits since the last tag:
 
-- Until version 1.0.0: All changes bump patch only (`0.0.6` → `0.0.7`)
-- After version 1.0.0: Standard semver applies
+   - Until version 1.0.0: All changes bump patch only (`0.0.6` → `0.0.7`)
+   - After version 1.0.0: Standard semver applies
 
 2. **Create and push a tag:**
 
-```bash
-git tag -a v0.0.7 -m "Release v0.0.7"
-git push origin v0.0.7
-```
+   ```bash
+   git tag -a v0.0.7 -m "Release v0.0.7"
+   git push origin v0.0.7
+   ```
 
 3. **Automated release workflow:**
 
-- `release.yml` workflow triggers on tag push
-- Builds sdist and wheel distributions
-- Verifies built version matches tag
-- Publishes to **TestPyPI** first (validation step)
-- Publishes to **PyPI** (production)
-- Creates GitHub Release with:
-  - Tag name as title
-  - Changelog excerpt for this version
-  - Distribution artifacts attached
+   - `release.yml` workflow triggers on tag push
+   - Builds sdist and wheel distributions
+   - Verifies built version matches tag
+   - Publishes to **TestPyPI** first (validation step)
+   - Publishes to **PyPI** (production)
+   - Creates GitHub Release with:
+     - Tag name as title
+     - Changelog excerpt for this version
+     - Distribution artifacts attached
 
 ## Version Strategy
 
