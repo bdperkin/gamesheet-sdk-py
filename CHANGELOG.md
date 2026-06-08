@@ -7,6 +7,15 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-06-08
+
+### Features
+
+- **feat**: implement full PSR automation for releases
+
+Full automation of version bumping, changelog generation, and releases. Simply merge to main — PSR handles version determination, CHANGELOG updates, commit
+creation, and tag creation. Release workflow triggers automatically when PSR pushes tags.
+
 ## [0.0.8] - 2026-06-08
 
 ### Build System
