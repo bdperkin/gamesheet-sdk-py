@@ -49,24 +49,14 @@ All public APIs are fully type-annotated.
 
 **Version resolution:**
 
-The package version is derived from git tags via hatch-vcs. When running from
-an unbuilt source tree, it falls back to installed metadata or ``"0+unknown"``.
+The package version is managed in ``pyproject.toml`` by python-semantic-release
+and accessible via standard importlib.metadata.
 """
 
 from __future__ import annotations
 
-try:
-    from gamesheet_sdk._version import __version__
-except ImportError:  # pragma: no cover - fallback only fires uninstalled
-    # _version.py is written by hatch-vcs at build time; when running from
-    # a source tree that hasn't been built (or an editable install that
-    # predates the latest git tag), fall back to installed metadata.
-    from importlib.metadata import PackageNotFoundError, version
+from importlib.metadata import PackageNotFoundError, version
 
-    try:
-        __version__ = version("gamesheet-sdk-py")
-    except PackageNotFoundError:
-        __version__ = "0+unknown"
 from gamesheet_sdk.associations import Association, list_associations
 from gamesheet_sdk.auth import (
     AuthenticatedSession,
@@ -93,6 +83,11 @@ from gamesheet_sdk.referees import Referee, list_referees
 from gamesheet_sdk.seasons import Season, SeasonDetail, get_season, list_seasons
 from gamesheet_sdk.session import Session
 from gamesheet_sdk.teams import Team, list_teams
+
+try:
+    __version__ = version("gamesheet-sdk-py")
+except PackageNotFoundError:  # pragma: no cover - only in uninstalled source tree
+    __version__ = "0+unknown"
 
 __all__ = [
     "ALL_FORMATS",

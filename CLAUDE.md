@@ -138,19 +138,21 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
 
 - **Typed package.** `py.typed` is shipped (PEP 561) and `[tool.mypy] strict = true` is enabled — all new code must be fully annotated and pass `mypy --strict`.
 
-- **Dynamic versioning.** The package version is _not_ in `pyproject.toml`. `[tool.hatch.version]` uses `source = "vcs"` (hatch-vcs) to derive it from
-  `git describe`. A `_version.py` is written into `src/gamesheet_sdk/` at build time and is gitignored; `__init__.py` imports `__version__` from it, falling
-  back to `importlib.metadata` when running uninstalled. To cut a release, tag the commit (`git tag -a vX.Y.Z -m '...'` then `git push origin vX.Y.Z`) — never
-  edit a version literal. Untagged commits get setuptools-scm's `guess-next-dev` form like `0.0.2.dev1+gHASH`. Tag pushes trigger
-  `.github/workflows/release.yml` which builds, verifies tag-vs-version, publishes to TestPyPI then PyPI via Trusted Publishing (OIDC, no tokens), and creates a
-  GitHub Release with changelog content; see `docs/how-to/cut-a-release.md`.
+- **Automated versioning and changelog.** The project uses `python-semantic-release` (PSR) to fully automate version bumping, CHANGELOG generation, and releases
+  based on Conventional Commits. **No manual tagging required** — simply merge to `main` and PSR handles everything:
 
-- **Automated changelog and versioning.** The project uses `python-semantic-release` (PSR) to automate changelog generation and versioning based on Conventional
-  Commits. On every merge to `main`, the `.github/workflows/changelog.yml` workflow updates `CHANGELOG.md` and commits it back. Version bumps follow patch-only
-  strategy until 1.0.0 (`major_on_zero = false` in `[tool.semantic_release]`), then standard semver (feat → minor, fix → patch, BREAKING CHANGE → major). **All
-  commits must follow Conventional Commits format** — enforced by the `conventional-pre-commit` hook at commit time. Common types: `feat:`, `fix:`, `docs:`,
-  `chore:`, `refactor:`, `test:`, `ci:`, `build:`. Scopes are optional but encouraged (e.g., `feat(cli):`, `fix(auth):`). Breaking changes require a `!` suffix
-  or footer: `feat!:` or `BREAKING CHANGE:` in the commit body.
+  1. Analyzes commits since last release
+  2. Determines next version (patch-only until 1.0.0 via `commit_parser_options.minor_tags = []`, then standard semver)
+  3. Updates `CHANGELOG.md` with new entries
+  4. Bumps version in `pyproject.toml` (`[project] version`)
+  5. Creates commit: `chore(release): X.Y.Z`
+  6. Creates and pushes tag `vX.Y.Z`
+  7. Tag push triggers release workflow: Build → TestPyPI → PyPI → GitHub Release
+
+  Version is stored in `pyproject.toml:project.version` (managed by PSR via `version_toml`), accessible at runtime via `importlib.metadata.version()`. **All
+  commits must follow Conventional Commits format** — enforced by the `conventional-pre-commit` hook. Common types: `feat:`, `fix:`, `docs:`, `chore:`,
+  `refactor:`, `test:`, `ci:`, `build:`. Scopes optional but encouraged (`feat(cli):`, `fix(auth):`). Breaking changes: `feat!:` or `BREAKING CHANGE:` in body.
+  See `docs/how-to/release-process.md` for full workflow documentation.
 
 - **Testing patterns.** Pytest is configured with `--block-network` (via `pytest-recording`), so any test that opens a socket without a VCR cassette fails. Two
   markers (declared in `[tool.pytest.ini_options].markers`, enforced by `--strict-markers`): `@pytest.mark.vcr` replays HTTP from `tests/cassettes/` (sensitive
