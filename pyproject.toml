@@ -735,7 +735,10 @@ changelog.default_templates.changelog_file = "CHANGELOG.md"
 changelog.exclude_commit_patterns = []
 # Changelog configuration
 changelog.template_dir = "templates"
-# We handle PyPI publishing and GitHub Release creation in release.yml workflow
+# Enable tag creation and pushing
+push = true
+tag = true
+# We handle PyPI publishing and GitHub Release creation in workflow
 # to support TestPyPI validation step before production publish
 upload_to_pypi = false
 upload_to_release = false
