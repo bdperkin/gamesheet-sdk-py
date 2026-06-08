@@ -193,7 +193,7 @@ repos:
       - id: pyupgrade # pyupgrade
 
   - repo: https://github.com/pycqa/isort
-    rev: 8.0.1
+    rev: 9.0.0a3
     hooks:
       - id: isort # isort
 
@@ -306,7 +306,7 @@ repos:
           - rich-click
 
   - repo: https://github.com/facebook/pyrefly-pre-commit
-    rev: 1.0.0
+    rev: 1.1.0.dev1
     hooks:
       - id: pyrefly-check # pyrefly check
         additional_dependencies:
