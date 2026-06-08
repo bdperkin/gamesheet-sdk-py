@@ -13,6 +13,8 @@ jobs:
   test:
     name: Test on Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
+    # Skip on release commits to avoid duplicate runs
+    if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
 
     strategy:
       matrix:

@@ -2,9 +2,10 @@ name: Documentation & Docstring Tools
 
 on:
   push:
+    branches: [main]
 
   pull_request:
-    types: [opened, reopened]
+    types: [opened, reopened, synchronize]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
@@ -17,6 +18,8 @@ jobs:
   codespell:
     name: codespell (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    # Skip on release commits to avoid duplicate runs
+    if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
     strategy:
       fail-fast: false
       matrix:
