@@ -735,13 +735,13 @@ changelog.default_templates.changelog_file = "CHANGELOG.md"
 changelog.exclude_commit_patterns = []
 # Changelog configuration
 changelog.template_dir = "templates"
+# Enable tag creation and pushing
+push = true
+tag = true
 # We handle PyPI publishing and GitHub Release creation in workflow
 # to support TestPyPI validation step before production publish
 upload_to_pypi = false
 upload_to_release = false
-# Enable tag creation and pushing
-tag = true
-push = true
 
 [tool.mypy-pydantic]
 init_forbid_extra = true

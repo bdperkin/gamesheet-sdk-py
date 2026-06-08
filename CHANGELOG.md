@@ -7,6 +7,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.0.8] - 2026-06-08
+
+### Build System
+
+- **fix**: checkout main branch for PSR changelog generation
+- **fix**: actually run python-semantic-release to generate CHANGELOG￼
+
 ## [0.0.7] - 2026-06-08
 
 ### Build System

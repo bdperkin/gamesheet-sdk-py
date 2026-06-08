@@ -4,7 +4,8 @@ This document describes the fully automated release workflow for `gamesheet-sdk-
 
 ## Overview
 
-The project uses [python-semantic-release](https://python-semantic-release.readthedocs.io/) (PSR) to **fully automate** version bumping, changelog generation, and releases based on [Conventional Commits](https://www.conventionalcommits.org/).
+The project uses [python-semantic-release](https://python-semantic-release.readthedocs.io/) (PSR) to **fully automate** version bumping, changelog generation,
+and releases based on [Conventional Commits](https://www.conventionalcommits.org/).
 
 **No manual tagging required!** Simply merge code to `main` and PSR handles everything.
 
@@ -199,7 +200,8 @@ git commit -m "feat: add cool feature"
 
 **Problem:** Build workflow fails with "Tag-vs-built version mismatch"
 
-**This should not happen** with full PSR automation, as PSR creates the tag from the exact commit where it updated the version. If this occurs, it's a bug in the automation.
+**This should not happen** with full PSR automation, as PSR creates the tag from the exact commit where it updated the version. If this occurs, it's a bug in
+the automation.
 
 ### TestPyPI or PyPI publish fails
 
