@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.6 (2026-06-08)
+
+### Bug Fixes
+
+- **ci**: Fix CHANGELOG generation and GitHub Release creation ([#46](https://github.com/bdperkin/gamesheet-sdk-py/pull/46),
+  [`5a74da2`](https://github.com/bdperkin/gamesheet-sdk-py/commit/5a74da2821d456929eb710eed0a2d58e2a4170c8))
+
+### Documentation
+
+- **changelog**: Add missing v0.1.5 entry ([#46](https://github.com/bdperkin/gamesheet-sdk-py/pull/46),
+  [`5a74da2`](https://github.com/bdperkin/gamesheet-sdk-py/commit/5a74da2821d456929eb710eed0a2d58e2a4170c8))
+
 ## v0.1.5 (2026-06-08)
 
 ### Documentation
