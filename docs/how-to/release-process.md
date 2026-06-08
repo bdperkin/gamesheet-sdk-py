@@ -261,7 +261,7 @@ semantic-release version --print-tag
 
 The automation is implemented in:
 
-- `.github/workflows/version-and-release.yml` - Main automation workflow
+- `.github/workflows/release.yml` - Main automation workflow
 - `pyproject.toml` - `[tool.semantic_release]` configuration
 - `.pre-commit-config.yaml` - Conventional commits enforcement
 
