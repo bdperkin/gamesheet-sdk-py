@@ -7,7 +7,15 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-## [0.0.6] - 2024-12-XX
+## [0.0.7] - 2026-06-08
+
+### Build System
+
+- **feat**: add automated changelog and release process with python-semantic-release
+- **refactor**: modernize pydantic-settings Config syntax (#33)
+- **refactor**: improve type hints with TYPE_CHECKING imports (#32)
+
+## [0.0.6] - 2026-06-05
 
 ### Features
 
@@ -18,7 +26,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Convert ID args to options with env fallback and improve documentation (#27)
 - Modularize codebase into focused packages (#26)
 
-## [0.0.5] - 2024-12-XX
+## [0.0.5] - 2026-06-03
 
 ### Features
 
@@ -26,7 +34,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Add season get sub-command for detailed season information (#24)
 - Add seasons sub-command for listing seasons by league (#23)
 
-## [0.0.4] - 2024-12-XX
+## [0.0.4] - 2026-06-03
 
 ### Features
 
@@ -52,7 +60,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - **deps**: bump actions/github-script from 7 to 9 in the actions group (#17)
 
-## [0.0.3] - 2024-11-XX
+## [0.0.3] - 2026-06-01
 
 ### Features
 
@@ -75,7 +83,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **quality**: comprehensive pre-commit/tox/CI overhaul and Makefile (#13)
 - overhaul pre-commit suite, consolidate tox into tox.ini, reformat pyproject (#4)
 
-## [0.0.2] - 2024-11-XX
+## [0.0.2] - 2026-05-25
 
 ### Features
 
@@ -102,7 +110,15 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **deps**: pre-commit autoupdate (#3)
 - pin isort pre-commit hook to stable 8.0.1
 
-## [0.0.1a1] - 2024-11-XX
+## [0.0.1a1] - 2026-05-24
+
+### Build System
+
+- **build(deps)**: bump the actions group with 7 updates (#1)
+- **infra**: tier-1 follow-ups (testing strategy, coverage floor, release, dependabot)
+- **build**: switch to hatch-vcs dynamic versioning from git tags
+
+## [0.0.1] - 2026-05-24
 
 ### Features
 
