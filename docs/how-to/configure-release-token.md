@@ -39,7 +39,7 @@ A fine-grained Personal Access Token (PAT) with specific permissions can bypass 
 
 ### 2. Add Token as Repository Secret
 
-1. Go to: <https://github.com/bdperkin/gamesheet-sdk-py/settings/secrets/actions>
+1. Go to: <https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets>
 2. Click **"New repository secret"**
 3. Configure:
    - **Name**: `RELEASE_TOKEN`
