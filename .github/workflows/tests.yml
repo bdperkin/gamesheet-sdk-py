@@ -3,9 +3,15 @@ name: Run all tests
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
 
   pull_request:
     types: [opened, reopened, synchronize]
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
@@ -18,8 +24,6 @@ jobs:
   pytest:
     name: pytest (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
-    # Skip on release commits to avoid duplicate runs
-    if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
     strategy:
       fail-fast: false
       matrix:

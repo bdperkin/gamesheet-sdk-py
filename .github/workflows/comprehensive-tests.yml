@@ -84,7 +84,7 @@ jobs:
 
   retry-on-failure:
     name: Retry Failed Jobs
-    needs: [comprehensive-test]
+    needs: comprehensive-test
     if: failure()
     runs-on: ubuntu-latest
     outputs:
