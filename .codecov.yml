@@ -166,7 +166,6 @@ ignore:
   - "tests/**" # test code itself
   - "docs/**" # Sphinx sources
   - "**/__init__.py" # re-export modules
-  - "**/_version.py" # hatch-vcs generated
 
 
 # ---------------------------------------------------------------------------
