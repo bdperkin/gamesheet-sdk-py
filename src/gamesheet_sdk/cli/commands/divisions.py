@@ -10,12 +10,14 @@ from rich_click import Choice, Context, Path
 from gamesheet_sdk.cli.core import ResourceGroup, parse_columns_spec
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
 from gamesheet_sdk.config import Config
+from gamesheet_sdk.divisions import create_division as _create_division_action
 from gamesheet_sdk.divisions import list_division_teams as _list_division_teams_action
 from gamesheet_sdk.divisions import list_divisions as _list_divisions_action
 from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
 
 if TYPE_CHECKING:
     from gamesheet_sdk.auth.session import AuthenticatedSession
+    from gamesheet_sdk.divisions import Division
 
 
 @click.group(
@@ -97,6 +99,76 @@ def divisions_list_command(
     rows = [division.model_dump(mode="json") for division in divisions]
     rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
     write_output(rendered, output_path, fmt=output_format)
+
+
+@divisions_group.command("create")
+@click.option(
+    "--season-id",
+    type=str,
+    envvar="GAMESHEET_SEASON_ID",
+    required=True,
+    help="Season ID in which to create the division.",
+)
+@click.option(
+    "--title",
+    type=str,
+    required=True,
+    help="Division name/title.",
+)
+@click.option(
+    "--external-id",
+    type=str,
+    default=None,
+    help="Optional external identifier for integration with third-party systems.",
+)
+@click.option(
+    "--format",
+    "-F",
+    "output_format",
+    type=Choice(list(ALL_FORMATS), case_sensitive=False),
+    default=DEFAULT_FORMAT,
+    show_default=True,
+    help=(
+        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
+        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
+        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
+        "latex_longtable."
+    ),
+)
+@click.option(
+    "--output",
+    "-o",
+    "output_path",
+    type=Path(dir_okay=False, writable=True),
+    default=None,
+    help="Write to this file instead of stdout.",
+)
+@click.pass_context
+def divisions_create_command(
+    ctx: Context,
+    season_id: str,
+    title: str,
+    external_id: str | None,
+    output_format: str,
+    output_path: str | None,
+) -> None:
+    """Create a new division in the specified season.
+
+    Requires authentication (run 'gamesheet-sdk-py login' first).
+    """
+    config: Config = ctx.obj
+    session = build_authenticated_session(ctx, config)
+
+    # type: ignore[name-defined]
+    def _create_with_kwargs(sess: AuthenticatedSession, sid: str, div_title: str) -> Division:
+        return _create_division_action(sess, sid, div_title, external_id=external_id)
+
+    division = run_action_or_exit(session, _create_with_kwargs, season_id, title)
+    rows = [division.model_dump(mode="json")]
+    rendered = render(rows, fmt=output_format)
+    write_output(rendered, output_path, fmt=output_format)
+    if output_path is None:
+        click.secho(f"\nDivision '{division.title}' created successfully (ID: {division.id})", fg="green")
 
 
 @divisions_group.command("teams")
