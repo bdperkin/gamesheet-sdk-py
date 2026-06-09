@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.10 (2026-06-09)
+
+### Bug Fixes
+
+- **ci**: Correct GitHub Actions version tags in container workflow ([#54](https://github.com/bdperkin/gamesheet-sdk-py/pull/54),
+  [`2bb6728`](https://github.com/bdperkin/gamesheet-sdk-py/commit/2bb672844f0f515b32a18185fad862d31e2c3b28))
+
 ## v0.1.9 (2026-06-09)
 
 ### Bug Fixes
