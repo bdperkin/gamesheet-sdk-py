@@ -2,6 +2,37 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.8 (2026-06-09)
+
+### Bug Fixes
+
+- **ci**: Add missing dependencies to release workflow
+  ([`9ca44f3`](https://github.com/bdperkin/gamesheet-sdk-py/commit/9ca44f3a3c87f84b2dccb3c066a1a6653b3ae3e1))
+
+- **ci**: Improve release workflow Python setup and ignore Claude Code data ([#52](https://github.com/bdperkin/gamesheet-sdk-py/pull/52),
+  [`fd3b8d1`](https://github.com/bdperkin/gamesheet-sdk-py/commit/fd3b8d1a6be09963096632468695c90e14de14ce))
+
+- **pre-commit**: Add args to pretty-format-json for prettier compatibility ([#51](https://github.com/bdperkin/gamesheet-sdk-py/pull/51),
+  [`9026992`](https://github.com/bdperkin/gamesheet-sdk-py/commit/902699258a111cf42f0f2700ffefe69299b8c695))
+
+### Build System
+
+- **deps**: Bump codecov/codecov-action in the actions group ([#48](https://github.com/bdperkin/gamesheet-sdk-py/pull/48),
+  [`62fa5bc`](https://github.com/bdperkin/gamesheet-sdk-py/commit/62fa5bc9504ed7b8450beacd01063023c4757ee9))
+
+### Chores
+
+- Apply pre-commit formatting to PSR-generated CHANGELOG ([#49](https://github.com/bdperkin/gamesheet-sdk-py/pull/49),
+  [`d2ee2d4`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d2ee2d493346e3c3ef118c4ffda9edee23311aed))
+
+### Features
+
+- **cli**: Add games and roster commands with nested sub-groups ([#50](https://github.com/bdperkin/gamesheet-sdk-py/pull/50),
+  [`3e6d355`](https://github.com/bdperkin/gamesheet-sdk-py/commit/3e6d355c1fca3347d28125c9873c4d51ac660c8d))
+
+- **cli**: Add games and roster commands with nested sub-groups
+  ([`1698485`](https://github.com/bdperkin/gamesheet-sdk-py/commit/1698485832332cd6888fcf5afa0b0d5ed037b2bf))
+
 ## v0.1.7 (2026-06-08)
 
 ### Bug Fixes
