@@ -3,9 +3,15 @@ name: Docs
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
 
   pull_request:
     types: [opened, reopened, synchronize]
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
 
 concurrency:
   # Pages deploys must serialize on `main`; PRs serialize per-branch.
@@ -19,8 +25,6 @@ jobs:
   docs:
     name: HTML documentation build
     runs-on: ubuntu-latest
-    # Skip on release commits to avoid duplicate runs
-    if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
     steps:
       - uses: actions/checkout@v6
         with:

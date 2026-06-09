@@ -36,5 +36,5 @@ The following how-to guides are planned for future releases based on common SDK 
 - **How to enable shell completion** — Installing bash/zsh/fish tab-completion for the CLI
 - **How to configure headless vs headed mode** — Using `--no-headless` for debugging browser flows
 - **How to troubleshoot authentication issues** — Common auth failures and resolution steps
-- **How to retrieve season data** — Using `season get` and `seasons list` commands
+- **How to retrieve season data** — Using `seasons get` and `seasons list` commands
 - **How to manage iPad/Scoring Access Keys** — Using `ipad-keys` commands to retrieve scoring credentials

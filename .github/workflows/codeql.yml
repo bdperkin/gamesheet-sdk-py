@@ -13,10 +13,16 @@ name: "CodeQL Advanced"
 
 on:
   push:
-    branches: ["main"]
+    branches: [main]
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
 
   pull_request:
-    branches: ["main"]
+    types: [opened, reopened, synchronize]
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
 
   schedule:
     - cron: "45 6 * * 3"
@@ -30,8 +36,6 @@ jobs:
     #   - https://gh.io/using-larger-runners (GitHub.com only)
     # Consider using larger runners or machines with greater resources for possible analysis time improvements.
     runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
-    # Skip on release commits to avoid duplicate runs
-    if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
     permissions:
       # required for all workflows
       security-events: write

@@ -10,8 +10,18 @@
 name: "Dependency review"
 
 on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
+
   pull_request:
-    branches: ["main"]
+    types: [opened, reopened, synchronize]
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
+
 # If using a dependency submission action in this workflow this permission will need to be set to:
 #
 # permissions:

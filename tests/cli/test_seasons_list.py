@@ -1,4 +1,4 @@
-"""Tests for seasons command group."""
+"""Tests for seasons list command."""
 
 from __future__ import annotations
 
@@ -202,9 +202,6 @@ def test_seasons_list_tsv_output(runner: CliRunner) -> None:
         assert len(lines) >= 2
         # TSV uses tabs
         assert "\t" in result.output
-
-
-# Season (singular) get command tests
 
 
 def test_seasons_list_with_no_saved_tokens(runner: CliRunner) -> None:

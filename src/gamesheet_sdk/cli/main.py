@@ -43,7 +43,6 @@ from gamesheet_sdk.cli.commands import (
     login_command,
     referees_group,
     roster_group,
-    season_group,
     seasons_group,
     teams_group,
 )
@@ -88,7 +87,6 @@ click.rich_click.COMMAND_GROUPS = {
                 "associations",
                 "leagues",
                 "seasons",
-                "season",
                 "divisions",
                 "teams",
                 "referees",
@@ -152,7 +150,6 @@ cli.add_command(completion_command)
 cli.add_command(associations_group)
 cli.add_command(leagues_group)
 cli.add_command(seasons_group)
-cli.add_command(season_group)
 cli.add_command(divisions_group)
 cli.add_command(teams_group)
 cli.add_command(referees_group)

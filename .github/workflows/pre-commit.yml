@@ -3,9 +3,15 @@ name: pre-commit
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
 
   pull_request:
     types: [opened, reopened, synchronize]
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
@@ -18,8 +24,6 @@ jobs:
   pre-commit:
     name: pre-commit (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
-    # Skip on release commits to avoid duplicate runs
-    if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
     steps:
       - uses: actions/checkout@v6
       - name: Set up Python

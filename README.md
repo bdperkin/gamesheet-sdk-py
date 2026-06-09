@@ -165,7 +165,7 @@ gamesheet-sdk-py leagues list 38 --format json
 gamesheet-sdk-py seasons list 1148580 --format json
 
 # Get season details
-gamesheet-sdk-py season get 15020 --format json
+gamesheet-sdk-py seasons get --season-id 15020 --format json
 
 # Get iPad/Scoring keys
 gamesheet-sdk-py ipad-keys get 15020 --format json
