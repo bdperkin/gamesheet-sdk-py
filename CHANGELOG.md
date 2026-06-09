@@ -2,6 +2,21 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.9 (2026-06-09)
+
+### Bug Fixes
+
+- **ci**: Update trivy-action to 0.29.0 to address security advisory ([#53](https://github.com/bdperkin/gamesheet-sdk-py/pull/53),
+  [`976834b`](https://github.com/bdperkin/gamesheet-sdk-py/commit/976834b7dbe015b489544519ce9c9acae0c118eb))
+
+- **ci**: Update trivy-action to latest version 0.36.0 ([#53](https://github.com/bdperkin/gamesheet-sdk-py/pull/53),
+  [`976834b`](https://github.com/bdperkin/gamesheet-sdk-py/commit/976834b7dbe015b489544519ce9c9acae0c118eb))
+
+### Features
+
+- **ci**: Add Docker container build and publish workflow ([#53](https://github.com/bdperkin/gamesheet-sdk-py/pull/53),
+  [`976834b`](https://github.com/bdperkin/gamesheet-sdk-py/commit/976834b7dbe015b489544519ce9c9acae0c118eb))
+
 ## v0.1.8 (2026-06-09)
 
 ### Bug Fixes
