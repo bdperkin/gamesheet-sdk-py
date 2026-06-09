@@ -102,12 +102,33 @@ ______________________________________________________________________
 
 ## Installation
 
+### Via PyPI
+
 ```bash
 pip install gamesheet-sdk-py
 
 # Install Playwright browser (required for login)
 python -m playwright install chromium
 ```
+
+### Via Docker
+
+```bash
+# Pull the latest image from GitHub Container Registry
+docker pull ghcr.io/bdperkin/gamesheet-sdk-py:latest
+
+# Run the CLI
+docker run --rm ghcr.io/bdperkin/gamesheet-sdk-py:latest --help
+
+# Run with persistent session storage
+docker run --rm -v ~/.gamesheet:/home/gamesheet/.gamesheet ghcr.io/bdperkin/gamesheet-sdk-py:latest associations list
+```
+
+Available Docker tags:
+
+- `latest` — most recent release from main branch
+- `<version>` — specific version (e.g., `0.1.8`, `0.1`, `0`)
+- `<branch>-<sha>` — specific commit for traceability
 
 ### From Source
 
@@ -116,6 +137,10 @@ git clone https://github.com/bdperkin/gamesheet-sdk-py.git
 cd gamesheet-sdk-py
 pip install -e ".[all]"
 python -m playwright install chromium
+
+# Or build the Docker image locally
+make docker-build
+make docker-run
 ```
 
 See [Development Setup](docs/how-to/development-setup.md) for detailed instructions.
