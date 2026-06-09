@@ -84,6 +84,7 @@ repos:
       - id: check-json # check json
       - id: check-shebang-scripts-are-executable # check that scripts with shebangs are executable
       - id: pretty-format-json # pretty format json
+        args: ["--autofix", "--no-sort-keys"]
       - id: check-merge-conflict # check for merge conflicts
       - id: check-toml # check toml
       - id: check-vcs-permalinks # check vcs permalinks
