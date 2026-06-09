@@ -37,10 +37,12 @@ from gamesheet_sdk.cli.commands import (
     associations_group,
     completion_command,
     divisions_group,
+    games_group,
     ipad_keys_group,
     leagues_group,
     login_command,
     referees_group,
+    roster_group,
     season_group,
     seasons_group,
     teams_group,
@@ -91,6 +93,8 @@ click.rich_click.COMMAND_GROUPS = {
                 "teams",
                 "referees",
                 "ipad-keys",
+                "games",
+                "roster",
             ],
         },
     ],
@@ -153,6 +157,8 @@ cli.add_command(divisions_group)
 cli.add_command(teams_group)
 cli.add_command(referees_group)
 cli.add_command(ipad_keys_group)
+cli.add_command(games_group)
+cli.add_command(roster_group)
 
 
 def main(argv: list[str] | None = None) -> int:

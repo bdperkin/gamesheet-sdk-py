@@ -84,6 +84,8 @@ def test_completion_command_help() -> None:
         "teams",
         "referees",
         "ipad-keys",
+        "games",
+        "roster",
     ],
 )
 def test_resource_group_help(resource: str) -> None:
