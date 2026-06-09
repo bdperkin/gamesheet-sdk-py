@@ -34,6 +34,12 @@ class Division(BaseModel):
     id: str = Field(description="Division identifier (string in JSON:API).")
     season_id: str = Field(description="Parent season identifier.")
     title: str = Field(description="Display name of the division.")
+    team_count: int | None = Field(
+        default=None,
+        description=(
+            "Number of teams in this division " "(populated when fetched with include_team_counts=True)."
+        ),
+    )
     created_at: datetime = Field(description="When the division was created.")
     updated_at: datetime = Field(description="Last time the division was updated.")
 
@@ -48,54 +54,6 @@ def _parse(item: dict[str, Any]) -> Division:
         season_id=season_id,
         **attrs,
     )
-
-
-def list_divisions(session: Session, season_id: str) -> list[Division]:
-    """Return every division in the specified season.
-
-    The supplied :class:`Session` must already carry a bearer token (e.g. via
-    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    Note: The GameSheet API returns all divisions, so this function filters client-side to only
-    include divisions that belong to the specified season (via the relationships.season.data.id field).
-
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier whose divisions to list.
-    :type season_id: str
-    :returns: A list of :class:`Division`, in the order the server returned them. The list may be empty if the
-        season has no divisions.
-    :rtype: list[Division]
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-sdk-py login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response.
-    """
-    response = session.get(
-        _ENDPOINT,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
-    )
-    if response.status_code == 401:
-
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if response.status_code == 404:
-
-        _err_msg = (
-            f"Season '{season_id}' not found (HTTP 404). "
-            f"Make sure you're using a valid season ID. "
-            f"To get valid season IDs, run: gamesheet-sdk-py seasons list --league-id <LEAGUE_ID>",
-        )
-        raise GameSheetError(_err_msg)
-    if response.status_code >= 400:
-
-        _err_msg = (f"GET {_ENDPOINT} returned HTTP {response.status_code}: {response.text[:200]!r}",)
-        raise GameSheetError(_err_msg)
-    body: dict[str, Any] = response.json()
-    # Parse all divisions and filter to only those belonging to the requested season
-    all_divisions = [_parse(item) for item in body.get("data", [])]
-    return [d for d in all_divisions if d.season_id == season_id]
 
 
 def list_division_teams(session: Session, division_id: str) -> list[Team]:
@@ -143,3 +101,62 @@ def list_division_teams(session: Session, division_id: str) -> list[Team]:
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
     return [parse_team(item) for item in body.get("data", [])]
+
+
+def list_divisions(session: Session, season_id: str, *, include_team_counts: bool = False) -> list[Division]:
+    """Return every division in the specified season.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    Note: The GameSheet API returns all divisions, so this function filters client-side to only
+    include divisions that belong to the specified season (via the relationships.season.data.id field).
+
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param season_id: The season identifier whose divisions to list.
+    :type season_id: str
+    :param include_team_counts: If True, fetch and populate team_count for each division (requires an
+        additional API call per division).
+    :type include_team_counts: bool
+    :returns: A list of :class:`Division`, in the order the server returned them. The list may be empty if the
+        season has no divisions.
+    :rtype: list[Division]
+    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
+        run ``gamesheet-sdk-py login`` to refresh).
+    :raises GameSheetError: For any other non-2xx response.
+    """
+    response = session.get(
+        _ENDPOINT,
+        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+    )
+    if response.status_code == 401:
+
+        _err_msg = (
+            "Access token rejected (HTTP 401). Likely expired; re-run "
+            "`gamesheet-sdk-py login` to refresh and try again.",
+        )
+        raise AuthenticationError(_err_msg)
+    if response.status_code == 404:
+
+        _err_msg = (
+            f"Season '{season_id}' not found (HTTP 404). "
+            f"Make sure you're using a valid season ID. "
+            f"To get valid season IDs, run: gamesheet-sdk-py seasons list --league-id <LEAGUE_ID>",
+        )
+        raise GameSheetError(_err_msg)
+    if response.status_code >= 400:
+
+        _err_msg = (f"GET {_ENDPOINT} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        raise GameSheetError(_err_msg)
+    body: dict[str, Any] = response.json()
+    # Parse all divisions and filter to only those belonging to the requested season
+    all_divisions = [_parse(item) for item in body.get("data", [])]
+    divisions = [d for d in all_divisions if d.season_id == season_id]
+
+    # If requested, fetch team counts for each division
+    if include_team_counts:
+        for division in divisions:
+            teams = list_division_teams(session, division.id)
+            division.team_count = len(teams)
+
+    return divisions

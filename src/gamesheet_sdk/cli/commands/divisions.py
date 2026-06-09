@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import rich_click as click
 from rich_click import Choice, Context, Path
 
@@ -11,6 +13,9 @@ from gamesheet_sdk.config import Config
 from gamesheet_sdk.divisions import list_division_teams as _list_division_teams_action
 from gamesheet_sdk.divisions import list_divisions as _list_divisions_action
 from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.auth.session import AuthenticatedSession
 
 
 @click.group(
@@ -84,7 +89,11 @@ def divisions_list_command(
     """
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
-    divisions = run_action_or_exit(session, _list_divisions_action, season_id)
+
+    def _list_with_counts(sess: AuthenticatedSession, sid: str) -> list:  # type: ignore[type-arg]
+        return _list_divisions_action(sess, sid, include_team_counts=True)
+
+    divisions = run_action_or_exit(session, _list_with_counts, season_id)
     rows = [division.model_dump(mode="json") for division in divisions]
     rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
     write_output(rendered, output_path, fmt=output_format)
