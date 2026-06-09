@@ -256,3 +256,99 @@ def test_divisions_create_with_output_file_coverage() -> None:
         assert result.exit_code == 0
         # When output file is specified, success message should not be displayed
         mock_secho.assert_not_called()
+
+
+def test_divisions_update_coverage() -> None:
+    """Ensure divisions update command body is covered."""
+    runner = CliRunner()
+    mock_division = MagicMock()
+    mock_division.title = "Updated Division"
+    mock_division.id = "701"
+    mock_division.model_dump.return_value = {"id": "701", "title": "Updated Division"}
+
+    def mock_run_action(session: MagicMock, action: MagicMock, *args: MagicMock) -> MagicMock:
+        return action(session, *args)
+
+    with (
+        patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.cli.commands.divisions._update_division_action",
+            return_value=mock_division,
+        ),
+        patch(
+            "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
+            side_effect=mock_run_action,
+        ),
+        patch("gamesheet_sdk.cli.commands.divisions.render", return_value=""),
+        patch("gamesheet_sdk.cli.commands.divisions.write_output"),
+        patch("gamesheet_sdk.cli.commands.divisions.click.secho") as mock_secho,
+    ):
+        result = runner.invoke(
+            divisions_group,
+            ["update", "--division-id", "701", "--title", "Updated Division", "-F", "json"],
+            obj=MagicMock(),
+        )
+        assert result.exit_code == 0
+        # Verify success message was displayed
+        mock_secho.assert_called_once()
+        call_args = mock_secho.call_args
+        assert "Updated Division" in call_args[0][0]
+        assert "701" in call_args[0][0]
+
+
+def test_divisions_update_with_no_fields_exits_with_error() -> None:
+    """Ensure divisions update without fields shows error."""
+    runner = CliRunner()
+    with patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"):
+        result = runner.invoke(
+            divisions_group,
+            ["update", "--division-id", "701", "-F", "json"],
+            obj=MagicMock(),
+        )
+        assert result.exit_code == 1
+        assert "At least one of --title or --external-id must be provided" in result.output
+
+
+def test_divisions_update_with_output_file_coverage() -> None:
+    """Ensure divisions update with output file is covered."""
+    runner = CliRunner()
+    mock_division = MagicMock()
+    mock_division.title = "Updated Division"
+    mock_division.id = "701"
+    mock_division.model_dump.return_value = {"id": "701", "title": "Updated Division"}
+
+    def mock_run_action(session: MagicMock, action: MagicMock, *args: MagicMock) -> MagicMock:
+        return action(session, *args)
+
+    with (
+        patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.cli.commands.divisions._update_division_action",
+            return_value=mock_division,
+        ),
+        patch(
+            "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
+            side_effect=mock_run_action,
+        ),
+        patch("gamesheet_sdk.cli.commands.divisions.render", return_value=""),
+        patch("gamesheet_sdk.cli.commands.divisions.write_output"),
+        patch("gamesheet_sdk.cli.commands.divisions.click.secho") as mock_secho,
+    ):
+        result = runner.invoke(
+            divisions_group,
+            [
+                "update",
+                "--division-id",
+                "701",
+                "--title",
+                "Updated Division",
+                "-F",
+                "json",
+                "-o",
+                "/tmp/out.json",
+            ],
+            obj=MagicMock(),
+        )
+        assert result.exit_code == 0
+        # When output file is specified, success message should not be displayed
+        mock_secho.assert_not_called()

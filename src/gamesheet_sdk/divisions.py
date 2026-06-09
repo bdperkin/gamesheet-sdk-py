@@ -245,3 +245,79 @@ def create_division(
 
     body: dict[str, Any] = response.json()
     return _parse(body["data"])
+
+
+def update_division(
+    session: Session,
+    division_id: str,
+    *,
+    title: str | None = None,
+    external_id: str | None = None,
+) -> Division:
+    """Update an existing division.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
+    At least one of title or external_id must be provided.
+
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param division_id: The division identifier to update.
+    :type division_id: str
+    :param title: Optional new display name for the division.
+    :type title: str | None
+    :param external_id: Optional new external identifier.
+    :type external_id: str | None
+    :returns: The updated :class:`Division`.
+    :rtype: Division
+    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
+        run ``gamesheet-sdk-py login`` to refresh).
+    :raises GameSheetError: For any other non-2xx response.
+    :raises ValueError: If neither title nor external_id is provided.
+    """
+    if title is None and external_id is None:
+        raise ValueError("At least one of title or external_id must be provided")
+
+    endpoint = f"/api/divisions/{division_id}"
+
+    # Build attributes dict with only provided fields
+    attributes: dict[str, Any] = {}
+    if title is not None:
+        attributes["title"] = title
+    if external_id is not None:
+        attributes["external_id"] = external_id
+
+    payload = {
+        "data": {
+            "type": "divisions",
+            "id": division_id,
+            "attributes": attributes,
+        },
+    }
+
+    response = session.patch(
+        endpoint,
+        json=payload,
+        headers={"Accept": _JSONAPI_CONTENT_TYPE, "Content-Type": _JSONAPI_CONTENT_TYPE},
+    )
+
+    if response.status_code == 401:
+        _err_msg = (
+            "Access token rejected (HTTP 401). Likely expired; re-run "
+            "`gamesheet-sdk-py login` to refresh and try again.",
+        )
+        raise AuthenticationError(_err_msg)
+    if response.status_code == 404:
+        _err_msg = (
+            f"Division '{division_id}' not found (HTTP 404). "
+            f"Make sure you're using a valid division ID. "
+            f"To get valid division IDs, run: gamesheet-sdk-py divisions list --season-id <SEASON_ID>",
+        )
+        raise GameSheetError(_err_msg)
+    if response.status_code >= 400:
+        _err_msg = (f"PATCH {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        raise GameSheetError(_err_msg)
+
+    body: dict[str, Any] = response.json()
+    return _parse(body["data"])

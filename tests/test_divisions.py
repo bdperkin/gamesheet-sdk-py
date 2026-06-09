@@ -16,6 +16,7 @@ from gamesheet_sdk import (
     create_division,
     list_division_teams,
     list_divisions,
+    update_division,
 )
 from gamesheet_sdk.divisions import Division
 from gamesheet_sdk.teams import Team
@@ -664,3 +665,170 @@ def test_create_division_other_failure_raises_gamesheet_error(
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
             create_division(session, _SEASON_ID, "Test Division")
+
+
+_UPDATE_ENDPOINT = f"{_BASE}/api/divisions/{_DIVISION_ID}"
+
+
+@responses.activate
+def test_update_division_updates_title(config: Config) -> None:
+
+    responses.add(
+        responses.PATCH,
+        _UPDATE_ENDPOINT,
+        json={
+            "data": {
+                "type": "divisions",
+                "id": _DIVISION_ID,
+                "attributes": {
+                    "title": "Updated Division",
+                    "external_id": "existing-external-id",
+                    "settings": {},
+                    "created_at": "2024-09-01T10:00:00Z",
+                    "updated_at": "2026-06-09T20:00:00Z",
+                },
+                "relationships": {
+                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                },
+            },
+        },
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        result = update_division(session, _DIVISION_ID, title="Updated Division")
+    assert result.id == _DIVISION_ID
+    assert result.title == "Updated Division"
+    assert result.season_id == _SEASON_ID
+
+    # Verify the request payload
+    assert len(responses.calls) == 1
+    req = responses.calls[0].request
+    assert req.headers["Authorization"] == "Bearer abc"
+    assert req.headers["Accept"] == "application/vnd.api+json"
+    assert req.headers["Content-Type"] == "application/vnd.api+json"
+    import json
+
+    payload = json.loads(req.body)
+    assert payload["data"]["type"] == "divisions"
+    assert payload["data"]["id"] == _DIVISION_ID
+    assert payload["data"]["attributes"]["title"] == "Updated Division"
+    assert "external_id" not in payload["data"]["attributes"]
+
+
+@responses.activate
+def test_update_division_updates_external_id(config: Config) -> None:
+
+    responses.add(
+        responses.PATCH,
+        _UPDATE_ENDPOINT,
+        json={
+            "data": {
+                "type": "divisions",
+                "id": _DIVISION_ID,
+                "attributes": {
+                    "title": "Existing Title",
+                    "external_id": "new-external-id",
+                    "settings": {},
+                    "created_at": "2024-09-01T10:00:00Z",
+                    "updated_at": "2026-06-09T20:00:00Z",
+                },
+                "relationships": {
+                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                },
+            },
+        },
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        result = update_division(session, _DIVISION_ID, external_id="new-external-id")
+    assert result.id == _DIVISION_ID
+    assert result.external_id == "new-external-id"
+
+    # Verify only external_id was sent
+    import json
+
+    payload = json.loads(responses.calls[0].request.body)
+    assert "title" not in payload["data"]["attributes"]
+    assert payload["data"]["attributes"]["external_id"] == "new-external-id"
+
+
+@responses.activate
+def test_update_division_updates_both_fields(config: Config) -> None:
+
+    responses.add(
+        responses.PATCH,
+        _UPDATE_ENDPOINT,
+        json={
+            "data": {
+                "type": "divisions",
+                "id": _DIVISION_ID,
+                "attributes": {
+                    "title": "New Title",
+                    "external_id": "new-id",
+                    "settings": {},
+                    "created_at": "2024-09-01T10:00:00Z",
+                    "updated_at": "2026-06-09T20:00:00Z",
+                },
+                "relationships": {
+                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                },
+            },
+        },
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        result = update_division(session, _DIVISION_ID, title="New Title", external_id="new-id")
+    assert result.title == "New Title"
+    assert result.external_id == "new-id"
+
+
+def test_update_division_raises_value_error_if_no_fields_provided(config: Config) -> None:
+
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        with pytest.raises(ValueError, match="At least one of title or external_id must be provided"):
+            update_division(session, _DIVISION_ID)
+
+
+@responses.activate
+def test_update_division_401_raises_authentication_error(config: Config) -> None:
+
+    responses.add(
+        responses.PATCH,
+        _UPDATE_ENDPOINT,
+        json={"errors": [{"detail": "Token expired"}]},
+        status=401,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("stale")
+        with pytest.raises(AuthenticationError, match="HTTP 401"):
+            update_division(session, _DIVISION_ID, title="Test")
+
+
+@responses.activate
+def test_update_division_404_raises_gamesheet_error_with_helpful_message(
+    config: Config,
+) -> None:
+
+    responses.add(responses.PATCH, _UPDATE_ENDPOINT, status=404, body="Not found")
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        with pytest.raises(
+            GameSheetError,
+            match=r"Division '.*' not found.*valid division ID.*divisions list --season-id",
+        ):
+            update_division(session, _DIVISION_ID, title="Test")
+
+
+@responses.activate
+def test_update_division_other_failure_raises_gamesheet_error(
+    config: Config,
+) -> None:
+    responses.add(responses.PATCH, _UPDATE_ENDPOINT, status=500, body="boom")
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        with pytest.raises(GameSheetError, match="HTTP 500"):
+            update_division(session, _DIVISION_ID, title="Test")

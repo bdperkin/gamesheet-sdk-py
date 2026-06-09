@@ -73,6 +73,7 @@ from gamesheet_sdk.divisions import (
     create_division,
     list_division_teams,
     list_divisions,
+    update_division,
 )
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.games import Game, TeamInfo, list_brackets, list_completed, list_scheduled
@@ -128,6 +129,7 @@ __all__ = [
     "create_division",
     "list_division_teams",
     "list_divisions",
+    "update_division",
     "list_ipad_keys",
     "list_leagues",
     "list_players",
