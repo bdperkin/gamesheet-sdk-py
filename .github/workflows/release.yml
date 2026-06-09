@@ -164,7 +164,7 @@ jobs:
 
   build-container:
     name: Build and Publish Container
-    needs: publish-pypi
+    needs: [version, publish-pypi]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -250,7 +250,7 @@ jobs:
 
   github-release:
     name: Create GitHub Release
-    needs: build-container
+    needs: [version, build-container]
     runs-on: ubuntu-latest
     permissions:
       contents: write
