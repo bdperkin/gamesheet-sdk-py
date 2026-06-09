@@ -129,8 +129,8 @@ The workflow and PyPI treat these identically to stable releases, but pip's depe
 - **Missing build dependency:** The workflow installs only `build`; if `pyproject.toml` declares a `requires` entry that the build backend needs, the build
   backend will fetch it at build time. If that fetch fails, the build fails. Fix: ensure `pyproject.toml` pins the build backend and its dependencies
   appropriately.
-- **PSR cannot resolve the version:** Ensure the `pyproject.toml` `version` field has been updated by PSR before the tag was created. The automated release
-  workflow should handle this, but manual tagging requires the version to be committed first.
+- **hatch-vcs cannot resolve the tag:** The workflow fetches full history (`fetch-depth: 0`), but if the tag was pushed before the commit it points to was
+  fetched, hatch-vcs may fail. Fix: re-push the tag after ensuring the commit is on the remote.
 
 ### Version mismatch errors
 

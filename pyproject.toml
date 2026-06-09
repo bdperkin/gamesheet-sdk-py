@@ -319,6 +319,7 @@ exclude = [
   "dist/",
   ".mypy_cache/",
   ".pytest_cache/",
+  "src/gamesheet_sdk/_version.py",
   ".tox/",
   ".venv/",
 ]
@@ -359,6 +360,7 @@ main.ignore = [
   ".venv",
   "coverage.xml",
   "dist",
+  "src/gamesheet_sdk/_version.py",
 ]
 main.ignore-patterns = [ "^\\.#" ]
 main.jobs = 1
@@ -456,6 +458,7 @@ miscellaneous.notes = [ "FIXME", "XXX", "TODO" ]
 ]
 "messages control".per-file-ignores = [
   "docs/conf.py:invalid-name",
+  "src/gamesheet_sdk/_version.py:missing-module-docstring",
   "tests/**:import-outside-toplevel,missing-function-docstring,protected-access,redefined-outer-name",
 ]
 
@@ -478,6 +481,7 @@ exclude = [
   "dist",
   ".mypy_cache",
   ".pytest_cache",
+  "src/gamesheet_sdk/_version.py",
   ".tox",
   ".venv",
 ]
@@ -491,6 +495,7 @@ ignore-magic = true
 ignore-semiprivate = true
 ignore-nested-functions = true
 exclude = [
+  "src/gamesheet_sdk/_version.py",
   "tests",
 ]
 check = true
@@ -558,77 +563,49 @@ exclude = [
   ".venv",
   "coverage.xml",
   "dist",
+  "src/gamesheet_sdk/_version.py",
 ]
 ignore_names = [
   "autoclass_*",
   "autodoc_*",
   "autosectionlabel_*",
   "autosummary_*",
-  "biography",
-  "birthdate",
-  "committed_to",
   "confirm_destructive",
   "copyright",
-  "country",
-  "division_title",
-  "drafted_by",
-  "end_time",
   "epub_*",
   "ERRORS_EPILOGUE",
   "ERRORS_SUGGESTION",
   "exclude_*",
   "extensions",
   "format_commands",
-  "game_date",
-  "game_number",
-  "game_type",
   "get_cmd",
-  "has_overtime",
-  "has_shootout",
-  "height",
-  "hometown",
   "html_*",
   "intersphinx_*",
   "latex_*",
   "linkcheck_*",
   "list_cmd",
-  "location",
   "man_*",
   "mock_stdout",
-  "model_config",
   "myst_*",
   "napoleon_*",
   "OPTIONS_TABLE_COLUMN_TYPES",
   "OPTIONS_TABLE_HELP_SECTIONS",
-  "photo_url",
-  "province",
-  "shot_hand",
   "side_effect",
   "source_*",
   "STYLE_ERRORS_SUGGESTION",
   "templates_*",
-  "time_zone_name",
   "todo_*",
-  "viewed",
-  "weight",
 ]
 ignore_decorators = [
   "@associations_group.command",
-  "@brackets_group.command",
   "@cli.command",
-  "@coaches_group.command",
-  "@completed_group.command",
   "@confirm_destructive",
   "@divisions_group.command",
-  "@games_group.command",
   "@group.command",
   "@ipad_keys_group.command",
   "@leagues_group.command",
-  "@players_group.command",
   "@pytest.fixture",
   "@referees_group.command",
-  "@roster_group.command",
-  "@scheduled_group.command",
   "@season_group.command",
   "@seasons_group.command",
   "@teams_group.command",
@@ -654,6 +631,7 @@ exclude_dirs = [
   ".venv",
   "coverage.xml",
   "dist",
+  "src/gamesheet_sdk/_version.py",
 ]
 skips = [
   "B101",
@@ -700,6 +678,7 @@ exclude = [
   ".venv",
   "coverage.xml",
   "dist",
+  "src/gamesheet_sdk/_version.py",
 ]
 # Ignore errors inside specific files
 ignore = []
@@ -781,6 +760,7 @@ exclude = [
   "dist",
   ".mypy_cache",
   ".pytest_cache",
+  "src/gamesheet_sdk/_version.py",
   ".tox",
   ".venv",
 ]
@@ -839,6 +819,7 @@ exclude = [
   "dist/**",
   ".mypy_cache/**",
   ".pytest_cache/**",
+  "src/gamesheet_sdk/_version.py",
   ".tox/**",
   ".venv/**",
 ]

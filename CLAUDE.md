@@ -27,7 +27,7 @@ The package is alpha. Structure under `src/gamesheet_sdk/`:
   - `core.py` — `ResourceGroup` class, `confirm_destructive` decorator, utility functions
   - `helpers.py` — shared command helpers
   - `main.py` — main CLI entry point (`cli` group and `main()` function)
-  - `commands/` — individual command modules (associations, completion, divisions, games, ipad_keys, leagues, login, referees, roster, season, seasons, teams)
+  - `commands/` — individual command modules (associations, completion, divisions, ipad_keys, leagues, login, referees, season, seasons, teams)
 - `config.py` — `pydantic-settings` `Config` (resolves `GAMESHEET_*` env vars; CLI args > env > defaults)
 - `divisions.py` — `Division` model + `list_divisions()`
 - `exceptions.py` — `GameSheetError`, `AuthenticationError`
@@ -40,15 +40,14 @@ Domain modules (each provides pydantic models + action functions, plus a corresp
 
 - `associations.py` — `Association` model + `list_associations()`
 - `divisions.py` — `Division` model + `list_divisions()`
-- `games.py` — `Game` model + `list_scheduled()`, `list_completed()`, `list_brackets()`
 - `ipad_keys.py` — `IPadKey` model + `list_ipad_keys()`
 - `leagues.py` — `League` model + `list_leagues()`
 - `referees.py` — `Referee` model + `list_referees()`
-- `roster.py` — `Player` and `Coach` models + `list_players()`, `list_coaches()`
 - `seasons.py` — `Season` and `SeasonDetail` models + `list_seasons()`, `get_season()`
 - `teams.py` — `Team` model + `list_teams()`
 
-Future domain modules attach the same way: a thin action function in a domain module, a pydantic model, and a corresponding command module in `cli/commands/`.
+Future domain modules (games, players, …) attach the same way: a thin action function in a domain module, a pydantic model, and a corresponding command module
+in `cli/commands/`.
 
 ## Common commands
 
@@ -212,8 +211,9 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
   the project's runtime deps duplicated in `additional_dependencies` to resolve imports inside the isolated hook venv. Every hook's `additional_dependencies` is
   consolidated to a single `gamesheet-sdk-py[<extras>]` self-reference (e.g. `gamesheet-sdk-py[mypy,pytest,type-stubs]`, `gamesheet-sdk-py[pylint,pytest]`,
   `gamesheet-sdk-py[pyrefly,pytest]`, `gamesheet-sdk-py[deptry,pytest,type-stubs]`) so `pyproject.toml`'s `optional-dependencies.*` groups are the single source
-  of truth for what each tool needs. The `[pyroma]` extra includes `virtualenv` so pyroma can introspect the build backend. Pyroma is skipped on pre-commit.ci
-  (see above) and runs locally / in GitHub Actions where the project's build backend (`hatchling`) is already present.
+  of truth for what each tool needs. The `[pyroma]` extra includes `virtualenv` so pyroma can introspect the build backend; loose `hatchling` / `hatch-vcs` deps
+  are no longer needed because pyroma is skipped on pre-commit.ci (see above) and runs locally / in GitHub Actions where the project's build backend is already
+  present.
 
 - **Complexity gate.** A `xenon` pre-commit hook enforces `--max-absolute=A --max-modules=A --max-average=B` against `src/` on every commit
   (`pass_filenames: false`, runs the whole package as one analysis). Translation: **every block (function / method / class) must stay at cyclomatic-complexity

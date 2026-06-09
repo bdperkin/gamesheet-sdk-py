@@ -39,8 +39,8 @@ if TYPE_CHECKING:
 def _default_user_agent() -> str:
     """Build the SDK's default ``User-Agent`` from installed metadata.
 
-    Reads from the package's distribution metadata (which is set in `pyproject.toml` and managed by PSR)
-    rather than importing ``__version__`` from the parent module, so this module stays free of cyclic imports.
+    Reads from the package's distribution metadata (which `hatch-vcs` populates at build time) rather than
+    importing ``__version__`` from the parent module, so this module stays free of cyclic imports.
     """
     try:
         ver = _resolved_version("gamesheet-sdk-py")
