@@ -116,10 +116,10 @@ The `--league-id` argument is required.
 
 ## Step 7 — Get detailed season information
 
-Once you have a season ID, you can retrieve detailed information about that season with the `season get` command (note: `season` is singular, not plural):
+Once you have a season ID, you can retrieve detailed information about that season with the `seasons get` command:
 
 ```console
-(.venv) $ gamesheet-sdk-py season get 555
+(.venv) $ gamesheet-sdk-py seasons get --season-id 555
 ID: 555
 Name: 2024-2025
 Start: 2024-09-01

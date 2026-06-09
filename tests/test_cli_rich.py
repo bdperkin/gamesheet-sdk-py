@@ -79,7 +79,6 @@ def test_completion_command_help() -> None:
         "associations",
         "leagues",
         "seasons",
-        "season",
         "divisions",
         "teams",
         "referees",
