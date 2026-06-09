@@ -2,6 +2,26 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.12 (2026-06-09)
+
+### Bug Fixes
+
+- **ci**: Restore dependency-review to pull_request-only trigger ([#57](https://github.com/bdperkin/gamesheet-sdk-py/pull/57),
+  [`d72c2f6`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d72c2f6861563e91c33962e7ca00e1eb4fd263df))
+
+### Continuous Integration
+
+- Use path filters instead of commit message checks to skip release workflows ([#56](https://github.com/bdperkin/gamesheet-sdk-py/pull/56),
+  [`c2e7076`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c2e707609f20bd2e6eca77bb26597077459df81a))
+
+### Refactoring
+
+- **cli**: Merge season command into seasons group ([#56](https://github.com/bdperkin/gamesheet-sdk-py/pull/56),
+  [`c2e7076`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c2e707609f20bd2e6eca77bb26597077459df81a))
+
+- **tests**: Split seasons tests into separate list and get files ([#56](https://github.com/bdperkin/gamesheet-sdk-py/pull/56),
+  [`c2e7076`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c2e707609f20bd2e6eca77bb26597077459df81a))
+
 ## v0.1.11 (2026-06-09)
 
 ### Bug Fixes
