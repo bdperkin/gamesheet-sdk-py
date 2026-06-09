@@ -222,7 +222,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.29.0
+        uses: aquasecurity/trivy-action@0.36.0
         with:
           image-ref: ghcr.io/bdperkin/gamesheet-sdk-py:${{ needs.version.outputs.version }}
           format: sarif
