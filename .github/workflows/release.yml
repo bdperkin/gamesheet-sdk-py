@@ -222,7 +222,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ghcr.io/bdperkin/gamesheet-sdk-py:${{ needs.version.outputs.version }}
           format: sarif
@@ -234,7 +234,7 @@ jobs:
           sarif_file: trivy-results.sarif
 
       - name: Generate SBOM
-        uses: anchore/sbom-action@v0.18.2
+        uses: anchore/sbom-action@v0.24.0
         with:
           image: ghcr.io/bdperkin/gamesheet-sdk-py:${{ needs.version.outputs.version }}
           format: spdx-json
