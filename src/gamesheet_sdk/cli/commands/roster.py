@@ -1,0 +1,192 @@
+"""Roster command group with nested sub-commands."""
+
+from __future__ import annotations
+
+import rich_click as click
+from rich_click import Choice, Context, Path
+
+from gamesheet_sdk.cli.core import ResourceGroup, parse_columns_spec
+from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
+from gamesheet_sdk.config import Config
+from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
+from gamesheet_sdk.roster import list_coaches as _list_coaches_action
+from gamesheet_sdk.roster import list_players as _list_players_action
+
+
+@click.group(
+    "roster",
+    cls=ResourceGroup,
+    default="players",
+    aliases={
+        "get": ("show", "view"),
+        "list": ("ls",),
+        "create": ("add", "new"),
+        "update": ("set", "edit"),
+        "delete": ("rm", "remove"),
+    },
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
+@click.option(
+    "--season-id",
+    type=str,
+    envvar="GAMESHEET_SEASON_ID",
+    required=True,
+    help="Season ID to manage roster for.",
+)
+@click.pass_context
+def roster_group(ctx: Context, season_id: str) -> None:
+    """Manage roster (players and coaches) within a season.
+
+    Invoking ``roster`` with no sub-command runs ``players`` by default.
+    The --season-id option is required and applies to all sub-commands.
+    """
+    # Store season_id in context for sub-commands to access
+    # ctx.obj is a Config object from the root CLI - wrap it in a dict
+    config = ctx.obj
+    ctx.obj = {"config": config, "season_id": season_id}
+
+
+# Players sub-group
+@roster_group.group(
+    "players",
+    cls=ResourceGroup,
+    default="list",
+    aliases={
+        "get": ("show", "view"),
+        "list": ("ls",),
+        "create": ("add", "new"),
+        "update": ("set", "edit"),
+        "delete": ("rm", "remove"),
+    },
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
+def players_group() -> None:
+    """Manage players.
+
+    Invoking ``players`` with no sub-command runs ``list`` by default.
+    """
+
+
+@players_group.command("list")
+@click.option(
+    "--format",
+    "-F",
+    "output_format",
+    type=Choice(list(ALL_FORMATS), case_sensitive=False),
+    default=DEFAULT_FORMAT,
+    show_default=True,
+    help=(
+        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
+        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
+        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
+        "latex_longtable."
+    ),
+)
+@click.option(
+    "--output",
+    "-o",
+    "output_path",
+    type=Path(dir_okay=False, writable=True),
+    default=None,
+    help="Write to this file instead of stdout.",
+)
+@click.option(
+    "--columns",
+    "-c",
+    "columns_spec",
+    default=None,
+    help=("Comma-separated list of column names to include (default: all columns the API returns)."),
+)
+@click.pass_context
+def players_list_command(
+    ctx: Context,
+    output_format: str,
+    output_path: str | None,
+    columns_spec: str | None,
+) -> None:
+    """List all players in the specified season.
+
+    Requires authentication (run 'gamesheet-sdk-py login' first).
+    """
+    # Extract config and season_id from context (set by roster_group)
+    # ctx.obj is always a dict set by roster_group with "config" and "season_id" keys
+    config: Config = ctx.obj["config"]
+    season_id: str = ctx.obj["season_id"]
+    session = build_authenticated_session(ctx, config)
+    players = run_action_or_exit(session, _list_players_action, season_id)
+    rows = [player.model_dump(mode="json") for player in players]
+    rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
+    write_output(rendered, output_path, fmt=output_format)
+
+
+# Coaches sub-group
+@roster_group.group(
+    "coaches",
+    cls=ResourceGroup,
+    default="list",
+    aliases={
+        "get": ("show", "view"),
+        "list": ("ls",),
+        "create": ("add", "new"),
+        "update": ("set", "edit"),
+        "delete": ("rm", "remove"),
+    },
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
+def coaches_group() -> None:
+    """Manage coaches.
+
+    Invoking ``coaches`` with no sub-command runs ``list`` by default.
+    """
+
+
+@coaches_group.command("list")
+@click.option(
+    "--format",
+    "-F",
+    "output_format",
+    type=Choice(list(ALL_FORMATS), case_sensitive=False),
+    default=DEFAULT_FORMAT,
+    show_default=True,
+    help=(
+        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
+        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
+        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
+        "latex_longtable."
+    ),
+)
+@click.option(
+    "--output",
+    "-o",
+    "output_path",
+    type=Path(dir_okay=False, writable=True),
+    default=None,
+    help="Write to this file instead of stdout.",
+)
+@click.option(
+    "--columns",
+    "-c",
+    "columns_spec",
+    default=None,
+    help=("Comma-separated list of column names to include (default: all columns the API returns)."),
+)
+@click.pass_context
+def coaches_list_command(
+    ctx: Context,
+    output_format: str,
+    output_path: str | None,
+    columns_spec: str | None,
+) -> None:
+    """List all coaches in the specified season.
+
+    Requires authentication (run 'gamesheet-sdk-py login' first).
+    """
+    # Extract config and season_id from context (set by roster_group)
+    # ctx.obj is always a dict set by roster_group with "config" and "season_id" keys
+    config: Config = ctx.obj["config"]
+    season_id: str = ctx.obj["season_id"]
+    session = build_authenticated_session(ctx, config)
+    coaches = run_action_or_exit(session, _list_coaches_action, season_id)
+    rows = [coach.model_dump(mode="json") for coach in coaches]
+    rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
+    write_output(rendered, output_path, fmt=output_format)

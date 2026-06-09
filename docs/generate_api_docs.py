@@ -38,7 +38,7 @@ def main() -> int:
         str(OUTPUT_DIR),
         str(PACKAGE_DIR),
         # Exclude patterns
-        str(PACKAGE_DIR / "_version.py"),  # Generated file
+        str(PACKAGE_DIR / "_version.py"),  # Build-time generated file (gitignored)
         "*/tests/*",  # Test files
         "**/test_*.py",  # Test files
     ]
