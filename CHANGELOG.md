@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.11 (2026-06-09)
+
+### Bug Fixes
+
+- **ci**: Add security-events permission and update CodeQL action ([#55](https://github.com/bdperkin/gamesheet-sdk-py/pull/55),
+  [`1dac7af`](https://github.com/bdperkin/gamesheet-sdk-py/commit/1dac7af235fc43db91d78855d18255dac50f5595))
+
 ## v0.1.10 (2026-06-09)
 
 ### Bug Fixes
