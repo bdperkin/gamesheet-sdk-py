@@ -38,8 +38,8 @@ from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_outp
 def games_group(ctx: Context, season_id: str) -> None:
     """Manage games within a season.
 
-    Invoking ``games`` with no sub-command runs ``completed`` by default.
-    The --season-id option is required and applies to all sub-commands.
+    Invoking ``games`` with no sub-command runs ``completed`` by default. The --season-id option is required
+    and applies to all sub-commands.
     """
     # Store season_id in context for sub-commands to access
     # ctx.obj is a Config object from the root CLI - wrap it in a dict

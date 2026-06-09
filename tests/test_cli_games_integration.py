@@ -15,7 +15,7 @@ _ENDPOINT = f"{_BFF_BASE}/games-list/v1"
 _TOKEN_PATH = Path(tempfile.gettempdir()) / ".gamesheet" / "access_token"
 
 
-def _bff_response(games: list[dict]) -> dict:
+def _bff_response(games: list[dict[str, object]]) -> dict[str, object]:
     """Build a BFF API response."""
     return {"status": "success", "data": games}
 

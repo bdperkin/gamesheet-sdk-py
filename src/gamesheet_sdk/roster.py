@@ -27,8 +27,8 @@ _JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
 class Player(BaseModel):
     """A single player.
 
-    Maps the ``data[*]`` items in the JSON:API response of ``GET /api/seasons/{id}/players``
-    to a flat typed model.
+    Maps the ``data[*]`` items in the JSON:API response of ``GET /api/seasons/{id}/players`` to a flat typed
+    model.
     """
 
     id: str = Field(description="Player identifier (string in JSON:API).")
@@ -54,8 +54,8 @@ class Player(BaseModel):
 class Coach(BaseModel):
     """A single coach.
 
-    Maps the ``data[*]`` items in the JSON:API response of ``GET /api/seasons/{id}/coaches``
-    to a flat typed model.
+    Maps the ``data[*]`` items in the JSON:API response of ``GET /api/seasons/{id}/coaches`` to a flat typed
+    model.
     """
 
     id: str = Field(description="Coach identifier (string in JSON:API).")

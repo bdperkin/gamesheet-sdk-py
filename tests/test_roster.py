@@ -9,10 +9,8 @@ import responses
 
 from gamesheet_sdk import (
     AuthenticationError,
-    Coach,
     Config,
     GameSheetError,
-    Player,
     Session,
     list_coaches,
     list_players,

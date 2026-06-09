@@ -20,7 +20,7 @@ _SEASON_ID = "15020"
 _ENDPOINT = f"{_BASE}/games-list/v1"
 
 
-def _bff_response(games: list[dict]) -> dict:
+def _bff_response(games: list[dict[str, object]]) -> dict[str, object]:
     """Build a BFF API response."""
     return {"status": "success", "data": games}
 
