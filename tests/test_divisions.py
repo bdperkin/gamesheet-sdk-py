@@ -209,7 +209,7 @@ def test_list_divisions_filters_by_season_id(config: Config) -> None:
 
 
 _DIVISION_ID = "701"
-_DIVISION_TEAMS_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/divisions/{_DIVISION_ID}/teams"
+_DIVISION_TEAMS_ENDPOINT = f"{_BASE}/api/divisions/{_DIVISION_ID}/teams"
 
 
 @responses.activate
@@ -280,7 +280,7 @@ def test_list_division_teams_parses_jsonapi_response(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
-        result = list_division_teams(session, _SEASON_ID, _DIVISION_ID)
+        result = list_division_teams(session, _DIVISION_ID)
     assert [t.id for t in result] == ["1001", "1002"]
     assert result[0].title == "Raleigh Raptors"
     assert result[0].season_id == _SEASON_ID
@@ -301,7 +301,7 @@ def test_list_division_teams_sends_bearer_and_jsonapi_accept(config: Config) -> 
     responses.add(responses.GET, _DIVISION_TEAMS_ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
-        list_division_teams(session, _SEASON_ID, _DIVISION_ID)
+        list_division_teams(session, _DIVISION_ID)
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
@@ -314,7 +314,7 @@ def test_list_division_teams_empty_data_returns_empty_list(config: Config) -> No
     responses.add(responses.GET, _DIVISION_TEAMS_ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
-        assert not list_division_teams(session, _SEASON_ID, _DIVISION_ID)
+        assert not list_division_teams(session, _DIVISION_ID)
 
 
 @responses.activate
@@ -329,7 +329,7 @@ def test_list_division_teams_401_raises_authentication_error(config: Config) -> 
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            list_division_teams(session, _SEASON_ID, _DIVISION_ID)
+            list_division_teams(session, _DIVISION_ID)
 
 
 @responses.activate
@@ -344,7 +344,7 @@ def test_list_division_teams_404_raises_gamesheet_error_with_helpful_message(
             GameSheetError,
             match=r"Division '.*' not found.*valid division ID.*divisions list --season-id",
         ):
-            list_division_teams(session, _SEASON_ID, _DIVISION_ID)
+            list_division_teams(session, _DIVISION_ID)
 
 
 @responses.activate
@@ -355,7 +355,7 @@ def test_list_division_teams_other_failure_raises_gamesheet_error(
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            list_division_teams(session, _SEASON_ID, _DIVISION_ID)
+            list_division_teams(session, _DIVISION_ID)
 
 
 def test_team_model_accepts_optional_fields() -> None:

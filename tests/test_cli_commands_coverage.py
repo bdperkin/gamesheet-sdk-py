@@ -168,7 +168,7 @@ def test_divisions_teams_coverage() -> None:
     ):
         result = runner.invoke(
             divisions_group,
-            ["teams", "--season-id", "15020", "--division-id", "701", "-F", "json"],
+            ["teams", "--division-id", "701", "-F", "json"],
             obj=MagicMock(),
         )
         assert result.exit_code == 0

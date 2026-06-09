@@ -98,7 +98,7 @@ def list_divisions(session: Session, season_id: str) -> list[Division]:
     return [d for d in all_divisions if d.season_id == season_id]
 
 
-def list_division_teams(session: Session, season_id: str, division_id: str) -> list[Team]:
+def list_division_teams(session: Session, division_id: str) -> list[Team]:
     """Return every team in the specified division.
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
@@ -106,8 +106,6 @@ def list_division_teams(session: Session, season_id: str, division_id: str) -> l
 
     :param session: An authenticated :class:`Session`.
     :type session: Session
-    :param season_id: The season identifier.
-    :type season_id: str
     :param division_id: The division identifier whose teams to list.
     :type division_id: str
     :returns: A list of :class:`Team`, in the order the server returned them. The list may be empty if the
@@ -119,7 +117,7 @@ def list_division_teams(session: Session, season_id: str, division_id: str) -> l
     """
     from gamesheet_sdk.teams import _parse as parse_team  # pylint: disable=import-outside-toplevel
 
-    endpoint = f"/api/seasons/{season_id}/divisions/{division_id}/teams"
+    endpoint = f"/api/divisions/{division_id}/teams"
     response = session.get(
         endpoint,
         headers={"Accept": _JSONAPI_CONTENT_TYPE},

@@ -92,13 +92,6 @@ def divisions_list_command(
 
 @divisions_group.command("teams")
 @click.option(
-    "--season-id",
-    type=str,
-    envvar="GAMESHEET_SEASON_ID",
-    required=True,
-    help="Season ID for the division.",
-)
-@click.option(
     "--division-id",
     type=str,
     required=True,
@@ -134,9 +127,8 @@ def divisions_list_command(
     help=("Comma-separated list of column names to include (default: all columns the API returns)."),
 )
 @click.pass_context
-def divisions_teams_command(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+def divisions_teams_command(
     ctx: Context,
-    season_id: str,
     division_id: str,
     output_format: str,
     output_path: str | None,
@@ -148,7 +140,7 @@ def divisions_teams_command(  # pylint: disable=too-many-arguments,too-many-posi
     """
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
-    teams = run_action_or_exit(session, _list_division_teams_action, season_id, division_id)
+    teams = run_action_or_exit(session, _list_division_teams_action, division_id)
     rows = [team.model_dump(mode="json") for team in teams]
     rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
     write_output(rendered, output_path, fmt=output_format)
