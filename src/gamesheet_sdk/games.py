@@ -49,11 +49,13 @@ class Game(BaseModel):
     game_number: str | None = Field(
         default=None,
         alias="gameNumber",
-        description="Game number or identifier.")
+        description="Game number or identifier.",
+    )
     game_type: str | None = Field(
         default=None,
         alias="gameType",
-        description="Game type (regular, playoff, etc.).")
+        description="Game type (regular, playoff, etc.).",
+    )
     visitor: TeamInfo = Field(description="Visiting team information.")
     home: TeamInfo = Field(description="Home team information.")
     visitor_score: int | None = Field(default=None, alias="visitorScore", description="Visitor team score.")
@@ -61,11 +63,13 @@ class Game(BaseModel):
     has_shootout: bool | None = Field(
         default=None,
         alias="hasShootout",
-        description="Whether game had a shootout.")
+        description="Whether game had a shootout.",
+    )
     has_overtime: bool | None = Field(
         default=None,
         alias="hasOvertime",
-        description="Whether game had overtime.")
+        description="Whether game had overtime.",
+    )
     viewed: bool | None = Field(default=None, description="Whether the user has viewed this game.")
 
     model_config = {"populate_by_name": True}
