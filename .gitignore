@@ -95,6 +95,9 @@ test-results/
 docs/_build/
 _autosummary/
 
+# ---- Claude Code session data ----
+.claude/
+
 # ---- Local scratch ----
 *.log
 *.patch
