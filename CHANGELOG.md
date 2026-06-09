@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.13 (2026-06-09)
+
+### Bug Fixes
+
+- **ci**: Add version job to needs chain for container build ([#58](https://github.com/bdperkin/gamesheet-sdk-py/pull/58),
+  [`b0ddc7c`](https://github.com/bdperkin/gamesheet-sdk-py/commit/b0ddc7c0005302a13bdfa898ef2aa29afdef43c2))
+
 ## v0.1.12 (2026-06-09)
 
 ### Bug Fixes
