@@ -8,6 +8,7 @@ from rich_click import Choice, Context, Path
 from gamesheet_sdk.cli.core import ResourceGroup, parse_columns_spec
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
 from gamesheet_sdk.config import Config
+from gamesheet_sdk.divisions import list_division_teams as _list_division_teams_action
 from gamesheet_sdk.divisions import list_divisions as _list_divisions_action
 from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
 
@@ -85,5 +86,69 @@ def divisions_list_command(
     session = build_authenticated_session(ctx, config)
     divisions = run_action_or_exit(session, _list_divisions_action, season_id)
     rows = [division.model_dump(mode="json") for division in divisions]
+    rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
+    write_output(rendered, output_path, fmt=output_format)
+
+
+@divisions_group.command("teams")
+@click.option(
+    "--season-id",
+    type=str,
+    envvar="GAMESHEET_SEASON_ID",
+    required=True,
+    help="Season ID for the division.",
+)
+@click.option(
+    "--division-id",
+    type=str,
+    required=True,
+    help="Division ID to list teams for.",
+)
+@click.option(
+    "--format",
+    "-F",
+    "output_format",
+    type=Choice(list(ALL_FORMATS), case_sensitive=False),
+    default=DEFAULT_FORMAT,
+    show_default=True,
+    help=(
+        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
+        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
+        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
+        "latex_longtable."
+    ),
+)
+@click.option(
+    "--output",
+    "-o",
+    "output_path",
+    type=Path(dir_okay=False, writable=True),
+    default=None,
+    help="Write to this file instead of stdout.",
+)
+@click.option(
+    "--columns",
+    "-c",
+    "columns_spec",
+    default=None,
+    help=("Comma-separated list of column names to include (default: all columns the API returns)."),
+)
+@click.pass_context
+def divisions_teams_command(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    ctx: Context,
+    season_id: str,
+    division_id: str,
+    output_format: str,
+    output_path: str | None,
+    columns_spec: str | None,
+) -> None:
+    """List all teams in the specified division.
+
+    Requires authentication (run 'gamesheet-sdk-py login' first).
+    """
+    config: Config = ctx.obj
+    session = build_authenticated_session(ctx, config)
+    teams = run_action_or_exit(session, _list_division_teams_action, season_id, division_id)
+    rows = [team.model_dump(mode="json") for team in teams]
     rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
     write_output(rendered, output_path, fmt=output_format)

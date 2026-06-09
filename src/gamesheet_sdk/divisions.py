@@ -19,6 +19,7 @@ from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
 if TYPE_CHECKING:
     from gamesheet_sdk.session import Session
+    from gamesheet_sdk.teams import Team
 _ENDPOINT = "/api/divisions"
 _JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
 
@@ -95,3 +96,52 @@ def list_divisions(session: Session, season_id: str) -> list[Division]:
     # Parse all divisions and filter to only those belonging to the requested season
     all_divisions = [_parse(item) for item in body.get("data", [])]
     return [d for d in all_divisions if d.season_id == season_id]
+
+
+def list_division_teams(session: Session, season_id: str, division_id: str) -> list[Team]:
+    """Return every team in the specified division.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param season_id: The season identifier.
+    :type season_id: str
+    :param division_id: The division identifier whose teams to list.
+    :type division_id: str
+    :returns: A list of :class:`Team`, in the order the server returned them. The list may be empty if the
+        division has no teams.
+    :rtype: list[Team]
+    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
+        run ``gamesheet-sdk-py login`` to refresh).
+    :raises GameSheetError: For any other non-2xx response.
+    """
+    from gamesheet_sdk.teams import _parse as parse_team  # pylint: disable=import-outside-toplevel
+
+    endpoint = f"/api/seasons/{season_id}/divisions/{division_id}/teams"
+    response = session.get(
+        endpoint,
+        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+    )
+    if response.status_code == 401:
+
+        _err_msg = (
+            "Access token rejected (HTTP 401). Likely expired; re-run "
+            "`gamesheet-sdk-py login` to refresh and try again.",
+        )
+        raise AuthenticationError(_err_msg)
+    if response.status_code == 404:
+
+        _err_msg = (
+            f"Division '{division_id}' not found (HTTP 404). "
+            f"Make sure you're using a valid division ID. "
+            f"To get valid division IDs, run: gamesheet-sdk-py divisions list --season-id <SEASON_ID>",
+        )
+        raise GameSheetError(_err_msg)
+    if response.status_code >= 400:
+
+        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        raise GameSheetError(_err_msg)
+    body: dict[str, Any] = response.json()
+    return [parse_team(item) for item in body.get("data", [])]

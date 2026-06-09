@@ -10,6 +10,7 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
+from gamesheet_sdk.cli.commands.divisions import divisions_group
 from gamesheet_sdk.cli.commands.games import (
     brackets_group,
     completed_group,
@@ -125,5 +126,49 @@ def test_roster_coaches_list_coverage() -> None:
             coaches_group,
             ["list", "-F", "json"],
             obj={"config": MagicMock(), "season_id": "15020"},
+        )
+        assert result.exit_code == 0
+
+
+def test_divisions_list_coverage() -> None:
+    """Ensure divisions list command body is covered."""
+    runner = CliRunner()
+    with (
+        patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
+            return_value=[],
+        ),
+        patch("gamesheet_sdk.cli.commands.divisions.render", return_value=""),
+        patch(
+            "gamesheet_sdk.cli.commands.divisions.write_output",
+        ),
+    ):
+        result = runner.invoke(
+            divisions_group,
+            ["list", "--season-id", "15020", "-F", "json"],
+            obj=MagicMock(),
+        )
+        assert result.exit_code == 0
+
+
+def test_divisions_teams_coverage() -> None:
+    """Ensure divisions teams command body is covered."""
+    runner = CliRunner()
+    with (
+        patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
+            return_value=[],
+        ),
+        patch("gamesheet_sdk.cli.commands.divisions.render", return_value=""),
+        patch(
+            "gamesheet_sdk.cli.commands.divisions.write_output",
+        ),
+    ):
+        result = runner.invoke(
+            divisions_group,
+            ["teams", "--season-id", "15020", "--division-id", "701", "-F", "json"],
+            obj=MagicMock(),
         )
         assert result.exit_code == 0
