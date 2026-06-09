@@ -8,7 +8,8 @@ from pathlib import Path
 import responses
 
 # Explicit import for coverage tracking of dynamically-loaded Click commands
-import gamesheet_sdk.cli.commands.games  # noqa: F401,E401  pylint: disable=all
+# pylint: disable-next=unused-import,import-error,no-name-in-module
+import gamesheet_sdk.cli.commands.games  # noqa: F401,E401
 from gamesheet_sdk.cli import main
 
 _BFF_BASE = "https://bff-dashboard-api-awy26srzoa-nn.a.run.app"
