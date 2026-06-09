@@ -248,7 +248,7 @@ git commit -m "chore(release): <message> [skip ci]"
 
 ```bash
 # Install PSR
-pip install "python-semantic-release"
+pip install "build" "pre-commit" "python-semantic-release"
 
 # Dry-run to see what would happen
 semantic-release version --noop
