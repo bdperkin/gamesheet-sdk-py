@@ -27,6 +27,14 @@ DOCS_BUILD         := docs/_build
 DOCS_AUTOSUM       := docs/_autosummary
 DOCS_REF_AUTOSUM   := docs/reference/_autosummary
 
+# --- Docker configuration ----------------------------------------------------
+
+DOCKER_REGISTRY    := ghcr.io
+DOCKER_OWNER       := bdperkin
+DOCKER_IMAGE       := gamesheet-sdk-py
+DOCKER_TAG         ?= latest
+DOCKER_FULL_IMAGE  := $(DOCKER_REGISTRY)/$(DOCKER_OWNER)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+
 # --- ANSI colors (used by help + status lines) -------------------------------
 
 CYAN   := \033[36m
@@ -49,6 +57,8 @@ help: ## Show this help message
 		"PYTHON"  "Python interpreter (auto-detected; override to pick a 3.11+ version)" "$(PYTHON)"
 	@printf "  $(CYAN)%-20s$(RESET) %s (current: $(GREEN)%s$(RESET))\n" \
 		"VENV"    "Virtualenv directory" "$(VENV)"
+	@printf "  $(CYAN)%-20s$(RESET) %s (current: $(GREEN)%s$(RESET))\n" \
+		"DOCKER_TAG" "Docker image tag" "$(DOCKER_TAG)"
 	@printf "\n$(BOLD)Targets:$(RESET)\n"
 	@awk 'BEGIN {FS = ":.*?## "} \
 			/^[a-zA-Z_-]+:.*?## / { \
@@ -201,6 +211,43 @@ docs-check: ## Check if API docs are up-to-date with source
 .PHONY: docs-linkcheck
 docs-linkcheck: _check-tox ## Check external links in docs
 	tox -e docs-linkcheck
+
+# =============================================================================
+# Docker (local container management)
+# -----------------------------------------------------------------------------
+# Build, run, and push Docker containers locally. The container is published
+# to GitHub Container Registry (GHCR) during the release workflow.
+# =============================================================================
+
+.PHONY: docker-build
+docker-build: ## Build Docker image locally
+	@printf "$(CYAN)→$(RESET) building Docker image: $(GREEN)$(DOCKER_FULL_IMAGE)$(RESET)\n"
+	docker build -t $(DOCKER_FULL_IMAGE) .
+	@printf "$(GREEN)✓$(RESET) image built successfully\n"
+	@printf "  run with: $(YELLOW)make docker-run$(RESET)\n"
+	@printf "  push with: $(YELLOW)make docker-push$(RESET) (requires authentication)\n"
+
+.PHONY: docker-run
+docker-run: ## Run Docker container locally
+	@printf "$(CYAN)→$(RESET) running container: $(GREEN)$(DOCKER_FULL_IMAGE)$(RESET)\n"
+	docker run --rm -it $(DOCKER_FULL_IMAGE)
+
+.PHONY: docker-push
+docker-push: ## Push Docker image to registry (requires authentication)
+	@printf "$(CYAN)→$(RESET) pushing image: $(GREEN)$(DOCKER_FULL_IMAGE)$(RESET)\n"
+	@if ! docker info 2>/dev/null | grep -q "Username:"; then \
+		printf "$(RED)error:$(RESET) not logged in to Docker registry\n" >&2; \
+		printf "  authenticate with: $(CYAN)docker login $(DOCKER_REGISTRY)$(RESET)\n" >&2; \
+		exit 1; \
+	fi
+	docker push $(DOCKER_FULL_IMAGE)
+	@printf "$(GREEN)✓$(RESET) image pushed successfully\n"
+
+.PHONY: docker-clean
+docker-clean: ## Remove local Docker images
+	@printf "$(CYAN)→$(RESET) removing local images: $(DOCKER_REGISTRY)/$(DOCKER_OWNER)/$(DOCKER_IMAGE)\n"
+	docker images $(DOCKER_REGISTRY)/$(DOCKER_OWNER)/$(DOCKER_IMAGE) -q | xargs -r docker rmi -f
+	@printf "$(GREEN)✓$(RESET) local images removed\n"
 
 # =============================================================================
 # Tox pattern rule
