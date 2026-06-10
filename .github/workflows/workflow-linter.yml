@@ -37,12 +37,17 @@ jobs:
       - name: Install zizmor via pipx
         run: pipx install zizmor
 
-      - name: Run zizmor audit
-        continue-on-error: true # Don't fail build on findings
+      - name: Run zizmor audit (SARIF)
         run: |
+          # Generate SARIF for GitHub Security upload (always succeeds)
           zizmor --format sarif .github/workflows/ > zizmor-results.sarif || true
-          # Also output human-readable report
-          zizmor .github/workflows/ || true
+
+      - name: Run zizmor audit (human-readable)
+        continue-on-error: true # Report findings but don't block workflow
+        run: |
+          # Output human-readable report for workflow logs
+          # Exit code reflects finding severity (non-zero if issues found)
+          zizmor .github/workflows/
 
       - name: Upload SARIF results
         uses: github/codeql-action/upload-sarif@df409f7d9260372bd5f19e5b04e83cb3c43714ae # v3.27.9
