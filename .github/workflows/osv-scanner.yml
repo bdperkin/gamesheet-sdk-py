@@ -25,7 +25,7 @@ jobs:
           fetch-depth: 0 # Full history for comprehensive scanning
 
       - name: Run OSV Scanner
-        uses: google/osv-scanner-action/osv-scanner-action@19ec1116569a47416e11a45848722b1c87f7104c # v1.9.1
+        uses: google/osv-scanner-action@9bb69575e74019c2ad085a1860787043adf47ccb # v2.2.4
         with:
           scan-args: |-
             --recursive
