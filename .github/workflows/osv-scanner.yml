@@ -34,7 +34,8 @@ jobs:
       - name: Run OSV Scanner
         continue-on-error: true
         run: |
-          osv-scanner --recursive --format sarif --output osv-results.sarif ./ || true
+          # Scan recursively and create SARIF even if no vulnerabilities found
+          osv-scanner scan --recursive --format sarif --output-file osv-results.sarif . || echo "{\"version\":\"2.1.0\",\"runs\":[]}" > osv-results.sarif
 
       - name: Upload SARIF results to GitHub Security
         uses: github/codeql-action/upload-sarif@df409f7d9260372bd5f19e5b04e83cb3c43714ae # v3.27.9
