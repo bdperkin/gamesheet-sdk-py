@@ -120,7 +120,7 @@ jobs:
           NEEDS_VERSION_OUTPUTS_VERSION: ${{ needs.version.outputs.version }}
 
       - name: Upload built distributions
-        uses: actions/upload-artifact@c18f36c78e5bc29c4bae2e5dcea5d29c0262f677 # v4.6.1
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
         with:
           name: dist
           path: dist/
@@ -247,7 +247,7 @@ jobs:
           output-file: sbom.spdx.json
 
       - name: Upload SBOM as artifact
-        uses: actions/upload-artifact@c18f36c78e5bc29c4bae2e5dcea5d29c0262f677 # v4.6.1
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
         with:
           name: sbom
           path: sbom.spdx.json
