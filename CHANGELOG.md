@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.20 (2026-06-10)
+
+### Bug Fixes
+
+- **ci**: Add security-events permission to workflow linter ([#71](https://github.com/bdperkin/gamesheet-sdk-py/pull/71),
+  [`2eba146`](https://github.com/bdperkin/gamesheet-sdk-py/commit/2eba14686f77d842cce84701cd18fb0b66b7356e))
+
+- **ci**: Replace broken OSV action with direct CLI usage ([#72](https://github.com/bdperkin/gamesheet-sdk-py/pull/72),
+  [`3d0f6d1`](https://github.com/bdperkin/gamesheet-sdk-py/commit/3d0f6d13a4f97a9f893aaf4d925b51f7222df7d6))
+
 ## v0.1.19 (2026-06-10)
 
 ### Bug Fixes
