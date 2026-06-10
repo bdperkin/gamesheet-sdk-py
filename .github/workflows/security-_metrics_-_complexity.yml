@@ -76,4 +76,6 @@ jobs:
       - name: Install tox
         run: pip install tox-workdir
       - name: Run radon-${{ matrix.analyzer }} via tox
-        run: tox -e radon-${{ matrix.analyzer }}
+        env:
+          ANALYZER: ${{ matrix.analyzer }}
+        run: tox -e radon-${ANALYZER}

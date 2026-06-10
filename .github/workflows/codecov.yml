@@ -64,9 +64,11 @@ jobs:
           pip install -e ".[pytest]"
 
       - name: Run tests with coverage
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
           pytest --cov --cov-report=xml --cov-report=term \
-            --junitxml=junit-py${{ matrix.python-version }}.xml
+            --junitxml=junit-py${PYTHON_VERSION}.xml
 
       # Codecov requires one flag per upload. Upload the same coverage.xml
       # twice so the same data feeds both the `unittests` aggregate and
