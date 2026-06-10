@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.34 (2026-06-10)
+
+### Bug Fixes
+
+- **ci**: Correct all Docker-related action SHAs ([#90](https://github.com/bdperkin/gamesheet-sdk-py/pull/90),
+  [`988a144`](https://github.com/bdperkin/gamesheet-sdk-py/commit/988a144a36ee195831aca15c93fec85239966aaa))
+
 ## v0.1.33 (2026-06-10)
 
 ### Bug Fixes
