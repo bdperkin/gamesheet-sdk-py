@@ -78,13 +78,13 @@ After signing in:
 
 **IMPORTANT:** The token is shown only ONCE!
 
-```
+```console
 Example format: <random-string-of-alphanumeric-characters>
 ```
 
 **Actions:**
 
-1. **Copy the token immediately**
+1. NOTE: **Copy the token immediately**
 2. Store temporarily in password manager
 3. Do NOT commit to git
 
@@ -137,7 +137,7 @@ ______________________________________________________________________
 
 ### Without Token (Local Mode)
 
-```
+```console
 ✅ Runs Semgrep Docker container locally
 ✅ Scans all files with configured rule packs
 ✅ Uploads SARIF to GitHub Security tab
@@ -150,7 +150,7 @@ ______________________________________________________________________
 
 ### With Token (Cloud Mode)
 
-```
+```console
 ✅ Everything from local mode, PLUS:
 ✅ Centralized dashboard at semgrep.dev
 ✅ Historical scan results

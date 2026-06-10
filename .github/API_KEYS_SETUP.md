@@ -19,19 +19,28 @@ ______________________________________________________________________
 **Quick steps:**
 
 1. Go to: [GitGuardian Sign Up](https://dashboard.gitguardian.com/auth/signup)
+
 2. Click **"Sign up with GitHub"** (fastest)
+
 3. After login, go to: [GitGuardian API Settings](https://dashboard.gitguardian.com/workspace/settings/api)
+
 4. Click **"Create token"**
+
    - Name: `GitHub Actions - gamesheet-sdk-py`
    - Scope: Select **"Scan"**
    - Expiration: **90 days** (recommended)
+
 5. Click **"Create"** and **COPY THE TOKEN** (you won't see it again!)
+
 6. Add to GitHub:
+
    ```bash
    gh secret set GITGUARDIAN_API_KEY
    # Paste the token when prompted (starts with ggapi-)
    ```
+
 7. Verify:
+
    ```bash
    gh secret list | grep GITGUARDIAN
    ```
