@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.22 (2026-06-10)
+
+### Bug Fixes
+
+- **ci**: Pin all GitHub Actions and fix 202 zizmor findings ([#74](https://github.com/bdperkin/gamesheet-sdk-py/pull/74),
+  [`1430bbf`](https://github.com/bdperkin/gamesheet-sdk-py/commit/1430bbfc58a1982fbc0d7a3a0ae15ae5350b7cd8))
+
 ## v0.1.21 (2026-06-10)
 
 ### Bug Fixes
