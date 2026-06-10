@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.32 (2026-06-10)
+
+### Bug Fixes
+
+- **ci**: Disable PyPI metadata verification for Metadata-Version 2.4 ([#88](https://github.com/bdperkin/gamesheet-sdk-py/pull/88),
+  [`3a7dbff`](https://github.com/bdperkin/gamesheet-sdk-py/commit/3a7dbffddcb3c5a984a78bf0ec19a903a56a4cae))
+
 ## v0.1.31 (2026-06-10)
 
 ### Bug Fixes
