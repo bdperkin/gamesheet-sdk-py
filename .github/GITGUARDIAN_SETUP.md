@@ -53,7 +53,7 @@ After signing up:
 
 **IMPORTANT:** The token is shown only ONCE!
 
-```
+```console
 Example format: ggapi-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
