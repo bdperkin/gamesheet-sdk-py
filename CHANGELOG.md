@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.15 (2026-06-10)
+
+### Bug Fixes
+
+- **security**: Upgrade pip/setuptools/wheel to address CVEs ([#60](https://github.com/bdperkin/gamesheet-sdk-py/pull/60),
+  [`abf7423`](https://github.com/bdperkin/gamesheet-sdk-py/commit/abf7423206bd50aaf25aed6c7901d3d80d5a0c1a))
+
 ## v0.1.14 (2026-06-10)
 
 ### Bug Fixes
