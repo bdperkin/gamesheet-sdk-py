@@ -2,6 +2,30 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.14 (2026-06-10)
+
+### Bug Fixes
+
+- **cli**: Correct divisions teams endpoint to /api/divisions/{id}/teams ([#59](https://github.com/bdperkin/gamesheet-sdk-py/pull/59),
+  [`085e3fa`](https://github.com/bdperkin/gamesheet-sdk-py/commit/085e3fa98eb66ce2c41b2781e0a9bac17e98f427))
+
+### Features
+
+- **cli**: Add divisions create command ([#59](https://github.com/bdperkin/gamesheet-sdk-py/pull/59),
+  [`085e3fa`](https://github.com/bdperkin/gamesheet-sdk-py/commit/085e3fa98eb66ce2c41b2781e0a9bac17e98f427))
+
+- **cli**: Add divisions update command ([#59](https://github.com/bdperkin/gamesheet-sdk-py/pull/59),
+  [`085e3fa`](https://github.com/bdperkin/gamesheet-sdk-py/commit/085e3fa98eb66ce2c41b2781e0a9bac17e98f427))
+
+- **cli**: Add team count to divisions list output ([#59](https://github.com/bdperkin/gamesheet-sdk-py/pull/59),
+  [`085e3fa`](https://github.com/bdperkin/gamesheet-sdk-py/commit/085e3fa98eb66ce2c41b2781e0a9bac17e98f427))
+
+- **cli**: Add teams sub-sub-command to divisions command ([#59](https://github.com/bdperkin/gamesheet-sdk-py/pull/59),
+  [`085e3fa`](https://github.com/bdperkin/gamesheet-sdk-py/commit/085e3fa98eb66ce2c41b2781e0a9bac17e98f427))
+
+- **divisions**: Implement complete CRUD operations with CLI commands ([#59](https://github.com/bdperkin/gamesheet-sdk-py/pull/59),
+  [`085e3fa`](https://github.com/bdperkin/gamesheet-sdk-py/commit/085e3fa98eb66ce2c41b2781e0a9bac17e98f427))
+
 ## v0.1.13 (2026-06-09)
 
 ### Bug Fixes
