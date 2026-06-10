@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.29 (2026-06-10)
+
+### Bug Fixes
+
+- **ci**: Correct dependency-review-action SHA to valid v5.0.0 ([#84](https://github.com/bdperkin/gamesheet-sdk-py/pull/84),
+  [`18a74f0`](https://github.com/bdperkin/gamesheet-sdk-py/commit/18a74f0c0d1f4182e4a39e10a18ae5c3c9f66bc6))
+
+- **ci**: Correct upload-pages-artifact SHA to valid v5.0.0 ([#85](https://github.com/bdperkin/gamesheet-sdk-py/pull/85),
+  [`d82de10`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d82de1033a3b0c4d093b7ec71910af06f082d5f6))
+
 ## v0.1.28 (2026-06-10)
 
 ### Bug Fixes
