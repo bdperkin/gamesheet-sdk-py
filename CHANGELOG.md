@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.31 (2026-06-10)
+
+### Bug Fixes
+
+- **ci**: Correct deploy-pages SHA to valid v5.0.0 ([#87](https://github.com/bdperkin/gamesheet-sdk-py/pull/87),
+  [`482c7ec`](https://github.com/bdperkin/gamesheet-sdk-py/commit/482c7ec6f9fa68389780804836e7aa15ba488b89))
+
 ## v0.1.30 (2026-06-10)
 
 ### Bug Fixes
