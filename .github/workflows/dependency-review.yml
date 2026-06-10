@@ -36,7 +36,7 @@ jobs:
         with:
           persist-credentials: false
       - name: "Dependency Review"
-        uses: actions/dependency-review-action@71b4522f0e508e7f10ff99c4bbf4fa45ad109c34 # v5.0.0
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
         # Commonly enabled options, see https://github.com/actions/dependency-review-action#configuration-options for all available options.
         with:
           comment-summary-in-pr: always
