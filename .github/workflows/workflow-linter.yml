@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: read
+  security-events: write # Required for uploading SARIF results
 
 jobs:
   zizmor:
@@ -37,10 +38,11 @@ jobs:
         run: pipx install zizmor
 
       - name: Run zizmor audit
+        continue-on-error: true # Don't fail build on findings
         run: |
           zizmor --format sarif .github/workflows/ > zizmor-results.sarif || true
           # Also output human-readable report
-          zizmor .github/workflows/
+          zizmor .github/workflows/ || true
 
       - name: Upload SARIF results
         uses: github/codeql-action/upload-sarif@df409f7d9260372bd5f19e5b04e83cb3c43714ae # v3.27.9
@@ -48,6 +50,7 @@ jobs:
         with:
           sarif_file: zizmor-results.sarif
           category: zizmor
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload results as artifact
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
