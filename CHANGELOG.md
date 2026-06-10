@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.25 (2026-06-10)
+
+### Bug Fixes
+
+- **ci**: Handle OSV scanner when no lockfiles exist ([#77](https://github.com/bdperkin/gamesheet-sdk-py/pull/77),
+  [`c5f8db7`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c5f8db70b02e4c8c5cbb754a5e8d1a5f55ede6df))
+
+- **ci**: Move workflow-level write permissions to job-level ([#78](https://github.com/bdperkin/gamesheet-sdk-py/pull/78),
+  [`521f6dc`](https://github.com/bdperkin/gamesheet-sdk-py/commit/521f6dcf3da8c04ce628fd8f2c2e68b5fed70788))
+
 ## v0.1.24 (2026-06-10)
 
 ### Bug Fixes
