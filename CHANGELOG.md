@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.19 (2026-06-10)
+
+### Bug Fixes
+
+- **ci**: Pin Trivy workflow actions and add explicit token ([#70](https://github.com/bdperkin/gamesheet-sdk-py/pull/70),
+  [`82eec43`](https://github.com/bdperkin/gamesheet-sdk-py/commit/82eec43241c46ab84e8b06943acfd5c42f4869e0))
+
 ## v0.1.18 (2026-06-10)
 
 ### Bug Fixes
