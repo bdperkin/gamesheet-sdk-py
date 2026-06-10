@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.23 (2026-06-10)
+
+### Bug Fixes
+
+- **ci**: Correct OSV scanner command and ensure SARIF output ([#75](https://github.com/bdperkin/gamesheet-sdk-py/pull/75),
+  [`12440da`](https://github.com/bdperkin/gamesheet-sdk-py/commit/12440da168edb6a44eb91fde35fb060af07e1ec4))
+
 ## v0.1.22 (2026-06-10)
 
 ### Bug Fixes
