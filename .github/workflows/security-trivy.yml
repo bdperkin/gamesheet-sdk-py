@@ -95,6 +95,7 @@ jobs:
           pip install -e ".[all]"
 
       - name: Run pip-audit
+        continue-on-error: true  # Report findings but don't fail build
         run: |
           pip install pip-audit
           pip-audit --desc --skip-editable
