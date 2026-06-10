@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.27 (2026-06-10)
+
+### Bug Fixes
+
+- **ci**: Replace OSV scanner with pip-audit for Python dependencies ([#82](https://github.com/bdperkin/gamesheet-sdk-py/pull/82),
+  [`43af5f9`](https://github.com/bdperkin/gamesheet-sdk-py/commit/43af5f9e48bda054f49b8056b68cc3d36e096edb))
+
 ## v0.1.26 (2026-06-10)
 
 ### Bug Fixes
