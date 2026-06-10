@@ -1,12 +1,12 @@
 version: 2
 updates:
   # Python dependencies (pyproject.toml — main + optional-deps)
+  # Daily schedule for security-critical dependency updates
   - package-ecosystem: pip
     directory: /
     schedule:
-      interval: weekly
-      day: monday
-    open-pull-requests-limit: 5
+      interval: daily
+    open-pull-requests-limit: 10
     labels:
       - dependencies
       - python
@@ -17,12 +17,12 @@ updates:
         dependency-type: development
 
   # GitHub Actions versions in .github/workflows/*.yml
+  # Daily schedule for security-critical action updates
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: monday
-    open-pull-requests-limit: 5
+      interval: daily
+    open-pull-requests-limit: 10
     labels:
       - dependencies
       - github-actions
