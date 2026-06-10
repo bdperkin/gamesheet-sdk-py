@@ -2,6 +2,19 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.26 (2026-06-10)
+
+### Bug Fixes
+
+- **ci**: Generate lockfile for OSV scanner instead of using pyproject.toml ([#79](https://github.com/bdperkin/gamesheet-sdk-py/pull/79),
+  [`f1b8705`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f1b87058b248182d23f14a265e61ad4c6cc13858))
+
+- **ci**: Make OSV scanner fail on errors and use pip freeze ([#81](https://github.com/bdperkin/gamesheet-sdk-py/pull/81),
+  [`4ab3808`](https://github.com/bdperkin/gamesheet-sdk-py/commit/4ab3808faf9d8422b867f274b5364ca62bd665f0))
+
+- **ci**: Make zizmor workflow fail on HIGH severity issues only ([#80](https://github.com/bdperkin/gamesheet-sdk-py/pull/80),
+  [`831740b`](https://github.com/bdperkin/gamesheet-sdk-py/commit/831740b699f40b0443a93b355512518bec328345))
+
 ## v0.1.25 (2026-06-10)
 
 ### Bug Fixes
