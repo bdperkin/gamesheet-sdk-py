@@ -71,6 +71,7 @@ from gamesheet_sdk.config import Config
 from gamesheet_sdk.divisions import (
     Division,
     create_division,
+    delete_division,
     list_division_teams,
     list_divisions,
     update_division,
@@ -127,6 +128,7 @@ __all__ = [
     "list_coaches",
     "list_completed",
     "create_division",
+    "delete_division",
     "list_division_teams",
     "list_divisions",
     "update_division",

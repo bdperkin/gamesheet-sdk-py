@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import cast
 
 import pytest
 import responses
@@ -136,8 +135,8 @@ def test_league_model_ignores_unknown_attributes() -> None:
         id="101",
         association_id="38",
         title="18U AAA",
-        created_at=cast("datetime", "2023-01-01T00:00:00Z"),
-        updated_at=cast("datetime", "2023-01-01T00:00:00Z"),
+        created_at=datetime(2023, 1, 1, tzinfo=timezone.utc),
+        updated_at=datetime(2023, 1, 1, tzinfo=timezone.utc),
         unexpected_future_attr="ignored",
     )
     assert lg.title == "18U AAA"

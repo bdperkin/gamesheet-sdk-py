@@ -41,7 +41,7 @@ class Division(BaseModel):
     team_count: int | None = Field(
         default=None,
         description=(
-            "Number of teams in this division " "(populated when fetched with include_team_counts=True)."
+            "Number of teams in this division (populated when fetched with include_team_counts=True)."
         ),
     )
     created_at: datetime = Field(description="When the division was created.")
@@ -77,7 +77,8 @@ def list_division_teams(session: Session, division_id: str) -> list[Team]:
         run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response.
     """
-    from gamesheet_sdk.teams import _parse as parse_team  # pylint: disable=import-outside-toplevel
+    # pylint: disable-next=import-outside-toplevel
+    from gamesheet_sdk.teams import _parse as parse_team
 
     endpoint = f"/api/divisions/{division_id}/teams"
     response = session.get(
@@ -193,7 +194,8 @@ def create_division(
         run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response.
     """
-    import uuid  # pylint: disable=import-outside-toplevel
+    # pylint: disable-next=import-outside-toplevel
+    import uuid
 
     endpoint = f"/api/seasons/{season_id}/divisions"
 
@@ -249,6 +251,7 @@ def create_division(
 
 def update_division(
     session: Session,
+    season_id: str,
     division_id: str,
     *,
     title: str | None = None,
@@ -263,6 +266,8 @@ def update_division(
 
     :param session: An authenticated :class:`Session`.
     :type session: Session
+    :param season_id: The season identifier containing the division.
+    :type season_id: str
     :param division_id: The division identifier to update.
     :type division_id: str
     :param title: Optional new display name for the division.
@@ -276,15 +281,33 @@ def update_division(
     :raises GameSheetError: For any other non-2xx response.
     :raises ValueError: If neither title nor external_id is provided.
     """
-    if title is None and external_id is None:
-        raise ValueError("At least one of title or external_id must be provided")
+    if title is None is external_id:
+        msg = "At least one of title or external_id must be provided"
+        raise ValueError(msg)
 
-    endpoint = f"/api/divisions/{division_id}"
+    # GameSheet API requires title to always be present in PATCH payload.
+    # If user didn't provide a new title, fetch the current one.
+    if title is None:
+        # Fetch current division to get existing title
+        get_response = session.get(
+            f"/api/divisions/{division_id}",
+            headers={"Accept": _JSONAPI_CONTENT_TYPE},
+        )
+        if get_response.status_code == 200:
+            current_data = get_response.json()
+            title = current_data.get("data", {}).get("attributes", {}).get("title", "")
+        else:
+            # If we can't fetch the current title, the PATCH will fail anyway
+            # Let it proceed and return the API's error
+            title = ""
 
-    # Build attributes dict with only provided fields
-    attributes: dict[str, Any] = {}
-    if title is not None:
-        attributes["title"] = title
+    endpoint = f"/api/seasons/{season_id}/divisions/{division_id}"
+
+    # Build attributes dict - title is always required by the API
+    attributes: dict[str, Any] = {
+        "title": title,
+        "settings": {},  # GameSheet API requires settings to be present in PATCH
+    }
     if external_id is not None:
         attributes["external_id"] = external_id
 
@@ -293,6 +316,14 @@ def update_division(
             "type": "divisions",
             "id": division_id,
             "attributes": attributes,
+            "relationships": {
+                "season": {
+                    "data": {
+                        "id": season_id,
+                        "type": "seasons",
+                    },
+                },
+            },
         },
     }
 
@@ -321,3 +352,48 @@ def update_division(
 
     body: dict[str, Any] = response.json()
     return _parse(body["data"])
+
+
+def delete_division(
+    session: Session,
+    season_id: str,
+    division_id: str,
+) -> None:
+    """Delete a division.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param season_id: The season identifier containing the division.
+    :type season_id: str
+    :param division_id: The division identifier to delete.
+    :type division_id: str
+    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
+        run ``gamesheet-sdk-py login`` to refresh).
+    :raises GameSheetError: For any other non-2xx response.
+    """
+    endpoint = f"/api/seasons/{season_id}/divisions/{division_id}"
+
+    response = session.delete(
+        endpoint,
+        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+    )
+
+    if response.status_code == 401:
+        _err_msg = (
+            "Access token rejected (HTTP 401). Likely expired; re-run "
+            "`gamesheet-sdk-py login` to refresh and try again.",
+        )
+        raise AuthenticationError(_err_msg)
+    if response.status_code == 404:
+        _err_msg = (
+            f"Division '{division_id}' not found (HTTP 404). "
+            f"Make sure you're using a valid division ID. "
+            f"To get valid division IDs, run: gamesheet-sdk-py divisions list --season-id <SEASON_ID>",
+        )
+        raise GameSheetError(_err_msg)
+    if response.status_code >= 400:
+        _err_msg = (f"DELETE {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        raise GameSheetError(_err_msg)
