@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.21 (2026-06-10)
+
+### Bug Fixes
+
+- **ci**: Show zizmor exit code while still reporting findings ([#73](https://github.com/bdperkin/gamesheet-sdk-py/pull/73),
+  [`19badb9`](https://github.com/bdperkin/gamesheet-sdk-py/commit/19badb914e8da23335d886d7b18e68a7628191fe))
+
 ## v0.1.20 (2026-06-10)
 
 ### Bug Fixes
