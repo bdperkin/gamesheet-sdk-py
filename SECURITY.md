@@ -10,13 +10,10 @@ but given the early stage, users should expect rapid iteration and potential ins
 Security updates are applied to the latest release only. Older versions receive security patches on a case-by-case basis depending on severity and maintenance
 burden.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 0.0.5   | :white_check_mark: |
-| 0.0.4   | :x:                |
-| 0.0.3   | :x:                |
-| 0.0.2   | :x:                |
-| 0.0.1   | :x:                |
+| Version | Supported          | Security Enhancements              |
+| ------- | ------------------ | ---------------------------------- |
+| 0.1.x   | :white_check_mark: | Trivy, pip-audit, daily Dependabot |
+| 0.0.x   | :x:                | End of life                        |
 
 ## Reporting a Vulnerability
 
@@ -135,21 +132,53 @@ This SDK automates the GameSheet WebUI because GameSheet Inc. does not publish a
 
 The project runs automated security and quality checks on every commit:
 
+- **Trivy:** Filesystem and configuration vulnerability scanning (added v0.1.16)
+
+  - Weekly scheduled scans + per-PR validation
+  - SARIF upload to GitHub Security tab
+  - Fails CI on CRITICAL/HIGH vulnerabilities
+  - ([workflow](https://github.com/bdperkin/gamesheet-sdk-py/blob/main/.github/workflows/security-trivy.yml))
+
+- **pip-audit:** Python dependency vulnerability scanner (added v0.1.16)
+
+  - Matrix testing across Python 3.11-3.14
+  - Detailed CVE reporting
+  - ([workflow](https://github.com/bdperkin/gamesheet-sdk-py/blob/main/.github/workflows/security-trivy.yml))
+
 - **Bandit:** Static security analysis for Python code
   ([workflow](https://github.com/bdperkin/gamesheet-sdk-py/blob/main/.github/workflows/security-_metrics_-_complexity.yml))
+
 - **CodeQL:** Semantic code analysis for security vulnerabilities
   ([workflow](https://github.com/bdperkin/gamesheet-sdk-py/blob/main/.github/workflows/codeql.yml))
+
 - **Dependency Review:** Scans for known vulnerabilities in dependencies
   ([workflow](https://github.com/bdperkin/gamesheet-sdk-py/blob/main/.github/workflows/dependency-review.yml))
-- **Dependabot:** Weekly automated PRs for dependency updates (see
-  [.github/dependabot.yml](https://github.com/bdperkin/gamesheet-sdk-py/blob/main/.github/dependabot.yml))
+
+- **Dependabot:** Daily automated PRs for security updates (updated v0.1.16)
+
+  - Increased capacity: 10 concurrent PRs
+  - Grouped runtime and development updates
+  - ([config](https://github.com/bdperkin/gamesheet-sdk-py/blob/main/.github/dependabot.yml))
 
 ## PGP Key for Encrypted Reports
 
 At this time, encrypted vulnerability reports are **not required**. GitHub Security Advisories provide sufficient privacy for most reports. If you need to send
 encrypted communication, contact the maintainer for a PGP public key.
 
+## Vulnerability Acceptance
+
+For transparency, we document our risk-based approach to vulnerability management:
+
+- **[Vulnerability Acceptance Criteria](docs/security/vulnerability-acceptance-criteria.md):** Detailed rationale for accepting ~240 OS/Chromium vulnerabilities
+- **Risk Level:** LOW-MEDIUM (reduced from MEDIUM-HIGH after security enhancements)
+- **Monitoring:** Automated daily scanning with Trivy and pip-audit
+- **Review Frequency:** Quarterly for accepted vulnerabilities, daily for Python packages
+
 ## Contact
 
 For non-security questions, open a [GitHub Issue](https://github.com/bdperkin/gamesheet-sdk-py/issues). For security vulnerabilities, use
 [GitHub Security Advisories](https://github.com/bdperkin/gamesheet-sdk-py/security/advisories/new).
+
+______________________________________________________________________
+
+**Last Updated:** 2026-06-10 (v0.1.16 - Added Trivy, pip-audit, vulnerability acceptance documentation)
