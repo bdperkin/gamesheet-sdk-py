@@ -22,15 +22,16 @@ jobs:
       tag: ${{ steps.release.outputs.tag }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
           # Use PAT with permissions to bypass branch protection
           # Falls back to GITHUB_TOKEN if PAT is not configured
           token: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: |
             3.11
@@ -84,13 +85,14 @@ jobs:
     if: needs.version.outputs.released == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
           ref: ${{ needs.version.outputs.tag }}
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: "3.11"
           cache: pip
@@ -105,7 +107,7 @@ jobs:
       - name: Verify built version matches the tag
         run: |
           set -euo pipefail
-          TAG_VERSION="${{ needs.version.outputs.version }}"
+          TAG_VERSION="${NEEDS_VERSION_OUTPUTS_VERSION}"
           WHEEL=$(ls dist/*.whl)
           BUILT_VERSION=$(basename "$WHEEL" | sed -n 's/^gamesheet_sdk_py-\(.*\)-py3-none-any.whl$/\1/p')
           echo "Tag version:   $TAG_VERSION"
@@ -114,9 +116,11 @@ jobs:
             echo "::error::Tag-vs-built version mismatch"
             exit 1
           fi
+        env:
+          NEEDS_VERSION_OUTPUTS_VERSION: ${{ needs.version.outputs.version }}
 
       - name: Upload built distributions
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@c18f36c78e5bc29c4bae2e5dcea5d29c0262f677 # v4.6.1
         with:
           name: dist
           path: dist/
@@ -133,13 +137,13 @@ jobs:
       id-token: write
     steps:
       - name: Download distributions
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@ea0f50b43f7ca5e8fb5f2f27e1102e3fbc8b1cee # v4.2.0
         with:
           name: dist
           path: dist/
 
       - name: Publish to TestPyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@fb13cb306901256ace3dab689990e13a5550ffaa # v1.12.2
         with:
           repository-url: https://test.pypi.org/legacy/
 
@@ -154,13 +158,13 @@ jobs:
       id-token: write
     steps:
       - name: Download distributions
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@ea0f50b43f7ca5e8fb5f2f27e1102e3fbc8b1cee # v4.2.0
         with:
           name: dist
           path: dist/
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@fb13cb306901256ace3dab689990e13a5550ffaa # v1.12.2
 
   build-container:
     name: Build and Publish Container
@@ -173,16 +177,17 @@ jobs:
       security-events: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
           ref: ${{ needs.version.outputs.tag }}
+          persist-credentials: false
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@fd7d47e5a7b5e66a2cf77ab92bb2da344b1dad07 # v4.0.0
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v4
+        uses: docker/login-action@74ac23a1b7cc67bb6ba30f09e3c6aa6ecdd25d6f # v4.0.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -190,7 +195,7 @@ jobs:
 
       - name: Extract metadata for Docker
         id: meta
-        uses: docker/metadata-action@v6
+        uses: docker/metadata-action@902fa04b52a48d5b8437be612c1833b456ce31b9 # v6.0.0
         with:
           images: ghcr.io/bdperkin/gamesheet-sdk-py
           tags: |
@@ -212,7 +217,7 @@ jobs:
 
       - name: Build and push Docker image
         id: build
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@a6786b02129ca89ea6f29a51f47e21b3c39a0e85 # v7.0.0
         with:
           context: .
           push: true
@@ -223,26 +228,26 @@ jobs:
           platforms: linux/amd64,linux/arm64
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@v0.36.0
+        uses: aquasecurity/trivy-action@2c74bde0fa1c6b30c0e6c15b81ac25f8df6f27e9 # v0.36.0
         with:
           image-ref: ghcr.io/bdperkin/gamesheet-sdk-py:${{ needs.version.outputs.version }}
           format: sarif
           output: trivy-results.sarif
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@df409f7d9260372bd5f19e5b04e83cb3c43714ae # v3.27.9
         with:
           sarif_file: trivy-results.sarif
 
       - name: Generate SBOM
-        uses: anchore/sbom-action@v0.24.0
+        uses: anchore/sbom-action@e8c69fe64c54e4b7b0e34a561a6f05e04e6da673 # v0.24.0
         with:
           image: ghcr.io/bdperkin/gamesheet-sdk-py:${{ needs.version.outputs.version }}
           format: spdx-json
           output-file: sbom.spdx.json
 
       - name: Upload SBOM as artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@c18f36c78e5bc29c4bae2e5dcea5d29c0262f677 # v4.6.1
         with:
           name: sbom
           path: sbom.spdx.json
@@ -255,25 +260,26 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
           ref: main
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: "3.11"
 
       - name: Download distributions
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@ea0f50b43f7ca5e8fb5f2f27e1102e3fbc8b1cee # v4.2.0
         with:
           name: dist
           path: dist/
 
       - name: Extract changelog for this version
         run: |
-          VERSION="${{ needs.version.outputs.version }}"
+          VERSION="${NEEDS_VERSION_OUTPUTS_VERSION}"
 
           # Read CHANGELOG.md and extract the section for this version
           if [ -f CHANGELOG.md ]; then
@@ -291,12 +297,15 @@ jobs:
             echo "CHANGELOG.md not found, using auto-generated notes"
             echo "" > /tmp/release_notes.md
           fi
+        env:
+          NEEDS_VERSION_OUTPUTS_VERSION: ${{ needs.version.outputs.version }}
 
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEEDS_VERSION_OUTPUTS_TAG: ${{ needs.version.outputs.tag }}
         run: |
-          TAG="${{ needs.version.outputs.tag }}"
+          TAG="${NEEDS_VERSION_OUTPUTS_TAG}"
 
           # Check if release already exists
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
