@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.28 (2026-06-10)
+
+### Bug Fixes
+
+- **ci**: Correct upload-artifact SHA to valid v4.6.1 commit ([#83](https://github.com/bdperkin/gamesheet-sdk-py/pull/83),
+  [`821a64f`](https://github.com/bdperkin/gamesheet-sdk-py/commit/821a64fd1811b53a0acb7ab5ab44b6869ee1a4b8))
+
 ## v0.1.27 (2026-06-10)
 
 ### Bug Fixes
