@@ -24,15 +24,16 @@ jobs:
         with:
           fetch-depth: 0 # Full history for comprehensive scanning
 
+      - name: Install OSV Scanner
+        run: |
+          curl -sSL https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_linux_amd64 -o osv-scanner
+          chmod +x osv-scanner
+          sudo mv osv-scanner /usr/local/bin/
+
       - name: Run OSV Scanner
-        uses: google/osv-scanner-action@9bb69575e74019c2ad085a1860787043adf47ccb # v2.2.4
-        with:
-          scan-args: |-
-            --recursive
-            --format sarif
-            --output osv-results.sarif
-            ./
         continue-on-error: true
+        run: |
+          osv-scanner --recursive --format sarif --output osv-results.sarif ./ || true
 
       - name: Upload SARIF results to GitHub Security
         uses: github/codeql-action/upload-sarif@df409f7d9260372bd5f19e5b04e83cb3c43714ae # v3.27.9
@@ -40,6 +41,7 @@ jobs:
         with:
           sarif_file: osv-results.sarif
           category: osv-scanner
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload results as artifact
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
