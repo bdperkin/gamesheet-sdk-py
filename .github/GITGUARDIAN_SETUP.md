@@ -1,6 +1,7 @@
 # GitGuardian API Key Setup Guide
 
 ## Prerequisites
+
 - GitHub account
 - Valid email address
 
@@ -8,13 +9,15 @@
 
 ### 1. Sign Up for GitGuardian
 
-**URL:** https://dashboard.gitguardian.com/auth/signup
+**URL:** [GitGuardian Sign Up](https://dashboard.gitguardian.com/auth/signup)
 
 **Options:**
+
 - **Recommended:** Sign up with GitHub (OAuth) - fastest method
 - Alternative: Sign up with email/password
 
 **Plan Selection:**
+
 - Free tier available: **10,000 secrets scanned/month**
 - Sufficient for most projects
 - No credit card required
@@ -22,6 +25,7 @@
 ### 2. Complete Account Setup
 
 After signing up:
+
 1. Verify your email (if using email signup)
 2. Complete the onboarding survey (optional, can skip)
 3. You'll land on the GitGuardian dashboard
@@ -30,9 +34,10 @@ After signing up:
 
 **Navigation:** Dashboard → Settings → API → Personal Access Tokens
 
-**Direct URL:** https://dashboard.gitguardian.com/workspace/settings/api
+**Direct URL:** [GitGuardian API Settings](https://dashboard.gitguardian.com/workspace/settings/api)
 
 **Steps:**
+
 1. Click **"API"** in the left sidebar under Settings
 2. Click **"Personal Access Tokens"** tab
 3. Click **"Create token"** or **"New token"** button
@@ -53,6 +58,7 @@ Example format: ggapi-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 **Actions:**
+
 1. **Copy the token immediately** - you won't see it again
 2. Store it temporarily in a secure location (password manager, secure note)
 3. Do NOT commit it to git or save in plain text files
@@ -60,11 +66,11 @@ Example format: ggapi-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ### 5. Add to GitHub Repository Secrets
 
 **GitHub Repository URL:**
-```
-https://github.com/bdperkin/gamesheet-sdk-py/settings/secrets/actions
-```
+
+[Repository Secrets Settings](https://github.com/bdperkin/gamesheet-sdk-py/settings/secrets/actions)
 
 **Steps:**
+
 1. Navigate to your repository on GitHub
 2. Click **Settings** (top navigation)
 3. Click **Secrets and variables** → **Actions** (left sidebar)
@@ -75,6 +81,7 @@ https://github.com/bdperkin/gamesheet-sdk-py/settings/secrets/actions
 6. Click **"Add secret"**
 
 **Verification:**
+
 - The secret should now appear in the list as `GITGUARDIAN_API_KEY`
 - The value is hidden (shows as `•••••`)
 
@@ -96,6 +103,7 @@ gh secret list
 ## Token Permissions
 
 The **"Scan"** scope provides:
+
 - ✅ Ability to scan commits for secrets
 - ✅ Access to detection policies
 - ✅ Read-only access to scan results
@@ -105,6 +113,7 @@ The **"Scan"** scope provides:
 ## Free Tier Limits
 
 **GitGuardian Free Plan:**
+
 - 10,000 secrets scanned per month
 - 1 workspace
 - 25 developers
@@ -113,6 +122,7 @@ The **"Scan"** scope provides:
 - GitHub integration
 
 **Typical Usage for This Repo:**
+
 - ~100-500 files scanned per PR
 - ~10-20 PRs per month
 - Well within free tier limits
@@ -127,23 +137,27 @@ The **"Scan"** scope provides:
 ## Troubleshooting
 
 ### Error: "Invalid API key"
+
 - Double-check you copied the entire token
 - Ensure no extra spaces or newlines
 - Verify the secret name is exactly `GITGUARDIAN_API_KEY`
 
 ### Error: "Rate limit exceeded"
+
 - You've exceeded 10,000 scans/month on free tier
 - Upgrade to paid plan or wait for monthly reset
 
 ### Workflow doesn't run
+
 - Ensure the secret is set at the **repository** level (not environment level)
 - Check workflow logs for authentication errors
 
 ## Token Management Dashboard
 
-**View your tokens:** https://dashboard.gitguardian.com/workspace/settings/api
+**View your tokens:** [GitGuardian Token Management](https://dashboard.gitguardian.com/workspace/settings/api)
 
 **Actions available:**
+
 - View token creation date
 - See last used timestamp
 - Revoke tokens
@@ -151,6 +165,6 @@ The **"Scan"** scope provides:
 
 ## Support
 
-- Documentation: https://docs.gitguardian.com
-- Community: https://community.gitguardian.com
+- Documentation: [GitGuardian Docs](https://docs.gitguardian.com)
+- Community: [GitGuardian Community](https://community.gitguardian.com)
 - Email: support@gitguardian.com
