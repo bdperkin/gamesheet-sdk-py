@@ -26,11 +26,12 @@ jobs:
     name: HTML documentation build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # Full history for version detection
+          persist-credentials: false
       - name: Set up Python 3.11
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: "3.11"
           cache: pip
@@ -44,11 +45,12 @@ jobs:
     name: EPUB documentation build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # Full history for version detection
+          persist-credentials: false
       - name: Set up Python 3.11
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: "3.11"
           cache: pip
@@ -62,11 +64,12 @@ jobs:
     name: man-page documentation build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # Full history for version detection
+          persist-credentials: false
       - name: Set up Python 3.11
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: "3.11"
           cache: pip
@@ -84,11 +87,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y latexmk texlive-latex-recommended tex-gyre texlive-latex-extra
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # Full history for version detection
+          persist-credentials: false
       - name: Set up Python 3.11
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: "3.11"
           cache: pip
@@ -102,11 +106,12 @@ jobs:
     name: Python documentation issues check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # Full history for version detection
+          persist-credentials: false
       - name: Set up Python 3.11
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: "3.11"
           cache: pip
@@ -120,11 +125,12 @@ jobs:
     name: Broken external link check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # Full history for version detection
+          persist-credentials: false
       - name: Set up Python 3.11
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: "3.11"
           cache: pip
@@ -138,11 +144,12 @@ jobs:
     name: Embedded doctest examples tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # Full history for version detection
+          persist-credentials: false
       - name: Set up Python 3.11
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: "3.11"
           cache: pip
@@ -156,11 +163,12 @@ jobs:
     name: Build HTML for GitHub Pages
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # Full history for version detection
+          persist-credentials: false
       - name: Set up Python 3.11
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: "3.11"
           cache: pip
@@ -170,14 +178,14 @@ jobs:
       - name: Run docs via tox
         run: tox -e docs
       - name: Upload HTML as regular artifact (PR review / debug)
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@c18f36c78e5bc29c4bae2e5dcea5d29c0262f677 # v4.6.1
         with:
           name: html-docs
           path: docs/_build/html/
           retention-days: 14
       - name: Upload HTML as Pages artifact (deploy input)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@79a78bb1c49b62e66feffdce62bfb57e5d83f4ca # v5.0.0
         with:
           path: docs/_build/html
 
@@ -195,4 +203,4 @@ jobs:
     steps:
       - name: Deploy artifact to Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@9a7ad31e01d4de2e5e76ac15d6a42b75f6924c81 # v5.0.0

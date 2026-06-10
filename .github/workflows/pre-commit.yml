@@ -25,9 +25,11 @@ jobs:
     name: pre-commit (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: |
             3.11
@@ -37,7 +39,7 @@ jobs:
 
           cache: pip
           cache-dependency-path: pyproject.toml
-      - uses: pre-commit/action@v3.0.1
+      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
         env:
           # On push events to main, GitHub Actions checks the branch out by
           # name, so HEAD is on main and `no-commit-to-branch` would always
