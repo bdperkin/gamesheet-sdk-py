@@ -2,6 +2,24 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.18 (2026-06-10)
+
+### Bug Fixes
+
+- **ci**: Correct OSV scanner action path and update to v2.2.4 ([#69](https://github.com/bdperkin/gamesheet-sdk-py/pull/69),
+  [`c418899`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c41889967e0fd6790f063fdf4cd4ba7a4e87ceb2))
+
+- **ci**: Update GitGuardian action to valid commit SHA ([#68](https://github.com/bdperkin/gamesheet-sdk-py/pull/68),
+  [`94e755d`](https://github.com/bdperkin/gamesheet-sdk-py/commit/94e755d57670fec84c4a1f061136a788fae044ac))
+
+### Documentation
+
+- **security**: Convert bare URLs to proper markdown links ([#66](https://github.com/bdperkin/gamesheet-sdk-py/pull/66),
+  [`56b29f2`](https://github.com/bdperkin/gamesheet-sdk-py/commit/56b29f26d87cfdab19d245b41887e494442eaba7))
+
+- **security**: Improve list formatting in API keys setup guides ([#67](https://github.com/bdperkin/gamesheet-sdk-py/pull/67),
+  [`54f8381`](https://github.com/bdperkin/gamesheet-sdk-py/commit/54f8381cfd89d4e864e1616ad8cb67ea5db14e8b))
+
 ## v0.1.17 (2026-06-10)
 
 ### Build System
