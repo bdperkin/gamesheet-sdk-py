@@ -6,6 +6,7 @@
 # - Non-root user for runtime security
 # - Health check using CLI --version command
 # - Slim Python base for reduced attack surface
+# - Latest pip/setuptools/wheel to address CVE-2026-24049 and CVE-2026-23949
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
@@ -26,6 +27,9 @@ RUN apt-get update && \
 # Copy project files
 COPY pyproject.toml README.md LICENSE ./
 COPY src/ src/
+
+# Upgrade pip, setuptools, and wheel to latest versions (security fix)
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
 # Build wheel distribution
 RUN pip install --no-cache-dir build && \
@@ -83,6 +87,9 @@ WORKDIR /app
 
 # Copy wheel from builder stage
 COPY --from=builder /build/dist/*.whl /tmp/
+
+# Upgrade pip, setuptools, and wheel in runtime stage (security fix)
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
 # Install the package and Playwright browsers as root (required for system-wide install)
 RUN pip install --no-cache-dir /tmp/*.whl && \
