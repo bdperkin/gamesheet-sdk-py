@@ -2,6 +2,26 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.17 (2026-06-10)
+
+### Build System
+
+- **deps**: Bump the actions group with 4 updates ([#62](https://github.com/bdperkin/gamesheet-sdk-py/pull/62),
+  [`c1d2e01`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c1d2e0163007617ad06387cfb0868f196b4b40e1))
+
+### Documentation
+
+- **security**: Fix linkcheck error for X.org/X11 package name ([#64](https://github.com/bdperkin/gamesheet-sdk-py/pull/64),
+  [`98dcbdc`](https://github.com/bdperkin/gamesheet-sdk-py/commit/98dcbdc2fc0d362b848407d9f62fef5ec3e8061f))
+
+- **security**: Implement Priority 4 vulnerability evaluation and acceptance ([#63](https://github.com/bdperkin/gamesheet-sdk-py/pull/63),
+  [`ffac284`](https://github.com/bdperkin/gamesheet-sdk-py/commit/ffac284c037a467981f298e6fbf8fafabdb1bc9e))
+
+### Features
+
+- **security**: Implement comprehensive security scanning pipeline ([#65](https://github.com/bdperkin/gamesheet-sdk-py/pull/65),
+  [`a677cf4`](https://github.com/bdperkin/gamesheet-sdk-py/commit/a677cf47f763f3a8ff2829275db056e72f98537d))
+
 ## v0.1.16 (2026-06-10)
 
 ### Bug Fixes

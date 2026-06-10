@@ -13,7 +13,7 @@ requires = [ "hatchling" ]
 # ------------------------------------------------------------------------------
 [project]
 name = "gamesheet-sdk-py"
-version = "0.1.16"
+version = "0.1.17"
 description = """\
   Unofficial Python SDK and CLI for the GameSheet Inc. platform — automates WebUI procedures where a native API is \
   absent.\
