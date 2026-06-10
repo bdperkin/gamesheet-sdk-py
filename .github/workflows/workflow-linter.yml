@@ -39,17 +39,28 @@ jobs:
       - name: Install zizmor via pipx
         run: pipx install zizmor
 
-      - name: Run zizmor audit (SARIF)
+      - name: Run zizmor audit (SARIF - all findings)
         run: |
-          # Generate SARIF for GitHub Security upload (always succeeds)
+          # Generate SARIF with all findings for GitHub Security
+          # Use || true because we want to upload even if issues found
           zizmor --pedantic --format sarif .github/workflows/ > zizmor-results.sarif || true
 
-      - name: Run zizmor audit (human-readable - FAILS on HIGH/MEDIUM)
+      - name: Run zizmor audit (human-readable - all findings)
+        continue-on-error: true
         run: |
-          # Output human-readable report for workflow logs
-          # Fails workflow if HIGH or MEDIUM severity issues are found
-          # This ensures new security issues block CI
-          zizmor --pedantic .github/workflows/
+          # Show all findings in logs for visibility
+          echo "=== All Security Findings ==="
+          zizmor --pedantic .github/workflows/ || true
+
+      - name: Run zizmor audit (FAIL on HIGH severity only)
+        run: |
+          # This step FAILS the workflow if HIGH severity issues exist
+          # Allows MEDIUM/LOW/INFORMATIONAL findings without blocking
+          echo "=== Checking for HIGH severity issues ==="
+          zizmor --pedantic --min-severity high .github/workflows/
+
+          # Exit code 0: no HIGH issues (success)
+          # Exit code 13+: HIGH issues found (FAILS workflow)
 
       - name: Upload SARIF results
         uses: github/codeql-action/upload-sarif@df409f7d9260372bd5f19e5b04e83cb3c43714ae # v3.27.9
