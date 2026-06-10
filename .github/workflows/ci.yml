@@ -41,4 +41,6 @@ jobs:
       - name: Install tox
         run: pip install tox-workdir
       - name: Run tests via tox
-        run: tox -e "py$(echo '${{ matrix.python-version }}' | tr -d .)"
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
+        run: tox -e "py$(echo "$PYTHON_VERSION" | tr -d .)"

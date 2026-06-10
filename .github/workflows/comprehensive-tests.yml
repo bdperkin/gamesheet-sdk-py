@@ -50,8 +50,10 @@ jobs:
         if: success()
         id: pyflag
         shell: bash
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
-          pyflag="py$(echo "${{ matrix.python-version }}" | tr '.' '-')"
+          pyflag="py$(echo "$PYTHON_VERSION" | tr '.' '-')"
           echo "value=${pyflag}" >> "$GITHUB_OUTPUT"
       # Codecov requires one flag per upload. Upload the same coverage.xml
       # three times so the same data feeds the `nightly` aggregate, the
@@ -93,9 +95,11 @@ jobs:
     steps:
       - name: Check if this is first attempt
         id: check-attempt
+        env:
+          RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
-          echo "run_attempt=${{ github.run_attempt }}" >> $GITHUB_OUTPUT
-          if [ "${{ github.run_attempt }}" = "1" ]; then
+          echo "run_attempt=$RUN_ATTEMPT" >> $GITHUB_OUTPUT
+          if [ "$RUN_ATTEMPT" = "1" ]; then
             echo "should_create_issue=false" >> $GITHUB_OUTPUT
             echo "🔄 First failure detected - will retry automatically"
           else
