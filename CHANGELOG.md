@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.24 (2026-06-10)
+
+### Bug Fixes
+
+- **ci**: Sanitize template variables to prevent injection ([#76](https://github.com/bdperkin/gamesheet-sdk-py/pull/76),
+  [`07c6192`](https://github.com/bdperkin/gamesheet-sdk-py/commit/07c6192b6b203305374bb8494f710b79f130f869))
+
 ## v0.1.23 (2026-06-10)
 
 ### Bug Fixes
