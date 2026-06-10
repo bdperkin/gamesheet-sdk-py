@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.16 (2026-06-10)
+
+### Bug Fixes
+
+- **security**: Make pip-audit non-blocking for known vulnerabilities ([#61](https://github.com/bdperkin/gamesheet-sdk-py/pull/61),
+  [`db7befe`](https://github.com/bdperkin/gamesheet-sdk-py/commit/db7befe331690d21b85d9c532c1b0d6313d7f2e3))
+
+### Features
+
+- **security**: Implement Priority 3 CI security scanning ([#61](https://github.com/bdperkin/gamesheet-sdk-py/pull/61),
+  [`db7befe`](https://github.com/bdperkin/gamesheet-sdk-py/commit/db7befe331690d21b85d9c532c1b0d6313d7f2e3))
+
 ## v0.1.15 (2026-06-10)
 
 ### Bug Fixes
