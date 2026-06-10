@@ -29,7 +29,7 @@ The package is alpha. Structure under `src/gamesheet_sdk/`:
   - `main.py` — main CLI entry point (`cli` group and `main()` function)
   - `commands/` — individual command modules (associations, completion, divisions, games, ipad_keys, leagues, login, referees, roster, season, seasons, teams)
 - `config.py` — `pydantic-settings` `Config` (resolves `GAMESHEET_*` env vars; CLI args > env > defaults)
-- `divisions.py` — `Division` model + `list_divisions()`
+- `divisions.py` — `Division` model + `list_divisions()`, `list_division_teams()`
 - `exceptions.py` — `GameSheetError`, `AuthenticationError`
 - `output.py` — `render()` for JSON / YAML / CSV / TSV / 13 tabulate formats + `write_output()`
 - `referees.py` — `Referee` model + `list_referees()`
@@ -39,7 +39,7 @@ The package is alpha. Structure under `src/gamesheet_sdk/`:
 Domain modules (each provides pydantic models + action functions, plus a corresponding command module under `cli/commands/`):
 
 - `associations.py` — `Association` model + `list_associations()`
-- `divisions.py` — `Division` model + `list_divisions()`
+- `divisions.py` — `Division` model + `list_divisions()`, `list_division_teams()`
 - `games.py` — `Game` model + `list_scheduled()`, `list_completed()`, `list_brackets()`
 - `ipad_keys.py` — `IPadKey` model + `list_ipad_keys()`
 - `leagues.py` — `League` model + `list_leagues()`

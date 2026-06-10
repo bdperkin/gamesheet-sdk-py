@@ -36,6 +36,22 @@ class Team(BaseModel):
         default=None,
         description="Division identifier if team belongs to a division.",
     )
+    logo: str | None = Field(
+        default=None,
+        description="URL to the team logo image.",
+    )
+    invitation_code: str | None = Field(
+        default=None,
+        description="Invitation code for joining the team.",
+    )
+    player_count: int | None = Field(
+        default=None,
+        description="Number of players on the team.",
+    )
+    coach_count: int | None = Field(
+        default=None,
+        description="Number of coaches on the team.",
+    )
     created_at: datetime = Field(description="When the team was created.")
     updated_at: datetime = Field(description="Last time the team was updated.")
 
@@ -48,11 +64,22 @@ def _parse(item: dict[str, Any]) -> Team:
     season_id = relationships.get("season", {}).get("data", {}).get("id", "")
     division_data = relationships.get("division", {}).get("data")
     division_id = division_data.get("id") if division_data else None
+    # Extract optional fields with safe defaults
+    logo = attrs.get("logo")
+    invitation_code = attrs.get("invitation_code")
+    player_count = attrs.get("player_count")
+    coach_count = attrs.get("coach_count")
     return Team(
         id=item["id"],
         season_id=season_id,
         division_id=division_id,
-        **attrs,
+        logo=logo,
+        invitation_code=invitation_code,
+        player_count=player_count,
+        coach_count=coach_count,
+        title=attrs["title"],
+        created_at=attrs["created_at"],
+        updated_at=attrs["updated_at"],
     )
 
 

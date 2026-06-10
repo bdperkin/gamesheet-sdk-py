@@ -68,7 +68,14 @@ from gamesheet_sdk.auth import (
 )
 from gamesheet_sdk.browser import BrowserSession
 from gamesheet_sdk.config import Config
-from gamesheet_sdk.divisions import Division, list_divisions
+from gamesheet_sdk.divisions import (
+    Division,
+    create_division,
+    delete_division,
+    list_division_teams,
+    list_divisions,
+    update_division,
+)
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.games import Game, TeamInfo, list_brackets, list_completed, list_scheduled
 from gamesheet_sdk.ipad_keys import IPadKey, list_ipad_keys
@@ -120,7 +127,11 @@ __all__ = [
     "list_brackets",
     "list_coaches",
     "list_completed",
+    "create_division",
+    "delete_division",
+    "list_division_teams",
     "list_divisions",
+    "update_division",
     "list_ipad_keys",
     "list_leagues",
     "list_players",

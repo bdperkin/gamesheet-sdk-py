@@ -218,6 +218,13 @@ class Session:
         """
         return self.request("PUT", url, **kwargs)
 
+    def patch(self, url: str, **kwargs: Any) -> requests.Response:
+        """Send a PATCH request.
+
+        See :meth:`request`.
+        """
+        return self.request("PATCH", url, **kwargs)
+
     def delete(self, url: str, **kwargs: Any) -> requests.Response:
         """Send a DELETE request.
 

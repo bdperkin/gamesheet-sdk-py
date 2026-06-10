@@ -1,4 +1,4 @@
-"""Tests for :mod:`gamesheet_sdk.teams`."""
+"""Tests for list_division_teams function."""
 
 from __future__ import annotations
 
@@ -12,13 +12,13 @@ from gamesheet_sdk import (
     Config,
     GameSheetError,
     Session,
-    list_teams,
+    list_division_teams,
 )
-from gamesheet_sdk.teams import Team
 
 _BASE = "https://test.example"
 _SEASON_ID = "15020"
-_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/teams"
+_DIVISION_ID = "701"
+_DIVISION_TEAMS_ENDPOINT = f"{_BASE}/api/divisions/{_DIVISION_ID}/teams"
 
 
 def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
@@ -27,11 +27,11 @@ def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
 
 
 @responses.activate
-def test_list_teams_parses_jsonapi_response(config: Config) -> None:
+def test_list_division_teams_parses_jsonapi_response(config: Config) -> None:
 
     responses.add(
         responses.GET,
-        _ENDPOINT,
+        _DIVISION_TEAMS_ENDPOINT,
         json=_payload(
             [
                 {
@@ -39,6 +39,10 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
                     "id": "1001",
                     "attributes": {
                         "title": "Raleigh Raptors",
+                        "logo": "https://example.com/logo1.png",
+                        "invitation_code": "ABC123",
+                        "player_count": 15,
+                        "coach_count": 3,
                         "created_at": "2024-09-01T10:00:00Z",
                         "updated_at": "2024-09-15T14:30:00Z",
                     },
@@ -52,7 +56,7 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
                         "division": {
                             "data": {
                                 "type": "divisions",
-                                "id": "5001",
+                                "id": _DIVISION_ID,
                             },
                         },
                     },
@@ -62,6 +66,10 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
                     "id": "1002",
                     "attributes": {
                         "title": "Durham Bulls",
+                        "logo": None,
+                        "invitation_code": "XYZ789",
+                        "player_count": 12,
+                        "coach_count": 2,
                         "created_at": "2024-09-01T10:00:00Z",
                         "updated_at": "2024-09-01T10:00:00Z",
                     },
@@ -73,7 +81,10 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
                             },
                         },
                         "division": {
-                            "data": None,
+                            "data": {
+                                "type": "divisions",
+                                "id": _DIVISION_ID,
+                            },
                         },
                     },
                 },
@@ -83,24 +94,28 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
-        result = list_teams(session, _SEASON_ID)
+        result = list_division_teams(session, _DIVISION_ID)
     assert [t.id for t in result] == ["1001", "1002"]
     assert result[0].title == "Raleigh Raptors"
     assert result[0].season_id == _SEASON_ID
-    assert result[0].division_id == "5001"
+    assert result[0].division_id == _DIVISION_ID
+    assert result[0].logo == "https://example.com/logo1.png"
+    assert result[0].invitation_code == "ABC123"
+    assert result[0].player_count == 15
+    assert result[0].coach_count == 3
     assert result[0].created_at == datetime(2024, 9, 1, 10, tzinfo=timezone.utc)
     assert result[0].updated_at == datetime(2024, 9, 15, 14, 30, tzinfo=timezone.utc)
     assert result[1].title == "Durham Bulls"
-    assert result[1].division_id is None
+    assert result[1].logo is None
 
 
 @responses.activate
-def test_list_teams_sends_bearer_and_jsonapi_accept(config: Config) -> None:
+def test_list_division_teams_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
-    responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
+    responses.add(responses.GET, _DIVISION_TEAMS_ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
-        list_teams(session, _SEASON_ID)
+        list_division_teams(session, _DIVISION_ID)
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
@@ -108,110 +123,50 @@ def test_list_teams_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
 
 @responses.activate
-def test_list_teams_empty_data_returns_empty_list(config: Config) -> None:
+def test_list_division_teams_empty_data_returns_empty_list(config: Config) -> None:
 
-    responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
+    responses.add(responses.GET, _DIVISION_TEAMS_ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
-        assert not list_teams(session, _SEASON_ID)
+        assert not list_division_teams(session, _DIVISION_ID)
 
 
 @responses.activate
-def test_list_teams_401_raises_authentication_error(config: Config) -> None:
+def test_list_division_teams_401_raises_authentication_error(config: Config) -> None:
 
     responses.add(
         responses.GET,
-        _ENDPOINT,
+        _DIVISION_TEAMS_ENDPOINT,
         json={"errors": [{"detail": "Token expired"}]},
         status=401,
     )
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            list_teams(session, _SEASON_ID)
+            list_division_teams(session, _DIVISION_ID)
 
 
 @responses.activate
-def test_list_teams_404_raises_gamesheet_error(config: Config) -> None:
+def test_list_division_teams_404_raises_gamesheet_error_with_helpful_message(
+    config: Config,
+) -> None:
 
-    responses.add(responses.GET, _ENDPOINT, status=404, body="Not found")
+    responses.add(responses.GET, _DIVISION_TEAMS_ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(
             GameSheetError,
-            match=r"Season '.*' not found.*valid season ID.*seasons list --league-id",
+            match=r"Division '.*' not found.*valid division ID.*divisions list --season-id",
         ):
-            list_teams(session, _SEASON_ID)
+            list_division_teams(session, _DIVISION_ID)
 
 
 @responses.activate
-def test_list_teams_other_failure_raises_gamesheet_error(
+def test_list_division_teams_other_failure_raises_gamesheet_error(
     config: Config,
 ) -> None:
-    responses.add(responses.GET, _ENDPOINT, status=500, body="boom")
+    responses.add(responses.GET, _DIVISION_TEAMS_ENDPOINT, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            list_teams(session, _SEASON_ID)
-
-
-def test_team_model_ignores_unknown_attributes() -> None:
-
-    t = Team(
-        id="1001",
-        season_id="15020",
-        title="Raleigh Raptors",
-        division_id="5001",
-        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        unexpected_future_attr="ignored",
-    )
-    assert t.title == "Raleigh Raptors"
-
-
-def test_team_model_handles_optional_division_id() -> None:
-
-    t = Team(
-        id="1002",
-        season_id="15020",
-        title="Durham Bulls",
-        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-    )
-    assert t.title == "Durham Bulls"
-    assert t.division_id is None
-
-
-@responses.activate
-def test_list_teams_uses_correct_endpoint(config: Config) -> None:
-    """Verify that teams endpoint includes season_id in the path."""
-    responses.add(
-        responses.GET,
-        _ENDPOINT,
-        json=_payload(
-            [
-                {
-                    "type": "teams",
-                    "id": "1001",
-                    "attributes": {
-                        "title": "Season 15020 Team",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
-                    },
-                    "relationships": {
-                        "season": {"data": {"type": "seasons", "id": "15020"}},
-                        "division": {"data": None},
-                    },
-                },
-            ],
-        ),
-        status=200,
-    )
-    with Session(config) as session:
-        session.set_bearer_token("abc")
-        result = list_teams(session, "15020")
-    # API filters by season_id in URL path, so all results are for that season
-    assert len(result) == 1
-    assert result[0].id == "1001"
-    assert result[0].season_id == "15020"
-    assert result[0].title == "Season 15020 Team"
+            list_division_teams(session, _DIVISION_ID)

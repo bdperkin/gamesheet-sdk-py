@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import cast
 
 import pytest
 import responses
@@ -145,8 +144,8 @@ def test_ipad_key_model_ignores_unknown_attributes() -> None:
         description="Test Key",
         roles=[],
         live_scoring_scopes=["read"],
-        created_at=cast("datetime", "2026-01-01T00:00:00Z"),
-        updated_at=cast("datetime", "2026-01-01T00:00:00Z"),
+        created_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+        updated_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
         unexpected_future_attr="ignored",
     )
     assert key.value == "ipad-test-key"

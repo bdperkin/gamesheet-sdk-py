@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import cast
 
 import pytest
 import responses
@@ -162,8 +161,8 @@ def test_referee_model_ignores_unknown_attributes() -> None:
         first_name="John",
         last_name="Smith",
         email="john.smith@example.com",
-        created_at=cast("datetime", "2024-01-01T00:00:00Z"),
-        updated_at=cast("datetime", "2024-01-01T00:00:00Z"),
+        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         unexpected_future_attr="ignored",
     )
     assert r.first_name == "John"
@@ -178,8 +177,8 @@ def test_referee_model_handles_optional_email() -> None:
         first_name="Jane",
         last_name="Doe",
         email=None,
-        created_at=cast("datetime", "2024-01-01T00:00:00Z"),
-        updated_at=cast("datetime", "2024-01-01T00:00:00Z"),
+        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
     )
     assert r.email is None
 

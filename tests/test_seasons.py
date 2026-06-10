@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import cast
 
 import pytest
 import responses
@@ -139,8 +138,8 @@ def test_season_model_ignores_unknown_attributes() -> None:
         id="501",
         league_id="1148580",
         title="2024-2025",
-        created_at=cast("datetime", "2024-01-01T00:00:00Z"),
-        updated_at=cast("datetime", "2024-01-01T00:00:00Z"),
+        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         unexpected_future_attr="ignored",
     )
     assert s.title == "2024-2025"
@@ -348,8 +347,8 @@ def test_season_detail_model_ignores_unknown_attributes() -> None:
         end_date="2026-12-31",
         sport="hockey",
         stats_year="2026",
-        created_at=cast("datetime", "2024-01-01T00:00:00Z"),
-        updated_at=cast("datetime", "2024-01-01T00:00:00Z"),
+        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         unexpected_future_attr="ignored",
     )
     assert sd.title == "Test"
