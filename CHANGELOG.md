@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.33 (2026-06-10)
+
+### Bug Fixes
+
+- **build**: Pin hatchling \<1.26 for PyPI compatibility ([#89](https://github.com/bdperkin/gamesheet-sdk-py/pull/89),
+  [`08bd2fa`](https://github.com/bdperkin/gamesheet-sdk-py/commit/08bd2fa64a580e7bb288af6987f48645483784af))
+
 ## v0.1.32 (2026-06-10)
 
 ### Bug Fixes
