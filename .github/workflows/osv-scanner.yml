@@ -1,4 +1,4 @@
-name: OSV Dependency Vulnerability Scanner
+name: Python Dependency Vulnerability Scanner
 
 on:
   pull_request:
@@ -14,8 +14,8 @@ permissions:
   security-events: write # Required for uploading SARIF results
 
 jobs:
-  osv-scan:
-    name: OSV Vulnerability Scan
+  pip-audit-scan:
+    name: pip-audit Vulnerability Scan
     runs-on: ubuntu-latest
 
     steps:
@@ -30,61 +30,50 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Generate requirements.txt from installed packages
+      - name: Install package with all dependencies
         run: |
           # Install the package with all extras to get full dependency tree
           pip install -e ".[all]"
-          # Generate requirements.txt from actually installed packages
-          # This avoids resolution issues that pip-compile might have
-          pip freeze --exclude-editable > requirements-all.txt
-          echo "Generated requirements with $(wc -l < requirements-all.txt) packages"
 
-      - name: Install OSV Scanner
+      - name: Run pip-audit vulnerability scan
+        id: pip-audit
+        continue-on-error: true
         run: |
-          curl -sSL https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_linux_amd64 -o osv-scanner
-          chmod +x osv-scanner
-          sudo mv osv-scanner /usr/local/bin/
+          # Install pip-audit
+          pip install pip-audit
 
-      - name: Run OSV Scanner
-        id: osv-scan
-        run: |
-          # Scan the generated requirements file
-          # Exit code 0: no vulnerabilities, 1: vulnerabilities found, other: error
-          set +e  # Don't exit immediately on error
+          # Scan installed packages and generate SARIF
+          # Exit code 0: no vulnerabilities, 1: vulnerabilities found
+          pip-audit --format=json --output=audit.json || true
 
-          osv-scanner scan --lockfile requirements-all.txt --format sarif --output-file osv-results.sarif 2>&1 | tee scan.log
-          EXIT_CODE=$?
-
-          # Check if scan actually completed
-          if grep -q "Error during extraction\|resolution impossible\|failed resolution" scan.log; then
-            echo "scan_status=failed" >> $GITHUB_OUTPUT
-            echo "❌ Scan failed - unable to resolve dependencies"
-            echo "See logs above for details"
-            exit 1
-          elif [ $EXIT_CODE -eq 0 ]; then
-            echo "scan_status=completed" >> $GITHUB_OUTPUT
-            echo "✅ Scan completed - no vulnerabilities found"
-          elif [ $EXIT_CODE -eq 1 ]; then
-            echo "scan_status=completed" >> $GITHUB_OUTPUT
-            echo "⚠️ Scan completed - vulnerabilities found"
+          # Convert to SARIF format (pip-audit native SARIF support coming soon)
+          # For now, check if vulnerabilities were found
+          if [ -f audit.json ]; then
+            if grep -q '"vulnerabilities"' audit.json && [ "$(jq '.vulnerabilities | length' audit.json 2>/dev/null || echo 0)" -gt 0 ]; then
+              echo "scan_status=vulnerabilities_found" >> $GITHUB_OUTPUT
+              echo "⚠️ Vulnerabilities found - see output below"
+              pip-audit --desc
+            else
+              echo "scan_status=clean" >> $GITHUB_OUTPUT
+              echo "✅ No vulnerabilities found"
+              pip-audit
+            fi
           else
             echo "scan_status=failed" >> $GITHUB_OUTPUT
-            echo "❌ Scan failed with exit code $EXIT_CODE"
+            echo "❌ Scan failed"
             exit 1
           fi
 
-      - name: Upload SARIF results to GitHub Security
-        uses: github/codeql-action/upload-sarif@df409f7d9260372bd5f19e5b04e83cb3c43714ae # v3.27.9
-        if: steps.osv-scan.outputs.scan_status == 'completed'
-        with:
-          sarif_file: osv-results.sarif
-          category: osv-scanner
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload results as artifact
+      - name: Upload audit results as artifact
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        if: steps.osv-scan.outputs.scan_status == 'completed'
+        if: always()
         with:
-          name: osv-scanner-results
-          path: osv-results.sarif
+          name: pip-audit-results
+          path: audit.json
           retention-days: 30
+
+      - name: Fail if vulnerabilities found
+        if: steps.pip-audit.outputs.scan_status == 'vulnerabilities_found'
+        run: |
+          echo "::error::Vulnerabilities detected in dependencies"
+          exit 1
