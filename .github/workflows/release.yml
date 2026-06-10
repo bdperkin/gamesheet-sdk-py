@@ -184,10 +184,10 @@ jobs:
           persist-credentials: false
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@fd7d47e5a7b5e66a2cf77ab92bb2da344b1dad07 # v4.0.0
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@74ac23a1b7cc67bb6ba30f09e3c6aa6ecdd25d6f # v4.0.0
+        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -195,7 +195,7 @@ jobs:
 
       - name: Extract metadata for Docker
         id: meta
-        uses: docker/metadata-action@902fa04b52a48d5b8437be612c1833b456ce31b9 # v6.0.0
+        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
         with:
           images: ghcr.io/bdperkin/gamesheet-sdk-py
           tags: |
@@ -217,7 +217,7 @@ jobs:
 
       - name: Build and push Docker image
         id: build
-        uses: docker/build-push-action@a6786b02129ca89ea6f29a51f47e21b3c39a0e85 # v7.0.0
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
         with:
           context: .
           push: true
@@ -228,7 +228,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@2c74bde0fa1c6b30c0e6c15b81ac25f8df6f27e9 # v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ghcr.io/bdperkin/gamesheet-sdk-py:${{ needs.version.outputs.version }}
           format: sarif
@@ -240,7 +240,7 @@ jobs:
           sarif_file: trivy-results.sarif
 
       - name: Generate SBOM
-        uses: anchore/sbom-action@e8c69fe64c54e4b7b0e34a561a6f05e04e6da673 # v0.24.0
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
           image: ghcr.io/bdperkin/gamesheet-sdk-py:${{ needs.version.outputs.version }}
           format: spdx-json
