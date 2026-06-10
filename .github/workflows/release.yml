@@ -146,6 +146,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@fb13cb306901256ace3dab689990e13a5550ffaa # v1.12.2
         with:
           repository-url: https://test.pypi.org/legacy/
+          verify-metadata: false
 
   publish-pypi:
     name: Publish to PyPI
@@ -165,6 +166,8 @@ jobs:
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@fb13cb306901256ace3dab689990e13a5550ffaa # v1.12.2
+        with:
+          verify-metadata: false
 
   build-container:
     name: Build and Publish Container
