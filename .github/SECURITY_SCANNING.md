@@ -15,9 +15,11 @@ Four specialized security scanning workflows have been implemented following str
 
 ### 1. Commit SHA Pinning
 
-All third-party GitHub Actions are pinned to their full 40-character commit SHA instead of mutable version tags. This prevents supply chain attacks where a malicious actor could replace a tagged version.
+All third-party GitHub Actions are pinned to their full 40-character commit SHA instead of mutable version tags. This prevents supply chain attacks where a
+malicious actor could replace a tagged version.
 
 **Example:**
+
 ```yaml
 uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 ```
@@ -27,6 +29,7 @@ uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 Every workflow explicitly defines a `permissions:` block at the workflow or job level. Default repository permissions are not relied upon.
 
 **Typical permissions:**
+
 - `contents: read` - Read-only access to repository contents
 - `security-events: write` - Upload SARIF results to GitHub Security tab
 - No `write` permissions unless absolutely necessary
@@ -38,10 +41,12 @@ Every workflow explicitly defines a `permissions:` block at the workflow or job 
 **Purpose:** Static analysis for security vulnerabilities, secrets, and code quality issues.
 
 **Triggers:**
+
 - Push to `main` branch
 - Pull requests to `main` branch
 
 **Configuration:**
+
 - Runs in Semgrep Docker container (`semgrep/semgrep:1.101.0`)
 - Rule packs:
   - `p/security-audit` - General security vulnerabilities
@@ -51,11 +56,13 @@ Every workflow explicitly defines a `permissions:` block at the workflow or job 
 - Outputs SARIF format for GitHub Security integration
 
 **Coverage:**
+
 - Python source code (96.9%)
 - Dockerfile (0.7%) - Checks for root execution, hardcoded ENV secrets
 - Makefile (2.4%) - Security patterns in build scripts
 
 **Secrets Required:**
+
 - `SEMGREP_APP_TOKEN` (optional) - For Semgrep Cloud integration
 
 ### 2. Workflow Linter (`workflow-linter.yml`)
@@ -63,12 +70,14 @@ Every workflow explicitly defines a `permissions:` block at the workflow or job 
 **Purpose:** Audit GitHub Actions workflows for security issues.
 
 **Triggers:**
+
 - Push to `main` affecting `.github/workflows/**`
 - Pull requests to `main` affecting `.github/workflows/**`
 
 **Tool:** [zizmor](https://github.com/woodruffw/zizmor)
 
 **Detects:**
+
 - Unsafe string interpolations (code injection risks)
 - Missing `permissions:` blocks
 - Unpinned actions (mutable tags)
@@ -82,17 +91,20 @@ Every workflow explicitly defines a `permissions:` block at the workflow or job 
 **Purpose:** Scan Python dependencies against the Open Source Vulnerabilities (OSV) database.
 
 **Triggers:**
+
 - Pull requests to `main`
 - Push to `main`
 - Daily scheduled scan at 2 AM UTC
 
 **Data Sources:**
+
 - Google OSV Database
 - GitHub Security Advisories
 - PyPI vulnerability database
 - NVD (National Vulnerability Database)
 
 **Scans:**
+
 - `pyproject.toml` - Project dependencies
 - Lock files (if present)
 - Recursive dependency tree
@@ -104,10 +116,12 @@ Every workflow explicitly defines a `permissions:` block at the workflow or job 
 **Purpose:** Scan for leaked secrets in code, commit history, and pull request diffs.
 
 **Triggers:**
+
 - Pull requests to `main`
 - Push to `main`
 
 **Scan Scope:**
+
 - Full commit history (`fetch-depth: 0`)
 - Python source files
 - Configuration files
@@ -116,6 +130,7 @@ Every workflow explicitly defines a `permissions:` block at the workflow or job 
 - Any text files in the repository
 
 **Detects:**
+
 - API keys and tokens
 - Database credentials
 - Private keys (RSA, SSH)
@@ -123,9 +138,11 @@ Every workflow explicitly defines a `permissions:` block at the workflow or job 
 - 350+ secret patterns
 
 **Secrets Required:**
+
 - `GITGUARDIAN_API_KEY` - GitGuardian API authentication
 
 **Configuration:**
+
 - `--show-secrets` - Display found secrets in logs (redacted)
 - `--exit-zero` - Don't fail the build on findings (for gradual adoption)
 - `--all-policies` - Apply all GitGuardian detection policies
@@ -139,6 +156,7 @@ uses: github/codeql-action/upload-sarif@df409f7d9260372bd5f19e5b04e83cb3c43714ae
 ```
 
 **Benefits:**
+
 - Centralized security findings dashboard
 - Integration with Dependabot alerts
 - Code scanning alerts with inline annotations
@@ -148,23 +166,23 @@ uses: github/codeql-action/upload-sarif@df409f7d9260372bd5f19e5b04e83cb3c43714ae
 
 Configure the following secrets in repository settings (`Settings > Secrets and variables > Actions`):
 
-| Secret | Required By | Purpose | How to Obtain |
-|--------|-------------|---------|---------------|
-| `SEMGREP_APP_TOKEN` | `semgrep.yml` | Optional - Semgrep Cloud integration | [semgrep.dev](https://semgrep.dev) |
-| `GITGUARDIAN_API_KEY` | `gitguardian.yml` | Required - GitGuardian API auth | [dashboard.gitguardian.com](https://dashboard.gitguardian.com) |
+| Secret                | Required By       | Purpose                              | How to Obtain                                                  |
+| --------------------- | ----------------- | ------------------------------------ | -------------------------------------------------------------- |
+| `SEMGREP_APP_TOKEN`   | `semgrep.yml`     | Optional - Semgrep Cloud integration | [semgrep.dev](https://semgrep.dev)                             |
+| `GITGUARDIAN_API_KEY` | `gitguardian.yml` | Required - GitGuardian API auth      | [dashboard.gitguardian.com](https://dashboard.gitguardian.com) |
 
 ## Action Version Reference
 
 All actions are SHA-pinned. The following table maps SHAs to version tags for reference:
 
-| Action | SHA (first 7 chars) | Version Tag | Full SHA |
-|--------|---------------------|-------------|----------|
-| `actions/checkout` | `11bd719` | v4.2.2 | `11bd71901bbe5b1630ceea73d27597364c9af683` |
-| `actions/setup-python` | `0b93645` | v5.3.0 | `0b93645e9fea7318ecaed2b359559ac225c90a2b` |
-| `actions/upload-artifact` | `b4b15b8` | v4.4.3 | `b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882` |
-| `github/codeql-action/upload-sarif` | `df409f7` | v3.27.9 | `df409f7d9260372bd5f19e5b04e83cb3c43714ae` |
-| `google/osv-scanner-action` | `19ec111` | v1.9.1 | `19ec1116569a47416e11a45848722b1c87f7104c` |
-| `GitGuardian/ggshield-action` | `4d9f8fc` | v1.33.0 | `4d9f8fc464c9e3e170ca89bd3fa6e5f8dd2837b8` |
+| Action                              | SHA (first 7 chars) | Version Tag | Full SHA                                   |
+| ----------------------------------- | ------------------- | ----------- | ------------------------------------------ |
+| `actions/checkout`                  | `11bd719`           | v4.2.2      | `11bd71901bbe5b1630ceea73d27597364c9af683` |
+| `actions/setup-python`              | `0b93645`           | v5.3.0      | `0b93645e9fea7318ecaed2b359559ac225c90a2b` |
+| `actions/upload-artifact`           | `b4b15b8`           | v4.4.3      | `b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882` |
+| `github/codeql-action/upload-sarif` | `df409f7`           | v3.27.9     | `df409f7d9260372bd5f19e5b04e83cb3c43714ae` |
+| `google/osv-scanner-action`         | `19ec111`           | v1.9.1      | `19ec1116569a47416e11a45848722b1c87f7104c` |
+| `GitGuardian/ggshield-action`       | `4d9f8fc`           | v1.33.0     | `4d9f8fc464c9e3e170ca89bd3fa6e5f8dd2837b8` |
 
 ## Maintenance
 
@@ -179,6 +197,7 @@ When a new version of an action is released:
 5. Update the inline comment with the new version tag
 
 **Example:**
+
 ```yaml
 # Old
 uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
