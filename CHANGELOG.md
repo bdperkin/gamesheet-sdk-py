@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.35 (2026-06-12)
+
+### Bug Fixes
+
+- **ci**: Resolve workflow failures in GitGuardian and Dependabot ([#93](https://github.com/bdperkin/gamesheet-sdk-py/pull/93),
+  [`ef5edec`](https://github.com/bdperkin/gamesheet-sdk-py/commit/ef5edec63d00c819b9b626b65e5f9d59c6b2c212))
+
+### Build System
+
+- **deps**: Bump the actions group with 11 updates ([#92](https://github.com/bdperkin/gamesheet-sdk-py/pull/92),
+  [`3c28bf4`](https://github.com/bdperkin/gamesheet-sdk-py/commit/3c28bf4c3162cb30ca690d477b855f377146dbca))
+
 ## v0.1.34 (2026-06-10)
 
 ### Bug Fixes
