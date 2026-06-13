@@ -6,7 +6,7 @@
 # ------------------------------------------------------------------------------
 [build-system]
 build-backend = "hatchling.build"
-requires = [ "hatchling<1.26" ]  # Pin to <1.26 to use Metadata-Version 2.3 (PyPI doesn't support 2.4 yet)
+requires = [ "hatchling" ]
 
 # ------------------------------------------------------------------------------
 # Project Metadata
