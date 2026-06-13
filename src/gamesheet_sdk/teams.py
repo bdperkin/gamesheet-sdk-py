@@ -101,9 +101,14 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
     :raises GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/teams"
+    # Request sparse fieldset including logo, invitation_code, player_count, coach_count
+    params = {
+        "fields[teams]": "title,logo,invitation_code,player_count,coach_count,created_at,updated_at",
+    }
     response = session.get(
         endpoint,
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
+        params=params,
     )
     if response.status_code == 401:
 
