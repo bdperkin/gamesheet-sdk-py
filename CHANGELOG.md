@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.37 (2026-06-13)
+
+### Bug Fixes
+
+- **build**: Remove hatchling version pin, PyPI now supports metadata 2.4 ([#96](https://github.com/bdperkin/gamesheet-sdk-py/pull/96),
+  [`d1fe9fd`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d1fe9fd449d51d7d122c2241a5675f337fc02177))
+
+### Build System
+
+- **deps**: Bump actions/github-script ([#94](https://github.com/bdperkin/gamesheet-sdk-py/pull/94),
+  [`61a0702`](https://github.com/bdperkin/gamesheet-sdk-py/commit/61a070279abdfc94574601084a4367853393307a))
+
 ## v0.1.36 (2026-06-13)
 
 ### Bug Fixes
