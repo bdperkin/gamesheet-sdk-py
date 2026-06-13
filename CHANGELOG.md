@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.40 (2026-06-13)
+
+### Bug Fixes
+
+- **ci**: Format CodeQL permission comments for zizmor compliance ([#99](https://github.com/bdperkin/gamesheet-sdk-py/pull/99),
+  [`1ed8a28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/1ed8a283ae5a90ea134e613272666a12270bf1e0))
+
 ## v0.1.39 (2026-06-13)
 
 ### Bug Fixes
