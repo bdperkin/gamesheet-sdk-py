@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.38 (2026-06-13)
+
+### Bug Fixes
+
+- **security**: Suppress false positive credential logging alerts ([#97](https://github.com/bdperkin/gamesheet-sdk-py/pull/97),
+  [`489e740`](https://github.com/bdperkin/gamesheet-sdk-py/commit/489e7401396eb64cdc75d57476e6f0bbb5ab840c))
+
 ## v0.1.37 (2026-06-13)
 
 ### Bug Fixes
