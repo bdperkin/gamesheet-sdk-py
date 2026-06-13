@@ -195,8 +195,8 @@ jobs:
     needs: docs-build
     runs-on: ubuntu-latest
     permissions:
-      pages: write
-      id-token: write
+      pages: write # Deploy to GitHub Pages
+      id-token: write # Verify deployment target
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

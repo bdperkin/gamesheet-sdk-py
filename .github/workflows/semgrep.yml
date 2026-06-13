@@ -6,14 +6,20 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
-  security-events: write # Required for uploading SARIF results to GitHub Security tab
 
 jobs:
   semgrep:
     name: Semgrep Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write # Required for uploading SARIF results to GitHub Security tab
 
     container:
       # Semgrep OSS Docker image
