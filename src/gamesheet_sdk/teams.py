@@ -65,10 +65,14 @@ def _parse(item: dict[str, Any]) -> Team:
     division_data = relationships.get("division", {}).get("data")
     division_id = division_data.get("id") if division_data else None
     # Extract optional fields with safe defaults
-    logo = attrs.get("logo")
-    invitation_code = attrs.get("invitation_code")
-    player_count = attrs.get("player_count")
-    coach_count = attrs.get("coach_count")
+    # Note: API returns logo_url not logo
+    logo = attrs.get("logo_url")
+    # No invitation_code field exists in API
+    invitation_code = None
+    # Count roster players and coaches from embedded roster data
+    roster = attrs.get("roster", {})
+    player_count = len(roster.get("players", []))
+    coach_count = len(roster.get("coaches", []))
     return Team(
         id=item["id"],
         season_id=season_id,
@@ -101,9 +105,9 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
     :raises GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/teams"
-    # Request sparse fieldset including logo, invitation_code, player_count, coach_count
+    # Request sparse fieldset including logo_url and roster (for player/coach counts)
     params = {
-        "fields[teams]": "title,logo,invitation_code,player_count,coach_count,created_at,updated_at",
+        "fields[teams]": "title,logo_url,roster,created_at,updated_at",
     }
     response = session.get(
         endpoint,

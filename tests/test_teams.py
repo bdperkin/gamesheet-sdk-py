@@ -105,14 +105,12 @@ def test_list_teams_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
     assert req.headers["Accept"] == "application/vnd.api+json"
-    # Verify sparse fieldset is requested to get logo, invitation_code, counts
+    # Verify sparse fieldset is requested to get logo_url and roster
     # URL-encoded: fields[teams] = fields%5Bteams%5D
     url = req.url or ""
     assert "fields%5Bteams%5D" in url
-    assert "logo" in url
-    assert "invitation_code" in url
-    assert "player_count" in url
-    assert "coach_count" in url
+    assert "logo_url" in url
+    assert "roster" in url
 
 
 @responses.activate
@@ -192,7 +190,7 @@ def test_team_model_handles_optional_division_id() -> None:
 
 @responses.activate
 def test_list_teams_includes_optional_fields(config: Config) -> None:
-    """Verify that optional fields (logo, invitation_code, counts) are parsed when present."""
+    """Verify that optional fields (logo_url, roster counts) are parsed when present."""
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -203,10 +201,18 @@ def test_list_teams_includes_optional_fields(config: Config) -> None:
                     "id": "1001",
                     "attributes": {
                         "title": "Raleigh Raptors",
-                        "logo": "https://example.com/logo.png",
-                        "invitation_code": "RAPTORS2024",
-                        "player_count": 15,
-                        "coach_count": 3,
+                        "logo_url": "https://example.com/logo.png",
+                        "roster": {
+                            "players": [
+                                {"id": "1", "number": "1"},
+                                {"id": "2", "number": "2"},
+                                {"id": "3", "number": "3"},
+                            ],
+                            "coaches": [
+                                {"id": "10", "position": "head_coach"},
+                                {"id": "11", "position": "assistant_coach"},
+                            ],
+                        },
                         "created_at": "2024-09-01T10:00:00Z",
                         "updated_at": "2024-09-15T14:30:00Z",
                     },
@@ -235,9 +241,9 @@ def test_list_teams_includes_optional_fields(config: Config) -> None:
     assert len(result) == 1
     team = result[0]
     assert team.logo == "https://example.com/logo.png"
-    assert team.invitation_code == "RAPTORS2024"
-    assert team.player_count == 15
-    assert team.coach_count == 3
+    assert team.invitation_code is None  # No invitation_code in API
+    assert team.player_count == 3
+    assert team.coach_count == 2
 
 
 @responses.activate
