@@ -79,6 +79,7 @@ class AuthenticatedSession(Session):
                 timeout=self.config.timeout,
             )
         except (AuthenticationError, GameSheetError) as exc:
+            # nosemgrep: python.lang.security.audit.logging.logger-credential-leak
             _LOGGER.warning("Token refresh failed: %s; surfacing 401.", exc)
             return False
 
@@ -120,6 +121,6 @@ class AuthenticatedSession(Session):
         if not self._try_refresh():
 
             return response
-
+        # nosemgrep: python.lang.security.audit.logging.logger-credential-leak
         _LOGGER.info("Refreshed access token; retrying %s %s.", method, url)
         return super().request(method, url, timeout=timeout, **kwargs)
