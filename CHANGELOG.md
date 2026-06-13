@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.36 (2026-06-13)
+
+### Bug Fixes
+
+- **ci**: Exclude Dependabot PRs from GitGuardian scan ([#95](https://github.com/bdperkin/gamesheet-sdk-py/pull/95),
+  [`fe066ed`](https://github.com/bdperkin/gamesheet-sdk-py/commit/fe066ed32b616fb819fcf0ed5750467e8bfb75f5))
+
 ## v0.1.35 (2026-06-12)
 
 ### Bug Fixes
