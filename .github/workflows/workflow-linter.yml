@@ -10,14 +10,20 @@ on:
     paths:
       - ".github/workflows/**"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
-  security-events: write # Required for uploading SARIF results
 
 jobs:
   zizmor:
     name: Audit GitHub Actions workflows
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write # Required for uploading SARIF results
 
     steps:
       - name: Checkout repository

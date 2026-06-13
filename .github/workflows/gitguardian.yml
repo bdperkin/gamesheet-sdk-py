@@ -6,14 +6,20 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
-  security-events: write # Required for uploading SARIF results
 
 jobs:
   gitguardian:
     name: GitGuardian Secret Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write # Required for uploading SARIF results
 
     steps:
       - name: Checkout repository
