@@ -265,6 +265,157 @@ def test_list_teams_includes_optional_fields(config: Config) -> None:
 
 
 @responses.activate
+def test_list_teams_without_invitations(config: Config) -> None:
+    """Verify teams without invitation relationship have None invitation_code."""
+    responses.add(
+        responses.GET,
+        _ENDPOINT,
+        json={
+            "data": [
+                {
+                    "type": "teams",
+                    "id": "1001",
+                    "attributes": {
+                        "title": "Team Without Invitation",
+                        "logo_url": "https://example.com/logo.png",
+                        "roster": {
+                            "players": [{"id": "1"}],
+                            "coaches": [{"id": "10"}],
+                        },
+                        "created_at": "2024-09-01T10:00:00Z",
+                        "updated_at": "2024-09-01T10:00:00Z",
+                    },
+                    "relationships": {
+                        "season": {
+                            "data": {"type": "seasons", "id": _SEASON_ID},
+                        },
+                        "division": {"data": None},
+                        # No invitations relationship
+                    },
+                },
+            ],
+            # No included section
+        },
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("test-token")
+        result = list_teams(session, _SEASON_ID)
+    assert len(result) == 1
+    assert result[0].invitation_code is None
+
+
+@responses.activate
+def test_list_teams_with_invitation_as_single_object(config: Config) -> None:
+    """Verify invitation relationship as single object (not array) is handled."""
+    responses.add(
+        responses.GET,
+        _ENDPOINT,
+        json={
+            "data": [
+                {
+                    "type": "teams",
+                    "id": "1001",
+                    "attributes": {
+                        "title": "Team",
+                        "roster": {"players": [], "coaches": []},
+                        "created_at": "2024-09-01T10:00:00Z",
+                        "updated_at": "2024-09-01T10:00:00Z",
+                    },
+                    "relationships": {
+                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "division": {"data": None},
+                        "invitations": {
+                            "data": {"type": "invitations", "id": "inv-456"},
+                        },
+                    },
+                },
+            ],
+            "included": [
+                {
+                    "type": "invitations",
+                    "id": "inv-456",
+                    "attributes": {"code": "SINGLE2024"},
+                },
+            ],
+        },
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("test-token")
+        result = list_teams(session, _SEASON_ID)
+    assert len(result) == 1
+    assert result[0].invitation_code == "SINGLE2024"
+
+
+@responses.activate
+def test_list_teams_with_malformed_invitation_data(config: Config) -> None:
+    """Verify malformed invitation data is ignored gracefully."""
+    responses.add(
+        responses.GET,
+        _ENDPOINT,
+        json={
+            "data": [
+                {
+                    "type": "teams",
+                    "id": "1001",
+                    "attributes": {
+                        "title": "Team with orphan invitation",
+                        "roster": {"players": [], "coaches": []},
+                        "created_at": "2024-09-01T10:00:00Z",
+                        "updated_at": "2024-09-01T10:00:00Z",
+                    },
+                    "relationships": {
+                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "division": {"data": None},
+                        "invitations": {
+                            # Invitation ID not in included - orphaned reference
+                            "data": [{"type": "invitations", "id": "inv-orphan"}],
+                        },
+                    },
+                },
+                {
+                    "type": "teams",
+                    "id": "1002",
+                    "attributes": {
+                        "title": "Team with empty invitation ID",
+                        "roster": {"players": [], "coaches": []},
+                        "created_at": "2024-09-01T10:00:00Z",
+                        "updated_at": "2024-09-01T10:00:00Z",
+                    },
+                    "relationships": {
+                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "division": {"data": None},
+                        "invitations": {
+                            # Empty/null ID
+                            "data": [{"type": "invitations", "id": ""}],
+                        },
+                    },
+                },
+            ],
+            "included": [
+                # Invitation missing ID (skipped in loop)
+                {"type": "invitations", "attributes": {"code": "NOCODE"}},
+                # Invitation missing code (skipped in loop)
+                {"type": "invitations", "id": "inv-nocode"},
+                # Non-invitation type (skipped by type check)
+                {"type": "divisions", "id": "div-1", "attributes": {"name": "A"}},
+                # Valid invitation but not referenced by any team
+                {"type": "invitations", "id": "inv-unused", "attributes": {"code": "UNUSED"}},
+            ],
+        },
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("test-token")
+        result = list_teams(session, _SEASON_ID)
+    assert len(result) == 2
+    # No valid invitation matched for either team
+    assert result[0].invitation_code is None
+    assert result[1].invitation_code is None
+
+
+@responses.activate
 def test_list_teams_uses_correct_endpoint(config: Config) -> None:
     """Verify that teams endpoint includes season_id in the path."""
     responses.add(
