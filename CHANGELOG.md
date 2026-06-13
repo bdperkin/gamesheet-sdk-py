@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.39 (2026-06-13)
+
+### Bug Fixes
+
+- **ci**: Harden workflow security per zizmor recommendations ([#98](https://github.com/bdperkin/gamesheet-sdk-py/pull/98),
+  [`a419a6c`](https://github.com/bdperkin/gamesheet-sdk-py/commit/a419a6c8e43954a1b2b88177424927d7b054aaed))
+
 ## v0.1.38 (2026-06-13)
 
 ### Bug Fixes
