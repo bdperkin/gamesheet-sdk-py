@@ -67,7 +67,7 @@ def _parse(item: dict[str, Any]) -> Team:
     # Extract optional fields with safe defaults
     # Note: API returns logo_url not logo
     logo = attrs.get("logo_url")
-    # No invitation_code field exists in API
+    # invitation_code comes from included invitations relationship (populated by caller)
     invitation_code = None
     # Count roster players and coaches from embedded roster data
     roster = attrs.get("roster", {})
@@ -106,8 +106,10 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
     """
     endpoint = f"/api/seasons/{season_id}/teams"
     # Request sparse fieldset including logo_url and roster (for player/coach counts)
+    # Include invitations relationship to get invitation codes
     params = {
         "fields[teams]": "title,logo_url,roster,created_at,updated_at",
+        "include": "invitations",
     }
     response = session.get(
         endpoint,
@@ -134,4 +136,25 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
         _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
-    return [_parse(item) for item in body.get("data", [])]
+    # Build invitation code lookup from included resources
+    invitation_codes: dict[str, str] = {}
+    for item in body.get("included", []):
+        if item.get("type") == "invitations":
+            invitation_id = item.get("id")
+            code = item.get("attributes", {}).get("code")
+            if invitation_id and code:
+                invitation_codes[invitation_id] = code
+    # Parse teams and match invitation codes via relationships
+    teams = []
+    for item in body.get("data", []):
+        team = _parse(item)
+        # Look up invitation code from relationship
+        inv_rel = item.get("relationships", {}).get("invitations", {}).get("data")
+        if inv_rel:
+            # invitations relationship can be single object or array
+            inv_id = inv_rel[0]["id"] if isinstance(inv_rel, list) else inv_rel.get("id")
+            if inv_id and inv_id in invitation_codes:
+                # Update the team with the invitation code using model_copy
+                team = team.model_copy(update={"invitation_code": invitation_codes[inv_id]})
+        teams.append(team)
+    return teams

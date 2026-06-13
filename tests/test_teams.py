@@ -106,11 +106,12 @@ def test_list_teams_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     assert req.headers["Authorization"] == "Bearer abc"
     assert req.headers["Accept"] == "application/vnd.api+json"
     # Verify sparse fieldset is requested to get logo_url and roster
-    # URL-encoded: fields[teams] = fields%5Bteams%5D
+    # URL-encoded: fields[teams] = fields%5Bteams%5D, include = invitations
     url = req.url or ""
     assert "fields%5Bteams%5D" in url
     assert "logo_url" in url
     assert "roster" in url
+    assert "include=invitations" in url
 
 
 @responses.activate
@@ -190,12 +191,12 @@ def test_team_model_handles_optional_division_id() -> None:
 
 @responses.activate
 def test_list_teams_includes_optional_fields(config: Config) -> None:
-    """Verify that optional fields (logo_url, roster counts) are parsed when present."""
+    """Verify that optional fields (logo_url, roster counts, invitation) are parsed when present."""
     responses.add(
         responses.GET,
         _ENDPOINT,
-        json=_payload(
-            [
+        json={
+            "data": [
                 {
                     "type": "teams",
                     "id": "1001",
@@ -229,10 +230,27 @@ def test_list_teams_includes_optional_fields(config: Config) -> None:
                                 "id": "5001",
                             },
                         },
+                        "invitations": {
+                            "data": [
+                                {
+                                    "type": "invitations",
+                                    "id": "inv-123",
+                                },
+                            ],
+                        },
                     },
                 },
             ],
-        ),
+            "included": [
+                {
+                    "type": "invitations",
+                    "id": "inv-123",
+                    "attributes": {
+                        "code": "RAPTORS2024",
+                    },
+                },
+            ],
+        },
         status=200,
     )
     with Session(config) as session:
@@ -241,7 +259,7 @@ def test_list_teams_includes_optional_fields(config: Config) -> None:
     assert len(result) == 1
     team = result[0]
     assert team.logo == "https://example.com/logo.png"
-    assert team.invitation_code is None  # No invitation_code in API
+    assert team.invitation_code == "RAPTORS2024"
     assert team.player_count == 3
     assert team.coach_count == 2
 
