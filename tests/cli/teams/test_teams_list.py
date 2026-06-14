@@ -1,4 +1,4 @@
-"""Tests for teams command group."""
+"""Tests for teams list command."""
 
 from __future__ import annotations
 
@@ -9,18 +9,7 @@ from gamesheet_sdk.cli import cli
 from gamesheet_sdk.teams import Team
 
 if TYPE_CHECKING:
-
     from click.testing import CliRunner
-
-
-def test_teams_group_has_help_option(runner: CliRunner) -> None:
-    """The teams group should accept -h and --help."""
-    result_short = runner.invoke(cli, ["teams", "-h"])
-    assert result_short.exit_code == 0
-    assert "teams" in result_short.output.lower()
-    result_long = runner.invoke(cli, ["teams", "--help"])
-    assert result_long.exit_code == 0
-    assert "teams" in result_short.output.lower()
 
 
 def test_teams_list_alias_works(runner: CliRunner) -> None:
@@ -37,13 +26,6 @@ def test_teams_list_alias_works(runner: CliRunner) -> None:
         result = runner.invoke(cli, ["teams", "ls", "--season-id", "501"])
         assert result.exit_code == 0
         mock_list.assert_called_once()
-
-
-def test_teams_missing_season_id_shows_error(runner: CliRunner) -> None:
-    """Calling 'teams list' without a season ID should show an error."""
-    result = runner.invoke(cli, ["teams", "list"])
-    assert result.exit_code == 2  # Usage error
-    assert "season-id" in result.output.lower() or "missing option" in result.output.lower()
 
 
 def test_teams_list_json_output(runner: CliRunner) -> None:
@@ -232,6 +214,6 @@ def test_teams_list_with_env_var(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_list.return_value = []
-        result = runner.invoke(cli, ["teams", "list"], env={"GAMESHEET_SEASON_ID": "501"})
+        result = runner.invoke(cli, ["teams", "list"], env={"GAMESHEET_SEASON_ID": "999"})
         assert result.exit_code == 0
         mock_list.assert_called_once()

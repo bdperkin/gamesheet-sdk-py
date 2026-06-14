@@ -7,12 +7,12 @@ from datetime import datetime, timezone
 import pytest
 import responses
 
-from gamesheet_sdk import list_division_teams  # pylint: disable=no-name-in-module
 from gamesheet_sdk import (
     AuthenticationError,
     Config,
     GameSheetError,
     Session,
+    list_division_teams,
 )
 
 _BASE = "https://test.example"
