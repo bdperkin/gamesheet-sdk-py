@@ -128,7 +128,6 @@ def teams_list_command(
     "--logo",
     "logo_path",
     type=Path(exists=True, dir_okay=False, readable=True),
-    default=None,
     help="Optional path to a local logo image file.",
 )
 @click.option(
@@ -235,7 +234,6 @@ def teams_create_command(
     "--logo",
     "logo_path",
     type=Path(exists=True, dir_okay=False, readable=True),
-    default=None,
     help="Path to a new logo image file.",
 )
 @click.option(
