@@ -38,7 +38,6 @@ from urllib.parse import urljoin
 
 from playwright.sync_api import Page, Request, Response, TimeoutError as PlaywrightTimeoutError
 
-from gamesheet_sdk.auth.login import login
 from gamesheet_sdk.browser import BrowserSession
 from gamesheet_sdk.config import Config
 
@@ -469,12 +468,9 @@ class SeasonSpider:
             self.session = BrowserSession(self.config)
 
         try:
-            # Perform login
-            _LOGGER.info("Authenticating...")
-            login(self.session)
-            _LOGGER.info("Authentication successful")
-
-            # Create a fresh page for crawling
+            # BrowserSession automatically loads saved browser-state.json
+            # If you've run 'gamesheet-sdk-py login', you're already authenticated
+            _LOGGER.info("Creating browser page with saved session")
             self.page = self.session.new_page()
 
             # Execute crawl
@@ -582,14 +578,6 @@ Environment variables:
         config_kwargs["browser_headless"] = False
 
     config = Config(**config_kwargs)
-
-    # Validate credentials
-    if not config.username or not config.password:
-        _LOGGER.error(
-            "Authentication credentials required. Set GAMESHEET_USERNAME and GAMESHEET_PASSWORD "
-            "environment variables."
-        )
-        return 1
 
     # Determine output path
     output_path = args.output or Path(f"season-{args.season_id}-spider.json")
