@@ -202,8 +202,8 @@ def referees_report_command(
     default=None,
     help="Write to this file instead of stdout.",
 )
-# pylint: disable-next=too-many-positional-arguments
 @click.pass_context
+# pylint: disable-next=too-many-positional-arguments
 def referees_create_command(
     ctx: Context,
     season_id: str,
@@ -293,8 +293,8 @@ def referees_create_command(
     default=None,
     help="Write to this file instead of stdout.",
 )
-# pylint: disable-next=too-many-positional-arguments
 @click.pass_context
+# pylint: disable-next=too-many-positional-arguments
 def referees_update_command(
     ctx: Context,
     season_id: str,

@@ -1,0 +1,37 @@
+"""Tests for Referee model."""
+
+from __future__ import annotations
+
+from datetime import datetime, timezone
+
+from gamesheet_sdk.referees import Referee
+
+
+def test_referee_model_ignores_unknown_attributes() -> None:
+    """Test that Referee model ignores unknown attributes."""
+    r = Referee(
+        id="101",
+        season_id="15020",
+        first_name="John",
+        last_name="Smith",
+        email="john.smith@example.com",
+        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        unexpected_future_attr="ignored",
+    )
+    assert r.first_name == "John"
+    assert r.last_name == "Smith"
+
+
+def test_referee_model_handles_optional_email() -> None:
+    """Test that Referee model handles optional email field."""
+    r = Referee(
+        id="102",
+        season_id="15020",
+        first_name="Jane",
+        last_name="Doe",
+        email=None,
+        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+    )
+    assert r.email is None

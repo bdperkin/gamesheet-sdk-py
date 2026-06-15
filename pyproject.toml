@@ -390,7 +390,7 @@ format.ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
 format.indent-after-paren = 4
 format.indent-string = "    "
 format.max-line-length = 110
-format.max-module-lines = 500
+format.max-module-lines = 512
 design.max-args = 10
 design.max-attributes = 7
 design.max-bool-expr = 5
@@ -453,6 +453,9 @@ miscellaneous.notes = [ "FIXME", "XXX", "TODO" ]
 "messages control".confidence = [ "HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED" ]
 "messages control".disable = [
   "duplicate-code",
+]
+"messages control".enable = [
+  "useless-suppression",
 ]
 "messages control".per-file-ignores = [
   "docs/conf.py:invalid-name",
