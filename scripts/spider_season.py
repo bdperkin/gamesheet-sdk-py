@@ -345,12 +345,26 @@ class SeasonSpider:
             # Discover mutations
             self._discover_mutations(self.page, url)
 
-            # Queue unvisited internal links
-            next_link = self._find_next_unvisited_link(self.page, url)
-            if next_link:
-                if next_link not in self.state.pending_queue:
-                    self.state.pending_queue.append(next_link)
-                    _LOGGER.debug("Queued for visit: %s", next_link)
+            # Queue ALL unvisited internal links
+            all_links = self._extract_links(self.page, url)
+            queued_count = 0
+            for link in all_links:
+                # Skip if already visited or already queued
+                if link in self.state.visited_urls or link in self.state.pending_queue:
+                    continue
+
+                if self._is_internal_url(link):
+                    self.state.pending_queue.append(link)
+                    queued_count += 1
+                    _LOGGER.debug("Queued for visit: %s", link)
+                else:
+                    # Log external link
+                    if link not in self.state.external_links:
+                        self.state.external_links.add(link)
+                        _LOGGER.info("External link (not traversing): %s", link)
+
+            if queued_count > 0:
+                _LOGGER.info("Queued %d new URLs for crawling", queued_count)
 
             return True
 
