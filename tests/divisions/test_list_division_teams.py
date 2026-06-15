@@ -39,10 +39,11 @@ def test_list_division_teams_parses_jsonapi_response(config: Config) -> None:
                     "id": "1001",
                     "attributes": {
                         "title": "Raleigh Raptors",
-                        "logo": "https://example.com/logo1.png",
-                        "invitation_code": "ABC123",
-                        "player_count": 15,
-                        "coach_count": 3,
+                        "logo_url": "https://example.com/logo1.png",
+                        "roster": {
+                            "players": [{"id": str(i)} for i in range(15)],
+                            "coaches": [{"id": str(i)} for i in range(3)],
+                        },
                         "created_at": "2024-09-01T10:00:00Z",
                         "updated_at": "2024-09-15T14:30:00Z",
                     },
@@ -66,10 +67,10 @@ def test_list_division_teams_parses_jsonapi_response(config: Config) -> None:
                     "id": "1002",
                     "attributes": {
                         "title": "Durham Bulls",
-                        "logo": None,
-                        "invitation_code": "XYZ789",
-                        "player_count": 12,
-                        "coach_count": 2,
+                        "roster": {
+                            "players": [{"id": str(i)} for i in range(12)],
+                            "coaches": [{"id": str(i)} for i in range(2)],
+                        },
                         "created_at": "2024-09-01T10:00:00Z",
                         "updated_at": "2024-09-01T10:00:00Z",
                     },
@@ -100,7 +101,7 @@ def test_list_division_teams_parses_jsonapi_response(config: Config) -> None:
     assert result[0].season_id == _SEASON_ID
     assert result[0].division_id == _DIVISION_ID
     assert result[0].logo == "https://example.com/logo1.png"
-    assert result[0].invitation_code == "ABC123"
+    assert result[0].invitation_code is None  # No invitations in this response
     assert result[0].player_count == 15
     assert result[0].coach_count == 3
     assert result[0].created_at == datetime(2024, 9, 1, 10, tzinfo=timezone.utc)

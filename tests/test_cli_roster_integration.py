@@ -8,7 +8,7 @@ from pathlib import Path
 import responses
 
 # Explicit import for coverage tracking of dynamically-loaded Click commands
-# pylint: disable-next=unused-import,import-error,no-name-in-module
+# pylint: disable-next=unused-import
 import gamesheet_sdk.cli.commands.roster  # noqa: F401,E401
 from gamesheet_sdk.cli import main
 

@@ -91,7 +91,7 @@ from gamesheet_sdk.referees import Referee, list_referees
 from gamesheet_sdk.roster import Coach, Player, list_coaches, list_players
 from gamesheet_sdk.seasons import Season, SeasonDetail, get_season, list_seasons
 from gamesheet_sdk.session import Session
-from gamesheet_sdk.teams import Team, list_teams
+from gamesheet_sdk.teams import Team, create_team, delete_team, list_teams, update_team
 
 try:
     __version__ = version("gamesheet-sdk-py")
@@ -138,7 +138,10 @@ __all__ = [
     "list_referees",
     "list_scheduled",
     "list_seasons",
+    "create_team",
+    "delete_team",
     "list_teams",
+    "update_team",
     "load_access_token",
     "load_refresh_token",
     "login",

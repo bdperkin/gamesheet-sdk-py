@@ -147,7 +147,7 @@ def divisions_list_command(
     help="Write to this file instead of stdout.",
 )
 @click.pass_context
-# pylint: disable-next=too-many-arguments,too-many-positional-arguments
+# pylint: disable-next=too-many-positional-arguments
 def divisions_create_command(
     ctx: Context,
     season_id: str,
@@ -223,7 +223,7 @@ def divisions_create_command(
     help="Write to this file instead of stdout.",
 )
 @click.pass_context
-# pylint: disable-next=too-many-arguments,too-many-positional-arguments
+# pylint: disable-next=too-many-positional-arguments
 def divisions_update_command(
     ctx: Context,
     season_id: str,
