@@ -2,6 +2,35 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.41 (2026-06-15)
+
+### Bug Fixes
+
+- **cli**: Remove redundant default=None in click options ([#100](https://github.com/bdperkin/gamesheet-sdk-py/pull/100),
+  [`4450638`](https://github.com/bdperkin/gamesheet-sdk-py/commit/4450638fb7c6efa7bed8e8b5b706c292c8a4e2b8))
+
+- **cli**: Remove redundant readable=True from Path options ([#100](https://github.com/bdperkin/gamesheet-sdk-py/pull/100),
+  [`4450638`](https://github.com/bdperkin/gamesheet-sdk-py/commit/4450638fb7c6efa7bed8e8b5b706c292c8a4e2b8))
+
+- **teams**: Correct API field names and compute roster counts ([#100](https://github.com/bdperkin/gamesheet-sdk-py/pull/100),
+  [`4450638`](https://github.com/bdperkin/gamesheet-sdk-py/commit/4450638fb7c6efa7bed8e8b5b706c292c8a4e2b8))
+
+### Features
+
+- **teams**: Add create, update, delete commands with comprehensive tests ([#100](https://github.com/bdperkin/gamesheet-sdk-py/pull/100),
+  [`4450638`](https://github.com/bdperkin/gamesheet-sdk-py/commit/4450638fb7c6efa7bed8e8b5b706c292c8a4e2b8))
+
+- **teams**: Extract invitation codes from JSON:API included data ([#100](https://github.com/bdperkin/gamesheet-sdk-py/pull/100),
+  [`4450638`](https://github.com/bdperkin/gamesheet-sdk-py/commit/4450638fb7c6efa7bed8e8b5b706c292c8a4e2b8))
+
+- **teams**: Request additional fields in teams list API call ([#100](https://github.com/bdperkin/gamesheet-sdk-py/pull/100),
+  [`4450638`](https://github.com/bdperkin/gamesheet-sdk-py/commit/4450638fb7c6efa7bed8e8b5b706c292c8a4e2b8))
+
+### Testing
+
+- **teams**: Add coverage for invitation code edge cases ([#100](https://github.com/bdperkin/gamesheet-sdk-py/pull/100),
+  [`4450638`](https://github.com/bdperkin/gamesheet-sdk-py/commit/4450638fb7c6efa7bed8e8b5b706c292c8a4e2b8))
+
 ## v0.1.40 (2026-06-13)
 
 ### Bug Fixes
