@@ -34,7 +34,7 @@ from collections import deque
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 from playwright.sync_api import Page, Request, Response, TimeoutError as PlaywrightTimeoutError
 
@@ -86,11 +86,13 @@ class SpiderState:
     season_id: str
     base_url: str
     visited_urls: set[str] = field(default_factory=set)
+    visited_patterns: set[str] = field(default_factory=set)  # Normalized URL patterns
     pending_queue: deque[str] = field(default_factory=deque)
     discovered_mutations: list[DiscoveredMutation] = field(default_factory=list)
     network_captures: list[NetworkCapture] = field(default_factory=list)
     external_links: set[str] = field(default_factory=set)
     error_urls: dict[str, str] = field(default_factory=dict)
+    request_counter: int = 0  # Counter for naming request artifacts
 
 
 class SeasonSpider:
@@ -126,6 +128,29 @@ class SeasonSpider:
         """
         return url.startswith(self.state.base_url)
 
+    def _normalize_url_pattern(self, url: str) -> str:
+        """Normalize URL by replacing numeric path segments with placeholders.
+
+        This treats /teams/123/roster and /teams/456/roster as the same pattern,
+        allowing us to discover structure rather than crawling all data.
+
+        :param url: URL to normalize
+        :returns: Normalized URL pattern with {id} placeholders
+        """
+        parsed = urlparse(url)
+        path_parts = parsed.path.split("/")
+
+        # Replace numeric-only segments with {id}
+        normalized_parts = []
+        for part in path_parts:
+            if part.isdigit():
+                normalized_parts.append("{id}")
+            else:
+                normalized_parts.append(part)
+
+        normalized_path = "/".join(normalized_parts)
+        return f"{parsed.scheme}://{parsed.netloc}{normalized_path}"
+
     def _normalize_url(self, url: str, current_url: str | None = None) -> str:
         """Normalize a URL to an absolute form.
 
@@ -144,11 +169,12 @@ class SeasonSpider:
         base = current_url if current_url else self.state.base_url
         return urljoin(base, url)
 
-    def _setup_network_capture(self, page: Page, source_url: str) -> None:
+    def _setup_network_capture(self, page: Page, source_url: str, artifacts_dir: Path | None) -> None:
         """Attach network request/response listeners to a page.
 
         :param page: Playwright page to attach listeners to
         :param source_url: The source page URL for attribution
+        :param artifacts_dir: Directory to save request/response artifacts (optional)
         """
 
         def on_request(request: Request) -> None:
@@ -167,16 +193,82 @@ class SeasonSpider:
             self.state.network_captures.append(capture)
             _LOGGER.debug("Captured %s %s (%s)", request.method, request.url, resource_type)
 
+            # Save request artifacts for Fetch/XHR only
+            if artifacts_dir and resource_type in {"fetch", "xhr"}:
+                self.state.request_counter += 1
+                request_num = self.state.request_counter
+                self._save_request_artifacts(request, request_num, artifacts_dir)
+
         def on_response(response: Response) -> None:
-            """Capture response status for our tracked requests."""
+            """Capture response status and save response artifacts."""
             # Update the most recent matching capture with status
             for capture in reversed(self.state.network_captures):
                 if capture.url == response.url and capture.status is None:
                     capture.status = response.status
                     break
 
+            # Save response artifacts for Fetch/XHR only
+            if artifacts_dir and response.request.resource_type in {"fetch", "xhr"}:
+                # Find the corresponding request number
+                request_num = None
+                for i, cap in enumerate(reversed(self.state.network_captures)):
+                    if cap.url == response.url and cap.method == response.request.method:
+                        request_num = len(self.state.network_captures) - i
+                        break
+
+                if request_num:
+                    self._save_response_artifacts(response, request_num, artifacts_dir)
+
         page.on("request", on_request)
         page.on("response", on_response)
+
+    def _save_request_artifacts(self, request: Request, request_num: int, artifacts_dir: Path) -> None:
+        """Save request headers and payload to files.
+
+        :param request: Playwright Request object
+        :param request_num: Sequential request number for naming
+        :param artifacts_dir: Directory to save artifacts
+        """
+        try:
+            prefix = artifacts_dir / f"{request_num:04d}"
+
+            # Save headers
+            headers_file = Path(str(prefix) + "_request_headers.json")
+            headers_file.write_text(json.dumps(dict(request.headers), indent=2))
+
+            # Save payload (if present)
+            if request.post_data:
+                payload_file = Path(str(prefix) + "_request_payload.txt")
+                payload_file.write_text(request.post_data)
+
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.warning("Failed to save request artifacts for %s: %s", request.url, exc)
+
+    def _save_response_artifacts(self, response: Response, request_num: int, artifacts_dir: Path) -> None:
+        """Save response headers and body to files.
+
+        :param response: Playwright Response object
+        :param request_num: Sequential request number for naming
+        :param artifacts_dir: Directory to save artifacts
+        """
+        try:
+            prefix = artifacts_dir / f"{request_num:04d}"
+
+            # Save response headers
+            headers_file = Path(str(prefix) + "_response_headers.json")
+            headers_file.write_text(json.dumps(dict(response.headers), indent=2))
+
+            # Save response body
+            try:
+                body = response.body()
+                response_file = Path(str(prefix) + "_response_body.txt")
+                response_file.write_bytes(body)
+            except Exception:  # noqa: BLE001, S110
+                # Some responses may not have a body or be already consumed
+                pass
+
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.warning("Failed to save response artifacts for %s: %s", response.url, exc)
 
     def _discover_mutations(self, page: Page, current_url: str) -> None:
         """Discover mutation operations without executing them.
@@ -318,21 +410,28 @@ class SeasonSpider:
         _LOGGER.debug("Human delay: %.2fs", delay)
         time.sleep(delay)
 
-    def _visit_url(self, url: str) -> bool:
+    def _visit_url(self, url: str, artifacts_dir: Path | None = None) -> bool:
         """Visit a URL and perform discovery.
 
         :param url: URL to visit
+        :param artifacts_dir: Optional directory to save network artifacts
         :returns: True if visit succeeded, False on error
         """
         if not self.page:
             _LOGGER.error("Page not initialized")
             return False
 
-        _LOGGER.info("Visiting: %s", url)
+        # Check if we've already visited this URL pattern
+        pattern = self._normalize_url_pattern(url)
+        if pattern in self.state.visited_patterns:
+            _LOGGER.info("Skipping %s (pattern already visited: %s)", url, pattern)
+            return True
+
+        _LOGGER.info("Visiting: %s (pattern: %s)", url, pattern)
 
         try:
             # Attach network capture before navigation
-            self._setup_network_capture(self.page, url)
+            self._setup_network_capture(self.page, url, artifacts_dir)
 
             # Navigate to URL and wait for network to be mostly idle
             # This is important for SPAs like GameSheet that render content via JavaScript
@@ -341,8 +440,9 @@ class SeasonSpider:
             except PlaywrightTimeoutError:
                 _LOGGER.debug("Network didn't reach idle in %dms, proceeding anyway", NAV_TIMEOUT_MS)
 
-            # Mark as visited
+            # Mark as visited (both URL and pattern)
             self.state.visited_urls.add(url)
+            self.state.visited_patterns.add(pattern)
 
             # Discover mutations
             self._discover_mutations(self.page, url)
@@ -380,8 +480,11 @@ class SeasonSpider:
             self.state.error_urls[url] = f"Error: {exc}"
             return False
 
-    def _crawl_loop(self) -> None:
-        """Main crawl loop that processes the queue until empty."""
+    def _crawl_loop(self, artifacts_dir: Path | None = None) -> None:
+        """Main crawl loop that processes the queue until empty.
+
+        :param artifacts_dir: Optional directory to save network artifacts
+        """
         if not self.page:
             _LOGGER.error("Page not initialized")
             return
@@ -396,6 +499,13 @@ class SeasonSpider:
             if url in self.state.visited_urls:
                 continue
 
+            # Skip if pattern already visited
+            pattern = self._normalize_url_pattern(url)
+            if pattern in self.state.visited_patterns:
+                _LOGGER.debug("Skipping %s (pattern already visited)", url)
+                self.state.visited_urls.add(url)  # Mark as visited to avoid re-checking
+                continue
+
             # Skip if not internal
             if not self._is_internal_url(url):
                 if url not in self.state.external_links:
@@ -404,7 +514,7 @@ class SeasonSpider:
                 continue
 
             # Visit the URL
-            self._visit_url(url)
+            self._visit_url(url, artifacts_dir)
 
             # Human-like delay before next request
             if self.state.pending_queue:
@@ -489,8 +599,15 @@ class SeasonSpider:
             _LOGGER.info("Creating browser page with saved session")
             self.page = self.session.new_page()
 
+            # Create artifacts directory if output path is specified
+            artifacts_dir = None
+            if output_path:
+                artifacts_dir = output_path.parent / f"{output_path.stem}_artifacts"
+                artifacts_dir.mkdir(parents=True, exist_ok=True)
+                _LOGGER.info("Saving network artifacts to: %s", artifacts_dir)
+
             # Execute crawl
-            self._crawl_loop()
+            self._crawl_loop(artifacts_dir)
 
             # Save results
             if output_path:
