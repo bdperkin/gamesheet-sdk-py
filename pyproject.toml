@@ -564,6 +564,8 @@ ignore_names = [
   "autodoc_*",
   "autosectionlabel_*",
   "autosummary_*",
+  # RefereeReport Pydantic model fields
+  "average_pim_per_game",
   "biography",
   "birthdate",
   "committed_to",
@@ -582,6 +584,7 @@ ignore_names = [
   "game_date",
   "game_number",
   "game_type",
+  "games_refereed",
   "get_cmd",
   "has_overtime",
   "has_shootout",
@@ -593,9 +596,12 @@ ignore_names = [
   "linkcheck_*",
   "list_cmd",
   "location",
+  "major_penalties",
+  "major_penalties_count",
   "man_*",
   "mock_stdout",
   "model_config",
+  "most_frequent_penalty",
   "myst_*",
   "napoleon_*",
   "OPTIONS_TABLE_COLUMN_TYPES",
@@ -942,6 +948,7 @@ recursive = true
 [tool.refurb]
 enable_all = true
 python_version = "3.11"
+ignore = [ 120 ]  # FURB120: false positives on datetime(tzinfo=timezone.utc) - utc is NOT the default
 
 ## ## radon - Code metrics and complexity calculator
 [tool.radon]
