@@ -93,7 +93,6 @@ def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None
     assert patch_req.method == "PATCH"
 
     # Verify the PATCH request payload includes all fields
-    import json
 
     assert patch_req.body is not None
     payload = json.loads(patch_req.body)
@@ -175,7 +174,6 @@ def test_update_referee_sends_correct_payload_partial_fields(
     assert len(responses.calls) == 2
 
     # Verify the PATCH payload includes all required fields (from current + updates)
-    import json
 
     patch_req = responses.calls[1].request
     assert patch_req.body is not None

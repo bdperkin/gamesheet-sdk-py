@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import json
-
 import pytest
 import responses
 
@@ -13,7 +11,6 @@ from gamesheet_sdk.referees import create_referee
 _BASE = "https://test.example"
 _SEASON_ID = "15020"
 _ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/referees"
-
 
 
 @responses.activate
@@ -70,7 +67,6 @@ def test_create_referee_sends_correct_payload_with_all_fields(config: Config) ->
     assert payload["data"]["attributes"]["external_id"] == "0EB978DD-66B8-4CA1-AAA8-D855EED39D6A"
 
 
-
 @responses.activate
 def test_create_referee_sends_correct_payload_required_fields_only(
     config: Config,
@@ -117,7 +113,6 @@ def test_create_referee_sends_correct_payload_required_fields_only(
     assert "external_id" not in payload["data"]["attributes"]
 
 
-
 @responses.activate
 def test_create_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None:
 
@@ -151,7 +146,6 @@ def test_create_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
     assert req.headers["Content-Type"] == "application/vnd.api+json"
 
 
-
 @responses.activate
 def test_create_referee_401_raises_authentication_error(config: Config) -> None:
 
@@ -167,7 +161,6 @@ def test_create_referee_401_raises_authentication_error(config: Config) -> None:
             create_referee(session, _SEASON_ID, "Test", "Ref")
 
 
-
 @responses.activate
 def test_create_referee_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
@@ -181,7 +174,6 @@ def test_create_referee_404_raises_gamesheet_error_with_helpful_message(
             match=r"Season '.*' not found.*valid season ID.*seasons list --league-id",
         ):
             create_referee(session, _SEASON_ID, "Test", "Ref")
-
 
 
 @responses.activate

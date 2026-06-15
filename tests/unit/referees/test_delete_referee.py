@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import json
-
 import pytest
 import responses
 
@@ -13,7 +11,6 @@ from gamesheet_sdk.referees import delete_referee
 _BASE = "https://test.example"
 _SEASON_ID = "15020"
 _ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/referees"
-
 
 
 @responses.activate
@@ -34,7 +31,6 @@ def test_delete_referee_success(config: Config) -> None:
     assert req.method == "DELETE"
 
 
-
 @responses.activate
 def test_delete_referee_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     _referee_id = "101"
@@ -53,7 +49,6 @@ def test_delete_referee_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     assert req.headers["Accept"] == "application/vnd.api+json"
 
 
-
 @responses.activate
 def test_delete_referee_401_raises_authentication_error(config: Config) -> None:
     _referee_id = "101"
@@ -70,7 +65,6 @@ def test_delete_referee_401_raises_authentication_error(config: Config) -> None:
             delete_referee(session, _SEASON_ID, _referee_id)
 
 
-
 @responses.activate
 def test_delete_referee_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
@@ -85,7 +79,6 @@ def test_delete_referee_404_raises_gamesheet_error_with_helpful_message(
             match=r"Referee '.*' not found.*valid referee ID and season ID",
         ):
             delete_referee(session, _SEASON_ID, _referee_id)
-
 
 
 @responses.activate
