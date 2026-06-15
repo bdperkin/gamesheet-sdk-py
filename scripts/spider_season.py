@@ -275,6 +275,8 @@ class SeasonSpider:
         links = []
         link_elements = page.query_selector_all("a[href]")
 
+        _LOGGER.debug("Found %d <a[href]> elements on page", len(link_elements))
+
         for element in link_elements:
             href = element.get_attribute("href")
             if not href or href.startswith(("javascript:", "mailto:", "tel:")):
@@ -282,7 +284,9 @@ class SeasonSpider:
 
             absolute_url = self._normalize_url(href, current_url)
             links.append(absolute_url)
+            _LOGGER.debug("Extracted link: %s", absolute_url)
 
+        _LOGGER.info("Extracted %d total links from page", len(links))
         return links
 
     def _find_next_unvisited_link(self, page: Page, current_url: str) -> str | None:
@@ -330,14 +334,12 @@ class SeasonSpider:
             # Attach network capture before navigation
             self._setup_network_capture(self.page, url)
 
-            # Navigate to URL
-            self.page.goto(url, wait_until="domcontentloaded", timeout=NAV_TIMEOUT_MS)
-
-            # Wait for network to settle
+            # Navigate to URL and wait for network to be mostly idle
+            # This is important for SPAs like GameSheet that render content via JavaScript
             try:
-                self.page.wait_for_load_state("networkidle", timeout=NETWORK_SETTLE_MS)
+                self.page.goto(url, wait_until="networkidle", timeout=NAV_TIMEOUT_MS)
             except PlaywrightTimeoutError:
-                _LOGGER.debug("Network didn't settle in %dms, proceeding anyway", NETWORK_SETTLE_MS)
+                _LOGGER.debug("Network didn't reach idle in %dms, proceeding anyway", NAV_TIMEOUT_MS)
 
             # Mark as visited
             self.state.visited_urls.add(url)
