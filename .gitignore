@@ -104,3 +104,7 @@ _autosummary/
 .local/
 secrets.toml
 # Test
+
+# Spider output files
+season-*-spider.json
+spider-results/
