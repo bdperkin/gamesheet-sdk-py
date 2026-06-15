@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.42 (2026-06-15)
+
+### Features
+
+- **referees**: Implement full CRUD operations with comprehensive test suite ([#101](https://github.com/bdperkin/gamesheet-sdk-py/pull/101),
+  [`cc95486`](https://github.com/bdperkin/gamesheet-sdk-py/commit/cc954861189520b7441caf4fe257069f916d9d2f))
+
 ## v0.1.41 (2026-06-15)
 
 ### Bug Fixes
