@@ -8,8 +8,6 @@ Playwright needed for read-only access once a bearer token has been obtained (ty
 ``accessToken`` from the saved browser storage state via :func:`gamesheet_sdk.auth.load_access_token`).
 """
 
-# pylint: disable=too-many-lines
-
 from __future__ import annotations
 
 import mimetypes
@@ -221,7 +219,7 @@ def _upload_logo(session: Session, logo_path: str) -> str:
     return f"https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA/{image_id}"
 
 
-# pylint: disable-next=too-many-arguments,too-many-locals,too-many-branches
+# pylint: disable-next=too-many-locals,too-many-branches
 def update_team(
     session: Session,
     season_id: str,
@@ -387,7 +385,6 @@ def update_team(
     return _parse(body["data"])
 
 
-# pylint: disable-next=too-many-arguments
 def create_team(
     session: Session,
     season_id: str,

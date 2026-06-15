@@ -87,7 +87,16 @@ from gamesheet_sdk.output import (
     TABULATE_FORMATS,
     render,
 )
-from gamesheet_sdk.referees import Referee, list_referees
+from gamesheet_sdk.referees import (
+    Referee,
+    RefereeReport,
+    create_referee,
+    delete_referee,
+    get_referee,
+    get_referee_report,
+    list_referees,
+    update_referee,
+)
 from gamesheet_sdk.roster import Coach, Player, list_coaches, list_players
 from gamesheet_sdk.seasons import Season, SeasonDetail, get_season, list_seasons
 from gamesheet_sdk.session import Session
@@ -116,6 +125,7 @@ __all__ = [
     "League",
     "Player",
     "Referee",
+    "RefereeReport",
     "Season",
     "SeasonDetail",
     "Session",
@@ -135,7 +145,12 @@ __all__ = [
     "list_ipad_keys",
     "list_leagues",
     "list_players",
+    "create_referee",
+    "delete_referee",
+    "get_referee",
+    "get_referee_report",
     "list_referees",
+    "update_referee",
     "list_scheduled",
     "list_seasons",
     "create_team",

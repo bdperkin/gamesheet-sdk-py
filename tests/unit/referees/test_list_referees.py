@@ -1,4 +1,4 @@
-"""Tests for :mod:`gamesheet_sdk.referees`."""
+"""Tests for list_referees function."""
 
 from __future__ import annotations
 
@@ -7,13 +7,8 @@ from datetime import datetime, timezone
 import pytest
 import responses
 
-from gamesheet_sdk import (
-    AuthenticationError,
-    Config,
-    GameSheetError,
-    Session,
-)
-from gamesheet_sdk.referees import Referee, list_referees
+from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
+from gamesheet_sdk.referees import list_referees
 
 _BASE = "https://test.example"
 _SEASON_ID = "15020"
@@ -27,7 +22,7 @@ def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
 
 @responses.activate
 def test_list_referees_parses_jsonapi_response(config: Config) -> None:
-
+    """Test that list_referees correctly parses JSON:API response."""
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -39,7 +34,7 @@ def test_list_referees_parses_jsonapi_response(config: Config) -> None:
                     "attributes": {
                         "first_name": "John",
                         "last_name": "Smith",
-                        "email": "john.smith@example.com",
+                        "email_address": "john.smith@example.com",
                         "created_at": "2024-09-01T10:00:00Z",
                         "updated_at": "2024-09-15T14:30:00Z",
                     },
@@ -58,7 +53,7 @@ def test_list_referees_parses_jsonapi_response(config: Config) -> None:
                     "attributes": {
                         "first_name": "Jane",
                         "last_name": "Doe",
-                        "email": None,
+                        "email_address": None,
                         "created_at": "2023-09-01T10:00:00Z",
                         "updated_at": "2023-09-01T10:00:00Z",
                     },
@@ -92,7 +87,7 @@ def test_list_referees_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_referees_sends_bearer_and_jsonapi_accept(config: Config) -> None:
-
+    """Test that list_referees sends correct authorization and accept headers."""
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -105,7 +100,7 @@ def test_list_referees_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
 @responses.activate
 def test_list_referees_empty_data_returns_empty_list(config: Config) -> None:
-
+    """Test that empty API response returns empty list."""
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -114,7 +109,7 @@ def test_list_referees_empty_data_returns_empty_list(config: Config) -> None:
 
 @responses.activate
 def test_list_referees_401_raises_authentication_error(config: Config) -> None:
-
+    """Test that HTTP 401 raises AuthenticationError."""
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -131,7 +126,7 @@ def test_list_referees_401_raises_authentication_error(config: Config) -> None:
 def test_list_referees_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
-
+    """Test that HTTP 404 raises GameSheetError with helpful message."""
     responses.add(responses.GET, _ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -143,9 +138,8 @@ def test_list_referees_404_raises_gamesheet_error_with_helpful_message(
 
 
 @responses.activate
-def test_list_referees_other_failure_raises_gamesheet_error(
-    config: Config,
-) -> None:
+def test_list_referees_other_failure_raises_gamesheet_error(config: Config) -> None:
+    """Test that other HTTP errors raise GameSheetError."""
     responses.add(responses.GET, _ENDPOINT, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -153,68 +147,12 @@ def test_list_referees_other_failure_raises_gamesheet_error(
             list_referees(session, _SEASON_ID)
 
 
-def test_referee_model_ignores_unknown_attributes() -> None:
-
-    r = Referee(
-        id="101",
-        season_id="15020",
-        first_name="John",
-        last_name="Smith",
-        email="john.smith@example.com",
-        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        unexpected_future_attr="ignored",
-    )
-    assert r.first_name == "John"
-    assert r.last_name == "Smith"
-
-
-def test_referee_model_handles_optional_email() -> None:
-
-    r = Referee(
-        id="102",
-        season_id="15020",
-        first_name="Jane",
-        last_name="Doe",
-        email=None,
-        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-    )
-    assert r.email is None
-
-
 @responses.activate
 def test_list_referees_uses_correct_endpoint(config: Config) -> None:
-    """Verify that referees endpoint includes season_id in the path."""
-    responses.add(
-        responses.GET,
-        _ENDPOINT,
-        json=_payload(
-            [
-                {
-                    "type": "referees",
-                    "id": "101",
-                    "attributes": {
-                        "first_name": "John",
-                        "last_name": "Smith",
-                        "email": "john.smith@example.com",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
-                    },
-                    "relationships": {
-                        "season": {"data": {"type": "seasons", "id": "15020"}},
-                    },
-                },
-            ],
-        ),
-        status=200,
-    )
+    """Test that list_referees uses the correct API endpoint."""
+    responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = list_referees(session, "15020")
-    # API filters by season_id in URL path, so all results are for that season
-    assert len(result) == 1
-    assert result[0].id == "101"
-    assert result[0].season_id == "15020"
-    assert result[0].first_name == "John"
-    assert result[0].last_name == "Smith"
+        list_referees(session, _SEASON_ID)
+    assert len(responses.calls) == 1
+    assert responses.calls[0].request.url == _ENDPOINT
