@@ -16,24 +16,27 @@ _SEASON_ID = "15020"
 def test_get_team_returns_single_team(config: Config) -> None:
     """Test that get_team returns a single team."""
     _team_id = "401"
-    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_team_id}"
+    _list_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams"
     responses.add(
         responses.GET,
-        _get_endpoint,
+        _list_endpoint,
         json={
-            "data": {
-                "type": "teams",
-                "id": _team_id,
-                "attributes": {
-                    "title": "Test Team",
-                    "roster": {"players": [], "coaches": []},
-                    "created_at": "2024-01-01T00:00:00Z",
-                    "updated_at": "2024-06-01T00:00:00Z",
+            "data": [
+                {
+                    "type": "teams",
+                    "id": _team_id,
+                    "attributes": {
+                        "title": "Test Team",
+                        "logo_url": "https://example.com/logo.png",
+                        "roster": {"players": [], "coaches": []},
+                        "created_at": "2024-01-01T00:00:00Z",
+                        "updated_at": "2024-06-01T00:00:00Z",
+                    },
+                    "relationships": {
+                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    },
                 },
-                "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
-                },
-            },
+            ],
         },
         status=200,
     )
@@ -49,24 +52,27 @@ def test_get_team_returns_single_team(config: Config) -> None:
 def test_get_team_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     """Test that get_team sends correct authorization and accept headers."""
     _team_id = "401"
-    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_team_id}"
+    _list_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams"
     responses.add(
         responses.GET,
-        _get_endpoint,
+        _list_endpoint,
         json={
-            "data": {
-                "type": "teams",
-                "id": _team_id,
-                "attributes": {
-                    "title": "Test",
-                    "roster": {},
-                    "created_at": "2024-01-01T00:00:00Z",
-                    "updated_at": "2024-01-01T00:00:00Z",
+            "data": [
+                {
+                    "type": "teams",
+                    "id": _team_id,
+                    "attributes": {
+                        "title": "Test",
+                        "logo_url": "",
+                        "roster": {},
+                        "created_at": "2024-01-01T00:00:00Z",
+                        "updated_at": "2024-01-01T00:00:00Z",
+                    },
+                    "relationships": {
+                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    },
                 },
-                "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
-                },
-            },
+            ],
         },
         status=200,
     )
@@ -83,10 +89,10 @@ def test_get_team_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 def test_get_team_401_raises_authentication_error(config: Config) -> None:
     """Test that HTTP 401 raises AuthenticationError."""
     _team_id = "401"
-    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_team_id}"
+    _list_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams"
     responses.add(
         responses.GET,
-        _get_endpoint,
+        _list_endpoint,
         json={"errors": [{"detail": "Token expired"}]},
         status=401,
     )
@@ -100,10 +106,32 @@ def test_get_team_401_raises_authentication_error(config: Config) -> None:
 def test_get_team_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
-    """Test that HTTP 404 raises GameSheetError with helpful message."""
+    """Test that team not found raises GameSheetError with helpful message."""
     _team_id = "nonexistent"
-    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_team_id}"
-    responses.add(responses.GET, _get_endpoint, status=404, body="Not found")
+    _list_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams"
+    responses.add(
+        responses.GET,
+        _list_endpoint,
+        json={
+            "data": [
+                {
+                    "type": "teams",
+                    "id": "other-team",
+                    "attributes": {
+                        "title": "Other Team",
+                        "logo_url": "",
+                        "roster": {},
+                        "created_at": "2024-01-01T00:00:00Z",
+                        "updated_at": "2024-01-01T00:00:00Z",
+                    },
+                    "relationships": {
+                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    },
+                },
+            ],
+        },
+        status=200,
+    )
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(
@@ -117,8 +145,8 @@ def test_get_team_404_raises_gamesheet_error_with_helpful_message(
 def test_get_team_other_failure_raises_gamesheet_error(config: Config) -> None:
     """Test that other HTTP errors raise GameSheetError."""
     _team_id = "401"
-    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_team_id}"
-    responses.add(responses.GET, _get_endpoint, status=500, body="boom")
+    _list_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams"
+    responses.add(responses.GET, _list_endpoint, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
@@ -131,26 +159,29 @@ def test_get_team_with_invitation_code(config: Config) -> None:
     _team_id = "401"
     _season_id = "15020"
     _invitation_code = "ABC123"
-    _get_endpoint = f"{_BASE}/api/seasons/{_season_id}/teams/{_team_id}"
-    
+    _list_endpoint = f"{_BASE}/api/seasons/{_season_id}/teams"
+
     responses.add(
         responses.GET,
-        _get_endpoint,
+        _list_endpoint,
         json={
-            "data": {
-                "type": "teams",
-                "id": _team_id,
-                "attributes": {
-                    "title": "Test Team",
-                    "roster": {"players": [], "coaches": []},
-                    "created_at": "2024-01-01T00:00:00Z",
-                    "updated_at": "2024-06-01T00:00:00Z",
+            "data": [
+                {
+                    "type": "teams",
+                    "id": _team_id,
+                    "attributes": {
+                        "title": "Test Team",
+                        "logo_url": "",
+                        "roster": {"players": [], "coaches": []},
+                        "created_at": "2024-01-01T00:00:00Z",
+                        "updated_at": "2024-06-01T00:00:00Z",
+                    },
+                    "relationships": {
+                        "season": {"data": {"type": "seasons", "id": _season_id}},
+                        "invitations": {"data": [{"type": "invitations", "id": "inv-1"}]},
+                    },
                 },
-                "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _season_id}},
-                    "invitations": {"data": {"type": "invitations", "id": "inv-1"}},
-                },
-            },
+            ],
             "included": [
                 {
                     "type": "invitations",
@@ -163,11 +194,11 @@ def test_get_team_with_invitation_code(config: Config) -> None:
         },
         status=200,
     )
-    
+
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_team(session, _season_id, _team_id)
-    
+
     assert result.id == _team_id
     assert result.season_id == _season_id
     assert result.title == "Test Team"
@@ -179,167 +210,38 @@ def test_get_team_without_invitation_code(config: Config) -> None:
     """Test that get_team handles missing invitation code gracefully."""
     _team_id = "402"
     _season_id = "15020"
-    _get_endpoint = f"{_BASE}/api/seasons/{_season_id}/teams/{_team_id}"
-    
+    _list_endpoint = f"{_BASE}/api/seasons/{_season_id}/teams"
+
     responses.add(
         responses.GET,
-        _get_endpoint,
+        _list_endpoint,
         json={
-            "data": {
-                "type": "teams",
-                "id": _team_id,
-                "attributes": {
-                    "title": "Test Team Without Code",
-                    "roster": {"players": [], "coaches": []},
-                    "created_at": "2024-01-01T00:00:00Z",
-                    "updated_at": "2024-06-01T00:00:00Z",
+            "data": [
+                {
+                    "type": "teams",
+                    "id": _team_id,
+                    "attributes": {
+                        "title": "Test Team Without Code",
+                        "logo_url": "",
+                        "roster": {"players": [], "coaches": []},
+                        "created_at": "2024-01-01T00:00:00Z",
+                        "updated_at": "2024-06-01T00:00:00Z",
+                    },
+                    "relationships": {
+                        "season": {"data": {"type": "seasons", "id": _season_id}},
+                    },
                 },
-                "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _season_id}},
-                },
-            },
+            ],
             "included": [],
         },
         status=200,
     )
-    
+
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_team(session, _season_id, _team_id)
-    
+
     assert result.id == _team_id
     assert result.season_id == _season_id
     assert result.title == "Test Team Without Code"
-    assert result.invitation_code is None
-
-
-@responses.activate
-def test_get_team_with_non_invitation_included(config: Config) -> None:
-    """Test that get_team skips non-invitation included resources."""
-    _team_id = "403"
-    _season_id = "15020"
-    _get_endpoint = f"{_BASE}/api/seasons/{_season_id}/teams/{_team_id}"
-    
-    responses.add(
-        responses.GET,
-        _get_endpoint,
-        json={
-            "data": {
-                "type": "teams",
-                "id": _team_id,
-                "attributes": {
-                    "title": "Test Team",
-                    "roster": {"players": [], "coaches": []},
-                    "created_at": "2024-01-01T00:00:00Z",
-                    "updated_at": "2024-06-01T00:00:00Z",
-                },
-                "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _season_id}},
-                },
-            },
-            "included": [
-                {
-                    "type": "other_resource",
-                    "id": "other-1",
-                    "attributes": {},
-                },
-            ],
-        },
-        status=200,
-    )
-    
-    with Session(config) as session:
-        session.set_bearer_token("abc")
-        result = get_team(session, _season_id, _team_id)
-    
-    assert result.id == _team_id
-    assert result.invitation_code is None
-
-
-@responses.activate
-def test_get_team_invitation_id_not_in_lookup(config: Config) -> None:
-    """Test graceful handling when invitation relationship points to non-existent invitation."""
-    _team_id = "404"
-    _season_id = "15020"
-    _get_endpoint = f"{_BASE}/api/seasons/{_season_id}/teams/{_team_id}"
-    
-    responses.add(
-        responses.GET,
-        _get_endpoint,
-        json={
-            "data": {
-                "type": "teams",
-                "id": _team_id,
-                "attributes": {
-                    "title": "Test Team",
-                    "roster": {"players": [], "coaches": []},
-                    "created_at": "2024-01-01T00:00:00Z",
-                    "updated_at": "2024-06-01T00:00:00Z",
-                },
-                "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _season_id}},
-                    "invitations": {"data": {"type": "invitations", "id": "inv-999"}},
-                },
-            },
-            "included": [
-                {
-                    "type": "invitations",
-                    "id": "inv-1",
-                    "attributes": {
-                        "code": "DIFFERENT",
-                    },
-                },
-            ],
-        },
-        status=200,
-    )
-    
-    with Session(config) as session:
-        session.set_bearer_token("abc")
-        result = get_team(session, _season_id, _team_id)
-    
-    assert result.id == _team_id
-    assert result.invitation_code is None
-
-
-@responses.activate
-def test_get_team_invitation_missing_code_attribute(config: Config) -> None:
-    """Test graceful handling when invitation is missing code attribute."""
-    _team_id = "405"
-    _season_id = "15020"
-    _get_endpoint = f"{_BASE}/api/seasons/{_season_id}/teams/{_team_id}"
-    
-    responses.add(
-        responses.GET,
-        _get_endpoint,
-        json={
-            "data": {
-                "type": "teams",
-                "id": _team_id,
-                "attributes": {
-                    "title": "Test Team",
-                    "roster": {"players": [], "coaches": []},
-                    "created_at": "2024-01-01T00:00:00Z",
-                    "updated_at": "2024-06-01T00:00:00Z",
-                },
-                "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _season_id}},
-                },
-            },
-            "included": [
-                {
-                    "type": "invitations",
-                    "id": "inv-1",
-                    "attributes": {},
-                },
-            ],
-        },
-        status=200,
-    )
-    
-    with Session(config) as session:
-        session.set_bearer_token("abc")
-        result = get_team(session, _season_id, _team_id)
-    
-    assert result.id == _team_id
     assert result.invitation_code is None

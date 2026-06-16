@@ -90,75 +90,6 @@ def _parse(item: dict[str, Any]) -> Team:
     )
 
 
-def get_team(session: Session, season_id: str, team_id: str) -> Team:
-    """Get a single team by ID.
-
-    The supplied :class:`Session` must already carry a bearer token (e.g. via
-    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The parent season identifier.
-    :type season_id: str
-    :param team_id: The team identifier to retrieve.
-    :type team_id: str
-    :returns: The :class:`Team` with the specified ID.
-    :rtype: Team
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-sdk-py login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response, including 404 if the team is not found.
-    """
-    endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
-    # Include invitations relationship to get invitation code
-    params = {
-        "include": "invitations",
-    }
-    response = session.get(
-        endpoint,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
-        params=params,
-    )
-
-    if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if response.status_code == 404:
-        _err_msg = (
-            f"Team '{team_id}' not found in season '{season_id}' (HTTP 404). "
-            f"Make sure you're using a valid team ID and season ID.",
-        )
-        raise GameSheetError(_err_msg)
-    if response.status_code >= 400:
-        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
-        raise GameSheetError(_err_msg)
-
-    body: dict[str, Any] = response.json()
-    team_data = body["data"]
-    team = _parse(team_data)
-
-    # Build invitation code lookup from included resources
-    invitation_codes: dict[str, str] = {}
-    for item in body.get("included", []):
-        if item.get("type") == "invitations":
-            invitation_id = item.get("id")
-            code = item.get("attributes", {}).get("code")
-            if invitation_id and code:
-                invitation_codes[invitation_id] = code
-
-    # Match invitation code via relationship
-    inv_rel = team_data.get("relationships", {}).get("invitations", {}).get("data")
-    if inv_rel:
-        # invitations relationship can be single object or array
-        inv_id = inv_rel[0]["id"] if isinstance(inv_rel, list) else inv_rel.get("id")
-        if inv_id and inv_id in invitation_codes:
-            team = team.model_copy(update={"invitation_code": invitation_codes[inv_id]})
-
-    return team
-
-
 def list_teams(session: Session, season_id: str) -> list[Team]:
     """Return every team in the specified season.
 
@@ -230,6 +161,47 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
                 team = team.model_copy(update={"invitation_code": invitation_codes[inv_id]})
         teams.append(team)
     return teams
+
+
+def get_team(session: Session, season_id: str, team_id: str) -> Team:  # noqa: DOC503
+    """Get a single team by ID.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param season_id: The parent season identifier.
+    :type season_id: str
+    :param team_id: The team identifier to retrieve.
+    :type team_id: str
+    :returns: The :class:`Team` with the specified ID.
+    :rtype: Team
+    :raises GameSheetError: If the team is not found or for any other non-2xx response from the API.
+    :raises AuthenticationError: If the server returns 401 (raised by the internal call to
+        :func:`list_teams`). Run ``gamesheet-sdk-py login`` to refresh the bearer token.
+
+    .. note::
+        The single-team GET endpoint doesn't support including related invitations,
+        so this function fetches all teams in the season (which does include invitations)
+        and filters to the requested team. This ensures invitation_code is populated.
+    """
+    # The single-team endpoint (/api/seasons/{season_id}/teams/{team_id}) doesn't
+    # honor the include=invitations parameter, so we use the list endpoint instead
+    # which does properly include invitation data
+    all_teams = list_teams(session, season_id)
+
+    # Find the requested team
+    for team in all_teams:
+        if team.id == team_id:
+            return team
+
+    # Team not found
+    _err_msg = (
+        f"Team '{team_id}' not found in season '{season_id}'. "
+        f"Make sure you're using a valid team ID and season ID.",
+    )
+    raise GameSheetError(_err_msg)
 
 
 def _upload_logo(session: Session, logo_path: str) -> str:
