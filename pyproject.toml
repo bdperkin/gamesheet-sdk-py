@@ -285,6 +285,7 @@ description = "Modern, all-in-one Python project manager and build tool that han
 [tool.autopep8]
 max_line_length = 110
 recursive = true
+ignore = "E203"
 aggressive = 1
 check = true
 description = "Automatically formats Python code to conform to the PEP 8 style guide by fixing layout issues."
@@ -340,6 +341,7 @@ inline-quotes = "double"
 max-line-length = 110
 per-file-ignores = [
   "docs/*:INP001",
+  "scripts/*:E203,EM102,SF01,T201,TRY003,TRY300",
   "tests/*:PT019,S101,S105,S106,SF01",
 ]
 recursive = true
@@ -459,6 +461,7 @@ miscellaneous.notes = [ "FIXME", "XXX", "TODO" ]
 ]
 "messages control".per-file-ignores = [
   "docs/conf.py:invalid-name",
+  "scripts/**:broad-exception-caught,protected-access,unspecified-encoding",
   "tests/**:import-outside-toplevel,missing-function-docstring,protected-access,redefined-outer-name",
 ]
 
@@ -494,6 +497,7 @@ ignore-magic = true
 ignore-semiprivate = true
 ignore-nested-functions = true
 exclude = [
+  "test_*.py",
   "tests",
 ]
 check = true
@@ -575,14 +579,17 @@ ignore_names = [
   "confirm_destructive",
   "copyright",
   "country",
+  "discovered_from_url",         # Spider dataclass field
   "division_title",
   "drafted_by",
+  "element_type",                # Spider dataclass field
   "end_time",
   "epub_*",
   "ERRORS_EPILOGUE",
   "ERRORS_SUGGESTION",
   "exclude_*",
   "extensions",
+  "form_action",                 # Spider dataclass field
   "format_commands",
   "game_date",
   "game_number",
