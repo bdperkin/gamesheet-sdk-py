@@ -520,7 +520,7 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
             storage_state = session._load_storage_state()
             if storage_state is not None:
                 session._context = session._browser.new_context(
-                    storage_state=storage_state,  # type: ignore[arg-type]
+                    storage_state=storage_state,  # type: ignore[arg-type,unused-ignore]
                 )
             else:
                 session._context = session._browser.new_context()
