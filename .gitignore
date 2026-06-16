@@ -46,6 +46,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+test_*.py
 
 # ---- Type checkers / linters ----
 .mypy_cache/
@@ -107,4 +108,5 @@ secrets.toml
 
 # Spider output files
 season-*-spider.json
+season-*-spider_artifacts/
 spider-results/

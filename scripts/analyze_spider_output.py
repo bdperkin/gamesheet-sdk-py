@@ -172,8 +172,7 @@ def analyze_urls(data: dict[str, Any]) -> None:
 
     # Common path prefixes
     path_prefixes = Counter(
-        url[len(base_url) :].split("/")[1] if "/" in url[len(base_url) :] else ""
-        for url in urls
+        url[len(base_url) :].split("/")[1] if "/" in url[len(base_url) :] else "" for url in urls
     )
 
     print("  Top URL Path Prefixes:")

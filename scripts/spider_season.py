@@ -36,7 +36,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin, urlparse
 
-from playwright.sync_api import Page, Request, Response, TimeoutError as PlaywrightTimeoutError
+from playwright.sync_api import Page, Request, Response
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from gamesheet_sdk.browser import BrowserSession
 from gamesheet_sdk.config import Config
@@ -48,12 +49,10 @@ MIN_DELAY = 2.5
 MAX_DELAY = 5.0
 
 # Network request type categories
-HTTP_METHODS_SAFE = {"GET", "HEAD", "OPTIONS"}
 HTTP_METHODS_MUTATION = {"POST", "PATCH", "PUT", "DELETE"}
 
-# Timeout for page navigation and network settle (ms)
+# Timeout for page navigation (ms)
 NAV_TIMEOUT_MS = 30_000
-NETWORK_SETTLE_MS = 3_000
 
 
 @dataclass
@@ -169,6 +168,54 @@ class SeasonSpider:
         base = current_url if current_url else self.state.base_url
         return urljoin(base, url)
 
+    def _save_request_artifacts(self, request: Request, request_num: int, artifacts_dir: Path) -> None:
+        """Save request headers and payload to files.
+
+        :param request: Playwright Request object
+        :param request_num: Sequential request number for naming
+        :param artifacts_dir: Directory to save artifacts
+        """
+        try:
+            prefix = artifacts_dir / f"{request_num:04d}"
+
+            # Save headers
+            headers_file = Path(str(prefix) + "_request_headers.json")
+            headers_file.write_text(json.dumps(dict(request.headers), indent=2))
+
+            # Save payload (if present)
+            if request.post_data:
+                payload_file = Path(str(prefix) + "_request_payload.txt")
+                payload_file.write_text(request.post_data)
+
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.warning("Failed to save request artifacts for %s: %s", request.url, exc)
+
+    def _save_response_artifacts(self, response: Response, request_num: int, artifacts_dir: Path) -> None:
+        """Save response headers and body to files.
+
+        :param response: Playwright Response object
+        :param request_num: Sequential request number for naming
+        :param artifacts_dir: Directory to save artifacts
+        """
+        try:
+            prefix = artifacts_dir / f"{request_num:04d}"
+
+            # Save response headers
+            headers_file = Path(str(prefix) + "_response_headers.json")
+            headers_file.write_text(json.dumps(dict(response.headers), indent=2))
+
+            # Save response body
+            try:
+                body = response.body()
+                response_file = Path(str(prefix) + "_response_body.txt")
+                response_file.write_bytes(body)
+            except Exception:  # noqa: BLE001, S110
+                # Some responses may not have a body or be already consumed
+                pass
+
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.warning("Failed to save response artifacts for %s: %s", response.url, exc)
+
     def _setup_network_capture(self, page: Page, source_url: str, artifacts_dir: Path | None) -> None:
         """Attach network request/response listeners to a page.
 
@@ -221,54 +268,6 @@ class SeasonSpider:
 
         page.on("request", on_request)
         page.on("response", on_response)
-
-    def _save_request_artifacts(self, request: Request, request_num: int, artifacts_dir: Path) -> None:
-        """Save request headers and payload to files.
-
-        :param request: Playwright Request object
-        :param request_num: Sequential request number for naming
-        :param artifacts_dir: Directory to save artifacts
-        """
-        try:
-            prefix = artifacts_dir / f"{request_num:04d}"
-
-            # Save headers
-            headers_file = Path(str(prefix) + "_request_headers.json")
-            headers_file.write_text(json.dumps(dict(request.headers), indent=2))
-
-            # Save payload (if present)
-            if request.post_data:
-                payload_file = Path(str(prefix) + "_request_payload.txt")
-                payload_file.write_text(request.post_data)
-
-        except Exception as exc:  # noqa: BLE001
-            _LOGGER.warning("Failed to save request artifacts for %s: %s", request.url, exc)
-
-    def _save_response_artifacts(self, response: Response, request_num: int, artifacts_dir: Path) -> None:
-        """Save response headers and body to files.
-
-        :param response: Playwright Response object
-        :param request_num: Sequential request number for naming
-        :param artifacts_dir: Directory to save artifacts
-        """
-        try:
-            prefix = artifacts_dir / f"{request_num:04d}"
-
-            # Save response headers
-            headers_file = Path(str(prefix) + "_response_headers.json")
-            headers_file.write_text(json.dumps(dict(response.headers), indent=2))
-
-            # Save response body
-            try:
-                body = response.body()
-                response_file = Path(str(prefix) + "_response_body.txt")
-                response_file.write_bytes(body)
-            except Exception:  # noqa: BLE001, S110
-                # Some responses may not have a body or be already consumed
-                pass
-
-        except Exception as exc:  # noqa: BLE001
-            _LOGGER.warning("Failed to save response artifacts for %s: %s", response.url, exc)
 
     def _discover_mutations(self, page: Page, current_url: str) -> None:
         """Discover mutation operations without executing them.
@@ -380,29 +379,6 @@ class SeasonSpider:
 
         _LOGGER.info("Extracted %d total links from page", len(links))
         return links
-
-    def _find_next_unvisited_link(self, page: Page, current_url: str) -> str | None:
-        """Find the first unvisited internal link on the current page.
-
-        :param page: Playwright page to search
-        :param current_url: Current page URL
-        :returns: Next unvisited internal link, or None
-        """
-        all_links = self._extract_links(page, current_url)
-
-        for link in all_links:
-            if link in self.state.visited_urls:
-                continue
-
-            if self._is_internal_url(link):
-                return link
-
-            # Log external link
-            if link not in self.state.external_links:
-                self.state.external_links.add(link)
-                _LOGGER.info("External link (not traversing): %s", link)
-
-        return None
 
     def _human_delay(self) -> None:
         """Sleep for a randomized human-like delay."""

@@ -39,6 +39,7 @@ export GAMESHEET_PASSWORD="your-password"
 ```
 
 This will:
+
 1. Authenticate using your credentials
 2. Spider all paths under `https://gamesheet.app/seasons/15020`
 3. Save results to `season-15020-spider.json` in the current directory
@@ -61,7 +62,7 @@ This will:
 
 #### All Options
 
-```
+```bash
 usage: spider_season.py [-h] [-o OUTPUT] [--browser BROWSER] [--base-url BASE_URL]
                         [--no-headless] [-v]
                         season_id
@@ -177,6 +178,7 @@ A companion utility for analyzing spider output files and extracting insights.
 ```
 
 Output includes:
+
 - Summary statistics
 - Mutation breakdown by method and type
 - Network captures by resource type and method
@@ -213,7 +215,7 @@ Output includes:
 
 ### Example Output
 
-```
+```bash
 ======================================================================
 Spider Output Analysis - Season 15020
 ======================================================================

@@ -76,6 +76,7 @@ export GAMESHEET_BROWSER=/usr/bin/chromium-browser
 The spider generates a JSON file with four main sections:
 
 ### 1. Visited URLs
+
 All GET-traversable paths discovered under the season URL.
 
 ```json
@@ -87,6 +88,7 @@ All GET-traversable paths discovered under the season URL.
 ```
 
 ### 2. Discovered Mutations
+
 POST/PATCH/DELETE operations found but **not executed**.
 
 ```json
@@ -102,6 +104,7 @@ POST/PATCH/DELETE operations found but **not executed**.
 ```
 
 ### 3. Network Captures
+
 All Fetch/XHR requests captured during traversal.
 
 ```json
@@ -117,6 +120,7 @@ All Fetch/XHR requests captured during traversal.
 ```
 
 ### 4. External Links
+
 Links outside the season scope (logged but not followed).
 
 ```json
@@ -128,20 +132,13 @@ Links outside the season scope (logged but not followed).
 ## Safety Features
 
 ### What the Spider DOES
-✅ Executes GET requests only
-✅ Discovers forms and mutation buttons
-✅ Captures network requests
-✅ Logs external links
-✅ Follows internal season links
-✅ Uses randomized human-like delays
+
+✅ Executes GET requests only ✅ Discovers forms and mutation buttons ✅ Captures network requests ✅ Logs external links ✅ Follows internal season links ✅ Uses
+randomized human-like delays
 
 ### What the Spider DOES NOT DO
-❌ Execute POST/PATCH/DELETE requests
-❌ Submit forms
-❌ Click mutation buttons
-❌ Follow external links
-❌ Modify any data
-❌ Delete any data
+
+❌ Execute POST/PATCH/DELETE requests ❌ Submit forms ❌ Click mutation buttons ❌ Follow external links ❌ Modify any data ❌ Delete any data
 
 ## Troubleshooting
 
