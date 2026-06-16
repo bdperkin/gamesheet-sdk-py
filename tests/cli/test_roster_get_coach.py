@@ -50,8 +50,7 @@ def test_coaches_get_with_fields(runner: CliRunner) -> None:
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
         result = runner.invoke(
-            cli, ["roster", "--season-id", "15020", "coaches", "get",
-                  "--coach-id", "601", "--fields", "id", "--format", "json"],
+            cli, ["roster", "--season-id", "15020", "coaches", "get", "--coach-id", "601", "--fields", "id", "--format", "json"],
         )
         assert result.exit_code == 0
         assert result.output
