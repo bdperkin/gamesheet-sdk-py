@@ -9,7 +9,6 @@ from gamesheet_sdk.cli import cli
 from gamesheet_sdk.seasons import Season
 
 if TYPE_CHECKING:
-
     from click.testing import CliRunner
 
 
@@ -65,7 +64,10 @@ def test_seasons_list_json_output(runner: CliRunner) -> None:
                 updated_at="2024-01-01T00:00:00Z",
             ),
         ]
-        result = runner.invoke(cli, ["seasons", "list", "--league-id", "1148580", "--format", "json"])
+        result = runner.invoke(
+            cli,
+            ["seasons", "list", "--league-id", "1148580", "--format", "json"],
+        )
         assert not result.exit_code
         assert '"id": "501"' in result.output
         assert '"title": "2024-2025"' in result.output
@@ -90,7 +92,10 @@ def test_seasons_list_yaml_output(runner: CliRunner) -> None:
                 updated_at="2024-01-01T00:00:00Z",
             ),
         ]
-        result = runner.invoke(cli, ["seasons", "list", "--league-id", "1148580", "--format", "yaml"])
+        result = runner.invoke(
+            cli,
+            ["seasons", "list", "--league-id", "1148580", "--format", "yaml"],
+        )
         assert not result.exit_code
         assert "id:" in result.output or "id :" in result.output
         assert "2024-2025" in result.output
@@ -115,7 +120,10 @@ def test_seasons_list_columns_filter(runner: CliRunner) -> None:
                 updated_at="2024-01-01T00:00:00Z",
             ),
         ]
-        result = runner.invoke(cli, ["seasons", "list", "--league-id", "1148580", "--columns", "id,title"])
+        result = runner.invoke(
+            cli,
+            ["seasons", "list", "--league-id", "1148580", "--columns", "id,title"],
+        )
         assert not result.exit_code
         assert "501" in result.output
         assert "2024-2025" in result.output
@@ -143,7 +151,16 @@ def test_seasons_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
         ]
         result = runner.invoke(
             cli,
-            ["seasons", "list", "--league-id", "1148580", "--format", "json", "--output", str(output_file)],
+            [
+                "seasons",
+                "list",
+                "--league-id",
+                "1148580",
+                "--format",
+                "json",
+                "--output",
+                str(output_file),
+            ],
         )
         assert not result.exit_code
         assert output_file.exists()
@@ -170,7 +187,10 @@ def test_seasons_list_csv_output(runner: CliRunner) -> None:
                 updated_at="2024-01-01T00:00:00Z",
             ),
         ]
-        result = runner.invoke(cli, ["seasons", "list", "--league-id", "1148580", "--format", "csv"])
+        result = runner.invoke(
+            cli,
+            ["seasons", "list", "--league-id", "1148580", "--format", "csv"],
+        )
         assert not result.exit_code
         lines = result.output.strip().split("\n")
         assert len(lines) >= 2
@@ -196,7 +216,10 @@ def test_seasons_list_tsv_output(runner: CliRunner) -> None:
                 updated_at="2024-01-01T00:00:00Z",
             ),
         ]
-        result = runner.invoke(cli, ["seasons", "list", "--league-id", "1148580", "--format", "tsv"])
+        result = runner.invoke(
+            cli,
+            ["seasons", "list", "--league-id", "1148580", "--format", "tsv"],
+        )
         assert not result.exit_code
         lines = result.output.strip().split("\n")
         assert len(lines) >= 2
@@ -226,6 +249,10 @@ def test_seasons_list_with_env_var(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_list.return_value = []
-        result = runner.invoke(cli, ["seasons", "list"], env={"GAMESHEET_LEAGUE_ID": "1148580"})
+        result = runner.invoke(
+            cli,
+            ["seasons", "list"],
+            env={"GAMESHEET_LEAGUE_ID": "1148580"},
+        )
         assert not result.exit_code
         mock_list.assert_called_once()

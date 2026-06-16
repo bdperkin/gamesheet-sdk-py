@@ -16,7 +16,9 @@ if TYPE_CHECKING:
 def test_referees_update_with_all_fields(runner: CliRunner) -> None:
     """The referees update command should accept all fields."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._update_referee_action") as mock_update,
+        patch(
+            "gamesheet_sdk.cli.commands.referees._update_referee_action",
+        ) as mock_update,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -65,7 +67,9 @@ def test_referees_update_with_all_fields(runner: CliRunner) -> None:
 def test_referees_update_partial_fields(runner: CliRunner) -> None:
     """The referees update command should work with partial fields."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._update_referee_action") as mock_update,
+        patch(
+            "gamesheet_sdk.cli.commands.referees._update_referee_action",
+        ) as mock_update,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -107,7 +111,9 @@ def test_referees_update_partial_fields(runner: CliRunner) -> None:
 def test_referees_update_alias_set(runner: CliRunner) -> None:
     """The 'set' alias should invoke the update command."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._update_referee_action") as mock_update,
+        patch(
+            "gamesheet_sdk.cli.commands.referees._update_referee_action",
+        ) as mock_update,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -142,7 +148,9 @@ def test_referees_update_alias_set(runner: CliRunner) -> None:
 def test_referees_update_alias_edit(runner: CliRunner) -> None:
     """The 'edit' alias should invoke the update command."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._update_referee_action") as mock_update,
+        patch(
+            "gamesheet_sdk.cli.commands.referees._update_referee_action",
+        ) as mock_update,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -211,7 +219,9 @@ def test_referees_update_no_fields_shows_error(runner: CliRunner) -> None:
 def test_referees_update_json_output(runner: CliRunner) -> None:
     """The referees update command should support JSON output."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._update_referee_action") as mock_update,
+        patch(
+            "gamesheet_sdk.cli.commands.referees._update_referee_action",
+        ) as mock_update,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",

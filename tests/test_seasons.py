@@ -1,7 +1,6 @@
 """Tests for :mod:`gamesheet_sdk.seasons`."""
 
 # pylint: disable=too-many-lines  # Comprehensive test coverage for BFF API filtering
-
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -33,7 +32,6 @@ def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
 
 @responses.activate
 def test_list_seasons_parses_jsonapi_response(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -90,7 +88,6 @@ def test_list_seasons_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_seasons_sends_bearer_and_jsonapi_accept(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -103,7 +100,6 @@ def test_list_seasons_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
 @responses.activate
 def test_list_seasons_empty_data_returns_empty_list(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -112,7 +108,6 @@ def test_list_seasons_empty_data_returns_empty_list(config: Config) -> None:
 
 @responses.activate
 def test_list_seasons_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -137,7 +132,6 @@ def test_list_seasons_other_failure_raises_gamesheet_error(
 
 
 def test_season_model_ignores_unknown_attributes() -> None:
-
     s = Season(
         id="501",
         league_id="1148580",
@@ -207,7 +201,6 @@ def _detail_payload(data: dict[str, object]) -> dict[str, object]:
 
 @responses.activate
 def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _SEASON_ENDPOINT,
@@ -260,13 +253,30 @@ def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:
     assert result.flagged_penalties == ["BDG-MAJ", "CHG-MAJ"]
     assert result.settings == {"penalty_lengths": ["2", "5", "10"], "goal_value": 1}
     assert result.vendor_data == {}
-    assert result.created_at == datetime(2026, 5, 15, 17, 41, 4, 363363, tzinfo=timezone.utc)
-    assert result.updated_at == datetime(2026, 5, 15, 22, 24, 22, 122544, tzinfo=timezone.utc)
+    assert result.created_at == datetime(
+        2026,
+        5,
+        15,
+        17,
+        41,
+        4,
+        363363,
+        tzinfo=timezone.utc,
+    )
+    assert result.updated_at == datetime(
+        2026,
+        5,
+        15,
+        22,
+        24,
+        22,
+        122544,
+        tzinfo=timezone.utc,
+    )
 
 
 @responses.activate
 def test_get_season_sends_bearer_and_jsonapi_accept(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _SEASON_ENDPOINT,
@@ -303,7 +313,6 @@ def test_get_season_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
 @responses.activate
 def test_get_season_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _SEASON_ENDPOINT,
@@ -318,7 +327,6 @@ def test_get_season_401_raises_authentication_error(config: Config) -> None:
 
 @responses.activate
 def test_get_season_404_raises_gamesheet_error(config: Config) -> None:
-
     responses.add(responses.GET, _SEASON_ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -331,7 +339,6 @@ def test_get_season_404_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_get_season_other_failure_raises_gamesheet_error(config: Config) -> None:
-
     responses.add(responses.GET, _SEASON_ENDPOINT, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -340,7 +347,6 @@ def test_get_season_other_failure_raises_gamesheet_error(config: Config) -> None
 
 
 def test_season_detail_model_ignores_unknown_attributes() -> None:
-
     sd = SeasonDetail(
         id="15020",
         association_id="38",
@@ -359,8 +365,6 @@ def test_season_detail_model_ignores_unknown_attributes() -> None:
 
 
 # Tests for BFF API filtering
-
-
 def _bff_payload(items: list[dict[str, object]]) -> dict[str, object]:
     """Build a BFF API response body."""
     return {
@@ -554,7 +558,9 @@ def test_list_seasons_bff_api_404_raises_gamesheet_error(config: Config) -> None
 
 
 @responses.activate
-def test_list_seasons_bff_api_other_error_raises_gamesheet_error(config: Config) -> None:
+def test_list_seasons_bff_api_other_error_raises_gamesheet_error(
+    config: Config,
+) -> None:
     """BFF API 500 should raise GameSheetError."""
     responses.add(
         responses.GET,

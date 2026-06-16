@@ -9,7 +9,6 @@ from gamesheet_sdk.cli import cli
 from gamesheet_sdk.leagues import League
 
 if TYPE_CHECKING:
-
     from click.testing import CliRunner
 
 
@@ -65,7 +64,10 @@ def test_leagues_list_json_output(runner: CliRunner) -> None:
                 updated_at="2024-01-01T00:00:00Z",
             ),
         ]
-        result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--format", "json"])
+        result = runner.invoke(
+            cli,
+            ["leagues", "list", "--association-id", "38", "--format", "json"],
+        )
         assert not result.exit_code
         assert '"id": "100"' in result.output
         assert '"title": "Test League"' in result.output
@@ -90,7 +92,10 @@ def test_leagues_list_yaml_output(runner: CliRunner) -> None:
                 updated_at="2024-01-01T00:00:00Z",
             ),
         ]
-        result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--format", "yaml"])
+        result = runner.invoke(
+            cli,
+            ["leagues", "list", "--association-id", "38", "--format", "yaml"],
+        )
         assert not result.exit_code
         assert "id:" in result.output or "id :" in result.output
         assert "Test League" in result.output
@@ -115,7 +120,10 @@ def test_leagues_list_columns_filter(runner: CliRunner) -> None:
                 updated_at="2024-01-01T00:00:00Z",
             ),
         ]
-        result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--columns", "id,title"])
+        result = runner.invoke(
+            cli,
+            ["leagues", "list", "--association-id", "38", "--columns", "id,title"],
+        )
         assert not result.exit_code
         assert "100" in result.output
         assert "Test League" in result.output
@@ -143,7 +151,16 @@ def test_leagues_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
         ]
         result = runner.invoke(
             cli,
-            ["leagues", "list", "--association-id", "38", "--format", "json", "--output", str(output_file)],
+            [
+                "leagues",
+                "list",
+                "--association-id",
+                "38",
+                "--format",
+                "json",
+                "--output",
+                str(output_file),
+            ],
         )
         assert not result.exit_code
         assert output_file.exists()
@@ -170,7 +187,10 @@ def test_leagues_list_csv_output(runner: CliRunner) -> None:
                 updated_at="2024-01-01T00:00:00Z",
             ),
         ]
-        result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--format", "csv"])
+        result = runner.invoke(
+            cli,
+            ["leagues", "list", "--association-id", "38", "--format", "csv"],
+        )
         assert not result.exit_code
         lines = result.output.strip().split("\n")
         assert len(lines) >= 2
@@ -204,7 +224,10 @@ def test_leagues_list_grid_format(runner: CliRunner) -> None:
                 updated_at="2024-01-01T00:00:00Z",
             ),
         ]
-        result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--format", "grid"])
+        result = runner.invoke(
+            cli,
+            ["leagues", "list", "--association-id", "38", "--format", "grid"],
+        )
         assert not result.exit_code
         # Grid format should have borders
         assert "+" in result.output or "|" in result.output
@@ -229,7 +252,10 @@ def test_leagues_list_simple_format(runner: CliRunner) -> None:
                 updated_at="2024-01-01T00:00:00Z",
             ),
         ]
-        result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--format", "simple"])
+        result = runner.invoke(
+            cli,
+            ["leagues", "list", "--association-id", "38", "--format", "simple"],
+        )
         assert not result.exit_code
         assert "100" in result.output
 
@@ -256,6 +282,10 @@ def test_leagues_list_with_env_var(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_list.return_value = []
-        result = runner.invoke(cli, ["leagues", "list"], env={"GAMESHEET_ASSOCIATION_ID": "38"})
+        result = runner.invoke(
+            cli,
+            ["leagues", "list"],
+            env={"GAMESHEET_ASSOCIATION_ID": "38"},
+        )
         assert not result.exit_code
         mock_list.assert_called_once()

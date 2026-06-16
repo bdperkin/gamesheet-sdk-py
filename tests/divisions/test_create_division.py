@@ -20,7 +20,6 @@ _CREATE_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/divisions"
 
 @responses.activate
 def test_create_division_sends_correct_payload(config: Config) -> None:
-
     responses.add(
         responses.POST,
         _CREATE_ENDPOINT,
@@ -44,12 +43,16 @@ def test_create_division_sends_correct_payload(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = create_division(session, _SEASON_ID, "Test Division", external_id="test-external-id")
+        result = create_division(
+            session,
+            _SEASON_ID,
+            "Test Division",
+            external_id="test-external-id",
+        )
     assert result.id == "80997"
     assert result.title == "Test Division"
     assert result.season_id == _SEASON_ID
     assert result.external_id == "test-external-id"
-
     # Verify the request payload
     assert len(responses.calls) == 1
     req = responses.calls[0].request
@@ -67,8 +70,9 @@ def test_create_division_sends_correct_payload(config: Config) -> None:
 
 
 @responses.activate
-def test_create_division_generates_uuid_if_external_id_not_provided(config: Config) -> None:
-
+def test_create_division_generates_uuid_if_external_id_not_provided(
+    config: Config,
+) -> None:
     responses.add(
         responses.POST,
         _CREATE_ENDPOINT,
@@ -95,7 +99,6 @@ def test_create_division_generates_uuid_if_external_id_not_provided(config: Conf
         result = create_division(session, _SEASON_ID, "Test Division 2")
     assert result.id == "80998"
     assert result.title == "Test Division 2"
-
     # Verify a UUID was generated
     import json
 
@@ -115,7 +118,6 @@ def test_create_division_generates_uuid_if_external_id_not_provided(config: Conf
 
 @responses.activate
 def test_create_division_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(
         responses.POST,
         _CREATE_ENDPOINT,
@@ -132,7 +134,6 @@ def test_create_division_401_raises_authentication_error(config: Config) -> None
 def test_create_division_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
-
     responses.add(responses.POST, _CREATE_ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")

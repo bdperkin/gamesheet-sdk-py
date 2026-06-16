@@ -19,7 +19,6 @@ def test_get_referee_report_returns_complete_report(config: Config) -> None:
     _external_id = "13340CA3-6B7D-4EC1-A183-EE281D2990A6"
     _get_referee_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     _report_endpoint = f"{_BASE}/api/reports/referees/{_external_id}"
-
     # Mock the GET referee request
     responses.add(
         responses.GET,
@@ -43,7 +42,6 @@ def test_get_referee_report_returns_complete_report(config: Config) -> None:
         },
         status=200,
     )
-
     # Mock the GET report request
     responses.add(
         responses.GET,
@@ -64,11 +62,9 @@ def test_get_referee_report_returns_complete_report(config: Config) -> None:
         },
         status=200,
     )
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         report = get_referee_report(session, _SEASON_ID, _referee_id)
-
     assert report.external_id == _external_id
     assert report.first_name == "WES"
     assert report.last_name == "MCCAULEY"
@@ -87,7 +83,6 @@ def test_get_referee_report_with_minimal_data(config: Config) -> None:
     _external_id = "ABC12345-6789-0DEF-ABCD-EF1234567890"
     _get_referee_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     _report_endpoint = f"{_BASE}/api/reports/referees/{_external_id}"
-
     # Mock the GET referee request
     responses.add(
         responses.GET,
@@ -110,7 +105,6 @@ def test_get_referee_report_with_minimal_data(config: Config) -> None:
         },
         status=200,
     )
-
     # Mock the GET report request with minimal data
     responses.add(
         responses.GET,
@@ -118,11 +112,9 @@ def test_get_referee_report_with_minimal_data(config: Config) -> None:
         json={},  # Empty report
         status=200,
     )
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         report = get_referee_report(session, _SEASON_ID, _referee_id)
-
     assert report.external_id == _external_id
     assert report.first_name == "Jane"
     assert report.last_name == "Doe"
@@ -139,7 +131,6 @@ def test_get_referee_report_raises_error_if_no_external_id(config: Config) -> No
     """Test that get_referee_report raises error when referee has no external_id."""
     _referee_id = "1146200"
     _get_referee_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
-
     # Mock the GET referee request without external_id
     responses.add(
         responses.GET,
@@ -162,7 +153,6 @@ def test_get_referee_report_raises_error_if_no_external_id(config: Config) -> No
         },
         status=200,
     )
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(
@@ -179,7 +169,6 @@ def test_get_referee_report_401_raises_authentication_error(config: Config) -> N
     _external_id = "EXT-401-TEST"
     _get_referee_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     _report_endpoint = f"{_BASE}/api/reports/referees/{_external_id}"
-
     # Mock the GET referee request
     responses.add(
         responses.GET,
@@ -202,7 +191,6 @@ def test_get_referee_report_401_raises_authentication_error(config: Config) -> N
         },
         status=200,
     )
-
     # Mock the GET report request with 401
     responses.add(
         responses.GET,
@@ -210,7 +198,6 @@ def test_get_referee_report_401_raises_authentication_error(config: Config) -> N
         json={"errors": [{"detail": "Token expired"}]},
         status=401,
     )
-
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
@@ -226,7 +213,6 @@ def test_get_referee_report_404_raises_gamesheet_error_with_helpful_message(
     _external_id = "EXT-404-TEST"
     _get_referee_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     _report_endpoint = f"{_BASE}/api/reports/referees/{_external_id}"
-
     # Mock the GET referee request
     responses.add(
         responses.GET,
@@ -249,10 +235,8 @@ def test_get_referee_report_404_raises_gamesheet_error_with_helpful_message(
         },
         status=200,
     )
-
     # Mock the GET report request with 404
     responses.add(responses.GET, _report_endpoint, status=404, body="Not found")
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(
@@ -271,7 +255,6 @@ def test_get_referee_report_other_failure_raises_gamesheet_error(
     _external_id = "EXT-500-TEST"
     _get_referee_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     _report_endpoint = f"{_BASE}/api/reports/referees/{_external_id}"
-
     # Mock the GET referee request
     responses.add(
         responses.GET,
@@ -294,10 +277,8 @@ def test_get_referee_report_other_failure_raises_gamesheet_error(
         },
         status=200,
     )
-
     # Mock the GET report request with 500
     responses.add(responses.GET, _report_endpoint, status=500, body="boom")
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):

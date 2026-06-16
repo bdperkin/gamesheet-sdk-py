@@ -10,7 +10,11 @@ The public API exports only what's needed by tests and the entry point.
 
 from __future__ import annotations
 
-from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive, parse_columns_spec
+from gamesheet_sdk.cli.core import (
+    ResourceGroup,
+    confirm_destructive,
+    parse_columns_spec,
+)
 from gamesheet_sdk.cli.main import cli, main
 
 __all__ = [

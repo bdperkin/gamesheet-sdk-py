@@ -130,7 +130,6 @@ def test_get_division_with_team_count(config: Config) -> None:
     _season_id = "15020"
     _get_endpoint = f"{_BASE}/api/divisions/{_division_id}"
     _teams_endpoint = f"{_BASE}/api/divisions/{_division_id}/teams"
-
     responses.add(
         responses.GET,
         _get_endpoint,
@@ -150,7 +149,6 @@ def test_get_division_with_team_count(config: Config) -> None:
         },
         status=200,
     )
-
     responses.add(
         responses.GET,
         _teams_endpoint,
@@ -186,11 +184,9 @@ def test_get_division_with_team_count(config: Config) -> None:
         },
         status=200,
     )
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_division(session, _division_id, include_team_count=True)
-
     assert result.id == _division_id
     assert result.season_id == _season_id
     assert result.title == "Test Division"

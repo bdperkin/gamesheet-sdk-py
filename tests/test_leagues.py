@@ -28,7 +28,6 @@ def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
 
 @responses.activate
 def test_list_leagues_parses_jsonapi_response(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -69,7 +68,6 @@ def test_list_leagues_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_leagues_sends_bearer_and_jsonapi_accept(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -82,7 +80,6 @@ def test_list_leagues_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
 @responses.activate
 def test_list_leagues_empty_data_returns_empty_list(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -91,7 +88,6 @@ def test_list_leagues_empty_data_returns_empty_list(config: Config) -> None:
 
 @responses.activate
 def test_list_leagues_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -130,7 +126,6 @@ def test_list_leagues_other_failure_raises_gamesheet_error(
 
 
 def test_league_model_ignores_unknown_attributes() -> None:
-
     lg = League(
         id="101",
         association_id="38",

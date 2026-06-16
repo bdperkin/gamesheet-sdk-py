@@ -29,7 +29,6 @@ def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
 
 @responses.activate
 def test_list_players_parses_jsonapi_response(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _PLAYERS_ENDPOINT,
@@ -79,12 +78,20 @@ def test_list_players_parses_jsonapi_response(config: Config) -> None:
     assert result[0].first_name == "AUSTIN"
     assert result[0].last_name == "ADAMSKY"
     assert result[0].season_id == _SEASON_ID
-    assert result[0].created_at == datetime(2026, 5, 18, 23, 15, 8, 387021, tzinfo=timezone.utc)
+    assert result[0].created_at == datetime(
+        2026,
+        5,
+        18,
+        23,
+        15,
+        8,
+        387021,
+        tzinfo=timezone.utc,
+    )
 
 
 @responses.activate
 def test_list_coaches_parses_jsonapi_response(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _COACHES_ENDPOINT,
@@ -127,73 +134,60 @@ def test_list_coaches_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_players_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(responses.GET, _PLAYERS_ENDPOINT, json={}, status=401)
     with Session(config) as session:
         session.set_bearer_token("expired")
         with pytest.raises(AuthenticationError, match=r"401"):
-
             list_players(session, _SEASON_ID)
 
 
 @responses.activate
 def test_list_players_404_raises_gamesheet_error(config: Config) -> None:
-
     responses.add(responses.GET, _PLAYERS_ENDPOINT, json={}, status=404)
     with Session(config) as session:
         session.set_bearer_token("valid")
         with pytest.raises(GameSheetError, match=r"404"):
-
             list_players(session, _SEASON_ID)
 
 
 @responses.activate
 def test_list_players_500_raises_gamesheet_error(config: Config) -> None:
-
     responses.add(responses.GET, _PLAYERS_ENDPOINT, json={}, status=500)
     with Session(config) as session:
         session.set_bearer_token("valid")
         with pytest.raises(GameSheetError, match=r"500"):
-
             list_players(session, _SEASON_ID)
 
 
 @responses.activate
 def test_list_coaches_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(responses.GET, _COACHES_ENDPOINT, json={}, status=401)
     with Session(config) as session:
         session.set_bearer_token("expired")
         with pytest.raises(AuthenticationError, match=r"401"):
-
             list_coaches(session, _SEASON_ID)
 
 
 @responses.activate
 def test_list_coaches_404_raises_gamesheet_error(config: Config) -> None:
-
     responses.add(responses.GET, _COACHES_ENDPOINT, json={}, status=404)
     with Session(config) as session:
         session.set_bearer_token("valid")
         with pytest.raises(GameSheetError, match=r"404"):
-
             list_coaches(session, _SEASON_ID)
 
 
 @responses.activate
 def test_list_coaches_500_raises_gamesheet_error(config: Config) -> None:
-
     responses.add(responses.GET, _COACHES_ENDPOINT, json={}, status=500)
     with Session(config) as session:
         session.set_bearer_token("valid")
         with pytest.raises(GameSheetError, match=r"500"):
-
             list_coaches(session, _SEASON_ID)
 
 
 @responses.activate
 def test_list_players_handles_empty_data(config: Config) -> None:
-
     responses.add(responses.GET, _PLAYERS_ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("valid")
@@ -203,7 +197,6 @@ def test_list_players_handles_empty_data(config: Config) -> None:
 
 @responses.activate
 def test_list_coaches_handles_empty_data(config: Config) -> None:
-
     responses.add(responses.GET, _COACHES_ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("valid")

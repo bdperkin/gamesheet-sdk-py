@@ -8,7 +8,6 @@ from gamesheet_sdk.cli import cli
 from gamesheet_sdk.cli.commands import completion_command
 
 if TYPE_CHECKING:
-
     from click.testing import CliRunner
 
 
@@ -44,8 +43,6 @@ def test_completion_fish(runner: CliRunner) -> None:
 
 
 # Error path tests
-
-
 def test_completion_command_without_parent_context(runner: CliRunner) -> None:
     """The completion command invoked without parent context should exit cleanly."""
     # Invoke the completion command directly (not through cli group)

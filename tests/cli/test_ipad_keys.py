@@ -8,7 +8,6 @@ from unittest.mock import patch
 from gamesheet_sdk.cli import cli
 
 if TYPE_CHECKING:
-
     from click.testing import CliRunner
 
 
@@ -17,7 +16,9 @@ def test_ipad_keys_get_alias_show_works(runner: CliRunner) -> None:
     with (
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
-        patch("gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action") as mock_action,
+        patch(
+            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+        ) as mock_action,
     ):
         from gamesheet_sdk.ipad_keys import IPadKey
 
@@ -42,7 +43,9 @@ def test_ipad_keys_get_alias_view_works(runner: CliRunner) -> None:
     with (
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
-        patch("gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action") as mock_action,
+        patch(
+            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+        ) as mock_action,
     ):
         from gamesheet_sdk.ipad_keys import IPadKey
 
@@ -75,7 +78,9 @@ def test_ipad_keys_get_json_output(runner: CliRunner) -> None:
     with (
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
-        patch("gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action") as mock_action,
+        patch(
+            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+        ) as mock_action,
     ):
         from gamesheet_sdk.ipad_keys import IPadKey
 
@@ -90,7 +95,10 @@ def test_ipad_keys_get_json_output(runner: CliRunner) -> None:
                 updated_at="2026-05-15T17:42:34Z",
             ),
         ]
-        result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020", "-F", "json"])
+        result = runner.invoke(
+            cli,
+            ["ipad-keys", "get", "--season-id", "15020", "-F", "json"],
+        )
         assert not result.exit_code
         import json
 
@@ -105,61 +113,9 @@ def test_ipad_keys_get_yaml_output(runner: CliRunner) -> None:
     with (
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
-        patch("gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action") as mock_action,
-    ):
-        from gamesheet_sdk.ipad_keys import IPadKey
-
-        mock_action.return_value = [
-            IPadKey(
-                id="3567",
-                value="ipad-test-kw",
-                description="Test Key",
-                roles=[],
-                live_scoring_scopes=["read"],
-                created_at="2026-05-15T17:42:34Z",
-                updated_at="2026-05-15T17:42:34Z",
-            ),
-        ]
-        result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020", "-F", "yaml"])
-        assert not result.exit_code
-        assert "id: '3567'" in result.output or 'id: "3567"' in result.output
-        assert "ipad-test-kw" in result.output
-
-
-def test_ipad_keys_get_columns_filter(runner: CliRunner) -> None:
-    """Ipad-keys get should support column filtering."""
-    with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
-        patch("gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action") as mock_action,
-    ):
-        from gamesheet_sdk.ipad_keys import IPadKey
-
-        mock_action.return_value = [
-            IPadKey(
-                id="3567",
-                value="ipad-test-kw",
-                description="Test Key",
-                roles=[],
-                live_scoring_scopes=["read", "write"],
-                created_at="2026-05-15T17:42:34Z",
-                updated_at="2026-05-15T17:42:34Z",
-            ),
-        ]
-        result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020", "-c", "id,value"])
-        assert not result.exit_code
-        # Check that id and value are in the output
-        assert "id" in result.output.lower() or "3567" in result.output
-        assert "value" in result.output.lower() or "ipad-test-kw" in result.output
-
-
-def test_ipad_keys_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
-    """Ipad-keys get should write to file when -o is specified."""
-    output_file = tmp_path / "output.json"
-    with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
-        patch("gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action") as mock_action,
+        patch(
+            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+        ) as mock_action,
     ):
         from gamesheet_sdk.ipad_keys import IPadKey
 
@@ -176,7 +132,80 @@ def test_ipad_keys_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
         ]
         result = runner.invoke(
             cli,
-            ["ipad-keys", "get", "--season-id", "15020", "-F", "json", "-o", str(output_file)],
+            ["ipad-keys", "get", "--season-id", "15020", "-F", "yaml"],
+        )
+        assert not result.exit_code
+        assert "id: '3567'" in result.output or 'id: "3567"' in result.output
+        assert "ipad-test-kw" in result.output
+
+
+def test_ipad_keys_get_columns_filter(runner: CliRunner) -> None:
+    """Ipad-keys get should support column filtering."""
+    with (
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch(
+            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+        ) as mock_action,
+    ):
+        from gamesheet_sdk.ipad_keys import IPadKey
+
+        mock_action.return_value = [
+            IPadKey(
+                id="3567",
+                value="ipad-test-kw",
+                description="Test Key",
+                roles=[],
+                live_scoring_scopes=["read", "write"],
+                created_at="2026-05-15T17:42:34Z",
+                updated_at="2026-05-15T17:42:34Z",
+            ),
+        ]
+        result = runner.invoke(
+            cli,
+            ["ipad-keys", "get", "--season-id", "15020", "-c", "id,value"],
+        )
+        assert not result.exit_code
+        # Check that id and value are in the output
+        assert "id" in result.output.lower() or "3567" in result.output
+        assert "value" in result.output.lower() or "ipad-test-kw" in result.output
+
+
+def test_ipad_keys_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
+    """Ipad-keys get should write to file when -o is specified."""
+    output_file = tmp_path / "output.json"
+    with (
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch(
+            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+        ) as mock_action,
+    ):
+        from gamesheet_sdk.ipad_keys import IPadKey
+
+        mock_action.return_value = [
+            IPadKey(
+                id="3567",
+                value="ipad-test-kw",
+                description="Test Key",
+                roles=[],
+                live_scoring_scopes=["read"],
+                created_at="2026-05-15T17:42:34Z",
+                updated_at="2026-05-15T17:42:34Z",
+            ),
+        ]
+        result = runner.invoke(
+            cli,
+            [
+                "ipad-keys",
+                "get",
+                "--season-id",
+                "15020",
+                "-F",
+                "json",
+                "-o",
+                str(output_file),
+            ],
         )
         assert not result.exit_code
         assert output_file.exists()
@@ -192,7 +221,9 @@ def test_ipad_keys_get_table_format(runner: CliRunner) -> None:
     with (
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
-        patch("gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action") as mock_action,
+        patch(
+            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+        ) as mock_action,
     ):
         from gamesheet_sdk.ipad_keys import IPadKey
 
@@ -218,7 +249,9 @@ def test_ipad_keys_get_grid_format(runner: CliRunner) -> None:
     with (
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
-        patch("gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action") as mock_action,
+        patch(
+            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+        ) as mock_action,
     ):
         from gamesheet_sdk.ipad_keys import IPadKey
 
@@ -233,7 +266,10 @@ def test_ipad_keys_get_grid_format(runner: CliRunner) -> None:
                 updated_at="2026-05-15T17:42:34Z",
             ),
         ]
-        result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020", "-F", "grid"])
+        result = runner.invoke(
+            cli,
+            ["ipad-keys", "get", "--season-id", "15020", "-F", "grid"],
+        )
         assert not result.exit_code
         # Grid format has border characters
         assert "+" in result.output or "|" in result.output
@@ -255,7 +291,9 @@ def test_ipad_keys_get_with_env_var(runner: CliRunner) -> None:
     with (
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
-        patch("gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action") as mock_action,
+        patch(
+            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+        ) as mock_action,
     ):
         from gamesheet_sdk.ipad_keys import IPadKey
 
@@ -270,6 +308,10 @@ def test_ipad_keys_get_with_env_var(runner: CliRunner) -> None:
                 updated_at="2026-05-15T17:42:34Z",
             ),
         ]
-        result = runner.invoke(cli, ["ipad-keys", "get"], env={"GAMESHEET_SEASON_ID": "15020"})
+        result = runner.invoke(
+            cli,
+            ["ipad-keys", "get"],
+            env={"GAMESHEET_SEASON_ID": "15020"},
+        )
         assert not result.exit_code
         mock_action.assert_called_once()

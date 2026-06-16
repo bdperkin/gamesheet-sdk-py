@@ -25,7 +25,6 @@ def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
 
 @responses.activate
 def test_list_divisions_parses_jsonapi_response(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -84,7 +83,6 @@ def test_list_divisions_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_divisions_sends_bearer_and_jsonapi_accept(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -97,7 +95,6 @@ def test_list_divisions_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
 @responses.activate
 def test_list_divisions_empty_data_returns_empty_list(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -106,7 +103,6 @@ def test_list_divisions_empty_data_returns_empty_list(config: Config) -> None:
 
 @responses.activate
 def test_list_divisions_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -123,7 +119,6 @@ def test_list_divisions_401_raises_authentication_error(config: Config) -> None:
 def test_list_divisions_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
-
     responses.add(responses.GET, _ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -299,11 +294,9 @@ def test_list_divisions_includes_team_counts_when_requested(config: Config) -> N
         ),
         status=200,
     )
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = list_divisions(session, _SEASON_ID, include_team_counts=True)
-
     assert len(result) == 2
     assert result[0].id == "701"
     assert result[0].team_count == 3

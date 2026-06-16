@@ -104,7 +104,9 @@ def games_get_command(
     season_id: str = ctx_data["season_id"]
     session = build_authenticated_session(ctx, config)
     # Convert to dict for rendering
-    data = run_action_or_exit(session, _get_game_action, season_id, game_id).model_dump(mode="json")
+    data = run_action_or_exit(session, _get_game_action, season_id, game_id).model_dump(
+        mode="json",
+    )
     # If fields are specified, filter to only those fields
     if fields_spec:
         fields = parse_columns_spec(fields_spec)

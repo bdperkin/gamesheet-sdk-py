@@ -16,7 +16,9 @@ if TYPE_CHECKING:
 def test_associations_get(runner: CliRunner) -> None:
     """The associations get command should retrieve a single association."""
     with (
-        patch("gamesheet_sdk.cli.commands.associations._get_association_action") as mock_action,
+        patch(
+            "gamesheet_sdk.cli.commands.associations._get_association_action",
+        ) as mock_action,
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
     ):
@@ -36,7 +38,9 @@ def test_associations_get(runner: CliRunner) -> None:
 def test_associations_get_with_fields(runner: CliRunner) -> None:
     """The associations get command should support --fields option."""
     with (
-        patch("gamesheet_sdk.cli.commands.associations._get_association_action") as mock_action,
+        patch(
+            "gamesheet_sdk.cli.commands.associations._get_association_action",
+        ) as mock_action,
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
     ):
@@ -58,7 +62,9 @@ def test_associations_get_with_fields(runner: CliRunner) -> None:
 def test_associations_get_json_format(runner: CliRunner) -> None:
     """The associations get command should support JSON output format."""
     with (
-        patch("gamesheet_sdk.cli.commands.associations._get_association_action") as mock_action,
+        patch(
+            "gamesheet_sdk.cli.commands.associations._get_association_action",
+        ) as mock_action,
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
     ):
@@ -69,7 +75,10 @@ def test_associations_get_json_format(runner: CliRunner) -> None:
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
-        result = runner.invoke(cli, ["associations", "get", "--association-id", "101", "--format", "json"])
+        result = runner.invoke(
+            cli,
+            ["associations", "get", "--association-id", "101", "--format", "json"],
+        )
         assert not result.exit_code
         assert result.output
 
@@ -77,7 +86,9 @@ def test_associations_get_json_format(runner: CliRunner) -> None:
 def test_associations_get_empty_fields(runner: CliRunner) -> None:
     """The associations get command should handle empty fields spec."""
     with (
-        patch("gamesheet_sdk.cli.commands.associations._get_association_action") as mock_action,
+        patch(
+            "gamesheet_sdk.cli.commands.associations._get_association_action",
+        ) as mock_action,
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
     ):
@@ -88,6 +99,9 @@ def test_associations_get_empty_fields(runner: CliRunner) -> None:
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
-        result = runner.invoke(cli, ["associations", "get", "--association-id", "101", "--fields", ","])
+        result = runner.invoke(
+            cli,
+            ["associations", "get", "--association-id", "101", "--fields", ","],
+        )
         assert not result.exit_code
         assert result.output

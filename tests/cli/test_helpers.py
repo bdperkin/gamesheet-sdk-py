@@ -18,12 +18,10 @@ def test_resource_group_with_no_aliases() -> None:
 
     @click.group(cls=ResourceGroup, default="list")
     def test_group() -> None:
-
         pass
 
     @test_group.command("list")
     def list_cmd() -> None:
-
         click.echo("listing")
 
     result = CliRunner().invoke(test_group, ["list"])
@@ -36,7 +34,6 @@ def test_resource_group_format_commands_with_empty_rows() -> None:
 
     @click.group(cls=ResourceGroup)
     def test_group() -> None:
-
         pass
 
     # Group with no commands
@@ -51,12 +48,10 @@ def test_resource_group_shell_complete_includes_aliases() -> None:
 
     @click.group(cls=ResourceGroup, aliases={"list": ("ls",)})
     def test_group() -> None:
-
         pass
 
     @test_group.command("list")
     def list_cmd() -> None:
-
         pass
 
     ctx = click.Context(test_group)
@@ -72,17 +67,14 @@ def test_resource_group_shell_complete_filters_by_incomplete() -> None:
 
     @click.group(cls=ResourceGroup, aliases={"list": ("ls",), "get": ("show",)})
     def test_group() -> None:
-
         pass
 
     @test_group.command("list")
     def list_cmd() -> None:
-
         pass
 
     @test_group.command("get")
     def get_cmd() -> None:
-
         pass
 
     ctx = click.Context(test_group)
@@ -171,7 +163,6 @@ def test_confirm_destructive_with_force() -> None:
     @click.command()
     @confirm_destructive("test item")
     def delete_cmd() -> None:
-
         click.echo("deleted")
 
     result = CliRunner().invoke(delete_cmd, ["--force"])
@@ -186,7 +177,6 @@ def test_confirm_destructive_without_force_confirmed() -> None:
     @click.command()
     @confirm_destructive("test item")
     def delete_cmd() -> None:
-
         click.echo("deleted")
 
     result = CliRunner().invoke(delete_cmd, input="y\n")
@@ -200,7 +190,6 @@ def test_confirm_destructive_without_force_aborted() -> None:
     @click.command()
     @confirm_destructive("test item")
     def delete_cmd() -> None:
-
         click.echo("deleted")
 
     result = CliRunner().invoke(delete_cmd, input="n\n")
@@ -214,12 +203,10 @@ def test_resource_group_get_command_with_unknown_alias() -> None:
 
     @click.group(cls=ResourceGroup, aliases={"list": ("ls",)})
     def test_group() -> None:
-
         pass
 
     @test_group.command("list")
     def list_cmd() -> None:
-
         pass
 
     ctx = click.Context(test_group)
@@ -233,12 +220,10 @@ def test_resource_group_alias_item_if_visible_with_hidden_command() -> None:
 
     @click.group(cls=ResourceGroup, aliases={"list": ("ls",)})
     def test_group() -> None:
-
         pass
 
     @test_group.command("list", hidden=True)
     def list_cmd() -> None:
-
         pass
 
     ctx = click.Context(test_group)

@@ -25,7 +25,6 @@ def main() -> int:
     """Run sphinx-apidoc to generate API documentation."""
     # Ensure output directory exists
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
     # Run sphinx-apidoc
     cmd = [
         "sphinx-apidoc",
@@ -42,18 +41,17 @@ def main() -> int:
         "*/tests/*",  # Test files
         "**/test_*.py",  # Test files
     ]
-
     rprint(f"[bold]Running:[/bold] [cyan]{' '.join(cmd)}[/cyan]")
     result = subprocess.run(cmd, check=False)  # noqa: S603 # nosec B603
-
     if result.returncode:
         rprint(
             f"[bold red]sphinx-apidoc failed with exit code {result.returncode}[/bold red]",
             file=sys.stderr,
         )
         return result.returncode
-
-    rprint(f"[bold green]✓[/bold green] API documentation generated in [cyan]{OUTPUT_DIR}[/cyan]")
+    rprint(
+        f"[bold green]✓[/bold green] API documentation generated in [cyan]{OUTPUT_DIR}[/cyan]",
+    )
     return 0
 
 

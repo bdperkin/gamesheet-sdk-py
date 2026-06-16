@@ -28,7 +28,6 @@ def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
 
 @responses.activate
 def test_list_division_teams_parses_jsonapi_response(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _DIVISION_TEAMS_ENDPOINT,
@@ -112,8 +111,12 @@ def test_list_division_teams_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_division_teams_sends_bearer_and_jsonapi_accept(config: Config) -> None:
-
-    responses.add(responses.GET, _DIVISION_TEAMS_ENDPOINT, json=_payload([]), status=200)
+    responses.add(
+        responses.GET,
+        _DIVISION_TEAMS_ENDPOINT,
+        json=_payload([]),
+        status=200,
+    )
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_division_teams(session, _DIVISION_ID)
@@ -125,8 +128,12 @@ def test_list_division_teams_sends_bearer_and_jsonapi_accept(config: Config) -> 
 
 @responses.activate
 def test_list_division_teams_empty_data_returns_empty_list(config: Config) -> None:
-
-    responses.add(responses.GET, _DIVISION_TEAMS_ENDPOINT, json=_payload([]), status=200)
+    responses.add(
+        responses.GET,
+        _DIVISION_TEAMS_ENDPOINT,
+        json=_payload([]),
+        status=200,
+    )
     with Session(config) as session:
         session.set_bearer_token("abc")
         assert not list_division_teams(session, _DIVISION_ID)
@@ -134,7 +141,6 @@ def test_list_division_teams_empty_data_returns_empty_list(config: Config) -> No
 
 @responses.activate
 def test_list_division_teams_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _DIVISION_TEAMS_ENDPOINT,
@@ -151,7 +157,6 @@ def test_list_division_teams_401_raises_authentication_error(config: Config) -> 
 def test_list_division_teams_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
-
     responses.add(responses.GET, _DIVISION_TEAMS_ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")

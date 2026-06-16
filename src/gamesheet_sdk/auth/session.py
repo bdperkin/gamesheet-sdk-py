@@ -13,7 +13,6 @@ from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.session import Session
 
 if TYPE_CHECKING:
-
     from gamesheet_sdk.config import Config
 _LOGGER = logging.getLogger(__name__)
 OnRefreshCallback = Callable[[dict[str, str]], None]
@@ -28,14 +27,11 @@ class AuthenticatedSession(Session):
     :data:`REFRESH_URL`, updates its bearer, optionally invokes ``on_refresh`` with the new token bundle, and
     retries the original request *once*. If the refresh itself fails the original 401 propagates to the
     caller, who can decide whether to log in again.
-
     Example::
-
         from gamesheet_sdk.auth import load_access_token, load_refresh_token, save_tokens
         from gamesheet_sdk.auth.session import AuthenticatedSession
         from gamesheet_sdk.associations import list_associations
         from gamesheet_sdk.config import Config
-
         config = Config()
         with AuthenticatedSession(
             config,
@@ -63,7 +59,6 @@ class AuthenticatedSession(Session):
     def _notify_refresh(self, new_tokens: dict[str, str]) -> None:
         """Invoke the optional persistence callback, swallowing disk errors."""
         if self._on_refresh is None:
-
             return
         try:
             self._on_refresh(new_tokens)
@@ -82,7 +77,6 @@ class AuthenticatedSession(Session):
             # nosemgrep: python.lang.security.audit.logging.logger-credential-leak
             _LOGGER.warning("Token refresh failed: %s; surfacing 401.", exc)
             return False
-
         self.set_bearer_token(new_tokens["access"])
         self._refresh_token = new_tokens["refresh"]
         self._notify_refresh(new_tokens)
@@ -102,7 +96,6 @@ class AuthenticatedSession(Session):
         response status is 401 Unauthorized, attempts to refresh the access token using the stored refresh
         token, updates the bearer token, invokes the ``on_refresh`` callback if provided, and retries the
         original request exactly once.
-
         :param method: HTTP method (GET, POST, PUT, DELETE, etc.).
         :param url: Target URL for the request.
         :param timeout: Request timeout in seconds. If None, uses the timeout from
@@ -115,11 +108,8 @@ class AuthenticatedSession(Session):
         """
         response = super().request(method, url, timeout=timeout, **kwargs)
         if response.status_code != 401:
-
             return response
-
         if not self._try_refresh():
-
             return response
         # nosemgrep: python.lang.security.audit.logging.logger-credential-leak
         _LOGGER.info("Refreshed access token; retrying %s %s.", method, url)

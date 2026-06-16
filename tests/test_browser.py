@@ -27,21 +27,18 @@ def test_construction_does_not_start_playwright(config: Config) -> None:
 
 
 def test_save_without_start_is_noop(config: Config) -> None:
-
     bs = BrowserSession(config)
     bs.save()
     assert not config.browser_state_path.exists()
 
 
 def test_close_without_start_is_idempotent(config: Config) -> None:
-
     bs = BrowserSession(config)
     bs.close()
     bs.close()  # second close must not raise
 
 
 def test_context_after_close_raises(config: Config) -> None:
-
     bs = BrowserSession(config)
     bs.close()
     with pytest.raises(RuntimeError, match="closed"):
@@ -49,44 +46,34 @@ def test_context_after_close_raises(config: Config) -> None:
 
 
 # ---------- URL resolution -----------------------------------------------
-
-
 def test_resolve_relative(config: Config) -> None:
-
     bs = BrowserSession(config)
     assert bs._resolve("/login") == "https://test.example/login"
 
 
 def test_resolve_absolute_passes_through(config: Config) -> None:
-
     bs = BrowserSession(config)
     assert bs._resolve("https://other.example/x") == "https://other.example/x"
 
 
 def test_resolve_data_url_passes_through(config: Config) -> None:
-
     bs = BrowserSession(config)
     assert bs._resolve("data:text/html,<h1>x</h1>") == "data:text/html,<h1>x</h1>"
 
 
 def test_resolve_about_blank_passes_through(config: Config) -> None:
-
     bs = BrowserSession(config)
     assert bs._resolve("about:blank") == "about:blank"
 
 
 # ---------- storage-state load / save ------------------------------------
-
-
 def test_load_storage_state_missing_returns_none(config: Config) -> None:
-
     assert not config.browser_state_path.exists()
     bs = BrowserSession(config)
     assert bs._load_storage_state() is None
 
 
 def test_load_storage_state_reads_json(config: Config) -> None:
-
     state = {"cookies": [{"name": "x", "value": "y"}], "origins": []}
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     config.browser_state_path.write_text(json.dumps(state))
@@ -108,7 +95,6 @@ def test_load_storage_state_corrupt_warns_and_returns_none(
 
 
 def test_save_writes_state_to_disk(config: Config) -> None:
-
     fake_state: dict[str, Any] = {
         "cookies": [{"name": "a", "value": "b", "domain": "test.example"}],
         "origins": [],
@@ -123,7 +109,6 @@ def test_save_writes_state_to_disk(config: Config) -> None:
 
 
 def test_save_creates_parent_dirs(config: Config) -> None:
-
     nested = config.browser_state_path.parent / "deep" / "nest" / "state.json"
     config.browser_state_path = nested
     fake_state: dict[str, Any] = {"cookies": [], "origins": []}
@@ -136,8 +121,6 @@ def test_save_creates_parent_dirs(config: Config) -> None:
 
 
 # ---------- full lifecycle, with Playwright mocked end-to-end ------------
-
-
 def _mock_playwright_chain() -> tuple[MagicMock, MagicMock, MagicMock, MagicMock]:
     """Build a sync_playwright() chain whose intermediate mocks we can assert on."""
     pw_factory = MagicMock(name="sync_playwright_factory")
@@ -154,7 +137,6 @@ def _mock_playwright_chain() -> tuple[MagicMock, MagicMock, MagicMock, MagicMock
 
 
 def test_start_launches_chromium_headless_by_default(config: Config) -> None:
-
     pw_factory, pw_runtime, browser, context = _mock_playwright_chain()
     with patch("gamesheet_sdk.browser.sync_playwright", pw_factory):
         bs = BrowserSession(config)
@@ -166,7 +148,6 @@ def test_start_launches_chromium_headless_by_default(config: Config) -> None:
 
 
 def test_start_passes_headless_false_when_configured(config: Config) -> None:
-
     config.browser_headless = False
     pw_factory, pw_runtime, _, _ = _mock_playwright_chain()
     with patch("gamesheet_sdk.browser.sync_playwright", pw_factory):
@@ -177,7 +158,6 @@ def test_start_passes_headless_false_when_configured(config: Config) -> None:
 
 
 def test_start_restores_storage_state_when_file_exists(config: Config) -> None:
-
     state = {"cookies": [{"name": "auth", "value": "tok"}], "origins": []}
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     config.browser_state_path.write_text(json.dumps(state))
@@ -190,7 +170,6 @@ def test_start_restores_storage_state_when_file_exists(config: Config) -> None:
 
 
 def test_close_tears_down_in_order(config: Config) -> None:
-
     pw_factory, pw_runtime, browser, context = _mock_playwright_chain()
     with patch("gamesheet_sdk.browser.sync_playwright", pw_factory):
         bs = BrowserSession(config)
@@ -204,18 +183,19 @@ def test_close_tears_down_in_order(config: Config) -> None:
 
 
 def test_context_manager_saves_on_exit(config: Config) -> None:
-
     fake_state = {"cookies": [{"name": "k", "value": "v"}], "origins": []}
     pw_factory, _, _, context = _mock_playwright_chain()
     context.storage_state.return_value = fake_state
-    with patch("gamesheet_sdk.browser.sync_playwright", pw_factory), BrowserSession(config) as bs:
+    with (
+        patch("gamesheet_sdk.browser.sync_playwright", pw_factory),
+        BrowserSession(config) as bs,
+    ):
         _ = bs.context  # force start
     assert config.browser_state_path.exists()
     assert json.loads(config.browser_state_path.read_text()) == fake_state
 
 
 def test_goto_resolves_url_and_returns_page(config: Config) -> None:
-
     pw_factory, _, _, context = _mock_playwright_chain()
     page = MagicMock(name="page")
     context.new_page.return_value = page
@@ -223,13 +203,14 @@ def test_goto_resolves_url_and_returns_page(config: Config) -> None:
         bs = BrowserSession(config)
         returned = bs.goto("/login", wait_until="domcontentloaded")
         bs.close()
-    page.goto.assert_called_once_with("https://test.example/login", wait_until="domcontentloaded")
+    page.goto.assert_called_once_with(
+        "https://test.example/login",
+        wait_until="domcontentloaded",
+    )
     assert returned is page
 
 
 # ---------- _start failure path (lines 105-106) -----------------------------
-
-
 def test_context_raises_when_start_leaves_context_none(config: Config) -> None:
     """Accessing context when _start somehow completes without setting _context should raise ValueError.
 

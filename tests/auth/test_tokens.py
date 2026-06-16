@@ -15,8 +15,16 @@ from gamesheet_sdk import (
     Config,
     GameSheetError,
 )
-from gamesheet_sdk.auth.constants import FIREBASE_AUTH_URL, REFRESH_URL, TOKEN_EXCHANGE_URL
-from gamesheet_sdk.auth.tokens import load_access_token, refresh_access_token, save_tokens
+from gamesheet_sdk.auth.constants import (
+    FIREBASE_AUTH_URL,
+    REFRESH_URL,
+    TOKEN_EXCHANGE_URL,
+)
+from gamesheet_sdk.auth.tokens import (
+    load_access_token,
+    refresh_access_token,
+    save_tokens,
+)
 
 
 def _make_response(url: str, status: int, body: Any = None) -> MagicMock:
@@ -25,7 +33,6 @@ def _make_response(url: str, status: int, body: Any = None) -> MagicMock:
     r.url = url
     r.status = status
     if body is not None:
-
         r.json.return_value = body
     else:
         r.json.side_effect = ValueError("no body")
@@ -51,7 +58,6 @@ def fake_browser_session(config: Config) -> MagicMock:
     listeners: dict[str, Any] = {}
 
     def register(event: str, callback: Any) -> None:
-
         listeners[event] = callback
 
     page.on.side_effect = register
@@ -59,9 +65,7 @@ def fake_browser_session(config: Config) -> MagicMock:
     page.staged_responses = []
 
     def click(_selector: str) -> None:
-
         for response in page.staged_responses:
-
             listeners["response"](response)
 
     page.click.side_effect = click
@@ -72,23 +76,18 @@ def fake_browser_session(config: Config) -> MagicMock:
 
 
 # ---------- load_access_token ----------------------------------------------
-
-
 def test_load_access_token_missing_state_file_returns_none(config: Config) -> None:
-
     assert not config.browser_state_path.exists()
     assert load_access_token(config) is None
 
 
 def test_load_access_token_corrupt_state_file_returns_none(config: Config) -> None:
-
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     config.browser_state_path.write_text("{ this is not json")
     assert load_access_token(config) is None
 
 
 def test_load_access_token_state_without_token_returns_none(config: Config) -> None:
-
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     config.browser_state_path.write_text(
         '{"cookies": [], "origins": ['
@@ -100,7 +99,6 @@ def test_load_access_token_state_without_token_returns_none(config: Config) -> N
 
 
 def test_load_access_token_returns_value_when_present(config: Config) -> None:
-
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     config.browser_state_path.write_text(
         '{"cookies": [], "origins": ['
@@ -124,10 +122,7 @@ def test_load_access_token_ignores_other_origins(config: Config) -> None:
 
 
 # ---------- save_tokens ---------------------------------------------------
-
-
 def test_save_tokens_creates_state_file(config: Config) -> None:
-
     assert not config.browser_state_path.exists()
     save_tokens(config, access="new-access", refresh="new-refresh", roles="new-roles")
     assert config.browser_state_path.exists()
@@ -140,7 +135,6 @@ def test_save_tokens_creates_state_file(config: Config) -> None:
 
 
 def test_save_tokens_updates_existing_state(config: Config) -> None:
-
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     initial = {
         "cookies": [{"name": "preserve", "value": "me", "domain": "test.example"}],
@@ -169,7 +163,6 @@ def test_save_tokens_updates_existing_state(config: Config) -> None:
 
 
 def test_save_tokens_recovers_from_corrupt_state(config: Config) -> None:
-
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     config.browser_state_path.write_text("{ corrupt")
     save_tokens(config, access="A", refresh="R")
@@ -180,11 +173,8 @@ def test_save_tokens_recovers_from_corrupt_state(config: Config) -> None:
 
 
 # ---------- refresh_access_token -----------------------------------------
-
-
 @responses.activate
 def test_refresh_access_token_happy_path() -> None:
-
     responses.add(
         responses.POST,
         REFRESH_URL,
@@ -203,7 +193,6 @@ def test_refresh_access_token_happy_path() -> None:
 
 @responses.activate
 def test_refresh_access_token_401_raises_authentication_error() -> None:
-
     responses.add(responses.POST, REFRESH_URL, json={"errors": [{}]}, status=401)
     with pytest.raises(AuthenticationError, match="Refresh token rejected"):
         refresh_access_token("DEAD-REFRESH")
@@ -211,7 +200,6 @@ def test_refresh_access_token_401_raises_authentication_error() -> None:
 
 @responses.activate
 def test_refresh_access_token_other_failure_raises_gamesheet_error() -> None:
-
     responses.add(responses.POST, REFRESH_URL, status=500, body="boom")
     with pytest.raises(GameSheetError, match="HTTP 500"):
         refresh_access_token("R")
@@ -219,10 +207,7 @@ def test_refresh_access_token_other_failure_raises_gamesheet_error() -> None:
 
 # ---------- AuthenticatedSession -----------------------------------------
 # ---------- load_refresh_token (line 348) ------------------------------------
-
-
 def test_load_refresh_token_returns_value_when_present(config: Config) -> None:
-
     from gamesheet_sdk.auth import load_refresh_token as _load_refresh_token
 
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
@@ -236,8 +221,6 @@ def test_load_refresh_token_returns_value_when_present(config: Config) -> None:
 
 
 # ---------- _origin_entry_for existing origin match (line 367) --------------
-
-
 def test_save_tokens_finds_existing_origin(config: Config) -> None:
     """save_tokens should reuse an existing origin entry for the base_url."""
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
@@ -259,8 +242,6 @@ def test_save_tokens_finds_existing_origin(config: Config) -> None:
 
 
 # ---------- _build_token_updates with refresh and roles (lines 382, 384) ----
-
-
 def test_save_tokens_omits_refresh_when_not_provided(config: Config) -> None:
     """save_tokens with only access token should not write refreshToken."""
     save_tokens(config, access="ACCESS-ONLY")
@@ -283,8 +264,6 @@ def test_save_tokens_includes_roles_when_provided(config: Config) -> None:
 
 # ---------- firebase error message edge cases (line 157->159) ---------------
 # ---------- _origin_entry_for with multiple origins (line 367->366) ---------
-
-
 def test_save_tokens_with_multiple_origins_finds_correct_one(config: Config) -> None:
     """save_tokens should find the correct origin when multiple exist."""
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)

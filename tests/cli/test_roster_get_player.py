@@ -89,7 +89,17 @@ def test_players_get_empty_fields(runner: CliRunner) -> None:
         )
         result = runner.invoke(
             cli,
-            ["roster", "--season-id", "15020", "players", "get", "--player-id", "501", "--fields", ","],
+            [
+                "roster",
+                "--season-id",
+                "15020",
+                "players",
+                "get",
+                "--player-id",
+                "501",
+                "--fields",
+                ",",
+            ],
         )
         assert not result.exit_code
         assert result.output

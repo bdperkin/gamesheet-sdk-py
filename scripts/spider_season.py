@@ -3,10 +3,9 @@
 # pylint: disable=too-many-lines
 """Spider all GET-traversable paths and mutations for a GameSheet season.
 
-This utility discovers all GET-traversable paths under a season URL, records
-all Fetch/XHR network requests, and discovers mutation operations (POST/PATCH/DELETE)
-without executing them. The spider uses randomized human-like delays and respects
-the base season URL constraint to avoid traversing external links.
+This utility discovers all GET- traversable paths under a season URL, records all Fetch/XHR network requests,
+and discovers mutation operations (POST/PATCH/DELETE) without executing them. The spider uses randomized
+human-like delays and respects the base season URL constraint to avoid traversing external links.
 
 Key behaviors:
 - Only follows GET requests (safe, read-only operations)
@@ -17,7 +16,6 @@ Key behaviors:
 - Saves comprehensive mapping data to JSON
 - Leverages existing auth infrastructure for login
 - Supports custom browser executable path (e.g., /usr/bin/chromium-browser)
-
 Safety guarantees:
 - NO data is deleted, modified, updated, or created
 - Only GET requests are executed
@@ -45,14 +43,11 @@ from gamesheet_sdk.browser import BrowserSession
 from gamesheet_sdk.config import Config
 
 _LOGGER = logging.getLogger(__name__)
-
 # Human-like delay bounds (seconds)
 MIN_DELAY = 2.5
 MAX_DELAY = 5.0
-
 # Network request type categories
 HTTP_METHODS_MUTATION = {"POST", "PATCH", "PUT", "DELETE"}
-
 # Timeout for page navigation (ms)
 NAV_TIMEOUT_MS = 30_000
 
@@ -133,13 +128,11 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
 
         This treats /teams/123/roster and /teams/456/roster as the same pattern, allowing us to discover
         structure rather than crawling all data.
-
         :param url: URL to normalize
         :returns: Normalized URL pattern with {id} placeholders
         """
         parsed = urlparse(url)
         path_parts = parsed.path.split("/")
-
         # Replace numeric-only segments with {id}
         normalized_parts = []
         for part in path_parts:
@@ -147,7 +140,6 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
                 normalized_parts.append("{id}")
             else:
                 normalized_parts.append(part)
-
         normalized_path = "/".join(normalized_parts)
         return f"{parsed.scheme}://{parsed.netloc}{normalized_path}"
 
@@ -160,16 +152,19 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
         """
         # Remove fragment identifiers
         url = url.split("#")[0]
-
         # If already absolute, return as-is
         if url.startswith(("http://", "https://")):
             return url
-
         # Resolve relative URLs against current page or base URL
         base = current_url or self.state.base_url
         return urljoin(base, url)
 
-    def _save_request_artifacts(self, request: Request, request_num: int, artifacts_dir: Path) -> None:
+    def _save_request_artifacts(
+        self,
+        request: Request,
+        request_num: int,
+        artifacts_dir: Path,
+    ) -> None:
         """Save request headers and payload to files.
 
         :param request: Playwright Request object
@@ -178,20 +173,26 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
         """
         try:
             prefix = artifacts_dir / f"{request_num:04d}"
-
             # Save headers
             headers_file = Path(str(prefix) + "_request_headers.json")
             headers_file.write_text(json.dumps(dict(request.headers), indent=2))
-
             # Save payload (if present)
             if request.post_data:
                 payload_file = Path(str(prefix) + "_request_payload.txt")
                 payload_file.write_text(request.post_data)
-
         except Exception as exc:
-            _LOGGER.warning("Failed to save request artifacts for %s: %s", request.url, exc)
+            _LOGGER.warning(
+                "Failed to save request artifacts for %s: %s",
+                request.url,
+                exc,
+            )
 
-    def _save_response_artifacts(self, response: Response, request_num: int, artifacts_dir: Path) -> None:
+    def _save_response_artifacts(
+        self,
+        response: Response,
+        request_num: int,
+        artifacts_dir: Path,
+    ) -> None:
         """Save response headers and body to files.
 
         :param response: Playwright Response object
@@ -200,11 +201,9 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
         """
         try:
             prefix = artifacts_dir / f"{request_num:04d}"
-
             # Save response headers
             headers_file = Path(str(prefix) + "_response_headers.json")
             headers_file.write_text(json.dumps(dict(response.headers), indent=2))
-
             # Save response body
             try:
                 body = response.body()
@@ -212,12 +211,24 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
                 response_file.write_bytes(body)
             except Exception as exc:
                 # Some responses may not have a body or be already consumed
-                _LOGGER.debug("Could not read response body for %s: %s", response.url, exc)
-
+                _LOGGER.debug(
+                    "Could not read response body for %s: %s",
+                    response.url,
+                    exc,
+                )
         except Exception as exc:
-            _LOGGER.warning("Failed to save response artifacts for %s: %s", response.url, exc)
+            _LOGGER.warning(
+                "Failed to save response artifacts for %s: %s",
+                response.url,
+                exc,
+            )
 
-    def _setup_network_capture(self, page: Page, source_url: str, artifacts_dir: Path | None) -> None:
+    def _setup_network_capture(
+        self,
+        page: Page,
+        source_url: str,
+        artifacts_dir: Path | None,
+    ) -> None:
         """Attach network request/response listeners to a page.
 
         :param page: Playwright page to attach listeners to
@@ -231,7 +242,6 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
             # Only capture Fetch/XHR and document requests
             if resource_type not in {"fetch", "xhr", "document"}:
                 return
-
             capture = NetworkCapture(
                 url=request.url,
                 method=request.method,
@@ -239,8 +249,12 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
                 source_page=source_url,
             )
             self.state.network_captures.append(capture)
-            _LOGGER.debug("Captured %s %s (%s)", request.method, request.url, resource_type)
-
+            _LOGGER.debug(
+                "Captured %s %s (%s)",
+                request.method,
+                request.url,
+                resource_type,
+            )
             # Save request artifacts for Fetch/XHR only
             if artifacts_dir and resource_type in {"fetch", "xhr"}:
                 self.state.request_counter += 1
@@ -254,7 +268,6 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
                 if capture.url == response.url and capture.status is None:
                     capture.status = response.status
                     break
-
             # Save response artifacts for Fetch/XHR only
             if artifacts_dir and response.request.resource_type in {"fetch", "xhr"}:
                 # Find the corresponding request number
@@ -263,7 +276,6 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
                     if cap.url == response.url and cap.method == response.request.method:
                         request_num = len(self.state.network_captures) - i
                         break
-
                 if request_num:
                     self._save_response_artifacts(response, request_num, artifacts_dir)
 
@@ -281,16 +293,12 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
         for form in forms:
             method_attr = form.get_attribute("method")
             action_attr = form.get_attribute("action")
-
             if not method_attr:
                 method_attr = "GET"  # Forms default to GET
-
             method = method_attr.upper()
             if method not in HTTP_METHODS_MUTATION:
                 continue
-
             action_url = self._normalize_url(action_attr or current_url, current_url)
-
             mutation = DiscoveredMutation(
                 method=method,
                 url=action_url,
@@ -300,7 +308,6 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
             )
             self.state.discovered_mutations.append(mutation)
             _LOGGER.info("Discovered %s form → %s", method, action_url)
-
         # Discover buttons/links with mutation intent (heuristic)
         # Look for data-method, data-action, or common mutation class names
         mutation_selectors = [
@@ -316,32 +323,27 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
             ".delete-btn",
             ".remove-btn",
         ]
-
         for selector in mutation_selectors:
             try:
                 elements = page.query_selector_all(selector)
             except Exception as exc:
                 _LOGGER.debug("Selector '%s' failed: %s", selector, exc)
                 continue
-
             for element in elements:
                 # Extract mutation intent
                 data_method = element.get_attribute("data-method")
                 data_action = element.get_attribute("data-action")
                 href = element.get_attribute("href")
                 element_text = element.text_content() or ""
-
                 # Determine method
                 method = "POST"  # Default assumption
                 if data_method:
                     method = data_method.upper()
                 elif data_action and "delete" in data_action.lower():
                     method = "DELETE"
-
                 # Determine URL
                 target_url = href or current_url
                 target_url = self._normalize_url(target_url, current_url)
-
                 mutation = DiscoveredMutation(
                     method=method,
                     url=target_url,
@@ -366,18 +368,14 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
         """
         links = []
         link_elements = page.query_selector_all("a[href]")
-
         _LOGGER.debug("Found %d <a[href]> elements on page", len(link_elements))
-
         for element in link_elements:
             href = element.get_attribute("href")
             if not href or href.startswith(("javascript:", "mailto:", "tel:")):
                 continue
-
             absolute_url = self._normalize_url(href, current_url)
             links.append(absolute_url)
             _LOGGER.debug("Extracted link: %s", absolute_url)
-
         _LOGGER.info("Extracted %d total links from page", len(links))
         return links
 
@@ -397,33 +395,29 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
         if not self.page:
             _LOGGER.error("Page not initialized")
             return False
-
         # Check if we've already visited this URL pattern
         pattern = self._normalize_url_pattern(url)
         if pattern in self.state.visited_patterns:
             _LOGGER.info("Skipping %s (pattern already visited: %s)", url, pattern)
             return True
-
         _LOGGER.info("Visiting: %s (pattern: %s)", url, pattern)
-
         try:
             # Attach network capture before navigation
             self._setup_network_capture(self.page, url, artifacts_dir)
-
             # Navigate to URL and wait for network to be mostly idle
             # This is important for SPAs like GameSheet that render content via JavaScript
             try:
                 self.page.goto(url, wait_until="networkidle", timeout=NAV_TIMEOUT_MS)
             except PlaywrightTimeoutError:
-                _LOGGER.debug("Network didn't reach idle in %dms, proceeding anyway", NAV_TIMEOUT_MS)
-
+                _LOGGER.debug(
+                    "Network didn't reach idle in %dms, proceeding anyway",
+                    NAV_TIMEOUT_MS,
+                )
             # Mark as visited (both URL and pattern)
             self.state.visited_urls.add(url)
             self.state.visited_patterns.add(pattern)
-
             # Discover mutations
             self._discover_mutations(self.page, url)
-
             # Queue ALL unvisited internal links
             all_links = self._extract_links(self.page, url)
             queued_count = 0
@@ -431,7 +425,6 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
                 # Skip if already visited or already queued
                 if link in self.state.visited_urls or link in self.state.pending_queue:
                     continue
-
                 if self._is_internal_url(link):
                     self.state.pending_queue.append(link)
                     queued_count += 1
@@ -441,17 +434,13 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
                     if link not in self.state.external_links:
                         self.state.external_links.add(link)
                         _LOGGER.info("External link (not traversing): %s", link)
-
             if queued_count > 0:
                 _LOGGER.info("Queued %d new URLs for crawling", queued_count)
-
             return True
-
         except PlaywrightTimeoutError as exc:
             _LOGGER.warning("Timeout visiting %s: %s", url, exc)
             self.state.error_urls[url] = f"Timeout: {exc}"
             return False
-
         except Exception as exc:
             _LOGGER.exception("Error visiting %s", url)
             self.state.error_urls[url] = f"Error: {exc}"
@@ -465,38 +454,30 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
         if not self.page:
             _LOGGER.error("Page not initialized")
             return
-
         # Start with the base season URL
         self.state.pending_queue.append(self.state.base_url)
-
         while self.state.pending_queue:
             url = self.state.pending_queue.popleft()
-
             # Skip if already visited
             if url in self.state.visited_urls:
                 continue
-
             # Skip if pattern already visited
             pattern = self._normalize_url_pattern(url)
             if pattern in self.state.visited_patterns:
                 _LOGGER.debug("Skipping %s (pattern already visited)", url)
                 self.state.visited_urls.add(url)  # Mark as visited to avoid re-checking
                 continue
-
             # Skip if not internal
             if not self._is_internal_url(url):
                 if url not in self.state.external_links:
                     self.state.external_links.add(url)
                     _LOGGER.info("Skipping external URL: %s", url)
                 continue
-
             # Visit the URL
             self._visit_url(url, artifacts_dir)
-
             # Human-like delay before next request
             if self.state.pending_queue:
                 self._human_delay()
-
         _LOGGER.info("Crawl complete. No more unvisited internal URLs.")
 
     def _create_custom_browser_session(self) -> BrowserSession:
@@ -550,7 +531,6 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
             "external_links": sorted(self.state.external_links),
             "error_urls": self.state.error_urls,
         }
-
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(json.dumps(results, indent=2, sort_keys=True))
         _LOGGER.info("Results saved to %s", output_path)
@@ -563,7 +543,6 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
         """
         _LOGGER.info("Starting spider for season %s", self.season_id)
         _LOGGER.info("Base URL: %s", self.state.base_url)
-
         # Initialize browser session with custom executable if provided
         if self.browser_executable:
             _LOGGER.info("Using browser executable: %s", self.browser_executable)
@@ -571,27 +550,22 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
             self.session = self._create_custom_browser_session()
         else:
             self.session = BrowserSession(self.config)
-
         try:
             # BrowserSession automatically loads saved browser-state.json
             # If you've run 'gamesheet-sdk-py login', you're already authenticated
             _LOGGER.info("Creating browser page with saved session")
             self.page = self.session.new_page()
-
             # Create artifacts directory if output path is specified
             artifacts_dir = None
             if output_path:
                 artifacts_dir = output_path.parent / f"{output_path.stem}_artifacts"
                 artifacts_dir.mkdir(parents=True, exist_ok=True)
                 _LOGGER.info("Saving network artifacts to: %s", artifacts_dir)
-
             # Execute crawl
             self._crawl_loop(artifacts_dir)
-
             # Save results
             if output_path:
                 self._save_results(output_path)
-
             return {
                 "season_id": self.state.season_id,
                 "visited_urls": len(self.state.visited_urls),
@@ -600,7 +574,6 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
                 "external_links": len(self.state.external_links),
                 "errors": len(self.state.error_urls),
             }
-
         finally:
             if self.session:
                 self.session.close()
@@ -615,28 +588,22 @@ def main(argv: list[str] | None = None) -> int:
     epilog_text = """Examples:
     # Spider season 15020 with default output
     %(prog)s 15020
-
     # Spider with custom output path
     %(prog)s 15020 -o /tmp/season-15020-mapping.json
-
     # Use custom browser executable (Fedora Chromium)
     %(prog)s 15020 --browser /usr/bin/chromium-browser
-
     # Run in non-headless mode for debugging
     %(prog)s 15020 --no-headless -v
-
 Environment variables:
     GAMESHEET_USERNAME    - GameSheet account email
     GAMESHEET_PASSWORD    - GameSheet account password
     GAMESHEET_BASE_URL    - Base URL (default: https://gamesheet.app)
 """
-
     parser = argparse.ArgumentParser(
         description="Spider all GET-traversable paths and mutations for a GameSheet season.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=epilog_text,
     )
-
     parser.add_argument(
         "season_id",
         help="Season ID to spider (e.g., 15020)",
@@ -667,51 +634,41 @@ Environment variables:
         default=0,
         help="Increase verbosity (can be repeated: -v, -vv)",
     )
-
     args = parser.parse_args(argv)
-
     # Configure logging
     log_level = logging.WARNING
     if args.verbose == 1:
         log_level = logging.INFO
     elif args.verbose >= 2:
         log_level = logging.DEBUG
-
     logging.basicConfig(
         level=log_level,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
-
     # Build config
     config_kwargs = {}
     if args.base_url:
         config_kwargs["base_url"] = args.base_url
     if args.no_headless:
         config_kwargs["browser_headless"] = False
-
     config = Config(**config_kwargs)
-
     # Determine output path
     output_path = args.output or Path(f"season-{args.season_id}-spider.json")
-
     # Initialize and run spider
     spider = SeasonSpider(
         season_id=args.season_id,
         config=config,
         browser_executable=args.browser,
     )
-
     try:
         results = spider.run(output_path=output_path)
         _LOGGER.info("Spider completed successfully")
         _LOGGER.info("Results: %s", results)
         return 0
-
     except KeyboardInterrupt:
         _LOGGER.warning("Spider interrupted by user")
         return 130
-
     except Exception:
         _LOGGER.exception("Spider failed with unhandled exception")
         return 1

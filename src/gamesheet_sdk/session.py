@@ -28,7 +28,6 @@ from urllib3.util.retry import Retry
 from gamesheet_sdk.config import Config
 
 if TYPE_CHECKING:
-
     from collections.abc import MutableMapping
     from http.cookiejar import Cookie
     from types import TracebackType
@@ -70,14 +69,12 @@ class Session:
     """
 
     # -- internals --------------------------------------------------------
-
     def _build_http_session(self) -> requests.Session:
         """Construct and configure the underlying :class:`requests.Session`.
 
         Attaches a User-Agent header and mounts an HTTPAdapter with retry logic for transient server-side and
         network errors. Retries apply only to idempotent methods (GET, HEAD, OPTIONS, PUT, DELETE); POST is
         excluded to avoid double-submission.
-
         :returns: A configured :class:`requests.Session` instance.
         """
         s = requests.Session()
@@ -100,14 +97,11 @@ class Session:
         """Restore cookies from disk if :attr:`Config.session_path` exists.
 
         Reads JSON-serialized cookie data and populates the underlying session's cookie jar. If the file does
-        not exist or cannot be parsed, the method logs a warning and continues with an empty jar.
-
-        This method is called automatically during :meth:`__init__` to restore session state from a previous
-        run.
+        not exist or cannot be parsed, the method logs a warning and continues with an empty jar. This method
+        is called automatically during :meth:`__init__` to restore session state from a previous run.
         """
         path = self.config.session_path
         if not path.exists():
-
             return
         try:
             data = json.loads(path.read_text())
@@ -115,7 +109,6 @@ class Session:
             _LOGGER.warning("Failed to load session cookies from %s: %s", path, exc)
             return
         for raw in data.get("cookies", []):
-
             # Create a dictionary of the cookie attributes
             cookie_dict = {
                 "name": raw["name"],
@@ -125,7 +118,6 @@ class Session:
                 "secure": raw.get("secure", False),
                 "expires": raw.get("expires"),
             }
-
             # Add it directly to the session jar using keyword arguments
             self._http.cookies.set(**cookie_dict)
 
@@ -135,7 +127,6 @@ class Session:
         self._load_cookies()
 
     # -- public attribute access ------------------------------------------
-
     @property
     def cookies(self) -> RequestsCookieJar:
         """Underlying cookie jar.
@@ -165,18 +156,14 @@ class Session:
 
         Absolute URLs (starting with ``http://`` or ``https://``) are returned as-is. Relative paths are
         joined to :attr:`Config.base_url`.
-
         :param url: An absolute URL or a path relative to the base URL.
         :returns: The fully-qualified URL.
         """
         if url.startswith(("http://", "https://")):
-
             return url
-
         return urljoin(self.config.base_url.rstrip("/") + "/", url.lstrip("/"))
 
     # -- request methods --------------------------------------------------
-
     def request(
         self,
         method: str,
@@ -233,7 +220,6 @@ class Session:
         return self.request("DELETE", url, **kwargs)
 
     # -- lifecycle --------------------------------------------------------
-
     def save(self) -> None:
         """Persist the current cookie state to :attr:`Config.session_path`.
 
@@ -281,7 +267,6 @@ class Session:
 
         Called automatically at the end of a ``with`` block. Delegates to :meth:`close` to save state and
         release resources.
-
         :param _exc_type: Exception type if an exception occurred, otherwise None.
         :param _exc_val: Exception instance if an exception occurred, otherwise None.
         :param _exc_tb: Traceback if an exception occurred, otherwise None.

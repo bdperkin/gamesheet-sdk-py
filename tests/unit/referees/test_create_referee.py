@@ -15,7 +15,6 @@ _ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/referees"
 
 @responses.activate
 def test_create_referee_sends_correct_payload_with_all_fields(config: Config) -> None:
-
     responses.add(
         responses.POST,
         _ENDPOINT,
@@ -53,7 +52,6 @@ def test_create_referee_sends_correct_payload_with_all_fields(config: Config) ->
     assert result.last_name == "McCauley"
     assert result.email == "Wes.McCauley@example.com"
     assert result.season_id == _SEASON_ID
-
     # Verify the request payload
     assert len(responses.calls) == 1
     req = responses.calls[0].request
@@ -71,7 +69,6 @@ def test_create_referee_sends_correct_payload_with_all_fields(config: Config) ->
 def test_create_referee_sends_correct_payload_required_fields_only(
     config: Config,
 ) -> None:
-
     responses.add(
         responses.POST,
         _ENDPOINT,
@@ -100,7 +97,6 @@ def test_create_referee_sends_correct_payload_required_fields_only(
     assert result.first_name == "Jane"
     assert result.last_name == "Doe"
     assert result.email is None
-
     # Verify the request payload
     import json
 
@@ -115,7 +111,6 @@ def test_create_referee_sends_correct_payload_required_fields_only(
 
 @responses.activate
 def test_create_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None:
-
     responses.add(
         responses.POST,
         _ENDPOINT,
@@ -148,7 +143,6 @@ def test_create_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
 
 @responses.activate
 def test_create_referee_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(
         responses.POST,
         _ENDPOINT,
@@ -165,7 +159,6 @@ def test_create_referee_401_raises_authentication_error(config: Config) -> None:
 def test_create_referee_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
-
     responses.add(responses.POST, _ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -180,7 +173,6 @@ def test_create_referee_404_raises_gamesheet_error_with_helpful_message(
 def test_create_referee_other_failure_raises_gamesheet_error(
     config: Config,
 ) -> None:
-
     responses.add(responses.POST, _ENDPOINT, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")

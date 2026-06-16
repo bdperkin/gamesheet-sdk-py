@@ -1,7 +1,6 @@
 """SDK-wide constants and configuration values.
 
 This module defines all URL constants and endpoints used throughout the GameSheet SDK.
-
 Constants
 ---------
 DEFAULT_BASE_URL : str

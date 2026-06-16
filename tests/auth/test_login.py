@@ -22,7 +22,6 @@ from gamesheet_sdk.auth.constants import (
 )
 
 if TYPE_CHECKING:
-
     from pydantic import SecretStr
 
 
@@ -32,7 +31,6 @@ def _make_response(url: str, status: int, body: Any = None) -> MagicMock:
     r.url = url
     r.status = status
     if body is not None:
-
         r.json.return_value = body
     else:
         r.json.side_effect = ValueError("no body")
@@ -58,7 +56,6 @@ def fake_browser_session(config: Config) -> MagicMock:
     listeners: dict[str, Any] = {}
 
     def register(event: str, callback: Any) -> None:
-
         listeners[event] = callback
 
     page.on.side_effect = register
@@ -66,9 +63,7 @@ def fake_browser_session(config: Config) -> MagicMock:
     page.staged_responses = []
 
     def click(_selector: str) -> None:
-
         for response in page.staged_responses:
-
             listeners["response"](response)
 
     page.click.side_effect = click
@@ -79,17 +74,13 @@ def fake_browser_session(config: Config) -> MagicMock:
 
 
 # ---------- credential validation ----------------------------------------
-
-
 def test_login_missing_email_raises(fake_browser_session: MagicMock) -> None:
-
     with pytest.raises(AuthenticationError, match="requires an email"):
         login(fake_browser_session, password="hunter2")
     fake_browser_session.goto.assert_not_called()
 
 
 def test_login_missing_password_raises(fake_browser_session: MagicMock) -> None:
-
     with pytest.raises(AuthenticationError, match="requires a password"):
         login(fake_browser_session, email="alice@example.com")
     fake_browser_session.goto.assert_not_called()
@@ -121,13 +112,10 @@ def test_login_reads_credentials_from_config(
     listeners: dict[str, Any] = {}
 
     def register(ev: str, cb: Any) -> None:
-
         listeners[ev] = cb
 
     def click(_selector: str) -> None:
-
         for response in page.staged_responses:
-
             listeners["response"](response)
 
     page.on.side_effect = register
@@ -138,7 +126,6 @@ def test_login_reads_credentials_from_config(
 
 
 def test_login_args_override_config(fake_browser_session: MagicMock) -> None:
-
     fake_browser_session.config = Config(
         base_url="https://test.example",
         username="bob@example.com",
@@ -155,8 +142,6 @@ def test_login_args_override_config(fake_browser_session: MagicMock) -> None:
 
 
 # ---------- happy path ---------------------------------------------------
-
-
 def test_login_succeeds_when_firebase_and_token_both_200(
     fake_browser_session: MagicMock,
 ) -> None:
@@ -169,7 +154,11 @@ def test_login_succeeds_when_firebase_and_token_both_200(
     # Two navigations: to the login form, then to the post-login destination.
     assert fake_browser_session.goto.call_count == 2
     fake_browser_session.goto.assert_any_call(LOGIN_PATH, wait_until="load")
-    fake_browser_session.goto.assert_any_call(POST_LOGIN_PATH, wait_until="networkidle", timeout=30_000)
+    fake_browser_session.goto.assert_any_call(
+        POST_LOGIN_PATH,
+        wait_until="networkidle",
+        timeout=30_000,
+    )
     page.click.assert_called_once_with("button[type=submit]")
 
 
@@ -192,7 +181,6 @@ def test_login_post_login_path_can_be_disabled(
 
 
 def test_login_custom_post_login_path(fake_browser_session: MagicMock) -> None:
-
     page = fake_browser_session.goto.return_value
     page.staged_responses = [
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
@@ -204,7 +192,11 @@ def test_login_custom_post_login_path(fake_browser_session: MagicMock) -> None:
         password="x",
         post_login_path="/dashboard",
     )
-    fake_browser_session.goto.assert_any_call("/dashboard", wait_until="networkidle", timeout=30_000)
+    fake_browser_session.goto.assert_any_call(
+        "/dashboard",
+        wait_until="networkidle",
+        timeout=30_000,
+    )
 
 
 def test_login_post_login_navigation_timeout_is_swallowed(
@@ -218,11 +210,9 @@ def test_login_post_login_navigation_timeout_is_swallowed(
     ]
 
     def goto_side_effect(path: str, **kwargs: Any) -> Any:
-
         # The post-login navigation is the one that asks for networkidle;
         # the initial form-load navigation uses wait_until="load".
         if kwargs.get("wait_until") == "networkidle":
-
             _err_msg = "networkidle never fired"
             raise PlaywrightTimeoutError(_err_msg)
         del path
@@ -234,8 +224,6 @@ def test_login_post_login_navigation_timeout_is_swallowed(
 
 
 # ---------- firebase failures --------------------------------------------
-
-
 @pytest.mark.parametrize(
     "firebase_message",
     [
@@ -245,8 +233,10 @@ def test_login_post_login_navigation_timeout_is_swallowed(
         "TOO_MANY_ATTEMPTS_TRY_LATER",
     ],
 )
-def test_login_surfaces_firebase_error_code(fake_browser_session: MagicMock, firebase_message: str) -> None:
-
+def test_login_surfaces_firebase_error_code(
+    fake_browser_session: MagicMock,
+    firebase_message: str,
+) -> None:
     page = fake_browser_session.goto.return_value
     page.staged_responses = [
         _make_response(
@@ -272,8 +262,6 @@ def test_login_firebase_failure_without_parseable_body(
 
 
 # ---------- token-exchange failures --------------------------------------
-
-
 def test_login_token_exchange_failure_raises(
     fake_browser_session: MagicMock,
 ) -> None:
@@ -287,10 +275,7 @@ def test_login_token_exchange_failure_raises(
 
 
 # ---------- timeout / silence --------------------------------------------
-
-
 def test_login_no_responses_times_out(fake_browser_session: MagicMock) -> None:
-
     page = fake_browser_session.goto.return_value
     page.staged_responses = []  # nothing arrives
     with pytest.raises(AuthenticationError, match="did not complete"):
@@ -331,7 +316,11 @@ def test_login_short_circuits_when_saved_session_already_authenticates(
     page.fill.assert_not_called()
     page.click.assert_not_called()
     # Post-login navigation still runs so the saved state gets re-flushed.
-    fake_browser_session.goto.assert_any_call(POST_LOGIN_PATH, wait_until="networkidle", timeout=30_000)
+    fake_browser_session.goto.assert_any_call(
+        POST_LOGIN_PATH,
+        wait_until="networkidle",
+        timeout=30_000,
+    )
 
 
 def test_login_short_circuit_respects_post_login_path_disable(
@@ -382,8 +371,6 @@ def test_login_ignores_duplicate_token_responses(
 
 
 # ---------- firebase error without structured body (line 159) ----------------
-
-
 def test_login_firebase_error_with_non_dict_error_field(
     fake_browser_session: MagicMock,
 ) -> None:
@@ -398,8 +385,6 @@ def test_login_firebase_error_with_non_dict_error_field(
 
 
 # ---------- token response arrives before firebase (line 182) ----------------
-
-
 def test_login_handles_token_response_arriving_first(
     fake_browser_session: MagicMock,
 ) -> None:
@@ -417,8 +402,6 @@ def test_login_handles_token_response_arriving_first(
 
 # ---------- load_refresh_token (line 348) ------------------------------------
 # ---------- firebase error message edge cases (line 157->159) ---------------
-
-
 def test_firebase_error_message_with_non_string_message(
     fake_browser_session: MagicMock,
 ) -> None:

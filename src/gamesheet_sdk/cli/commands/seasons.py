@@ -198,17 +198,16 @@ def seasons_get_command(
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
     # Convert to dict for rendering
-    data = run_action_or_exit(session, _get_season_action, season_id).model_dump(mode="json")
+    data = run_action_or_exit(session, _get_season_action, season_id).model_dump(
+        mode="json",
+    )
     # If fields are specified, filter to only those fields
     if fields_spec:
-
         fields = parse_columns_spec(fields_spec)
         if fields:  # pragma: no cover - edge case: fields list is always non-empty when spec is provided
-
             data = {k: v for k, v in data.items() if k in fields}
     # For tabular formats, convert to a list of key-value rows
     if output_format not in ("json", "yaml"):
-
         rows = [{"field": k, "value": v} for k, v in data.items()]
         rendered = render(rows, fmt=output_format, columns=None)
     else:

@@ -160,7 +160,6 @@ def test_get_team_with_invitation_code(config: Config) -> None:
     _season_id = "15020"
     _invitation_code = "ABC123"
     _list_endpoint = f"{_BASE}/api/seasons/{_season_id}/teams"
-
     responses.add(
         responses.GET,
         _list_endpoint,
@@ -178,7 +177,9 @@ def test_get_team_with_invitation_code(config: Config) -> None:
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": _season_id}},
-                        "invitations": {"data": [{"type": "invitations", "id": "inv-1"}]},
+                        "invitations": {
+                            "data": [{"type": "invitations", "id": "inv-1"}],
+                        },
                     },
                 },
             ],
@@ -194,11 +195,9 @@ def test_get_team_with_invitation_code(config: Config) -> None:
         },
         status=200,
     )
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_team(session, _season_id, _team_id)
-
     assert result.id == _team_id
     assert result.season_id == _season_id
     assert result.title == "Test Team"
@@ -211,7 +210,6 @@ def test_get_team_without_invitation_code(config: Config) -> None:
     _team_id = "402"
     _season_id = "15020"
     _list_endpoint = f"{_BASE}/api/seasons/{_season_id}/teams"
-
     responses.add(
         responses.GET,
         _list_endpoint,
@@ -236,11 +234,9 @@ def test_get_team_without_invitation_code(config: Config) -> None:
         },
         status=200,
     )
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_team(session, _season_id, _team_id)
-
     assert result.id == _team_id
     assert result.season_id == _season_id
     assert result.title == "Test Team Without Code"

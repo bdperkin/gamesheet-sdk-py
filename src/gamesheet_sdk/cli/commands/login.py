@@ -4,32 +4,21 @@ This module provides the CLI interface for authenticating with the GameSheet pla
 login. The login flow launches a headless Chromium browser, navigates to the GameSheet login page, submits
 credentials, and extracts authentication tokens (accessToken and refreshToken) from the browser's
 localStorage after successful authentication.
-
 Tokens are persisted to disk so subsequent CLI commands can reuse the session without re-authenticating.
 The saved browser state includes cookies and any SPA-cached data, enabling fully authenticated HTTP
 requests without launching a browser.
-
 Examples:
     Authenticate interactively (email provided, password prompted)::
-
         $ gamesheet-sdk-py login --email user@example.com
-
     Authenticate with both email and password from command line::
-
         $ gamesheet-sdk-py login --email user@example.com --password secret
-
     Authenticate using environment variables::
-
         $ export GAMESHEET_USERNAME=user@example.com
         $ export GAMESHEET_PASSWORD=secret
         $ gamesheet-sdk-py login
-
     Authenticate with custom timeout for slow connections::
-
         $ gamesheet-sdk-py login --email user@example.com --timeout 60000
-
     Debug login issues with visible browser::
-
         $ gamesheet-sdk-py login --email user@example.com --no-headless -vv
 """
 
@@ -81,41 +70,28 @@ def login_command(  # pragma: no cover - requires browser automation
     Opens a headless browser, navigates to the GameSheet login page, submits your
     credentials, and extracts authentication tokens. Tokens are saved to disk so
     subsequent commands can authenticate without launching a browser.
-
     Credentials can be provided via --email and --password options, environment
     variables (GAMESHEET_USERNAME, GAMESHEET_PASSWORD), or interactively (password
     is prompted if omitted). If already authenticated from a previous login, the
     command returns immediately.
-
     Examples:
         Authenticate with email, password prompted:
-
             $ gamesheet-sdk-py login --email user@example.com
             Password: [hidden input]
             Login successful! Tokens saved.
-
         Authenticate with both credentials from command line:
-
             $ gamesheet-sdk-py login --email user@example.com --password secret
             Login successful! Tokens saved.
-
         Authenticate using environment variables:
-
             $ export GAMESHEET_USERNAME=user@example.com
             $ export GAMESHEET_PASSWORD=secret
             $ gamesheet-sdk-py login
             Login successful! Tokens saved.
-
         Authenticate with extended timeout:
-
             $ gamesheet-sdk-py login --email user@example.com --timeout 60000
-
         Debug login flow with visible browser and verbose logging:
-
             $ gamesheet-sdk-py login --email user@example.com --no-headless -vv
-
         Force fresh login by clearing saved state:
-
             $ rm ~/.local/share/gamesheet-sdk-py/browser_state
             $ gamesheet-sdk-py login --email user@example.com
     """

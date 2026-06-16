@@ -28,7 +28,6 @@ def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
 
 @responses.activate
 def test_list_teams_parses_jsonapi_response(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -96,7 +95,6 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_teams_sends_bearer_and_jsonapi_accept(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -116,7 +114,6 @@ def test_list_teams_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
 @responses.activate
 def test_list_teams_empty_data_returns_empty_list(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -125,7 +122,6 @@ def test_list_teams_empty_data_returns_empty_list(config: Config) -> None:
 
 @responses.activate
 def test_list_teams_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -140,7 +136,6 @@ def test_list_teams_401_raises_authentication_error(config: Config) -> None:
 
 @responses.activate
 def test_list_teams_404_raises_gamesheet_error(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -163,7 +158,6 @@ def test_list_teams_other_failure_raises_gamesheet_error(
 
 
 def test_team_model_ignores_unknown_attributes() -> None:
-
     t = Team(
         id="1001",
         season_id="15020",
@@ -177,7 +171,6 @@ def test_team_model_ignores_unknown_attributes() -> None:
 
 
 def test_team_model_handles_optional_division_id() -> None:
-
     t = Team(
         id="1002",
         season_id="15020",
@@ -401,7 +394,11 @@ def test_list_teams_with_malformed_invitation_data(config: Config) -> None:
                 # Non-invitation type (skipped by type check)
                 {"type": "divisions", "id": "div-1", "attributes": {"name": "A"}},
                 # Valid invitation but not referenced by any team
-                {"type": "invitations", "id": "inv-unused", "attributes": {"code": "UNUSED"}},
+                {
+                    "type": "invitations",
+                    "id": "inv-unused",
+                    "attributes": {"code": "UNUSED"},
+                },
             ],
         },
         status=200,

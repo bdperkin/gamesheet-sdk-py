@@ -33,7 +33,6 @@ def completion_command(shell: str) -> None:
 
     cls = get_completion_class(shell)
     if cls is None:  # pragma: no cover - shell choice enum prevents this
-
         click.secho(f"Unsupported shell: {shell}", fg="red", err=True)
         raise Exit(1)
     # Create the completion instance and echo its source
@@ -41,7 +40,6 @@ def completion_command(shell: str) -> None:
     cli = None
     ctx = get_current_context()
     if ctx.parent:
-
         cli = ctx.parent.command
         comp = cls(
             cli,

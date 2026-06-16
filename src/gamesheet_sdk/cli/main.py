@@ -1,26 +1,18 @@
 """Main CLI entry point and root command group.
 
-This module provides the top-level ``gamesheet-sdk-py`` command-line interface.
-The :func:`cli` function is the root click group that all resource-based subcommands
-attach to, and :func:`main` is the entry-point wrapper that returns an integer exit
-code for the package's console script.
+This module provides the top-level ``gamesheet-sdk-py`` command-line interface. The :func:`cli` function is
+the root click group that all resource-based subcommands attach to, and :func:`main` is the entry-point
+wrapper that returns an integer exit code for the package's console script.
 
 Examples
 --------
 Basic usage (show help)::
-
     $ gamesheet-sdk-py --help
-
 Login to GameSheet::
-
     $ gamesheet-sdk-py login
-
 List associations with verbose logging::
-
     $ gamesheet-sdk-py -v associations list
-
 Show browser window during headless operations::
-
     $ gamesheet-sdk-py --no-headless login
 """
 
@@ -51,7 +43,6 @@ from gamesheet_sdk.config import Config
 
 if TYPE_CHECKING:
     from rich_click import Context
-
 # Configure rich-click for attractive help output
 click.rich_click.TEXT_MARKUP = "rich"  # Use rich markup (replaces USE_RICH_MARKUP and USE_MARKDOWN)
 click.rich_click.SHOW_ARGUMENTS = True
@@ -61,8 +52,20 @@ click.rich_click.ERRORS_SUGGESTION = "Try running the '--help' flag for more inf
 click.rich_click.ERRORS_EPILOGUE = ""
 click.rich_click.MAX_WIDTH = 100
 # Use new options_table configuration (replaces SHOW_METAVARS_COLUMN and APPEND_METAVARS_HELP)
-click.rich_click.OPTIONS_TABLE_COLUMN_TYPES = ["required", "opt_short", "opt_long", "metavar", "help"]
-click.rich_click.OPTIONS_TABLE_HELP_SECTIONS = ["help", "deprecated", "envvar", "default", "required"]
+click.rich_click.OPTIONS_TABLE_COLUMN_TYPES = [
+    "required",
+    "opt_short",
+    "opt_long",
+    "metavar",
+    "help",
+]
+click.rich_click.OPTIONS_TABLE_HELP_SECTIONS = [
+    "help",
+    "deprecated",
+    "envvar",
+    "default",
+    "required",
+]
 click.rich_click.OPTION_GROUPS = {
     "gamesheet-sdk-py": [
         {
@@ -132,15 +135,12 @@ def cli(
     _configure_logging(verbose)
     overrides: dict[str, Any] = {}
     if base_url is not None:
-
         overrides["base_url"] = base_url
     if no_headless:
-
         overrides["browser_headless"] = False
     ctx.obj = Config(**overrides)
     # If no subcommand was provided, show help
     if ctx.invoked_subcommand is None:
-
         click.echo(ctx.get_help())
 
 
@@ -161,7 +161,8 @@ cli.add_command(roster_group)
 def main(argv: list[str] | None = None) -> int:
     """Entry-point wrapper for the gamesheet-sdk-py console script.
 
-    Invokes the :func:`cli` click group with ``standalone_mode=False`` so that
+    Invokes the :func:`cli` click group with ``standalone_mode=False`` so that.
+
     click's control-flow exceptions:
         * :exc:`Exit`
         * :exc:`UsageError`
@@ -169,7 +170,6 @@ def main(argv: list[str] | None = None) -> int:
     are converted to integer exit codes rather than triggering ``sys.exit()``
     calls.  This preserves the ``main(argv) -> int`` contract expected by test
     harnesses and allows the caller to control process exit.
-
     :param argv: Optional command-line arguments to parse. If ``None``, defaults to ``sys.argv[1:]`` (click's
         standard behavior).
     :type argv: list[str] | None
@@ -185,10 +185,8 @@ def main(argv: list[str] | None = None) -> int:
         SystemExit,
     ) as exc:
         return resolve_exit(exc)
-
     return 0
 
 
 if __name__ == "__main__":  # pragma: no cover
-
     sys.exit(main())

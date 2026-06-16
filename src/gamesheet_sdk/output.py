@@ -25,7 +25,6 @@ from rich.console import Console
 from rich.syntax import Syntax
 
 if TYPE_CHECKING:
-
     from collections.abc import Callable
 # Every ``tablefmt`` value :func:`render` accepts from tabulate.
 TABULATE_FORMATS: tuple[str, ...] = (
@@ -57,9 +56,7 @@ def _render_json(rows: list[dict[str, Any]], _columns: list[str]) -> str:
     :param rows: List of row dictionaries to serialize.
     :param _columns: Ignored; JSON format includes all keys from each row.
     :returns: JSON string with 2-space indentation and sorted keys.
-
     Example output::
-
         [
             {
                 "id": 123,
@@ -75,10 +72,10 @@ def _render_yaml(rows: list[dict[str, Any]], _columns: list[str]) -> str:
 
     :param rows: List of row dictionaries to serialize.
     :param _columns: Ignored; YAML format includes all keys from each row.
-    :returns: YAML string in block style with sorted keys, trailing whitespace stripped.
+    :returns: YAML string in block style with sorted
+    keys, trailing whitespace stripped.
 
     Example output::
-
         |  - id: 123
         |    name: Example
         |  - id: 456
@@ -99,12 +96,9 @@ def _render_dsv(
     :param columns: Column names in display order; keys not in this list are ignored.
     :param delimiter: Single-character separator (e.g. ``,`` for CSV, ``\t`` for TSV).
     :returns: DSV string with header row, LF line endings, trailing newline stripped.
-
     None values are converted to empty strings. Extra keys in each row beyond
     ``columns`` are silently ignored (``extrasaction="ignore"``).
-
     Example (delimiter=``,``)::
-
         id,name
         123,Example
         456,Another
@@ -119,8 +113,9 @@ def _render_dsv(
     )
     writer.writeheader()
     for row in rows:
-
-        writer.writerow({key: ("" if value is None else value) for key, value in row.items()})
+        writer.writerow(
+            {key: ("" if value is None else value) for key, value in row.items()},
+        )
     return buf.getvalue().rstrip("\n")
 
 
@@ -180,9 +175,7 @@ def _derive_columns(rows: list[dict[str, Any]]) -> list[str]:
         first row's keys (insertion order in Python 3.7+).
     """
     if not rows:
-
         return []
-
     return list(rows[0].keys())
 
 
@@ -200,9 +193,7 @@ def render(
         keys are used in their natural order.
     :returns: Rendered string in the requested format.
     :raises ValueError: If ``fmt`` is not in :data:`ALL_FORMATS`.
-
     Example usage::
-
         >>> from gamesheet_sdk.output import render
         >>> rows = [{"id": 123, "name": "Example"}, {"id": 456, "name": "Another"}]
         >>> print(render(rows, fmt="simple"))
@@ -210,7 +201,6 @@ def render(
         |----  -------
         | 123  Example
         | 456  Another
-
         >>> print(render(rows, fmt="json"))
         [
             {
@@ -222,22 +212,18 @@ def render(
                 "name": "Another"
             }
         ]
-
         >>> print(render(rows, fmt="csv"))
         id,name
         123,Example
         456,Another
     """
     if fmt not in ALL_FORMATS:
-
         _err_msg = f"Unknown format: {fmt!r}. Expected one of {', '.join(ALL_FORMATS)}."
         raise ValueError(_err_msg)
     effective_columns = columns if columns is not None else _derive_columns(rows)
     renderer = _DATA_RENDERERS.get(fmt)
     if renderer is not None:
-
         return renderer(rows, effective_columns)
-
     return _render_tabulate(rows, effective_columns, fmt)
 
 
@@ -264,35 +250,26 @@ def write_output(
     :param fmt: Format name (e.g. ``"json"``, ``"yaml"``, ``"csv"``); controls syntax highlighting on TTY
         stdout.
     :returns: None
-
     When ``path`` is ``None`` and stdout is a TTY, JSON and YAML output is syntax-highlighted via
     :class:`rich.syntax.Syntax`. Other formats and any non-TTY destination receive ``text`` verbatim with a
     trailing newline if it does not already have one.
-
     **File output example**::
-
         >>> from gamesheet_sdk.output import render, write_output
         >>> rows = [{"id": 123, "name": "Example"}]
         >>> text = render(rows, fmt="json")
         >>> write_output(text, "output.json", fmt="json")
         # Writes to output.json with trailing newline
-
     **TTY stdout example** (JSON/YAML only)::
-
         >>> write_output(text, None, fmt="json")
         # Syntax-highlighted output to terminal if stdout is a TTY
-
     **Non-TTY / other formats**::
-
         >>> write_output(text, None, fmt="csv")
         # Plain text to stdout with trailing newline
     """
     if path is not None:
-
         Path(path).write_text(_ensure_trailing_newline(text), encoding="utf-8")
         return
     if sys.stdout.isatty() and fmt in ("json", "yaml"):
-
         Console().print(
             Syntax(
                 text,

@@ -10,7 +10,6 @@ import pytest
 from gamesheet_sdk import Config
 
 if TYPE_CHECKING:
-
     from pathlib import Path
 
 
@@ -18,9 +17,7 @@ if TYPE_CHECKING:
 def _clear_gamesheet_env(monkeypatch: pytest.MonkeyPatch) -> None:
     """Strip any ambient ``GAMESHEET_*`` env vars so every test sees defaults."""
     for key in list(os.environ):
-
         if key.startswith("GAMESHEET_"):
-
             monkeypatch.delenv(key, raising=False)
 
 

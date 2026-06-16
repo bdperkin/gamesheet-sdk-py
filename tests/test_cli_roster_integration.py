@@ -10,7 +10,7 @@ import responses
 # Explicit import for coverage tracking of dynamically-loaded Click commands
 # pylint: disable-next=unused-import
 import gamesheet_sdk.cli.commands.roster  # noqa: F401
-from gamesheet_sdk import DEFAULT_BASE_URL  # pylint: disable=no-name-in-module
+from gamesheet_sdk import DEFAULT_BASE_URL
 from gamesheet_sdk.cli import main
 
 _BASE = DEFAULT_BASE_URL
@@ -34,7 +34,6 @@ def _mock_token() -> None:
 def _cleanup_token() -> None:
     """Remove mock token file."""
     if _TOKEN_PATH.exists():
-
         _TOKEN_PATH.unlink()
 
 
@@ -48,7 +47,9 @@ def test_roster_players_list_json_format() -> None:
         json=_payload([]),
         status=200,
     )
-    result = main(["roster", "--season-id", _SEASON_ID, "players", "list", "-F", "json"])
+    result = main(
+        ["roster", "--season-id", _SEASON_ID, "players", "list", "-F", "json"],
+    )
     assert not result
     _cleanup_token()
 
@@ -63,6 +64,8 @@ def test_roster_coaches_list_json_format() -> None:
         json=_payload([]),
         status=200,
     )
-    result = main(["roster", "--season-id", _SEASON_ID, "coaches", "list", "-F", "json"])
+    result = main(
+        ["roster", "--season-id", _SEASON_ID, "coaches", "list", "-F", "json"],
+    )
     assert not result
     _cleanup_token()
