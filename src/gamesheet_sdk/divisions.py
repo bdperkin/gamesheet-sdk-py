@@ -118,8 +118,8 @@ def get_division(session: Session, division_id: str, *, include_team_count: bool
     :type session: Session
     :param division_id: The division identifier to retrieve.
     :type division_id: str
-    :param include_team_count: If True (default), fetch and populate team_count for the division
-        (requires an additional API call).
+    :param include_team_count: If True (default), fetch and populate team_count for the division (requires an
+        additional API call).
     :type include_team_count: bool
     :returns: The :class:`Division` with the specified ID.
     :rtype: Division
