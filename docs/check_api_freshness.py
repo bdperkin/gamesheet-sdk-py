@@ -48,11 +48,11 @@ def main() -> int:
     newest_source = get_newest_source_mtime()
     oldest_doc = get_oldest_doc_mtime()
 
-    if newest_source == 0.0:
+    if not newest_source:
         rprint("[bold red]ERROR:[/bold red] No source files found")
         return 1
 
-    if oldest_doc == 0.0:
+    if not oldest_doc:
         rprint(
             "[bold yellow]WARNING:[/bold yellow] No API documentation "
             "found. Run: [cyan]python docs/generate_api_docs.py[/cyan]",

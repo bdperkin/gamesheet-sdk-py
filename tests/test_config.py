@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, cast
 
 import pytest
 
-from gamesheet_sdk import Config
+from gamesheet_sdk import DEFAULT_BASE_URL, Config  # pylint: disable=no-name-in-module
 
 if TYPE_CHECKING:
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 def test_defaults() -> None:
 
     cfg = Config()
-    assert cfg.base_url == "https://gamesheet.app"
+    assert cfg.base_url == DEFAULT_BASE_URL
     assert cfg.username is None
     assert cfg.password is None
     assert cfg.timeout == 30.0
@@ -32,7 +32,7 @@ def test_init_kwargs_override_defaults() -> None:
     cfg = Config(base_url="https://example.test", timeout=5.0, request_retries=0)
     assert cfg.base_url == "https://example.test"
     assert cfg.timeout == 5.0
-    assert cfg.request_retries == 0
+    assert not cfg.request_retries
 
 
 def test_env_vars_are_picked_up(monkeypatch: pytest.MonkeyPatch) -> None:

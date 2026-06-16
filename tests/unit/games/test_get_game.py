@@ -5,10 +5,10 @@ from __future__ import annotations
 import pytest
 import responses
 
-from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
+from gamesheet_sdk import BFF_API_BASE_URL, AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.games import get_game
 
-_BFF_BASE = "https://bff-dashboard-api-awy26srzoa-nn.a.run.app"
+_BFF_BASE = BFF_API_BASE_URL
 _SEASON_ID = "15020"
 
 

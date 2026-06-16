@@ -33,7 +33,7 @@ def test_ipad_keys_get_alias_show_works(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["ipad-keys", "show", "--season-id", "15020"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "ipad-test-kw" in result.output
 
 
@@ -58,14 +58,14 @@ def test_ipad_keys_get_alias_view_works(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["ipad-keys", "view", "--season-id", "15020"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "ipad-test-kw" in result.output
 
 
 def test_ipad_keys_default_command_is_get(runner: CliRunner) -> None:
     """Bare 'ipad-keys' with no args shows help mentioning get as default."""
     result = runner.invoke(cli, ["ipad-keys", "--help"])
-    assert result.exit_code == 0
+    assert not result.exit_code
     # Help should mention that get is available
     assert "get" in result.output.lower() or "show" in result.output.lower()
 
@@ -91,7 +91,7 @@ def test_ipad_keys_get_json_output(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020", "-F", "json"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         import json
 
         data = json.loads(result.output)
@@ -121,7 +121,7 @@ def test_ipad_keys_get_yaml_output(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020", "-F", "yaml"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "id: '3567'" in result.output or 'id: "3567"' in result.output
         assert "ipad-test-kw" in result.output
 
@@ -147,7 +147,7 @@ def test_ipad_keys_get_columns_filter(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020", "-c", "id,value"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         # Check that id and value are in the output
         assert "id" in result.output.lower() or "3567" in result.output
         assert "value" in result.output.lower() or "ipad-test-kw" in result.output
@@ -178,7 +178,7 @@ def test_ipad_keys_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
             cli,
             ["ipad-keys", "get", "--season-id", "15020", "-F", "json", "-o", str(output_file)],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert output_file.exists()
         import json
 
@@ -208,7 +208,7 @@ def test_ipad_keys_get_table_format(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         # Table format should have column headers and the value
         assert "ipad-test-kw" in result.output
 
@@ -234,7 +234,7 @@ def test_ipad_keys_get_grid_format(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020", "-F", "grid"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         # Grid format has border characters
         assert "+" in result.output or "|" in result.output
 
@@ -271,5 +271,5 @@ def test_ipad_keys_get_with_env_var(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["ipad-keys", "get"], env={"GAMESHEET_SEASON_ID": "15020"})
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_action.assert_called_once()

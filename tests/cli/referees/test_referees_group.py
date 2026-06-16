@@ -13,10 +13,10 @@ if TYPE_CHECKING:
 def test_referees_group_has_help_option(runner: CliRunner) -> None:
     """The referees group should accept -h and --help."""
     result_short = runner.invoke(cli, ["referees", "-h"])
-    assert result_short.exit_code == 0
+    assert not result_short.exit_code
     assert "referees" in result_short.output.lower()
     result_long = runner.invoke(cli, ["referees", "--help"])
-    assert result_long.exit_code == 0
+    assert not result_long.exit_code
     assert "referees" in result_short.output.lower()
 
 

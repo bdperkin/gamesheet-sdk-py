@@ -43,7 +43,7 @@ def test_referees_get_with_all_fields(runner: CliRunner) -> None:
                 "1146197",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_get.assert_called_once()
         args = mock_get.call_args[0]
         assert args[1] == "15020"
@@ -79,7 +79,7 @@ def test_referees_get_alias_show(runner: CliRunner) -> None:
                 "1146198",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_get.assert_called_once()
 
 
@@ -112,7 +112,7 @@ def test_referees_get_alias_view(runner: CliRunner) -> None:
                 "1146199",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_get.assert_called_once()
 
 
@@ -163,6 +163,6 @@ def test_referees_get_json_output(runner: CliRunner) -> None:
                 "json",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert '"id": "1146200"' in result.output
         assert '"first_name": "Json"' in result.output

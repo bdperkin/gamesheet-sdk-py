@@ -126,10 +126,10 @@ def test_get_referee_report_with_minimal_data(config: Config) -> None:
     assert report.external_id == _external_id
     assert report.first_name == "Jane"
     assert report.last_name == "Doe"
-    assert report.games_refereed == 0
-    assert report.average_pim_per_game == 0.0
+    assert not report.games_refereed
+    assert not report.average_pim_per_game
     assert report.most_frequent_penalty is None
-    assert report.major_penalties_count == 0
+    assert not report.major_penalties_count
     assert report.games == []
     assert report.major_penalties == []
 

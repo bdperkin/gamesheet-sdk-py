@@ -9,6 +9,8 @@ import pytest
 import responses
 
 from gamesheet_sdk import (
+    BFF_API_BASE_URL,
+    CLOUDFLARE_IMAGE_DELIVERY_BASE,
     AuthenticationError,
     Config,
     GameSheetError,
@@ -18,7 +20,7 @@ from gamesheet_sdk import (
 
 _BASE = "https://test.example"
 _SEASON_ID = "15020"
-_BFF_BASE = "https://bff-dashboard-api-awy26srzoa-nn.a.run.app"
+_BFF_BASE = BFF_API_BASE_URL
 _UPLOAD_URL_ENDPOINT = f"{_BFF_BASE}/dwg/assets/upload-url"
 _CREATE_ENDPOINT = f"{_BFF_BASE}/dwg/seasons/{_SEASON_ID}/teams"
 
@@ -162,7 +164,7 @@ def test_create_team_with_logo(config: Config) -> None:
                     "prototeam": {
                         "id": "proto-id",
                         "title": "Test Team",
-                        "logo": "https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA/test-image-id",
+                        "logo": f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/test-image-id",
                     },
                     "seasonTeam": {"id": 123, "divisionId": 80385},
                     "member": None,
@@ -182,7 +184,7 @@ def test_create_team_with_logo(config: Config) -> None:
                 logo_path=logo_path,
             )
 
-        assert result["prototeam"]["logo"] == "https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA/test-image-id"
+        assert result["prototeam"]["logo"] == f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/test-image-id"
 
         # Verify all three requests were made
         assert len(responses.calls) == 3
@@ -193,7 +195,7 @@ def test_create_team_with_logo(config: Config) -> None:
         team_req = responses.calls[2].request
         assert team_req.body is not None
         payload = json.loads(team_req.body)
-        assert payload["logo"] == "https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA/test-image-id"
+        assert payload["logo"] == f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/test-image-id"
 
     finally:
         Path(logo_path).unlink()

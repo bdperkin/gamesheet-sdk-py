@@ -40,7 +40,7 @@ Example usage:
     # Create/update localStorage entries
     state_path = Path.home() / ".gamesheet" / "browser_state.json"
     state = read_state_or_empty(state_path)
-    origin = origin_entry_for(state, "https://app.gamesheet.com")
+    origin = origin_entry_for(state, APP_GAMESHEET_COM)
     apply_local_storage_updates(
         origin["localStorage"],
         {
@@ -102,7 +102,7 @@ def lookup_local_storage(state: dict[str, Any], base_url: str, name: str) -> Any
     :param state: Parsed browser storage state dictionary (from :func:`read_state_file` or
         :func:`read_state_or_empty`).
     :type state: dict[str, Any]
-    :param base_url: Origin URL to search for (e.g., ``"https://app.gamesheet.com"``).
+    :param base_url: Origin URL to search for (e.g., :data:`APP_GAMESHEET_COM`).
     :type base_url: str
     :param name: localStorage key name to look up.
     :type name: str
@@ -203,7 +203,7 @@ def origin_entry_for(state: dict[str, Any], base_url: str) -> dict[str, Any]:
 
     :param state: Browser storage state dictionary (typically from :func:`read_state_or_empty`).
     :type state: dict[str, Any]
-    :param base_url: Origin URL (e.g., ``"https://app.gamesheet.com"``).
+    :param base_url: Origin URL (e.g., :data:`APP_GAMESHEET_COM`).
     :type base_url: str
     :returns: The origin entry dictionary containing ``"origin"`` and ``"localStorage"`` keys. The returned
         dict is a **live reference** — modifications to it will update the state.
@@ -251,7 +251,7 @@ def apply_local_storage_updates(ls: list[dict[str, str]], updates: dict[str, str
 
         state_path = Path.home() / ".gamesheet" / "browser_state.json"
         state = read_state_or_empty(state_path)
-        origin = origin_entry_for(state, "https://app.gamesheet.com")
+        origin = origin_entry_for(state, APP_GAMESHEET_COM)
         # Upsert tokens
         apply_local_storage_updates(
             origin["localStorage"],

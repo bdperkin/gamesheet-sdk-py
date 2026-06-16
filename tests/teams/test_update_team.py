@@ -10,6 +10,8 @@ import pytest
 import responses
 
 from gamesheet_sdk import (
+    BFF_API_BASE_URL,
+    CLOUDFLARE_IMAGE_DELIVERY_BASE,
     AuthenticationError,
     Config,
     GameSheetError,
@@ -20,7 +22,7 @@ from gamesheet_sdk import (
 _BASE = "https://test.example"
 _SEASON_ID = "15020"
 _TEAM_ID = "521623"
-_BFF_BASE = "https://bff-dashboard-api-awy26srzoa-nn.a.run.app"
+_BFF_BASE = BFF_API_BASE_URL
 _UPLOAD_URL_ENDPOINT = f"{_BFF_BASE}/dwg/assets/upload-url"
 _GET_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}"
 _UPDATE_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}"
@@ -230,7 +232,7 @@ def test_update_team_with_logo(config: Config) -> None:
         )
 
         # Mock team update
-        new_logo_url = "https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA/new-image-id"
+        new_logo_url = f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/new-image-id"
         responses.add(
             responses.PATCH,
             _UPDATE_ENDPOINT,
@@ -279,7 +281,7 @@ def test_update_team_remove_logo(config: Config) -> None:
     update_req = responses.calls[1].request
     assert update_req.body is not None
     payload = json.loads(update_req.body)
-    assert payload["data"]["attributes"]["logo_url"] == ""
+    assert not payload["data"]["attributes"]["logo_url"]
 
 
 @responses.activate

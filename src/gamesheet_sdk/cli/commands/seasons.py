@@ -42,6 +42,36 @@ def seasons_group() -> None:
     help="League ID to list seasons for.",
 )
 @click.option(
+    "--starts-after",
+    type=str,
+    default=None,
+    help="Filter seasons starting after this date (ISO format: YYYY-MM-DD).",
+)
+@click.option(
+    "--ends-before",
+    type=str,
+    default=None,
+    help="Filter seasons ending before this date (ISO format: YYYY-MM-DD).",
+)
+@click.option(
+    "--status",
+    type=Choice(["archived", "active", "all"], case_sensitive=False),
+    default=None,
+    help="Filter by season status.",
+)
+@click.option(
+    "--stats-year",
+    type=str,
+    default=None,
+    help="Filter by statistics year (e.g., '2026-2027').",
+)
+@click.option(
+    "--title",
+    type=str,
+    default=None,
+    help="Filter by season title (free-form text search).",
+)
+@click.option(
     "--format",
     "-F",
     "output_format",
@@ -74,6 +104,12 @@ def seasons_group() -> None:
 def seasons_list_command(
     ctx: Context,
     league_id: str,
+    *,
+    starts_after: str | None,
+    ends_before: str | None,
+    status: str | None,
+    stats_year: str | None,
+    title: str | None,
     output_format: str,
     output_path: str | None,
     columns_spec: str | None,
@@ -83,10 +119,24 @@ def seasons_list_command(
     The league ID can be provided via --league-id or the GAMESHEET_LEAGUE_ID environment variable. Requires a
     saved session from `gamesheet-sdk-py login` -- the bearer token is read out of the browser storage state
     on disk and attached to the HTTP request. No browser is launched.
+
+    Optional filters can be applied to narrow the results:
+    --starts-after, --ends-before, --status, --stats-year, and --title.
     """
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
-    seasons = run_action_or_exit(session, _list_seasons_action, league_id)
+    seasons = run_action_or_exit(
+        session,
+        lambda s: _list_seasons_action(
+            s,
+            league_id,
+            starts_after=starts_after,
+            ends_before=ends_before,
+            status=status,
+            stats_year=stats_year,
+            title=title,
+        ),
+    )
     rows = [season.model_dump(mode="json") for season in seasons]
     rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
     write_output(rendered, output_path, fmt=output_format)

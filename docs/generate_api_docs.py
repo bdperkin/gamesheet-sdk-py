@@ -46,7 +46,7 @@ def main() -> int:
     rprint(f"[bold]Running:[/bold] [cyan]{' '.join(cmd)}[/cyan]")
     result = subprocess.run(cmd, check=False)  # noqa: S603 # nosec B603
 
-    if result.returncode != 0:
+    if result.returncode:
         rprint(
             f"[bold red]sphinx-apidoc failed with exit code {result.returncode}[/bold red]",
             file=sys.stderr,

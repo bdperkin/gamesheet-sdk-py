@@ -6,7 +6,7 @@ Games represent matchups between teams. This module provides access to three gam
 - Bracket games (playoff/tournament games)
 
 The games data is retrieved from the BFF (Backend For Frontend) API at
-``https://bff-dashboard-api-awy26srzoa-nn.a.run.app/games-list/v1`` with various filter parameters.
+the BFF API ``/games-list/v1`` endpoint with various filter parameters.
 """
 
 from __future__ import annotations
@@ -15,12 +15,12 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
+from gamesheet_sdk.constants import BFF_API_BASE_URL
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
 if TYPE_CHECKING:
     from gamesheet_sdk.session import Session
 
-_BFF_BASE_URL = "https://bff-dashboard-api-awy26srzoa-nn.a.run.app"
 _ENDPOINT = "/games-list/v1"
 
 
@@ -98,7 +98,7 @@ def _make_request(
     if brackets is not None:
         params["filter[brackets]"] = "true" if brackets else "false"
 
-    url = f"{_BFF_BASE_URL}{_ENDPOINT}"
+    url = f"{BFF_API_BASE_URL}{_ENDPOINT}"
     response = session.get(url, params=params)
 
     if response.status_code == 401:

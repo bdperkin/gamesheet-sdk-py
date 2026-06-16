@@ -304,8 +304,7 @@ def _configure_logging(verbose: int) -> None:
 
     :param verbose: 0 = WARNING, 1 = INFO, 2+ = DEBUG.
     """
-    if verbose == 0:
-
+    if not verbose:
         level = logging.WARNING
     elif verbose == 1:
         level = logging.INFO
@@ -313,7 +312,6 @@ def _configure_logging(verbose: int) -> None:
         level = logging.DEBUG
     handler = logging.StreamHandler(sys.stderr)
     if _should_color(handler):  # pragma: no cover
-
         formatter: logging.Formatter = colorlog.ColoredFormatter(
             "%(log_color)s%(levelname)-8s%(reset)s %(message)s",
             log_colors={

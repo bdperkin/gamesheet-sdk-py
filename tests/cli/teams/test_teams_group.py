@@ -13,10 +13,10 @@ if TYPE_CHECKING:
 def test_teams_group_has_help_option(runner: CliRunner) -> None:
     """The teams group should accept -h and --help."""
     result_short = runner.invoke(cli, ["teams", "-h"])
-    assert result_short.exit_code == 0
+    assert not result_short.exit_code
     assert "teams" in result_short.output.lower()
     result_long = runner.invoke(cli, ["teams", "--help"])
-    assert result_long.exit_code == 0
+    assert not result_long.exit_code
     assert "teams" in result_short.output.lower()
 
 

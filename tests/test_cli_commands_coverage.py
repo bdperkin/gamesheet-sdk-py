@@ -42,7 +42,7 @@ def test_games_scheduled_list_coverage() -> None:
             ["list", "-F", "json"],
             obj={"config": MagicMock(), "season_id": "15020"},
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
 
 
 def test_games_completed_list_coverage() -> None:
@@ -64,7 +64,7 @@ def test_games_completed_list_coverage() -> None:
             ["list", "-F", "json"],
             obj={"config": MagicMock(), "season_id": "15020"},
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
 
 
 def test_games_brackets_list_coverage() -> None:
@@ -86,7 +86,7 @@ def test_games_brackets_list_coverage() -> None:
             ["list", "-F", "json"],
             obj={"config": MagicMock(), "season_id": "15020"},
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
 
 
 def test_roster_players_list_coverage() -> None:
@@ -108,7 +108,7 @@ def test_roster_players_list_coverage() -> None:
             ["list", "-F", "json"],
             obj={"config": MagicMock(), "season_id": "15020"},
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
 
 
 def test_roster_coaches_list_coverage() -> None:
@@ -130,7 +130,7 @@ def test_roster_coaches_list_coverage() -> None:
             ["list", "-F", "json"],
             obj={"config": MagicMock(), "season_id": "15020"},
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
 
 
 def test_divisions_list_coverage() -> None:
@@ -152,7 +152,7 @@ def test_divisions_list_coverage() -> None:
             ["list", "--season-id", "15020", "-F", "json"],
             obj=MagicMock(),
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
 
 
 def test_divisions_teams_coverage() -> None:
@@ -174,7 +174,7 @@ def test_divisions_teams_coverage() -> None:
             ["teams", "--division-id", "701", "-F", "json"],
             obj=MagicMock(),
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
 
 
 def test_divisions_create_coverage() -> None:
@@ -208,7 +208,7 @@ def test_divisions_create_coverage() -> None:
             ["create", "--season-id", "15020", "--title", "Test Division", "-F", "json"],
             obj=MagicMock(),
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         # Verify success message was displayed
         mock_secho.assert_called_once()
         call_args = mock_secho.call_args
@@ -258,7 +258,7 @@ def test_divisions_create_with_output_file_coverage() -> None:
             ],
             obj=MagicMock(),
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         # When output file is specified, success message should not be displayed
         mock_secho.assert_not_called()
 
@@ -303,7 +303,7 @@ def test_divisions_update_coverage() -> None:
             ],
             obj=MagicMock(),
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         # Verify success message was displayed
         mock_secho.assert_called_once()
         call_args = mock_secho.call_args
@@ -368,7 +368,7 @@ def test_divisions_update_with_output_file_coverage() -> None:
             ],
             obj=MagicMock(),
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         # When output file is specified, success message should not be displayed
         mock_secho.assert_not_called()
 
@@ -387,7 +387,7 @@ def test_divisions_delete_coverage() -> None:
             ["delete", "--season-id", "15020", "--division-id", "701", "--force"],
             obj=MagicMock(),
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         # Verify success message was displayed
         mock_secho.assert_called_once()
         call_args = mock_secho.call_args

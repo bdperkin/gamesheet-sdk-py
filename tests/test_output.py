@@ -108,8 +108,8 @@ def test_render_columns_restricts_and_orders() -> None:
 def test_render_empty_rows_yields_clean_output() -> None:
 
     assert render([], fmt="json") == "[]"
-    assert render([], fmt="csv") == ""
-    assert render([], fmt="simple") == ""
+    assert not render([], fmt="csv")
+    assert not render([], fmt="simple")
 
 
 def test_render_handles_none_in_values_for_csv() -> None:

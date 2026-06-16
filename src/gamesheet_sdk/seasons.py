@@ -5,7 +5,8 @@ etc.). Each season belongs to exactly one league. The dashboard displays seasons
 league view. This module talks to the GameSheet JSON:API at ``/api/seasons?league_id={league_id}`` directly
 with the lightweight :class:`gamesheet_sdk.Session` path -- no Playwright needed for read-only access once a
 bearer token has been obtained (typically by reading the SPA's ``accessToken`` from the saved browser storage
-state via :func:`gamesheet_sdk.auth.load_access_token`).
+state via :func:`gamesheet_sdk.auth.load_access_token`). When filters are provided, the BFF API endpoint is
+used instead.
 """
 
 from __future__ import annotations
@@ -15,6 +16,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
+from gamesheet_sdk.constants import BFF_API_BASE_URL
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
 if TYPE_CHECKING:
@@ -102,21 +104,121 @@ def _parse_detail(data: dict[str, Any]) -> SeasonDetail:
     )
 
 
-def list_seasons(session: Session, league_id: str) -> list[Season]:
+def _parse_bff_season(item: dict[str, Any], league_id: str) -> Season:
+    """Parse a season from the BFF API response.
+
+    Note: The BFF API does not return created_at/updated_at, so we use the current time.
+    """
+    now = datetime.now()
+    return Season(
+        id=str(item["id"]),
+        league_id=league_id,
+        title=item.get("title", ""),
+        created_at=now,
+        updated_at=now,
+    )
+
+
+def _list_seasons_bff(
+    session: Session,
+    league_id: str,
+    *,
+    starts_after: str | None,
+    ends_before: str | None,
+    status: str | None,
+    stats_year: str | None,
+    title: str | None,
+) -> list[Season]:
+    """List seasons using the BFF API with filters."""
+    params: dict[str, str] = {
+        "page[number]": "1",
+        "page[size]": "1000",
+        "sort": "-start_date",
+    }
+    if starts_after:
+        params["filter[starts_after]"] = starts_after
+    if ends_before:
+        params["filter[ends_before]"] = ends_before
+    if status:
+        params["filter[status]"] = status
+    if stats_year:
+        params["filter[stats_year]"] = stats_year
+    if title:
+        params["filter[title]"] = title
+    url = f"{BFF_API_BASE_URL}/leagues/{league_id}/seasons"
+    response = session.get(url, params=params)
+    if response.status_code == 401:
+
+        _err_msg = (
+            "Access token rejected (HTTP 401). Likely expired; re-run "
+            "`gamesheet-sdk-py login` to refresh and try again.",
+        )
+        raise AuthenticationError(_err_msg)
+    if response.status_code == 404:
+
+        _err_msg = (
+            f"League '{league_id}' not found (HTTP 404). "
+            f"Make sure you're using a valid league ID. "
+            f"To get valid league IDs, run: gamesheet-sdk-py leagues list",
+        )
+        raise GameSheetError(_err_msg)
+    if response.status_code >= 400:
+
+        _err_msg = (f"GET {url} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        raise GameSheetError(_err_msg)
+    body: dict[str, Any] = response.json()
+    if body.get("status") != "success":
+
+        _err_msg = (f"BFF API returned non-success status: {body.get('status')}",)
+        raise GameSheetError(_err_msg)
+    data = body.get("data", [])
+    if isinstance(data, dict):
+        items = data.get("items", [])
+    else:
+        items = data
+    return [_parse_bff_season(item, league_id) for item in items]
+
+
+def list_seasons(
+    session: Session,
+    league_id: str,
+    *,
+    starts_after: str | None = None,
+    ends_before: str | None = None,
+    status: str | None = None,
+    stats_year: str | None = None,
+    title: str | None = None,
+) -> list[Season]:
     """Return every season in the specified league.
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
-    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    Note: The GameSheet API returns all seasons, so this function filters client-side to only
-    include seasons that belong to the specified league (via the relationships.league.data.id field).
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401. When filters are
+    provided, the BFF API endpoint is used. Otherwise, the JSON:API endpoint is used and results are filtered
+    client-side.
     :param session: An authenticated :class:`Session`.
     :param league_id: The league identifier whose seasons to list.
+    :param starts_after: Optional filter for seasons starting after this date (ISO format: YYYY-MM-DD).
+    :param ends_before: Optional filter for seasons ending before this date (ISO format: YYYY-MM-DD).
+    :param status: Optional status filter (e.g., 'archived', 'active', 'all').
+    :param stats_year: Optional statistics year filter (e.g., '2026-2027').
+    :param title: Optional title search filter (free-form text).
     :returns: A list of :class:`Season`, in the order the server returned them. The list may be empty if the
         league has no seasons.
     :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
         run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response.
     """
+    has_filters = any([starts_after, ends_before, status, stats_year, title])
+    if has_filters:
+        return _list_seasons_bff(
+            session,
+            league_id,
+            starts_after=starts_after,
+            ends_before=ends_before,
+            status=status,
+            stats_year=stats_year,
+            title=title,
+        )
     response = session.get(
         _ENDPOINT,
         headers={"Accept": _JSONAPI_CONTENT_TYPE},

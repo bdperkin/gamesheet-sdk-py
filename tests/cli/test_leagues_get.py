@@ -28,7 +28,7 @@ def test_leagues_get(runner: CliRunner) -> None:
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
         result = runner.invoke(cli, ["leagues", "get", "--association-id", "1001", "--league-id", "201"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert result.output
         assert mock_action.called
 
@@ -62,7 +62,7 @@ def test_leagues_get_with_fields(runner: CliRunner) -> None:
                 "json",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert result.output
 
 
@@ -84,5 +84,5 @@ def test_leagues_get_empty_fields(runner: CliRunner) -> None:
             cli,
             ["leagues", "get", "--association-id", "1001", "--league-id", "201", "--fields", ","],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert result.output

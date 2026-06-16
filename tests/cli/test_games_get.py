@@ -39,7 +39,7 @@ def test_games_get(runner: CliRunner) -> None:
         ctx = Mock()
         ctx.obj = {"config": config, "season_id": "15020"}
         result = runner.invoke(games_get_command, ["--game-id", "12345"], obj=ctx.obj)
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert result.output
         assert mock_action.called
 
@@ -79,7 +79,7 @@ def test_games_get_with_fields(runner: CliRunner) -> None:
             ],
             obj=ctx.obj,
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert result.output
 
 
@@ -107,5 +107,5 @@ def test_games_get_empty_fields(runner: CliRunner) -> None:
         ctx = Mock()
         ctx.obj = {"config": config, "season_id": "15020"}
         result = runner.invoke(games_get_command, ["--game-id", "12345", "--fields", ","], obj=ctx.obj)
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert result.output

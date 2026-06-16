@@ -34,7 +34,7 @@ def test_referees_delete_with_force(runner: CliRunner) -> None:
                 "--force",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_delete.assert_called_once()
         args = mock_delete.call_args[0]
         assert args[1] == "15020"
@@ -65,7 +65,7 @@ def test_referees_delete_alias_rm(runner: CliRunner) -> None:
                 "--force",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_delete.assert_called_once()
 
 
@@ -92,7 +92,7 @@ def test_referees_delete_alias_remove(runner: CliRunner) -> None:
                 "--force",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_delete.assert_called_once()
 
 

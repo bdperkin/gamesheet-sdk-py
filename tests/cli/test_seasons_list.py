@@ -16,10 +16,10 @@ if TYPE_CHECKING:
 def test_seasons_group_has_help_option(runner: CliRunner) -> None:
     """The seasons group should accept -h and --help."""
     result_short = runner.invoke(cli, ["seasons", "-h"])
-    assert result_short.exit_code == 0
+    assert not result_short.exit_code
     assert "seasons" in result_short.output.lower()
     result_long = runner.invoke(cli, ["seasons", "--help"])
-    assert result_long.exit_code == 0
+    assert not result_long.exit_code
     assert "seasons" in result_short.output.lower()
 
 
@@ -35,7 +35,7 @@ def test_seasons_list_alias_works(runner: CliRunner) -> None:
     ):
         mock_list.return_value = []
         result = runner.invoke(cli, ["seasons", "ls", "--league-id", "1148580"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_list.assert_called_once()
 
 
@@ -66,7 +66,7 @@ def test_seasons_list_json_output(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["seasons", "list", "--league-id", "1148580", "--format", "json"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert '"id": "501"' in result.output
         assert '"title": "2024-2025"' in result.output
 
@@ -91,7 +91,7 @@ def test_seasons_list_yaml_output(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["seasons", "list", "--league-id", "1148580", "--format", "yaml"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "id:" in result.output or "id :" in result.output
         assert "2024-2025" in result.output
 
@@ -116,7 +116,7 @@ def test_seasons_list_columns_filter(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["seasons", "list", "--league-id", "1148580", "--columns", "id,title"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "501" in result.output
         assert "2024-2025" in result.output
 
@@ -145,7 +145,7 @@ def test_seasons_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
             cli,
             ["seasons", "list", "--league-id", "1148580", "--format", "json", "--output", str(output_file)],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert output_file.exists()
         content = output_file.read_text()
         assert '"id": "501"' in content
@@ -171,7 +171,7 @@ def test_seasons_list_csv_output(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["seasons", "list", "--league-id", "1148580", "--format", "csv"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         lines = result.output.strip().split("\n")
         assert len(lines) >= 2
         assert "id" in lines[0].lower()
@@ -197,7 +197,7 @@ def test_seasons_list_tsv_output(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["seasons", "list", "--league-id", "1148580", "--format", "tsv"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         lines = result.output.strip().split("\n")
         assert len(lines) >= 2
         # TSV uses tabs
@@ -227,5 +227,5 @@ def test_seasons_list_with_env_var(runner: CliRunner) -> None:
     ):
         mock_list.return_value = []
         result = runner.invoke(cli, ["seasons", "list"], env={"GAMESHEET_LEAGUE_ID": "1148580"})
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_list.assert_called_once()

@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
+from gamesheet_sdk.constants import BFF_API_BASE_URL, CLOUDFLARE_IMAGE_DELIVERY_BASE
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
 if TYPE_CHECKING:
@@ -216,7 +217,7 @@ def _upload_logo(session: Session, logo_path: str) -> str:
         _err_msg = (f"Invalid image file: {logo_path}",)
         raise GameSheetError(_err_msg)
 
-    upload_url_endpoint = "https://bff-dashboard-api-awy26srzoa-nn.a.run.app/dwg/assets/upload-url"
+    upload_url_endpoint = f"{BFF_API_BASE_URL}/dwg/assets/upload-url"
     upload_url_response = session.post(upload_url_endpoint)
 
     if upload_url_response.status_code == 401:
@@ -258,7 +259,7 @@ def _upload_logo(session: Session, logo_path: str) -> str:
         _err_msg = (f"Failed to upload logo: {upload_result}",)
         raise GameSheetError(_err_msg)
 
-    return f"https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA/{image_id}"
+    return f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/{image_id}"
 
 
 # pylint: disable-next=too-many-locals,too-many-branches
@@ -464,7 +465,7 @@ def create_team(
     if logo_path:
         logo_url = _upload_logo(session, logo_path)
 
-    create_endpoint = f"https://bff-dashboard-api-awy26srzoa-nn.a.run.app/dwg/seasons/{season_id}/teams"
+    create_endpoint = f"{BFF_API_BASE_URL}/dwg/seasons/{season_id}/teams"
     payload: dict[str, str | int] = {
         "title": title,
         "divisionId": int(division_id),
