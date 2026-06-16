@@ -136,18 +136,25 @@ def get_team(session: Session, season_id: str, team_id: str) -> Team:
         raise GameSheetError(_err_msg)
 
     body: dict[str, Any] = response.json()
-    team = _parse(body["data"])
+    team_data = body["data"]
+    team = _parse(team_data)
 
-    # Extract invitation code from included resources if present
-    invitation_code = None
+    # Build invitation code lookup from included resources
+    invitation_codes: dict[str, str] = {}
     for item in body.get("included", []):
         if item.get("type") == "invitations":
-            invitation_code = item.get("attributes", {}).get("code")
-            break
+            invitation_id = item.get("id")
+            code = item.get("attributes", {}).get("code")
+            if invitation_id and code:
+                invitation_codes[invitation_id] = code
 
-    # Update team with invitation code if found
-    if invitation_code:
-        team = team.model_copy(update={"invitation_code": invitation_code})
+    # Match invitation code via relationship
+    inv_rel = team_data.get("relationships", {}).get("invitations", {}).get("data")
+    if inv_rel:
+        # invitations relationship can be single object or array
+        inv_id = inv_rel[0]["id"] if isinstance(inv_rel, list) else inv_rel.get("id")
+        if inv_id and inv_id in invitation_codes:
+            team = team.model_copy(update={"invitation_code": invitation_codes[inv_id]})
 
     return team
 
