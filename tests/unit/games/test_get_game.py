@@ -48,6 +48,50 @@ def test_get_game_returns_single_game(config: Config) -> None:
 
 
 @responses.activate
+def test_get_game_finds_game_in_list(config: Config) -> None:
+    """Test that get_game finds the correct game when multiple games are returned."""
+    _game_id = 12346
+    _endpoint = f"{_BFF_BASE}/games-list/v1"
+    responses.add(
+        responses.GET,
+        _endpoint,
+        json={
+            "status": "success",
+            "data": [
+                {
+                    "id": 12345,
+                    "status": "completed",
+                    "date": "2024-06-14",
+                    "time": "18:00",
+                    "location": "Arena B",
+                    "visitor": {"id": 103, "title": "Team C"},
+                    "home": {"id": 104, "title": "Team D"},
+                    "visitorScore": 1,
+                    "homeScore": 2,
+                },
+                {
+                    "id": _game_id,
+                    "status": "completed",
+                    "date": "2024-06-15",
+                    "time": "19:00",
+                    "location": "Arena A",
+                    "visitor": {"id": 101, "title": "Team A"},
+                    "home": {"id": 102, "title": "Team B"},
+                    "visitorScore": 3,
+                    "homeScore": 2,
+                },
+            ],
+        },
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        result = get_game(session, _SEASON_ID, _game_id)
+    assert result.id == _game_id
+    assert result.visitor.title == "Team A"
+
+
+@responses.activate
 def test_get_game_404_when_game_not_found(config: Config) -> None:
     """Test that get_game raises GameSheetError when game is not found."""
     _game_id = 99999
