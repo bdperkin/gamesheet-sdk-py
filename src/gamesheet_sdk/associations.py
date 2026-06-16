@@ -75,6 +75,48 @@ def _parse(item: dict[str, Any]) -> Association:
     return Association(id=item["id"], **item.get("attributes", {}))
 
 
+def get_association(session: Session, association_id: str) -> Association:
+    """Get a single association by ID.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param association_id: The association identifier to retrieve.
+    :type association_id: str
+    :returns: The :class:`Association` with the specified ID.
+    :rtype: Association
+    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
+        run ``gamesheet-sdk-py login`` to refresh).
+    :raises GameSheetError: For any other non-2xx response, including 404 if the association is not found.
+    """
+    endpoint = f"{_ENDPOINT}/{association_id}"
+    response = session.get(
+        endpoint,
+        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+    )
+
+    if response.status_code == 401:
+        _err_msg = (
+            "Access token rejected (HTTP 401). Likely expired; re-run "
+            "`gamesheet-sdk-py login` to refresh and try again.",
+        )
+        raise AuthenticationError(_err_msg)
+    if response.status_code == 404:
+        _err_msg = (
+            f"Association '{association_id}' not found (HTTP 404). "
+            f"Make sure you're using a valid association ID.",
+        )
+        raise GameSheetError(_err_msg)
+    if response.status_code >= 400:
+        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        raise GameSheetError(_err_msg)
+
+    body: dict[str, Any] = response.json()
+    return _parse(body["data"])
+
+
 def list_associations(session: Session) -> list[Association]:
     """Return every association the authenticated user can see.
 

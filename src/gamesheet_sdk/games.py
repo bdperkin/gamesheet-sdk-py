@@ -132,6 +132,40 @@ def _make_request(
     return [Game(**game_data) for game_data in games_data]
 
 
+def get_game(session: Session, season_id: str, game_id: int) -> Game:
+    """Get a single game by ID.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param season_id: The parent season identifier.
+    :type season_id: str
+    :param game_id: The game identifier to retrieve.
+    :type game_id: int
+    :returns: The :class:`Game` with the specified ID.
+    :rtype: Game
+    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
+        run ``gamesheet-sdk-py login`` to refresh).
+    :raises GameSheetError: For any other non-2xx response, including 404 if the game is not found.
+    """
+    # Get all games for the season and filter by ID
+    # The BFF API doesn't have a single-game endpoint, so we filter client-side
+    games = _make_request(session, season_id)
+
+    for game in games:
+        if game.id == game_id:
+            return game
+
+    # Game not found
+    _err_msg = (
+        f"Game '{game_id}' not found in season '{season_id}'. "
+        f"Make sure you're using a valid game ID and season ID.",
+    )
+    raise GameSheetError(_err_msg)
+
+
 def list_scheduled(session: Session, season_id: str) -> list[Game]:
     """Return every scheduled game in the specified season.
 

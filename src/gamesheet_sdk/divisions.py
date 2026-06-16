@@ -60,6 +60,47 @@ def _parse(item: dict[str, Any]) -> Division:
     )
 
 
+def get_division(session: Session, division_id: str) -> Division:
+    """Get a single division by ID.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param division_id: The division identifier to retrieve.
+    :type division_id: str
+    :returns: The :class:`Division` with the specified ID.
+    :rtype: Division
+    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
+        run ``gamesheet-sdk-py login`` to refresh).
+    :raises GameSheetError: For any other non-2xx response, including 404 if the division is not found.
+    """
+    endpoint = f"{_ENDPOINT}/{division_id}"
+    response = session.get(
+        endpoint,
+        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+    )
+
+    if response.status_code == 401:
+        _err_msg = (
+            "Access token rejected (HTTP 401). Likely expired; re-run "
+            "`gamesheet-sdk-py login` to refresh and try again.",
+        )
+        raise AuthenticationError(_err_msg)
+    if response.status_code == 404:
+        _err_msg = (
+            f"Division '{division_id}' not found (HTTP 404). " f"Make sure you're using a valid division ID.",
+        )
+        raise GameSheetError(_err_msg)
+    if response.status_code >= 400:
+        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        raise GameSheetError(_err_msg)
+
+    body: dict[str, Any] = response.json()
+    return _parse(body["data"])
+
+
 def list_division_teams(session: Session, division_id: str) -> list[Team]:
     """Return every team in the specified division.
 
