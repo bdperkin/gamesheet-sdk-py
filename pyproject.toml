@@ -341,6 +341,7 @@ inline-quotes = "double"
 max-line-length = 110
 per-file-ignores = [
   "docs/*:INP001",
+  "scripts/*:E203,EM102,SF01,T201,TRY003,TRY300",
   "tests/*:PT019,S101,S105,S106,SF01",
 ]
 recursive = true
@@ -460,6 +461,7 @@ miscellaneous.notes = [ "FIXME", "XXX", "TODO" ]
 ]
 "messages control".per-file-ignores = [
   "docs/conf.py:invalid-name",
+  "scripts/**:broad-exception-caught,protected-access,unspecified-encoding",
   "tests/**:import-outside-toplevel,missing-function-docstring,protected-access,redefined-outer-name",
 ]
 
@@ -495,6 +497,7 @@ ignore-magic = true
 ignore-semiprivate = true
 ignore-nested-functions = true
 exclude = [
+  "test_*.py",
   "tests",
 ]
 check = true

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
+# flake8: noqa: INP001
 """Analyze and summarize spider output JSON files.
 
-This utility provides quick analysis and insights from spider crawl results,
-including statistics, mutation summaries, and API endpoint extraction.
+This utility provides quick analysis and insights from spider crawl results, including statistics, mutation
+summaries, and API endpoint extraction.
 """
 
 from __future__ import annotations
@@ -20,13 +21,14 @@ def load_spider_output(path: Path) -> dict[str, Any]:
 
     :param path: Path to spider output JSON file
     :returns: Parsed spider output data
+    :raises FileNotFoundError: If spider output file does not exist
     :raises ValueError: If file is not valid JSON or missing required fields
     """
     if not path.exists():
         raise FileNotFoundError(f"Spider output not found: {path}")
 
     try:
-        data = json.loads(path.read_text())
+        data: dict[str, Any] = json.loads(path.read_text())
     except json.JSONDecodeError as exc:
         raise ValueError(f"Invalid JSON in {path}: {exc}") from exc
 
@@ -166,8 +168,8 @@ def analyze_urls(data: dict[str, Any]) -> None:
 
     print("  URL Depth Distribution:")
     for depth, count in sorted(depths.items()):
-        bar = "█" * (count * 40 // max(depths.values()))
-        print(f"    Depth {depth}: {count:>4} {bar}")
+        bar_chart = "█" * (count * 40 // max(depths.values()))
+        print(f"    Depth {depth}: {count:>4} {bar_chart}")
     print()
 
     # Common path prefixes

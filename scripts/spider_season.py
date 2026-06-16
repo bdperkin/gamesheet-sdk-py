@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# flake8: noqa: INP001
+# pylint: disable=too-many-lines
 """Spider all GET-traversable paths and mutations for a GameSheet season.
 
 This utility discovers all GET-traversable paths under a season URL, records
@@ -79,7 +81,7 @@ class NetworkCapture:
 
 
 @dataclass
-class SpiderState:
+class SpiderState:  # pylint: disable=too-many-instance-attributes
     """Current state of the spider crawl."""
 
     season_id: str
@@ -94,8 +96,13 @@ class SpiderState:
     request_counter: int = 0  # Counter for naming request artifacts
 
 
-class SeasonSpider:
-    """Spider for discovering all paths and mutations under a GameSheet season."""
+class SeasonSpider:  # pylint: disable=too-few-public-methods
+    """Spider for discovering all paths and mutations under a GameSheet season.
+
+    :param season_id: The season ID to spider (e.g., "15020")
+    :param config: Configuration object with auth credentials
+    :param browser_executable: Optional path to browser executable
+    """
 
     def __init__(
         self,
@@ -103,12 +110,6 @@ class SeasonSpider:
         config: Config,
         browser_executable: str | None = None,
     ) -> None:
-        """Initialize the spider.
-
-        :param season_id: The season ID to spider (e.g., "15020")
-        :param config: Configuration object with auth credentials
-        :param browser_executable: Optional path to browser executable
-        """
         self.season_id = season_id
         self.config = config
         self.browser_executable = browser_executable
@@ -130,8 +131,8 @@ class SeasonSpider:
     def _normalize_url_pattern(self, url: str) -> str:
         """Normalize URL by replacing numeric path segments with placeholders.
 
-        This treats /teams/123/roster and /teams/456/roster as the same pattern,
-        allowing us to discover structure rather than crawling all data.
+        This treats /teams/123/roster and /teams/456/roster as the same pattern, allowing us to discover
+        structure rather than crawling all data.
 
         :param url: URL to normalize
         :returns: Normalized URL pattern with {id} placeholders
@@ -165,7 +166,7 @@ class SeasonSpider:
             return url
 
         # Resolve relative URLs against current page or base URL
-        base = current_url if current_url else self.state.base_url
+        base = current_url or self.state.base_url
         return urljoin(base, url)
 
     def _save_request_artifacts(self, request: Request, request_num: int, artifacts_dir: Path) -> None:
@@ -209,9 +210,9 @@ class SeasonSpider:
                 body = response.body()
                 response_file = Path(str(prefix) + "_response_body.txt")
                 response_file.write_bytes(body)
-            except Exception:  # noqa: BLE001, S110
+            except Exception as exc:  # noqa: BLE001
                 # Some responses may not have a body or be already consumed
-                pass
+                _LOGGER.debug("Could not read response body for %s: %s", response.url, exc)  # noqa: TRY401
 
         except Exception as exc:  # noqa: BLE001
             _LOGGER.warning("Failed to save response artifacts for %s: %s", response.url, exc)
@@ -269,7 +270,7 @@ class SeasonSpider:
         page.on("request", on_request)
         page.on("response", on_response)
 
-    def _discover_mutations(self, page: Page, current_url: str) -> None:
+    def _discover_mutations(self, page: Page, current_url: str) -> None:  # pylint: disable=too-many-locals
         """Discover mutation operations without executing them.
 
         :param page: Playwright page to inspect
@@ -382,7 +383,7 @@ class SeasonSpider:
 
     def _human_delay(self) -> None:
         """Sleep for a randomized human-like delay."""
-        delay = random.uniform(MIN_DELAY, MAX_DELAY)
+        delay = random.uniform(MIN_DELAY, MAX_DELAY)  # noqa: S311 # nosec B311
         _LOGGER.debug("Human delay: %.2fs", delay)
         time.sleep(delay)
 
@@ -452,12 +453,12 @@ class SeasonSpider:
             return False
 
         except Exception as exc:  # noqa: BLE001
-            _LOGGER.exception("Error visiting %s: %s", url, exc)
+            _LOGGER.exception("Error visiting %s", url)  # noqa: TRY401
             self.state.error_urls[url] = f"Error: {exc}"
             return False
 
     def _crawl_loop(self, artifacts_dir: Path | None = None) -> None:
-        """Main crawl loop that processes the queue until empty.
+        """Process the queue until empty.
 
         :param artifacts_dir: Optional directory to save network artifacts
         """
@@ -503,7 +504,7 @@ class SeasonSpider:
 
         :returns: BrowserSession configured with custom executable
         """
-        from playwright.sync_api import sync_playwright
+        from playwright.sync_api import sync_playwright  # pylint: disable=import-outside-toplevel
 
         # Create a custom session that patches the browser launch
         session = BrowserSession(self.config)
@@ -518,11 +519,13 @@ class SeasonSpider:
             )
             storage_state = session._load_storage_state()
             if storage_state is not None:
-                session._context = session._browser.new_context(storage_state=storage_state)
+                session._context = session._browser.new_context(
+                    storage_state=storage_state,  # type: ignore[arg-type]
+                )
             else:
                 session._context = session._browser.new_context()
 
-        session._start = custom_start
+        session._start = custom_start  # type: ignore[method-assign]
         return session
 
     def _save_results(self, output_path: Path) -> None:
@@ -609,11 +612,7 @@ def main(argv: list[str] | None = None) -> int:
     :param argv: Command-line arguments (defaults to sys.argv[1:])
     :returns: Exit code (0 = success, non-zero = error)
     """
-    parser = argparse.ArgumentParser(
-        description="Spider all GET-traversable paths and mutations for a GameSheet season.",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
+    epilog_text = """Examples:
     # Spider season 15020 with default output
     %(prog)s 15020
 
@@ -630,7 +629,12 @@ Environment variables:
     GAMESHEET_USERNAME    - GameSheet account email
     GAMESHEET_PASSWORD    - GameSheet account password
     GAMESHEET_BASE_URL    - Base URL (default: https://gamesheet.app)
-        """,
+"""
+
+    parser = argparse.ArgumentParser(
+        description="Spider all GET-traversable paths and mutations for a GameSheet season.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=epilog_text,
     )
 
     parser.add_argument(
