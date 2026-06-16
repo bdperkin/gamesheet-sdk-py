@@ -6,6 +6,7 @@ import pytest
 import responses
 
 from gamesheet_sdk import (
+    BFF_API_BASE_URL,
     AuthenticationError,
     Config,
     GameSheetError,
@@ -15,7 +16,7 @@ from gamesheet_sdk import (
     list_scheduled,
 )
 
-_BASE = "https://bff-dashboard-api-awy26srzoa-nn.a.run.app"
+_BASE = BFF_API_BASE_URL
 _SEASON_ID = "15020"
 _ENDPOINT = f"{_BASE}/games-list/v1"
 

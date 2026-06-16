@@ -10,9 +10,10 @@ import responses
 # Explicit import for coverage tracking of dynamically-loaded Click commands
 # pylint: disable-next=unused-import
 import gamesheet_sdk.cli.commands.games  # noqa: F401
+from gamesheet_sdk import BFF_API_BASE_URL
 from gamesheet_sdk.cli import main
 
-_BFF_BASE = "https://bff-dashboard-api-awy26srzoa-nn.a.run.app"
+_BFF_BASE = BFF_API_BASE_URL
 _SEASON_ID = "15020"
 _ENDPOINT = f"{_BFF_BASE}/games-list/v1"
 _TOKEN_PATH = Path(tempfile.gettempdir()) / ".gamesheet" / "access_token"

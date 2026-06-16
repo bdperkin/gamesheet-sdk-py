@@ -10,6 +10,7 @@ import pytest
 import responses
 
 from gamesheet_sdk import (
+    BFF_API_BASE_URL,
     AuthenticationError,
     Config,
     GameSheetError,
@@ -22,8 +23,7 @@ from gamesheet_sdk.seasons import Season, SeasonDetail
 _BASE = "https://test.example"
 _LEAGUE_ID = "1148580"
 _ENDPOINT = f"{_BASE}/api/seasons"
-_BFF_BASE_URL = "https://bff-dashboard-api-awy26srzoa-nn.a.run.app"
-_BFF_ENDPOINT = f"{_BFF_BASE_URL}/leagues/{_LEAGUE_ID}/seasons"
+_BFF_ENDPOINT = f"{BFF_API_BASE_URL}/leagues/{_LEAGUE_ID}/seasons"
 
 
 def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
