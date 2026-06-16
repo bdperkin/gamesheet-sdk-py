@@ -2,6 +2,41 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.43 (2026-06-16)
+
+### Bug Fixes
+
+- **spider**: Add unused-ignore to type ignore for version compatibility ([#103](https://github.com/bdperkin/gamesheet-sdk-py/pull/103),
+  [`0959456`](https://github.com/bdperkin/gamesheet-sdk-py/commit/09594567bd9461c2dc0f6652f42137a233feef69))
+
+- **spider**: Queue all discovered links, not just the first one ([#103](https://github.com/bdperkin/gamesheet-sdk-py/pull/103),
+  [`0959456`](https://github.com/bdperkin/gamesheet-sdk-py/commit/09594567bd9461c2dc0f6652f42137a233feef69))
+
+- **spider**: Remove login requirement - use BrowserSession auto-load ([#103](https://github.com/bdperkin/gamesheet-sdk-py/pull/103),
+  [`0959456`](https://github.com/bdperkin/gamesheet-sdk-py/commit/09594567bd9461c2dc0f6652f42137a233feef69))
+
+- **spider**: Wait for networkidle instead of domcontentloaded ([#103](https://github.com/bdperkin/gamesheet-sdk-py/pull/103),
+  [`0959456`](https://github.com/bdperkin/gamesheet-sdk-py/commit/09594567bd9461c2dc0f6652f42137a233feef69))
+
+### Chores
+
+- **spider**: Clean up vulture warnings ([#103](https://github.com/bdperkin/gamesheet-sdk-py/pull/103),
+  [`0959456`](https://github.com/bdperkin/gamesheet-sdk-py/commit/09594567bd9461c2dc0f6652f42137a233feef69))
+
+- **spider**: Improve code quality and linter compliance ([#103](https://github.com/bdperkin/gamesheet-sdk-py/pull/103),
+  [`0959456`](https://github.com/bdperkin/gamesheet-sdk-py/commit/09594567bd9461c2dc0f6652f42137a233feef69))
+
+### Features
+
+- **spider**: Add season web spider utility ([#103](https://github.com/bdperkin/gamesheet-sdk-py/pull/103),
+  [`0959456`](https://github.com/bdperkin/gamesheet-sdk-py/commit/09594567bd9461c2dc0f6652f42137a233feef69))
+
+- **spider**: Add season web spider utility with comprehensive tooling ([#103](https://github.com/bdperkin/gamesheet-sdk-py/pull/103),
+  [`0959456`](https://github.com/bdperkin/gamesheet-sdk-py/commit/09594567bd9461c2dc0f6652f42137a233feef69))
+
+- **spider**: Add URL pattern deduplication and network artifacts ([#103](https://github.com/bdperkin/gamesheet-sdk-py/pull/103),
+  [`0959456`](https://github.com/bdperkin/gamesheet-sdk-py/commit/09594567bd9461c2dc0f6652f42137a233feef69))
+
 ## v0.1.42 (2026-06-15)
 
 ### Features
