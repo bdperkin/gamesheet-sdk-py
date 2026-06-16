@@ -1,5 +1,7 @@
 """Tests for :mod:`gamesheet_sdk.seasons`."""
 
+# pylint: disable=too-many-lines  # Comprehensive test coverage for BFF API filtering
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -20,6 +22,8 @@ from gamesheet_sdk.seasons import Season, SeasonDetail
 _BASE = "https://test.example"
 _LEAGUE_ID = "1148580"
 _ENDPOINT = f"{_BASE}/api/seasons"
+_BFF_BASE_URL = "https://bff-dashboard-api-awy26srzoa-nn.a.run.app"
+_BFF_ENDPOINT = f"{_BFF_BASE_URL}/leagues/{_LEAGUE_ID}/seasons"
 
 
 def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
@@ -352,3 +356,285 @@ def test_season_detail_model_ignores_unknown_attributes() -> None:
         unexpected_future_attr="ignored",
     )
     assert sd.title == "Test"
+
+
+# Tests for BFF API filtering
+
+
+def _bff_payload(items: list[dict[str, object]]) -> dict[str, object]:
+    """Build a BFF API response body."""
+    return {
+        "status": "success",
+        "data": items,
+        "meta": {
+            "total_count": len(items),
+            "filtered_count": len(items),
+            "total_pages": 1,
+            "current_page": 1,
+            "page_size": 25,
+        },
+    }
+
+
+@responses.activate
+def test_list_seasons_with_status_filter_uses_bff_api(config: Config) -> None:
+    """When a filter is provided, the BFF API should be used."""
+    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
+    responses.add(
+        responses.GET,
+        _BFF_ENDPOINT,
+        json=_bff_payload(
+            [
+                {
+                    "id": 15020,
+                    "title": "Active Season",
+                    "start_date": "2026-05-15",
+                    "end_date": "2027-08-15",
+                    "stats_year": "2026-2027",
+                    "is_archived": False,
+                    "is_current": True,
+                },
+            ],
+        ),
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        result = list_seasons(session, _LEAGUE_ID, status="active")
+    assert len(result) == 1
+    assert result[0].id == "15020"
+    assert result[0].title == "Active Season"
+    assert result[0].league_id == _LEAGUE_ID
+    # Verify the BFF endpoint was called with correct parameters
+    assert len(responses.calls) == 1
+    req = responses.calls[0].request
+    assert req.url is not None
+    assert _BFF_ENDPOINT in req.url
+    assert "filter%5Bstatus%5D=active" in req.url or "filter[status]=active" in req.url
+
+
+@responses.activate
+def test_list_seasons_with_title_filter_uses_bff_api(config: Config) -> None:
+    """Title filter should use BFF API."""
+    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
+    responses.add(
+        responses.GET,
+        _BFF_ENDPOINT,
+        json=_bff_payload(
+            [
+                {
+                    "id": 15020,
+                    "title": "Raleigh Raptors Season",
+                    "start_date": "2026-05-15",
+                    "end_date": "2027-08-15",
+                    "stats_year": "2026-2027",
+                    "is_archived": False,
+                    "is_current": True,
+                },
+            ],
+        ),
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        result = list_seasons(session, _LEAGUE_ID, title="Raptors")
+    assert len(result) == 1
+    assert "Raptors" in result[0].title
+    # Verify the filter was passed
+    req = responses.calls[0].request
+    assert req.url is not None
+    assert "filter%5Btitle%5D=Raptors" in req.url or "filter[title]=Raptors" in req.url
+
+
+@responses.activate
+def test_list_seasons_with_date_filters_uses_bff_api(config: Config) -> None:
+    """Date range filters should use BFF API."""
+    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
+    responses.add(
+        responses.GET,
+        _BFF_ENDPOINT,
+        json=_bff_payload(
+            [
+                {
+                    "id": 15020,
+                    "title": "2026-2027 Season",
+                    "start_date": "2026-05-15",
+                    "end_date": "2027-08-15",
+                    "stats_year": "2026-2027",
+                    "is_archived": False,
+                    "is_current": True,
+                },
+            ],
+        ),
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        result = list_seasons(
+            session,
+            _LEAGUE_ID,
+            starts_after="2026-01-01",
+            ends_before="2027-12-31",
+        )
+    assert len(result) == 1
+    # Verify the filters were passed
+    req = responses.calls[0].request
+    assert req.url is not None
+    assert "starts_after" in req.url
+    assert "ends_before" in req.url
+
+
+@responses.activate
+def test_list_seasons_with_stats_year_filter_uses_bff_api(config: Config) -> None:
+    """Stats year filter should use BFF API."""
+    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
+    responses.add(
+        responses.GET,
+        _BFF_ENDPOINT,
+        json=_bff_payload(
+            [
+                {
+                    "id": 15020,
+                    "title": "2026-2027 Season",
+                    "start_date": "2026-05-15",
+                    "end_date": "2027-08-15",
+                    "stats_year": "2026-2027",
+                    "is_archived": False,
+                    "is_current": True,
+                },
+            ],
+        ),
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        result = list_seasons(session, _LEAGUE_ID, stats_year="2026-2027")
+    assert len(result) == 1
+    # BFF API returns Season objects which don't have stats_year field
+    # Just verify we got a result and the filter was passed
+    # Verify the filter was passed
+    req = responses.calls[0].request
+    assert req.url is not None
+    assert "stats_year" in req.url
+
+
+@responses.activate
+def test_list_seasons_bff_api_401_raises_authentication_error(config: Config) -> None:
+    """BFF API 401 should raise AuthenticationError."""
+    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
+    responses.add(
+        responses.GET,
+        _BFF_ENDPOINT,
+        json={
+            "status": "error",
+            "errors": [{"code": 401, "message": "Unauthorized"}],
+        },
+        status=401,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("stale")
+        with pytest.raises(AuthenticationError, match="HTTP 401"):
+            list_seasons(session, _LEAGUE_ID, status="active")
+
+
+@responses.activate
+def test_list_seasons_bff_api_404_raises_gamesheet_error(config: Config) -> None:
+    """BFF API 404 should raise GameSheetError with helpful message."""
+    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
+    responses.add(
+        responses.GET,
+        _BFF_ENDPOINT,
+        json={
+            "status": "error",
+            "errors": [{"code": 404, "message": "League not found"}],
+        },
+        status=404,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        with pytest.raises(
+            GameSheetError,
+            match=r"League '.*' not found.*valid league ID.*leagues list",
+        ):
+            list_seasons(session, _LEAGUE_ID, status="active")
+
+
+@responses.activate
+def test_list_seasons_bff_api_other_error_raises_gamesheet_error(config: Config) -> None:
+    """BFF API 500 should raise GameSheetError."""
+    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
+    responses.add(
+        responses.GET,
+        _BFF_ENDPOINT,
+        status=500,
+        body="Internal server error",
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        with pytest.raises(GameSheetError, match="HTTP 500"):
+            list_seasons(session, _LEAGUE_ID, status="active")
+
+
+@responses.activate
+def test_list_seasons_bff_api_non_success_status_raises_error(config: Config) -> None:
+    """BFF API non-success status in body should raise GameSheetError."""
+    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
+    responses.add(
+        responses.GET,
+        _BFF_ENDPOINT,
+        json={"status": "error", "data": [], "errors": []},
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        with pytest.raises(GameSheetError, match="non-success status"):
+            list_seasons(session, _LEAGUE_ID, status="active")
+
+
+@responses.activate
+def test_list_seasons_bff_api_empty_results(config: Config) -> None:
+    """BFF API should handle empty results correctly."""
+    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
+    responses.add(
+        responses.GET,
+        _BFF_ENDPOINT,
+        json=_bff_payload([]),
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        result = list_seasons(session, _LEAGUE_ID, status="archived")
+    assert result == []
+
+
+@responses.activate
+def test_list_seasons_bff_api_data_as_dict_with_items(config: Config) -> None:
+    """BFF API should handle data as dict with items key."""
+    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
+    responses.add(
+        responses.GET,
+        _BFF_ENDPOINT,
+        json={
+            "status": "success",
+            "data": {
+                "items": [
+                    {
+                        "id": 15020,
+                        "title": "Season in dict",
+                        "start_date": "2026-05-15",
+                        "end_date": "2027-08-15",
+                        "stats_year": "2026-2027",
+                        "is_archived": False,
+                        "is_current": True,
+                    },
+                ],
+            },
+            "meta": {},
+        },
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        result = list_seasons(session, _LEAGUE_ID, status="active")
+    assert len(result) == 1
+    assert result[0].title == "Season in dict"
