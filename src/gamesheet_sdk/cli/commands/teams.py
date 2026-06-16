@@ -87,6 +87,7 @@ def teams_group() -> None:
     help=("Comma-separated list of field names to include (default: all fields the API returns)."),
 )
 @click.pass_context
+# pylint: disable-next=too-many-positional-arguments
 def teams_get_command(
     ctx: Context,
     season_id: str,

@@ -111,6 +111,7 @@ def leagues_group() -> None:
     help=("Comma-separated list of field names to include (default: all fields the API returns)."),
 )
 @click.pass_context
+# pylint: disable-next=too-many-positional-arguments
 def leagues_get_command(
     ctx: Context,
     association_id: str,

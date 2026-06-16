@@ -68,8 +68,17 @@ def test_games_get_with_fields(runner: CliRunner) -> None:
         ctx = Mock()
         ctx.obj = {"config": config, "season_id": "15020"}
         result = runner.invoke(
-            games_get_command, [
-                "--game-id", "12345", "--fields", "id", "--format", "json"], obj=ctx.obj)
+            games_get_command,
+            [
+                "--game-id",
+                "12345",
+                "--fields",
+                "id",
+                "--format",
+                "json",
+            ],
+            obj=ctx.obj,
+        )
         assert result.exit_code == 0
         assert result.output
 

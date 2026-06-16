@@ -300,7 +300,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
 
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         print(f"Unexpected error: {exc}", file=sys.stderr)
         return 1
 

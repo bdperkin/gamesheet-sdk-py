@@ -50,7 +50,19 @@ def test_teams_get_with_fields(runner: CliRunner) -> None:
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
         result = runner.invoke(
-            cli, ["teams", "get", "--season-id", "15020", "--team-id", "401", "--fields", "id", "--format", "json"],
+            cli,
+            [
+                "teams",
+                "get",
+                "--season-id",
+                "15020",
+                "--team-id",
+                "401",
+                "--fields",
+                "id",
+                "--format",
+                "json",
+            ],
         )
         assert result.exit_code == 0
         assert result.output
@@ -72,7 +84,8 @@ def test_teams_get_empty_fields(runner: CliRunner) -> None:
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
         result = runner.invoke(
-            cli, ["teams", "get", "--season-id", "15020", "--team-id", "401", "--fields", ","],
+            cli,
+            ["teams", "get", "--season-id", "15020", "--team-id", "401", "--fields", ","],
         )
         assert result.exit_code == 0
         assert result.output

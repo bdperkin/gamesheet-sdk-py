@@ -90,7 +90,7 @@ def get_division(session: Session, division_id: str) -> Division:
         raise AuthenticationError(_err_msg)
     if response.status_code == 404:
         _err_msg = (
-            f"Division '{division_id}' not found (HTTP 404). " f"Make sure you're using a valid division ID.",
+            f"Division '{division_id}' not found (HTTP 404). Make sure you're using a valid division ID.",
         )
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:

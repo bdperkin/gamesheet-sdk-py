@@ -188,7 +188,7 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
                 payload_file = Path(str(prefix) + "_request_payload.txt")
                 payload_file.write_text(request.post_data)
 
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             _LOGGER.warning("Failed to save request artifacts for %s: %s", request.url, exc)
 
     def _save_response_artifacts(self, response: Response, request_num: int, artifacts_dir: Path) -> None:
@@ -210,11 +210,11 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
                 body = response.body()
                 response_file = Path(str(prefix) + "_response_body.txt")
                 response_file.write_bytes(body)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 # Some responses may not have a body or be already consumed
-                _LOGGER.debug("Could not read response body for %s: %s", response.url, exc)  # noqa: TRY401
+                _LOGGER.debug("Could not read response body for %s: %s", response.url, exc)
 
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             _LOGGER.warning("Failed to save response artifacts for %s: %s", response.url, exc)
 
     def _setup_network_capture(self, page: Page, source_url: str, artifacts_dir: Path | None) -> None:
@@ -320,7 +320,7 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
         for selector in mutation_selectors:
             try:
                 elements = page.query_selector_all(selector)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 _LOGGER.debug("Selector '%s' failed: %s", selector, exc)
                 continue
 
@@ -452,8 +452,8 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
             self.state.error_urls[url] = f"Timeout: {exc}"
             return False
 
-        except Exception as exc:  # noqa: BLE001
-            _LOGGER.exception("Error visiting %s", url)  # noqa: TRY401
+        except Exception as exc:
+            _LOGGER.exception("Error visiting %s", url)
             self.state.error_urls[url] = f"Error: {exc}"
             return False
 
@@ -712,7 +712,7 @@ Environment variables:
         _LOGGER.warning("Spider interrupted by user")
         return 130
 
-    except Exception:  # noqa: BLE001
+    except Exception:
         _LOGGER.exception("Spider failed with unhandled exception")
         return 1
 

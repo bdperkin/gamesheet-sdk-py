@@ -146,8 +146,6 @@ def get_game(session: Session, season_id: str, game_id: int) -> Game:
     :type game_id: int
     :returns: The :class:`Game` with the specified ID.
     :rtype: Game
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response, including 404 if the game is not found.
     """
     # Get all games for the season and filter by ID

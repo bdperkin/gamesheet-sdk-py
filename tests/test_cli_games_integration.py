@@ -9,7 +9,7 @@ import responses
 
 # Explicit import for coverage tracking of dynamically-loaded Click commands
 # pylint: disable-next=unused-import
-import gamesheet_sdk.cli.commands.games  # noqa: F401,E401
+import gamesheet_sdk.cli.commands.games  # noqa: F401
 from gamesheet_sdk.cli import main
 
 _BFF_BASE = "https://bff-dashboard-api-awy26srzoa-nn.a.run.app"

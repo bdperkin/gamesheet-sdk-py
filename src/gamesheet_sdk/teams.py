@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines
 """GameSheet teams: competing organizations within a season.
 
 A team is a competing organization within a season (e.g., "Raleigh Raptors", "Durham Bulls", etc.). Each team
