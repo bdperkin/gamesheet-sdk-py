@@ -38,6 +38,7 @@ from rich_click import Choice, Context, Path
 from gamesheet_sdk.cli.core import ResourceGroup, parse_columns_spec
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
 from gamesheet_sdk.config import Config
+from gamesheet_sdk.leagues import get_league as _get_league_action
 from gamesheet_sdk.leagues import list_leagues as _list_leagues_action
 from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
 
@@ -63,6 +64,85 @@ def leagues_group() -> None:
 
     Invoking 'leagues' with no sub-command runs 'list' by default.
     """
+
+
+@leagues_group.command("get")
+@click.option(
+    "--association-id",
+    type=str,
+    envvar="GAMESHEET_ASSOCIATION_ID",
+    required=True,
+    help="Association ID containing the league.",
+)
+@click.option(
+    "--league-id",
+    type=str,
+    envvar="GAMESHEET_LEAGUE_ID",
+    required=True,
+    help="League ID to retrieve details for.",
+)
+@click.option(
+    "--format",
+    "-F",
+    "output_format",
+    type=Choice(list(ALL_FORMATS), case_sensitive=False),
+    default=DEFAULT_FORMAT,
+    show_default=True,
+    help=(
+        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
+        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
+        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
+        "latex_longtable."
+    ),
+)
+@click.option(
+    "--output",
+    "-o",
+    "output_path",
+    type=Path(dir_okay=False, writable=True),
+    default=None,
+    help="Write to this file instead of stdout.",
+)
+@click.option(
+    "--fields",
+    "-f",
+    "fields_spec",
+    default=None,
+    help=("Comma-separated list of field names to include (default: all fields the API returns)."),
+)
+@click.pass_context
+# pylint: disable-next=too-many-positional-arguments
+def leagues_get_command(
+    ctx: Context,
+    association_id: str,
+    league_id: str,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+) -> None:
+    """Get detailed information about a specific league.
+
+    The league and association IDs can be provided via command-line options or environment variables
+    (GAMESHEET_LEAGUE_ID, GAMESHEET_ASSOCIATION_ID). Requires a saved session from `gamesheet-sdk-py login`.
+    The output displays league metadata as key-value pairs, with each field on its own row.
+    """
+    config: Config = ctx.obj
+    session = build_authenticated_session(ctx, config)
+    # Convert to dict for rendering
+    data = run_action_or_exit(session, _get_league_action, association_id, league_id).model_dump(mode="json")
+    # If fields are specified, filter to only those fields
+    if fields_spec:
+        fields = parse_columns_spec(fields_spec)
+        if fields:
+            data = {k: v for k, v in data.items() if k in fields}
+    # For tabular formats, convert to a list of key-value rows
+    if output_format not in ("json", "yaml"):
+        rows = [{"field": k, "value": v} for k, v in data.items()]
+        rendered = render(rows, fmt=output_format, columns=None)
+    else:
+        # For data formats, output the whole object
+        rendered = render([data], fmt=output_format, columns=None)
+    write_output(rendered, output_path, fmt=output_format)
 
 
 @leagues_group.command("list")

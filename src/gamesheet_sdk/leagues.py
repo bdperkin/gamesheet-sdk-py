@@ -77,6 +77,50 @@ def _parse(item: dict[str, Any], association_id: str) -> League:
     )
 
 
+def get_league(session: Session, association_id: str, league_id: str) -> League:
+    """Get a single league by ID.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param association_id: The parent association identifier.
+    :type association_id: str
+    :param league_id: The league identifier to retrieve.
+    :type league_id: str
+    :returns: The :class:`League` with the specified ID.
+    :rtype: League
+    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
+        run ``gamesheet-sdk-py login`` to refresh).
+    :raises GameSheetError: For any other non-2xx response, including 404 if the league is not found.
+    """
+    endpoint = f"{_ENDPOINT_TEMPLATE.format(association_id=association_id)}/{league_id}"
+    response = session.get(
+        endpoint,
+        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+    )
+
+    if response.status_code == 401:
+        _err_msg = (
+            "Access token rejected (HTTP 401). Likely expired; re-run "
+            "`gamesheet-sdk-py login` to refresh and try again.",
+        )
+        raise AuthenticationError(_err_msg)
+    if response.status_code == 404:
+        _err_msg = (
+            f"League '{league_id}' not found in association '{association_id}' (HTTP 404). "
+            f"Make sure you're using a valid league ID and association ID.",
+        )
+        raise GameSheetError(_err_msg)
+    if response.status_code >= 400:
+        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        raise GameSheetError(_err_msg)
+
+    body: dict[str, Any] = response.json()
+    return _parse(body["data"], association_id)
+
+
 def list_leagues(session: Session, association_id: str) -> list[League]:
     """Return every league in the specified association.
 

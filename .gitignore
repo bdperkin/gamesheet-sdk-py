@@ -46,7 +46,6 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
-test_*.py
 
 # ---- Type checkers / linters ----
 .mypy_cache/

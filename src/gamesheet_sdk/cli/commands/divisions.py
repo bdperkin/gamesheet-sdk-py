@@ -13,6 +13,7 @@ from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or
 from gamesheet_sdk.config import Config
 from gamesheet_sdk.divisions import create_division as _create_division_action
 from gamesheet_sdk.divisions import delete_division as _delete_division_action
+from gamesheet_sdk.divisions import get_division as _get_division_action
 from gamesheet_sdk.divisions import list_division_teams as _list_division_teams_action
 from gamesheet_sdk.divisions import list_divisions as _list_divisions_action
 from gamesheet_sdk.divisions import update_division as _update_division_action
@@ -41,6 +42,76 @@ def divisions_group() -> None:
 
     Invoking ``divisions`` with no sub-command runs ``list`` by default.
     """
+
+
+@divisions_group.command("get")
+@click.option(
+    "--division-id",
+    type=str,
+    envvar="GAMESHEET_DIVISION_ID",
+    required=True,
+    help="Division ID to retrieve details for.",
+)
+@click.option(
+    "--format",
+    "-F",
+    "output_format",
+    type=Choice(list(ALL_FORMATS), case_sensitive=False),
+    default=DEFAULT_FORMAT,
+    show_default=True,
+    help=(
+        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
+        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
+        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
+        "latex_longtable."
+    ),
+)
+@click.option(
+    "--output",
+    "-o",
+    "output_path",
+    type=Path(dir_okay=False, writable=True),
+    default=None,
+    help="Write to this file instead of stdout.",
+)
+@click.option(
+    "--fields",
+    "-f",
+    "fields_spec",
+    default=None,
+    help=("Comma-separated list of field names to include (default: all fields the API returns)."),
+)
+@click.pass_context
+def divisions_get_command(
+    ctx: Context,
+    division_id: str,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+) -> None:
+    """Get detailed information about a specific division.
+
+    The division ID can be provided via --division-id or the GAMESHEET_DIVISION_ID environment variable.
+    Requires a saved session from `gamesheet-sdk-py login`. The output displays division metadata as key-value
+    pairs, with each field on its own row.
+    """
+    config: Config = ctx.obj
+    session = build_authenticated_session(ctx, config)
+    # Convert to dict for rendering
+    data = run_action_or_exit(session, _get_division_action, division_id).model_dump(mode="json")
+    # If fields are specified, filter to only those fields
+    if fields_spec:
+        fields = parse_columns_spec(fields_spec)
+        if fields:
+            data = {k: v for k, v in data.items() if k in fields}
+    # For tabular formats, convert to a list of key-value rows
+    if output_format not in ("json", "yaml"):
+        rows = [{"field": k, "value": v} for k, v in data.items()]
+        rendered = render(rows, fmt=output_format, columns=None)
+    else:
+        # For data formats, output the whole object
+        rendered = render([data], fmt=output_format, columns=None)
+    write_output(rendered, output_path, fmt=output_format)
 
 
 @divisions_group.command("list")

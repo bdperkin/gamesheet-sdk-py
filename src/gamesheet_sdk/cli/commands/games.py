@@ -8,6 +8,7 @@ from rich_click import Choice, Context, Path
 from gamesheet_sdk.cli.core import ResourceGroup, parse_columns_spec
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
 from gamesheet_sdk.config import Config
+from gamesheet_sdk.games import get_game as _get_game_action
 from gamesheet_sdk.games import list_brackets as _list_brackets_action
 from gamesheet_sdk.games import list_completed as _list_completed_action
 from gamesheet_sdk.games import list_scheduled as _list_scheduled_action
@@ -45,6 +46,78 @@ def games_group(ctx: Context, season_id: str) -> None:
     # ctx.obj is a Config object from the root CLI - wrap it in a dict
     config = ctx.obj
     ctx.obj = {"config": config, "season_id": season_id}
+
+
+@games_group.command("get")
+@click.option(
+    "--game-id",
+    type=int,
+    envvar="GAMESHEET_GAME_ID",
+    required=True,
+    help="Game ID to retrieve details for.",
+)
+@click.option(
+    "--format",
+    "-F",
+    "output_format",
+    type=Choice(list(ALL_FORMATS), case_sensitive=False),
+    default=DEFAULT_FORMAT,
+    show_default=True,
+    help=(
+        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
+        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
+        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
+        "latex_longtable."
+    ),
+)
+@click.option(
+    "--output",
+    "-o",
+    "output_path",
+    type=Path(dir_okay=False, writable=True),
+    default=None,
+    help="Write to this file instead of stdout.",
+)
+@click.option(
+    "--fields",
+    "-f",
+    "fields_spec",
+    default=None,
+    help=("Comma-separated list of field names to include (default: all fields the API returns)."),
+)
+@click.pass_context
+def games_get_command(
+    ctx: Context,
+    game_id: int,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+) -> None:
+    """Get detailed information about a specific game.
+
+    The game ID can be provided via --game-id or the GAMESHEET_GAME_ID environment variable. The season ID is
+    inherited from the parent games command. Requires a saved session from `gamesheet-sdk-py login`. The
+    output displays game metadata as key-value pairs, with each field on its own row.
+    """
+    ctx_data = ctx.obj
+    config: Config = ctx_data["config"]
+    season_id: str = ctx_data["season_id"]
+    session = build_authenticated_session(ctx, config)
+    # Convert to dict for rendering
+    data = run_action_or_exit(session, _get_game_action, season_id, game_id).model_dump(mode="json")
+    # If fields are specified, filter to only those fields
+    if fields_spec:
+        fields = parse_columns_spec(fields_spec)
+        if fields:
+            data = {k: v for k, v in data.items() if k in fields}
+    # For tabular formats, convert to a list of key-value rows
+    if output_format not in ("json", "yaml"):
+        rows = [{"field": k, "value": v} for k, v in data.items()]
+        rendered = render(rows, fmt=output_format, columns=None)
+    else:
+        # For data formats, output the whole object
+        rendered = render([data], fmt=output_format, columns=None)
+    write_output(rendered, output_path, fmt=output_format)
 
 
 # Scheduled games sub-group

@@ -1,0 +1,126 @@
+"""Tests for get_player function."""
+
+from __future__ import annotations
+
+import pytest
+import responses
+
+from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
+from gamesheet_sdk.roster import get_player
+
+_BASE = "https://test.example"
+_SEASON_ID = "15020"
+
+
+@responses.activate
+def test_get_player_returns_single_player(config: Config) -> None:
+    """Test that get_player returns a single player."""
+    _player_id = "501"
+    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/players/{_player_id}"
+    responses.add(
+        responses.GET,
+        _get_endpoint,
+        json={
+            "data": {
+                "type": "players",
+                "id": _player_id,
+                "attributes": {
+                    "first_name": "John",
+                    "last_name": "Doe",
+                    "created_at": "2024-01-01T00:00:00Z",
+                    "updated_at": "2024-06-01T00:00:00Z",
+                },
+                "relationships": {
+                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                },
+            },
+        },
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        result = get_player(session, _SEASON_ID, _player_id)
+    assert result.id == _player_id
+    assert result.season_id == _SEASON_ID
+    assert result.first_name == "John"
+    assert result.last_name == "Doe"
+
+
+@responses.activate
+def test_get_player_sends_bearer_and_jsonapi_accept(config: Config) -> None:
+    """Test that get_player sends correct authorization and accept headers."""
+    _player_id = "501"
+    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/players/{_player_id}"
+    responses.add(
+        responses.GET,
+        _get_endpoint,
+        json={
+            "data": {
+                "type": "players",
+                "id": _player_id,
+                "attributes": {
+                    "first_name": "Test",
+                    "last_name": "Player",
+                    "created_at": "2024-01-01T00:00:00Z",
+                    "updated_at": "2024-01-01T00:00:00Z",
+                },
+                "relationships": {
+                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                },
+            },
+        },
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("test-token")
+        get_player(session, _SEASON_ID, _player_id)
+    assert len(responses.calls) == 1
+    req = responses.calls[0].request
+    assert req.headers["Authorization"] == "Bearer test-token"
+    assert req.headers["Accept"] == "application/vnd.api+json"
+
+
+@responses.activate
+def test_get_player_401_raises_authentication_error(config: Config) -> None:
+    """Test that HTTP 401 raises AuthenticationError."""
+    _player_id = "501"
+    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/players/{_player_id}"
+    responses.add(
+        responses.GET,
+        _get_endpoint,
+        json={"errors": [{"detail": "Token expired"}]},
+        status=401,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("stale")
+        with pytest.raises(AuthenticationError, match="HTTP 401"):
+            get_player(session, _SEASON_ID, _player_id)
+
+
+@responses.activate
+def test_get_player_404_raises_gamesheet_error_with_helpful_message(
+    config: Config,
+) -> None:
+    """Test that HTTP 404 raises GameSheetError with helpful message."""
+    _player_id = "nonexistent"
+    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/players/{_player_id}"
+    responses.add(responses.GET, _get_endpoint, status=404, body="Not found")
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        with pytest.raises(
+            GameSheetError,
+            match=r"Player '.*' not found.*valid player ID and season ID",
+        ):
+            get_player(session, _SEASON_ID, _player_id)
+
+
+@responses.activate
+def test_get_player_other_failure_raises_gamesheet_error(config: Config) -> None:
+    """Test that other HTTP errors raise GameSheetError."""
+    _player_id = "501"
+    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/players/{_player_id}"
+    responses.add(responses.GET, _get_endpoint, status=500, body="boom")
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        with pytest.raises(GameSheetError, match="HTTP 500"):
+            get_player(session, _SEASON_ID, _player_id)

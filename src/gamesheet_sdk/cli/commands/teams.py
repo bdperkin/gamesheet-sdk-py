@@ -14,6 +14,7 @@ from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_outp
 from gamesheet_sdk.teams import Team
 from gamesheet_sdk.teams import create_team as _create_team_action
 from gamesheet_sdk.teams import delete_team as _delete_team_action
+from gamesheet_sdk.teams import get_team as _get_team_action
 from gamesheet_sdk.teams import list_teams as _list_teams_action
 from gamesheet_sdk.teams import update_team as _update_team_action
 
@@ -39,6 +40,85 @@ def teams_group() -> None:
 
     Invoking ``teams`` with no sub-command runs ``list`` by default.
     """
+
+
+@teams_group.command("get")
+@click.option(
+    "--season-id",
+    type=str,
+    envvar="GAMESHEET_SEASON_ID",
+    required=True,
+    help="Season ID containing the team.",
+)
+@click.option(
+    "--team-id",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID to retrieve details for.",
+)
+@click.option(
+    "--format",
+    "-F",
+    "output_format",
+    type=Choice(list(ALL_FORMATS), case_sensitive=False),
+    default=DEFAULT_FORMAT,
+    show_default=True,
+    help=(
+        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
+        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
+        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
+        "latex_longtable."
+    ),
+)
+@click.option(
+    "--output",
+    "-o",
+    "output_path",
+    type=Path(dir_okay=False, writable=True),
+    default=None,
+    help="Write to this file instead of stdout.",
+)
+@click.option(
+    "--fields",
+    "-f",
+    "fields_spec",
+    default=None,
+    help=("Comma-separated list of field names to include (default: all fields the API returns)."),
+)
+@click.pass_context
+# pylint: disable-next=too-many-positional-arguments
+def teams_get_command(
+    ctx: Context,
+    season_id: str,
+    team_id: str,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+) -> None:
+    """Get detailed information about a specific team.
+
+    The team and season IDs can be provided via command-line options or environment variables
+    (GAMESHEET_TEAM_ID, GAMESHEET_SEASON_ID). Requires a saved session from `gamesheet-sdk-py login`. The
+    output displays team metadata as key-value pairs, with each field on its own row.
+    """
+    config: Config = ctx.obj
+    session = build_authenticated_session(ctx, config)
+    # Convert to dict for rendering
+    data = run_action_or_exit(session, _get_team_action, season_id, team_id).model_dump(mode="json")
+    # If fields are specified, filter to only those fields
+    if fields_spec:
+        fields = parse_columns_spec(fields_spec)
+        if fields:
+            data = {k: v for k, v in data.items() if k in fields}
+    # For tabular formats, convert to a list of key-value rows
+    if output_format not in ("json", "yaml"):
+        rows = [{"field": k, "value": v} for k, v in data.items()]
+        rendered = render(rows, fmt=output_format, columns=None)
+    else:
+        # For data formats, output the whole object
+        rendered = render([data], fmt=output_format, columns=None)
+    write_output(rendered, output_path, fmt=output_format)
 
 
 @teams_group.command("list")

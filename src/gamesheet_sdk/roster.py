@@ -91,6 +91,94 @@ def _parse_coach(item: dict[str, Any]) -> Coach:
     )
 
 
+def get_player(session: Session, season_id: str, player_id: str) -> Player:
+    """Get a single player by ID.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param season_id: The parent season identifier.
+    :type season_id: str
+    :param player_id: The player identifier to retrieve.
+    :type player_id: str
+    :returns: The :class:`Player` with the specified ID.
+    :rtype: Player
+    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
+        run ``gamesheet-sdk-py login`` to refresh).
+    :raises GameSheetError: For any other non-2xx response, including 404 if the player is not found.
+    """
+    endpoint = f"/api/seasons/{season_id}/players/{player_id}"
+    response = session.get(
+        endpoint,
+        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+    )
+
+    if response.status_code == 401:
+        _err_msg = (
+            "Access token rejected (HTTP 401). Likely expired; re-run "
+            "`gamesheet-sdk-py login` to refresh and try again.",
+        )
+        raise AuthenticationError(_err_msg)
+    if response.status_code == 404:
+        _err_msg = (
+            f"Player '{player_id}' not found in season '{season_id}' (HTTP 404). "
+            f"Make sure you're using a valid player ID and season ID.",
+        )
+        raise GameSheetError(_err_msg)
+    if response.status_code >= 400:
+        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        raise GameSheetError(_err_msg)
+
+    body: dict[str, Any] = response.json()
+    return _parse_player(body["data"])
+
+
+def get_coach(session: Session, season_id: str, coach_id: str) -> Coach:
+    """Get a single coach by ID.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param season_id: The parent season identifier.
+    :type season_id: str
+    :param coach_id: The coach identifier to retrieve.
+    :type coach_id: str
+    :returns: The :class:`Coach` with the specified ID.
+    :rtype: Coach
+    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
+        run ``gamesheet-sdk-py login`` to refresh).
+    :raises GameSheetError: For any other non-2xx response, including 404 if the coach is not found.
+    """
+    endpoint = f"/api/seasons/{season_id}/coaches/{coach_id}"
+    response = session.get(
+        endpoint,
+        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+    )
+
+    if response.status_code == 401:
+        _err_msg = (
+            "Access token rejected (HTTP 401). Likely expired; re-run "
+            "`gamesheet-sdk-py login` to refresh and try again.",
+        )
+        raise AuthenticationError(_err_msg)
+    if response.status_code == 404:
+        _err_msg = (
+            f"Coach '{coach_id}' not found in season '{season_id}' (HTTP 404). "
+            f"Make sure you're using a valid coach ID and season ID.",
+        )
+        raise GameSheetError(_err_msg)
+    if response.status_code >= 400:
+        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        raise GameSheetError(_err_msg)
+
+    body: dict[str, Any] = response.json()
+    return _parse_coach(body["data"])
+
+
 def list_players(session: Session, season_id: str) -> list[Player]:
     """Return every player in the specified season.
 

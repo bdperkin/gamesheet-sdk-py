@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines
 """GameSheet teams: competing organizations within a season.
 
 A team is a competing organization within a season (e.g., "Raleigh Raptors", "Durham Bulls", etc.). Each team
@@ -160,6 +161,47 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
                 team = team.model_copy(update={"invitation_code": invitation_codes[inv_id]})
         teams.append(team)
     return teams
+
+
+def get_team(session: Session, season_id: str, team_id: str) -> Team:  # noqa: DOC503
+    """Get a single team by ID.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param season_id: The parent season identifier.
+    :type season_id: str
+    :param team_id: The team identifier to retrieve.
+    :type team_id: str
+    :returns: The :class:`Team` with the specified ID.
+    :rtype: Team
+    :raises GameSheetError: If the team is not found or for any other non-2xx response from the API.
+    :raises AuthenticationError: If the server returns 401 (raised by the internal call to
+        :func:`list_teams`). Run ``gamesheet-sdk-py login`` to refresh the bearer token.
+
+    .. note::
+        The single-team GET endpoint doesn't support including related invitations,
+        so this function fetches all teams in the season (which does include invitations)
+        and filters to the requested team. This ensures invitation_code is populated.
+    """
+    # The single-team endpoint (/api/seasons/{season_id}/teams/{team_id}) doesn't
+    # honor the include=invitations parameter, so we use the list endpoint instead
+    # which does properly include invitation data
+    all_teams = list_teams(session, season_id)
+
+    # Find the requested team
+    for team in all_teams:
+        if team.id == team_id:
+            return team
+
+    # Team not found
+    _err_msg = (
+        f"Team '{team_id}' not found in season '{season_id}'. "
+        f"Make sure you're using a valid team ID and season ID.",
+    )
+    raise GameSheetError(_err_msg)
 
 
 def _upload_logo(session: Session, logo_path: str) -> str:
