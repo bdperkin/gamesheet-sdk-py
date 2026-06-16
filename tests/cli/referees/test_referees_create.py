@@ -49,7 +49,7 @@ def test_referees_create_with_all_fields(runner: CliRunner) -> None:
                 "0EB978DD-66B8-4CA1-AAA8-D855EED39D6A",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_create.assert_called_once()
         args = mock_create.call_args[0]
         assert args[1] == "15020"
@@ -90,7 +90,7 @@ def test_referees_create_required_fields_only(runner: CliRunner) -> None:
                 "Doe",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_create.assert_called_once()
         args = mock_create.call_args[0]
         assert args[1] == "15020"
@@ -131,7 +131,7 @@ def test_referees_create_alias_add(runner: CliRunner) -> None:
                 "Ref",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_create.assert_called_once()
 
 
@@ -166,7 +166,7 @@ def test_referees_create_alias_new(runner: CliRunner) -> None:
                 "Test",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_create.assert_called_once()
 
 
@@ -240,6 +240,6 @@ def test_referees_create_json_output(runner: CliRunner) -> None:
                 "json",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert '"id": "1146201"' in result.output
         assert '"first_name": "Json"' in result.output

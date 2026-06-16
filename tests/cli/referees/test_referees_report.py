@@ -50,7 +50,7 @@ def test_referees_report_with_all_fields(runner: CliRunner) -> None:
                 "1146198",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_report.assert_called_once()
         args = mock_report.call_args[0]
         assert args[1] == "15020"
@@ -106,7 +106,7 @@ def test_referees_report_json_output(runner: CliRunner) -> None:
                 "json",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert '"external_id": "TEST-EXTERNAL-ID"' in result.output
         assert '"first_name": "Test"' in result.output
         assert '"games_refereed": 5' in result.output

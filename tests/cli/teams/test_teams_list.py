@@ -24,7 +24,7 @@ def test_teams_list_alias_works(runner: CliRunner) -> None:
     ):
         mock_list.return_value = []
         result = runner.invoke(cli, ["teams", "ls", "--season-id", "501"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_list.assert_called_once()
 
 
@@ -49,7 +49,7 @@ def test_teams_list_json_output(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["teams", "list", "--season-id", "501", "--format", "json"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert '"id": "123"' in result.output
         assert '"title": "Raleigh Raptors"' in result.output
 
@@ -75,7 +75,7 @@ def test_teams_list_yaml_output(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["teams", "list", "--season-id", "501", "--format", "yaml"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "id:" in result.output or "id :" in result.output
         assert "Raleigh Raptors" in result.output
 
@@ -101,7 +101,7 @@ def test_teams_list_columns_filter(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["teams", "list", "--season-id", "501", "--columns", "id,title"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "123" in result.output
         assert "Raleigh Raptors" in result.output
 
@@ -131,7 +131,7 @@ def test_teams_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
             cli,
             ["teams", "list", "--season-id", "501", "--format", "json", "--output", str(output_file)],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert output_file.exists()
         content = output_file.read_text()
         assert '"id": "123"' in content
@@ -158,7 +158,7 @@ def test_teams_list_csv_output(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["teams", "list", "--season-id", "501", "--format", "csv"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         lines = result.output.strip().split("\n")
         assert len(lines) >= 2
         assert "id" in lines[0].lower()
@@ -185,7 +185,7 @@ def test_teams_list_tsv_output(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["teams", "list", "--season-id", "501", "--format", "tsv"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         lines = result.output.strip().split("\n")
         assert len(lines) >= 2
         # TSV uses tabs
@@ -215,5 +215,5 @@ def test_teams_list_with_env_var(runner: CliRunner) -> None:
     ):
         mock_list.return_value = []
         result = runner.invoke(cli, ["teams", "list"], env={"GAMESHEET_SEASON_ID": "999"})
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_list.assert_called_once()

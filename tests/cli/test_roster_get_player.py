@@ -32,7 +32,7 @@ def test_players_get(runner: CliRunner) -> None:
             cli,
             ["roster", "--season-id", "15020", "players", "get", "--player-id", "501"],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert result.output
         assert mock_action.called
 
@@ -68,7 +68,7 @@ def test_players_get_with_fields(runner: CliRunner) -> None:
                 "json",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert result.output
 
 
@@ -91,5 +91,5 @@ def test_players_get_empty_fields(runner: CliRunner) -> None:
             cli,
             ["roster", "--season-id", "15020", "players", "get", "--player-id", "501", "--fields", ","],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert result.output

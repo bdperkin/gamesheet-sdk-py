@@ -51,7 +51,7 @@ def test_teams_update_basic(runner: CliRunner) -> None:
                 "Updated Team",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_update.assert_called_once()
 
 
@@ -83,7 +83,7 @@ def test_teams_update_multiple_fields(runner: CliRunner) -> None:
                 "custom-id",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
 
 
 def test_teams_update_remove_logo(runner: CliRunner) -> None:
@@ -109,7 +109,7 @@ def test_teams_update_remove_logo(runner: CliRunner) -> None:
                 "--remove-logo",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
 
 
 def test_teams_update_json_output(runner: CliRunner) -> None:
@@ -138,7 +138,7 @@ def test_teams_update_json_output(runner: CliRunner) -> None:
                 "json",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "123" in result.output  # Team ID
 
 
@@ -166,7 +166,7 @@ def test_teams_update_alias_set_works(runner: CliRunner) -> None:
                 "New Title",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_update.assert_called_once()
 
 
@@ -194,7 +194,7 @@ def test_teams_update_alias_edit_works(runner: CliRunner) -> None:
                 "New Title",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_update.assert_called_once()
 
 

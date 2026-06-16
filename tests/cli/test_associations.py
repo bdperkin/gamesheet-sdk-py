@@ -16,10 +16,10 @@ if TYPE_CHECKING:
 def test_associations_group_has_help_option(runner: CliRunner) -> None:
     """The associations group should accept -h and --help."""
     result_short = runner.invoke(cli, ["associations", "-h"])
-    assert result_short.exit_code == 0
+    assert not result_short.exit_code
     assert "associations" in result_short.output.lower()
     result_long = runner.invoke(cli, ["associations", "--help"])
-    assert result_long.exit_code == 0
+    assert not result_long.exit_code
     assert "associations" in result_long.output.lower()
 
 
@@ -35,7 +35,7 @@ def test_associations_list_alias_works(runner: CliRunner) -> None:
     ):
         mock_list.return_value = []
         result = runner.invoke(cli, ["associations", "ls"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_list.assert_called_once()
 
 
@@ -51,7 +51,7 @@ def test_associations_bare_invocation_runs_list(runner: CliRunner) -> None:
     ):
         mock_list.return_value = []
         result = runner.invoke(cli, ["associations"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_list.assert_called_once()
 
 
@@ -74,7 +74,7 @@ def test_associations_list_json_output(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["associations", "list", "--format", "json"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert '"id": "1"' in result.output
         assert '"title": "Test Association"' in result.output
 
@@ -98,7 +98,7 @@ def test_associations_list_yaml_output(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["associations", "list", "--format", "yaml"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "id:" in result.output or "id :" in result.output
         assert "Test Association" in result.output
 
@@ -122,7 +122,7 @@ def test_associations_list_columns_filter(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["associations", "list", "--columns", "id,title"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         # Should have id and title somewhere
         assert "1" in result.output
         assert "Test Association" in result.output
@@ -151,7 +151,7 @@ def test_associations_list_output_to_file(runner: CliRunner, tmp_path: Any) -> N
             cli,
             ["associations", "list", "--format", "json", "--output", str(output_file)],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert output_file.exists()
         content = output_file.read_text()
         assert '"id": "1"' in content
@@ -176,7 +176,7 @@ def test_associations_list_csv_output(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["associations", "list", "--format", "csv"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         lines = result.output.strip().split("\n")
         # CSV should have header + data row
         assert len(lines) >= 2

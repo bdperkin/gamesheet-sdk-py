@@ -48,7 +48,7 @@ def test_games_completed_list_json_format() -> None:
         status=200,
     )
     result = main(["games", "--season-id", _SEASON_ID, "completed", "list", "-F", "json"])
-    assert result == 0
+    assert not result
     _cleanup_token()
 
 
@@ -63,7 +63,7 @@ def test_games_scheduled_list_json_format() -> None:
         status=200,
     )
     result = main(["games", "--season-id", _SEASON_ID, "scheduled", "list", "-F", "json"])
-    assert result == 0
+    assert not result
     _cleanup_token()
 
 
@@ -78,5 +78,5 @@ def test_games_brackets_list_json_format() -> None:
         status=200,
     )
     result = main(["games", "--season-id", _SEASON_ID, "brackets", "list", "-F", "json"])
-    assert result == 0
+    assert not result
     _cleanup_token()

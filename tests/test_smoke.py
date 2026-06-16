@@ -12,4 +12,4 @@ def test_version_is_string() -> None:
 
 def test_cli_exits_zero_on_no_args() -> None:
 
-    assert main([]) == 0
+    assert not main([])

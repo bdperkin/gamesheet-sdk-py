@@ -26,7 +26,7 @@ def test_teams_delete_basic(runner: CliRunner) -> None:
             cli,
             ["teams", "delete", "--season-id", "15020", "--team-id", "123"],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "deleted successfully" in result.output.lower()
         mock_delete.assert_called_once()
 
@@ -46,7 +46,7 @@ def test_teams_delete_alias_rm(runner: CliRunner) -> None:
             cli,
             ["teams", "rm", "--season-id", "15020", "--team-id", "123"],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "deleted successfully" in result.output.lower()
         mock_delete.assert_called_once()
 
@@ -66,7 +66,7 @@ def test_teams_delete_alias_remove(runner: CliRunner) -> None:
             cli,
             ["teams", "remove", "--season-id", "15020", "--team-id", "123"],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "deleted successfully" in result.output.lower()
         mock_delete.assert_called_once()
 

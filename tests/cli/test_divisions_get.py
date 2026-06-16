@@ -28,7 +28,7 @@ def test_divisions_get(runner: CliRunner) -> None:
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
         result = runner.invoke(cli, ["divisions", "get", "--division-id", "301"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert result.output
         assert mock_action.called
 
@@ -51,7 +51,7 @@ def test_divisions_get_with_fields(runner: CliRunner) -> None:
             cli,
             ["divisions", "get", "--division-id", "301", "--fields", "id", "--format", "json"],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert result.output
 
 
@@ -70,5 +70,5 @@ def test_divisions_get_empty_fields(runner: CliRunner) -> None:
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
         result = runner.invoke(cli, ["divisions", "get", "--division-id", "301", "--fields", ","])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert result.output

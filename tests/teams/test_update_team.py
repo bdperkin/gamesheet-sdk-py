@@ -281,7 +281,7 @@ def test_update_team_remove_logo(config: Config) -> None:
     update_req = responses.calls[1].request
     assert update_req.body is not None
     payload = json.loads(update_req.body)
-    assert payload["data"]["attributes"]["logo_url"] == ""
+    assert not payload["data"]["attributes"]["logo_url"]
 
 
 @responses.activate

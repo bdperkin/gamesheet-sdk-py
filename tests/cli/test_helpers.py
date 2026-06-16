@@ -27,7 +27,7 @@ def test_resource_group_with_no_aliases() -> None:
         click.echo("listing")
 
     result = CliRunner().invoke(test_group, ["list"])
-    assert result.exit_code == 0
+    assert not result.exit_code
     assert "listing" in result.output
 
 
@@ -175,7 +175,7 @@ def test_confirm_destructive_with_force() -> None:
         click.echo("deleted")
 
     result = CliRunner().invoke(delete_cmd, ["--force"])
-    assert result.exit_code == 0
+    assert not result.exit_code
     assert "deleted" in result.output
     assert "Really delete" not in result.output
 
@@ -190,7 +190,7 @@ def test_confirm_destructive_without_force_confirmed() -> None:
         click.echo("deleted")
 
     result = CliRunner().invoke(delete_cmd, input="y\n")
-    assert result.exit_code == 0
+    assert not result.exit_code
     assert "deleted" in result.output
 
 
@@ -206,7 +206,7 @@ def test_confirm_destructive_without_force_aborted() -> None:
     result = CliRunner().invoke(delete_cmd, input="n\n")
     assert result.exit_code == 1
     assert "deleted" not in result.output
-    assert "Aborted" in result.output or result.exit_code != 0
+    assert "Aborted" in result.output or result.exit_code
 
 
 def test_resource_group_get_command_with_unknown_alias() -> None:

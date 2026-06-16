@@ -39,7 +39,7 @@ def test_teams_create_basic(runner: CliRunner) -> None:
                 "80385",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_create.assert_called_once()
 
 
@@ -73,7 +73,7 @@ def test_teams_create_with_external_id(runner: CliRunner) -> None:
                 "custom-id",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
 
 
 def test_teams_create_json_output(runner: CliRunner) -> None:
@@ -106,7 +106,7 @@ def test_teams_create_json_output(runner: CliRunner) -> None:
                 "json",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "123" in result.output  # Team ID
 
 
@@ -138,7 +138,7 @@ def test_teams_create_alias_add_works(runner: CliRunner) -> None:
                 "80385",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_create.assert_called_once()
 
 
@@ -170,7 +170,7 @@ def test_teams_create_alias_new_works(runner: CliRunner) -> None:
                 "80385",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_create.assert_called_once()
 
 
@@ -205,7 +205,7 @@ def test_teams_create_with_output_file(runner: CliRunner, tmp_path: Any) -> None
                 str(output_file),
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert output_file.exists()
         # When output goes to file, no success message should be printed
         assert "created successfully" not in result.output

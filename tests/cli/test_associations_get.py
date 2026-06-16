@@ -28,7 +28,7 @@ def test_associations_get(runner: CliRunner) -> None:
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
         result = runner.invoke(cli, ["associations", "get", "--association-id", "101"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert result.output
         assert mock_action.called
 
@@ -51,7 +51,7 @@ def test_associations_get_with_fields(runner: CliRunner) -> None:
             cli,
             ["associations", "get", "--association-id", "101", "--fields", "id,title"],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert result.output
 
 
@@ -70,7 +70,7 @@ def test_associations_get_json_format(runner: CliRunner) -> None:
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
         result = runner.invoke(cli, ["associations", "get", "--association-id", "101", "--format", "json"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert result.output
 
 
@@ -89,5 +89,5 @@ def test_associations_get_empty_fields(runner: CliRunner) -> None:
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
         result = runner.invoke(cli, ["associations", "get", "--association-id", "101", "--fields", ","])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert result.output

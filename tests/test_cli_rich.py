@@ -11,20 +11,20 @@ def test_cli_help_renders_with_rich_click() -> None:
     """Test that --help renders using rich-click."""
     result = main(["--help"])
     # Should exit with 0 when showing help
-    assert result == 0
+    assert not result
 
 
 def test_cli_version_renders_with_rich_click() -> None:
     """Test that --version renders using rich-click."""
     result = main(["--version"])
     # Should exit with 0 when showing version
-    assert result == 0
+    assert not result
 
 
 def test_subcommand_help_renders() -> None:
     """Test that subcommand help works with rich-click."""
     result = main(["associations", "--help"])
-    assert result == 0
+    assert not result
 
 
 def test_rich_click_configuration_applied() -> None:
@@ -64,13 +64,13 @@ def test_command_groups_configured() -> None:
 def test_login_command_help() -> None:
     """Test that login command help renders."""
     result = main(["login", "--help"])
-    assert result == 0
+    assert not result
 
 
 def test_completion_command_help() -> None:
     """Test that completion command help renders."""
     result = main(["completion", "--help"])
-    assert result == 0
+    assert not result
 
 
 @pytest.mark.parametrize(
@@ -90,7 +90,7 @@ def test_completion_command_help() -> None:
 def test_resource_group_help(resource: str) -> None:
     """Test that all resource group help pages render."""
     result = main([resource, "--help"])
-    assert result == 0
+    assert not result
 
 
 def test_resource_group_uses_rich_formatting() -> None:

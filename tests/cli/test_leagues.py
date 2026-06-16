@@ -16,10 +16,10 @@ if TYPE_CHECKING:
 def test_leagues_group_has_help_option(runner: CliRunner) -> None:
     """The leagues group should accept -h and --help."""
     result_short = runner.invoke(cli, ["leagues", "-h"])
-    assert result_short.exit_code == 0
+    assert not result_short.exit_code
     assert "leagues" in result_short.output.lower()
     result_long = runner.invoke(cli, ["leagues", "--help"])
-    assert result_long.exit_code == 0
+    assert not result_long.exit_code
     assert "leagues" in result_long.output.lower()
 
 
@@ -35,7 +35,7 @@ def test_leagues_list_alias_works(runner: CliRunner) -> None:
     ):
         mock_list.return_value = []
         result = runner.invoke(cli, ["leagues", "ls", "--association-id", "38"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_list.assert_called_once()
 
 
@@ -66,7 +66,7 @@ def test_leagues_list_json_output(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--format", "json"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert '"id": "100"' in result.output
         assert '"title": "Test League"' in result.output
 
@@ -91,7 +91,7 @@ def test_leagues_list_yaml_output(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--format", "yaml"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "id:" in result.output or "id :" in result.output
         assert "Test League" in result.output
 
@@ -116,7 +116,7 @@ def test_leagues_list_columns_filter(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--columns", "id,title"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "100" in result.output
         assert "Test League" in result.output
 
@@ -145,7 +145,7 @@ def test_leagues_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
             cli,
             ["leagues", "list", "--association-id", "38", "--format", "json", "--output", str(output_file)],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert output_file.exists()
         content = output_file.read_text()
         assert '"id": "100"' in content
@@ -171,7 +171,7 @@ def test_leagues_list_csv_output(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--format", "csv"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         lines = result.output.strip().split("\n")
         assert len(lines) >= 2
         assert "id" in lines[0].lower()
@@ -180,7 +180,7 @@ def test_leagues_list_csv_output(runner: CliRunner) -> None:
 def test_leagues_bare_invocation_runs_list(runner: CliRunner) -> None:
     """Bare 'leagues ASSOC_ID' with no args shows help mentioning list as default."""
     result = runner.invoke(cli, ["leagues", "--help"])
-    assert result.exit_code == 0
+    assert not result.exit_code
     # Help should mention that list is the default or show list command
     assert "list" in result.output.lower() or "ls" in result.output.lower()
 
@@ -205,7 +205,7 @@ def test_leagues_list_grid_format(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--format", "grid"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         # Grid format should have borders
         assert "+" in result.output or "|" in result.output
 
@@ -230,7 +230,7 @@ def test_leagues_list_simple_format(runner: CliRunner) -> None:
             ),
         ]
         result = runner.invoke(cli, ["leagues", "list", "--association-id", "38", "--format", "simple"])
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "100" in result.output
 
 
@@ -257,5 +257,5 @@ def test_leagues_list_with_env_var(runner: CliRunner) -> None:
     ):
         mock_list.return_value = []
         result = runner.invoke(cli, ["leagues", "list"], env={"GAMESHEET_ASSOCIATION_ID": "38"})
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_list.assert_called_once()

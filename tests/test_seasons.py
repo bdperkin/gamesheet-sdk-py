@@ -379,7 +379,6 @@ def _bff_payload(items: list[dict[str, object]]) -> dict[str, object]:
 @responses.activate
 def test_list_seasons_with_status_filter_uses_bff_api(config: Config) -> None:
     """When a filter is provided, the BFF API should be used."""
-    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
     responses.add(
         responses.GET,
         _BFF_ENDPOINT,
@@ -416,7 +415,6 @@ def test_list_seasons_with_status_filter_uses_bff_api(config: Config) -> None:
 @responses.activate
 def test_list_seasons_with_title_filter_uses_bff_api(config: Config) -> None:
     """Title filter should use BFF API."""
-    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
     responses.add(
         responses.GET,
         _BFF_ENDPOINT,
@@ -449,7 +447,6 @@ def test_list_seasons_with_title_filter_uses_bff_api(config: Config) -> None:
 @responses.activate
 def test_list_seasons_with_date_filters_uses_bff_api(config: Config) -> None:
     """Date range filters should use BFF API."""
-    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
     responses.add(
         responses.GET,
         _BFF_ENDPOINT,
@@ -487,7 +484,6 @@ def test_list_seasons_with_date_filters_uses_bff_api(config: Config) -> None:
 @responses.activate
 def test_list_seasons_with_stats_year_filter_uses_bff_api(config: Config) -> None:
     """Stats year filter should use BFF API."""
-    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
     responses.add(
         responses.GET,
         _BFF_ENDPOINT,
@@ -521,7 +517,6 @@ def test_list_seasons_with_stats_year_filter_uses_bff_api(config: Config) -> Non
 @responses.activate
 def test_list_seasons_bff_api_401_raises_authentication_error(config: Config) -> None:
     """BFF API 401 should raise AuthenticationError."""
-    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
     responses.add(
         responses.GET,
         _BFF_ENDPOINT,
@@ -540,7 +535,6 @@ def test_list_seasons_bff_api_401_raises_authentication_error(config: Config) ->
 @responses.activate
 def test_list_seasons_bff_api_404_raises_gamesheet_error(config: Config) -> None:
     """BFF API 404 should raise GameSheetError with helpful message."""
-    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
     responses.add(
         responses.GET,
         _BFF_ENDPOINT,
@@ -562,7 +556,6 @@ def test_list_seasons_bff_api_404_raises_gamesheet_error(config: Config) -> None
 @responses.activate
 def test_list_seasons_bff_api_other_error_raises_gamesheet_error(config: Config) -> None:
     """BFF API 500 should raise GameSheetError."""
-    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
     responses.add(
         responses.GET,
         _BFF_ENDPOINT,
@@ -578,7 +571,6 @@ def test_list_seasons_bff_api_other_error_raises_gamesheet_error(config: Config)
 @responses.activate
 def test_list_seasons_bff_api_non_success_status_raises_error(config: Config) -> None:
     """BFF API non-success status in body should raise GameSheetError."""
-    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
     responses.add(
         responses.GET,
         _BFF_ENDPOINT,
@@ -594,7 +586,6 @@ def test_list_seasons_bff_api_non_success_status_raises_error(config: Config) ->
 @responses.activate
 def test_list_seasons_bff_api_empty_results(config: Config) -> None:
     """BFF API should handle empty results correctly."""
-    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
     responses.add(
         responses.GET,
         _BFF_ENDPOINT,
@@ -610,7 +601,6 @@ def test_list_seasons_bff_api_empty_results(config: Config) -> None:
 @responses.activate
 def test_list_seasons_bff_api_data_as_dict_with_items(config: Config) -> None:
     """BFF API should handle data as dict with items key."""
-    # pylint: disable=unexpected-keyword-arg  # list_seasons accepts keyword-only args
     responses.add(
         responses.GET,
         _BFF_ENDPOINT,

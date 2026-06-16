@@ -336,6 +336,10 @@ extend-ignore = [
 ]
 extend-select = [
   "B950",
+  "C901",
+  "E",
+  "F",
+  "W",
 ]
 inline-quotes = "double"
 max-line-length = 110
@@ -454,15 +458,16 @@ variables.redefining-builtins-modules = [ "six.moves", "past.builtins", "future.
 miscellaneous.notes = [ "FIXME", "XXX", "TODO" ]
 "messages control".confidence = [ "HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED" ]
 "messages control".disable = [
-  "duplicate-code",
+  "locally-disabled",
+  "suppressed-message",
 ]
 "messages control".enable = [
-  "useless-suppression",
+  "all",
 ]
 "messages control".per-file-ignores = [
   "docs/conf.py:invalid-name",
   "scripts/**:broad-exception-caught,protected-access,unspecified-encoding",
-  "tests/**:import-outside-toplevel,missing-function-docstring,protected-access,redefined-outer-name",
+  "tests/**:duplicate-code,import-outside-toplevel,missing-function-docstring,protected-access,redefined-outer-name",
 ]
 
 ## # ----------------------------------------------------------------------------

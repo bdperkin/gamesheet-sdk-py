@@ -51,7 +51,7 @@ def test_referees_update_with_all_fields(runner: CliRunner) -> None:
                 "87487685-24B9-46EF-B8A3-D3B7ECEB1F68",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_update.assert_called_once()
         args = mock_update.call_args[0]
         assert args[1] == "15020"
@@ -93,7 +93,7 @@ def test_referees_update_partial_fields(runner: CliRunner) -> None:
                 "Updated",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_update.assert_called_once()
         args = mock_update.call_args[0]
         assert args[1] == "15020"
@@ -135,7 +135,7 @@ def test_referees_update_alias_set(runner: CliRunner) -> None:
                 "Test",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_update.assert_called_once()
 
 
@@ -170,7 +170,7 @@ def test_referees_update_alias_edit(runner: CliRunner) -> None:
                 "Test",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_update.assert_called_once()
 
 
@@ -242,6 +242,6 @@ def test_referees_update_json_output(runner: CliRunner) -> None:
                 "json",
             ],
         )
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert '"id": "1146200"' in result.output
         assert '"last_name": "Updated"' in result.output

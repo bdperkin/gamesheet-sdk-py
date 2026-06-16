@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 import pytest
 import responses
 
-from gamesheet_sdk import DEFAULT_BASE_URL, Config, Session
+from gamesheet_sdk import DEFAULT_BASE_URL, Config, Session  # pylint: disable=no-name-in-module
 
 if TYPE_CHECKING:
 
@@ -111,7 +111,7 @@ def test_corrupt_cookie_file_does_not_crash(config: Config, caplog: pytest.LogCa
     with caplog.at_level("WARNING"):
         sess = Session(config)
     assert "Failed to load session cookies" in caplog.text
-    assert len(sess.cookies) == 0
+    assert not sess.cookies
     sess.close()
 
 
@@ -119,7 +119,7 @@ def test_missing_cookie_file_is_silent(config: Config) -> None:
 
     assert not config.session_path.exists()
     sess = Session(config)
-    assert len(sess.cookies) == 0
+    assert not sess.cookies
     sess.close()
 
 
