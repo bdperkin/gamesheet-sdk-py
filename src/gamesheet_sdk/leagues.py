@@ -35,7 +35,6 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
-from gamesheet_sdk.constants import PLAY_GAMESHEET_APP
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
 if TYPE_CHECKING:

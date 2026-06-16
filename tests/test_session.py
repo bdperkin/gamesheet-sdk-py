@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 import pytest
 import responses
 
-from gamesheet_sdk import Config, DEFAULT_BASE_URL, Session
+from gamesheet_sdk import DEFAULT_BASE_URL, Config, Session
 
 if TYPE_CHECKING:
 

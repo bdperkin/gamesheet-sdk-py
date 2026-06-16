@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, cast
 
 import pytest
 
-from gamesheet_sdk import Config, DEFAULT_BASE_URL
+from gamesheet_sdk import DEFAULT_BASE_URL, Config
 
 if TYPE_CHECKING:
 
