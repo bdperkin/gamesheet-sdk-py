@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.46 (2026-06-16)
+
+### Features
+
+- **seasons**: Add optional filters to seasons list command ([#105](https://github.com/bdperkin/gamesheet-sdk-py/pull/105),
+  [`e5a3ebc`](https://github.com/bdperkin/gamesheet-sdk-py/commit/e5a3ebc2d702c650163b4c7d50487dcdc80f39d6))
+
 ## v0.1.45 (2026-06-16)
 
 ### Bug Fixes
