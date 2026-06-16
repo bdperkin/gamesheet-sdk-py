@@ -2,6 +2,62 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.44 (2026-06-16)
+
+### Bug Fixes
+
+- Populate missing field values in get commands ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
+  [`dff9679`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dff967953ab4db0f0679c7e9479af0a432b7a997))
+
+- **divisions**: Populate team_count field in get_division ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
+  [`dff9679`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dff967953ab4db0f0679c7e9479af0a432b7a997))
+
+- **teams**: Correctly match invitation code via relationship ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
+  [`dff9679`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dff967953ab4db0f0679c7e9479af0a432b7a997))
+
+- **teams**: Populate invitation_code field in get_team ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
+  [`dff9679`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dff967953ab4db0f0679c7e9479af0a432b7a997))
+
+- **teams**: Use list endpoint to populate invitation_code in get_team ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
+  [`dff9679`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dff967953ab4db0f0679c7e9479af0a432b7a997))
+
+### Chores
+
+- Remove accidentally committed __pycache__ files ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
+  [`dff9679`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dff967953ab4db0f0679c7e9479af0a432b7a997))
+
+### Code Style
+
+- Apply linter/formatter fixes from pre-commit hooks ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
+  [`dff9679`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dff967953ab4db0f0679c7e9479af0a432b7a997))
+
+- **divisions**: Reformat docstring line wrapping ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
+  [`dff9679`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dff967953ab4db0f0679c7e9479af0a432b7a997))
+
+- **tests**: Fix autopep8 indentation conflicts ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
+  [`dff9679`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dff967953ab4db0f0679c7e9479af0a432b7a997))
+
+- **tests**: Fix editorconfig indentation issues ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
+  [`dff9679`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dff967953ab4db0f0679c7e9479af0a432b7a997))
+
+### Documentation
+
+- **tests**: Add docstrings to test package __init__ files ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
+  [`dff9679`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dff967953ab4db0f0679c7e9479af0a432b7a997))
+
+### Features
+
+- **cli**: Add get sub-command for associations, leagues, divisions, teams, games, and roster ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
+  [`dff9679`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dff967953ab4db0f0679c7e9479af0a432b7a997))
+
+### Testing
+
+- **cli**: Achieve 100% test coverage for get commands ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
+  [`dff9679`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dff967953ab4db0f0679c7e9479af0a432b7a997))
+
+- **cli,units**: Add comprehensive test coverage for get commands ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
+  [`dff9679`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dff967953ab4db0f0679c7e9479af0a432b7a997))
+
 ## v0.1.43 (2026-06-16)
 
 ### Bug Fixes
