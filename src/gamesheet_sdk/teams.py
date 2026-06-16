@@ -109,9 +109,14 @@ def get_team(session: Session, season_id: str, team_id: str) -> Team:
     :raises GameSheetError: For any other non-2xx response, including 404 if the team is not found.
     """
     endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
+    # Include invitations relationship to get invitation code
+    params = {
+        "include": "invitations",
+    }
     response = session.get(
         endpoint,
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
+        params=params,
     )
 
     if response.status_code == 401:
@@ -131,7 +136,20 @@ def get_team(session: Session, season_id: str, team_id: str) -> Team:
         raise GameSheetError(_err_msg)
 
     body: dict[str, Any] = response.json()
-    return _parse(body["data"])
+    team = _parse(body["data"])
+
+    # Extract invitation code from included resources if present
+    invitation_code = None
+    for item in body.get("included", []):
+        if item.get("type") == "invitations":
+            invitation_code = item.get("attributes", {}).get("code")
+            break
+
+    # Update team with invitation code if found
+    if invitation_code:
+        team = team.model_copy(update={"invitation_code": invitation_code})
+
+    return team
 
 
 def list_teams(session: Session, season_id: str) -> list[Team]:
