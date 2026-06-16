@@ -47,7 +47,9 @@ def test_associations_get_with_fields(runner: CliRunner) -> None:
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
-        result = runner.invoke(cli, ["associations", "get", "--association-id", "101", "--fields", "id,title"])
+        result = runner.invoke(
+            cli, ["associations", "get", "--association-id", "101", "--fields", "id,title"],
+        )
         assert result.exit_code == 0
         assert result.output
 

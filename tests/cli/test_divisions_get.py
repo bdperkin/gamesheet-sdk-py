@@ -47,7 +47,9 @@ def test_divisions_get_with_fields(runner: CliRunner) -> None:
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
-        result = runner.invoke(cli, ["divisions", "get", "--division-id", "301", "--fields", "id", "--format", "json"])
+        result = runner.invoke(
+            cli, ["divisions", "get", "--division-id", "301", "--fields", "id", "--format", "json"],
+        )
         assert result.exit_code == 0
         assert result.output
 
