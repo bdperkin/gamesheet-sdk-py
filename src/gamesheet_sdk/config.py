@@ -18,6 +18,8 @@ from pathlib import Path
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings
 
+from gamesheet_sdk.constants import DEFAULT_BASE_URL
+
 
 def _default_session_path() -> Path:
     """Return the XDG-compliant default path for persisted session state.
@@ -117,7 +119,7 @@ class Config(BaseSettings, env_prefix="GAMESHEET_", extra="ignore"):
     """
 
     base_url: str = Field(
-        default="https://gamesheet.app",
+        default=DEFAULT_BASE_URL,
         description="Root URL of the GameSheet WebUI (the dashboard app).",
     )
     username: str | None = Field(

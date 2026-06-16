@@ -16,13 +16,13 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
+from gamesheet_sdk.constants import BFF_API_BASE_URL
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
 if TYPE_CHECKING:
     from gamesheet_sdk.session import Session
 _ENDPOINT = "/api/seasons"
 _JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
-_BFF_BASE_URL = "https://bff-dashboard-api-awy26srzoa-nn.a.run.app"
 
 
 class Season(BaseModel):
@@ -145,7 +145,7 @@ def _list_seasons_bff(
         params["filter[stats_year]"] = stats_year
     if title:
         params["filter[title]"] = title
-    url = f"{_BFF_BASE_URL}/leagues/{league_id}/seasons"
+    url = f"{BFF_API_BASE_URL}/leagues/{league_id}/seasons"
     response = session.get(url, params=params)
     if response.status_code == 401:
 

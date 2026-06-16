@@ -107,7 +107,7 @@ click.rich_click.COMMAND_GROUPS = {
 @click.option(
     "--base-url",
     envvar="GAMESHEET_BASE_URL",
-    help="GameSheet base URL (default: https://gamesheet.app).",
+    help="GameSheet base URL (default: DEFAULT_BASE_URL constant).",
 )
 @click.option(
     "--no-headless",

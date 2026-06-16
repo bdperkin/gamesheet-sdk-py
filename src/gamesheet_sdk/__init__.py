@@ -68,6 +68,12 @@ from gamesheet_sdk.auth import (
 )
 from gamesheet_sdk.browser import BrowserSession
 from gamesheet_sdk.config import Config
+from gamesheet_sdk.constants import (
+    APP_GAMESHEET_COM,
+    BFF_API_BASE_URL,
+    CLOUDFLARE_IMAGE_DELIVERY_BASE,
+    DEFAULT_BASE_URL,
+)
 from gamesheet_sdk.divisions import (
     Division,
     create_division,
@@ -109,13 +115,17 @@ except PackageNotFoundError:  # pragma: no cover - only in uninstalled source tr
 
 __all__ = [
     "ALL_FORMATS",
+    "APP_GAMESHEET_COM",
     "Association",
     "AuthenticatedSession",
     "AuthenticationError",
+    "BFF_API_BASE_URL",
     "BrowserSession",
+    "CLOUDFLARE_IMAGE_DELIVERY_BASE",
     "Coach",
     "Config",
     "DATA_FORMATS",
+    "DEFAULT_BASE_URL",
     "DEFAULT_FORMAT",
     "Division",
     "Game",
