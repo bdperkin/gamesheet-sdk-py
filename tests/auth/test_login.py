@@ -14,7 +14,12 @@ from gamesheet_sdk import (
     Config,
     login,
 )
-from gamesheet_sdk.auth.constants import LOGIN_PATH, POST_LOGIN_PATH
+from gamesheet_sdk.auth.constants import (
+    FIREBASE_AUTH_URL,
+    LOGIN_PATH,
+    POST_LOGIN_PATH,
+    TOKEN_EXCHANGE_URL,
+)
 
 if TYPE_CHECKING:
 
@@ -34,8 +39,8 @@ def _make_response(url: str, status: int, body: Any = None) -> MagicMock:
     return r
 
 
-_FIREBASE_URL = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=X"
-_TOKEN_URL = "https://gamesheet.app/api/token"  # nosec B105
+_FIREBASE_URL = f"{FIREBASE_AUTH_URL}?key=X"
+_TOKEN_URL = TOKEN_EXCHANGE_URL  # nosec B105
 
 
 @pytest.fixture

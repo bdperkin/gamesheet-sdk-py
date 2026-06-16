@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, cast
 
 import pytest
 
-from gamesheet_sdk import Config
+from gamesheet_sdk import Config, DEFAULT_BASE_URL
 
 if TYPE_CHECKING:
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 def test_defaults() -> None:
 
     cfg = Config()
-    assert cfg.base_url == "https://gamesheet.app"
+    assert cfg.base_url == DEFAULT_BASE_URL
     assert cfg.username is None
     assert cfg.password is None
     assert cfg.timeout == 30.0

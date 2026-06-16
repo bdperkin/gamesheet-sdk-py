@@ -10,9 +10,10 @@ import responses
 # Explicit import for coverage tracking of dynamically-loaded Click commands
 # pylint: disable-next=unused-import
 import gamesheet_sdk.cli.commands.roster  # noqa: F401
+from gamesheet_sdk import DEFAULT_BASE_URL
 from gamesheet_sdk.cli import main
 
-_BASE = "https://gamesheet.app"
+_BASE = DEFAULT_BASE_URL
 _SEASON_ID = "15020"
 _PLAYERS_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/players"
 _COACHES_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/coaches"

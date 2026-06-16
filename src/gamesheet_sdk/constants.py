@@ -48,6 +48,9 @@ from typing import Final
 # Default base URL for the GameSheet web application
 DEFAULT_BASE_URL: Final[str] = "https://gamesheet.app"
 
+# Play subdomain for certain league operations
+PLAY_GAMESHEET_APP: Final[str] = "https://play.gamesheet.app"
+
 # Legacy domain used for browser storage state
 APP_GAMESHEET_COM: Final[str] = "https://app.gamesheet.com"
 

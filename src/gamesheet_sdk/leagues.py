@@ -18,7 +18,7 @@ Retrieve all leagues for a given association:
     from gamesheet_sdk.session import Session
 
     # Create authenticated session
-    session = Session(base_url="https://play.gamesheet.app")
+    session = Session(base_url=PLAY_GAMESHEET_APP)
     token = load_access_token()
     session.set_bearer_token(token)
 
@@ -35,6 +35,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
+from gamesheet_sdk.constants import PLAY_GAMESHEET_APP
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
 if TYPE_CHECKING:

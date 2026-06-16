@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 import pytest
 import responses
 
-from gamesheet_sdk import Config, Session
+from gamesheet_sdk import Config, DEFAULT_BASE_URL, Session
 
 if TYPE_CHECKING:
 
@@ -146,7 +146,7 @@ def test_default_config_when_none_passed(monkeypatch: pytest.MonkeyPatch, tmp_pa
     """`Session()` with no Config should construct a default Config."""
     monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
     sess = Session()
-    assert sess.config.base_url == "https://gamesheet.app"
+    assert sess.config.base_url == DEFAULT_BASE_URL
     sess.close()
 
 

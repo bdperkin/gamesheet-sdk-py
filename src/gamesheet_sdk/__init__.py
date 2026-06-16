@@ -73,6 +73,7 @@ from gamesheet_sdk.constants import (
     BFF_API_BASE_URL,
     CLOUDFLARE_IMAGE_DELIVERY_BASE,
     DEFAULT_BASE_URL,
+    PLAY_GAMESHEET_APP,
 )
 from gamesheet_sdk.divisions import (
     Division,
@@ -127,6 +128,7 @@ __all__ = [
     "DATA_FORMATS",
     "DEFAULT_BASE_URL",
     "DEFAULT_FORMAT",
+    "PLAY_GAMESHEET_APP",
     "Division",
     "Game",
     "GameSheetError",

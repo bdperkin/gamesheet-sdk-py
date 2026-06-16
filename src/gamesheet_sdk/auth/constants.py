@@ -83,6 +83,8 @@ from __future__ import annotations
 
 from typing import Final
 
+from gamesheet_sdk.constants import DEFAULT_BASE_URL
+
 # Path on which the SDK drives the login form, relative to Config.base_url.
 # GameSheet's SPA renders the login form inline at the same route that becomes
 # the authenticated dashboard, rather than at a dedicated /users/sign_in route.
@@ -101,8 +103,10 @@ POST_LOGIN_PATH: Final[str] = "/associations"
 # Firebase Auth host and endpoint
 FIREBASE_AUTH_HOST: Final[str] = "identitytoolkit.googleapis.com"
 FIREBASE_AUTH_PATH: Final[str] = ":signInWithPassword"
+FIREBASE_AUTH_URL: Final[str] = f"https://{FIREBASE_AUTH_HOST}/v1/accounts{FIREBASE_AUTH_PATH}"
 # GameSheet token exchange endpoint
 TOKEN_EXCHANGE_PATH: Final[str] = "/api/token"
+TOKEN_EXCHANGE_URL: Final[str] = f"{DEFAULT_BASE_URL}{TOKEN_EXCHANGE_PATH}"
 # Endpoint that mints a fresh access token from a valid refresh token.
 REFRESH_URL: Final[str] = "https://gateway-authserver-awy26srzoa-nn.a.run.app/auth/v4/refresh"
 # Timeouts
