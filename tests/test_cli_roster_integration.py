@@ -12,17 +12,13 @@ import responses
 import gamesheet_sdk.cli.commands.roster  # noqa: F401
 from gamesheet_sdk import DEFAULT_BASE_URL
 from gamesheet_sdk.cli import main
+from tests.helpers import jsonapi_payload
 
 _BASE = DEFAULT_BASE_URL
 _SEASON_ID = "15020"
 _PLAYERS_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/players"
 _COACHES_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/coaches"
 _TOKEN_PATH = Path(tempfile.gettempdir()) / ".gamesheet" / "access_token"
-
-
-def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
-    """Build a JSON:API ``{"data": [...]}`` body."""
-    return {"data": rows}
 
 
 def _mock_token() -> None:
@@ -44,7 +40,7 @@ def test_roster_players_list_json_format() -> None:
     responses.add(
         responses.GET,
         _PLAYERS_ENDPOINT,
-        json=_payload([]),
+        json=jsonapi_payload([]),
         status=200,
     )
     result = main(
@@ -61,7 +57,7 @@ def test_roster_coaches_list_json_format() -> None:
     responses.add(
         responses.GET,
         _COACHES_ENDPOINT,
-        json=_payload([]),
+        json=jsonapi_payload([]),
         status=200,
     )
     result = main(

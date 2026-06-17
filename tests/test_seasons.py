@@ -18,6 +18,7 @@ from gamesheet_sdk import (
     list_seasons,
 )
 from gamesheet_sdk.seasons import Season, SeasonDetail
+from tests.helpers import jsonapi_payload
 
 _BASE = "https://test.example"
 _LEAGUE_ID = "1148580"
@@ -25,17 +26,12 @@ _ENDPOINT = f"{_BASE}/api/seasons"
 _BFF_ENDPOINT = f"{BFF_API_BASE_URL}/leagues/{_LEAGUE_ID}/seasons"
 
 
-def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
-    """Build a JSON:API ``{"data": [...]}`` body."""
-    return {"data": rows}
-
-
 @responses.activate
 def test_list_seasons_parses_jsonapi_response(config: Config) -> None:
     responses.add(
         responses.GET,
         _ENDPOINT,
-        json=_payload(
+        json=jsonapi_payload(
             [
                 {
                     "type": "seasons",
@@ -88,7 +84,7 @@ def test_list_seasons_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_seasons_sends_bearer_and_jsonapi_accept(config: Config) -> None:
-    responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
+    responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_seasons(session, _LEAGUE_ID)
@@ -100,7 +96,7 @@ def test_list_seasons_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
 @responses.activate
 def test_list_seasons_empty_data_returns_empty_list(config: Config) -> None:
-    responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
+    responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
         assert not list_seasons(session, _LEAGUE_ID)
@@ -149,7 +145,7 @@ def test_list_seasons_filters_by_league_id(config: Config) -> None:
     responses.add(
         responses.GET,
         _ENDPOINT,
-        json=_payload(
+        json=jsonapi_payload(
             [
                 {
                     "type": "seasons",
@@ -194,7 +190,7 @@ _SEASON_ID = "15020"
 _SEASON_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}"
 
 
-def _detail_payload(data: dict[str, object]) -> dict[str, object]:
+def _detailjsonapi_payload(data: dict[str, object]) -> dict[str, object]:
     """Build a JSON:API ``{"data": {...}}`` body for a single resource."""
     return {"data": data}
 
@@ -204,7 +200,7 @@ def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:
     responses.add(
         responses.GET,
         _SEASON_ENDPOINT,
-        json=_detail_payload(
+        json=_detailjsonapi_payload(
             {
                 "type": "seasons",
                 "id": _SEASON_ID,
@@ -280,7 +276,7 @@ def test_get_season_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     responses.add(
         responses.GET,
         _SEASON_ENDPOINT,
-        json=_detail_payload(
+        json=_detailjsonapi_payload(
             {
                 "type": "seasons",
                 "id": _SEASON_ID,
@@ -365,7 +361,7 @@ def test_season_detail_model_ignores_unknown_attributes() -> None:
 
 
 # Tests for BFF API filtering
-def _bff_payload(items: list[dict[str, object]]) -> dict[str, object]:
+def _bffjsonapi_payload(items: list[dict[str, object]]) -> dict[str, object]:
     """Build a BFF API response body."""
     return {
         "status": "success",
@@ -386,7 +382,7 @@ def test_list_seasons_with_status_filter_uses_bff_api(config: Config) -> None:
     responses.add(
         responses.GET,
         _BFF_ENDPOINT,
-        json=_bff_payload(
+        json=_bffjsonapi_payload(
             [
                 {
                     "id": 15020,
@@ -422,7 +418,7 @@ def test_list_seasons_with_title_filter_uses_bff_api(config: Config) -> None:
     responses.add(
         responses.GET,
         _BFF_ENDPOINT,
-        json=_bff_payload(
+        json=_bffjsonapi_payload(
             [
                 {
                     "id": 15020,
@@ -454,7 +450,7 @@ def test_list_seasons_with_date_filters_uses_bff_api(config: Config) -> None:
     responses.add(
         responses.GET,
         _BFF_ENDPOINT,
-        json=_bff_payload(
+        json=_bffjsonapi_payload(
             [
                 {
                     "id": 15020,
@@ -491,7 +487,7 @@ def test_list_seasons_with_stats_year_filter_uses_bff_api(config: Config) -> Non
     responses.add(
         responses.GET,
         _BFF_ENDPOINT,
-        json=_bff_payload(
+        json=_bffjsonapi_payload(
             [
                 {
                     "id": 15020,
@@ -595,7 +591,7 @@ def test_list_seasons_bff_api_empty_results(config: Config) -> None:
     responses.add(
         responses.GET,
         _BFF_ENDPOINT,
-        json=_bff_payload([]),
+        json=_bffjsonapi_payload([]),
         status=200,
     )
     with Session(config) as session:

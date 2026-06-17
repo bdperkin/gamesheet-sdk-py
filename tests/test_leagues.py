@@ -15,15 +15,11 @@ from gamesheet_sdk import (
     list_leagues,
 )
 from gamesheet_sdk.leagues import League
+from tests.helpers import jsonapi_payload
 
 _BASE = "https://test.example"
 _ASSOCIATION_ID = "38"
 _ENDPOINT = f"{_BASE}/api/associations/{_ASSOCIATION_ID}/leagues"
-
-
-def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
-    """Build a JSON:API ``{"data": [...]}`` body."""
-    return {"data": rows}
 
 
 @responses.activate
@@ -31,7 +27,7 @@ def test_list_leagues_parses_jsonapi_response(config: Config) -> None:
     responses.add(
         responses.GET,
         _ENDPOINT,
-        json=_payload(
+        json=jsonapi_payload(
             [
                 {
                     "type": "leagues",
@@ -68,7 +64,7 @@ def test_list_leagues_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_leagues_sends_bearer_and_jsonapi_accept(config: Config) -> None:
-    responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
+    responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_leagues(session, _ASSOCIATION_ID)
@@ -80,7 +76,7 @@ def test_list_leagues_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
 @responses.activate
 def test_list_leagues_empty_data_returns_empty_list(config: Config) -> None:
-    responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
+    responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
         assert not list_leagues(session, _ASSOCIATION_ID)
@@ -144,7 +140,7 @@ def test_list_leagues_constructs_correct_endpoint_for_association(
     """Verify that different association IDs result in correct endpoint paths."""
     association_id = "42"
     endpoint = f"{_BASE}/api/associations/{association_id}/leagues"
-    responses.add(responses.GET, endpoint, json=_payload([]), status=200)
+    responses.add(responses.GET, endpoint, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_leagues(session, association_id)

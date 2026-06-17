@@ -15,15 +15,11 @@ from gamesheet_sdk import (
     list_teams,
 )
 from gamesheet_sdk.teams import Team
+from tests.helpers import jsonapi_payload
 
 _BASE = "https://test.example"
 _SEASON_ID = "15020"
 _ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/teams"
-
-
-def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
-    """Build a JSON:API ``{"data": [...]}`` body."""
-    return {"data": rows}
 
 
 @responses.activate
@@ -31,7 +27,7 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
     responses.add(
         responses.GET,
         _ENDPOINT,
-        json=_payload(
+        json=jsonapi_payload(
             [
                 {
                     "type": "teams",
@@ -95,7 +91,7 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_teams_sends_bearer_and_jsonapi_accept(config: Config) -> None:
-    responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
+    responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_teams(session, _SEASON_ID)
@@ -114,7 +110,7 @@ def test_list_teams_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
 @responses.activate
 def test_list_teams_empty_data_returns_empty_list(config: Config) -> None:
-    responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
+    responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
         assert not list_teams(session, _SEASON_ID)
@@ -418,7 +414,7 @@ def test_list_teams_uses_correct_endpoint(config: Config) -> None:
     responses.add(
         responses.GET,
         _ENDPOINT,
-        json=_payload(
+        json=jsonapi_payload(
             [
                 {
                     "type": "teams",

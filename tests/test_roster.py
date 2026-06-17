@@ -15,6 +15,7 @@ from gamesheet_sdk import (
     list_coaches,
     list_players,
 )
+from tests.helpers import jsonapi_payload
 
 _BASE = "https://test.example"
 _SEASON_ID = "15020"
@@ -22,17 +23,12 @@ _PLAYERS_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/players"
 _COACHES_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/coaches"
 
 
-def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
-    """Build a JSON:API ``{"data": [...]}`` body."""
-    return {"data": rows}
-
-
 @responses.activate
 def test_list_players_parses_jsonapi_response(config: Config) -> None:
     responses.add(
         responses.GET,
         _PLAYERS_ENDPOINT,
-        json=_payload(
+        json=jsonapi_payload(
             [
                 {
                     "type": "players",
@@ -95,7 +91,7 @@ def test_list_coaches_parses_jsonapi_response(config: Config) -> None:
     responses.add(
         responses.GET,
         _COACHES_ENDPOINT,
-        json=_payload(
+        json=jsonapi_payload(
             [
                 {
                     "type": "coaches",
@@ -188,7 +184,7 @@ def test_list_coaches_500_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_list_players_handles_empty_data(config: Config) -> None:
-    responses.add(responses.GET, _PLAYERS_ENDPOINT, json=_payload([]), status=200)
+    responses.add(responses.GET, _PLAYERS_ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("valid")
         result = list_players(session, _SEASON_ID)
@@ -197,7 +193,7 @@ def test_list_players_handles_empty_data(config: Config) -> None:
 
 @responses.activate
 def test_list_coaches_handles_empty_data(config: Config) -> None:
-    responses.add(responses.GET, _COACHES_ENDPOINT, json=_payload([]), status=200)
+    responses.add(responses.GET, _COACHES_ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("valid")
         result = list_coaches(session, _SEASON_ID)
