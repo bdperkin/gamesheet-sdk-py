@@ -3,9 +3,14 @@
 from __future__ import annotations
 
 import rich_click as click
+from click.exceptions import Exit
 from rich_click import Choice, Context, Path
 
-from gamesheet_sdk.cli.core import ResourceGroup, parse_columns_spec
+from gamesheet_sdk.cli.core import (
+    ResourceGroup,
+    confirm_destructive,
+    parse_columns_spec,
+)
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
 from gamesheet_sdk.config import Config
 from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
@@ -198,6 +203,63 @@ def players_list_command(
     write_output(rendered, output_path, fmt=output_format)
 
 
+@players_group.command("create")
+def players_create_command() -> None:
+    """Create a new player.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+    """
+    click.secho(
+        "Error: roster players create is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@players_group.command("update")
+def players_update_command() -> None:
+    """Update a player.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+    """
+    click.secho(
+        "Error: roster players update is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@players_group.command("delete")
+@confirm_destructive("player")
+def players_delete_command() -> None:
+    """Delete a player.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+    """
+    click.secho(
+        "Error: roster players delete is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@players_group.command("penalty-report")
+def players_penalty_report_command() -> None:
+    """Get penalty report for a player.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+    """
+    click.secho(
+        "Error: roster players penalty-report is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
 # Coaches sub-group
 @roster_group.group(
     "coaches",
@@ -346,3 +408,60 @@ def coaches_list_command(
     rows = [coach.model_dump(mode="json") for coach in coaches]
     rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
     write_output(rendered, output_path, fmt=output_format)
+
+
+@coaches_group.command("create")
+def coaches_create_command() -> None:
+    """Create a new coach.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+    """
+    click.secho(
+        "Error: roster coaches create is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@coaches_group.command("update")
+def coaches_update_command() -> None:
+    """Update a coach.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+    """
+    click.secho(
+        "Error: roster coaches update is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@coaches_group.command("delete")
+@confirm_destructive("coach")
+def coaches_delete_command() -> None:
+    """Delete a coach.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+    """
+    click.secho(
+        "Error: roster coaches delete is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@coaches_group.command("penalty-report")
+def coaches_penalty_report_command() -> None:
+    """Get penalty report for a coach.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+    """
+    click.secho(
+        "Error: roster coaches penalty-report is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)

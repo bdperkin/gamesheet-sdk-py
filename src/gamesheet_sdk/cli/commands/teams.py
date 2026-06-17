@@ -5,9 +5,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import rich_click as click
+from click.exceptions import Exit
 from rich_click import Choice, Context, Path
 
-from gamesheet_sdk.cli.core import ResourceGroup, parse_columns_spec
+from gamesheet_sdk.cli.core import (
+    ResourceGroup,
+    confirm_destructive,
+    parse_columns_spec,
+)
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
 from gamesheet_sdk.config import Config
 from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
@@ -416,3 +421,254 @@ def teams_delete_command(
     session = build_authenticated_session(ctx, config)
     run_action_or_exit(session, _delete_team_action, season_id, team_id)
     click.secho(f"Team {team_id} deleted successfully.", fg="green")
+
+
+# Teams roster nested group
+@teams_group.group(
+    "roster",
+    cls=ResourceGroup,
+    default="players",
+    aliases={
+        "get": ("show", "view"),
+        "list": ("ls",),
+        "create": ("add", "new"),
+        "update": ("set", "edit"),
+        "delete": ("rm", "remove"),
+    },
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
+@click.option(
+    "--season-id",
+    type=str,
+    envvar="GAMESHEET_SEASON_ID",
+    required=True,
+    help="Season ID to manage roster for.",
+)
+@click.option(
+    "--team-id",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID to manage roster for.",
+)
+@click.pass_context
+def teams_roster_group(ctx: Context, season_id: str, team_id: str) -> None:
+    """Manage roster (players and coaches) for a specific team.
+
+    Invoking ``roster`` with no sub-command runs ``players`` by default. The --season-id and --team-id options
+    are required and apply to all sub-commands.
+    """
+    config = ctx.obj
+    ctx.obj = {"config": config, "season_id": season_id, "team_id": team_id}
+
+
+# Teams roster players sub-group
+@teams_roster_group.group(
+    "players",
+    cls=ResourceGroup,
+    default="list",
+    aliases={
+        "get": ("show", "view"),
+        "list": ("ls",),
+        "create": ("add", "new"),
+        "update": ("set", "edit"),
+        "delete": ("rm", "remove"),
+    },
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
+def teams_roster_players_group() -> None:
+    """Manage players for this team.
+
+    Invoking ``players`` with no sub-command runs ``list`` by default.
+    """
+
+
+@teams_roster_players_group.command("list")
+def teams_roster_players_list_command() -> None:
+    """List all players for this team.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added.
+    """
+    click.secho(
+        "Error: teams roster players list is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@teams_roster_players_group.command("get")
+def teams_roster_players_get_command() -> None:
+    """Get a specific player for this team.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added.
+    """
+    click.secho(
+        "Error: teams roster players get is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@teams_roster_players_group.command("create")
+def teams_roster_players_create_command() -> None:
+    """Add a player to this team.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added.
+    """
+    click.secho(
+        "Error: teams roster players create is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@teams_roster_players_group.command("update")
+def teams_roster_players_update_command() -> None:
+    """Update a player on this team.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added.
+    """
+    click.secho(
+        "Error: teams roster players update is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@teams_roster_players_group.command("delete")
+@confirm_destructive("player")
+def teams_roster_players_delete_command() -> None:
+    """Remove a player from this team.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added.
+    """
+    click.secho(
+        "Error: teams roster players delete is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@teams_roster_players_group.command("penalty-report")
+def teams_roster_players_penalty_report_command() -> None:
+    """Get penalty report for a player on this team.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added.
+    """
+    click.secho(
+        "Error: teams roster players penalty-report is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+# Teams roster coaches sub-group
+@teams_roster_group.group(
+    "coaches",
+    cls=ResourceGroup,
+    default="list",
+    aliases={
+        "get": ("show", "view"),
+        "list": ("ls",),
+        "create": ("add", "new"),
+        "update": ("set", "edit"),
+        "delete": ("rm", "remove"),
+    },
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
+def teams_roster_coaches_group() -> None:
+    """Manage coaches for this team.
+
+    Invoking ``coaches`` with no sub-command runs ``list`` by default.
+    """
+
+
+@teams_roster_coaches_group.command("list")
+def teams_roster_coaches_list_command() -> None:
+    """List all coaches for this team.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added.
+    """
+    click.secho(
+        "Error: teams roster coaches list is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@teams_roster_coaches_group.command("get")
+def teams_roster_coaches_get_command() -> None:
+    """Get a specific coach for this team.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added.
+    """
+    click.secho(
+        "Error: teams roster coaches get is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@teams_roster_coaches_group.command("create")
+def teams_roster_coaches_create_command() -> None:
+    """Add a coach to this team.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added.
+    """
+    click.secho(
+        "Error: teams roster coaches create is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@teams_roster_coaches_group.command("update")
+def teams_roster_coaches_update_command() -> None:
+    """Update a coach on this team.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added.
+    """
+    click.secho(
+        "Error: teams roster coaches update is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@teams_roster_coaches_group.command("delete")
+@confirm_destructive("coach")
+def teams_roster_coaches_delete_command() -> None:
+    """Remove a coach from this team.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added.
+    """
+    click.secho(
+        "Error: teams roster coaches delete is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@teams_roster_coaches_group.command("penalty-report")
+def teams_roster_coaches_penalty_report_command() -> None:
+    """Get penalty report for a coach on this team.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added.
+    """
+    click.secho(
+        "Error: teams roster coaches penalty-report is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)

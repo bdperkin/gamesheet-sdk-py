@@ -641,6 +641,7 @@ ignore_decorators = [
   "@completed_group.command",
   "@confirm_destructive",
   "@divisions_group.command",
+  "@divisions_teams_group.command",
   "@games_group.command",
   "@group.command",
   "@ipad_keys_group.command",
@@ -653,6 +654,9 @@ ignore_decorators = [
   "@season_group.command",
   "@seasons_group.command",
   "@teams_group.command",
+  "@teams_roster_coaches_group.command",
+  "@teams_roster_group.command",
+  "@teams_roster_players_group.command",
 ]
 
 ## ## pyproject-fmt - Pyproject.toml formatter
