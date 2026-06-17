@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any
+
+from pydantic import BaseModel
 
 from gamesheet_sdk.cli.core import parse_columns_spec
 from gamesheet_sdk.output import render, write_output
-
-if TYPE_CHECKING:
-    from pydantic import BaseModel
 
 
 def render_get_command(
@@ -26,9 +25,8 @@ def render_get_command(
         fields_spec: Optional comma-separated field names to include
     """
     # Convert pydantic model to dict if needed
-    data_dict: dict[str, Any]
-    if hasattr(data, "model_dump"):
-        data_dict = cast("dict[str, Any]", data.model_dump(mode="json"))
+    if isinstance(data, BaseModel):
+        data_dict = data.model_dump(mode="json")
     else:
         data_dict = data
 

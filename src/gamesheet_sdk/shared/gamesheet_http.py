@@ -1,4 +1,4 @@
-"""HTTP response handling utilities."""  # noqa: A005
+"""HTTP response handling utilities."""
 
 from __future__ import annotations
 
@@ -27,7 +27,10 @@ def handle_response(
         GameSheetError: If response status is 404 or any other >= 400
     """
     if response.status_code == 401:
-        msg = f"Access token rejected (HTTP 401) for {context_msg}. Use `gamesheet-sdk-py login` to authenticate."
+        msg = (
+            f"Access token rejected (HTTP 401) for {context_msg}. "
+            "Use `gamesheet-sdk-py login` to authenticate."
+        )
         raise AuthenticationError(msg)
     if response.status_code == 404:
         msg = f"Resource not found (HTTP 404) for {endpoint}"

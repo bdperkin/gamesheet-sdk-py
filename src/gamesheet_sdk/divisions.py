@@ -15,7 +15,11 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
-from gamesheet_sdk.shared import JSONAPI_HEADERS, extract_relationship_id, handle_response, parse_jsonapi_resource
+from gamesheet_sdk.shared import (
+    JSONAPI_HEADERS,
+    handle_response,
+    parse_jsonapi_resource,
+)
 
 if TYPE_CHECKING:
     from gamesheet_sdk.session import Session
@@ -237,9 +241,6 @@ def update_division(
     :type external_id: str | None
     :returns: The updated :class:`Division`.
     :rtype: Division
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-sdk-py login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response.
     :raises ValueError: If neither title nor external_id is provided.
     """
     if title is None is external_id:

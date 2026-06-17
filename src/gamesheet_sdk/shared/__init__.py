@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from gamesheet_sdk.shared.constants import JSONAPI_CONTENT_TYPE, JSONAPI_HEADERS
-from gamesheet_sdk.shared.http import check_bff_response_status, handle_response
+from gamesheet_sdk.shared.gamesheet_http import check_bff_response_status, handle_response
 from gamesheet_sdk.shared.jsonapi import extract_relationship_id, parse_jsonapi_resource
 
 __all__ = [

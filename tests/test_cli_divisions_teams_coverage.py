@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import tempfile
+from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -42,7 +44,12 @@ def test_divisions_teams_create_coverage() -> None:
     """Ensure divisions teams create command body is covered."""
     runner = CliRunner()
 
-    def run_action_side_effect(session: MagicMock, func: Any, *_args: Any, **_kwargs: Any) -> Any:
+    def run_action_side_effect(
+        session: MagicMock,
+        func: Any,
+        *_args: Any,
+        **_kwargs: Any,
+    ) -> Any:
         # Call the function to ensure it's covered
         if callable(func):
             return func(session)
@@ -113,7 +120,7 @@ def test_divisions_teams_create_coverage() -> None:
                 "-F",
                 "json",
                 "--output",
-                "/tmp/test_output.json",  # noqa: S108  # nosec B108
+                str(Path(tempfile.gettempdir()) / "output.json"),
             ],
             obj=MagicMock(),
         )

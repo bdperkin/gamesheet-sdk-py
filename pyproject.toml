@@ -931,7 +931,6 @@ gitignore = true
 
 ## ## autoflake - Basic code cleaner
 [tool.autoflake]
-check = true
 description = "Automatically removes unused imports and unused variables from Python code."
 recursive = true
 

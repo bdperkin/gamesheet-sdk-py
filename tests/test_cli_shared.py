@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-import pytest
+import tempfile
+from pathlib import Path
+
 import rich_click as click
 from pydantic import BaseModel
 
@@ -20,7 +22,6 @@ class SampleModel(BaseModel):
 
     id: str
     name: str
-    extra: str | None = None
 
 
 def test_common_output_options_decorator() -> None:
@@ -29,7 +30,7 @@ def test_common_output_options_decorator() -> None:
     @common_output_options
     @click.command()
     def dummy_command(output_format: str, output_path: str | None) -> None:
-        pass
+        del output_format, output_path
 
     # Check that the command has the expected parameters
     params = {p.name for p in dummy_command.params}
@@ -43,7 +44,7 @@ def test_list_columns_option_decorator() -> None:
     @list_columns_option
     @click.command()
     def dummy_command(columns_spec: str | None) -> None:
-        pass
+        del columns_spec
 
     # Check that the command has the columns_spec parameter
     params = {p.name for p in dummy_command.params}
@@ -56,16 +57,16 @@ def test_get_fields_option_decorator() -> None:
     @get_fields_option
     @click.command()
     def dummy_command(fields_spec: str | None) -> None:
-        pass
+        del fields_spec
 
     # Check that the command has the fields_spec parameter
     params = {p.name for p in dummy_command.params}
     assert "fields_spec" in params
 
 
-def test_render_get_command_with_dict(tmp_path: pytest.TempPathFactory) -> None:
+def test_render_get_command_with_dict() -> None:
     """Test render_get_command with a dict."""
-    output_file = tmp_path / "output.json"
+    output_file = Path(tempfile.gettempdir()) / "output.json"
     data = {"id": "123", "name": "Test"}
 
     render_get_command(data, "json", str(output_file), None)
@@ -75,9 +76,9 @@ def test_render_get_command_with_dict(tmp_path: pytest.TempPathFactory) -> None:
     assert "Test" in content
 
 
-def test_render_get_command_with_fields_filter(tmp_path: pytest.TempPathFactory) -> None:
+def test_render_get_command_with_fields_filter() -> None:
     """Test render_get_command with fields filter."""
-    output_file = tmp_path / "output.json"
+    output_file = Path(tempfile.gettempdir()) / "output.json"
     data = {"id": "123", "name": "Test", "extra": "Should be filtered"}
 
     render_get_command(data, "json", str(output_file), "id,name")
@@ -88,9 +89,9 @@ def test_render_get_command_with_fields_filter(tmp_path: pytest.TempPathFactory)
     assert "extra" not in content
 
 
-def test_render_list_command_with_dicts(tmp_path: pytest.TempPathFactory) -> None:
+def test_render_list_command_with_dicts() -> None:
     """Test render_list_command with list of dicts."""
-    output_file = tmp_path / "output.json"
+    output_file = Path(tempfile.gettempdir()) / "output.json"
     items = [
         {"id": "1", "name": "First"},
         {"id": "2", "name": "Second"},
@@ -103,9 +104,9 @@ def test_render_list_command_with_dicts(tmp_path: pytest.TempPathFactory) -> Non
     assert "Second" in content
 
 
-def test_render_list_command_with_columns_filter(tmp_path: pytest.TempPathFactory) -> None:
+def test_render_list_command_with_columns_filter() -> None:
     """Test render_list_command with columns filter."""
-    output_file = tmp_path / "output.csv"
+    output_file = Path(tempfile.gettempdir()) / "output.csv"
     items = [
         {"id": "1", "name": "First", "extra": "Data"},
         {"id": "2", "name": "Second", "extra": "More"},
@@ -121,9 +122,9 @@ def test_render_list_command_with_columns_filter(tmp_path: pytest.TempPathFactor
     assert "Second" in content
 
 
-def test_render_get_command_with_pydantic_model(tmp_path: pytest.TempPathFactory) -> None:
+def test_render_get_command_with_pydantic_model() -> None:
     """Test render_get_command with a pydantic model."""
-    output_file = tmp_path / "output.json"
+    output_file = Path(tempfile.gettempdir()) / "output.json"
     model = SampleModel(id="456", name="Pydantic Test", extra="Extra data")
 
     render_get_command(model, "json", str(output_file), None)
@@ -133,9 +134,9 @@ def test_render_get_command_with_pydantic_model(tmp_path: pytest.TempPathFactory
     assert "Pydantic Test" in content
 
 
-def test_render_get_command_with_pydantic_model_tabular(tmp_path: pytest.TempPathFactory) -> None:
+def test_render_get_command_with_pydantic_model_tabular() -> None:
     """Test render_get_command with pydantic model in tabular format."""
-    output_file = tmp_path / "output.txt"
+    output_file = Path(tempfile.gettempdir()) / "output.txt"
     model = SampleModel(id="789", name="Tabular Test")
 
     render_get_command(model, "plain", str(output_file), None)
@@ -145,9 +146,9 @@ def test_render_get_command_with_pydantic_model_tabular(tmp_path: pytest.TempPat
     assert "Tabular Test" in content
 
 
-def test_render_list_command_with_pydantic_models(tmp_path: pytest.TempPathFactory) -> None:
+def test_render_list_command_with_pydantic_models() -> None:
     """Test render_list_command with pydantic models."""
-    output_file = tmp_path / "output.json"
+    output_file = Path(tempfile.gettempdir()) / "output.json"
     items = [
         SampleModel(id="1", name="Model One"),
         SampleModel(id="2", name="Model Two"),
@@ -160,9 +161,9 @@ def test_render_list_command_with_pydantic_models(tmp_path: pytest.TempPathFacto
     assert "Model Two" in content
 
 
-def test_render_get_command_with_whitespace_fields_spec(tmp_path: pytest.TempPathFactory) -> None:
+def test_render_get_command_with_whitespace_fields_spec() -> None:
     """Test render_get_command with whitespace-only fields_spec (no filtering)."""
-    output_file = tmp_path / "output.json"
+    output_file = Path(tempfile.gettempdir()) / "output.json"
     data = {"id": "999", "name": "Test", "extra": "Should appear"}
 
     # Whitespace-only fields_spec should not filter (parse_columns_spec returns None)
