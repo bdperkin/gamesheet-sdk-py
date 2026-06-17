@@ -2,6 +2,23 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.47 (2026-06-17)
+
+### Build System
+
+- **deps**: Bump GitGuardian/ggshield-action in the actions group ([#106](https://github.com/bdperkin/gamesheet-sdk-py/pull/106),
+  [`0e7b2b9`](https://github.com/bdperkin/gamesheet-sdk-py/commit/0e7b2b9af4d4e243cfa2f1c0dabb4348d04f4117))
+
+### Code Style
+
+- Normalize vertical spacing throughout codebase ([#107](https://github.com/bdperkin/gamesheet-sdk-py/pull/107),
+  [`c018e9d`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c018e9d30c57027fbf8b11a9e332678c863157d9))
+
+### Features
+
+- **cli**: Add -V short option for version flag ([#108](https://github.com/bdperkin/gamesheet-sdk-py/pull/108),
+  [`775c507`](https://github.com/bdperkin/gamesheet-sdk-py/commit/775c507d301258602b03a79f83b4a33c1c020071))
+
 ## v0.1.46 (2026-06-16)
 
 ### Features
