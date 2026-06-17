@@ -17,7 +17,7 @@ def test_games_scheduled_get_coverage() -> None:
         patch(
             "gamesheet_sdk.cli.commands.games.run_action_or_exit",
             return_value=MagicMock(
-                model_dump=lambda mode: {"id": 123, "status": "scheduled", "date": "2024-01-01"}
+                model_dump=lambda **_: {"id": 123, "status": "scheduled", "date": "2024-01-01"},
             ),
         ),
         patch("gamesheet_sdk.cli.commands.games.render", return_value=""),

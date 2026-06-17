@@ -16,7 +16,7 @@ def test_divisions_teams_get_coverage() -> None:
         patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
         patch(
             "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
-            return_value=MagicMock(model_dump=lambda mode: {"id": "1", "title": "Team 1"}),
+            return_value=MagicMock(model_dump=lambda **_: {"id": "1", "title": "Team 1"}),
         ),
         patch("gamesheet_sdk.cli.commands.divisions.render", return_value=""),
         patch("gamesheet_sdk.cli.commands.divisions.write_output"),
@@ -41,7 +41,7 @@ def test_divisions_teams_create_coverage() -> None:
     """Ensure divisions teams create command body is covered."""
     runner = CliRunner()
 
-    def run_action_side_effect(session, func, *args, **kwargs):
+    def run_action_side_effect(session, func, *_args, **_kwargs):
         # Call the function to ensure it's covered
         if callable(func):
             return func(session)
@@ -59,6 +59,7 @@ def test_divisions_teams_create_coverage() -> None:
         ),
         patch("gamesheet_sdk.cli.commands.divisions.render", return_value=""),
         patch("gamesheet_sdk.cli.commands.divisions.write_output"),
+        patch("gamesheet_sdk.cli.commands.divisions.click.secho"),
     ):
         # Test JSON format
         result = runner.invoke(
@@ -96,13 +97,33 @@ def test_divisions_teams_create_coverage() -> None:
             obj=MagicMock(),
         )
         assert not result.exit_code
+        # Test with output file to cover the else branch
+        result = runner.invoke(
+            divisions_group,
+            [
+                "teams",
+                "create",
+                "--season-id",
+                "100",
+                "--division-id",
+                "50",
+                "--title",
+                "New Team",
+                "-F",
+                "json",
+                "--output",
+                "/tmp/test_output.json",  # noqa: S108 - Test file path, not a security issue
+            ],
+            obj=MagicMock(),
+        )
+        assert not result.exit_code
 
 
 def test_divisions_teams_update_coverage() -> None:
     """Ensure divisions teams update command body is covered."""
     runner = CliRunner()
 
-    def run_action_side_effect(session, func, *args, **kwargs):
+    def run_action_side_effect(session, func, *_args, **_kwargs):
         # Call the function to ensure it's covered
         if callable(func):
             return func(session)
@@ -112,7 +133,7 @@ def test_divisions_teams_update_coverage() -> None:
         patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
         patch(
             "gamesheet_sdk.teams.update_team",
-            return_value=MagicMock(model_dump=lambda mode: {"id": "1", "title": "Updated Team"}),
+            return_value=MagicMock(model_dump=lambda **_: {"id": "1", "title": "Updated Team"}),
         ),
         patch(
             "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
