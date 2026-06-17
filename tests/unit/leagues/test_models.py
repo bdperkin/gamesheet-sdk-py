@@ -1,0 +1,20 @@
+"""Tests for League model."""
+
+from __future__ import annotations
+
+from datetime import datetime, timezone
+
+from gamesheet_sdk.leagues import League
+
+
+def test_league_model_ignores_unknown_attributes() -> None:
+    """League model should ignore unknown attributes for forward compatibility."""
+    lg = League(
+        id="101",
+        association_id="38",
+        title="18U AAA",
+        created_at=datetime(2023, 1, 1, tzinfo=timezone.utc),
+        updated_at=datetime(2023, 1, 1, tzinfo=timezone.utc),
+        unexpected_future_attr="ignored",
+    )
+    assert lg.title == "18U AAA"

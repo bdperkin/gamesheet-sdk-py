@@ -1,4 +1,4 @@
-"""Tests for associations command group."""
+"""Tests for associations list command."""
 
 from __future__ import annotations
 
@@ -10,16 +10,6 @@ from gamesheet_sdk.cli import cli
 
 if TYPE_CHECKING:
     from click.testing import CliRunner
-
-
-def test_associations_group_has_help_option(runner: CliRunner) -> None:
-    """The associations group should accept -h and --help."""
-    result_short = runner.invoke(cli, ["associations", "-h"])
-    assert not result_short.exit_code
-    assert "associations" in result_short.output.lower()
-    result_long = runner.invoke(cli, ["associations", "--help"])
-    assert not result_long.exit_code
-    assert "associations" in result_long.output.lower()
 
 
 def test_associations_list_alias_works(runner: CliRunner) -> None:

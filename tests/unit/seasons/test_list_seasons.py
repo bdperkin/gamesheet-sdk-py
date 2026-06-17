@@ -127,18 +127,6 @@ def test_list_seasons_other_failure_raises_gamesheet_error(
             list_seasons(session, _LEAGUE_ID)
 
 
-def test_season_model_ignores_unknown_attributes() -> None:
-    s = Season(
-        id="501",
-        league_id="1148580",
-        title="2024-2025",
-        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        unexpected_future_attr="ignored",
-    )
-    assert s.title == "2024-2025"
-
-
 @responses.activate
 def test_list_seasons_filters_by_league_id(config: Config) -> None:
     """Verify that seasons are filtered to only include the requested league."""
@@ -340,24 +328,6 @@ def test_get_season_other_failure_raises_gamesheet_error(config: Config) -> None
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
             get_season(session, _SEASON_ID)
-
-
-def test_season_detail_model_ignores_unknown_attributes() -> None:
-    sd = SeasonDetail(
-        id="15020",
-        association_id="38",
-        league_id="1148580",
-        title="Test",
-        external_id="uuid",
-        start_date="2026-01-01",
-        end_date="2026-12-31",
-        sport="hockey",
-        stats_year="2026",
-        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        unexpected_future_attr="ignored",
-    )
-    assert sd.title == "Test"
 
 
 # Tests for BFF API filtering

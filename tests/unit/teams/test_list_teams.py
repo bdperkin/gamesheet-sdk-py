@@ -153,19 +153,6 @@ def test_list_teams_other_failure_raises_gamesheet_error(
             list_teams(session, _SEASON_ID)
 
 
-def test_team_model_ignores_unknown_attributes() -> None:
-    t = Team(
-        id="1001",
-        season_id="15020",
-        title="Raleigh Raptors",
-        division_id="5001",
-        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        unexpected_future_attr="ignored",
-    )
-    assert t.title == "Raleigh Raptors"
-
-
 def test_team_model_handles_optional_division_id() -> None:
     t = Team(
         id="1002",

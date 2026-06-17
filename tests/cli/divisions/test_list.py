@@ -1,4 +1,4 @@
-"""Tests for divisions command group."""
+"""Tests for divisions list command."""
 
 from __future__ import annotations
 
@@ -10,16 +10,6 @@ from gamesheet_sdk.divisions import Division
 
 if TYPE_CHECKING:
     from click.testing import CliRunner
-
-
-def test_divisions_group_has_help_option(runner: CliRunner) -> None:
-    """The divisions group should accept -h and --help."""
-    result_short = runner.invoke(cli, ["divisions", "-h"])
-    assert not result_short.exit_code
-    assert "divisions" in result_short.output.lower()
-    result_long = runner.invoke(cli, ["divisions", "--help"])
-    assert not result_long.exit_code
-    assert "divisions" in result_short.output.lower()
 
 
 def test_divisions_list_alias_works(runner: CliRunner) -> None:

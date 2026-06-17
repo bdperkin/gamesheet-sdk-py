@@ -121,18 +121,6 @@ def test_list_leagues_other_failure_raises_gamesheet_error(
             list_leagues(session, _ASSOCIATION_ID)
 
 
-def test_league_model_ignores_unknown_attributes() -> None:
-    lg = League(
-        id="101",
-        association_id="38",
-        title="18U AAA",
-        created_at=datetime(2023, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2023, 1, 1, tzinfo=timezone.utc),
-        unexpected_future_attr="ignored",
-    )
-    assert lg.title == "18U AAA"
-
-
 @responses.activate
 def test_list_leagues_constructs_correct_endpoint_for_association(
     config: Config,

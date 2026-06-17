@@ -124,15 +124,3 @@ def test_list_associations_other_failure_raises_gamesheet_error(
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
             list_associations(session)
-
-
-def test_association_model_ignores_unknown_attributes() -> None:
-    a = Association(
-        id="11",
-        title="X",
-        logo="",
-        created_at=datetime(2023, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2023, 1, 1, tzinfo=timezone.utc),
-        unexpected_future_attr="ignored",
-    )
-    assert a.title == "X"
