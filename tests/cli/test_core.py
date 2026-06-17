@@ -26,6 +26,14 @@ def test_cli_version_shows_version_string(runner: CliRunner) -> None:
     assert any(c.isdigit() for c in result.output)
 
 
+def test_cli_version_short_option(runner: CliRunner) -> None:
+    """Running with -V should show a version string."""
+    result = runner.invoke(cli, ["-V"])
+    assert not result.exit_code
+    # Should contain a digit somewhere
+    assert any(c.isdigit() for c in result.output)
+
+
 def test_login_command_exists(runner: CliRunner) -> None:
     """The 'login' command should be available."""
     result = runner.invoke(cli, ["login", "--help"])
