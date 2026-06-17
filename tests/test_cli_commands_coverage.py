@@ -223,8 +223,7 @@ def test_divisions_create_with_output_file_coverage() -> None:
             "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
             side_effect=mock_run_action,
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render", return_value=""),
-        patch("gamesheet_sdk.cli.commands.divisions.write_output"),
+        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
         patch("gamesheet_sdk.cli.commands.divisions.click.secho") as mock_secho,
         tempfile.TemporaryDirectory() as tmpdir,
     ):
@@ -330,8 +329,7 @@ def test_divisions_update_with_output_file_coverage() -> None:
             "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
             side_effect=mock_run_action,
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render", return_value=""),
-        patch("gamesheet_sdk.cli.commands.divisions.write_output"),
+        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
         patch("gamesheet_sdk.cli.commands.divisions.click.secho") as mock_secho,
         tempfile.TemporaryDirectory() as tmpdir,
     ):
