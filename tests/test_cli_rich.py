@@ -21,6 +21,13 @@ def test_cli_version_renders_with_rich_click() -> None:
     assert not result
 
 
+def test_cli_version_short_option() -> None:
+    """Test that -V short option works for version."""
+    result = main(["-V"])
+    # Should exit with 0 when showing version
+    assert not result
+
+
 def test_subcommand_help_renders() -> None:
     """Test that subcommand help works with rich-click."""
     result = main(["associations", "--help"])

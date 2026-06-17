@@ -74,7 +74,7 @@ click.rich_click.OPTION_GROUPS = {
         },
         {
             "name": "General Options",
-            "options": ["--verbose", "--version", "--help"],
+            "options": ["--verbose", "-V/--version", "--help"],
         },
     ],
 }
@@ -106,7 +106,7 @@ click.rich_click.COMMAND_GROUPS = {
     invoke_without_command=True,
     context_settings={"help_option_names": ["-h", "--help"]},
 )
-@click.version_option(__version__, prog_name="gamesheet-sdk-py")
+@click.version_option(__version__, "-V", "--version", prog_name="gamesheet-sdk-py")
 @click.option(
     "--base-url",
     envvar="GAMESHEET_BASE_URL",
