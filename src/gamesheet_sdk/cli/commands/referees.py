@@ -19,10 +19,10 @@ from gamesheet_sdk.referees import delete_referee as _delete_referee_action
 from gamesheet_sdk.referees import get_referee as _get_referee_action
 from gamesheet_sdk.referees import get_referee_report as _get_referee_report_action
 from gamesheet_sdk.referees import list_referees as _list_referees_action
+from gamesheet_sdk.referees import update_referee as _update_referee_action
 
 if TYPE_CHECKING:
     from rich_click import Context
-from gamesheet_sdk.referees import update_referee as _update_referee_action
 
 
 @click.group(
