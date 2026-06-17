@@ -15,10 +15,12 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel, Field
 
 from gamesheet_sdk.constants import BFF_API_BASE_URL
-from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.exceptions import GameSheetError
+from gamesheet_sdk.shared import check_bff_response_status, handle_response
 
 if TYPE_CHECKING:
     from gamesheet_sdk.session import Session
+
 _ENDPOINT = "/games-list/v1"
 
 
@@ -125,27 +127,9 @@ def _make_request(
         params["filter[brackets]"] = "true" if brackets else "false"
     url = f"{BFF_API_BASE_URL}{_ENDPOINT}"
     response = session.get(url, params=params)
-    if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if response.status_code == 404:
-        _err_msg = (
-            f"Season '{season_id}' not found (HTTP 404). "
-            f"Make sure you're using a valid season ID. "
-            f"To get valid season IDs, run: gamesheet-sdk-py seasons list --league-id <LEAGUE_ID>",
-        )
-        raise GameSheetError(_err_msg)
-    if response.status_code >= 400:
-        _err_msg = (f"GET {url} returned HTTP {response.status_code}: {response.text[:200]!r}",)
-        raise GameSheetError(_err_msg)
+    handle_response(response, url, "GET games")
     body: dict[str, Any] = response.json()
-    # Check for success status
-    if body.get("status") != "success":
-        _err_msg = (f"BFF API returned non-success status: {body.get('status')}",)
-        raise GameSheetError(_err_msg)
+    check_bff_response_status(body, url)
     # Parse games from the data array
     games_data = body.get("data", [])
     return [Game(**game_data) for game_data in games_data]
