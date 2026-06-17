@@ -128,13 +128,6 @@ def games_get_command(
     "scheduled",
     cls=ResourceGroup,
     default="list",
-    aliases={
-        "get": ("show", "view"),
-        "list": ("ls",),
-        "create": ("add", "new"),
-        "update": ("set", "edit"),
-        "delete": ("rm", "remove"),
-    },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def scheduled_group() -> None:
@@ -297,13 +290,6 @@ def scheduled_delete_command() -> None:
     "completed",
     cls=ResourceGroup,
     default="list",
-    aliases={
-        "get": ("show", "view"),
-        "list": ("ls",),
-        "create": ("add", "new"),
-        "update": ("set", "edit"),
-        "delete": ("rm", "remove"),
-    },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def completed_group() -> None:
@@ -370,13 +356,6 @@ def completed_list_command(
     "brackets",
     cls=ResourceGroup,
     default="list",
-    aliases={
-        "get": ("show", "view"),
-        "list": ("ls",),
-        "create": ("add", "new"),
-        "update": ("set", "edit"),
-        "delete": ("rm", "remove"),
-    },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def brackets_group() -> None:
