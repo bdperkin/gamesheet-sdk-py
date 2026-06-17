@@ -18,15 +18,25 @@ Examples:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import rich_click as click
-from rich_click import Choice, Context, Path
 
 from gamesheet_sdk.associations import get_association as _get_association_action
 from gamesheet_sdk.associations import list_associations as _list_associations_action
-from gamesheet_sdk.cli.core import ResourceGroup, parse_columns_spec
+from gamesheet_sdk.cli.core import ResourceGroup
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
+from gamesheet_sdk.cli.shared import (
+    common_output_options,
+    get_fields_option,
+    list_columns_option,
+    render_get_command,
+    render_list_command,
+)
 from gamesheet_sdk.config import Config
-from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
+
+if TYPE_CHECKING:
+    from rich_click import Context
 
 
 @click.group(
@@ -59,35 +69,8 @@ def associations_group() -> None:
     required=True,
     help="Association ID to retrieve details for.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--fields",
-    "-f",
-    "fields_spec",
-    default=None,
-    help=("Comma-separated list of field names to include (default: all fields the API returns)."),
-)
+@common_output_options
+@get_fields_option
 @click.pass_context
 def associations_get_command(
     ctx: Context,
@@ -105,57 +88,13 @@ def associations_get_command(
     """
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
-    # Convert to dict for rendering
-    data = run_action_or_exit(
-        session,
-        _get_association_action,
-        association_id,
-    ).model_dump(mode="json")
-    # If fields are specified, filter to only those fields
-    if fields_spec:
-        fields = parse_columns_spec(fields_spec)
-        if fields:
-            data = {k: v for k, v in data.items() if k in fields}
-    # For tabular formats, convert to a list of key-value rows
-    if output_format not in ("json", "yaml"):
-        rows = [{"field": k, "value": v} for k, v in data.items()]
-        rendered = render(rows, fmt=output_format, columns=None)
-    else:
-        # For data formats, output the whole object
-        rendered = render([data], fmt=output_format, columns=None)
-    write_output(rendered, output_path, fmt=output_format)
+    association = run_action_or_exit(session, _get_association_action, association_id)
+    render_get_command(association, output_format, output_path, fields_spec)
 
 
 @associations_group.command("list")
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--columns",
-    "-c",
-    "columns_spec",
-    default=None,
-    help=("Comma-separated list of column names to include (default: all columns the API returns)."),
-)
+@common_output_options
+@list_columns_option
 @click.pass_context
 def associations_list_command(
     ctx: Context,
@@ -181,6 +120,4 @@ def associations_list_command(
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
     associations = run_action_or_exit(session, _list_associations_action)
-    rows = [assoc.model_dump(mode="json") for assoc in associations]
-    rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command(associations, output_format, output_path, columns_spec)
