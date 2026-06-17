@@ -8,16 +8,18 @@ from typing import TYPE_CHECKING, Any
 
 import rich_click as click
 from click.exceptions import Exit
-from rich_click import Choice, Context, Path
+from rich_click import Path
 
-from gamesheet_sdk.cli.core import (
-    ResourceGroup,
-    confirm_destructive,
-    parse_columns_spec,
-)
+from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
+from gamesheet_sdk.cli.shared import (
+    common_output_options,
+    get_fields_option,
+    list_columns_option,
+    render_get_command,
+    render_list_command,
+)
 from gamesheet_sdk.config import Config
-from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
 from gamesheet_sdk.teams import Team
 from gamesheet_sdk.teams import create_team as _create_team_action
 from gamesheet_sdk.teams import delete_team as _delete_team_action
@@ -26,6 +28,8 @@ from gamesheet_sdk.teams import list_teams as _list_teams_action
 from gamesheet_sdk.teams import update_team as _update_team_action
 
 if TYPE_CHECKING:
+    from rich_click import Context
+
     from gamesheet_sdk.auth.session import AuthenticatedSession
 
 
@@ -64,35 +68,8 @@ def teams_group() -> None:
     required=True,
     help="Team ID to retrieve details for.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--fields",
-    "-f",
-    "fields_spec",
-    default=None,
-    help=("Comma-separated list of field names to include (default: all fields the API returns)."),
-)
+@common_output_options
+@get_fields_option
 @click.pass_context
 # pylint: disable-next=too-many-positional-arguments
 def teams_get_command(
@@ -112,22 +89,8 @@ def teams_get_command(
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
     # Convert to dict for rendering
-    data = run_action_or_exit(session, _get_team_action, season_id, team_id).model_dump(
-        mode="json",
-    )
-    # If fields are specified, filter to only those fields
-    if fields_spec:
-        fields = parse_columns_spec(fields_spec)
-        if fields:
-            data = {k: v for k, v in data.items() if k in fields}
-    # For tabular formats, convert to a list of key-value rows
-    if output_format not in ("json", "yaml"):
-        rows = [{"field": k, "value": v} for k, v in data.items()]
-        rendered = render(rows, fmt=output_format, columns=None)
-    else:
-        # For data formats, output the whole object
-        rendered = render([data], fmt=output_format, columns=None)
-    write_output(rendered, output_path, fmt=output_format)
+    team = run_action_or_exit(session, _get_team_action, season_id, team_id)
+    render_get_command(team, output_format, output_path, fields_spec)
 
 
 @teams_group.command("list")
@@ -138,35 +101,8 @@ def teams_get_command(
     required=True,
     help="Season ID to list teams for.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--columns",
-    "-c",
-    "columns_spec",
-    default=None,
-    help=("Comma-separated list of column names to include (default: all columns the API returns)."),
-)
+@common_output_options
+@list_columns_option
 @click.pass_context
 def teams_list_command(
     ctx: Context,
@@ -182,9 +118,7 @@ def teams_list_command(
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
     teams = run_action_or_exit(session, _list_teams_action, season_id)
-    rows = [team.model_dump(mode="json") for team in teams]
-    rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command(teams, output_format, output_path, columns_spec)
 
 
 @teams_group.command("create")
@@ -219,28 +153,7 @@ def teams_list_command(
     type=Path(exists=True, dir_okay=False),
     help="Optional path to a local logo image file.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
+@common_output_options
 @click.pass_context
 # pylint: disable-next=too-many-positional-arguments,too-many-locals
 def teams_create_command(
@@ -272,13 +185,7 @@ def teams_create_command(
 
     result = run_action_or_exit(session, _create_with_kwargs)
     # For tabular formats, convert to a list of key-value rows
-    if output_format not in ("json", "yaml"):
-        rows = [{"field": k, "value": v} for k, v in result.items()]
-        rendered = render(rows, fmt=output_format, columns=None)
-    else:
-        # For data formats, output the whole object
-        rendered = render([result], fmt=output_format, columns=None)
-    write_output(rendered, output_path, fmt=output_format)
+    render_get_command(result, output_format, output_path)
     # Show success message (consistent with divisions create)
     if output_path is None:
         team_title = result.get("prototeam", {}).get("title", title)
@@ -333,28 +240,7 @@ def teams_create_command(
     default=False,
     help="Remove the team's logo.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
+@common_output_options
 @click.pass_context
 # pylint: disable-next=too-many-positional-arguments
 def teams_update_command(
@@ -391,8 +277,7 @@ def teams_update_command(
         )
 
     team = run_action_or_exit(session, _update_with_kwargs)
-    rendered = render([team.model_dump(mode="json")], fmt=output_format, columns=None)
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command([team], output_format, output_path)
 
 
 @teams_group.command("delete")
