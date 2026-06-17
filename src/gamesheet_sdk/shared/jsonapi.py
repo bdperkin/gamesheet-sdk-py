@@ -29,7 +29,8 @@ def extract_relationship_id(
     Returns:
         The relationship ID or default value
     """
-    return item.get("relationships", {}).get(relationship_name, {}).get("data", {}).get("id", default)
+    result: Any = item.get("relationships", {}).get(relationship_name, {}).get("data", {}).get("id", default)
+    return str(result) if result else default
 
 
 def parse_jsonapi_resource(

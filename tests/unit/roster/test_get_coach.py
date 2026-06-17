@@ -109,7 +109,7 @@ def test_get_coach_404_raises_gamesheet_error_with_helpful_message(
         session.set_bearer_token("abc")
         with pytest.raises(
             GameSheetError,
-            match=r"Coach '.*' not found.*valid coach ID and season ID",
+            match=r"Resource not found \(HTTP 404\)",
         ):
             get_coach(session, _SEASON_ID, _coach_id)
 

@@ -101,25 +101,8 @@ def get_player(session: Session, season_id: str, player_id: str) -> Player:
     :raises GameSheetError: For any other non-2xx response, including 404 if the player is not found.
     """
     endpoint = f"/api/seasons/{season_id}/players/{player_id}"
-    response = session.get(
-        endpoint,
-        headers=JSONAPI_HEADERS,
-    )
-    if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if response.status_code == 404:
-        _err_msg = (
-            f"Player '{player_id}' not found in season '{season_id}' (HTTP 404). "
-            f"Make sure you're using a valid player ID and season ID.",
-        )
-        raise GameSheetError(_err_msg)
-    if response.status_code >= 400:
-        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
-        raise GameSheetError(_err_msg)
+    response = session.get(endpoint, headers=JSONAPI_HEADERS)
+    handle_response(response, endpoint, "GET player")
     body: dict[str, Any] = response.json()
     return _parse_player(body["data"])
 
@@ -142,25 +125,8 @@ def get_coach(session: Session, season_id: str, coach_id: str) -> Coach:
     :raises GameSheetError: For any other non-2xx response, including 404 if the coach is not found.
     """
     endpoint = f"/api/seasons/{season_id}/coaches/{coach_id}"
-    response = session.get(
-        endpoint,
-        headers=JSONAPI_HEADERS,
-    )
-    if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if response.status_code == 404:
-        _err_msg = (
-            f"Coach '{coach_id}' not found in season '{season_id}' (HTTP 404). "
-            f"Make sure you're using a valid coach ID and season ID.",
-        )
-        raise GameSheetError(_err_msg)
-    if response.status_code >= 400:
-        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
-        raise GameSheetError(_err_msg)
+    response = session.get(endpoint, headers=JSONAPI_HEADERS)
+    handle_response(response, endpoint, "GET coach")
     body: dict[str, Any] = response.json()
     return _parse_coach(body["data"])
 
