@@ -360,13 +360,6 @@ def divisions_update_command(
     "teams",
     cls=ResourceGroup,
     default="list",
-    aliases={
-        "get": ("show", "view"),
-        "list": ("ls",),
-        "create": ("add", "new"),
-        "update": ("set", "edit"),
-        "delete": ("rm", "remove"),
-    },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def divisions_teams_group() -> None:

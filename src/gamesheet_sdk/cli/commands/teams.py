@@ -428,13 +428,6 @@ def teams_delete_command(
     "roster",
     cls=ResourceGroup,
     default="players",
-    aliases={
-        "get": ("show", "view"),
-        "list": ("ls",),
-        "create": ("add", "new"),
-        "update": ("set", "edit"),
-        "delete": ("rm", "remove"),
-    },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 @click.option(
@@ -467,13 +460,6 @@ def teams_roster_group(ctx: Context, season_id: str, team_id: str) -> None:
     "players",
     cls=ResourceGroup,
     default="list",
-    aliases={
-        "get": ("show", "view"),
-        "list": ("ls",),
-        "create": ("add", "new"),
-        "update": ("set", "edit"),
-        "delete": ("rm", "remove"),
-    },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def teams_roster_players_group() -> None:
@@ -573,13 +559,6 @@ def teams_roster_players_penalty_report_command() -> None:
     "coaches",
     cls=ResourceGroup,
     default="list",
-    aliases={
-        "get": ("show", "view"),
-        "list": ("ls",),
-        "create": ("add", "new"),
-        "update": ("set", "edit"),
-        "delete": ("rm", "remove"),
-    },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def teams_roster_coaches_group() -> None:
