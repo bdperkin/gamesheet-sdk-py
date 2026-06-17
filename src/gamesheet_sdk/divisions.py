@@ -15,13 +15,17 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
-from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.shared import (
+    JSONAPI_HEADERS,
+    handle_response,
+    parse_jsonapi_resource,
+)
 
 if TYPE_CHECKING:
     from gamesheet_sdk.session import Session
     from gamesheet_sdk.teams import Team
+
 _ENDPOINT = "/api/divisions"
-_JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
 
 
 class Division(BaseModel):
@@ -50,14 +54,8 @@ class Division(BaseModel):
 
 def _parse(item: dict[str, Any]) -> Division:
     """Flatten a JSON:API resource object into a :class:`Division`."""
-    attrs = item.get("attributes", {})
-    # Extract season_id from relationships
-    season_id = item.get("relationships", {}).get("season", {}).get("data", {}).get("id", "")
-    return Division(
-        id=item["id"],
-        season_id=season_id,
-        **attrs,
-    )
+    data = parse_jsonapi_resource(item, relationship_map={"season": "season_id"})
+    return Division(**data)
 
 
 def list_division_teams(session: Session, division_id: str) -> list[Team]:
@@ -80,26 +78,8 @@ def list_division_teams(session: Session, division_id: str) -> list[Team]:
     from gamesheet_sdk.teams import _parse as parse_team
 
     endpoint = f"/api/divisions/{division_id}/teams"
-    response = session.get(
-        endpoint,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
-    )
-    if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if response.status_code == 404:
-        _err_msg = (
-            f"Division '{division_id}' not found (HTTP 404). "
-            f"Make sure you're using a valid division ID. "
-            f"To get valid division IDs, run: gamesheet-sdk-py divisions list --season-id <SEASON_ID>",
-        )
-        raise GameSheetError(_err_msg)
-    if response.status_code >= 400:
-        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
-        raise GameSheetError(_err_msg)
+    response = session.get(endpoint, headers=JSONAPI_HEADERS)
+    handle_response(response, endpoint, "GET division teams")
     body: dict[str, Any] = response.json()
     return [parse_team(item) for item in body.get("data", [])]
 
@@ -128,24 +108,8 @@ def get_division(
     :raises GameSheetError: For any other non-2xx response, including 404 if the division is not found.
     """
     endpoint = f"{_ENDPOINT}/{division_id}"
-    response = session.get(
-        endpoint,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
-    )
-    if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if response.status_code == 404:
-        _err_msg = (
-            f"Division '{division_id}' not found (HTTP 404). Make sure you're using a valid division ID.",
-        )
-        raise GameSheetError(_err_msg)
-    if response.status_code >= 400:
-        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
-        raise GameSheetError(_err_msg)
+    response = session.get(endpoint, headers=JSONAPI_HEADERS)
+    handle_response(response, endpoint, "GET division")
     body: dict[str, Any] = response.json()
     division = _parse(body["data"])
     # If requested, fetch team count for this division
@@ -181,26 +145,8 @@ def list_divisions(
         run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response.
     """
-    response = session.get(
-        _ENDPOINT,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
-    )
-    if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if response.status_code == 404:
-        _err_msg = (
-            f"Season '{season_id}' not found (HTTP 404). "
-            f"Make sure you're using a valid season ID. "
-            f"To get valid season IDs, run: gamesheet-sdk-py seasons list --league-id <LEAGUE_ID>",
-        )
-        raise GameSheetError(_err_msg)
-    if response.status_code >= 400:
-        _err_msg = (f"GET {_ENDPOINT} returned HTTP {response.status_code}: {response.text[:200]!r}",)
-        raise GameSheetError(_err_msg)
+    response = session.get(_ENDPOINT, headers=JSONAPI_HEADERS)
+    handle_response(response, _ENDPOINT, "GET divisions")
     body: dict[str, Any] = response.json()
     # Parse all divisions and filter to only those belonging to the requested season
     all_divisions = [_parse(item) for item in body.get("data", [])]
@@ -264,30 +210,8 @@ def create_division(
             },
         },
     }
-    response = session.post(
-        endpoint,
-        json=payload,
-        headers={
-            "Accept": _JSONAPI_CONTENT_TYPE,
-            "Content-Type": _JSONAPI_CONTENT_TYPE,
-        },
-    )
-    if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if response.status_code == 404:
-        _err_msg = (
-            f"Season '{season_id}' not found (HTTP 404). "
-            f"Make sure you're using a valid season ID. "
-            f"To get valid season IDs, run: gamesheet-sdk-py seasons list --league-id <LEAGUE_ID>",
-        )
-        raise GameSheetError(_err_msg)
-    if response.status_code >= 400:
-        _err_msg = (f"POST {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
-        raise GameSheetError(_err_msg)
+    response = session.post(endpoint, json=payload, headers=JSONAPI_HEADERS)
+    handle_response(response, endpoint, "POST division")
     body: dict[str, Any] = response.json()
     return _parse(body["data"])
 
@@ -317,9 +241,6 @@ def update_division(
     :type external_id: str | None
     :returns: The updated :class:`Division`.
     :rtype: Division
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-sdk-py login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response.
     :raises ValueError: If neither title nor external_id is provided.
     """
     if title is None is external_id:
@@ -329,10 +250,7 @@ def update_division(
     # If user didn't provide a new title, fetch the current one.
     if title is None:
         # Fetch current division to get existing title
-        get_response = session.get(
-            f"/api/divisions/{division_id}",
-            headers={"Accept": _JSONAPI_CONTENT_TYPE},
-        )
+        get_response = session.get(f"/api/divisions/{division_id}", headers=JSONAPI_HEADERS)
         if get_response.status_code == 200:
             current_data = get_response.json()
             title = current_data.get("data", {}).get("attributes", {}).get("title", "")
@@ -363,30 +281,8 @@ def update_division(
             },
         },
     }
-    response = session.patch(
-        endpoint,
-        json=payload,
-        headers={
-            "Accept": _JSONAPI_CONTENT_TYPE,
-            "Content-Type": _JSONAPI_CONTENT_TYPE,
-        },
-    )
-    if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if response.status_code == 404:
-        _err_msg = (
-            f"Division '{division_id}' not found (HTTP 404). "
-            f"Make sure you're using a valid division ID. "
-            f"To get valid division IDs, run: gamesheet-sdk-py divisions list --season-id <SEASON_ID>",
-        )
-        raise GameSheetError(_err_msg)
-    if response.status_code >= 400:
-        _err_msg = (f"PATCH {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
-        raise GameSheetError(_err_msg)
+    response = session.patch(endpoint, json=payload, headers=JSONAPI_HEADERS)
+    handle_response(response, endpoint, "PATCH division")
     body: dict[str, Any] = response.json()
     return _parse(body["data"])
 
@@ -411,23 +307,5 @@ def delete_division(
     :raises GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/divisions/{division_id}"
-    response = session.delete(
-        endpoint,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
-    )
-    if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if response.status_code == 404:
-        _err_msg = (
-            f"Division '{division_id}' not found (HTTP 404). "
-            f"Make sure you're using a valid division ID. "
-            f"To get valid division IDs, run: gamesheet-sdk-py divisions list --season-id <SEASON_ID>",
-        )
-        raise GameSheetError(_err_msg)
-    if response.status_code >= 400:
-        _err_msg = (f"DELETE {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
-        raise GameSheetError(_err_msg)
+    response = session.delete(endpoint, headers=JSONAPI_HEADERS)
+    handle_response(response, endpoint, "DELETE division")

@@ -100,7 +100,7 @@ def test_get_league_404_raises_gamesheet_error_with_helpful_message(
         session.set_bearer_token("abc")
         with pytest.raises(
             GameSheetError,
-            match=r"League '.*' not found.*valid league ID and association ID",
+            match=r"Resource not found \(HTTP 404\)",
         ):
             get_league(session, _ASSOCIATION_ID, _league_id)
 

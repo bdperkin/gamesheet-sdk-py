@@ -641,6 +641,7 @@ ignore_decorators = [
   "@completed_group.command",
   "@confirm_destructive",
   "@divisions_group.command",
+  "@divisions_teams_group.command",
   "@games_group.command",
   "@group.command",
   "@ipad_keys_group.command",
@@ -653,6 +654,9 @@ ignore_decorators = [
   "@season_group.command",
   "@seasons_group.command",
   "@teams_group.command",
+  "@teams_roster_coaches_group.command",
+  "@teams_roster_group.command",
+  "@teams_roster_players_group.command",
 ]
 
 ## ## pyproject-fmt - Pyproject.toml formatter
@@ -696,6 +700,11 @@ plugins = [ "pydantic.mypy" ]
 ## ## pyrefly - Code health and quality reviewer
 [tool.pyrefly]
 python_version = "3.11"
+project-includes = [
+  "src",   # Your main package
+  "tests", # Your test suite folder
+]
+search-path = [ "src", "." ]
 
 ## # ----------------------------------------------------------------------------
 ## # Type Checkers
@@ -710,7 +719,9 @@ typeCheckingMode = "standard"
 # Look into library code to extract type information if stubs are missing
 useLibraryCodeForTypes = true
 # Directories or files to include for type checking
-include = [ "." ]
+include = [ "src", "tests" ]
+# Optional: Keep test errors separate or less severe if they block CI
+# typeCheckingMode = "basic"
 # Directories or files to exclude from type checking
 exclude = [
   "**/__pycache__",
@@ -724,6 +735,7 @@ exclude = [
 ]
 # Ignore errors inside specific files
 ignore = []
+extraPaths = [ ".", "src" ]
 reportGeneralTypeIssues = "error"
 # Override specific rules
 reportMissingTypeStubs = "warning"
@@ -927,7 +939,6 @@ gitignore = true
 
 ## ## autoflake - Basic code cleaner
 [tool.autoflake]
-check = true
 description = "Automatically removes unused imports and unused variables from Python code."
 recursive = true
 

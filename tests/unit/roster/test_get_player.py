@@ -109,7 +109,7 @@ def test_get_player_404_raises_gamesheet_error_with_helpful_message(
         session.set_bearer_token("abc")
         with pytest.raises(
             GameSheetError,
-            match=r"Player '.*' not found.*valid player ID and season ID",
+            match=r"Resource not found \(HTTP 404\)",
         ):
             get_player(session, _SEASON_ID, _player_id)
 

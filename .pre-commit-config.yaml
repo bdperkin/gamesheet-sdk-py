@@ -98,6 +98,7 @@ repos:
       - id: mixed-line-ending # mixed line ending
       - id: name-tests-test # python tests naming
         args: ["--pytest-test-first"]
+        exclude: ^tests/helpers/
       - id: no-commit-to-branch # don't commit to branch
       - id: trailing-whitespace # trim trailing whitespace
 
@@ -318,6 +319,7 @@ repos:
     rev: 1.1.0.dev2
     hooks:
       - id: pyrefly-check # pyrefly check
+        files: ^src/
         additional_dependencies:
           - gamesheet-sdk-py[pyrefly,pytest]
           - rich-click

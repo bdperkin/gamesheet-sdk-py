@@ -1,8 +1,10 @@
 """Divisions command group."""
 
+# pylint: disable=too-many-lines
+
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import rich_click as click
 from click.exceptions import Exit
@@ -356,10 +358,24 @@ def divisions_update_command(
         )
 
 
-@divisions_group.command("teams")
+@divisions_group.group(
+    "teams",
+    cls=ResourceGroup,
+    default="list",
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
+def divisions_teams_group() -> None:
+    """Manage teams within a division.
+
+    Invoking ``teams`` with no sub-command runs ``list`` by default.
+    """
+
+
+@divisions_teams_group.command("list")
 @click.option(
     "--division-id",
     type=str,
+    envvar="GAMESHEET_DIVISION_ID",
     required=True,
     help="Division ID to list teams for.",
 )
@@ -393,7 +409,7 @@ def divisions_update_command(
     help=("Comma-separated list of column names to include (default: all columns the API returns)."),
 )
 @click.pass_context
-def divisions_teams_command(
+def divisions_teams_list_command(
     ctx: Context,
     division_id: str,
     output_format: str,
@@ -410,6 +426,317 @@ def divisions_teams_command(
     rows = [team.model_dump(mode="json") for team in teams]
     rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
     write_output(rendered, output_path, fmt=output_format)
+
+
+@divisions_teams_group.command("get")
+@click.option(
+    "--season-id",
+    type=str,
+    envvar="GAMESHEET_SEASON_ID",
+    required=True,
+    help="Season ID containing the team.",
+)
+@click.option(
+    "--team-id",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID to retrieve.",
+)
+@click.option(
+    "--format",
+    "-F",
+    "output_format",
+    type=Choice(list(ALL_FORMATS), case_sensitive=False),
+    default=DEFAULT_FORMAT,
+    show_default=True,
+    help=(
+        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
+        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
+        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
+        "latex_longtable."
+    ),
+)
+@click.option(
+    "--output",
+    "-o",
+    "output_path",
+    type=Path(dir_okay=False, writable=True),
+    default=None,
+    help="Write to this file instead of stdout.",
+)
+@click.pass_context
+# pylint: disable-next=import-outside-toplevel
+def divisions_teams_get_command(
+    ctx: Context,
+    season_id: str,
+    team_id: str,
+    output_format: str,
+    output_path: str | None,
+) -> None:
+    """Get detailed information about a specific team.
+
+    Delegates to teams get functionality.
+    """
+    from gamesheet_sdk.teams import get_team as _get_team_action  # pylint: disable=import-outside-toplevel
+
+    config: Config = ctx.obj
+    session = build_authenticated_session(ctx, config)
+    data = run_action_or_exit(session, _get_team_action, season_id, team_id).model_dump(mode="json")
+    if output_format not in ("json", "yaml"):
+        rows = [{"field": k, "value": v} for k, v in data.items()]
+        rendered = render(rows, fmt=output_format, columns=None)
+    else:
+        rendered = render([data], fmt=output_format, columns=None)
+    write_output(rendered, output_path, fmt=output_format)
+
+
+@divisions_teams_group.command("create")
+@click.option(
+    "--season-id",
+    type=str,
+    envvar="GAMESHEET_SEASON_ID",
+    required=True,
+    help="Season ID to create the team in.",
+)
+@click.option(
+    "--division-id",
+    type=str,
+    envvar="GAMESHEET_DIVISION_ID",
+    required=True,
+    help="Division ID the team belongs to.",
+)
+@click.option(
+    "--title",
+    type=str,
+    required=True,
+    help="Team name/title.",
+)
+@click.option(
+    "--external-id",
+    type=str,
+    default=None,
+    help="Optional external identifier for the team.",
+)
+@click.option(
+    "--logo",
+    "logo_path",
+    type=Path(exists=True, dir_okay=False),
+    help="Optional path to a local logo image file.",
+)
+@click.option(
+    "--format",
+    "-F",
+    "output_format",
+    type=Choice(list(ALL_FORMATS), case_sensitive=False),
+    default=DEFAULT_FORMAT,
+    show_default=True,
+    help=(
+        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
+        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
+        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
+        "latex_longtable."
+    ),
+)
+@click.option(
+    "--output",
+    "-o",
+    "output_path",
+    type=Path(dir_okay=False, writable=True),
+    default=None,
+    help="Write to this file instead of stdout.",
+)
+@click.pass_context
+# pylint: disable-next=too-many-positional-arguments,too-many-locals
+def divisions_teams_create_command(
+    ctx: Context,
+    season_id: str,
+    division_id: str,
+    title: str,
+    external_id: str | None,
+    logo_path: str | None,
+    output_format: str,
+    output_path: str | None,
+) -> None:
+    """Create a new team in the specified division.
+
+    Delegates to teams create functionality.
+    """
+    # pylint: disable=import-outside-toplevel
+    from gamesheet_sdk.teams import create_team as _create_team_action
+
+    config: Config = ctx.obj
+    session = build_authenticated_session(ctx, config)
+
+    def _create_with_kwargs(sess: AuthenticatedSession) -> dict[str, Any]:
+        return _create_team_action(
+            sess,
+            season_id,
+            title,
+            division_id,
+            external_id=external_id,
+            logo_path=logo_path,
+        )
+
+    result = run_action_or_exit(session, _create_with_kwargs)
+    if output_format not in ("json", "yaml"):
+        rows = [{"field": k, "value": v} for k, v in result.items()]
+        rendered = render(rows, fmt=output_format, columns=None)
+    else:
+        rendered = render([result], fmt=output_format, columns=None)
+    write_output(rendered, output_path, fmt=output_format)
+    if output_path is None:
+        team_title = result.get("prototeam", {}).get("title", title)
+        team_id = result.get("seasonTeam", {}).get("id", "unknown")
+        click.secho(
+            f"\nTeam '{team_title}' created successfully (ID: {team_id})",
+            fg="green",
+        )
+
+
+@divisions_teams_group.command("update")
+@click.option(
+    "--season-id",
+    type=str,
+    envvar="GAMESHEET_SEASON_ID",
+    required=True,
+    help="Season ID containing the team.",
+)
+@click.option(
+    "--team-id",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID to update.",
+)
+@click.option(
+    "--title",
+    type=str,
+    default=None,
+    help="New team name/title.",
+)
+@click.option(
+    "--division-id",
+    type=str,
+    default=None,
+    help="New division ID.",
+)
+@click.option(
+    "--external-id",
+    type=str,
+    default=None,
+    help="New external identifier.",
+)
+@click.option(
+    "--logo",
+    "logo_path",
+    type=Path(exists=True, dir_okay=False),
+    help="Path to a new logo image file.",
+)
+@click.option(
+    "--remove-logo",
+    is_flag=True,
+    default=False,
+    help="Remove the team's logo.",
+)
+@click.option(
+    "--format",
+    "-F",
+    "output_format",
+    type=Choice(list(ALL_FORMATS), case_sensitive=False),
+    default=DEFAULT_FORMAT,
+    show_default=True,
+    help=(
+        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
+        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
+        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
+        "latex_longtable."
+    ),
+)
+@click.option(
+    "--output",
+    "-o",
+    "output_path",
+    type=Path(dir_okay=False, writable=True),
+    default=None,
+    help="Write to this file instead of stdout.",
+)
+@click.pass_context
+# pylint: disable-next=too-many-positional-arguments,too-many-locals
+def divisions_teams_update_command(
+    ctx: Context,
+    season_id: str,
+    team_id: str,
+    title: str | None,
+    division_id: str | None,
+    external_id: str | None,
+    logo_path: str | None,
+    *,
+    remove_logo: bool,
+    output_format: str,
+    output_path: str | None,
+) -> None:
+    """Update an existing team.
+
+    Delegates to teams update functionality.
+    """
+    # pylint: disable=import-outside-toplevel
+    from gamesheet_sdk.teams import Team
+    from gamesheet_sdk.teams import update_team as _update_team_action
+
+    config: Config = ctx.obj
+    session = build_authenticated_session(ctx, config)
+
+    def _update_with_kwargs(sess: AuthenticatedSession) -> Team:
+        return _update_team_action(
+            sess,
+            season_id,
+            team_id,
+            title=title,
+            division_id=division_id,
+            external_id=external_id,
+            logo_path=logo_path,
+            remove_logo=remove_logo,
+        )
+
+    team = run_action_or_exit(session, _update_with_kwargs)
+    rendered = render([team.model_dump(mode="json")], fmt=output_format, columns=None)
+    write_output(rendered, output_path, fmt=output_format)
+
+
+@divisions_teams_group.command("delete")
+@click.option(
+    "--season-id",
+    type=str,
+    envvar="GAMESHEET_SEASON_ID",
+    required=True,
+    help="Season ID containing the team.",
+)
+@click.option(
+    "--team-id",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID to delete.",
+)
+@confirm_destructive("team")
+@click.pass_context
+def divisions_teams_delete_command(
+    ctx: Context,
+    season_id: str,
+    team_id: str,
+) -> None:
+    """Delete a team.
+
+    Delegates to teams delete functionality.
+    """
+    # pylint: disable=import-outside-toplevel
+    from gamesheet_sdk.teams import delete_team as _delete_team_action
+
+    config: Config = ctx.obj
+    session = build_authenticated_session(ctx, config)
+    run_action_or_exit(session, _delete_team_action, season_id, team_id)
+    click.secho(f"Team {team_id} deleted successfully.", fg="green")
 
 
 @divisions_group.command("delete")

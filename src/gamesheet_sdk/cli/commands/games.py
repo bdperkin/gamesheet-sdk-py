@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import rich_click as click
+from click.exceptions import Exit
 from rich_click import Choice, Context, Path
 
 from gamesheet_sdk.cli.core import ResourceGroup, parse_columns_spec
@@ -128,11 +129,7 @@ def games_get_command(
     cls=ResourceGroup,
     default="list",
     aliases={
-        "get": ("show", "view"),
         "list": ("ls",),
-        "create": ("add", "new"),
-        "update": ("set", "edit"),
-        "delete": ("rm", "remove"),
     },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
@@ -141,6 +138,60 @@ def scheduled_group() -> None:
 
     Invoking ``scheduled`` with no sub-command runs ``list`` by default.
     """
+
+
+@scheduled_group.command("get")
+@click.option(
+    "--game-id",
+    type=int,
+    envvar="GAMESHEET_GAME_ID",
+    required=True,
+    help="Game ID to retrieve.",
+)
+@click.option(
+    "--format",
+    "-F",
+    "output_format",
+    type=Choice(list(ALL_FORMATS), case_sensitive=False),
+    default=DEFAULT_FORMAT,
+    show_default=True,
+    help=(
+        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
+        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
+        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
+        "latex_longtable."
+    ),
+)
+@click.option(
+    "--output",
+    "-o",
+    "output_path",
+    type=Path(dir_okay=False, writable=True),
+    default=None,
+    help="Write to this file instead of stdout.",
+)
+@click.pass_context
+def scheduled_get_command(
+    ctx: Context,
+    game_id: int,
+    output_format: str,
+    output_path: str | None,
+) -> None:
+    """Get detailed information about a scheduled game.
+
+    Delegates to the main games get command.
+    """
+    ctx_data = ctx.obj
+    config: Config = ctx_data["config"]
+    season_id: str = ctx_data["season_id"]
+    session = build_authenticated_session(ctx, config)
+    data = run_action_or_exit(session, _get_game_action, season_id, game_id).model_dump(mode="json")
+    if output_format not in ("json", "yaml"):
+        rows = [{"field": k, "value": v} for k, v in data.items()]
+        rendered = render(rows, fmt=output_format, columns=None)
+    else:
+        rendered = render([data], fmt=output_format, columns=None)
+    write_output(rendered, output_path, fmt=output_format)
 
 
 @scheduled_group.command("list")
@@ -195,17 +246,55 @@ def scheduled_list_command(
     write_output(rendered, output_path, fmt=output_format)
 
 
+@scheduled_group.command("create")
+def scheduled_create_command() -> None:
+    """Create a new scheduled game.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.games module.
+    """
+    click.secho(
+        "Error: games scheduled create is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@scheduled_group.command("update")
+def scheduled_update_command() -> None:
+    """Update a scheduled game.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.games module.
+    """
+    click.secho(
+        "Error: games scheduled update is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
+@scheduled_group.command("delete")
+def scheduled_delete_command() -> None:
+    """Delete a scheduled game.
+
+    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.games module.
+    """
+    click.secho(
+        "Error: games scheduled delete is not yet implemented. Backend support needed.",
+        fg="red",
+        err=True,
+    )
+    raise Exit(1)
+
+
 # Completed games sub-group
 @games_group.group(
     "completed",
     cls=ResourceGroup,
     default="list",
     aliases={
-        "get": ("show", "view"),
         "list": ("ls",),
-        "create": ("add", "new"),
-        "update": ("set", "edit"),
-        "delete": ("rm", "remove"),
     },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
@@ -273,13 +362,6 @@ def completed_list_command(
     "brackets",
     cls=ResourceGroup,
     default="list",
-    aliases={
-        "get": ("show", "view"),
-        "list": ("ls",),
-        "create": ("add", "new"),
-        "update": ("set", "edit"),
-        "delete": ("rm", "remove"),
-    },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def brackets_group() -> None:
