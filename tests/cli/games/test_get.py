@@ -117,7 +117,7 @@ def test_games_get_empty_fields(runner: CliRunner) -> None:
 
 def test_games_scheduled_get_coverage() -> None:
     """Ensure games scheduled get command body is covered."""
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import MagicMock
 
     from click.testing import CliRunner
 
