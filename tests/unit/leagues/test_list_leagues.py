@@ -14,7 +14,6 @@ from gamesheet_sdk import (
     Session,
     list_leagues,
 )
-from gamesheet_sdk.leagues import League
 from tests.helpers import jsonapi_payload
 
 _BASE = "https://test.example"

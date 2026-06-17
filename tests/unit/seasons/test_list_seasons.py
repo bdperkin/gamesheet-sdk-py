@@ -17,7 +17,6 @@ from gamesheet_sdk import (
     get_season,
     list_seasons,
 )
-from gamesheet_sdk.seasons import Season, SeasonDetail
 from tests.helpers import jsonapi_payload
 
 _BASE = "https://test.example"

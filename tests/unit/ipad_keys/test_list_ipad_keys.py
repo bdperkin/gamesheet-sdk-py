@@ -14,7 +14,6 @@ from gamesheet_sdk import (
     Session,
     list_ipad_keys,
 )
-from gamesheet_sdk.ipad_keys import IPadKey
 from tests.helpers import jsonapi_payload
 
 _BASE = "https://test.example"

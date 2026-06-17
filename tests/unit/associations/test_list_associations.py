@@ -14,7 +14,6 @@ from gamesheet_sdk import (
     Session,
     list_associations,
 )
-from gamesheet_sdk.associations import Association
 from tests.helpers import jsonapi_payload
 
 _BASE = "https://test.example"
