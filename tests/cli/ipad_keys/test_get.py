@@ -108,41 +108,6 @@ def test_ipad_keys_get_json_output(runner: CliRunner) -> None:
         assert data[0]["value"] == "ipad-test-kw"
 
 
-def test_ipad_keys_get_json_output(runner: CliRunner) -> None:
-    """Ipad-keys get should support JSON output."""
-    with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
-        patch(
-            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
-        ) as mock_action,
-    ):
-        from gamesheet_sdk.ipad_keys import IPadKey
-
-        mock_action.return_value = [
-            IPadKey(
-                id="3567",
-                value="ipad-test-kw",
-                description="Test Key",
-                roles=[{"title": "app"}],
-                live_scoring_scopes=["read", "write"],
-                created_at="2026-05-15T17:42:34Z",
-                updated_at="2026-05-15T17:42:34Z",
-            ),
-        ]
-        result = runner.invoke(
-            cli,
-            ["ipad-keys", "get", "--season-id", "15020", "-F", "json"],
-        )
-        assert not result.exit_code
-        import json
-
-        data = json.loads(result.output)
-        assert len(data) == 1
-        assert data[0]["id"] == "3567"
-        assert data[0]["value"] == "ipad-test-kw"
-
-
 def test_ipad_keys_get_yaml_output(runner: CliRunner) -> None:
     """Ipad-keys get should support YAML output."""
     with (
