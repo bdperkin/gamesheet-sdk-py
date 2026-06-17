@@ -27,7 +27,6 @@ _CREATE_ENDPOINT = f"{_BFF_BASE}/dwg/seasons/{_SEASON_ID}/teams"
 
 @responses.activate
 def test_create_team_sends_correct_payload_without_logo(config: Config) -> None:
-
     responses.add(
         responses.POST,
         _CREATE_ENDPOINT,
@@ -68,7 +67,6 @@ def test_create_team_sends_correct_payload_without_logo(config: Config) -> None:
     assert result["prototeam"]["title"] == "Test Team"
     assert result["seasonTeam"]["divisionId"] == 80385
     assert result["invitation"]["code"] == "M9XnAHNBt5"
-
     # Verify the request payload
     assert len(responses.calls) == 1
     req = responses.calls[0].request
@@ -84,7 +82,6 @@ def test_create_team_sends_correct_payload_without_logo(config: Config) -> None:
 
 @responses.activate
 def test_create_team_with_external_id(config: Config) -> None:
-
     responses.add(
         responses.POST,
         _CREATE_ENDPOINT,
@@ -109,7 +106,6 @@ def test_create_team_with_external_id(config: Config) -> None:
             external_id="custom-external-id",
         )
     assert result["prototeam"]["id"] == "test-proto-id"
-
     # Verify external_id in payload
     import json
 
@@ -124,7 +120,6 @@ def test_create_team_with_logo(config: Config) -> None:
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
         logo_path = f.name
-
     try:
         # Step 1: Mock upload URL request
         responses.add(
@@ -139,7 +134,6 @@ def test_create_team_with_logo(config: Config) -> None:
             },
             status=200,
         )
-
         # Step 2: Mock image upload
         responses.add(
             responses.POST,
@@ -153,7 +147,6 @@ def test_create_team_with_logo(config: Config) -> None:
             },
             status=200,
         )
-
         # Step 3: Mock team creation
         responses.add(
             responses.POST,
@@ -173,7 +166,6 @@ def test_create_team_with_logo(config: Config) -> None:
             },
             status=200,
         )
-
         with Session(config) as session:
             session.set_bearer_token("abc")
             result = create_team(
@@ -183,12 +175,9 @@ def test_create_team_with_logo(config: Config) -> None:
                 "80385",
                 logo_path=logo_path,
             )
-
         assert result["prototeam"]["logo"] == f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/test-image-id"
-
         # Verify all three requests were made
         assert len(responses.calls) == 3
-
         # Verify team creation payload includes logo
         import json
 
@@ -196,14 +185,12 @@ def test_create_team_with_logo(config: Config) -> None:
         assert team_req.body is not None
         payload = json.loads(team_req.body)
         assert payload["logo"] == f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/test-image-id"
-
     finally:
         Path(logo_path).unlink()
 
 
 @responses.activate
 def test_create_team_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(
         responses.POST,
         _CREATE_ENDPOINT,
@@ -218,7 +205,6 @@ def test_create_team_401_raises_authentication_error(config: Config) -> None:
 
 @responses.activate
 def test_create_team_other_failure_raises_gamesheet_error(config: Config) -> None:
-
     responses.add(responses.POST, _CREATE_ENDPOINT, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -228,7 +214,6 @@ def test_create_team_other_failure_raises_gamesheet_error(config: Config) -> Non
 
 @responses.activate
 def test_create_team_failed_status_raises_gamesheet_error(config: Config) -> None:
-
     responses.add(
         responses.POST,
         _CREATE_ENDPOINT,
@@ -243,7 +228,6 @@ def test_create_team_failed_status_raises_gamesheet_error(config: Config) -> Non
 
 @responses.activate
 def test_upload_logo_invalid_file_raises_error(config: Config) -> None:
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="Logo file not found"):
@@ -262,7 +246,6 @@ def test_upload_logo_non_image_file_raises_error(config: Config) -> None:
     with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as f:
         f.write(b"not an image")
         non_image_path = f.name
-
     try:
         with Session(config) as session:
             session.set_bearer_token("abc")
@@ -284,7 +267,6 @@ def test_upload_url_request_401_raises_authentication_error(config: Config) -> N
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
         logo_path = f.name
-
     try:
         responses.add(
             responses.POST,
@@ -292,7 +274,6 @@ def test_upload_url_request_401_raises_authentication_error(config: Config) -> N
             json={"errors": [{"detail": "Token expired"}]},
             status=401,
         )
-
         with Session(config) as session:
             session.set_bearer_token("stale")
             with pytest.raises(AuthenticationError, match="HTTP 401"):
@@ -313,7 +294,6 @@ def test_upload_url_request_failure_raises_gamesheet_error(config: Config) -> No
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
         logo_path = f.name
-
     try:
         responses.add(
             responses.POST,
@@ -321,7 +301,6 @@ def test_upload_url_request_failure_raises_gamesheet_error(config: Config) -> No
             status=500,
             body="Internal server error",
         )
-
         with Session(config) as session:
             session.set_bearer_token("abc")
             with pytest.raises(GameSheetError, match="HTTP 500"):
@@ -342,7 +321,6 @@ def test_upload_url_failed_status_raises_gamesheet_error(config: Config) -> None
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
         logo_path = f.name
-
     try:
         responses.add(
             responses.POST,
@@ -350,7 +328,6 @@ def test_upload_url_failed_status_raises_gamesheet_error(config: Config) -> None
             json={"status": "error", "message": "Upload URL generation failed"},
             status=200,
         )
-
         with Session(config) as session:
             session.set_bearer_token("abc")
             with pytest.raises(GameSheetError, match="Failed to get upload URL"):
@@ -371,7 +348,6 @@ def test_image_upload_failure_raises_gamesheet_error(config: Config) -> None:
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
         logo_path = f.name
-
     try:
         responses.add(
             responses.POST,
@@ -385,14 +361,12 @@ def test_image_upload_failure_raises_gamesheet_error(config: Config) -> None:
             },
             status=200,
         )
-
         responses.add(
             responses.POST,
             "https://upload.example/test-image-id",
             status=500,
             body="Upload failed",
         )
-
         with Session(config) as session:
             session.set_bearer_token("abc")
             with pytest.raises(GameSheetError, match="HTTP 500"):
@@ -408,12 +382,13 @@ def test_image_upload_failure_raises_gamesheet_error(config: Config) -> None:
 
 
 @responses.activate
-def test_image_upload_failed_success_flag_raises_gamesheet_error(config: Config) -> None:
+def test_image_upload_failed_success_flag_raises_gamesheet_error(
+    config: Config,
+) -> None:
     # Create a temporary image file
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
         logo_path = f.name
-
     try:
         responses.add(
             responses.POST,
@@ -427,7 +402,6 @@ def test_image_upload_failed_success_flag_raises_gamesheet_error(config: Config)
             },
             status=200,
         )
-
         responses.add(
             responses.POST,
             "https://upload.example/test-image-id",
@@ -437,7 +411,6 @@ def test_image_upload_failed_success_flag_raises_gamesheet_error(config: Config)
             },
             status=200,
         )
-
         with Session(config) as session:
             session.set_bearer_token("abc")
             with pytest.raises(GameSheetError, match="Failed to upload logo"):

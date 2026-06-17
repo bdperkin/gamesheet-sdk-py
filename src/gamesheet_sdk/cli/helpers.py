@@ -31,7 +31,6 @@ def build_authenticated_session(
     access = load_access_token(config)
     refresh = load_refresh_token(config)
     if access is None or refresh is None:
-
         click.secho(
             "No saved session found. Run `gamesheet-sdk-py login` first.",
             fg="red",
@@ -53,7 +52,6 @@ def run_action_or_exit(session: AuthenticatedSession, action: Any, *args: Any) -
     :exc:`GameSheetError`. On either exception, prints a user-friendly error message to stderr and exits with
     code 1. The session context manager ensures proper cleanup (e.g., closing connections) regardless of
     success or failure.
-
     :param session: The authenticated session to use as a context manager.
     :param action: A callable that takes ``session`` and ``*args`` and returns a result. Typically a domain
         action function (e.g., ``list_associations``, ``list_leagues``).

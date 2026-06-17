@@ -21,7 +21,6 @@ _UPDATE_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/divisions/{_DIVISION_ID}"
 
 @responses.activate
 def test_update_division_updates_title(config: Config) -> None:
-
     responses.add(
         responses.PATCH,
         _UPDATE_ENDPOINT,
@@ -45,11 +44,15 @@ def test_update_division_updates_title(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = update_division(session, _SEASON_ID, _DIVISION_ID, title="Updated Division")
+        result = update_division(
+            session,
+            _SEASON_ID,
+            _DIVISION_ID,
+            title="Updated Division",
+        )
     assert result.id == _DIVISION_ID
     assert result.title == "Updated Division"
     assert result.season_id == _SEASON_ID
-
     # Verify the request payload
     assert len(responses.calls) == 1
     req = responses.calls[0].request
@@ -116,10 +119,14 @@ def test_update_division_updates_external_id(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = update_division(session, _SEASON_ID, _DIVISION_ID, external_id="new-external-id")
+        result = update_division(
+            session,
+            _SEASON_ID,
+            _DIVISION_ID,
+            external_id="new-external-id",
+        )
     assert result.id == _DIVISION_ID
     assert result.external_id == "new-external-id"
-
     # Verify title was fetched and included in PATCH (required by API)
     import json
 
@@ -137,7 +144,6 @@ def test_update_division_updates_external_id(config: Config) -> None:
 
 @responses.activate
 def test_update_division_updates_both_fields(config: Config) -> None:
-
     responses.add(
         responses.PATCH,
         _UPDATE_ENDPOINT,
@@ -161,22 +167,31 @@ def test_update_division_updates_both_fields(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = update_division(session, _SEASON_ID, _DIVISION_ID, title="New Title", external_id="new-id")
+        result = update_division(
+            session,
+            _SEASON_ID,
+            _DIVISION_ID,
+            title="New Title",
+            external_id="new-id",
+        )
     assert result.title == "New Title"
     assert result.external_id == "new-id"
 
 
-def test_update_division_raises_value_error_if_no_fields_provided(config: Config) -> None:
-
+def test_update_division_raises_value_error_if_no_fields_provided(
+    config: Config,
+) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
-        with pytest.raises(ValueError, match="At least one of title or external_id must be provided"):
+        with pytest.raises(
+            ValueError,
+            match="At least one of title or external_id must be provided",
+        ):
             update_division(session, _SEASON_ID, _DIVISION_ID)
 
 
 @responses.activate
 def test_update_division_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(
         responses.PATCH,
         _UPDATE_ENDPOINT,
@@ -193,7 +208,6 @@ def test_update_division_401_raises_authentication_error(config: Config) -> None
 def test_update_division_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
-
     responses.add(responses.PATCH, _UPDATE_ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -228,7 +242,14 @@ def test_update_division_handles_failed_title_fetch(config: Config) -> None:
     responses.add(
         responses.PATCH,
         _UPDATE_ENDPOINT,
-        json={"errors": [{"title": "is required", "source": {"pointer": "/data/attributes/title"}}]},
+        json={
+            "errors": [
+                {
+                    "title": "is required",
+                    "source": {"pointer": "/data/attributes/title"},
+                },
+            ],
+        },
         status=400,
     )
     with Session(config) as session:

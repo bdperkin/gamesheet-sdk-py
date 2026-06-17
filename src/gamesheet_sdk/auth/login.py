@@ -23,7 +23,6 @@ from gamesheet_sdk.auth.constants import (
 from gamesheet_sdk.exceptions import AuthenticationError
 
 if TYPE_CHECKING:
-
     from gamesheet_sdk.browser import BrowserSession
     from gamesheet_sdk.config import Config
 _LOGGER = logging.getLogger(__name__)
@@ -33,17 +32,14 @@ def _resolve_email(cfg: Config, email: str | None) -> str:
     """Resolve the login email from explicit argument, environment variable, or config.
 
     Falls through: explicit ``email`` argument → ``GAMESHEET_USERNAME`` env var → ``Config.username``.
-
     :param cfg: Configuration object containing username from env/defaults.
     :param email: Explicit email address, or None to fall back to config.
     :returns: The resolved email address.
     :raises AuthenticationError: If no email is available from any source.
     """
     if email is None:
-
         email = cfg.username
     if not email:
-
         _err_msg = "Login requires an email. Pass it explicitly or set GAMESHEET_USERNAME."
         raise AuthenticationError(_err_msg)
     return email
@@ -57,10 +53,8 @@ def _resolve_password(cfg: Config, password: str | None) -> str:
     ``email`` logging as clear-text password logging.
     """
     if password is None and cfg.password is not None:
-
         password = cfg.password.get_secret_value()
     if not password:
-
         _err_msg = "Login requires a password. Pass it explicitly or set GAMESHEET_PASSWORD."
         raise AuthenticationError(_err_msg)
     return password
@@ -72,7 +66,6 @@ def _wait_for_login_form(page: Any, cfg: Config) -> bool:
     Waits up to :data:`FORM_DETECTION_TIMEOUT_MS` for the ``#email`` input field. If the timeout fires, the
     saved browser state at ``cfg.browser_state_path`` already authenticates this user, so no login form is
     needed.
-
     :param page: Playwright page object currently at the login URL.
     :param cfg: Configuration object containing browser state path for logging.
     :returns: True if the login form rendered (credentials are needed), False if already authenticated.
@@ -89,7 +82,6 @@ def _wait_for_login_form(page: Any, cfg: Config) -> bool:
             cfg.browser_state_path,
         )
         return False
-
     return True
 
 
@@ -108,7 +100,6 @@ def _attach_response_capture(page: Any) -> dict[str, Response | None]:
     Registers a ``page.on("response", ...)`` handler that saves the first Firebase signInWithPassword response
     and the first GameSheet token exchange response into a shared dict. The handler stays active for the life
     of the page, but only the first match for each key is stored.
-
     :param page: Playwright page object on which to register the response listener.
     :returns: A dict with keys ``"firebase"`` and ``"token"``, both initially None. The registered handler
         populates them as matching responses arrive.
@@ -116,9 +107,7 @@ def _attach_response_capture(page: Any) -> dict[str, Response | None]:
     captured: dict[str, Response | None] = {"firebase": None, "token": None}  # noqa: S105 # nosec B105
 
     def on_response(response: Response) -> None:
-
         if _is_firebase_signin(response.url) and captured["firebase"] is None:
-
             captured["firebase"] = response
         elif response.url.endswith(TOKEN_EXCHANGE_PATH) and captured["token"] is None:
             captured["token"] = response
@@ -151,15 +140,11 @@ def _firebase_error_message(response: Response) -> str:
         body: dict[str, Any] = response.json()
     except (ValueError, KeyError):
         return f"HTTP {response.status}"
-
     err = body.get("error")
     if isinstance(err, dict):
-
         message = err.get("message")
         if isinstance(message, str):
-
             return message
-
     return f"HTTP {response.status}"
 
 
@@ -172,7 +157,6 @@ def _raise_for_firebase_error(response: Response) -> None:
         Firebase error code extracted by :func:`_firebase_error_message`.
     """
     if response.status != 200:
-
         _err_msg = f"Login rejected by Firebase: {_firebase_error_message(response)}"
         raise AuthenticationError(_err_msg)
 
@@ -185,7 +169,6 @@ def _raise_for_token_error(response: Response) -> None:
     :raises AuthenticationError: If the response status is not 200.
     """
     if response.status != 200:
-
         _err_msg = f"GameSheet token exchange failed (HTTP {response.status})."
         raise AuthenticationError(_err_msg)
 
@@ -203,15 +186,11 @@ def _auth_round_trip_complete(captured: dict[str, Response | None], email: str) 
     """
     fb = captured["firebase"]
     if fb is None:
-
         return False
-
     _raise_for_firebase_error(fb)
     tok = captured["token"]
     if tok is None:
-
         return False
-
     _raise_for_token_error(tok)
     _LOGGER.info("Login succeeded for %s.", email)
     return True
@@ -229,7 +208,6 @@ def _await_auth_outcome(
 
     Checks :func:`_auth_round_trip_complete` in a loop with :data:`POLL_INTERVAL_MS` sleeps. Raises on
     explicit auth failure (via ``_auth_round_trip_complete``) or if the deadline passes with no response.
-
     :param page: Playwright page object used for polling waits.
     :param captured: Dict populated by :func:`_attach_response_capture`, checked each iteration.
     :param deadline: Absolute time (from ``time.monotonic()``) at which to give up.
@@ -241,9 +219,7 @@ def _await_auth_outcome(
         or if the deadline passes with no responses.
     """
     while time.monotonic() < deadline:
-
         if _auth_round_trip_complete(captured, email):
-
             return
         page.wait_for_timeout(POLL_INTERVAL_MS)
     _err_msg = (
@@ -312,10 +288,8 @@ def login(
     timeout_s = timeout if timeout is not None else DEFAULT_TIMEOUT_S
     page = session.goto(LOGIN_PATH, wait_until="load")
     if not _wait_for_login_form(page, session.config):
-
         # Saved storage state already authenticates; just settle and return.
         if post_login_path is not None:
-
             _settle_post_login(session, post_login_path)
         return
     captured = _attach_response_capture(page)
@@ -328,5 +302,4 @@ def login(
         timeout_s=timeout_s,
     )
     if post_login_path is not None:
-
         _settle_post_login(session, post_login_path)

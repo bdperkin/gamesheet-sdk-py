@@ -50,13 +50,17 @@ def test_roster_help() -> None:
 
 def test_games_scheduled_list_help() -> None:
     """Test that games scheduled list help renders."""
-    result = main(["games", "--season-id", _DUMMY_SEASON, "scheduled", "list", "--help"])
+    result = main(
+        ["games", "--season-id", _DUMMY_SEASON, "scheduled", "list", "--help"],
+    )
     assert not result
 
 
 def test_games_completed_list_help() -> None:
     """Test that games completed list help renders."""
-    result = main(["games", "--season-id", _DUMMY_SEASON, "completed", "list", "--help"])
+    result = main(
+        ["games", "--season-id", _DUMMY_SEASON, "completed", "list", "--help"],
+    )
     assert not result
 
 

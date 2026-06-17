@@ -33,7 +33,6 @@ def _mock_token() -> None:
 def _cleanup_token() -> None:
     """Remove mock token file."""
     if _TOKEN_PATH.exists():
-
         _TOKEN_PATH.unlink()
 
 
@@ -47,7 +46,9 @@ def test_games_completed_list_json_format() -> None:
         json=_bff_response([]),
         status=200,
     )
-    result = main(["games", "--season-id", _SEASON_ID, "completed", "list", "-F", "json"])
+    result = main(
+        ["games", "--season-id", _SEASON_ID, "completed", "list", "-F", "json"],
+    )
     assert not result
     _cleanup_token()
 
@@ -62,7 +63,9 @@ def test_games_scheduled_list_json_format() -> None:
         json=_bff_response([]),
         status=200,
     )
-    result = main(["games", "--season-id", _SEASON_ID, "scheduled", "list", "-F", "json"])
+    result = main(
+        ["games", "--season-id", _SEASON_ID, "scheduled", "list", "-F", "json"],
+    )
     assert not result
     _cleanup_token()
 
@@ -77,6 +80,8 @@ def test_games_brackets_list_json_format() -> None:
         json=_bff_response([]),
         status=200,
     )
-    result = main(["games", "--season-id", _SEASON_ID, "brackets", "list", "-F", "json"])
+    result = main(
+        ["games", "--season-id", _SEASON_ID, "brackets", "list", "-F", "json"],
+    )
     assert not result
     _cleanup_token()

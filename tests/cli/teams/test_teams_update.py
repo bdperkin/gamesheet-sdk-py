@@ -10,8 +10,6 @@ from gamesheet_sdk.teams import Team
 
 if TYPE_CHECKING:
     from click.testing import CliRunner
-
-
 # Mock team used in tests
 _MOCK_TEAM = Team(
     id="123",
@@ -200,7 +198,10 @@ def test_teams_update_alias_edit_works(runner: CliRunner) -> None:
 
 def test_teams_update_missing_team_id(runner: CliRunner) -> None:
     """Calling 'teams update' without team-id should show an error."""
-    result = runner.invoke(cli, ["teams", "update", "--season-id", "15020", "--title", "New"])
+    result = runner.invoke(
+        cli,
+        ["teams", "update", "--season-id", "15020", "--title", "New"],
+    )
     assert result.exit_code == 2  # Usage error
     assert "team-id" in result.output.lower() or "missing option" in result.output.lower()
 

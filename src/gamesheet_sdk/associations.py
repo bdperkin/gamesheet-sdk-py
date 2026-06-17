@@ -6,24 +6,18 @@ module talks to the GameSheet JSON:API at ``/api/associations`` directly with th
 :class:`gamesheet_sdk.Session` path -- no Playwright needed for read-only access once a bearer token has been
 obtained (typically by reading the SPA's ``accessToken`` from the saved browser storage state via
 :func:`gamesheet_sdk.auth.load_access_token`).
-
 Examples:
     Retrieve all associations accessible by the authenticated user::
-
         from gamesheet_sdk.auth import load_access_token
         from gamesheet_sdk.session import Session
         from gamesheet_sdk.associations import list_associations
-
         # Load the saved access token from previous login
         token = load_access_token()
-
         # Create an authenticated session
         session = Session(base_url="https://gamesheet.app")
         session.set_bearer_token(token)
-
         # Fetch all associations
         associations = list_associations(session)
-
         # Display results
         for assoc in associations:
             print(f"{assoc.title} (ID: {assoc.id})")
@@ -50,7 +44,6 @@ class Association(BaseModel):
     """A single association.
 
     Maps the ``data[*]`` items in the JSON:API response of ``GET /api/associations`` to a flat typed model.
-
     Attributes:
         id: Association identifier (string in JSON:API).
         title: Display name of the association.
@@ -80,7 +73,6 @@ def get_association(session: Session, association_id: str) -> Association:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     :param session: An authenticated :class:`Session`.
     :type session: Session
     :param association_id: The association identifier to retrieve.
@@ -96,7 +88,6 @@ def get_association(session: Session, association_id: str) -> Association:
         endpoint,
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
     )
-
     if response.status_code == 401:
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
@@ -112,7 +103,6 @@ def get_association(session: Session, association_id: str) -> Association:
     if response.status_code >= 400:
         _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
-
     body: dict[str, Any] = response.json()
     return _parse(body["data"])
 
@@ -134,14 +124,12 @@ def list_associations(session: Session) -> list[Association]:
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
     )
     if response.status_code == 401:
-
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
             "`gamesheet-sdk-py login` to refresh and try again.",
         )
         raise AuthenticationError(_err_msg)
     if response.status_code >= 400:
-
         _err_msg = (f"GET {_ENDPOINT} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()

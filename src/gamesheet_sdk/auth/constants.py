@@ -3,7 +3,6 @@
 This module defines all authentication constants used throughout the
 :mod:`gamesheet_sdk.auth` package, including URL paths, endpoints, and timing
 parameters for login flows and token operations.
-
 Constants
 ---------
 LOGIN_PATH : str
@@ -28,13 +27,10 @@ POST_LOGIN_NAVIGATION_TIMEOUT_MS : int
     Timeout in milliseconds for post-login navigation.
 FORM_DETECTION_TIMEOUT_MS : int
     Timeout in milliseconds for detecting the login form.
-
 Examples
 --------
 Using authentication constants in login flows:
-
 .. code-block:: python
-
     from gamesheet_sdk.auth.constants import (
         LOGIN_PATH,
         POST_LOGIN_PATH,
@@ -43,14 +39,10 @@ Using authentication constants in login flows:
 
     # Construct login URL
     login_url = f"{base_url}{LOGIN_PATH}"
-
     # Use timeout in HTTP request
     response = session.get(login_url, timeout=DEFAULT_TIMEOUT_S)
-
 Using timeout constants with Playwright:
-
 .. code-block:: python
-
     from gamesheet_sdk.auth.constants import (
         FORM_DETECTION_TIMEOUT_MS,
         POST_LOGIN_NAVIGATION_TIMEOUT_MS,
@@ -58,14 +50,10 @@ Using timeout constants with Playwright:
 
     # Wait for login form to appear
     page.wait_for_selector("#email", timeout=FORM_DETECTION_TIMEOUT_MS)
-
     # Wait for post-login navigation
     page.wait_for_url(pattern, timeout=POST_LOGIN_NAVIGATION_TIMEOUT_MS)
-
 Using Firebase and token exchange constants:
-
 .. code-block:: python
-
     from gamesheet_sdk.auth.constants import (
         FIREBASE_AUTH_HOST,
         FIREBASE_AUTH_PATH,
@@ -74,7 +62,6 @@ Using Firebase and token exchange constants:
 
     # Build Firebase auth URL
     firebase_url = f"https://{FIREBASE_AUTH_HOST}{FIREBASE_AUTH_PATH}"
-
     # Build token exchange URL
     token_url = f"{base_url}{TOKEN_EXCHANGE_PATH}"
 """

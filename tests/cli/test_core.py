@@ -8,7 +8,6 @@ from unittest.mock import patch
 from gamesheet_sdk.cli import cli
 
 if TYPE_CHECKING:
-
     from click.testing import CliRunner
 
 
@@ -37,12 +36,17 @@ def test_login_command_exists(runner: CliRunner) -> None:
 def test_cli_with_base_url_override(runner: CliRunner) -> None:
     """CLI should accept --base-url override."""
     with (
-        patch("gamesheet_sdk.cli.commands.associations._list_associations_action") as mock_list,
+        patch(
+            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+        ) as mock_list,
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
     ):
         mock_list.return_value = []
-        result = runner.invoke(cli, ["--base-url", "https://custom.example.com", "associations", "list"])
+        result = runner.invoke(
+            cli,
+            ["--base-url", "https://custom.example.com", "associations", "list"],
+        )
         assert not result.exit_code
         # Should have been called, indicating config was created
         mock_list.assert_called_once()
@@ -51,7 +55,9 @@ def test_cli_with_base_url_override(runner: CliRunner) -> None:
 def test_cli_with_no_headless_flag(runner: CliRunner) -> None:
     """CLI should accept --no-headless flag."""
     with (
-        patch("gamesheet_sdk.cli.commands.associations._list_associations_action") as mock_list,
+        patch(
+            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+        ) as mock_list,
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
     ):

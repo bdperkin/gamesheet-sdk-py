@@ -20,7 +20,6 @@ def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None
     _referee_id = "1146196"
     _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     _patch_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
-
     # Mock GET request to fetch current data
     responses.add(
         responses.GET,
@@ -44,7 +43,6 @@ def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None
         },
         status=200,
     )
-
     # Mock PATCH request with updated data
     responses.add(
         responses.PATCH,
@@ -84,16 +82,13 @@ def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None
     assert result.last_name == "MCCAULEY"
     assert result.email == "McCauley.Wes@example.com"
     assert result.season_id == _SEASON_ID
-
     # Verify we made both GET and PATCH requests
     assert len(responses.calls) == 2
     get_req = responses.calls[0].request
     patch_req = responses.calls[1].request
     assert get_req.method == "GET"
     assert patch_req.method == "PATCH"
-
     # Verify the PATCH request payload includes all fields
-
     assert patch_req.body is not None
     payload = json.loads(patch_req.body)
     assert payload["data"]["id"] == _referee_id
@@ -111,7 +106,6 @@ def test_update_referee_sends_correct_payload_partial_fields(
     _referee_id = "1146197"
     _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     _patch_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
-
     # Mock GET request to fetch current data
     responses.add(
         responses.GET,
@@ -134,7 +128,6 @@ def test_update_referee_sends_correct_payload_partial_fields(
         },
         status=200,
     )
-
     # Mock PATCH request
     responses.add(
         responses.PATCH,
@@ -169,12 +162,9 @@ def test_update_referee_sends_correct_payload_partial_fields(
     assert result.first_name == "Updated"
     assert result.last_name == "Name"
     assert result.email == "original@example.com"
-
     # Verify we made both GET and PATCH requests
     assert len(responses.calls) == 2
-
     # Verify the PATCH payload includes all required fields (from current + updates)
-
     patch_req = responses.calls[1].request
     assert patch_req.body is not None
     payload = json.loads(patch_req.body)
@@ -188,7 +178,6 @@ def test_update_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
     _referee_id = "101"
     _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     _patch_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
-
     # Mock GET request
     responses.add(
         responses.GET,
@@ -210,7 +199,6 @@ def test_update_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
         },
         status=200,
     )
-
     # Mock PATCH request
     responses.add(
         responses.PATCH,
@@ -300,7 +288,6 @@ def test_update_referee_preserves_existing_external_id(config: Config) -> None:
     _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     _patch_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     _existing_external_id = "EXISTING-EXT-ID-123"
-
     # Mock the GET request (fetch current data)
     responses.add(
         responses.GET,
@@ -324,7 +311,6 @@ def test_update_referee_preserves_existing_external_id(config: Config) -> None:
         },
         status=200,
     )
-
     # Mock the PATCH request
     responses.add(
         responses.PATCH,
@@ -348,15 +334,12 @@ def test_update_referee_preserves_existing_external_id(config: Config) -> None:
         },
         status=200,
     )
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         # Update only first name, should preserve existing external_id
         result = update_referee(session, _SEASON_ID, _referee_id, first_name="New")
-
     assert result.first_name == "New"
     assert result.last_name == "Name"
-
     # Verify the PATCH payload preserved the external_id
     assert len(responses.calls) == 2
     patch_req = responses.calls[1].request
@@ -371,7 +354,6 @@ def test_update_referee_patch_401_raises_authentication_error(config: Config) ->
     _referee_id = "1146301"
     _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     _patch_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
-
     # Mock the GET request (succeeds)
     responses.add(
         responses.GET,
@@ -393,7 +375,6 @@ def test_update_referee_patch_401_raises_authentication_error(config: Config) ->
         },
         status=200,
     )
-
     # Mock the PATCH request with 401
     responses.add(
         responses.PATCH,
@@ -401,7 +382,6 @@ def test_update_referee_patch_401_raises_authentication_error(config: Config) ->
         json={"errors": [{"detail": "Token expired"}]},
         status=401,
     )
-
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
@@ -416,7 +396,6 @@ def test_update_referee_patch_404_raises_gamesheet_error_with_helpful_message(
     _referee_id = "nonexistent"
     _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     _patch_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
-
     # Mock the GET request (succeeds)
     responses.add(
         responses.GET,
@@ -438,10 +417,8 @@ def test_update_referee_patch_404_raises_gamesheet_error_with_helpful_message(
         },
         status=200,
     )
-
     # Mock the PATCH request with 404
     responses.add(responses.PATCH, _patch_endpoint, status=404, body="Not found")
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(
@@ -459,7 +436,6 @@ def test_update_referee_patch_other_failure_raises_gamesheet_error(
     _referee_id = "1146302"
     _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     _patch_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
-
     # Mock the GET request (succeeds)
     responses.add(
         responses.GET,
@@ -481,10 +457,8 @@ def test_update_referee_patch_other_failure_raises_gamesheet_error(
         },
         status=200,
     )
-
     # Mock the PATCH request with 500
     responses.add(responses.PATCH, _patch_endpoint, status=500, body="boom")
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):

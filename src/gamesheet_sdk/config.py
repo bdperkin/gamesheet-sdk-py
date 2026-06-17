@@ -47,14 +47,11 @@ class Config(BaseSettings, env_prefix="GAMESHEET_", extra="ignore"):
     This class extends :class:`pydantic_settings.BaseSettings` to provide
     layered configuration resolution. Values are resolved in the following
     precedence order:
-
     1. Keyword arguments passed to the :class:`Config` constructor
     2. Environment variables prefixed with ``GAMESHEET_``
     3. Field defaults defined on the model
-
     All fields have sensible defaults, so you can instantiate an empty
     :class:`Config` for testing or override only the specific values you need.
-
     :var base_url: Root URL of the GameSheet WebUI (the dashboard app)
     :vartype base_url: str
     :var username: GameSheet account username/email
@@ -75,22 +72,15 @@ class Config(BaseSettings, env_prefix="GAMESHEET_", extra="ignore"):
     :vartype browser_state_path: Path
     :var browser_headless: Launch the Playwright browser in headless mode
     :vartype browser_headless: bool
-
     **Examples:**
-
     Create a default config that picks up environment variables:
-
     .. code-block:: python
-
         from gamesheet_sdk import Config
 
         # Reads GAMESHEET_USERNAME, GAMESHEET_PASSWORD, etc. if set
         config = Config()
-
     Override specific fields programmatically:
-
     .. code-block:: python
-
         from gamesheet_sdk import Config
 
         config = Config(
@@ -98,19 +88,13 @@ class Config(BaseSettings, env_prefix="GAMESHEET_", extra="ignore"):
             timeout=60.0,
             browser_headless=False,
         )
-
     Use environment variables to configure the SDK:
-
     .. code-block:: bash
-
         export GAMESHEET_USERNAME="user@example.com"
         export GAMESHEET_PASSWORD="secret"
         export GAMESHEET_TIMEOUT="60.0"
-
     Then in Python:
-
     .. code-block:: python
-
         from gamesheet_sdk import Config
 
         config = Config()  # Picks up the env vars above

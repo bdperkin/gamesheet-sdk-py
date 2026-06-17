@@ -46,20 +46,16 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "_autosummary"]
 project_root = Path(__file__).parent.parent
 gitignore_path = Path(project_root, ".gitignore")
 if Path(gitignore_path).exists():
-
     with gitignore_path.open(encoding="utf-8") as f:
         for line in f:
-
             line = line.strip()
             # Skip empty lines, comments, or negation rules
             if not line or line.startswith(("#", "!")):
-
                 continue
             # Sphinx expect patterns, strip leading/trailing slashes for safety
             # e.g., "/.tox/" becomes ".tox"
             clean_pattern = line.strip("/")
             if clean_pattern and clean_pattern not in exclude_patterns:
-
                 exclude_patterns.append(clean_pattern)
 templates_path = ["_templates"]
 # -- Automatic API documentation --------------------------------------------

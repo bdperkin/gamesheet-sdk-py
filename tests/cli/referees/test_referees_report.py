@@ -15,7 +15,9 @@ if TYPE_CHECKING:
 def test_referees_report_with_all_fields(runner: CliRunner) -> None:
     """The referees report command should retrieve a comprehensive report."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._get_referee_report_action") as mock_report,
+        patch(
+            "gamesheet_sdk.cli.commands.referees._get_referee_report_action",
+        ) as mock_report,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -75,7 +77,9 @@ def test_referees_report_missing_referee_id_shows_error(runner: CliRunner) -> No
 def test_referees_report_json_output(runner: CliRunner) -> None:
     """The referees report command should support JSON output."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._get_referee_report_action") as mock_report,
+        patch(
+            "gamesheet_sdk.cli.commands.referees._get_referee_report_action",
+        ) as mock_report,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",

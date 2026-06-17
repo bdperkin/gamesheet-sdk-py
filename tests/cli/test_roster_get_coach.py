@@ -28,7 +28,10 @@ def test_coaches_get(runner: CliRunner) -> None:
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
-        result = runner.invoke(cli, ["roster", "--season-id", "15020", "coaches", "get", "--coach-id", "601"])
+        result = runner.invoke(
+            cli,
+            ["roster", "--season-id", "15020", "coaches", "get", "--coach-id", "601"],
+        )
         assert not result.exit_code
         assert result.output
         assert mock_action.called
@@ -86,7 +89,17 @@ def test_coaches_get_empty_fields(runner: CliRunner) -> None:
         )
         result = runner.invoke(
             cli,
-            ["roster", "--season-id", "15020", "coaches", "get", "--coach-id", "601", "--fields", ","],
+            [
+                "roster",
+                "--season-id",
+                "15020",
+                "coaches",
+                "get",
+                "--coach-id",
+                "601",
+                "--fields",
+                ",",
+            ],
         )
         assert not result.exit_code
         assert result.output

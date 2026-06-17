@@ -14,7 +14,9 @@ if TYPE_CHECKING:
 def test_referees_delete_with_force(runner: CliRunner) -> None:
     """The referees delete command should work with --force flag."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._delete_referee_action") as mock_delete,
+        patch(
+            "gamesheet_sdk.cli.commands.referees._delete_referee_action",
+        ) as mock_delete,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -45,7 +47,9 @@ def test_referees_delete_with_force(runner: CliRunner) -> None:
 def test_referees_delete_alias_rm(runner: CliRunner) -> None:
     """The 'rm' alias should invoke the delete command."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._delete_referee_action") as mock_delete,
+        patch(
+            "gamesheet_sdk.cli.commands.referees._delete_referee_action",
+        ) as mock_delete,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -72,7 +76,9 @@ def test_referees_delete_alias_rm(runner: CliRunner) -> None:
 def test_referees_delete_alias_remove(runner: CliRunner) -> None:
     """The 'remove' alias should invoke the delete command."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._delete_referee_action") as mock_delete,
+        patch(
+            "gamesheet_sdk.cli.commands.referees._delete_referee_action",
+        ) as mock_delete,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -115,7 +121,9 @@ def test_referees_delete_missing_referee_id_shows_error(runner: CliRunner) -> No
 def test_referees_delete_without_force_prompts_confirmation(runner: CliRunner) -> None:
     """Calling 'referees delete' without --force should prompt for confirmation."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._delete_referee_action") as mock_delete,
+        patch(
+            "gamesheet_sdk.cli.commands.referees._delete_referee_action",
+        ) as mock_delete,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",

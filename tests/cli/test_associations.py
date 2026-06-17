@@ -9,7 +9,6 @@ from gamesheet_sdk.associations import Association
 from gamesheet_sdk.cli import cli
 
 if TYPE_CHECKING:
-
     from click.testing import CliRunner
 
 
@@ -26,7 +25,9 @@ def test_associations_group_has_help_option(runner: CliRunner) -> None:
 def test_associations_list_alias_works(runner: CliRunner) -> None:
     """The 'ls' alias should invoke the list command."""
     with (
-        patch("gamesheet_sdk.cli.commands.associations._list_associations_action") as mock_list,
+        patch(
+            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -42,7 +43,9 @@ def test_associations_list_alias_works(runner: CliRunner) -> None:
 def test_associations_bare_invocation_runs_list(runner: CliRunner) -> None:
     """Bare 'associations' should implicitly run 'list'."""
     with (
-        patch("gamesheet_sdk.cli.commands.associations._list_associations_action") as mock_list,
+        patch(
+            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -58,7 +61,9 @@ def test_associations_bare_invocation_runs_list(runner: CliRunner) -> None:
 def test_associations_list_json_output(runner: CliRunner) -> None:
     """The list command should support JSON output."""
     with (
-        patch("gamesheet_sdk.cli.commands.associations._list_associations_action") as mock_list,
+        patch(
+            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -82,7 +87,9 @@ def test_associations_list_json_output(runner: CliRunner) -> None:
 def test_associations_list_yaml_output(runner: CliRunner) -> None:
     """The list command should support YAML output."""
     with (
-        patch("gamesheet_sdk.cli.commands.associations._list_associations_action") as mock_list,
+        patch(
+            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -106,7 +113,9 @@ def test_associations_list_yaml_output(runner: CliRunner) -> None:
 def test_associations_list_columns_filter(runner: CliRunner) -> None:
     """The --columns option should filter output columns."""
     with (
-        patch("gamesheet_sdk.cli.commands.associations._list_associations_action") as mock_list,
+        patch(
+            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -132,7 +141,9 @@ def test_associations_list_output_to_file(runner: CliRunner, tmp_path: Any) -> N
     """The --output option should write to a file."""
     output_file = tmp_path / "output.json"
     with (
-        patch("gamesheet_sdk.cli.commands.associations._list_associations_action") as mock_list,
+        patch(
+            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -160,7 +171,9 @@ def test_associations_list_output_to_file(runner: CliRunner, tmp_path: Any) -> N
 def test_associations_list_csv_output(runner: CliRunner) -> None:
     """The list command should support CSV output."""
     with (
-        patch("gamesheet_sdk.cli.commands.associations._list_associations_action") as mock_list,
+        patch(
+            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",

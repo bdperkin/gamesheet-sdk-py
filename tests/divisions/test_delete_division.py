@@ -29,7 +29,6 @@ def test_delete_division_sends_delete_request(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         delete_division(session, _SEASON_ID, _DELETE_DIVISION_ID)
-
     # Verify the request
     assert len(responses.calls) == 1
     req = responses.calls[0].request

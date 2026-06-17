@@ -5,7 +5,11 @@ from __future__ import annotations
 import rich_click as click
 from rich_click import Choice, Context, Path
 
-from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive, parse_columns_spec
+from gamesheet_sdk.cli.core import (
+    ResourceGroup,
+    confirm_destructive,
+    parse_columns_spec,
+)
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
 from gamesheet_sdk.config import Config
 from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
@@ -143,7 +147,12 @@ def referees_report_command(
     """
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
-    report = run_action_or_exit(session, _get_referee_report_action, season_id, referee_id)
+    report = run_action_or_exit(
+        session,
+        _get_referee_report_action,
+        season_id,
+        referee_id,
+    )
     rendered = render([report.model_dump(mode="json")], fmt=output_format)
     write_output(rendered, output_path, fmt=output_format)
 
@@ -318,7 +327,6 @@ def referees_update_command(
             "Use --first-name, --last-name, --email-address, or --external-id."
         )
         raise click.UsageError(msg)
-
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
     referee = run_action_or_exit(

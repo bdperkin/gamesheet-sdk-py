@@ -1,4 +1,3 @@
-# pylint: disable=too-many-lines
 """GameSheet teams: competing organizations within a season.
 
 A team is a competing organization within a season (e.g., "Raleigh Raptors", "Durham Bulls", etc.). Each team
@@ -96,7 +95,6 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     :param session: An authenticated :class:`Session`.
     :type session: Session
     :param season_id: The season identifier whose teams to list.
@@ -121,14 +119,12 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
         params=params,
     )
     if response.status_code == 401:
-
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
             "`gamesheet-sdk-py login` to refresh and try again.",
         )
         raise AuthenticationError(_err_msg)
     if response.status_code == 404:
-
         _err_msg = (
             f"Season '{season_id}' not found (HTTP 404). "
             f"Make sure you're using a valid season ID. "
@@ -136,7 +132,6 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
         )
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-
         _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
@@ -159,7 +154,9 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
             inv_id = inv_rel[0]["id"] if isinstance(inv_rel, list) else inv_rel.get("id")
             if inv_id and inv_id in invitation_codes:
                 # Update the team with the invitation code using model_copy
-                team = team.model_copy(update={"invitation_code": invitation_codes[inv_id]})
+                team = team.model_copy(
+                    update={"invitation_code": invitation_codes[inv_id]},
+                )
         teams.append(team)
     return teams
 
@@ -169,7 +166,6 @@ def get_team(session: Session, season_id: str, team_id: str) -> Team:  # noqa: D
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     :param session: An authenticated :class:`Session`.
     :type session: Session
     :param season_id: The parent season identifier.
@@ -181,7 +177,6 @@ def get_team(session: Session, season_id: str, team_id: str) -> Team:  # noqa: D
     :raises GameSheetError: If the team is not found or for any other non-2xx response from the API.
     :raises AuthenticationError: If the server returns 401 (raised by the internal call to
         :func:`list_teams`). Run ``gamesheet-sdk-py login`` to refresh the bearer token.
-
     .. note::
         The single-team GET endpoint doesn't support including related invitations,
         so this function fetches all teams in the season (which does include invitations)
@@ -191,12 +186,10 @@ def get_team(session: Session, season_id: str, team_id: str) -> Team:  # noqa: D
     # honor the include=invitations parameter, so we use the list endpoint instead
     # which does properly include invitation data
     all_teams = list_teams(session, season_id)
-
     # Find the requested team
     for team in all_teams:
         if team.id == team_id:
             return team
-
     # Team not found
     _err_msg = (
         f"Team '{team_id}' not found in season '{season_id}'. "
@@ -211,15 +204,12 @@ def _upload_logo(session: Session, logo_path: str) -> str:
     if not logo_file_path.exists():
         _err_msg = (f"Logo file not found: {logo_path}",)
         raise GameSheetError(_err_msg)
-
     mime_type, _ = mimetypes.guess_type(logo_path)
     if not mime_type or not mime_type.startswith("image/"):
         _err_msg = (f"Invalid image file: {logo_path}",)
         raise GameSheetError(_err_msg)
-
     upload_url_endpoint = f"{BFF_API_BASE_URL}/dwg/assets/upload-url"
     upload_url_response = session.post(upload_url_endpoint)
-
     if upload_url_response.status_code == 401:
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
@@ -232,33 +222,27 @@ def _upload_logo(session: Session, logo_path: str) -> str:
             f"{upload_url_response.text[:200]!r}",
         )
         raise GameSheetError(_err_msg)
-
     upload_data: dict[str, Any] = upload_url_response.json()
     if upload_data.get("status") != "success":
         _err_msg = (f"Failed to get upload URL: {upload_data}",)
         raise GameSheetError(_err_msg)
-
     upload_url: str = upload_data["data"]["uploadURL"]
     image_id: str = upload_data["data"]["id"]
-
     with logo_file_path.open("rb") as f:
         upload_response = session.post(
             upload_url,
             files={"file": (logo_file_path.name, f, mime_type)},
         )
-
     if upload_response.status_code >= 400:
         _err_msg = (
             f"POST {upload_url} returned HTTP {upload_response.status_code}: "
             f"{upload_response.text[:200]!r}",
         )
         raise GameSheetError(_err_msg)
-
     upload_result: dict[str, Any] = upload_response.json()
     if not upload_result.get("success"):
         _err_msg = (f"Failed to upload logo: {upload_result}",)
         raise GameSheetError(_err_msg)
-
     return f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/{image_id}"
 
 
@@ -277,11 +261,9 @@ def update_team(
     """Update an existing team.
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
-    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
-    At least one field must be provided for update. The API requires sending the full team data, so this
-    function first fetches the current team to preserve unchanged fields.
-
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401. At least one field
+    must be provided for update. The API requires sending the full team data, so this function first fetches
+    the current team to preserve unchanged fields.
     :param session: An authenticated :class:`Session`.
     :type session: Session
     :param season_id: The season identifier containing the team.
@@ -307,11 +289,9 @@ def update_team(
     if all(v is None or v is False for v in (title, external_id, division_id, logo_path, remove_logo)):
         msg = "At least one field must be provided for update"
         raise ValueError(msg)
-
     if logo_path and remove_logo:
         msg = "Cannot both upload a logo and remove it"
         raise ValueError(msg)
-
     # Fetch current team data to get all fields
     get_endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
     get_response = session.get(
@@ -319,7 +299,6 @@ def update_team(
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
         params={"include": "association,league,season,division,players,coaches"},
     )
-
     if get_response.status_code == 401:
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
@@ -338,11 +317,9 @@ def update_team(
             f"GET {get_endpoint} returned HTTP {get_response.status_code}: {get_response.text[:200]!r}",
         )
         raise GameSheetError(_err_msg)
-
     current_data: dict[str, Any] = get_response.json()
     current_attrs = current_data.get("data", {}).get("attributes", {})
     current_relationships = current_data.get("data", {}).get("relationships", {})
-
     # Build updated attributes, preserving current values for unchanged fields
     updated_attrs: dict[str, Any] = {
         "title": title if title is not None else current_attrs.get("title", ""),
@@ -350,7 +327,6 @@ def update_team(
         "roster": current_attrs.get("roster", {}),
         "data": current_attrs.get("data", {}),
     }
-
     # Handle logo
     if logo_path:
         logo_url = _upload_logo(session, logo_path)
@@ -359,14 +335,12 @@ def update_team(
         updated_attrs["logo_url"] = ""  # Empty string for removal
     else:
         updated_attrs["logo_url"] = current_attrs.get("logo_url")
-
     # Build updated relationships, preserving current values for unchanged fields
     updated_division_id = (
         division_id
         if division_id is not None
         else current_relationships.get("division", {}).get("data", {}).get("id")
     )
-
     update_endpoint = f"/api/seasons/{season_id}/teams-v2/{team_id}"
     payload = {
         "data": {
@@ -383,13 +357,14 @@ def update_team(
             },
         },
     }
-
     update_response = session.patch(
         update_endpoint,
         json=payload,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE, "Content-Type": _JSONAPI_CONTENT_TYPE},
+        headers={
+            "Accept": _JSONAPI_CONTENT_TYPE,
+            "Content-Type": _JSONAPI_CONTENT_TYPE,
+        },
     )
-
     if update_response.status_code == 401:
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
@@ -409,7 +384,6 @@ def update_team(
             f"{update_response.text[:200]!r}",
         )
         raise GameSheetError(_err_msg)
-
     # If removing logo, send additional DELETE request
     if remove_logo:
         delete_logo_endpoint = f"/api/seasons/{season_id}/teams-v2/{team_id}/logo"
@@ -423,7 +397,6 @@ def update_team(
                 f"{delete_response.text[:200]!r}",
             )
             raise GameSheetError(_err_msg)
-
     body: dict[str, Any] = update_response.json()
     return _parse(body["data"])
 
@@ -443,7 +416,6 @@ def create_team(
     1. Request an upload URL for the logo (if logo_path is provided)
     2. Upload the logo to the returned URL (if logo_path is provided)
     3. Create the team with the logo URL
-
     :param session: An authenticated :class:`Session`.
     :type session: Session
     :param season_id: The season identifier to create the team in.
@@ -464,20 +436,16 @@ def create_team(
     logo_url: str | None = None
     if logo_path:
         logo_url = _upload_logo(session, logo_path)
-
     create_endpoint = f"{BFF_API_BASE_URL}/dwg/seasons/{season_id}/teams"
     payload: dict[str, str | int] = {
         "title": title,
         "divisionId": int(division_id),
     }
-
     if external_id:
         payload["externalId"] = external_id
     if logo_url:
         payload["logo"] = logo_url
-
     create_response = session.post(create_endpoint, json=payload)
-
     if create_response.status_code == 401:
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
@@ -490,12 +458,10 @@ def create_team(
             f"{create_response.text[:200]!r}",
         )
         raise GameSheetError(_err_msg)
-
     result: dict[str, Any] = create_response.json()
     if result.get("status") != "success":
         _err_msg = (f"Failed to create team: {result}",)
         raise GameSheetError(_err_msg)
-
     data: dict[str, Any] = result["data"]
     return data
 
@@ -509,7 +475,6 @@ def delete_team(
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     :param session: An authenticated :class:`Session`.
     :type session: Session
     :param season_id: The season identifier containing the team.
@@ -521,12 +486,10 @@ def delete_team(
     :raises GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
-
     response = session.delete(
         endpoint,
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
     )
-
     if response.status_code == 401:
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "

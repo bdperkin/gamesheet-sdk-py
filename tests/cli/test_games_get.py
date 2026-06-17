@@ -106,6 +106,10 @@ def test_games_get_empty_fields(runner: CliRunner) -> None:
         config = Config(base_url="https://test.example")
         ctx = Mock()
         ctx.obj = {"config": config, "season_id": "15020"}
-        result = runner.invoke(games_get_command, ["--game-id", "12345", "--fields", ","], obj=ctx.obj)
+        result = runner.invoke(
+            games_get_command,
+            ["--game-id", "12345", "--fields", ","],
+            obj=ctx.obj,
+        )
         assert not result.exit_code
         assert result.output

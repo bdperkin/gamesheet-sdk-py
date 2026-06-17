@@ -3,29 +3,18 @@
 This module provides the CLI interface for managing GameSheet leagues, which represent organizational
 units within an association. A league typically corresponds to a specific division, age group, or
 competition tier within the broader association structure.
-
 The command group provides sub-commands for listing leagues within a specified association. When invoked
 without a sub-command, it defaults to the ``list`` operation.
-
 Examples:
     List all leagues in an association in simple table format::
-
         $ gamesheet-sdk-py leagues --association-id ABC123
-
     List leagues in JSON format::
-
         $ gamesheet-sdk-py leagues list --association-id ABC123 --format json
-
     List leagues with selected columns only::
-
         $ gamesheet-sdk-py leagues list --association-id ABC123 --columns id,name,season_count
-
     Save leagues to a file::
-
         $ gamesheet-sdk-py leagues list --association-id ABC123 --format yaml --output leagues.yaml
-
     Use environment variable for association ID::
-
         $ export GAMESHEET_ASSOCIATION_ID=ABC123
         $ gamesheet-sdk-py leagues
 """
@@ -60,9 +49,7 @@ def leagues_group() -> None:
     """Manage GameSheet leagues within an association.
 
     A league represents a subdivision of an association, typically organized by division, age group, or skill
-    level.
-
-    Invoking 'leagues' with no sub-command runs 'list' by default.
+    level. Invoking 'leagues' with no sub-command runs 'list' by default.
     """
 
 
@@ -129,7 +116,12 @@ def leagues_get_command(
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
     # Convert to dict for rendering
-    data = run_action_or_exit(session, _get_league_action, association_id, league_id).model_dump(mode="json")
+    data = run_action_or_exit(
+        session,
+        _get_league_action,
+        association_id,
+        league_id,
+    ).model_dump(mode="json")
     # If fields are specified, filter to only those fields
     if fields_spec:
         fields = parse_columns_spec(fields_spec)
@@ -195,29 +187,18 @@ def leagues_list_command(
     Requires authentication (run 'gamesheet-sdk-py login' first). Retrieves all
     leagues belonging to the specified association and displays them in the
     specified output format.
-
     The association ID can be provided via --association-id or the
     GAMESHEET_ASSOCIATION_ID environment variable.
-
     Examples:
         List all leagues in an association in default format:
-
             $ gamesheet-sdk-py leagues list --association-id ABC123
-
         List leagues in JSON format:
-
             $ gamesheet-sdk-py leagues list --association-id ABC123 --format json
-
         List leagues with only id and name columns:
-
             $ gamesheet-sdk-py leagues list --association-id ABC123 --columns id,name
-
         Save leagues to a YAML file:
-
             $ gamesheet-sdk-py leagues list --association-id ABC123 --format yaml --output leagues.yaml
-
         Use environment variable for association ID:
-
             $ export GAMESHEET_ASSOCIATION_ID=ABC123
             $ gamesheet-sdk-py leagues list
     """

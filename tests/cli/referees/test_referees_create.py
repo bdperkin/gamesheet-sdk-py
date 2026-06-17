@@ -16,7 +16,9 @@ if TYPE_CHECKING:
 def test_referees_create_with_all_fields(runner: CliRunner) -> None:
     """The referees create command should accept all fields."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._create_referee_action") as mock_create,
+        patch(
+            "gamesheet_sdk.cli.commands.referees._create_referee_action",
+        ) as mock_create,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -62,7 +64,9 @@ def test_referees_create_with_all_fields(runner: CliRunner) -> None:
 def test_referees_create_required_fields_only(runner: CliRunner) -> None:
     """The referees create command should work with only required fields."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._create_referee_action") as mock_create,
+        patch(
+            "gamesheet_sdk.cli.commands.referees._create_referee_action",
+        ) as mock_create,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -103,7 +107,9 @@ def test_referees_create_required_fields_only(runner: CliRunner) -> None:
 def test_referees_create_alias_add(runner: CliRunner) -> None:
     """The 'add' alias should invoke the create command."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._create_referee_action") as mock_create,
+        patch(
+            "gamesheet_sdk.cli.commands.referees._create_referee_action",
+        ) as mock_create,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -138,7 +144,9 @@ def test_referees_create_alias_add(runner: CliRunner) -> None:
 def test_referees_create_alias_new(runner: CliRunner) -> None:
     """The 'new' alias should invoke the create command."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._create_referee_action") as mock_create,
+        patch(
+            "gamesheet_sdk.cli.commands.referees._create_referee_action",
+        ) as mock_create,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -207,7 +215,9 @@ def test_referees_create_missing_last_name_shows_error(runner: CliRunner) -> Non
 def test_referees_create_json_output(runner: CliRunner) -> None:
     """The referees create command should support JSON output."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._create_referee_action") as mock_create,
+        patch(
+            "gamesheet_sdk.cli.commands.referees._create_referee_action",
+        ) as mock_create,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",

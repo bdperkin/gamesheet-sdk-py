@@ -28,7 +28,6 @@ def _bff_response(games: list[dict[str, object]]) -> dict[str, object]:
 
 @responses.activate
 def test_list_completed_parses_bff_response(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -83,7 +82,6 @@ def test_list_completed_parses_bff_response(config: Config) -> None:
 
 @responses.activate
 def test_list_scheduled_parses_bff_response(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -135,62 +133,51 @@ def test_list_scheduled_parses_bff_response(config: Config) -> None:
 
 @responses.activate
 def test_list_completed_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, json={}, status=401)
     with Session(config) as session:
         session.set_bearer_token("expired")
         with pytest.raises(AuthenticationError, match=r"401"):
-
             list_completed(session, _SEASON_ID)
 
 
 @responses.activate
 def test_list_completed_404_raises_gamesheet_error(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, json={}, status=404)
     with Session(config) as session:
         session.set_bearer_token("valid")
         with pytest.raises(GameSheetError, match=r"404"):
-
             list_completed(session, _SEASON_ID)
 
 
 @responses.activate
 def test_list_completed_500_raises_gamesheet_error(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, json={}, status=500)
     with Session(config) as session:
         session.set_bearer_token("valid")
         with pytest.raises(GameSheetError, match=r"500"):
-
             list_completed(session, _SEASON_ID)
 
 
 @responses.activate
 def test_list_scheduled_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, json={}, status=401)
     with Session(config) as session:
         session.set_bearer_token("expired")
         with pytest.raises(AuthenticationError, match=r"401"):
-
             list_scheduled(session, _SEASON_ID)
 
 
 @responses.activate
 def test_list_brackets_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, json={}, status=401)
     with Session(config) as session:
         session.set_bearer_token("expired")
         with pytest.raises(AuthenticationError, match=r"401"):
-
             list_brackets(session, _SEASON_ID)
 
 
 @responses.activate
 def test_list_completed_handles_empty_data(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, json=_bff_response([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("valid")
@@ -200,10 +187,13 @@ def test_list_completed_handles_empty_data(config: Config) -> None:
 
 @responses.activate
 def test_bff_non_success_status_raises_error(config: Config) -> None:
-
-    responses.add(responses.GET, _ENDPOINT, json={"status": "error", "data": []}, status=200)
+    responses.add(
+        responses.GET,
+        _ENDPOINT,
+        json={"status": "error", "data": []},
+        status=200,
+    )
     with Session(config) as session:
         session.set_bearer_token("valid")
         with pytest.raises(GameSheetError, match=r"non-success status"):
-
             list_completed(session, _SEASON_ID)

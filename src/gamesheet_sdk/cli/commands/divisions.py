@@ -8,7 +8,11 @@ import rich_click as click
 from click.exceptions import Exit
 from rich_click import Choice, Context, Path
 
-from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive, parse_columns_spec
+from gamesheet_sdk.cli.core import (
+    ResourceGroup,
+    confirm_destructive,
+    parse_columns_spec,
+)
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
 from gamesheet_sdk.config import Config
 from gamesheet_sdk.divisions import create_division as _create_division_action
@@ -98,7 +102,9 @@ def divisions_get_command(
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
     # Convert to dict for rendering
-    data = run_action_or_exit(session, _get_division_action, division_id).model_dump(mode="json")
+    data = run_action_or_exit(session, _get_division_action, division_id).model_dump(
+        mode="json",
+    )
     # If fields are specified, filter to only those fields
     if fields_spec:
         fields = parse_columns_spec(fields_spec)
@@ -234,7 +240,11 @@ def divisions_create_command(
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
 
-    def _create_with_kwargs(sess: AuthenticatedSession, sid: str, div_title: str) -> Division:
+    def _create_with_kwargs(
+        sess: AuthenticatedSession,
+        sid: str,
+        div_title: str,
+    ) -> Division:
         return _create_division_action(sess, sid, div_title, external_id=external_id)
 
     division = run_action_or_exit(session, _create_with_kwargs, season_id, title)
@@ -242,7 +252,10 @@ def divisions_create_command(
     rendered = render(rows, fmt=output_format)
     write_output(rendered, output_path, fmt=output_format)
     if output_path is None:
-        click.secho(f"\nDivision '{division.title}' created successfully (ID: {division.id})", fg="green")
+        click.secho(
+            f"\nDivision '{division.title}' created successfully (ID: {division.id})",
+            fg="green",
+        )
 
 
 @divisions_group.command("update")
@@ -310,21 +323,37 @@ def divisions_update_command(
     login' first).
     """
     if title is None is external_id:
-        click.secho("Error: At least one of --title or --external-id must be provided.", fg="red", err=True)
+        click.secho(
+            "Error: At least one of --title or --external-id must be provided.",
+            fg="red",
+            err=True,
+        )
         raise Exit(1)
-
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
 
-    def _update_with_kwargs(sess: AuthenticatedSession, sid: str, div_id: str) -> Division:
-        return _update_division_action(sess, sid, div_id, title=title, external_id=external_id)
+    def _update_with_kwargs(
+        sess: AuthenticatedSession,
+        sid: str,
+        div_id: str,
+    ) -> Division:
+        return _update_division_action(
+            sess,
+            sid,
+            div_id,
+            title=title,
+            external_id=external_id,
+        )
 
     division = run_action_or_exit(session, _update_with_kwargs, season_id, division_id)
     rows = [division.model_dump(mode="json")]
     rendered = render(rows, fmt=output_format)
     write_output(rendered, output_path, fmt=output_format)
     if output_path is None:
-        click.secho(f"\nDivision '{division.title}' updated successfully (ID: {division.id})", fg="green")
+        click.secho(
+            f"\nDivision '{division.title}' updated successfully (ID: {division.id})",
+            fg="green",
+        )
 
 
 @divisions_group.command("teams")

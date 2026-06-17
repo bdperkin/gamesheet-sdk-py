@@ -28,7 +28,6 @@ from playwright.sync_api import (
 from gamesheet_sdk.config import Config
 
 if TYPE_CHECKING:
-
     from types import TracebackType
 _LOGGER = logging.getLogger(__name__)
 
@@ -61,19 +60,19 @@ class BrowserSession:
         """
         path = self.config.browser_state_path
         if not path.exists():
-
             return None
-
         try:
             loaded: StorageState = json.loads(path.read_text())
         except (OSError, json.JSONDecodeError) as exc:
-            _LOGGER.warning("Failed to load browser storage state from %s: %s", path, exc)
+            _LOGGER.warning(
+                "Failed to load browser storage state from %s: %s",
+                path,
+                exc,
+            )
             return None
-
         return loaded
 
     # -- internals --------------------------------------------------------
-
     def _start(self) -> None:
         """Launch Playwright + Chromium + a context, possibly restoring state."""
         self._playwright = sync_playwright().start()
@@ -82,7 +81,6 @@ class BrowserSession:
         )
         storage_state = self._load_storage_state()
         if storage_state is not None:
-
             # storage_state is read back from the JSON Playwright itself
             # wrote; matches the StorageState TypedDict structurally.
             self._context = self._browser.new_context(
@@ -92,7 +90,6 @@ class BrowserSession:
             self._context = self._browser.new_context()
 
     # -- public attribute access ------------------------------------------
-
     @property
     def context(self) -> BrowserContext:
         """The underlying Playwright BrowserContext.
@@ -101,14 +98,11 @@ class BrowserSession:
         reaches for the browser is effectively free.
         """
         if self._closed:
-
             _err_msg = "BrowserSession has been closed"
             raise RuntimeError(_err_msg)
         if self._context is None:
-
             self._start()
         if self._context is None:  # pragma: no cover
-
             # Defensive check: _start() either succeeds (sets _context) or raises
             _err_msg = "BrowserSession did not start"
             raise ValueError(_err_msg)
@@ -118,7 +112,6 @@ class BrowserSession:
         """Open a fresh tab in the session's context and return it.
 
         Starts Playwright and Chromium on first call if not already running.
-
         :returns: A new Playwright :class:`~playwright.sync_api.Page` instance.
         :raises RuntimeError: If the session has been closed.
         """
@@ -129,14 +122,11 @@ class BrowserSession:
 
         Absolute URLs (http://, https://, data:, file:, about:) are returned unchanged. Relative URLs are
         joined to :attr:`Config.base_url`.
-
         :param url: An absolute or relative URL.
         :returns: A fully qualified URL.
         """
         if url.startswith(("http://", "https://", "data:", "file:", "about:")):
-
             return url
-
         return urljoin(self.config.base_url.rstrip("/") + "/", url.lstrip("/"))
 
     def goto(self, url: str, **kwargs: Any) -> Page:
@@ -144,15 +134,12 @@ class BrowserSession:
 
         ``url`` may be absolute or a path relative to :attr:`Config.base_url`.
         Starts Playwright and Chromium on first call if not already running.
-
         :param url: An absolute or relative URL to navigate to.
         :param kwargs: Additional keyword arguments forwarded to :meth:`playwright.sync_api.Page.goto` (e.g.
             ``wait_until``, ``timeout``).
         :returns: A :class:`~playwright.sync_api.Page` navigated to the resolved URL.
         :raises RuntimeError: If the session has been closed.
-
         Example::
-
             with BrowserSession() as bs:
                 page = bs.goto("/login", wait_until="networkidle")
                 page.fill("input[name='email']", "test@example.com")
@@ -162,7 +149,6 @@ class BrowserSession:
         return page
 
     # -- lifecycle --------------------------------------------------------
-
     def save(self) -> None:
         """Persist the current storage state to :attr:`Config.browser_state_path`.
 
@@ -170,7 +156,6 @@ class BrowserSession:
         already been called.
         """
         if self._context is None:
-
             return
         path = self.config.browser_state_path
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -195,13 +180,10 @@ class BrowserSession:
         all internal references to ``None``. Safe to call when some or all handles are already ``None``.
         """
         if self._context is not None:
-
             self._context.close()
         if self._browser is not None:
-
             self._browser.close()
         if self._playwright is not None:
-
             self._playwright.stop()
         self._context = None
         self._browser = None
@@ -213,7 +195,6 @@ class BrowserSession:
         Idempotent: calling :meth:`close` more than once is safe.
         """
         if self._closed:
-
             return
         self._safe_save()
         self._release_playwright()
@@ -235,7 +216,6 @@ class BrowserSession:
         """Exit the context manager and close the session.
 
         Persists storage state and shuts down Playwright resources.
-
         :param _exc_type: Exception type if an exception was raised.
         :param _exc_val: Exception instance if an exception was raised.
         :param _exc_tb: Traceback if an exception was raised.

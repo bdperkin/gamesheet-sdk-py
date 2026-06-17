@@ -105,7 +105,9 @@ def teams_get_command(
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
     # Convert to dict for rendering
-    data = run_action_or_exit(session, _get_team_action, season_id, team_id).model_dump(mode="json")
+    data = run_action_or_exit(session, _get_team_action, season_id, team_id).model_dump(
+        mode="json",
+    )
     # If fields are specified, filter to only those fields
     if fields_spec:
         fields = parse_columns_spec(fields_spec)
@@ -270,12 +272,14 @@ def teams_create_command(
         # For data formats, output the whole object
         rendered = render([result], fmt=output_format, columns=None)
     write_output(rendered, output_path, fmt=output_format)
-
     # Show success message (consistent with divisions create)
     if output_path is None:
         team_title = result.get("prototeam", {}).get("title", title)
         team_id = result.get("seasonTeam", {}).get("id", "unknown")
-        click.secho(f"\nTeam '{team_title}' created successfully (ID: {team_id})", fg="green")
+        click.secho(
+            f"\nTeam '{team_title}' created successfully (ID: {team_id})",
+            fg="green",
+        )
 
 
 @teams_group.command("update")

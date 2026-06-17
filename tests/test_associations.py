@@ -27,7 +27,6 @@ def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
 
 @responses.activate
 def test_list_associations_parses_jsonapi_response(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -63,14 +62,31 @@ def test_list_associations_parses_jsonapi_response(config: Config) -> None:
     assert [a.id for a in result] == ["11", "40"]
     assert result[0].title == "Hockey Time Productions"
     assert not result[0].logo
-    assert result[0].created_at == datetime(2023, 5, 1, 20, 29, 9, 306_920, tzinfo=timezone.utc)
-    assert result[0].created_at == datetime(2023, 5, 1, 20, 29, 9, 306_920, tzinfo=timezone.utc)
+    assert result[0].created_at == datetime(
+        2023,
+        5,
+        1,
+        20,
+        29,
+        9,
+        306_920,
+        tzinfo=timezone.utc,
+    )
+    assert result[0].created_at == datetime(
+        2023,
+        5,
+        1,
+        20,
+        29,
+        9,
+        306_920,
+        tzinfo=timezone.utc,
+    )
     assert result[1].logo == "https://example/logo.png"
 
 
 @responses.activate
 def test_list_associations_sends_bearer_and_jsonapi_accept(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -83,7 +99,6 @@ def test_list_associations_sends_bearer_and_jsonapi_accept(config: Config) -> No
 
 @responses.activate
 def test_list_associations_empty_data_returns_empty_list(config: Config) -> None:
-
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -92,7 +107,6 @@ def test_list_associations_empty_data_returns_empty_list(config: Config) -> None
 
 @responses.activate
 def test_list_associations_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -117,7 +131,6 @@ def test_list_associations_other_failure_raises_gamesheet_error(
 
 
 def test_association_model_ignores_unknown_attributes() -> None:
-
     a = Association(
         id="11",
         title="X",

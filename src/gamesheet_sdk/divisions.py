@@ -65,7 +65,6 @@ def list_division_teams(session: Session, division_id: str) -> list[Team]:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     :param session: An authenticated :class:`Session`.
     :type session: Session
     :param division_id: The division identifier whose teams to list.
@@ -86,14 +85,12 @@ def list_division_teams(session: Session, division_id: str) -> list[Team]:
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
     )
     if response.status_code == 401:
-
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
             "`gamesheet-sdk-py login` to refresh and try again.",
         )
         raise AuthenticationError(_err_msg)
     if response.status_code == 404:
-
         _err_msg = (
             f"Division '{division_id}' not found (HTTP 404). "
             f"Make sure you're using a valid division ID. "
@@ -101,19 +98,22 @@ def list_division_teams(session: Session, division_id: str) -> list[Team]:
         )
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-
         _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
     return [parse_team(item) for item in body.get("data", [])]
 
 
-def get_division(session: Session, division_id: str, *, include_team_count: bool = True) -> Division:
+def get_division(
+    session: Session,
+    division_id: str,
+    *,
+    include_team_count: bool = True,
+) -> Division:
     """Get a single division by ID.
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     :param session: An authenticated :class:`Session`.
     :type session: Session
     :param division_id: The division identifier to retrieve.
@@ -132,7 +132,6 @@ def get_division(session: Session, division_id: str, *, include_team_count: bool
         endpoint,
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
     )
-
     if response.status_code == 401:
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
@@ -147,26 +146,27 @@ def get_division(session: Session, division_id: str, *, include_team_count: bool
     if response.status_code >= 400:
         _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
-
     body: dict[str, Any] = response.json()
     division = _parse(body["data"])
-
     # If requested, fetch team count for this division
     if include_team_count:
         teams = list_division_teams(session, division.id)
         division.team_count = len(teams)
-
     return division
 
 
-def list_divisions(session: Session, season_id: str, *, include_team_counts: bool = False) -> list[Division]:
+def list_divisions(
+    session: Session,
+    season_id: str,
+    *,
+    include_team_counts: bool = False,
+) -> list[Division]:
     """Return every division in the specified season.
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     Note: The GameSheet API returns all divisions, so this function filters client-side to only
     include divisions that belong to the specified season (via the relationships.season.data.id field).
-
     :param session: An authenticated :class:`Session`.
     :type session: Session
     :param season_id: The season identifier whose divisions to list.
@@ -186,14 +186,12 @@ def list_divisions(session: Session, season_id: str, *, include_team_counts: boo
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
     )
     if response.status_code == 401:
-
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
             "`gamesheet-sdk-py login` to refresh and try again.",
         )
         raise AuthenticationError(_err_msg)
     if response.status_code == 404:
-
         _err_msg = (
             f"Season '{season_id}' not found (HTTP 404). "
             f"Make sure you're using a valid season ID. "
@@ -201,20 +199,17 @@ def list_divisions(session: Session, season_id: str, *, include_team_counts: boo
         )
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-
         _err_msg = (f"GET {_ENDPOINT} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
     # Parse all divisions and filter to only those belonging to the requested season
     all_divisions = [_parse(item) for item in body.get("data", [])]
     divisions = [d for d in all_divisions if d.season_id == season_id]
-
     # If requested, fetch team counts for each division
     if include_team_counts:
         for division in divisions:
             teams = list_division_teams(session, division.id)
             division.team_count = len(teams)
-
     return divisions
 
 
@@ -229,7 +224,6 @@ def create_division(
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     :param session: An authenticated :class:`Session`.
     :type session: Session
     :param season_id: The season identifier in which to create the division.
@@ -249,11 +243,9 @@ def create_division(
     import uuid
 
     endpoint = f"/api/seasons/{season_id}/divisions"
-
     # Generate external_id if not provided
     if external_id is None:
         external_id = str(uuid.uuid4())
-
     payload = {
         "data": {
             "type": "divisions",
@@ -272,13 +264,14 @@ def create_division(
             },
         },
     }
-
     response = session.post(
         endpoint,
         json=payload,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE, "Content-Type": _JSONAPI_CONTENT_TYPE},
+        headers={
+            "Accept": _JSONAPI_CONTENT_TYPE,
+            "Content-Type": _JSONAPI_CONTENT_TYPE,
+        },
     )
-
     if response.status_code == 401:
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
@@ -295,7 +288,6 @@ def create_division(
     if response.status_code >= 400:
         _err_msg = (f"POST {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
-
     body: dict[str, Any] = response.json()
     return _parse(body["data"])
 
@@ -311,10 +303,8 @@ def update_division(
     """Update an existing division.
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
-    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
-    At least one of title or external_id must be provided.
-
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401. At least one of
+    title or external_id must be provided.
     :param session: An authenticated :class:`Session`.
     :type session: Session
     :param season_id: The season identifier containing the division.
@@ -335,7 +325,6 @@ def update_division(
     if title is None is external_id:
         msg = "At least one of title or external_id must be provided"
         raise ValueError(msg)
-
     # GameSheet API requires title to always be present in PATCH payload.
     # If user didn't provide a new title, fetch the current one.
     if title is None:
@@ -351,9 +340,7 @@ def update_division(
             # If we can't fetch the current title, the PATCH will fail anyway
             # Let it proceed and return the API's error
             title = ""
-
     endpoint = f"/api/seasons/{season_id}/divisions/{division_id}"
-
     # Build attributes dict - title is always required by the API
     attributes: dict[str, Any] = {
         "title": title,
@@ -361,7 +348,6 @@ def update_division(
     }
     if external_id is not None:
         attributes["external_id"] = external_id
-
     payload = {
         "data": {
             "type": "divisions",
@@ -377,13 +363,14 @@ def update_division(
             },
         },
     }
-
     response = session.patch(
         endpoint,
         json=payload,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE, "Content-Type": _JSONAPI_CONTENT_TYPE},
+        headers={
+            "Accept": _JSONAPI_CONTENT_TYPE,
+            "Content-Type": _JSONAPI_CONTENT_TYPE,
+        },
     )
-
     if response.status_code == 401:
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
@@ -400,7 +387,6 @@ def update_division(
     if response.status_code >= 400:
         _err_msg = (f"PATCH {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
-
     body: dict[str, Any] = response.json()
     return _parse(body["data"])
 
@@ -414,7 +400,6 @@ def delete_division(
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     :param session: An authenticated :class:`Session`.
     :type session: Session
     :param season_id: The season identifier containing the division.
@@ -426,12 +411,10 @@ def delete_division(
     :raises GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/divisions/{division_id}"
-
     response = session.delete(
         endpoint,
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
     )
-
     if response.status_code == 401:
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "

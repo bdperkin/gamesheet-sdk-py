@@ -4,7 +4,6 @@ Roster data represents the people associated with teams in a season - both playe
 This module provides access to:
 - Players (players)
 - Coaches (coaches)
-
 Each view talks to the GameSheet JSON:API at ``/api/seasons/{season_id}/players`` and
 ``/api/seasons/{season_id}/coaches`` directly with the lightweight :class:`gamesheet_sdk.Session`
 path -- no Playwright needed for read-only access once a bearer token has been obtained.
@@ -45,8 +44,14 @@ class Player(BaseModel):
     province: str | None = Field(default=None, description="Player's province.")
     hometown: str | None = Field(default=None, description="Player's hometown.")
     country: str | None = Field(default=None, description="Player's country.")
-    drafted_by: str | None = Field(default=None, description="Team that drafted the player.")
-    committed_to: str | None = Field(default=None, description="School/team player committed to.")
+    drafted_by: str | None = Field(
+        default=None,
+        description="Team that drafted the player.",
+    )
+    committed_to: str | None = Field(
+        default=None,
+        description="School/team player committed to.",
+    )
     created_at: datetime = Field(description="When the player record was created.")
     updated_at: datetime = Field(description="Last time the player record was updated.")
 
@@ -96,7 +101,6 @@ def get_player(session: Session, season_id: str, player_id: str) -> Player:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     :param session: An authenticated :class:`Session`.
     :type session: Session
     :param season_id: The parent season identifier.
@@ -114,7 +118,6 @@ def get_player(session: Session, season_id: str, player_id: str) -> Player:
         endpoint,
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
     )
-
     if response.status_code == 401:
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
@@ -130,7 +133,6 @@ def get_player(session: Session, season_id: str, player_id: str) -> Player:
     if response.status_code >= 400:
         _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
-
     body: dict[str, Any] = response.json()
     return _parse_player(body["data"])
 
@@ -140,7 +142,6 @@ def get_coach(session: Session, season_id: str, coach_id: str) -> Coach:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     :param session: An authenticated :class:`Session`.
     :type session: Session
     :param season_id: The parent season identifier.
@@ -158,7 +159,6 @@ def get_coach(session: Session, season_id: str, coach_id: str) -> Coach:
         endpoint,
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
     )
-
     if response.status_code == 401:
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
@@ -174,7 +174,6 @@ def get_coach(session: Session, season_id: str, coach_id: str) -> Coach:
     if response.status_code >= 400:
         _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
-
     body: dict[str, Any] = response.json()
     return _parse_coach(body["data"])
 
@@ -184,7 +183,6 @@ def list_players(session: Session, season_id: str) -> list[Player]:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     :param session: An authenticated :class:`Session`.
     :type session: Session
     :param season_id: The season identifier whose players to list.
@@ -203,14 +201,12 @@ def list_players(session: Session, season_id: str) -> list[Player]:
         params={"include": "teams,divisions"},
     )
     if response.status_code == 401:
-
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
             "`gamesheet-sdk-py login` to refresh and try again.",
         )
         raise AuthenticationError(_err_msg)
     if response.status_code == 404:
-
         _err_msg = (
             f"Season '{season_id}' not found (HTTP 404). "
             f"Make sure you're using a valid season ID. "
@@ -218,7 +214,6 @@ def list_players(session: Session, season_id: str) -> list[Player]:
         )
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-
         _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
@@ -232,7 +227,6 @@ def list_coaches(session: Session, season_id: str) -> list[Coach]:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     :param session: An authenticated :class:`Session`.
     :type session: Session
     :param season_id: The season identifier whose coaches to list.
@@ -251,14 +245,12 @@ def list_coaches(session: Session, season_id: str) -> list[Coach]:
         params={"include": "teams,divisions"},
     )
     if response.status_code == 401:
-
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
             "`gamesheet-sdk-py login` to refresh and try again.",
         )
         raise AuthenticationError(_err_msg)
     if response.status_code == 404:
-
         _err_msg = (
             f"Season '{season_id}' not found (HTTP 404). "
             f"Make sure you're using a valid season ID. "
@@ -266,7 +258,6 @@ def list_coaches(session: Session, season_id: str) -> list[Coach]:
         )
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-
         _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()

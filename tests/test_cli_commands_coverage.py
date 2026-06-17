@@ -205,7 +205,15 @@ def test_divisions_create_coverage() -> None:
     ):
         result = runner.invoke(
             divisions_group,
-            ["create", "--season-id", "15020", "--title", "Test Division", "-F", "json"],
+            [
+                "create",
+                "--season-id",
+                "15020",
+                "--title",
+                "Test Division",
+                "-F",
+                "json",
+            ],
             obj=MagicMock(),
         )
         assert not result.exit_code
@@ -376,7 +384,6 @@ def test_divisions_update_with_output_file_coverage() -> None:
 def test_divisions_delete_coverage() -> None:
     """Ensure divisions delete command body is covered."""
     runner = CliRunner()
-
     with (
         patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
         patch("gamesheet_sdk.cli.commands.divisions.run_action_or_exit"),
@@ -398,7 +405,6 @@ def test_divisions_delete_coverage() -> None:
 def test_divisions_delete_requires_confirmation_without_force() -> None:
     """Ensure divisions delete prompts for confirmation without --force."""
     runner = CliRunner()
-
     with patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"):
         # User declines confirmation (input='n')
         result = runner.invoke(

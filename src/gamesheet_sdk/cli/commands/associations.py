@@ -3,25 +3,16 @@
 This module provides the CLI interface for managing GameSheet associations, which represent the
 top-level organizational unit in the GameSheet platform. An association corresponds to a league
 operator (hockey association, tournament series, district body, etc.).
-
 The command group provides sub-commands for listing associations accessible to the authenticated user.
 When invoked without a sub-command, it defaults to the ``list`` operation.
-
 Examples:
     List all associations in simple table format::
-
         $ gamesheet-sdk-py associations
-
     List associations in JSON format::
-
         $ gamesheet-sdk-py associations list --format json
-
     List associations with selected columns only::
-
         $ gamesheet-sdk-py associations list --columns id,title,created_at
-
     Save associations to a file::
-
         $ gamesheet-sdk-py associations list --format yaml --output associations.yaml
 """
 
@@ -115,7 +106,11 @@ def associations_get_command(
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
     # Convert to dict for rendering
-    data = run_action_or_exit(session, _get_association_action, association_id).model_dump(mode="json")
+    data = run_action_or_exit(
+        session,
+        _get_association_action,
+        association_id,
+    ).model_dump(mode="json")
     # If fields are specified, filter to only those fields
     if fields_spec:
         fields = parse_columns_spec(fields_spec)
@@ -173,22 +168,14 @@ def associations_list_command(
     Requires authentication (run 'gamesheet-sdk-py login' first). Retrieves all
     associations accessible by your account and displays them in the specified
     output format.
-
     Examples:
         List all associations in default format:
-
             $ gamesheet-sdk-py associations list
-
         List associations in JSON format:
-
             $ gamesheet-sdk-py associations list --format json
-
         List associations with only id and title columns:
-
             $ gamesheet-sdk-py associations list --columns id,title
-
         Save associations to a YAML file:
-
             $ gamesheet-sdk-py associations list --format yaml --output assocs.yaml
     """
     config: Config = ctx.obj

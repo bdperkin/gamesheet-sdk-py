@@ -73,14 +73,12 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
     )
     if response.status_code == 401:
-
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
             "`gamesheet-sdk-py login` to refresh and try again.",
         )
         raise AuthenticationError(_err_msg)
     if response.status_code == 404:
-
         _err_msg = (
             f"No iPad keys found or invalid season ID '{season_id}' (HTTP 404). "
             f"Make sure you're using a valid season ID, not a league ID. "
@@ -88,7 +86,6 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
         )
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-
         _err_msg = (f"GET {_ENDPOINT} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()

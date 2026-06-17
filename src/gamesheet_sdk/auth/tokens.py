@@ -1,18 +1,14 @@
 """Token loading, saving, and refreshing.
 
 This module provides functions for managing GameSheet authentication tokens:
-
 - Loading access and refresh tokens from browser storage state
 - Saving updated tokens back to persistent storage
 - Refreshing expired access tokens using refresh tokens
-
 The token storage mechanism uses a browser storage state file (JSON) that
 mirrors the structure of Playwright's persistent context storage. This allows
 tokens to be shared between headless browser sessions and direct HTTP sessions.
-
 Example:
     Load existing tokens and refresh if needed::
-
         from gamesheet_sdk.config import Config
         from gamesheet_sdk.auth.tokens import (
             load_access_token,
@@ -20,11 +16,9 @@ Example:
             refresh_access_token,
             save_tokens,
         )
-
         config = Config()
         access = load_access_token(config)
         refresh = load_refresh_token(config)
-
         if access is None and refresh is not None:
             # Refresh the access token
             tokens = refresh_access_token(refresh)
@@ -54,7 +48,6 @@ from gamesheet_sdk.auth.storage import (
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
 if TYPE_CHECKING:
-
     from gamesheet_sdk.config import Config
 _LOGGER = logging.getLogger(__name__)
 
@@ -66,17 +59,13 @@ def load_access_token(config: Config) -> str | None:
     origin (``Config.base_url``), or None if the storage state file is missing,
     unreadable, or does not contain a token. The access token is used for
     authenticating API requests and typically has a short lifetime (10 minutes).
-
     :param config: Configuration object containing the base URL and browser state path.
     :type config: Config
     :returns: The access token string if found, otherwise None.
     :rtype: str | None
-
     Example::
-
         from gamesheet_sdk.auth.tokens import load_access_token
         from gamesheet_sdk.config import Config
-
         config = Config()
         token = load_access_token(config)
         if token:
@@ -105,7 +94,6 @@ def build_token_updates(
     Creates a dictionary mapping localStorage keys to token values, including
     only the tokens that were provided (non-None). This is used internally by
     :func:`save_tokens` to prepare the updates for browser storage.
-
     :param access: The access token to store (required).
     :type access: str
     :param refresh: The refresh token to store, or None to skip.
@@ -115,7 +103,6 @@ def build_token_updates(
     :returns: Dictionary mapping localStorage keys (``accessToken``, ``refreshToken``, ``rolesToken``) to
         their values.
     :rtype: dict[str, str]
-
     Example:
         >>> updates = build_token_updates(
         ...     access="access_token_value",
@@ -127,10 +114,8 @@ def build_token_updates(
     """
     updates: dict[str, str] = {"accessToken": access}
     if refresh is not None:
-
         updates["refreshToken"] = refresh
     if roles is not None:
-
         updates["rolesToken"] = roles
     return updates
 
@@ -150,7 +135,6 @@ def save_tokens(
     that were passed are written; unspecified ones are left alone. Both
     :class:`~gamesheet_sdk.browser.BrowserSession` and direct token loading
     use this same storage format, making them mutually compatible.
-
     :param config: Configuration object containing the base URL and browser state path where tokens will be
         saved.
     :type config: Config
@@ -162,13 +146,10 @@ def save_tokens(
     :type roles: str | None
     :returns: None
     :rtype: None
-
     Example:
         Save tokens after a successful refresh::
-
             from gamesheet_sdk.config import Config
             from gamesheet_sdk.auth.tokens import save_tokens
-
             config = Config()
             save_tokens(
                 config,
@@ -199,12 +180,10 @@ def refresh_access_token(
     POSTs to :data:`REFRESH_URL` with ``Authorization: Bearer <refresh_token>``
     and an empty JSON body. The gateway returns a new access token (10-min TTL),
     a new refresh token (long TTL, replaces the one you sent), and a roles token.
-
     This is a standalone HTTP call that does not use a :class:`~requests.Session`,
     so it can be used from inside
     :class:`~gamesheet_sdk.session.AuthenticatedSession`'s retry path without
     recursing.
-
     :param refresh_token: The refresh token to exchange for new tokens.
     :type refresh_token: str
     :param user_agent: Optional User-Agent header value for the request.
@@ -218,20 +197,16 @@ def refresh_access_token(
     :raises AuthenticationError: If the refresh token is rejected (HTTP 401). This typically means the token
         has expired and the user needs to re-authenticate via ``gamesheet-sdk-py login``.
     :raises GameSheetError: For any other non-2xx HTTP response from the token refresh endpoint.
-
     Example:
         Refresh an expired access token::
-
             from gamesheet_sdk.auth.tokens import (
                 load_refresh_token,
                 refresh_access_token,
                 save_tokens,
             )
             from gamesheet_sdk.config import Config
-
             config = Config()
             refresh = load_refresh_token(config)
-
             if refresh:
                 try:
                     tokens = refresh_access_token(refresh)
@@ -249,15 +224,12 @@ def refresh_access_token(
         "Content-Type": "application/json",
     }
     if user_agent is not None:
-
         headers["User-Agent"] = user_agent
     response = requests.post(REFRESH_URL, json={}, headers=headers, timeout=timeout)
     if response.status_code == 401:
-
         _err_msg = "Refresh token rejected. Run `gamesheet-sdk-py login` to re-authenticate."
         raise AuthenticationError(_err_msg)
     if response.status_code >= 400:
-
         _err_msg = f"Token refresh failed: HTTP {response.status_code}: {response.text[:200]!r}"
         raise GameSheetError(_err_msg)
     body = response.json()

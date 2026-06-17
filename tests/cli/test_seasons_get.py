@@ -9,7 +9,6 @@ from gamesheet_sdk.cli import cli
 from gamesheet_sdk.seasons import SeasonDetail
 
 if TYPE_CHECKING:
-
     from click.testing import CliRunner
 
 
@@ -99,7 +98,10 @@ def test_seasons_get_json_output(runner: CliRunner) -> None:
             created_at="2024-01-01T00:00:00Z",
             updated_at="2024-01-01T00:00:00Z",
         )
-        result = runner.invoke(cli, ["seasons", "get", "--season-id", "15020", "--format", "json"])
+        result = runner.invoke(
+            cli,
+            ["seasons", "get", "--season-id", "15020", "--format", "json"],
+        )
         assert not result.exit_code
         assert '"id": "15020"' in result.output
         assert '"title": "Test Season 2026"' in result.output
@@ -129,7 +131,10 @@ def test_seasons_get_yaml_output(runner: CliRunner) -> None:
             created_at="2024-01-01T00:00:00Z",
             updated_at="2024-01-01T00:00:00Z",
         )
-        result = runner.invoke(cli, ["seasons", "get", "--season-id", "15020", "--format", "yaml"])
+        result = runner.invoke(
+            cli,
+            ["seasons", "get", "--season-id", "15020", "--format", "yaml"],
+        )
         assert not result.exit_code
         assert "id:" in result.output or "id :" in result.output
         assert "Test Season" in result.output
@@ -158,7 +163,10 @@ def test_seasons_get_fields_filter(runner: CliRunner) -> None:
             created_at="2024-01-01T00:00:00Z",
             updated_at="2024-01-01T00:00:00Z",
         )
-        result = runner.invoke(cli, ["seasons", "get", "--season-id", "15020", "--fields", "id,title,sport"])
+        result = runner.invoke(
+            cli,
+            ["seasons", "get", "--season-id", "15020", "--fields", "id,title,sport"],
+        )
         assert not result.exit_code
         assert "15020" in result.output
         assert "Test Season" in result.output
@@ -190,7 +198,16 @@ def test_seasons_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
         )
         result = runner.invoke(
             cli,
-            ["seasons", "get", "--season-id", "15020", "--format", "json", "--output", str(output_file)],
+            [
+                "seasons",
+                "get",
+                "--season-id",
+                "15020",
+                "--format",
+                "json",
+                "--output",
+                str(output_file),
+            ],
         )
         assert not result.exit_code
         assert output_file.exists()
@@ -221,7 +238,10 @@ def test_seasons_get_table_format(runner: CliRunner) -> None:
             created_at="2024-01-01T00:00:00Z",
             updated_at="2024-01-01T00:00:00Z",
         )
-        result = runner.invoke(cli, ["seasons", "get", "--season-id", "15020", "--format", "simple"])
+        result = runner.invoke(
+            cli,
+            ["seasons", "get", "--season-id", "15020", "--format", "simple"],
+        )
         assert not result.exit_code
         # Should have field and value columns
         assert "field" in result.output.lower() or "15020" in result.output
@@ -251,7 +271,10 @@ def test_seasons_get_grid_format(runner: CliRunner) -> None:
             created_at="2024-01-01T00:00:00Z",
             updated_at="2024-01-01T00:00:00Z",
         )
-        result = runner.invoke(cli, ["seasons", "get", "--season-id", "15020", "--format", "grid"])
+        result = runner.invoke(
+            cli,
+            ["seasons", "get", "--season-id", "15020", "--format", "grid"],
+        )
         assert not result.exit_code
         # Grid format should have borders
         assert "+" in result.output or "|" in result.output
@@ -291,6 +314,10 @@ def test_seasons_get_with_env_var(runner: CliRunner) -> None:
             created_at="2024-01-01T00:00:00Z",
             updated_at="2024-01-01T00:00:00Z",
         )
-        result = runner.invoke(cli, ["seasons", "get"], env={"GAMESHEET_SEASON_ID": "15020"})
+        result = runner.invoke(
+            cli,
+            ["seasons", "get"],
+            env={"GAMESHEET_SEASON_ID": "15020"},
+        )
         assert not result.exit_code
         mock_get.assert_called_once()

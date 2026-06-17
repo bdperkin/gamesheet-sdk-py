@@ -59,7 +59,10 @@ class SeasonDetail(BaseModel):
         default=None,
         description="Live scoring visibility mode (e.g., 'public', 'private').",
     )
-    player_of_the_game: str | None = Field(default=None, description="Player of the game configuration.")
+    player_of_the_game: str | None = Field(
+        default=None,
+        description="Player of the game configuration.",
+    )
     flagging_criteria: dict[str, Any] = Field(
         default_factory=dict,
         description="Criteria for flagging events (e.g., penalties, notes).",
@@ -72,7 +75,10 @@ class SeasonDetail(BaseModel):
         default_factory=dict,
         description="Season-specific settings and configuration.",
     )
-    vendor_data: dict[str, Any] = Field(default_factory=dict, description="Vendor-specific metadata.")
+    vendor_data: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Vendor-specific metadata.",
+    )
     created_at: datetime = Field(description="When the season was created.")
     updated_at: datetime = Field(description="Last time the season was updated.")
 
@@ -148,14 +154,12 @@ def _list_seasons_bff(
     url = f"{BFF_API_BASE_URL}/leagues/{league_id}/seasons"
     response = session.get(url, params=params)
     if response.status_code == 401:
-
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
             "`gamesheet-sdk-py login` to refresh and try again.",
         )
         raise AuthenticationError(_err_msg)
     if response.status_code == 404:
-
         _err_msg = (
             f"League '{league_id}' not found (HTTP 404). "
             f"Make sure you're using a valid league ID. "
@@ -163,12 +167,10 @@ def _list_seasons_bff(
         )
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-
         _err_msg = (f"GET {url} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
     if body.get("status") != "success":
-
         _err_msg = (f"BFF API returned non-success status: {body.get('status')}",)
         raise GameSheetError(_err_msg)
     data = body.get("data", [])
@@ -224,14 +226,12 @@ def list_seasons(
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
     )
     if response.status_code == 401:
-
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
             "`gamesheet-sdk-py login` to refresh and try again.",
         )
         raise AuthenticationError(_err_msg)
     if response.status_code >= 400:
-
         _err_msg = (f"GET {_ENDPOINT} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
@@ -258,14 +258,12 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
     )
     if response.status_code == 401:
-
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
             "`gamesheet-sdk-py login` to refresh and try again.",
         )
         raise AuthenticationError(_err_msg)
     if response.status_code == 404:
-
         _err_msg = (
             f"Season '{season_id}' not found (HTTP 404). "
             f"Make sure you're using a valid season ID, not a league ID. "
@@ -273,7 +271,6 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
         )
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-
         _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()

@@ -69,7 +69,12 @@ def _mock_update_response(**updates: str | None) -> dict[str, Any]:
             "attributes": attrs,
             "relationships": {
                 "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
-                "division": {"data": {"type": "divisions", "id": updates.get("division_id", "80385")}},
+                "division": {
+                    "data": {
+                        "type": "divisions",
+                        "id": updates.get("division_id", "80385"),
+                    },
+                },
             },
         },
     }
@@ -77,7 +82,6 @@ def _mock_update_response(**updates: str | None) -> dict[str, Any]:
 
 @responses.activate
 def test_update_team_title_only(config: Config) -> None:
-
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
     responses.add(
         responses.PATCH,
@@ -85,13 +89,11 @@ def test_update_team_title_only(config: Config) -> None:
         json=_mock_update_response(title="Updated Team Name"),
         status=200,
     )
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = update_team(session, _SEASON_ID, _TEAM_ID, title="Updated Team Name")
     assert result.title == "Updated Team Name"
     assert result.id == _TEAM_ID
-
     # Verify the update request payload
     import json
 
@@ -105,7 +107,6 @@ def test_update_team_title_only(config: Config) -> None:
 
 @responses.activate
 def test_update_team_division_id_only(config: Config) -> None:
-
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
     responses.add(
         responses.PATCH,
@@ -113,12 +114,10 @@ def test_update_team_division_id_only(config: Config) -> None:
         json=_mock_update_response(division_id="99999"),
         status=200,
     )
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = update_team(session, _SEASON_ID, _TEAM_ID, division_id="99999")
     assert result.division_id == "99999"
-
     # Verify division_id in payload
     import json
 
@@ -131,7 +130,6 @@ def test_update_team_division_id_only(config: Config) -> None:
 
 @responses.activate
 def test_update_team_external_id_only(config: Config) -> None:
-
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
     responses.add(
         responses.PATCH,
@@ -139,12 +137,10 @@ def test_update_team_external_id_only(config: Config) -> None:
         json=_mock_update_response(external_id="new-ext-id"),
         status=200,
     )
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = update_team(session, _SEASON_ID, _TEAM_ID, external_id="new-ext-id")
     assert result.id == _TEAM_ID
-
     # Verify external_id in payload
     import json
 
@@ -156,7 +152,6 @@ def test_update_team_external_id_only(config: Config) -> None:
 
 @responses.activate
 def test_update_team_multiple_fields(config: Config) -> None:
-
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
     responses.add(
         responses.PATCH,
@@ -168,7 +163,6 @@ def test_update_team_multiple_fields(config: Config) -> None:
         ),
         status=200,
     )
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = update_team(
@@ -181,7 +175,6 @@ def test_update_team_multiple_fields(config: Config) -> None:
         )
     assert result.title == "New Title"
     assert result.division_id == "88888"
-
     # Verify all fields in payload
     import json
 
@@ -199,10 +192,8 @@ def test_update_team_with_logo(config: Config) -> None:
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
         logo_path = f.name
-
     try:
         responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
-
         # Mock upload URL request
         responses.add(
             responses.POST,
@@ -216,7 +207,6 @@ def test_update_team_with_logo(config: Config) -> None:
             },
             status=200,
         )
-
         # Mock image upload
         responses.add(
             responses.POST,
@@ -230,7 +220,6 @@ def test_update_team_with_logo(config: Config) -> None:
             },
             status=200,
         )
-
         # Mock team update
         new_logo_url = f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/new-image-id"
         responses.add(
@@ -239,16 +228,12 @@ def test_update_team_with_logo(config: Config) -> None:
             json=_mock_update_response(logo_url=new_logo_url),
             status=200,
         )
-
         with Session(config) as session:
             session.set_bearer_token("abc")
             result = update_team(session, _SEASON_ID, _TEAM_ID, logo_path=logo_path)
-
         assert result.logo == new_logo_url
-
         # Verify all requests were made
         assert len(responses.calls) == 4  # GET + upload-url + upload + POST
-
         # Verify team update payload includes logo
         import json
 
@@ -256,7 +241,6 @@ def test_update_team_with_logo(config: Config) -> None:
         assert team_req.body is not None
         payload = json.loads(team_req.body)
         assert payload["data"]["attributes"]["logo_url"] == new_logo_url
-
     finally:
         Path(logo_path).unlink()
 
@@ -264,16 +248,18 @@ def test_update_team_with_logo(config: Config) -> None:
 @responses.activate
 def test_update_team_remove_logo(config: Config) -> None:
     delete_logo_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}/logo"
-
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
-    responses.add(responses.PATCH, _UPDATE_ENDPOINT, json=_mock_update_response(logo_url=None), status=200)
+    responses.add(
+        responses.PATCH,
+        _UPDATE_ENDPOINT,
+        json=_mock_update_response(logo_url=None),
+        status=200,
+    )
     responses.add(responses.DELETE, delete_logo_endpoint, status=204)
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = update_team(session, _SEASON_ID, _TEAM_ID, remove_logo=True)
     assert result.logo is None
-
     # Verify logo is set to empty string in payload and DELETE was called
     import json
 
@@ -286,9 +272,12 @@ def test_update_team_remove_logo(config: Config) -> None:
 
 @responses.activate
 def test_update_team_get_401_raises_authentication_error(config: Config) -> None:
-
-    responses.add(responses.GET, _GET_ENDPOINT, json={"errors": [{"detail": "Token expired"}]}, status=401)
-
+    responses.add(
+        responses.GET,
+        _GET_ENDPOINT,
+        json={"errors": [{"detail": "Token expired"}]},
+        status=401,
+    )
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
@@ -297,9 +286,7 @@ def test_update_team_get_401_raises_authentication_error(config: Config) -> None
 
 @responses.activate
 def test_update_team_get_404_raises_gamesheet_error(config: Config) -> None:
-
     responses.add(responses.GET, _GET_ENDPOINT, status=404, body="Not found")
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(
@@ -311,9 +298,7 @@ def test_update_team_get_404_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_update_team_get_500_raises_gamesheet_error(config: Config) -> None:
-
     responses.add(responses.GET, _GET_ENDPOINT, status=500, body="Internal error")
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
@@ -322,7 +307,6 @@ def test_update_team_get_500_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_update_team_post_401_raises_authentication_error(config: Config) -> None:
-
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
     responses.add(
         responses.PATCH,
@@ -330,7 +314,6 @@ def test_update_team_post_401_raises_authentication_error(config: Config) -> Non
         json={"errors": [{"detail": "Token expired"}]},
         status=401,
     )
-
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
@@ -339,10 +322,8 @@ def test_update_team_post_401_raises_authentication_error(config: Config) -> Non
 
 @responses.activate
 def test_update_team_post_404_raises_gamesheet_error(config: Config) -> None:
-
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
     responses.add(responses.PATCH, _UPDATE_ENDPOINT, status=404, body="Not found")
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match=r"Team '.*' not found"):
@@ -351,10 +332,8 @@ def test_update_team_post_404_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_update_team_other_failure_raises_gamesheet_error(config: Config) -> None:
-
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
     responses.add(responses.PATCH, _UPDATE_ENDPOINT, status=500, body="boom")
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
@@ -362,24 +341,33 @@ def test_update_team_other_failure_raises_gamesheet_error(config: Config) -> Non
 
 
 def test_update_team_no_fields_raises_value_error(config: Config) -> None:
-
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(ValueError, match="At least one field must be provided"):
             update_team(session, _SEASON_ID, _TEAM_ID)
 
 
-def test_update_team_both_logo_and_remove_logo_raises_value_error(config: Config) -> None:
+def test_update_team_both_logo_and_remove_logo_raises_value_error(
+    config: Config,
+) -> None:
     # Create a temporary image file
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
         logo_path = f.name
-
     try:
         with Session(config) as session:
             session.set_bearer_token("abc")
-            with pytest.raises(ValueError, match="Cannot both upload a logo and remove it"):
-                update_team(session, _SEASON_ID, _TEAM_ID, logo_path=logo_path, remove_logo=True)
+            with pytest.raises(
+                ValueError,
+                match="Cannot both upload a logo and remove it",
+            ):
+                update_team(
+                    session,
+                    _SEASON_ID,
+                    _TEAM_ID,
+                    logo_path=logo_path,
+                    remove_logo=True,
+                )
     finally:
         Path(logo_path).unlink()
 
@@ -387,11 +375,19 @@ def test_update_team_both_logo_and_remove_logo_raises_value_error(config: Config
 @responses.activate
 def test_update_team_delete_logo_failure_raises_gamesheet_error(config: Config) -> None:
     delete_logo_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}/logo"
-
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
-    responses.add(responses.PATCH, _UPDATE_ENDPOINT, json=_mock_update_response(logo_url=None), status=200)
-    responses.add(responses.DELETE, delete_logo_endpoint, status=500, body="Server error")
-
+    responses.add(
+        responses.PATCH,
+        _UPDATE_ENDPOINT,
+        json=_mock_update_response(logo_url=None),
+        status=200,
+    )
+    responses.add(
+        responses.DELETE,
+        delete_logo_endpoint,
+        status=500,
+        body="Server error",
+    )
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="DELETE.*HTTP 500"):
