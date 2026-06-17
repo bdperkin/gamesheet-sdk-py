@@ -109,7 +109,7 @@ def test_list_leagues_404_raises_helpful_gamesheet_error(
         session.set_bearer_token("abc")
         with pytest.raises(
             GameSheetError,
-            match=r"Association '.*' not found.*valid association ID.*associations list",
+            match=r"Resource not found \(HTTP 404\)",
         ):
             list_leagues(session, _ASSOCIATION_ID)
 

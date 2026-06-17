@@ -32,12 +32,12 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
-from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.shared import JSONAPI_HEADERS, handle_response, parse_jsonapi_resource
 
 if TYPE_CHECKING:
     from gamesheet_sdk.session import Session
+
 _ENDPOINT = "/api/associations"
-_JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
 
 
 class Association(BaseModel):
@@ -65,7 +65,7 @@ def _parse(item: dict[str, Any]) -> Association:
     :param item: A JSON:API resource object with ``id`` and ``attributes`` keys.
     :returns: An :class:`Association` instance with flattened fields.
     """
-    return Association(id=item["id"], **item.get("attributes", {}))
+    return Association(**parse_jsonapi_resource(item))
 
 
 def get_association(session: Session, association_id: str) -> Association:
@@ -84,25 +84,8 @@ def get_association(session: Session, association_id: str) -> Association:
     :raises GameSheetError: For any other non-2xx response, including 404 if the association is not found.
     """
     endpoint = f"{_ENDPOINT}/{association_id}"
-    response = session.get(
-        endpoint,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
-    )
-    if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if response.status_code == 404:
-        _err_msg = (
-            f"Association '{association_id}' not found (HTTP 404). "
-            f"Make sure you're using a valid association ID.",
-        )
-        raise GameSheetError(_err_msg)
-    if response.status_code >= 400:
-        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
-        raise GameSheetError(_err_msg)
+    response = session.get(endpoint, headers=JSONAPI_HEADERS)
+    handle_response(response, endpoint, "GET association")
     body: dict[str, Any] = response.json()
     return _parse(body["data"])
 
@@ -119,18 +102,7 @@ def list_associations(session: Session) -> list[Association]:
         run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response.
     """
-    response = session.get(
-        _ENDPOINT,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
-    )
-    if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if response.status_code >= 400:
-        _err_msg = (f"GET {_ENDPOINT} returned HTTP {response.status_code}: {response.text[:200]!r}",)
-        raise GameSheetError(_err_msg)
+    response = session.get(_ENDPOINT, headers=JSONAPI_HEADERS)
+    handle_response(response, _ENDPOINT, "GET associations")
     body: dict[str, Any] = response.json()
     return [_parse(item) for item in body.get("data", [])]
