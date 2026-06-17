@@ -21,8 +21,7 @@ def test_divisions_teams_get_coverage() -> None:
             "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
             return_value=MagicMock(model_dump=lambda **_: {"id": "1", "title": "Team 1"}),
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render", return_value=""),
-        patch("gamesheet_sdk.cli.commands.divisions.write_output"),
+        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
     ):
         # Test JSON format
         result = runner.invoke(
@@ -65,8 +64,7 @@ def test_divisions_teams_create_coverage() -> None:
             "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
             side_effect=run_action_side_effect,
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render", return_value=""),
-        patch("gamesheet_sdk.cli.commands.divisions.write_output"),
+        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
         patch("gamesheet_sdk.cli.commands.divisions.click.secho"),
     ):
         # Test JSON format
@@ -147,8 +145,7 @@ def test_divisions_teams_update_coverage() -> None:
             "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
             side_effect=run_action_side_effect,
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render", return_value=""),
-        patch("gamesheet_sdk.cli.commands.divisions.write_output"),
+        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
     ):
         result = runner.invoke(
             divisions_group,

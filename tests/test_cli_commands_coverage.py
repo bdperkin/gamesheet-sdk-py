@@ -127,10 +127,7 @@ def test_divisions_list_coverage() -> None:
             "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
             return_value=[],
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render", return_value=""),
-        patch(
-            "gamesheet_sdk.cli.commands.divisions.write_output",
-        ),
+        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
     ):
         result = runner.invoke(
             divisions_group,
@@ -149,10 +146,7 @@ def test_divisions_teams_coverage() -> None:
             "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
             return_value=[],
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render", return_value=""),
-        patch(
-            "gamesheet_sdk.cli.commands.divisions.write_output",
-        ),
+        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
     ):
         result = runner.invoke(
             divisions_group,
@@ -184,8 +178,7 @@ def test_divisions_create_coverage() -> None:
             "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
             side_effect=mock_run_action,
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render", return_value=""),
-        patch("gamesheet_sdk.cli.commands.divisions.write_output"),
+        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
         patch("gamesheet_sdk.cli.commands.divisions.click.secho") as mock_secho,
     ):
         result = runner.invoke(
@@ -277,8 +270,7 @@ def test_divisions_update_coverage() -> None:
             "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
             side_effect=mock_run_action,
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render", return_value=""),
-        patch("gamesheet_sdk.cli.commands.divisions.write_output"),
+        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
         patch("gamesheet_sdk.cli.commands.divisions.click.secho") as mock_secho,
     ):
         result = runner.invoke(
