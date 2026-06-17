@@ -156,7 +156,7 @@ def test_divisions_list_coverage() -> None:
 
 
 def test_divisions_teams_coverage() -> None:
-    """Ensure divisions teams command body is covered."""
+    """Ensure divisions teams list command body is covered."""
     runner = CliRunner()
     with (
         patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
@@ -171,7 +171,7 @@ def test_divisions_teams_coverage() -> None:
     ):
         result = runner.invoke(
             divisions_group,
-            ["teams", "--division-id", "701", "-F", "json"],
+            ["teams", "list", "--division-id", "701", "-F", "json"],
             obj=MagicMock(),
         )
         assert not result.exit_code

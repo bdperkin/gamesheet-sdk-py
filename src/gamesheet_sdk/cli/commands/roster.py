@@ -58,6 +58,9 @@ def roster_group(ctx: Context, season_id: str) -> None:
     "players",
     cls=ResourceGroup,
     default="list",
+    aliases={
+        "list": ("ls",),
+    },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def players_group() -> None:
@@ -258,6 +261,9 @@ def players_penalty_report_command() -> None:
     "coaches",
     cls=ResourceGroup,
     default="list",
+    aliases={
+        "list": ("ls",),
+    },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def coaches_group() -> None:

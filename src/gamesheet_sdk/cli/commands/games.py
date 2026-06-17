@@ -128,6 +128,9 @@ def games_get_command(
     "scheduled",
     cls=ResourceGroup,
     default="list",
+    aliases={
+        "list": ("ls",),
+    },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def scheduled_group() -> None:
@@ -290,6 +293,9 @@ def scheduled_delete_command() -> None:
     "completed",
     cls=ResourceGroup,
     default="list",
+    aliases={
+        "list": ("ls",),
+    },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def completed_group() -> None:
