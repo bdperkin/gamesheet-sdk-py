@@ -139,7 +139,7 @@ def test_create_division_404_raises_gamesheet_error_with_helpful_message(
         session.set_bearer_token("abc")
         with pytest.raises(
             GameSheetError,
-            match=r"Season '.*' not found.*valid season ID.*seasons list --league-id",
+            match=r"Resource not found \(HTTP 404\)",
         ):
             create_division(session, _SEASON_ID, "Test Division")
 

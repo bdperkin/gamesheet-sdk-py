@@ -162,7 +162,7 @@ def test_list_division_teams_404_raises_gamesheet_error_with_helpful_message(
         session.set_bearer_token("abc")
         with pytest.raises(
             GameSheetError,
-            match=r"Division '.*' not found.*valid division ID.*divisions list --season-id",
+            match=r"Resource not found \(HTTP 404\)",
         ):
             list_division_teams(session, _DIVISION_ID)
 

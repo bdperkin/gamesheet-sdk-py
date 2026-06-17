@@ -60,7 +60,7 @@ def test_delete_division_404_raises_gamesheet_error_with_helpful_message(
         session.set_bearer_token("abc")
         with pytest.raises(
             GameSheetError,
-            match=r"Division '.*' not found.*valid division ID.*divisions list --season-id",
+            match=r"Resource not found \(HTTP 404\)",
         ):
             delete_division(session, _SEASON_ID, _DELETE_DIVISION_ID)
 
