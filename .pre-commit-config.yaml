@@ -320,7 +320,6 @@ repos:
     hooks:
       - id: pyrefly-check # pyrefly check
         files: ^src/
-        exclude: tests/helpers  # Exclude test helpers that import from tests package
         additional_dependencies:
           - gamesheet-sdk-py[pyrefly,pytest]
           - rich-click
