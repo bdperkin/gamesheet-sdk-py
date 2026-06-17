@@ -2,6 +2,81 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.48 (2026-06-17)
+
+### Bug Fixes
+
+- **cli**: Remove aliases from all nested command groups ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+- **cli**: Remove aliases from nested command groups ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+- **config**: Configure pyrefly and pyright to resolve test helper imports ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+- **pre-commit**: Exclude tests/helpers from name-tests-test hook ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+- **refactor**: Complete roster.py refactoring and update test expectations ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+- **tests**: Achieve 100% code coverage ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+- **tests**: Add coverage for new CLI commands and fix alias tests ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+- **tests**: Resolve flake8 and pylint linting errors ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+### Chores
+
+- Apply auto-formatting and rename http.py to gamesheet_http.py ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+### Features
+
+- Comprehensive codebase modularization and refactoring ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+- **cli**: Add comprehensive CLI command structure ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+- **cli**: Add shared CLI utilities for decorators and rendering ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+- **tests**: Add shared test helper utilities ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+### Refactoring
+
+- **cli**: Apply shared utilities to associations and leagues commands ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+- **cli**: Apply shared utilities to seasons commands ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+- **domain**: Apply shared utilities to divisions module ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+- **domain**: Apply shared utilities to games module ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+- **domain**: Apply shared utilities to roster module ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+- **domain**: Extract shared utilities for HTTP and JSON:API handling ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+- **tests**: Use shared test helpers in test_associations.py ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
+### Testing
+
+- **cli**: Add comprehensive tests for CLI shared utilities ([#109](https://github.com/bdperkin/gamesheet-sdk-py/pull/109),
+  [`03e5def`](https://github.com/bdperkin/gamesheet-sdk-py/commit/03e5defbd800140b311032785f33f6df7df3138f))
+
 ## v0.1.47 (2026-06-17)
 
 ### Build System
