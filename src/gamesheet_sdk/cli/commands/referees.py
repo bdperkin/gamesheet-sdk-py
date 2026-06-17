@@ -2,22 +2,26 @@
 
 from __future__ import annotations
 
-import rich_click as click
-from rich_click import Choice, Context, Path
+from typing import TYPE_CHECKING
 
-from gamesheet_sdk.cli.core import (
-    ResourceGroup,
-    confirm_destructive,
-    parse_columns_spec,
-)
+import rich_click as click
+
+from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
+from gamesheet_sdk.cli.shared import (
+    common_output_options,
+    list_columns_option,
+    render_list_command,
+)
 from gamesheet_sdk.config import Config
-from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
 from gamesheet_sdk.referees import create_referee as _create_referee_action
 from gamesheet_sdk.referees import delete_referee as _delete_referee_action
 from gamesheet_sdk.referees import get_referee as _get_referee_action
 from gamesheet_sdk.referees import get_referee_report as _get_referee_report_action
 from gamesheet_sdk.referees import list_referees as _list_referees_action
+
+if TYPE_CHECKING:
+    from rich_click import Context
 from gamesheet_sdk.referees import update_referee as _update_referee_action
 
 
@@ -55,28 +59,7 @@ def referees_group() -> None:
     required=True,
     help="Referee ID to retrieve.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
+@common_output_options
 @click.pass_context
 def referees_get_command(
     ctx: Context,
@@ -92,8 +75,7 @@ def referees_get_command(
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
     referee = run_action_or_exit(session, _get_referee_action, season_id, referee_id)
-    rendered = render([referee.model_dump(mode="json")], fmt=output_format)
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command([referee], output_format, output_path)
 
 
 @referees_group.command("report")
@@ -110,28 +92,7 @@ def referees_get_command(
     required=True,
     help="Referee ID to retrieve report for.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
+@common_output_options
 @click.pass_context
 def referees_report_command(
     ctx: Context,
@@ -153,8 +114,7 @@ def referees_report_command(
         season_id,
         referee_id,
     )
-    rendered = render([report.model_dump(mode="json")], fmt=output_format)
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command([report], output_format, output_path)
 
 
 @referees_group.command("create")
@@ -189,28 +149,7 @@ def referees_report_command(
     default=None,
     help="Optional external identifier for the referee.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
+@common_output_options
 @click.pass_context
 # pylint: disable-next=too-many-positional-arguments
 def referees_create_command(
@@ -238,8 +177,7 @@ def referees_create_command(
         email_address,
         external_id,
     )
-    rendered = render([referee.model_dump(mode="json")], fmt=output_format)
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command([referee], output_format, output_path)
 
 
 @referees_group.command("update")
@@ -280,28 +218,7 @@ def referees_create_command(
     default=None,
     help="Updated external identifier.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
+@common_output_options
 @click.pass_context
 # pylint: disable-next=too-many-positional-arguments
 def referees_update_command(
@@ -339,8 +256,7 @@ def referees_update_command(
         email_address,
         external_id,
     )
-    rendered = render([referee.model_dump(mode="json")], fmt=output_format)
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command([referee], output_format, output_path)
 
 
 @referees_group.command("delete")
@@ -382,35 +298,8 @@ def referees_delete_command(
     required=True,
     help="Season ID to list referees for.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--columns",
-    "-c",
-    "columns_spec",
-    default=None,
-    help=("Comma-separated list of column names to include (default: all columns the API returns)."),
-)
+@common_output_options
+@list_columns_option
 @click.pass_context
 def referees_list_command(
     ctx: Context,
@@ -426,6 +315,4 @@ def referees_list_command(
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
     referees = run_action_or_exit(session, _list_referees_action, season_id)
-    rows = [referee.model_dump(mode="json") for referee in referees]
-    rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command(referees, output_format, output_path, columns_spec)
