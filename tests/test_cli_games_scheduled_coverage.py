@@ -20,20 +20,11 @@ def test_games_scheduled_get_coverage() -> None:
                 model_dump=lambda **_: {"id": 123, "status": "scheduled", "date": "2024-01-01"},
             ),
         ),
-        patch("gamesheet_sdk.cli.commands.games.render", return_value=""),
-        patch("gamesheet_sdk.cli.commands.games.write_output"),
+        patch("gamesheet_sdk.cli.commands.games.render_get_command"),
     ):
-        # Test JSON format
         result = runner.invoke(
             games_group,
             ["--season-id", "100", "scheduled", "get", "--game-id", "123", "-F", "json"],
-            obj=MagicMock(),
-        )
-        assert not result.exit_code
-        # Test tabular format
-        result = runner.invoke(
-            games_group,
-            ["--season-id", "100", "scheduled", "get", "--game-id", "123", "-F", "plain"],
             obj=MagicMock(),
         )
         assert not result.exit_code

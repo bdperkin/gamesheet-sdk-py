@@ -31,10 +31,7 @@ def test_games_scheduled_list_coverage() -> None:
             "gamesheet_sdk.cli.commands.games.run_action_or_exit",
             return_value=[],
         ),
-        patch("gamesheet_sdk.cli.commands.games.render", return_value=""),
-        patch(
-            "gamesheet_sdk.cli.commands.games.write_output",
-        ),
+        patch("gamesheet_sdk.cli.commands.games.render_list_command"),
     ):
         # Invoke the command with a mocked context
         result = runner.invoke(
@@ -54,10 +51,7 @@ def test_games_completed_list_coverage() -> None:
             "gamesheet_sdk.cli.commands.games.run_action_or_exit",
             return_value=[],
         ),
-        patch("gamesheet_sdk.cli.commands.games.render", return_value=""),
-        patch(
-            "gamesheet_sdk.cli.commands.games.write_output",
-        ),
+        patch("gamesheet_sdk.cli.commands.games.render_list_command"),
     ):
         result = runner.invoke(
             completed_group,
@@ -76,10 +70,7 @@ def test_games_brackets_list_coverage() -> None:
             "gamesheet_sdk.cli.commands.games.run_action_or_exit",
             return_value=[],
         ),
-        patch("gamesheet_sdk.cli.commands.games.render", return_value=""),
-        patch(
-            "gamesheet_sdk.cli.commands.games.write_output",
-        ),
+        patch("gamesheet_sdk.cli.commands.games.render_list_command"),
     ):
         result = runner.invoke(
             brackets_group,
@@ -98,10 +89,7 @@ def test_roster_players_list_coverage() -> None:
             "gamesheet_sdk.cli.commands.roster.run_action_or_exit",
             return_value=[],
         ),
-        patch("gamesheet_sdk.cli.commands.roster.render", return_value=""),
-        patch(
-            "gamesheet_sdk.cli.commands.roster.write_output",
-        ),
+        patch("gamesheet_sdk.cli.commands.roster.render_list_command"),
     ):
         result = runner.invoke(
             players_group,
@@ -120,10 +108,7 @@ def test_roster_coaches_list_coverage() -> None:
             "gamesheet_sdk.cli.commands.roster.run_action_or_exit",
             return_value=[],
         ),
-        patch("gamesheet_sdk.cli.commands.roster.render", return_value=""),
-        patch(
-            "gamesheet_sdk.cli.commands.roster.write_output",
-        ),
+        patch("gamesheet_sdk.cli.commands.roster.render_list_command"),
     ):
         result = runner.invoke(
             coaches_group,
