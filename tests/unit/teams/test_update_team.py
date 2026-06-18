@@ -82,6 +82,7 @@ def _mock_update_response(**updates: str | None) -> dict[str, Any]:
 
 @responses.activate
 def test_update_team_title_only(config: Config) -> None:
+    """Update team with only title field."""
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
     responses.add(
         responses.PATCH,
@@ -107,6 +108,7 @@ def test_update_team_title_only(config: Config) -> None:
 
 @responses.activate
 def test_update_team_division_id_only(config: Config) -> None:
+    """Update team with only division_id field."""
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
     responses.add(
         responses.PATCH,
@@ -130,6 +132,7 @@ def test_update_team_division_id_only(config: Config) -> None:
 
 @responses.activate
 def test_update_team_external_id_only(config: Config) -> None:
+    """Update team with only external_id field."""
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
     responses.add(
         responses.PATCH,
@@ -152,6 +155,7 @@ def test_update_team_external_id_only(config: Config) -> None:
 
 @responses.activate
 def test_update_team_multiple_fields(config: Config) -> None:
+    """Update team with multiple fields simultaneously."""
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
     responses.add(
         responses.PATCH,
@@ -188,6 +192,7 @@ def test_update_team_multiple_fields(config: Config) -> None:
 
 @responses.activate
 def test_update_team_with_logo(config: Config) -> None:
+    """Update team with a new logo upload."""
     # Create a temporary image file
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
@@ -247,6 +252,7 @@ def test_update_team_with_logo(config: Config) -> None:
 
 @responses.activate
 def test_update_team_remove_logo(config: Config) -> None:
+    """Update team to remove its logo."""
     delete_logo_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}/logo"
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
     responses.add(
@@ -272,6 +278,7 @@ def test_update_team_remove_logo(config: Config) -> None:
 
 @responses.activate
 def test_update_team_get_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 on GET request raises AuthenticationError."""
     responses.add(
         responses.GET,
         _GET_ENDPOINT,
@@ -286,6 +293,7 @@ def test_update_team_get_401_raises_authentication_error(config: Config) -> None
 
 @responses.activate
 def test_update_team_get_404_raises_gamesheet_error(config: Config) -> None:
+    """Test that 404 on GET request raises GameSheetError."""
     responses.add(responses.GET, _GET_ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -298,6 +306,7 @@ def test_update_team_get_404_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_update_team_get_500_raises_gamesheet_error(config: Config) -> None:
+    """Test that 500 on GET request raises GameSheetError."""
     responses.add(responses.GET, _GET_ENDPOINT, status=500, body="Internal error")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -307,6 +316,7 @@ def test_update_team_get_500_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_update_team_post_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 on PATCH request raises AuthenticationError."""
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
     responses.add(
         responses.PATCH,
@@ -322,6 +332,7 @@ def test_update_team_post_401_raises_authentication_error(config: Config) -> Non
 
 @responses.activate
 def test_update_team_post_404_raises_gamesheet_error(config: Config) -> None:
+    """Test that 404 on PATCH request raises GameSheetError."""
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
     responses.add(responses.PATCH, _UPDATE_ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
@@ -332,6 +343,7 @@ def test_update_team_post_404_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_update_team_other_failure_raises_gamesheet_error(config: Config) -> None:
+    """Test that other HTTP errors on PATCH request raise GameSheetError."""
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
     responses.add(responses.PATCH, _UPDATE_ENDPOINT, status=500, body="boom")
     with Session(config) as session:
@@ -341,6 +353,7 @@ def test_update_team_other_failure_raises_gamesheet_error(config: Config) -> Non
 
 
 def test_update_team_no_fields_raises_value_error(config: Config) -> None:
+    """Test that calling update_team with no fields raises ValueError."""
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(ValueError, match="At least one field must be provided"):
@@ -350,6 +363,7 @@ def test_update_team_no_fields_raises_value_error(config: Config) -> None:
 def test_update_team_both_logo_and_remove_logo_raises_value_error(
     config: Config,
 ) -> None:
+    """Test that providing both logo_path and remove_logo raises ValueError."""
     # Create a temporary image file
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
@@ -374,6 +388,7 @@ def test_update_team_both_logo_and_remove_logo_raises_value_error(
 
 @responses.activate
 def test_update_team_delete_logo_failure_raises_gamesheet_error(config: Config) -> None:
+    """Test that failure on DELETE logo request raises GameSheetError."""
     delete_logo_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}/logo"
     responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
     responses.add(
