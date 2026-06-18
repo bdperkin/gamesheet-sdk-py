@@ -16,9 +16,10 @@ from __future__ import annotations
 
 import json
 import logging
+from collections.abc import Iterator
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _resolved_version
-from typing import TYPE_CHECKING, Any, Iterator
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urljoin
 
 import requests
