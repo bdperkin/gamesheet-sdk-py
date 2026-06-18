@@ -5,6 +5,9 @@
 # Fast, local checks that run automatically before every git commit command
 # See https://pre-commit.com for details
 
+# ==============================================================================
+# Pre-commit.ci Service Configuration
+# ==============================================================================
 # Configuration for https://pre-commit.ci
 # Automates pre-commit hook version updates via GitHub integration
 ci:
@@ -20,33 +23,56 @@ ci:
   autofix_commit_msg: "style: Auto-fixes from pre-commit.ci"
   autofix_prs: true
 
-  # Skip certain hooks in CI (if needed). Skipped hooks still run in
-  # GitHub Actions, where there is no 250 MiB tier limit on hook envs
-  # and `python -m venv` works:
-  # - pyright: deps don't fit pre-commit.ci's tier
-  # - flake8: [flake8-plugins] (fastapi, flake8-django, …)
-  #   exceeds 250 MiB
-  # - pyroma: introspects via `python -m build`, which calls
-  #   `python -m venv`; pre-commit.ci's bundled Python lacks
-  #   `ensurepip`, so the build env can't bootstrap pip
+  # Skip certain hooks on pre-commit.ci (they still run in GitHub Actions).
+  # Reasons for skipping:
+  # - editorconfig-checker: System binary dependency issues
+  # - mdformat: Size constraints on pre-commit.ci
+  # - pyroma: Requires `python -m venv` (unavailable on pre-commit.ci)
+  # - deptry/yesqa/flake8/pylint/pyrefly-check: Combined deps exceed 250 MiB tier limit
+  # - pyright: Dependencies don't fit pre-commit.ci's tier
+  # - mypy: Large dependency footprint
   skip:
-    - pyright
-    - flake8
-    - pyroma
+    - editorconfig-checker # Check .editorconfig rules
+    - editorconfig-checker-system # Check .editorconfig rules
+    - mdformat # mdformat
+    - pyroma # Check package with Pyroma
+    - deptry # deptry
+    - yesqa # Strip unnecessary `# noqa`s
+    - flake8 # flake8
+    - pylint # pylint
+    - pyrefly-check # pyrefly check
+    - pyright # pyright
+    - mypy # mypy
 
-  # Require all hooks to pass before autoupdate
+  # Require all hooks to pass before autoupdate.
   # Empty string = create PR for review (recommended)
   # Setting to 'main' would auto-merge (NOT recommended)
+  # Autoupdates land as PRs for manual review, not auto-merges.
   autoupdate_branch: ""
 
+# ==============================================================================
+# Global Defaults
+# ==============================================================================
+
+# Default Python version for all hooks (matches minimum supported version)
 default_language_version:
   python: python3.11
 
+# Run hooks on both pre-commit and pre-push by default
 default_stages:
   - pre-commit
   - pre-push
 
+# Stop on first failure (faster feedback loop)
 fail_fast: true
+
+# ==============================================================================
+# Hook Repositories
+# ==============================================================================
+# NOTE: Many hooks use `additional_dependencies: [gamesheet-sdk-py[<extras>]]`
+# to pull runtime deps into the isolated hook venv. This pattern consolidates
+# all tool dependencies in pyproject.toml's optional-dependencies groups as
+# the single source of truth.
 
 repos:
   # ------------------------------------------------------------------------------
@@ -54,9 +80,9 @@ repos:
   # ------------------------------------------------------------------------------
   - repo: meta
     hooks:
-      - id: check-hooks-apply
-      - id: check-useless-excludes
-      - id: identity
+      - id: check-hooks-apply # Verify all hooks apply to at least one file
+      - id: check-useless-excludes # Verify excludes apply to at least one file
+      - id: identity # Print filenames (debugging hook)
 
   # ------------------------------------------------------------------------------
   ## Commit Message Linting (Conventional Commits)
@@ -64,7 +90,7 @@ repos:
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.4.0
     hooks:
-      - id: conventional-pre-commit
+      - id: conventional-pre-commit # Enforce Conventional Commits format
         stages: [commit-msg]
         args: []
 
@@ -130,6 +156,7 @@ repos:
     rev: v1.38.0
     hooks:
       - id: yamllint # yamllint
+        args: ["--config-data", "relaxed"]
 
   # ------------------------------------------------------------------------------
   ### Documentation & Markdown Tools
@@ -192,11 +219,13 @@ repos:
     rev: v3.21.2
     hooks:
       - id: pyupgrade # pyupgrade
+        args: ["--py311-plus"]
 
   - repo: https://github.com/pycqa/isort
     rev: 9.0.0a3
     hooks:
       - id: isort # isort
+        args: ["--profile=black"]
 
   - repo: https://github.com/bwhmather/ssort
     rev: 0.16.0
@@ -212,6 +241,7 @@ repos:
     rev: 26.5.1
     hooks:
       - id: black # black
+        args: ["--line-length=110"]
       - id: black-jupyter # black-jupyter
 
   # ------------------------------------------------------------------------------
@@ -325,16 +355,22 @@ repos:
     rev: 1.9.4
     hooks:
       - id: bandit # bandit
-        args: ["-c", "pyproject.toml", "-r"]
+        args: ["--configfile", "pyproject.toml", "--recursive"]  # Config from [tool.bandit]
 
   - repo: https://github.com/rubik/xenon
     rev: v0.9.3
     hooks:
       - id: xenon # Xenon
+        # TODO: Enable strict gates once functions are refactored to grade A
+        # args: ["--max-absolute=A", "--max-modules=A", "--max-average=B", "src/"]
+        # pass_filenames: false
 
   # ------------------------------------------------------------------------------
   ### Type Checkers
   # ------------------------------------------------------------------------------
+  # NOTE: mypy uses mirrors-mypy (not a local hook) because pre-commit/mirrors-mypy
+  # tracks upstream mypy releases. pylint was converted from local to use the
+  # upstream repo to avoid duplicating runtime deps in additional_dependencies.
 
   - repo: https://github.com/robertcraigie/pyright-python
     rev: v1.1.410
@@ -347,6 +383,7 @@ repos:
     rev: v2.1.0
     hooks:
       - id: mypy # mypy
+        args: ["--strict"]
         additional_dependencies:
           - gamesheet-sdk-py[mypy]
 

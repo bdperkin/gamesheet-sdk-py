@@ -756,6 +756,7 @@ description = """\
   functions).\
   """
 diff = true
+recursive = true
 
 ## ## mypy - Industry-standard static type checker
 [tool.mypy]
@@ -1074,3 +1075,6 @@ min_rank = "A"
 recursive = true
 show_closures = true  # Show closures in the complexity results
 total_average = true  # Display the total average at the end
+max-absolute = "A"
+max-modules = "A"
+max-average = "B"
