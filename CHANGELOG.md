@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.50 (2026-06-18)
+
+### Bug Fixes
+
+- **docs**: Fix dependency-review badge showing stale status ([#113](https://github.com/bdperkin/gamesheet-sdk-py/pull/113),
+  [`aced866`](https://github.com/bdperkin/gamesheet-sdk-py/commit/aced866201fcb771003a78d158b619b080b89515))
+
+### Documentation
+
+- **ci**: Enhance pre-commit config documentation and inline comments ([#112](https://github.com/bdperkin/gamesheet-sdk-py/pull/112),
+  [`93f86b9`](https://github.com/bdperkin/gamesheet-sdk-py/commit/93f86b94f89813b48f49c50171f20af29c952df6))
+
 ## v0.1.49 (2026-06-18)
 
 ### Bug Fixes
