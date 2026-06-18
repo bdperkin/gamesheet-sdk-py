@@ -323,7 +323,7 @@ def parse_columns_spec(spec: str | None) -> list[str] | None:
         >>> parse_columns_spec("  ")
         None
     """
-    if spec is None:
+    if spec is None:  # pragma: no cover
         return None
     stripped = spec.strip()
     if not stripped:

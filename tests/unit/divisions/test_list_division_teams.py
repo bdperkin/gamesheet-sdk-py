@@ -14,16 +14,12 @@ from gamesheet_sdk import (
     Session,
     list_division_teams,
 )
+from tests.helpers import jsonapi_payload
 
 _BASE = "https://test.example"
 _SEASON_ID = "15020"
 _DIVISION_ID = "701"
 _DIVISION_TEAMS_ENDPOINT = f"{_BASE}/api/divisions/{_DIVISION_ID}/teams"
-
-
-def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
-    """Build a JSON:API ``{"data": [...]}`` body."""
-    return {"data": rows}
 
 
 @responses.activate
@@ -32,7 +28,7 @@ def test_list_division_teams_parses_jsonapi_response(config: Config) -> None:
     responses.add(
         responses.GET,
         _DIVISION_TEAMS_ENDPOINT,
-        json=_payload(
+        json=jsonapi_payload(
             [
                 {
                     "type": "teams",
@@ -116,7 +112,7 @@ def test_list_division_teams_sends_bearer_and_jsonapi_accept(config: Config) -> 
     responses.add(
         responses.GET,
         _DIVISION_TEAMS_ENDPOINT,
-        json=_payload([]),
+        json=jsonapi_payload([]),
         status=200,
     )
     with Session(config) as session:
@@ -134,7 +130,7 @@ def test_list_division_teams_empty_data_returns_empty_list(config: Config) -> No
     responses.add(
         responses.GET,
         _DIVISION_TEAMS_ENDPOINT,
-        json=_payload([]),
+        json=jsonapi_payload([]),
         status=200,
     )
     with Session(config) as session:

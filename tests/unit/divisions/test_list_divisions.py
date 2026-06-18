@@ -12,15 +12,11 @@ from gamesheet_sdk import (
     Session,
     list_divisions,
 )
+from tests.helpers import jsonapi_payload
 
 _BASE = "https://test.example"
 _SEASON_ID = "15020"
 _ENDPOINT = f"{_BASE}/api/divisions"
-
-
-def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
-    """Build a JSON:API ``{"data": [...]}`` body."""
-    return {"data": rows}
 
 
 @responses.activate
@@ -29,7 +25,7 @@ def test_list_divisions_parses_jsonapi_response(config: Config) -> None:
     responses.add(
         responses.GET,
         _ENDPOINT,
-        json=_payload(
+        json=jsonapi_payload(
             [
                 {
                     "type": "divisions",
@@ -85,7 +81,7 @@ def test_list_divisions_parses_jsonapi_response(config: Config) -> None:
 @responses.activate
 def test_list_divisions_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     """Test that list_divisions sends correct Authorization and Accept headers."""
-    responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
+    responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_divisions(session, _SEASON_ID)
@@ -98,7 +94,7 @@ def test_list_divisions_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 @responses.activate
 def test_list_divisions_empty_data_returns_empty_list(config: Config) -> None:
     """Test that list_divisions returns empty list when API returns no divisions."""
-    responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
+    responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
         assert not list_divisions(session, _SEASON_ID)
@@ -152,7 +148,7 @@ def test_list_divisions_filters_by_season_id(config: Config) -> None:
     responses.add(
         responses.GET,
         _ENDPOINT,
-        json=_payload(
+        json=jsonapi_payload(
             [
                 {
                     "type": "divisions",
@@ -199,7 +195,7 @@ def test_list_divisions_includes_team_counts_when_requested(config: Config) -> N
     responses.add(
         responses.GET,
         _ENDPOINT,
-        json=_payload(
+        json=jsonapi_payload(
             [
                 {
                     "type": "divisions",
@@ -233,7 +229,7 @@ def test_list_divisions_includes_team_counts_when_requested(config: Config) -> N
     responses.add(
         responses.GET,
         f"{_BASE}/api/divisions/701/teams",
-        json=_payload(
+        json=jsonapi_payload(
             [
                 {
                     "type": "teams",
@@ -281,7 +277,7 @@ def test_list_divisions_includes_team_counts_when_requested(config: Config) -> N
     responses.add(
         responses.GET,
         f"{_BASE}/api/divisions/702/teams",
-        json=_payload(
+        json=jsonapi_payload(
             [
                 {
                     "type": "teams",
@@ -316,7 +312,7 @@ def test_list_divisions_without_team_counts_leaves_field_none(config: Config) ->
     responses.add(
         responses.GET,
         _ENDPOINT,
-        json=_payload(
+        json=jsonapi_payload(
             [
                 {
                     "type": "divisions",
