@@ -9,15 +9,11 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.referees import list_referees
+from tests.helpers import jsonapi_payload
 
 _BASE = "https://test.example"
 _SEASON_ID = "15020"
 _ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/referees"
-
-
-def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
-    """Build a JSON:API ``{"data": [...]}`` body."""
-    return {"data": rows}
 
 
 @responses.activate
@@ -26,7 +22,7 @@ def test_list_referees_parses_jsonapi_response(config: Config) -> None:
     responses.add(
         responses.GET,
         _ENDPOINT,
-        json=_payload(
+        json=jsonapi_payload(
             [
                 {
                     "type": "referees",
@@ -88,7 +84,7 @@ def test_list_referees_parses_jsonapi_response(config: Config) -> None:
 @responses.activate
 def test_list_referees_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     """Test that list_referees sends correct authorization and accept headers."""
-    responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
+    responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_referees(session, _SEASON_ID)
@@ -101,7 +97,7 @@ def test_list_referees_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 @responses.activate
 def test_list_referees_empty_data_returns_empty_list(config: Config) -> None:
     """Test that empty API response returns empty list."""
-    responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
+    responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
         assert not list_referees(session, _SEASON_ID)
@@ -150,7 +146,7 @@ def test_list_referees_other_failure_raises_gamesheet_error(config: Config) -> N
 @responses.activate
 def test_list_referees_uses_correct_endpoint(config: Config) -> None:
     """Test that list_referees uses the correct API endpoint."""
-    responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
+    responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_referees(session, _SEASON_ID)

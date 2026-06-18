@@ -19,7 +19,15 @@ description = """\
   absent.\
   """
 readme = "README.md"
-keywords = [ "automation", "cli", "gamesheet", "hockey", "scraper", "sdk", "sports" ]
+keywords = [
+  "automation",
+  "cli",
+  "gamesheet",
+  "hockey",
+  "scraper",
+  "sdk",
+  "sports",
+]
 license = { file = "LICENSE" }
 authors = [ { name = "bdperkin", email = "bdperkin@gmail.com" } ]
 requires-python = ">=3.11"
@@ -276,7 +284,8 @@ build.targets.sdist.include = [
   "LICENSE",
   "pyproject.toml",
   "README.md",
-  "src/gamesheet_sdk",
+  "scripts",
+  "src",
   "tests",
 ]
 description = "Modern, all-in-one Python project manager and build tool that handles environments, testing, and publishing."
@@ -323,17 +332,7 @@ exclude = [
   ".tox/",
   ".venv/",
 ]
-extend-ignore = [
-  "A003",
-  "ANN101",
-  "DOC103",
-  "DOC111",
-  "DOC402",
-  "DOC404",
-  "DOC502",
-  "TC003",
-  "U101",
-]
+extend-ignore = []
 extend-select = [
   "B950",
   "C901",
@@ -345,14 +344,22 @@ inline-quotes = "double"
 max-line-length = 110
 per-file-ignores = [
   "docs/*:INP001",
-  "scripts/*:E203,EM102,SF01,T201,TRY003,TRY300",
-  "tests/*:PT019,S101,S105,S106,SF01",
+  "scripts/*:ANN101,INP001,SF01,T201",
+  "src/gamesheet_sdk/*:ANN101,DOC103,TC003",
+  "tests/auth/*:S101,S106",
+  "tests/cli/*:S101",
+  "tests/integration/*:S101,SF01",
+  "tests/unit/*:S101",
 ]
 recursive = true
 style = "sphinx"
 arg-type-hints-in-signature = true
 arg-type-hints-in-docstring = false
 check-return-types = false
+unused-arguments-ignore-dunder = true
+ignore-underscore-args = true
+ignore-private-args = true
+builtins-ignorelist = "id"
 
 ## ## pylint - Comprehensive static code analyzer
 [tool.pylint]
@@ -378,14 +385,28 @@ reports.evaluation = "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning 
 reports.score = true
 basic.argument-naming-style = "snake_case"
 basic.attr-naming-style = "snake_case"
-basic.bad-names = [ "bar", "baz", "foo", "tata", "toto", "tutu" ]
+basic.bad-names = [
+  "bar",
+  "baz",
+  "foo",
+  "tata",
+  "toto",
+  "tutu",
+]
 basic.class-attribute-naming-style = "any"
 basic.class-const-naming-style = "UPPER_CASE"
 basic.class-naming-style = "PascalCase"
 basic.const-naming-style = "UPPER_CASE"
 basic.docstring-min-length = -1
 basic.function-naming-style = "snake_case"
-basic.good-names = [ "_", "ex", "i", "j", "k", "Run" ]
+basic.good-names = [
+  "_",
+  "ex",
+  "i",
+  "j",
+  "k",
+  "Run",
+]
 basic.inlinevar-naming-style = "any"
 basic.method-naming-style = "snake_case"
 basic.module-naming-style = "snake_case"
@@ -396,23 +417,39 @@ format.ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
 format.indent-after-paren = 4
 format.indent-string = "    "
 format.max-line-length = 110
-format.max-module-lines = 512
+format.max-module-lines = 610
 design.max-args = 10
-design.max-attributes = 7
-design.max-bool-expr = 5
-design.max-branches = 12
-design.max-locals = 15
-design.max-parents = 7
-design.max-positional-arguments = 5
-design.max-public-methods = 20
-design.max-returns = 6
-design.max-statements = 50
+design.max-attributes = 6
+design.max-bool-expr = 3
+design.max-branches = 13
+design.max-locals = 16
+design.max-parents = 4
+design.max-positional-arguments = 9
+design.max-public-methods = 5
+design.max-returns = 5
+design.max-statements = 32
 design.min-public-methods = 2
-classes.defining-attr-methods = [ "__init__", "__new__", "__post_init__", "asyncSetUp", "setUp" ]
-classes.exclude-protected = [ "_asdict", "_fields", "_make", "_replace", "_source", "os._exit" ]
+classes.defining-attr-methods = [
+  "__init__",
+  "__new__",
+  "__post_init__",
+  "asyncSetUp",
+  "setUp",
+]
+classes.exclude-protected = [
+  "_asdict",
+  "_fields",
+  "_make",
+  "_replace",
+  "_source",
+  "os._exit",
+]
 classes.valid-classmethod-first-arg = [ "cls" ]
 classes.valid-metaclass-classmethod-first-arg = [ "mcs" ]
-exceptions.overgeneral-exceptions = [ "builtins.BaseException", "builtins.Exception" ]
+exceptions.overgeneral-exceptions = [
+  "builtins.BaseException",
+  "builtins.Exception",
+]
 imports.known-third-party = [ "enchant" ]
 logging.logging-format-style = "old"
 logging.logging-modules = [ "logging" ]
@@ -427,7 +464,10 @@ method_args.timeout-methods = [
   "requests.api.request",
 ]
 refactoring.max-nested-blocks = 5
-refactoring.never-returning-functions = [ "sys.exit", "argparse.parse_error" ]
+refactoring.never-returning-functions = [
+  "sys.exit",
+  "argparse.parse_error",
+]
 refactoring.suggest-join-with-non-empty-separator = true
 similarities.ignore-comments = true
 similarities.ignore-docstrings = true
@@ -445,19 +485,44 @@ typecheck.ignored-checks-for-mixins = [
   "not-context-manager",
   "attribute-defined-outside-init"
 ]
-typecheck.ignored-classes = [ "_thread._local", "argparse.Namespace", "optparse.Values", "thread._local" ]
+typecheck.ignored-classes = [
+  "_thread._local",
+  "argparse.Namespace",
+  "optparse.Values",
+  "thread._local",
+]
 typecheck.missing-member-hint = true
 typecheck.missing-member-hint-distance = 1
 typecheck.missing-member-max-choices = 1
 typecheck.mixin-class-rgx = ".*[Mm]ixin"
 variables.allow-global-unused-variables = true
-variables.callbacks = [ "_cb", "cb_" ]
+variables.callbacks = [
+  "_cb",
+  "cb_",
+]
 variables.dummy-variables-rgx = "_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_"
 variables.ignored-argument-names = "_.*|^ignored_|^unused_"
-variables.redefining-builtins-modules = [ "six.moves", "past.builtins", "future.builtins", "builtins", "io" ]
-miscellaneous.notes = [ "FIXME", "XXX", "TODO" ]
-"messages control".confidence = [ "HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED" ]
+variables.redefining-builtins-modules = [
+  "six.moves",
+  "past.builtins",
+  "future.builtins",
+  "builtins",
+  "io",
+]
+miscellaneous.notes = [
+  "FIXME",
+  "XXX",
+  "TODO",
+]
+"messages control".confidence = [
+  "HIGH",
+  "CONTROL_FLOW",
+  "INFERENCE",
+  "INFERENCE_FAILURE",
+  "UNDEFINED",
+]
 "messages control".disable = [
+  "duplicate-code",
   "locally-disabled",
   "suppressed-message",
 ]
@@ -465,9 +530,13 @@ miscellaneous.notes = [ "FIXME", "XXX", "TODO" ]
   "all",
 ]
 "messages control".per-file-ignores = [
-  "docs/conf.py:invalid-name",
-  "scripts/**:broad-exception-caught,protected-access,unspecified-encoding",
-  "tests/**:duplicate-code,import-outside-toplevel,missing-function-docstring,protected-access,redefined-outer-name",
+  "docs/**:invalid-name",
+  "scripts/**:protected-access,broad-exception-caught,too-many-statements,too-many-lines",
+  "src/gamesheet_sdk/**:import-outside-toplevel",
+  "tests/auth/**:redefined-outer-name",
+  "tests/cli/**:import-outside-toplevel",
+  "tests/integration/**:protected-access",
+  "tests/unit/**:import-outside-toplevel",
 ]
 
 ## # ----------------------------------------------------------------------------
@@ -501,10 +570,7 @@ ignore-init-method = true
 ignore-magic = true
 ignore-semiprivate = true
 ignore-nested-functions = true
-exclude = [
-  "test_*.py",
-  "tests",
-]
+exclude = []
 check = true
 description = "Measures and flags the percentage of your code (modules, classes, methods) that lacks documentation."
 diff = true
@@ -572,11 +638,11 @@ exclude = [
   "dist",
 ]
 ignore_names = [
+  "__*",
   "autoclass_*",
   "autodoc_*",
   "autosectionlabel_*",
   "autosummary_*",
-  # RefereeReport Pydantic model fields
   "average_pim_per_game",
   "biography",
   "birthdate",
@@ -584,17 +650,17 @@ ignore_names = [
   "confirm_destructive",
   "copyright",
   "country",
-  "discovered_from_url",         # Spider dataclass field
+  "discovered_from_url",
   "division_title",
   "drafted_by",
-  "element_type",                # Spider dataclass field
+  "element_type",
   "end_time",
   "epub_*",
   "ERRORS_EPILOGUE",
   "ERRORS_SUGGESTION",
   "exclude_*",
   "extensions",
-  "form_action",                 # Spider dataclass field
+  "form_action",
   "format_commands",
   "game_date",
   "game_number",
@@ -701,10 +767,15 @@ plugins = [ "pydantic.mypy" ]
 [tool.pyrefly]
 python_version = "3.11"
 project-includes = [
-  "src",   # Your main package
-  "tests", # Your test suite folder
+  "docs",
+  "scripts",
+  "src",
+  "tests",
 ]
-search-path = [ "src", "." ]
+search-path = [
+  "src",
+  ".",
+]
 
 ## # ----------------------------------------------------------------------------
 ## # Type Checkers
@@ -714,14 +785,17 @@ search-path = [ "src", "." ]
 # Target environment settings
 pythonVersion = "3.11"
 pythonPlatform = "Linux"
-# Main severity mode: "standard" or "strict"
-typeCheckingMode = "standard"
+# Optional: Keep test errors separate or less severe if they block CI
+# typeCheckingMode = "basic"
 # Look into library code to extract type information if stubs are missing
 useLibraryCodeForTypes = true
 # Directories or files to include for type checking
-include = [ "src", "tests" ]
-# Optional: Keep test errors separate or less severe if they block CI
-# typeCheckingMode = "basic"
+include = [
+  "docs",
+  "scripts",
+  "src",
+  "tests",
+]
 # Directories or files to exclude from type checking
 exclude = [
   "**/__pycache__",
@@ -735,14 +809,15 @@ exclude = [
 ]
 # Ignore errors inside specific files
 ignore = []
-extraPaths = [ ".", "src" ]
+extraPaths = [
+  ".",
+  "src",
+]
 reportGeneralTypeIssues = "error"
 # Override specific rules
 reportMissingTypeStubs = "warning"
 reportUnknownMemberType = false
-executionEnvironments = [
-  { root = "tests", reportArgumentType = false, reportCallIssue = false },
-]
+executionEnvironments = [ { root = "tests", reportArgumentType = false, reportCallIssue = false } ]
 
 [tool.coverage]
 run.branch = true
@@ -756,10 +831,14 @@ run.source = [ "src/gamesheet_sdk" ]
 ## Collapse coverage from the installed package onto the src layout so
 ## paths in coverage.xml match the component / flag path filters in
 ## .codecov.yml.
-paths.source = [ "src/gamesheet_sdk", "*/site-packages/gamesheet_sdk" ]
+paths.source = [
+  "src/gamesheet_sdk",
+  "*/site-packages/gamesheet_sdk",
+]
 report.exclude_also = [
   "@overload",
   "if TYPE_CHECKING:",
+  "pragma: no cover",
   "raise NotImplementedError",
 ]
 report.fail_under = 100
@@ -781,7 +860,12 @@ commit_parser = "conventional"
 # Commit parser options - force patch-only bumps until 1.0.0
 # After 1.0.0, remove this section to restore standard semver (feat → minor, fix → patch)
 commit_parser_options.minor_tags = []  # Empty - no minor bumps until 1.0.0
-commit_parser_options.patch_tags = [ "feat", "fix", "perf" ]  # All releasable commits trigger patch bump
+# All releasable commits trigger patch bump
+commit_parser_options.patch_tags = [
+  "feat",
+  "fix",
+  "perf",
+]
 # Branches configuration
 branches.main.match = "main"
 branches.main.prerelease = false
@@ -958,7 +1042,7 @@ recursive = true
 
 ## ## pydocstyle - Docstring compliance linter
 [tool.pydocstyle]
-add-ignore = "D105,D107"
+add-ignore = "D107"
 
 ## # ----------------------------------------------------------------------------
 ## # Code Quality Linters & Static Analysis
@@ -974,7 +1058,7 @@ recursive = true
 [tool.refurb]
 enable_all = true
 python_version = "3.11"
-ignore = [ 120 ]  # FURB120: false positives on datetime(tzinfo=timezone.utc) - utc is NOT the default
+ignore = [ 120 ]
 
 ## ## radon - Code metrics and complexity calculator
 [tool.radon]

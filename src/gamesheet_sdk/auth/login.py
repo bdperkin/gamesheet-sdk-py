@@ -180,9 +180,7 @@ def _auth_round_trip_complete(captured: dict[str, Response | None], email: str) 
         ``"token"`` response objects.
     :param email: Email address being logged in, used for success logging.
     :returns: True if both responses have arrived and both returned HTTP 200, False if either is still
-        pending.
-    :raises AuthenticationError: If either response arrived but returned a non-200 status (via
-        :func:`_raise_for_firebase_error` or :func:`_raise_for_token_error`).
+        pending. :func:`_raise_for_firebase_error` or :func:`_raise_for_token_error`).
     """
     fb = captured["firebase"]
     if fb is None:
@@ -279,9 +277,6 @@ def login(
     routing and post-login data fetches when it reaches this page, so the saved storage state afterwards
     captures a fully-settled session (cookies + any SPA-cached state) rather than just the bare auth cookie.
     Pass None to skip the post-login navigation entirely. Default is :data:`POST_LOGIN_PATH`.
-    :raises AuthenticationError: On missing credentials, Firebase rejection, /api/token failure, or backend
-    silence past the timeout. Post-login navigation failures are logged at WARNING but do not raise -- auth
-    already succeeded by that point.
     """
     email = _resolve_email(session.config, email)
     password = _resolve_password(session.config, password)

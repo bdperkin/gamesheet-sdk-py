@@ -60,7 +60,6 @@ def load_access_token(config: Config) -> str | None:
     unreadable, or does not contain a token. The access token is used for
     authenticating API requests and typically has a short lifetime (10 minutes).
     :param config: Configuration object containing the base URL and browser state path.
-    :type config: Config
     :returns: The access token string if found, otherwise None.
     :rtype: str | None
     Example::
@@ -95,11 +94,8 @@ def build_token_updates(
     only the tokens that were provided (non-None). This is used internally by
     :func:`save_tokens` to prepare the updates for browser storage.
     :param access: The access token to store (required).
-    :type access: str
     :param refresh: The refresh token to store, or None to skip.
-    :type refresh: str | None
     :param roles: The roles token to store, or None to skip.
-    :type roles: str | None
     :returns: Dictionary mapping localStorage keys (``accessToken``, ``refreshToken``, ``rolesToken``) to
         their values.
     :rtype: dict[str, str]
@@ -137,13 +133,9 @@ def save_tokens(
     use this same storage format, making them mutually compatible.
     :param config: Configuration object containing the base URL and browser state path where tokens will be
         saved.
-    :type config: Config
     :param access: The access token to save (required).
-    :type access: str
     :param refresh: The refresh token to save, or None to leave unchanged.
-    :type refresh: str | None
     :param roles: The roles token to save, or None to leave unchanged.
-    :type roles: str | None
     :returns: None
     :rtype: None
     Example:
@@ -185,12 +177,9 @@ def refresh_access_token(
     :class:`~gamesheet_sdk.session.AuthenticatedSession`'s retry path without
     recursing.
     :param refresh_token: The refresh token to exchange for new tokens.
-    :type refresh_token: str
     :param user_agent: Optional User-Agent header value for the request.
-    :type user_agent: str | None
     :param timeout: Request timeout in seconds. Defaults to
         :data:`~gamesheet_sdk.auth.constants.REFRESH_TIMEOUT_S`.
-    :type timeout: float
     :returns: Dictionary with keys ``access``, ``refresh``, and ``roles``, each containing the corresponding
         token string.
     :rtype: dict[str, str]

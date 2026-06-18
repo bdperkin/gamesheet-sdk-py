@@ -81,7 +81,6 @@ def leagues_group() -> None:
 @common_output_options
 @get_fields_option
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments
 def leagues_get_command(
     ctx: Context,
     association_id: str,

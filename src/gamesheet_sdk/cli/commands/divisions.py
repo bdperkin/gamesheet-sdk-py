@@ -1,21 +1,22 @@
 """Divisions command group."""
 
-# pylint: disable=too-many-lines
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
 import rich_click as click
 from click.exceptions import Exit
-from rich_click import Choice, Context, Path
+from rich_click import Path
 
-from gamesheet_sdk.cli.core import (
-    ResourceGroup,
-    confirm_destructive,
-    parse_columns_spec,
-)
+from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
+from gamesheet_sdk.cli.shared import (
+    common_output_options,
+    get_fields_option,
+    list_columns_option,
+    render_get_command,
+    render_list_command,
+)
 from gamesheet_sdk.config import Config
 from gamesheet_sdk.divisions import create_division as _create_division_action
 from gamesheet_sdk.divisions import delete_division as _delete_division_action
@@ -23,9 +24,10 @@ from gamesheet_sdk.divisions import get_division as _get_division_action
 from gamesheet_sdk.divisions import list_division_teams as _list_division_teams_action
 from gamesheet_sdk.divisions import list_divisions as _list_divisions_action
 from gamesheet_sdk.divisions import update_division as _update_division_action
-from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
 
 if TYPE_CHECKING:
+    from rich_click import Context
+
     from gamesheet_sdk.auth.session import AuthenticatedSession
     from gamesheet_sdk.divisions import Division
 
@@ -58,35 +60,8 @@ def divisions_group() -> None:
     required=True,
     help="Division ID to retrieve details for.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--fields",
-    "-f",
-    "fields_spec",
-    default=None,
-    help=("Comma-separated list of field names to include (default: all fields the API returns)."),
-)
+@common_output_options
+@get_fields_option
 @click.pass_context
 def divisions_get_command(
     ctx: Context,
@@ -103,23 +78,8 @@ def divisions_get_command(
     """
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
-    # Convert to dict for rendering
-    data = run_action_or_exit(session, _get_division_action, division_id).model_dump(
-        mode="json",
-    )
-    # If fields are specified, filter to only those fields
-    if fields_spec:
-        fields = parse_columns_spec(fields_spec)
-        if fields:
-            data = {k: v for k, v in data.items() if k in fields}
-    # For tabular formats, convert to a list of key-value rows
-    if output_format not in ("json", "yaml"):
-        rows = [{"field": k, "value": v} for k, v in data.items()]
-        rendered = render(rows, fmt=output_format, columns=None)
-    else:
-        # For data formats, output the whole object
-        rendered = render([data], fmt=output_format, columns=None)
-    write_output(rendered, output_path, fmt=output_format)
+    division = run_action_or_exit(session, _get_division_action, division_id)
+    render_get_command(division, output_format, output_path, fields_spec)
 
 
 @divisions_group.command("list")
@@ -130,35 +90,8 @@ def divisions_get_command(
     required=True,
     help="Season ID to list divisions for.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--columns",
-    "-c",
-    "columns_spec",
-    default=None,
-    help=("Comma-separated list of column names to include (default: all columns the API returns)."),
-)
+@common_output_options
+@list_columns_option
 @click.pass_context
 def divisions_list_command(
     ctx: Context,
@@ -178,9 +111,7 @@ def divisions_list_command(
         return _list_divisions_action(sess, sid, include_team_counts=True)
 
     divisions = run_action_or_exit(session, _list_with_counts, season_id)
-    rows = [division.model_dump(mode="json") for division in divisions]
-    rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command(divisions, output_format, output_path, columns_spec)
 
 
 @divisions_group.command("create")
@@ -203,30 +134,8 @@ def divisions_list_command(
     default=None,
     help="Optional external identifier for integration with third-party systems.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
+@common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments
 def divisions_create_command(
     ctx: Context,
     season_id: str,
@@ -250,9 +159,7 @@ def divisions_create_command(
         return _create_division_action(sess, sid, div_title, external_id=external_id)
 
     division = run_action_or_exit(session, _create_with_kwargs, season_id, title)
-    rows = [division.model_dump(mode="json")]
-    rendered = render(rows, fmt=output_format)
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command([division], output_format, output_path)
     if output_path is None:
         click.secho(
             f"\nDivision '{division.title}' created successfully (ID: {division.id})",
@@ -286,30 +193,8 @@ def divisions_create_command(
     default=None,
     help="New external identifier.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
+@common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments
 def divisions_update_command(
     ctx: Context,
     season_id: str,
@@ -348,9 +233,7 @@ def divisions_update_command(
         )
 
     division = run_action_or_exit(session, _update_with_kwargs, season_id, division_id)
-    rows = [division.model_dump(mode="json")]
-    rendered = render(rows, fmt=output_format)
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command([division], output_format, output_path)
     if output_path is None:
         click.secho(
             f"\nDivision '{division.title}' updated successfully (ID: {division.id})",
@@ -379,35 +262,8 @@ def divisions_teams_group() -> None:
     required=True,
     help="Division ID to list teams for.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--columns",
-    "-c",
-    "columns_spec",
-    default=None,
-    help=("Comma-separated list of column names to include (default: all columns the API returns)."),
-)
+@common_output_options
+@list_columns_option
 @click.pass_context
 def divisions_teams_list_command(
     ctx: Context,
@@ -423,9 +279,7 @@ def divisions_teams_list_command(
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
     teams = run_action_or_exit(session, _list_division_teams_action, division_id)
-    rows = [team.model_dump(mode="json") for team in teams]
-    rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command(teams, output_format, output_path, columns_spec)
 
 
 @divisions_teams_group.command("get")
@@ -443,30 +297,8 @@ def divisions_teams_list_command(
     required=True,
     help="Team ID to retrieve.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
+@common_output_options
 @click.pass_context
-# pylint: disable-next=import-outside-toplevel
 def divisions_teams_get_command(
     ctx: Context,
     season_id: str,
@@ -478,17 +310,13 @@ def divisions_teams_get_command(
 
     Delegates to teams get functionality.
     """
-    from gamesheet_sdk.teams import get_team as _get_team_action  # pylint: disable=import-outside-toplevel
+    # pylint: disable-next=import-outside-toplevel
+    from gamesheet_sdk.teams import get_team as _get_team_action
 
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
-    data = run_action_or_exit(session, _get_team_action, season_id, team_id).model_dump(mode="json")
-    if output_format not in ("json", "yaml"):
-        rows = [{"field": k, "value": v} for k, v in data.items()]
-        rendered = render(rows, fmt=output_format, columns=None)
-    else:
-        rendered = render([data], fmt=output_format, columns=None)
-    write_output(rendered, output_path, fmt=output_format)
+    item = run_action_or_exit(session, _get_team_action, season_id, team_id)
+    render_get_command(item, output_format, output_path)
 
 
 @divisions_teams_group.command("create")
@@ -524,30 +352,8 @@ def divisions_teams_get_command(
     type=Path(exists=True, dir_okay=False),
     help="Optional path to a local logo image file.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
+@common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments,too-many-locals
 def divisions_teams_create_command(
     ctx: Context,
     season_id: str,
@@ -562,7 +368,7 @@ def divisions_teams_create_command(
 
     Delegates to teams create functionality.
     """
-    # pylint: disable=import-outside-toplevel
+    # pylint: disable-next=import-outside-toplevel
     from gamesheet_sdk.teams import create_team as _create_team_action
 
     config: Config = ctx.obj
@@ -579,12 +385,7 @@ def divisions_teams_create_command(
         )
 
     result = run_action_or_exit(session, _create_with_kwargs)
-    if output_format not in ("json", "yaml"):
-        rows = [{"field": k, "value": v} for k, v in result.items()]
-        rendered = render(rows, fmt=output_format, columns=None)
-    else:
-        rendered = render([result], fmt=output_format, columns=None)
-    write_output(rendered, output_path, fmt=output_format)
+    render_get_command(result, output_format, output_path)
     if output_path is None:
         team_title = result.get("prototeam", {}).get("title", title)
         team_id = result.get("seasonTeam", {}).get("id", "unknown")
@@ -639,30 +440,8 @@ def divisions_teams_create_command(
     default=False,
     help="Remove the team's logo.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
+@common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments,too-many-locals
 def divisions_teams_update_command(
     ctx: Context,
     season_id: str,
@@ -680,7 +459,6 @@ def divisions_teams_update_command(
 
     Delegates to teams update functionality.
     """
-    # pylint: disable=import-outside-toplevel
     from gamesheet_sdk.teams import Team
     from gamesheet_sdk.teams import update_team as _update_team_action
 
@@ -700,8 +478,7 @@ def divisions_teams_update_command(
         )
 
     team = run_action_or_exit(session, _update_with_kwargs)
-    rendered = render([team.model_dump(mode="json")], fmt=output_format, columns=None)
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command([team], output_format, output_path)
 
 
 @divisions_teams_group.command("delete")
@@ -730,7 +507,7 @@ def divisions_teams_delete_command(
 
     Delegates to teams delete functionality.
     """
-    # pylint: disable=import-outside-toplevel
+    # pylint: disable-next=import-outside-toplevel
     from gamesheet_sdk.teams import delete_team as _delete_team_action
 
     config: Config = ctx.obj

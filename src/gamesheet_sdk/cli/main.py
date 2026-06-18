@@ -172,13 +172,12 @@ def main(argv: list[str] | None = None) -> int:
     harnesses and allows the caller to control process exit.
     :param argv: Optional command-line arguments to parse. If ``None``, defaults to ``sys.argv[1:]`` (click's
         standard behavior).
-    :type argv: list[str] | None
     :returns: Exit code. 0 indicates success, non-zero indicates failure.
     :rtype: int
     """
     try:
         cli.main(args=argv, prog_name="gamesheet-sdk-py", standalone_mode=False)
-    except (  # pragma: no cover - exception handling
+    except (
         Exit,
         UsageError,
         Abort,

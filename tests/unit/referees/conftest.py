@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
+from tests.helpers import jsonapi_payload
+
 _BASE = "https://test.example"
 _SEASON_ID = "15020"
 _ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/referees"
 
-
-def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
-    """Build a JSON:API ``{"data": [...]}`` body."""
-    return {"data": rows}
+__all__ = ["jsonapi_payload", "_BASE", "_SEASON_ID", "_ENDPOINT"]

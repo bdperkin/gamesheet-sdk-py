@@ -17,6 +17,7 @@ _ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/referees"
 
 @responses.activate
 def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None:
+    """Test that update_referee sends correct payload when updating all fields."""
     _referee_id = "1146196"
     _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     _patch_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
@@ -103,6 +104,7 @@ def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None
 def test_update_referee_sends_correct_payload_partial_fields(
     config: Config,
 ) -> None:
+    """Test that update_referee preserves unmodified fields when partially updating."""
     _referee_id = "1146197"
     _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     _patch_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
@@ -175,6 +177,7 @@ def test_update_referee_sends_correct_payload_partial_fields(
 
 @responses.activate
 def test_update_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None:
+    """Test that update_referee sends correct Authorization and JSON:API headers."""
     _referee_id = "101"
     _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     _patch_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
@@ -235,6 +238,7 @@ def test_update_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
 
 @responses.activate
 def test_update_referee_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 response raises AuthenticationError."""
     _referee_id = "101"
     _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     # The GET request fails with 401
@@ -254,6 +258,7 @@ def test_update_referee_401_raises_authentication_error(config: Config) -> None:
 def test_update_referee_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
+    """Test that 404 response raises GameSheetError with helpful message."""
     _referee_id = "nonexistent"
     _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     # The GET request fails with 404
@@ -271,6 +276,7 @@ def test_update_referee_404_raises_gamesheet_error_with_helpful_message(
 def test_update_referee_other_failure_raises_gamesheet_error(
     config: Config,
 ) -> None:
+    """Test that other HTTP errors raise GameSheetError."""
     _referee_id = "101"
     _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     # The GET request fails with 500

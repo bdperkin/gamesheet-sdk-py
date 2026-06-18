@@ -2,22 +2,28 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import rich_click as click
 from click.exceptions import Exit
-from rich_click import Choice, Context, Path
 
-from gamesheet_sdk.cli.core import (
-    ResourceGroup,
-    confirm_destructive,
-    parse_columns_spec,
-)
+from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
+from gamesheet_sdk.cli.shared import (
+    common_output_options,
+    get_fields_option,
+    list_columns_option,
+    render_get_command,
+    render_list_command,
+)
 from gamesheet_sdk.config import Config
-from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
 from gamesheet_sdk.roster import get_coach as _get_coach_action
 from gamesheet_sdk.roster import get_player as _get_player_action
 from gamesheet_sdk.roster import list_coaches as _list_coaches_action
 from gamesheet_sdk.roster import list_players as _list_players_action
+
+if TYPE_CHECKING:
+    from rich_click import Context
 
 
 @click.group(
@@ -78,35 +84,8 @@ def players_group() -> None:
     required=True,
     help="Player ID to retrieve details for.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--fields",
-    "-f",
-    "fields_spec",
-    default=None,
-    help=("Comma-separated list of field names to include (default: all fields the API returns)."),
-)
+@common_output_options
+@get_fields_option
 @click.pass_context
 def players_get_command(
     ctx: Context,
@@ -125,58 +104,13 @@ def players_get_command(
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
     session = build_authenticated_session(ctx, config)
-    # Convert to dict for rendering
-    data = run_action_or_exit(
-        session,
-        _get_player_action,
-        season_id,
-        player_id,
-    ).model_dump(mode="json")
-    # If fields are specified, filter to only those fields
-    if fields_spec:
-        fields = parse_columns_spec(fields_spec)
-        if fields:
-            data = {k: v for k, v in data.items() if k in fields}
-    # For tabular formats, convert to a list of key-value rows
-    if output_format not in ("json", "yaml"):
-        rows = [{"field": k, "value": v} for k, v in data.items()]
-        rendered = render(rows, fmt=output_format, columns=None)
-    else:
-        # For data formats, output the whole object
-        rendered = render([data], fmt=output_format, columns=None)
-    write_output(rendered, output_path, fmt=output_format)
+    player = run_action_or_exit(session, _get_player_action, season_id, player_id)
+    render_get_command(player, output_format, output_path, fields_spec)
 
 
 @players_group.command("list")
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--columns",
-    "-c",
-    "columns_spec",
-    default=None,
-    help=("Comma-separated list of column names to include (default: all columns the API returns)."),
-)
+@common_output_options
+@list_columns_option
 @click.pass_context
 def players_list_command(
     ctx: Context,
@@ -194,9 +128,7 @@ def players_list_command(
     season_id: str = ctx.obj["season_id"]
     session = build_authenticated_session(ctx, config)
     players = run_action_or_exit(session, _list_players_action, season_id)
-    rows = [player.model_dump(mode="json") for player in players]
-    rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command(players, output_format, output_path, columns_spec)
 
 
 @players_group.command("create")
@@ -281,35 +213,8 @@ def coaches_group() -> None:
     required=True,
     help="Coach ID to retrieve details for.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--fields",
-    "-f",
-    "fields_spec",
-    default=None,
-    help=("Comma-separated list of field names to include (default: all fields the API returns)."),
-)
+@common_output_options
+@get_fields_option
 @click.pass_context
 def coaches_get_command(
     ctx: Context,
@@ -328,58 +233,13 @@ def coaches_get_command(
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
     session = build_authenticated_session(ctx, config)
-    # Convert to dict for rendering
-    data = run_action_or_exit(
-        session,
-        _get_coach_action,
-        season_id,
-        coach_id,
-    ).model_dump(mode="json")
-    # If fields are specified, filter to only those fields
-    if fields_spec:
-        fields = parse_columns_spec(fields_spec)
-        if fields:
-            data = {k: v for k, v in data.items() if k in fields}
-    # For tabular formats, convert to a list of key-value rows
-    if output_format not in ("json", "yaml"):
-        rows = [{"field": k, "value": v} for k, v in data.items()]
-        rendered = render(rows, fmt=output_format, columns=None)
-    else:
-        # For data formats, output the whole object
-        rendered = render([data], fmt=output_format, columns=None)
-    write_output(rendered, output_path, fmt=output_format)
+    coach = run_action_or_exit(session, _get_coach_action, season_id, coach_id)
+    render_get_command(coach, output_format, output_path, fields_spec)
 
 
 @coaches_group.command("list")
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--columns",
-    "-c",
-    "columns_spec",
-    default=None,
-    help=("Comma-separated list of column names to include (default: all columns the API returns)."),
-)
+@common_output_options
+@list_columns_option
 @click.pass_context
 def coaches_list_command(
     ctx: Context,
@@ -397,9 +257,7 @@ def coaches_list_command(
     season_id: str = ctx.obj["season_id"]
     session = build_authenticated_session(ctx, config)
     coaches = run_action_or_exit(session, _list_coaches_action, season_id)
-    rows = [coach.model_dump(mode="json") for coach in coaches]
-    rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command(coaches, output_format, output_path, columns_spec)
 
 
 @coaches_group.command("create")

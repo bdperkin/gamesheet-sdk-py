@@ -96,9 +96,7 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param season_id: The season identifier whose teams to list.
-    :type season_id: str
     :returns: A list of :class:`Team`, in the order the server returned them. The list may be empty if the
         season has no teams.
     :rtype: list[Team]
@@ -161,24 +159,18 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
     return teams
 
 
-def get_team(session: Session, season_id: str, team_id: str) -> Team:  # noqa: DOC503
+def get_team(session: Session, season_id: str, team_id: str) -> Team:
     """Get a single team by ID.
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param season_id: The parent season identifier.
-    :type season_id: str
     :param team_id: The team identifier to retrieve.
-    :type team_id: str
     :returns: The :class:`Team` with the specified ID.
     :rtype: Team
     :raises GameSheetError: If the team is not found or for any other non-2xx response from the API.
-    :raises AuthenticationError: If the server returns 401 (raised by the internal call to
-        :func:`list_teams`). Run ``gamesheet-sdk-py login`` to refresh the bearer token.
-    .. note::
-        The single-team GET endpoint doesn't support including related invitations,
+    .. note:: The single-team GET endpoint doesn't support including related invitations,
         so this function fetches all teams in the season (which does include invitations)
         and filters to the requested team. This ensures invitation_code is populated.
     """
@@ -246,7 +238,7 @@ def _upload_logo(session: Session, logo_path: str) -> str:
     return f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/{image_id}"
 
 
-# pylint: disable-next=too-many-locals,too-many-branches
+# pylint: disable-next=too-many-statements,too-many-locals
 def update_team(
     session: Session,
     season_id: str,
@@ -265,21 +257,13 @@ def update_team(
     must be provided for update. The API requires sending the full team data, so this function first fetches
     the current team to preserve unchanged fields.
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param season_id: The season identifier containing the team.
-    :type season_id: str
     :param team_id: The team identifier to update.
-    :type team_id: str
     :param title: Optional new team name/title.
-    :type title: str | None
     :param external_id: Optional new external identifier.
-    :type external_id: str | None
     :param division_id: Optional new division identifier.
-    :type division_id: str | None
     :param logo_path: Optional path to a new logo image file.
-    :type logo_path: str | None
     :param remove_logo: If True, remove the team's logo.
-    :type remove_logo: bool
     :returns: The updated :class:`Team`.
     :rtype: Team
     :raises AuthenticationError: If the server returns 401.
@@ -417,17 +401,11 @@ def create_team(
     2. Upload the logo to the returned URL (if logo_path is provided)
     3. Create the team with the logo URL
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param season_id: The season identifier to create the team in.
-    :type season_id: str
     :param title: The team name/title.
-    :type title: str
     :param division_id: The division identifier the team belongs to.
-    :type division_id: str
     :param external_id: Optional external identifier for the team.
-    :type external_id: str | None
     :param logo_path: Optional path to a local logo image file.
-    :type logo_path: str | None
     :returns: The server's response containing prototeam, seasonTeam, member, and invitation data.
     :rtype: dict[str, Any]
     :raises AuthenticationError: If the server returns 401.
@@ -476,11 +454,8 @@ def delete_team(
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param season_id: The season identifier containing the team.
-    :type season_id: str
     :param team_id: The team identifier to delete.
-    :type team_id: str
     :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
         run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response.

@@ -113,7 +113,6 @@ class BrowserSession:
 
         Starts Playwright and Chromium on first call if not already running.
         :returns: A new Playwright :class:`~playwright.sync_api.Page` instance.
-        :raises RuntimeError: If the session has been closed.
         """
         return self.context.new_page()
 
@@ -138,7 +137,6 @@ class BrowserSession:
         :param kwargs: Additional keyword arguments forwarded to :meth:`playwright.sync_api.Page.goto` (e.g.
             ``wait_until``, ``timeout``).
         :returns: A :class:`~playwright.sync_api.Page` navigated to the resolved URL.
-        :raises RuntimeError: If the session has been closed.
         Example::
             with BrowserSession() as bs:
                 page = bs.goto("/login", wait_until="networkidle")
@@ -170,7 +168,7 @@ class BrowserSession:
         """
         try:
             self.save()
-        except OSError as exc:  # pragma: no cover - rare disk failure path
+        except OSError as exc:  # pragma: no cover
             _LOGGER.warning("Failed to save browser storage state: %s", exc)
 
     def _release_playwright(self) -> None:
@@ -209,15 +207,12 @@ class BrowserSession:
 
     def __exit__(
         self,
-        _exc_type: type[BaseException] | None,
-        _exc_val: BaseException | None,
-        _exc_tb: TracebackType | None,
+        __exc_type: type[BaseException] | None,
+        __exc_val: BaseException | None,
+        __exc_tb: TracebackType | None,
     ) -> None:
         """Exit the context manager and close the session.
 
         Persists storage state and shuts down Playwright resources.
-        :param _exc_type: Exception type if an exception was raised.
-        :param _exc_val: Exception instance if an exception was raised.
-        :param _exc_tb: Traceback if an exception was raised.
         """
         self.close()

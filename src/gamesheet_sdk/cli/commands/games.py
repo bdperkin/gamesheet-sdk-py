@@ -2,18 +2,28 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import rich_click as click
 from click.exceptions import Exit
-from rich_click import Choice, Context, Path
 
-from gamesheet_sdk.cli.core import ResourceGroup, parse_columns_spec
+from gamesheet_sdk.cli.core import ResourceGroup
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
+from gamesheet_sdk.cli.shared import (
+    common_output_options,
+    get_fields_option,
+    list_columns_option,
+    render_get_command,
+    render_list_command,
+)
 from gamesheet_sdk.config import Config
 from gamesheet_sdk.games import get_game as _get_game_action
 from gamesheet_sdk.games import list_brackets as _list_brackets_action
 from gamesheet_sdk.games import list_completed as _list_completed_action
 from gamesheet_sdk.games import list_scheduled as _list_scheduled_action
-from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
+
+if TYPE_CHECKING:
+    from rich_click import Context
 
 
 @click.group(
@@ -57,35 +67,8 @@ def games_group(ctx: Context, season_id: str) -> None:
     required=True,
     help="Game ID to retrieve details for.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--fields",
-    "-f",
-    "fields_spec",
-    default=None,
-    help=("Comma-separated list of field names to include (default: all fields the API returns)."),
-)
+@common_output_options
+@get_fields_option
 @click.pass_context
 def games_get_command(
     ctx: Context,
@@ -104,23 +87,8 @@ def games_get_command(
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
     session = build_authenticated_session(ctx, config)
-    # Convert to dict for rendering
-    data = run_action_or_exit(session, _get_game_action, season_id, game_id).model_dump(
-        mode="json",
-    )
-    # If fields are specified, filter to only those fields
-    if fields_spec:
-        fields = parse_columns_spec(fields_spec)
-        if fields:
-            data = {k: v for k, v in data.items() if k in fields}
-    # For tabular formats, convert to a list of key-value rows
-    if output_format not in ("json", "yaml"):
-        rows = [{"field": k, "value": v} for k, v in data.items()]
-        rendered = render(rows, fmt=output_format, columns=None)
-    else:
-        # For data formats, output the whole object
-        rendered = render([data], fmt=output_format, columns=None)
-    write_output(rendered, output_path, fmt=output_format)
+    game = run_action_or_exit(session, _get_game_action, season_id, game_id)
+    render_get_command(game, output_format, output_path, fields_spec)
 
 
 # Scheduled games sub-group
@@ -148,28 +116,7 @@ def scheduled_group() -> None:
     required=True,
     help="Game ID to retrieve.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
+@common_output_options
 @click.pass_context
 def scheduled_get_command(
     ctx: Context,
@@ -185,45 +132,13 @@ def scheduled_get_command(
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
     session = build_authenticated_session(ctx, config)
-    data = run_action_or_exit(session, _get_game_action, season_id, game_id).model_dump(mode="json")
-    if output_format not in ("json", "yaml"):
-        rows = [{"field": k, "value": v} for k, v in data.items()]
-        rendered = render(rows, fmt=output_format, columns=None)
-    else:
-        rendered = render([data], fmt=output_format, columns=None)
-    write_output(rendered, output_path, fmt=output_format)
+    game = run_action_or_exit(session, _get_game_action, season_id, game_id)
+    render_get_command(game, output_format, output_path)
 
 
 @scheduled_group.command("list")
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--columns",
-    "-c",
-    "columns_spec",
-    default=None,
-    help=("Comma-separated list of column names to include (default: all columns the API returns)."),
-)
+@common_output_options
+@list_columns_option
 @click.pass_context
 def scheduled_list_command(
     ctx: Context,
@@ -241,9 +156,7 @@ def scheduled_list_command(
     season_id: str = ctx.obj["season_id"]
     session = build_authenticated_session(ctx, config)
     games = run_action_or_exit(session, _list_scheduled_action, season_id)
-    rows = [game.model_dump(mode="json") for game in games]
-    rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command(games, output_format, output_path, columns_spec)
 
 
 @scheduled_group.command("create")
@@ -306,35 +219,8 @@ def completed_group() -> None:
 
 
 @completed_group.command("list")
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--columns",
-    "-c",
-    "columns_spec",
-    default=None,
-    help=("Comma-separated list of column names to include (default: all columns the API returns)."),
-)
+@common_output_options
+@list_columns_option
 @click.pass_context
 def completed_list_command(
     ctx: Context,
@@ -352,9 +238,7 @@ def completed_list_command(
     season_id: str = ctx.obj["season_id"]
     session = build_authenticated_session(ctx, config)
     games = run_action_or_exit(session, _list_completed_action, season_id)
-    rows = [game.model_dump(mode="json") for game in games]
-    rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command(games, output_format, output_path, columns_spec)
 
 
 # Brackets games sub-group
@@ -372,35 +256,8 @@ def brackets_group() -> None:
 
 
 @brackets_group.command("list")
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--columns",
-    "-c",
-    "columns_spec",
-    default=None,
-    help=("Comma-separated list of column names to include (default: all columns the API returns)."),
-)
+@common_output_options
+@list_columns_option
 @click.pass_context
 def brackets_list_command(
     ctx: Context,
@@ -418,6 +275,4 @@ def brackets_list_command(
     season_id: str = ctx.obj["season_id"]
     session = build_authenticated_session(ctx, config)
     games = run_action_or_exit(session, _list_brackets_action, season_id)
-    rows = [game.model_dump(mode="json") for game in games]
-    rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command(games, output_format, output_path, columns_spec)

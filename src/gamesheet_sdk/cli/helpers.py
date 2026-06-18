@@ -18,12 +18,11 @@ if TYPE_CHECKING:
 
 
 def build_authenticated_session(
-    _ctx: Context,
+    __ctx: Context,  # noqa: U101
     config: Config,
 ) -> AuthenticatedSession:
     """Build an AuthenticatedSession from saved tokens.
 
-    :param _ctx: The click context.
     :param config: The application config.
     :returns: An AuthenticatedSession ready to use.
     :raises Exit: If no tokens are saved.
@@ -63,9 +62,9 @@ def run_action_or_exit(session: AuthenticatedSession, action: Any, *args: Any) -
     try:
         with session:
             return action(session, *args)
-    except AuthenticationError as exc:  # pragma: no cover - same pattern across commands
+    except AuthenticationError as exc:
         click.secho(f"Authentication required: {exc}", fg="red", err=True)
         raise Exit(1) from exc
-    except GameSheetError as exc:  # pragma: no cover - same pattern across commands
+    except GameSheetError as exc:
         click.secho(f"GameSheet error: {exc}", fg="red", err=True)
         raise Exit(1) from exc

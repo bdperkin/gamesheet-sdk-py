@@ -18,14 +18,22 @@ Examples:
 
 from __future__ import annotations
 
-import rich_click as click
-from rich_click import Choice, Context, Path
+from typing import TYPE_CHECKING
 
-from gamesheet_sdk.cli.core import ResourceGroup, parse_columns_spec
+import rich_click as click
+
+from gamesheet_sdk.cli.core import ResourceGroup
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
+from gamesheet_sdk.cli.shared import (
+    common_output_options,
+    list_columns_option,
+    render_list_command,
+)
 from gamesheet_sdk.config import Config
 from gamesheet_sdk.ipad_keys import list_ipad_keys as _list_ipad_keys_action
-from gamesheet_sdk.output import ALL_FORMATS, DEFAULT_FORMAT, render, write_output
+
+if TYPE_CHECKING:
+    from rich_click import Context
 
 
 @click.group(
@@ -58,35 +66,8 @@ def ipad_keys_group() -> None:
     required=True,
     help="Season ID to retrieve iPad keys for.",
 )
-@click.option(
-    "--format",
-    "-F",
-    "output_format",
-    type=Choice(list(ALL_FORMATS), case_sensitive=False),
-    default=DEFAULT_FORMAT,
-    show_default=True,
-    help=(
-        "Output format. Data formats: json, yaml, csv, tsv. Human-readable "
-        "tabulate formats: plain, simple, grid, fancy_grid, pipe, orgtbl, "
-        "rst, mediawiki, html, latex, latex_raw, latex_booktabs, "
-        "latex_longtable."
-    ),
-)
-@click.option(
-    "--output",
-    "-o",
-    "output_path",
-    type=Path(dir_okay=False, writable=True),
-    default=None,
-    help="Write to this file instead of stdout.",
-)
-@click.option(
-    "--columns",
-    "-c",
-    "columns_spec",
-    default=None,
-    help=("Comma-separated list of column names to include (default: id, value, description, created_at)."),
-)
+@common_output_options
+@list_columns_option
 @click.pass_context
 def ipad_keys_get_command(
     ctx: Context,
@@ -118,7 +99,4 @@ def ipad_keys_get_command(
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
     keys = run_action_or_exit(session, _list_ipad_keys_action, season_id)
-    # Convert to list of dicts for rendering
-    rows = [key.model_dump(mode="json") for key in keys]
-    rendered = render(rows, fmt=output_format, columns=parse_columns_spec(columns_spec))
-    write_output(rendered, output_path, fmt=output_format)
+    render_list_command(keys, output_format, output_path, columns_spec)

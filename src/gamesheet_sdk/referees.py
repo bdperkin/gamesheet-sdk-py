@@ -95,11 +95,8 @@ def get_referee(session: Session, season_id: str, referee_id: str) -> Referee:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param season_id: The season identifier containing the referee.
-    :type season_id: str
     :param referee_id: The referee identifier to retrieve.
-    :type referee_id: str
     :returns: The :class:`Referee` with the specified ID.
     :rtype: Referee
     :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
@@ -142,11 +139,8 @@ def get_referee_report(
     must already carry a bearer token (e.g. via :meth:`Session.set_bearer_token`); the call is otherwise
     unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param season_id: The season identifier containing the referee.
-    :type season_id: str
     :param referee_id: The referee identifier to retrieve the report for.
-    :type referee_id: str
     :returns: The :class:`RefereeReport` with statistics and games.
     :rtype: RefereeReport
     :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
@@ -195,7 +189,6 @@ def get_referee_report(
     )
 
 
-# pylint: disable-next=too-many-positional-arguments
 def create_referee(
     session: Session,
     season_id: str,
@@ -209,17 +202,11 @@ def create_referee(
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param season_id: The season identifier in which to create the referee.
-    :type season_id: str
     :param first_name: Referee's first name.
-    :type first_name: str
     :param last_name: Referee's last name.
-    :type last_name: str
     :param email_address: Optional email address for the referee.
-    :type email_address: str | None
     :param external_id: Optional external identifier for the referee.
-    :type external_id: str | None
     :returns: The newly created :class:`Referee`.
     :rtype: Referee
     :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
@@ -264,7 +251,7 @@ def create_referee(
     return _parse(body["data"])
 
 
-# pylint: disable-next=too-many-positional-arguments,too-many-locals
+# pylint: disable-next=too-many-statements
 def update_referee(
     session: Session,
     season_id: str,
@@ -281,19 +268,12 @@ def update_referee(
     must be provided to update. The API requires sending the full referee data, so this function first fetches
     the current referee to preserve unchanged fields.
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param season_id: The season identifier containing the referee.
-    :type season_id: str
     :param referee_id: The referee identifier to update.
-    :type referee_id: str
     :param first_name: Optional updated first name.
-    :type first_name: str | None
     :param last_name: Optional updated last name.
-    :type last_name: str | None
     :param email_address: Optional updated email address.
-    :type email_address: str | None
     :param external_id: Optional updated external identifier.
-    :type external_id: str | None
     :returns: The updated :class:`Referee`.
     :rtype: Referee
     :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
@@ -384,11 +364,8 @@ def delete_referee(
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param season_id: The season identifier containing the referee.
-    :type season_id: str
     :param referee_id: The referee identifier to delete.
-    :type referee_id: str
     :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
         run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response.
@@ -421,9 +398,7 @@ def list_referees(session: Session, season_id: str) -> list[Referee]:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param season_id: The season identifier whose referees to list.
-    :type season_id: str
     :returns: A list of :class:`Referee`, in the order the server returned them. The list may be empty if the
         season has no referees.
     :rtype: list[Referee]

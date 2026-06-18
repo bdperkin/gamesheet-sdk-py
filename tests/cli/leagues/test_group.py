@@ -1,0 +1,20 @@
+"""Tests for leagues command group."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from gamesheet_sdk.cli import cli
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner
+
+
+def test_leagues_group_has_help_option(runner: CliRunner) -> None:
+    """The leagues group should accept -h and --help."""
+    result_short = runner.invoke(cli, ["leagues", "-h"])
+    assert not result_short.exit_code
+    assert "leagues" in result_short.output.lower()
+    result_long = runner.invoke(cli, ["leagues", "--help"])
+    assert not result_long.exit_code
+    assert "leagues" in result_long.output.lower()

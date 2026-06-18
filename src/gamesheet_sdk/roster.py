@@ -89,16 +89,10 @@ def get_player(session: Session, season_id: str, player_id: str) -> Player:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param season_id: The parent season identifier.
-    :type season_id: str
     :param player_id: The player identifier to retrieve.
-    :type player_id: str
     :returns: The :class:`Player` with the specified ID.
     :rtype: Player
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-sdk-py login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response, including 404 if the player is not found.
     """
     endpoint = f"/api/seasons/{season_id}/players/{player_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -113,16 +107,10 @@ def get_coach(session: Session, season_id: str, coach_id: str) -> Coach:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param season_id: The parent season identifier.
-    :type season_id: str
     :param coach_id: The coach identifier to retrieve.
-    :type coach_id: str
     :returns: The :class:`Coach` with the specified ID.
     :rtype: Coach
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-sdk-py login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response, including 404 if the coach is not found.
     """
     endpoint = f"/api/seasons/{season_id}/coaches/{coach_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -137,15 +125,10 @@ def list_players(session: Session, season_id: str) -> list[Player]:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param season_id: The season identifier whose players to list.
-    :type season_id: str
     :returns: A list of :class:`Player`, in the order the server returned them. The list may be empty if the
         season has no players.
     :rtype: list[Player]
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-sdk-py login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/players"
     response = session.get(endpoint, headers=JSONAPI_HEADERS, params={"include": "teams,divisions"})
@@ -162,15 +145,10 @@ def list_coaches(session: Session, season_id: str) -> list[Coach]:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param season_id: The season identifier whose coaches to list.
-    :type season_id: str
     :returns: A list of :class:`Coach`, in the order the server returned them. The list may be empty if the
         season has no coaches.
     :rtype: list[Coach]
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-sdk-py login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/coaches"
     response = session.get(endpoint, headers=JSONAPI_HEADERS, params={"include": "teams,divisions"})

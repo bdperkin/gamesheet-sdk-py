@@ -102,7 +102,7 @@ from gamesheet_sdk.teams import Team, create_team, delete_team, list_teams, upda
 
 try:
     __version__ = version("gamesheet-sdk-py")
-except PackageNotFoundError:  # pragma: no cover - only in uninstalled source tree
+except PackageNotFoundError:  # pragma: no cover
     __version__ = "0+unknown"
 __all__ = [
     "ALL_FORMATS",
