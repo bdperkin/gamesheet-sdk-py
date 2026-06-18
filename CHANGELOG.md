@@ -221,7 +221,7 @@
 
 ### Chores
 
-- Remove accidentally committed __pycache__ files ([#102](https://github.com/bdperkin/gamesheet-sdk-py/pull/102),
+- Remove accidentally committed **pycache** files ([#102](https://github.com/bdperkin/gamesheet-sdk-py/pull/102),
   [`d971336`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d971336726916a0834be3498adac0da963f1546b))
 
 - **deps**: Update pre-commit hooks ([#102](https://github.com/bdperkin/gamesheet-sdk-py/pull/102),
@@ -249,7 +249,7 @@
 
 ### Documentation
 
-- **tests**: Add docstrings to test package __init__ files ([#102](https://github.com/bdperkin/gamesheet-sdk-py/pull/102),
+- **tests**: Add docstrings to test package **init** files ([#102](https://github.com/bdperkin/gamesheet-sdk-py/pull/102),
   [`d971336`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d971336726916a0834be3498adac0da963f1546b))
 
 ### Features
@@ -295,7 +295,7 @@
 
 ### Chores
 
-- Remove accidentally committed __pycache__ files ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
+- Remove accidentally committed **pycache** files ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
   [`dff9679`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dff967953ab4db0f0679c7e9479af0a432b7a997))
 
 ### Code Style
@@ -314,7 +314,7 @@
 
 ### Documentation
 
-- **tests**: Add docstrings to test package __init__ files ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
+- **tests**: Add docstrings to test package **init** files ([#104](https://github.com/bdperkin/gamesheet-sdk-py/pull/104),
   [`dff9679`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dff967953ab4db0f0679c7e9479af0a432b7a997))
 
 ### Features

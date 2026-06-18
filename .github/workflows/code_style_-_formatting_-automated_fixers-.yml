@@ -1,3 +1,4 @@
+---
 name: Code Style & Formatting (Automated Fixers)
 
 on:
@@ -6,7 +7,6 @@ on:
     paths-ignore:
       - "CHANGELOG.md"
       - "pyproject.toml"
-
   pull_request:
     types: [opened, reopened, synchronize]
     paths-ignore:

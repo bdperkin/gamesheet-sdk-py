@@ -1,10 +1,17 @@
+---
 name: Semgrep SAST
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}

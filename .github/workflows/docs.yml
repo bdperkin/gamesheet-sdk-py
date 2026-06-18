@@ -1,3 +1,4 @@
+---
 name: Docs
 
 on:
@@ -6,7 +7,6 @@ on:
     paths-ignore:
       - "CHANGELOG.md"
       - "pyproject.toml"
-
   pull_request:
     types: [opened, reopened, synchronize]
     paths-ignore:
@@ -14,7 +14,6 @@ on:
       - "pyproject.toml"
 
 concurrency:
-  # Pages deploys must serialize on `main`; PRs serialize per-branch.
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
