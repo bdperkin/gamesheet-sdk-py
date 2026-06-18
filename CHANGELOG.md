@@ -2,6 +2,81 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.49 (2026-06-18)
+
+### Bug Fixes
+
+- Recover lost refactoring for divisions and teams commands ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+- Resolve flake8, pylint, mypy, and coverage violations ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+- **cli**: Move misplaced import in referees.py ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+- **tests**: Add MagicMock import to test_games_scheduled_get_coverage ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+- **tests**: Remove duplicate test_ipad_keys_get_json_output ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+- **tests**: Update all divisions test mocks for refactored commands ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+- **tests**: Update coverage tests for refactored CLI commands ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+- **tests**: Update final divisions test mocks for 100% coverage ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+### Build System
+
+- **deps**: Bump GitGuardian/ggshield-action in the actions group ([#111](https://github.com/bdperkin/gamesheet-sdk-py/pull/111),
+  [`d030195`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d03019518d7dcebdc811973998309401ef08cbfe))
+
+- **deps**: Simplify pre-commit hook dependencies ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+- **pyproject**: Fix pyproject-fmt formatting ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+### Chores
+
+- **tests**: Remove unused imports after test reorganization ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+### Documentation
+
+- **tests**: Add docstrings to test_update_team.py test methods ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+### Refactoring
+
+- Complete Phase 2 and Phase 3 of refactoring plan ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+- Extend CLI command refactoring to remaining files ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+- **cli**: Apply shared utilities to games commands ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+- **cli**: Apply shared utilities to referees commands ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+- **cli**: Apply shared utilities to roster commands ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+- **tests**: Apply shared helpers to remaining test files ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+- **tests**: Reorganize misplaced test methods ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
+- **tests**: Standardize test directory structure ([#110](https://github.com/bdperkin/gamesheet-sdk-py/pull/110),
+  [`6ee0c28`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6ee0c28a9e293bac9613251f4dc4c91abcabbba3))
+
 ## v0.1.48 (2026-06-17)
 
 ### Bug Fixes
