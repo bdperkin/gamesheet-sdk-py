@@ -1,3 +1,4 @@
+---
 # For most projects, this workflow file will not need changing; you simply need
 # to commit it to your repository.
 #
@@ -17,14 +18,13 @@ on:
     paths-ignore:
       - "CHANGELOG.md"
       - "pyproject.toml"
-
   pull_request:
     types: [opened, reopened, synchronize]
     paths-ignore:
       - "CHANGELOG.md"
       - "pyproject.toml"
-
   schedule:
+    # Run weekly on Wednesdays at 6:45 AM UTC
     - cron: "45 6 * * 3"
 
 concurrency:

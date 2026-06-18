@@ -3,18 +3,19 @@ name: Security - Trivy Vulnerability Scanning
 
 on:
   push:
+    branches-ignore: ["**"]
   pull_request:
     types: [opened, reopened]
   schedule:
-    # Run weekly on Mondays at 9am UTC
+    # Run weekly on Mondays at 9:00 AM UTC
     - cron: "0 9 * * 1"
-
-permissions:
-  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   trivy-fs:
