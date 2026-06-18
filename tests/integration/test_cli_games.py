@@ -8,8 +8,6 @@ from pathlib import Path
 import responses
 
 # Explicit import for coverage tracking of dynamically-loaded Click commands
-# pylint: disable-next=unused-import
-import gamesheet_sdk.cli.commands.games  # noqa: F401
 from gamesheet_sdk import BFF_API_BASE_URL
 from gamesheet_sdk.cli import main
 

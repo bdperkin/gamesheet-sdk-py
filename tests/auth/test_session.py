@@ -33,7 +33,7 @@ def _make_response(url: str, status: int, body: Any = None) -> MagicMock:
 
 
 _FIREBASE_URL = f"{FIREBASE_AUTH_URL}?key=X"
-_TOKEN_URL = TOKEN_EXCHANGE_URL  # nosec B105
+_TOKEN_URL = TOKEN_EXCHANGE_URL
 
 
 @pytest.fixture
@@ -57,20 +57,21 @@ def fake_browser_session(config: Config) -> MagicMock:
     # Default: no staged responses (simulates timeout).
     page.staged_responses = []
 
-    def click(_selector: str) -> None:
+    def click(__selector: str) -> None:  # noqa: U101
         for response in page.staged_responses:
             listeners["response"](response)
 
     page.click.side_effect = click
     # Make wait_for_timeout actually advance the clock a little so loops
     # don't spin entirely in zero real time.
-    page.wait_for_timeout.side_effect = lambda _ms: None
+    page.wait_for_timeout.side_effect = lambda __ms: None  # noqa: U101
     return sess
 
 
 # ---------- AuthenticatedSession -----------------------------------------
 @responses.activate
 def test_authenticated_session_passthrough_when_200(config: Config) -> None:
+    """Test that AuthenticatedSession passes through successful 200 responses."""
     responses.add(
         responses.GET,
         "https://test.example/x",
@@ -86,6 +87,7 @@ def test_authenticated_session_passthrough_when_200(config: Config) -> None:
 
 @responses.activate
 def test_authenticated_session_refreshes_and_retries_on_401(config: Config) -> None:
+    """Test that AuthenticatedSession refreshes token and retries on 401."""
     # 1st: 401, refresh, 2nd: 200 with the new bearer.
     responses.add(responses.GET, "https://test.example/x", json={"err": 1}, status=401)
     responses.add(
@@ -123,6 +125,7 @@ def test_authenticated_session_refreshes_and_retries_on_401(config: Config) -> N
 def test_authenticated_session_propagates_401_when_refresh_fails(
     config: Config,
 ) -> None:
+    """Test that 401 is propagated when token refresh fails."""
     responses.add(responses.GET, "https://test.example/x", json={"err": 1}, status=401)
     responses.add(responses.POST, REFRESH_URL, status=401, json={"errors": [{}]})
     with AuthenticatedSession(
@@ -140,6 +143,7 @@ def test_authenticated_session_propagates_401_when_refresh_fails(
 def test_authenticated_session_does_not_retry_when_refresh_returns_500(
     config: Config,
 ) -> None:
+    """Test that request is not retried when refresh returns 500."""
     responses.add(responses.GET, "https://test.example/x", status=401)
     responses.add(responses.POST, REFRESH_URL, status=500, body="boom")
     with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
@@ -150,6 +154,7 @@ def test_authenticated_session_does_not_retry_when_refresh_returns_500(
 
 @responses.activate
 def test_authenticated_session_post_also_triggers_refresh(config: Config) -> None:
+    """Test that POST requests also trigger refresh on 401."""
     responses.add(responses.POST, "https://test.example/mutate", status=401)
     responses.add(
         responses.POST,

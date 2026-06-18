@@ -62,7 +62,7 @@ class AuthenticatedSession(Session):
             return
         try:
             self._on_refresh(new_tokens)
-        except OSError as exc:  # pragma: no cover - disk failure path
+        except OSError as exc:  # pragma: no cover
             _LOGGER.warning("on_refresh callback failed to persist: %s", exc)
 
     def _try_refresh(self) -> bool:
@@ -104,7 +104,6 @@ class AuthenticatedSession(Session):
             headers, json, data, params).
         :returns: HTTP response object from the request. If token refresh fails, returns the original 401
             response without raising an exception.
-        :raises requests.RequestException: On network or HTTP errors other than 401.
         """
         response = super().request(method, url, timeout=timeout, **kwargs)
         if response.status_code != 401:

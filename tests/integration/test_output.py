@@ -30,24 +30,29 @@ _ROWS = [
 
 # ---------- format catalog ------------------------------------------------
 def test_format_constants_are_disjoint() -> None:
+    """Test that DATA_FORMATS and TABULATE_FORMATS have no overlap."""
     assert set(DATA_FORMATS).isdisjoint(set(TABULATE_FORMATS))
 
 
 def test_all_formats_is_union() -> None:
+    """Test that ALL_FORMATS is the union of DATA_FORMATS and TABULATE_FORMATS."""
     assert set(ALL_FORMATS) == set(DATA_FORMATS) | set(TABULATE_FORMATS)
 
 
 def test_default_format_is_in_all_formats() -> None:
+    """Test that DEFAULT_FORMAT is a valid format in ALL_FORMATS."""
     assert DEFAULT_FORMAT in ALL_FORMATS
 
 
 # ---------- render() per format ------------------------------------------
 def test_render_unknown_format_raises_value_error() -> None:
+    """Test that render raises ValueError for unknown format."""
     with pytest.raises(ValueError, match="Unknown format"):
         render(_ROWS, fmt="not-a-format")
 
 
 def test_render_json_is_sorted_keys_pretty_indented() -> None:
+    """Test that JSON rendering produces sorted, pretty-printed output."""
     out = render(_ROWS, fmt="json")
     data = json.loads(out)
     assert data == _ROWS
@@ -56,12 +61,14 @@ def test_render_json_is_sorted_keys_pretty_indented() -> None:
 
 
 def test_render_yaml_round_trips() -> None:
+    """Test that YAML rendering round-trips correctly."""
     out = render(_ROWS, fmt="yaml")
     data = yaml.safe_load(out)
     assert data == _ROWS
 
 
 def test_render_csv_header_and_rows() -> None:
+    """Test that CSV rendering includes header and data rows."""
     lines = render(_ROWS, fmt="csv").splitlines()
     assert lines[0] == "id,title,logo"
     assert lines[1] == "11,Hockey Time,"
@@ -69,6 +76,7 @@ def test_render_csv_header_and_rows() -> None:
 
 
 def test_render_tsv_uses_tab_delimiter() -> None:
+    """Test that TSV rendering uses tab delimiters."""
     out = render(_ROWS, fmt="tsv")
     assert "\t" in out.splitlines()[0]
     # commas in titles would be quoted; no titles have them
@@ -77,6 +85,7 @@ def test_render_tsv_uses_tab_delimiter() -> None:
 
 @pytest.mark.parametrize("fmt", list(TABULATE_FORMATS))
 def test_render_every_tabulate_format_returns_non_empty_string(fmt: str) -> None:
+    """Test that all tabulate formats produce non-empty output."""
     out = render(_ROWS, fmt=fmt)
     assert isinstance(out, str)
     assert out, f"tabulate format {fmt!r} produced an empty string"
@@ -85,6 +94,7 @@ def test_render_every_tabulate_format_returns_non_empty_string(fmt: str) -> None
 
 
 def test_render_columns_restricts_and_orders() -> None:
+    """Test that columns parameter restricts and orders output columns."""
     out = render(_ROWS, fmt="csv", columns=["title", "id"])
     lines = out.splitlines()
     assert lines[0] == "title,id"
@@ -93,12 +103,14 @@ def test_render_columns_restricts_and_orders() -> None:
 
 
 def test_render_empty_rows_yields_clean_output() -> None:
+    """Test that rendering empty rows produces clean output."""
     assert render([], fmt="json") == "[]"
     assert not render([], fmt="csv")
     assert not render([], fmt="simple")
 
 
 def test_render_handles_none_in_values_for_csv() -> None:
+    """Test that None values are handled correctly in CSV output."""
     rows = [{"a": 1, "b": None}]
     out = render(rows, fmt="csv")
     # None becomes empty string
@@ -109,12 +121,14 @@ def test_render_handles_none_in_values_for_csv() -> None:
 def test_write_output_to_file_creates_text_with_trailing_newline(
     tmp_path: Path,
 ) -> None:
+    """Test that writing to file adds trailing newline."""
     out = tmp_path / "out.json"
     write_output('{"x": 1}', out, fmt="json")
     assert out.read_text() == '{"x": 1}\n'
 
 
 def test_write_output_to_file_does_not_double_newline(tmp_path: Path) -> None:
+    """Test that writing to file doesn't add double newlines."""
     out = tmp_path / "out.txt"
     write_output("already-has-newline\n", out, fmt="simple")
     assert out.read_text() == "already-has-newline\n"
@@ -123,6 +137,7 @@ def test_write_output_to_file_does_not_double_newline(tmp_path: Path) -> None:
 def test_write_output_to_stdout_non_tty_writes_verbatim(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
+    """Test that stdout non-TTY output writes text verbatim."""
     # capsys redirects stdout, .isatty() returns False in this context.
     write_output("plain text", None, fmt="simple")
     captured = capsys.readouterr()
@@ -132,6 +147,7 @@ def test_write_output_to_stdout_non_tty_writes_verbatim(
 def test_write_output_to_stdout_non_tty_does_not_invoke_rich(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
+    """Test that non-TTY output doesn't use rich formatting."""
     with patch("gamesheet_sdk.output.Console") as mock_console:
         write_output('{"x": 1}', None, fmt="json")
     mock_console.assert_not_called()
@@ -141,6 +157,7 @@ def test_write_output_to_stdout_non_tty_does_not_invoke_rich(
 def test_write_output_json_to_tty_uses_rich_syntax(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Test that JSON output to TTY uses rich syntax highlighting."""
     monkeypatch.setattr(sys.stdout, "isatty", lambda: True, raising=False)
     with (
         patch("gamesheet_sdk.output.Console") as mock_console,
@@ -158,6 +175,7 @@ def test_write_output_json_to_tty_uses_rich_syntax(
 def test_write_output_yaml_to_tty_uses_rich_syntax(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Test that YAML output to TTY uses rich syntax highlighting."""
     monkeypatch.setattr(sys.stdout, "isatty", lambda: True, raising=False)
     with (
         patch("gamesheet_sdk.output.Console") as mock_console,
@@ -196,6 +214,7 @@ def test_write_output_to_file_skips_rich_even_on_tty(
 
 # ---------- types / values regression checks -----------------------------
 def test_render_datetime_in_json_is_iso() -> None:
+    """Test that datetime values are rendered as ISO format in JSON."""
     rows = [{"when": datetime(2024, 1, 1, tzinfo=timezone.utc)}]
     out = render(rows, fmt="json")
     assert "2024-01-01" in out

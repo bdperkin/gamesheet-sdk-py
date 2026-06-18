@@ -1,7 +1,5 @@
 """Divisions command group."""
 
-# pylint: disable=too-many-lines
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -138,7 +136,6 @@ def divisions_list_command(
 )
 @common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments
 def divisions_create_command(
     ctx: Context,
     season_id: str,
@@ -198,7 +195,6 @@ def divisions_create_command(
 )
 @common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments
 def divisions_update_command(
     ctx: Context,
     season_id: str,
@@ -303,7 +299,6 @@ def divisions_teams_list_command(
 )
 @common_output_options
 @click.pass_context
-# pylint: disable-next=import-outside-toplevel
 def divisions_teams_get_command(
     ctx: Context,
     season_id: str,
@@ -315,7 +310,8 @@ def divisions_teams_get_command(
 
     Delegates to teams get functionality.
     """
-    from gamesheet_sdk.teams import get_team as _get_team_action  # pylint: disable=import-outside-toplevel
+    # pylint: disable-next=import-outside-toplevel
+    from gamesheet_sdk.teams import get_team as _get_team_action
 
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
@@ -358,7 +354,6 @@ def divisions_teams_get_command(
 )
 @common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments,too-many-locals
 def divisions_teams_create_command(
     ctx: Context,
     season_id: str,
@@ -373,7 +368,7 @@ def divisions_teams_create_command(
 
     Delegates to teams create functionality.
     """
-    # pylint: disable=import-outside-toplevel
+    # pylint: disable-next=import-outside-toplevel
     from gamesheet_sdk.teams import create_team as _create_team_action
 
     config: Config = ctx.obj
@@ -447,7 +442,6 @@ def divisions_teams_create_command(
 )
 @common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments,too-many-locals
 def divisions_teams_update_command(
     ctx: Context,
     season_id: str,
@@ -465,7 +459,6 @@ def divisions_teams_update_command(
 
     Delegates to teams update functionality.
     """
-    # pylint: disable=import-outside-toplevel
     from gamesheet_sdk.teams import Team
     from gamesheet_sdk.teams import update_team as _update_team_action
 
@@ -514,7 +507,7 @@ def divisions_teams_delete_command(
 
     Delegates to teams delete functionality.
     """
-    # pylint: disable=import-outside-toplevel
+    # pylint: disable-next=import-outside-toplevel
     from gamesheet_sdk.teams import delete_team as _delete_team_action
 
     config: Config = ctx.obj

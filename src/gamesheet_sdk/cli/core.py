@@ -104,42 +104,45 @@ class ResourceGroup(click.RichGroup):
         self,
         name: str,
         cmd: Command,
-    ) -> tuple[str, str]:  # pragma: no cover
+    ) -> tuple[str, str]:
         """Build the ``"list (ls)"`` label + short-help pair for one command.
 
         :param name: Canonical command name.
         :param cmd: The Command object.
         :returns: A tuple of (label, short_help) where label includes aliases in parentheses if any exist.
         """
-        alts = sorted(a for a, t in self._aliases.items() if t == name)
-        label = f"{name} ({', '.join(alts)})" if alts else name
-        return label, cmd.get_short_help_str(limit=80)
+        alts = sorted(a for a, t in self._aliases.items() if t == name)  # pragma: no cover
+        label = f"{name} ({', '.join(alts)})" if alts else name  # pragma: no cover
+        return label, cmd.get_short_help_str(limit=80)  # pragma: no cover
 
     def _visible_command_rows(
         self,
         ctx: Context,
-    ) -> Iterable[tuple[str, str]]:  # pragma: no cover
+    ) -> Iterable[tuple[str, str]]:
         """Yield ``(label, short_help)`` for each non-hidden canonical command.
 
-        :param ctx: The click context for resolving commands.
-        :returns: An iterable of (label, short_help) tuples for visible commands.
+        Args:
+            ctx: The click context for resolving commands.
+
+        Yields:
+            tuple[str, str]: Tuples of (label, short_help) for visible commands.
         """
         for name in self.list_commands(ctx):
-            cmd = self.get_command(ctx, name)
-            if cmd is None or cmd.hidden:
-                continue
-            yield self._command_row(name, cmd)
+            cmd = self.get_command(ctx, name)  # pragma: no cover
+            if cmd is None or cmd.hidden:  # pragma: no cover
+                continue  # pragma: no cover
+            yield self._command_row(name, cmd)  # pragma: no cover
 
     def format_commands(
         self,
         ctx: Context,
         formatter: HelpFormatter,
-    ) -> None:  # pragma: no cover
+    ) -> None:
         """Render the command list with aliases in parentheses."""
         rows = list(self._visible_command_rows(ctx))
         if rows:
-            with formatter.section("Commands"):
-                formatter.write_dl(rows)
+            with formatter.section("Commands"):  # pragma: no cover
+                formatter.write_dl(rows)  # pragma: no cover
 
     def _alias_item_if_visible(
         self,
@@ -201,8 +204,8 @@ class ResourceGroup(click.RichGroup):
         super_shell_complete = getattr(super(), "shell_complete", None)
         if super_shell_complete is not None:
             results = list(super_shell_complete(ctx, incomplete))
-        else:  # pragma: no cover
-            results = []
+        else:
+            results = []  # pragma: no cover
         seen = {item.value for item in results}
         results.extend(self._alias_completion_items(incomplete, seen))
         return results
@@ -261,7 +264,7 @@ def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
     return decorator
 
 
-def _should_color(handler: logging.StreamHandler[Any]) -> bool:  # pragma: no cover
+def _should_color(handler: logging.StreamHandler[Any]) -> bool:
     """Return True if the handler's stream supports color.
 
     Checks for the ``NO_COLOR`` environment variable and whether the stream is a TTY.
@@ -289,8 +292,8 @@ def _configure_logging(verbose: int) -> None:
     else:
         level = logging.DEBUG
     handler = logging.StreamHandler(sys.stderr)
-    if _should_color(handler):  # pragma: no cover
-        formatter: logging.Formatter = colorlog.ColoredFormatter(
+    if _should_color(handler):
+        formatter: logging.Formatter = colorlog.ColoredFormatter(  # pragma: no cover
             "%(log_color)s%(levelname)-8s%(reset)s %(message)s",
             log_colors={
                 "DEBUG": "cyan",
@@ -323,14 +326,14 @@ def parse_columns_spec(spec: str | None) -> list[str] | None:
     if spec is None:
         return None
     stripped = spec.strip()
-    if not stripped:  # pragma: no cover - edge case: all whitespace
+    if not stripped:
         return None
     return [col.strip() for col in stripped.split(",") if col.strip()]
 
 
 def resolve_system_exit(
     exc: BaseException,
-) -> int:  # pragma: no cover - edge case handling
+) -> int:
     """Mirror Python's :class:`SystemExit` code-to-int convention.
 
     Extracts the exit code from a SystemExit exception following Python's standard behavior:
@@ -340,15 +343,15 @@ def resolve_system_exit(
     :param exc: A BaseException, typically a SystemExit.
     :returns: An integer exit code (0 for success, non-zero for failure).
     """
-    code = getattr(exc, "code", None)
-    if code is None:
-        return 0
-    if isinstance(code, int):
-        return code
-    return 1
+    code = getattr(exc, "code", None)  # pragma: no cover
+    if code is None:  # pragma: no cover
+        return 0  # pragma: no cover
+    if isinstance(code, int):  # pragma: no cover
+        return code  # pragma: no cover
+    return 1  # pragma: no cover
 
 
-def resolve_exit(exc: BaseException) -> int:  # pragma: no cover - exception handling
+def resolve_exit(exc: BaseException) -> int:
     """Map a click/Python exit-style exception to its conventional exit code.
 
     Handles click-specific exceptions and delegates to :func:`resolve_system_exit` for standard Python exits:
@@ -361,11 +364,11 @@ def resolve_exit(exc: BaseException) -> int:  # pragma: no cover - exception han
         error).
     """
     if isinstance(exc, Exit):
-        return int(exc.exit_code)
+        return int(exc.exit_code)  # pragma: no cover
     if isinstance(exc, UsageError):
         exc.show()
         return 2
-    if isinstance(exc, Abort):
-        click.echo("Aborted.", err=True)
-        return 1
-    return resolve_system_exit(exc)
+    if isinstance(exc, Abort):  # pragma: no cover
+        click.echo("Aborted.", err=True)  # pragma: no cover
+        return 1  # pragma: no cover
+    return resolve_system_exit(exc)  # pragma: no cover

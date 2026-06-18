@@ -25,6 +25,7 @@ def _payload(rows: list[dict[str, object]]) -> dict[str, object]:
 
 @responses.activate
 def test_list_divisions_parses_jsonapi_response(config: Config) -> None:
+    """Test that list_divisions correctly parses JSON:API response format."""
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -83,6 +84,7 @@ def test_list_divisions_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_divisions_sends_bearer_and_jsonapi_accept(config: Config) -> None:
+    """Test that list_divisions sends correct Authorization and Accept headers."""
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -95,6 +97,7 @@ def test_list_divisions_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
 @responses.activate
 def test_list_divisions_empty_data_returns_empty_list(config: Config) -> None:
+    """Test that list_divisions returns empty list when API returns no divisions."""
     responses.add(responses.GET, _ENDPOINT, json=_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -103,6 +106,7 @@ def test_list_divisions_empty_data_returns_empty_list(config: Config) -> None:
 
 @responses.activate
 def test_list_divisions_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 response raises AuthenticationError."""
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -119,6 +123,7 @@ def test_list_divisions_401_raises_authentication_error(config: Config) -> None:
 def test_list_divisions_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
+    """Test that 404 response raises GameSheetError with helpful message."""
     responses.add(responses.GET, _ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -133,6 +138,7 @@ def test_list_divisions_404_raises_gamesheet_error_with_helpful_message(
 def test_list_divisions_other_failure_raises_gamesheet_error(
     config: Config,
 ) -> None:
+    """Test that other HTTP errors raise GameSheetError."""
     responses.add(responses.GET, _ENDPOINT, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")

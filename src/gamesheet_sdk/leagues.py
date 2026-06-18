@@ -62,7 +62,6 @@ def _parse(item: dict[str, Any], association_id: str) -> League:
         ``attributes``.
     :param association_id: The parent association identifier to attach to the resulting model.
     :returns: A populated :class:`League` instance.
-    :raises KeyError: If ``item`` lacks an ``id`` field (malformed JSON:API response).
     """
     data = parse_jsonapi_resource(item)
     data["association_id"] = association_id
@@ -75,16 +74,10 @@ def get_league(session: Session, association_id: str, league_id: str) -> League:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param association_id: The parent association identifier.
-    :type association_id: str
     :param league_id: The league identifier to retrieve.
-    :type league_id: str
     :returns: The :class:`League` with the specified ID.
     :rtype: League
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-sdk-py login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response, including 404 if the league is not found.
     """
     endpoint = f"{_ENDPOINT_TEMPLATE.format(association_id=association_id)}/{league_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -102,9 +95,6 @@ def list_leagues(session: Session, association_id: str) -> list[League]:
     :param association_id: The association identifier whose leagues to list.
     :returns: A list of :class:`League`, in the order the server returned them. The list may be empty if the
         association has no leagues.
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-sdk-py login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response.
     """
     endpoint = _ENDPOINT_TEMPLATE.format(association_id=association_id)
     response = session.get(endpoint, headers=JSONAPI_HEADERS)

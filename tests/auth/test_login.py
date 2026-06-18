@@ -38,7 +38,7 @@ def _make_response(url: str, status: int, body: Any = None) -> MagicMock:
 
 
 _FIREBASE_URL = f"{FIREBASE_AUTH_URL}?key=X"
-_TOKEN_URL = TOKEN_EXCHANGE_URL  # nosec B105
+_TOKEN_URL = TOKEN_EXCHANGE_URL
 
 
 @pytest.fixture
@@ -62,25 +62,27 @@ def fake_browser_session(config: Config) -> MagicMock:
     # Default: no staged responses (simulates timeout).
     page.staged_responses = []
 
-    def click(_selector: str) -> None:
+    def click(__selector: str) -> None:  # noqa: U101
         for response in page.staged_responses:
             listeners["response"](response)
 
     page.click.side_effect = click
     # Make wait_for_timeout actually advance the clock a little so loops
     # don't spin entirely in zero real time.
-    page.wait_for_timeout.side_effect = lambda _ms: None
+    page.wait_for_timeout.side_effect = lambda __ms: None  # noqa: U101
     return sess
 
 
 # ---------- credential validation ----------------------------------------
 def test_login_missing_email_raises(fake_browser_session: MagicMock) -> None:
+    """Test that login raises AuthenticationError when email is missing."""
     with pytest.raises(AuthenticationError, match="requires an email"):
         login(fake_browser_session, password="hunter2")
     fake_browser_session.goto.assert_not_called()
 
 
 def test_login_missing_password_raises(fake_browser_session: MagicMock) -> None:
+    """Test that login raises AuthenticationError when password is missing."""
     with pytest.raises(AuthenticationError, match="requires a password"):
         login(fake_browser_session, email="alice@example.com")
     fake_browser_session.goto.assert_not_called()
@@ -89,6 +91,7 @@ def test_login_missing_password_raises(fake_browser_session: MagicMock) -> None:
 def test_login_empty_string_credentials_raise(
     fake_browser_session: MagicMock,
 ) -> None:
+    """Test that login raises AuthenticationError for empty string credentials."""
     # Empty email is rejected before the (also empty) password is ever inspected.
     with pytest.raises(AuthenticationError, match="requires an email"):
         login(fake_browser_session, email="", password="")
@@ -98,6 +101,7 @@ def test_login_empty_string_credentials_raise(
 def test_login_reads_credentials_from_config(
     fake_browser_session: MagicMock,
 ) -> None:
+    """Test that login reads email and password from config when not provided."""
     fake_browser_session.config = Config(
         base_url="https://test.example",
         username="bob@example.com",
@@ -114,7 +118,7 @@ def test_login_reads_credentials_from_config(
     def register(ev: str, cb: Any) -> None:
         listeners[ev] = cb
 
-    def click(_selector: str) -> None:
+    def click(__selector: str) -> None:  # noqa: U101
         for response in page.staged_responses:
             listeners["response"](response)
 
@@ -126,6 +130,7 @@ def test_login_reads_credentials_from_config(
 
 
 def test_login_args_override_config(fake_browser_session: MagicMock) -> None:
+    """Test that login arguments override config credentials."""
     fake_browser_session.config = Config(
         base_url="https://test.example",
         username="bob@example.com",
@@ -145,6 +150,7 @@ def test_login_args_override_config(fake_browser_session: MagicMock) -> None:
 def test_login_succeeds_when_firebase_and_token_both_200(
     fake_browser_session: MagicMock,
 ) -> None:
+    """Test that login succeeds when both Firebase and token exchange return 200."""
     page = fake_browser_session.goto.return_value
     page.staged_responses = [
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
@@ -165,6 +171,7 @@ def test_login_succeeds_when_firebase_and_token_both_200(
 def test_login_post_login_path_can_be_disabled(
     fake_browser_session: MagicMock,
 ) -> None:
+    """Test that post_login_path=None disables post-login navigation."""
     page = fake_browser_session.goto.return_value
     page.staged_responses = [
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
@@ -181,6 +188,7 @@ def test_login_post_login_path_can_be_disabled(
 
 
 def test_login_custom_post_login_path(fake_browser_session: MagicMock) -> None:
+    """Test that custom post_login_path is used for post-login navigation."""
     page = fake_browser_session.goto.return_value
     page.staged_responses = [
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
@@ -237,6 +245,7 @@ def test_login_surfaces_firebase_error_code(
     fake_browser_session: MagicMock,
     firebase_message: str,
 ) -> None:
+    """Test that Firebase error codes are included in raised exception."""
     page = fake_browser_session.goto.return_value
     page.staged_responses = [
         _make_response(
@@ -254,6 +263,7 @@ def test_login_surfaces_firebase_error_code(
 def test_login_firebase_failure_without_parseable_body(
     fake_browser_session: MagicMock,
 ) -> None:
+    """Test that Firebase failure without parseable body shows HTTP status."""
     page = fake_browser_session.goto.return_value
     page.staged_responses = [_make_response(_FIREBASE_URL, 500)]
     with pytest.raises(AuthenticationError) as exc_info:
@@ -265,6 +275,7 @@ def test_login_firebase_failure_without_parseable_body(
 def test_login_token_exchange_failure_raises(
     fake_browser_session: MagicMock,
 ) -> None:
+    """Test that token exchange failure raises AuthenticationError."""
     page = fake_browser_session.goto.return_value
     page.staged_responses = [
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
@@ -276,6 +287,7 @@ def test_login_token_exchange_failure_raises(
 
 # ---------- timeout / silence --------------------------------------------
 def test_login_no_responses_times_out(fake_browser_session: MagicMock) -> None:
+    """Test that login times out when no responses arrive."""
     page = fake_browser_session.goto.return_value
     page.staged_responses = []  # nothing arrives
     with pytest.raises(AuthenticationError, match="did not complete"):
@@ -298,6 +310,7 @@ def test_login_firebase_success_but_token_missing_times_out(
 def test_login_form_detection_uses_fixed_timeout(
     fake_browser_session: MagicMock,
 ) -> None:
+    """Test that form detection uses fixed 5s timeout regardless of login timeout."""
     page = fake_browser_session.goto.return_value
     page.staged_responses = [
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
@@ -310,6 +323,7 @@ def test_login_form_detection_uses_fixed_timeout(
 def test_login_short_circuits_when_saved_session_already_authenticates(
     fake_browser_session: MagicMock,
 ) -> None:
+    """Test that login short-circuits when saved session already authenticates."""
     page = fake_browser_session.goto.return_value
     page.wait_for_selector.side_effect = PlaywrightTimeoutError("no #email")
     login(fake_browser_session, email="a@b.c", password="x")

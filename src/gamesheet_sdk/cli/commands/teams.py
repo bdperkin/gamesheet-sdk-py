@@ -1,7 +1,5 @@
 """Teams command group."""
 
-# pylint: disable=too-many-lines
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -71,7 +69,6 @@ def teams_group() -> None:
 @common_output_options
 @get_fields_option
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments
 def teams_get_command(
     ctx: Context,
     season_id: str,
@@ -155,7 +152,6 @@ def teams_list_command(
 )
 @common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments,too-many-locals
 def teams_create_command(
     ctx: Context,
     season_id: str,
@@ -242,7 +238,6 @@ def teams_create_command(
 )
 @common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments
 def teams_update_command(
     ctx: Context,
     season_id: str,

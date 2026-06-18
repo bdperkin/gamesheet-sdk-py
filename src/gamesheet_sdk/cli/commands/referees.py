@@ -151,7 +151,6 @@ def referees_report_command(
 )
 @common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments
 def referees_create_command(
     ctx: Context,
     season_id: str,
@@ -220,7 +219,6 @@ def referees_create_command(
 )
 @common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments
 def referees_update_command(
     ctx: Context,
     season_id: str,

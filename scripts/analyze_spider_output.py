@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# flake8: noqa: INP001
 """Analyze and summarize spider output JSON files.
 
 This utility provides quick analysis and insights from spider crawl results, including statistics, mutation
@@ -25,15 +24,18 @@ def load_spider_output(path: Path) -> dict[str, Any]:
     :raises ValueError: If file is not valid JSON or missing required fields
     """
     if not path.exists():
-        raise FileNotFoundError(f"Spider output not found: {path}")
+        msg = f"Spider output not found: {path}"
+        raise FileNotFoundError(msg)
     try:
         data: dict[str, Any] = json.loads(path.read_text())
     except json.JSONDecodeError as exc:
-        raise ValueError(f"Invalid JSON in {path}: {exc}") from exc
+        msg = f"Invalid JSON in {path}: {exc}"
+        raise ValueError(msg) from exc
     required_fields = ["season_id", "base_url", "summary", "visited_urls"]
     missing = [f for f in required_fields if f not in data]
     if missing:
-        raise ValueError(f"Missing required fields: {', '.join(missing)}")
+        msg = f"Missing required fields: {', '.join(missing)}"
+        raise ValueError(msg)
     return data
 
 
@@ -148,7 +150,7 @@ def analyze_urls(data: dict[str, Any]) -> None:
     print("-" * 70)
     # URL path depth analysis
     base_url = data["base_url"]
-    depths = Counter(url[len(base_url) :].count("/") for url in urls)
+    depths = Counter(url[len(base_url) :].count("/") for url in urls)  # noqa: E203
     print("  URL Depth Distribution:")
     for depth, count in sorted(depths.items()):
         bar_chart = "█" * (count * 40 // max(depths.values()))
@@ -156,7 +158,8 @@ def analyze_urls(data: dict[str, Any]) -> None:
     print()
     # Common path prefixes
     path_prefixes = Counter(
-        url[len(base_url) :].split("/")[1] if "/" in url[len(base_url) :] else "" for url in urls
+        url[len(base_url) :].split("/")[1] if "/" in url[len(base_url) :] else ""  # noqa: E203
+        for url in urls
     )
     print("  Top URL Path Prefixes:")
     for prefix, count in path_prefixes.most_common(10):
@@ -254,23 +257,23 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         data = load_spider_output(args.input)
-        if not args.no_summary:
-            print_summary(data)
-            analyze_mutations(data)
-            analyze_network(data)
-            analyze_urls(data)
-            analyze_errors(data)
-        if args.export_apis:
-            export_api_endpoints(data, args.export_apis)
-        if args.export_mutations:
-            export_mutations(data, args.export_mutations)
-        return 0
     except (FileNotFoundError, ValueError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     except Exception as exc:
         print(f"Unexpected error: {exc}", file=sys.stderr)
         return 1
+    if not args.no_summary:
+        print_summary(data)
+        analyze_mutations(data)
+        analyze_network(data)
+        analyze_urls(data)
+        analyze_errors(data)
+    if args.export_apis:
+        export_api_endpoints(data, args.export_apis)
+    if args.export_mutations:
+        export_mutations(data, args.export_mutations)
+    return 0
 
 
 if __name__ == "__main__":

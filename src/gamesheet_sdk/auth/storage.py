@@ -63,7 +63,6 @@ def read_state_file(path: Path) -> dict[str, Any] | None:
     Reads and parses a Playwright browser storage state file. Returns None if
     the file does not exist or cannot be parsed.
     :param path: Path to the browser storage state JSON file.
-    :type path: Path
     :returns: Parsed storage state dictionary, or None if file is missing or cannot be parsed.
     :rtype: dict[str, Any] | None
     .. note:: This function logs a warning (not an error) if the file exists but
@@ -87,11 +86,8 @@ def lookup_local_storage(state: dict[str, Any], base_url: str, name: str) -> Any
     the given origin (base_url) and key name.
     :param state: Parsed browser storage state dictionary (from :func:`read_state_file` or
         :func:`read_state_or_empty`).
-    :type state: dict[str, Any]
     :param base_url: Origin URL to search for (e.g., :data:`APP_GAMESHEET_COM`).
-    :type base_url: str
     :param name: localStorage key name to look up.
-    :type name: str
     :returns: The value associated with the key, or None if the origin or key is not found.
     :rtype: Any
     .. note:: The value returned is untyped (Any) — callers should validate the type
@@ -114,9 +110,7 @@ def load_local_storage_value(config: Config, name: str) -> str | None:
     ``config.browser_state_path``, looks up the localStorage value for
     ``config.base_url``, and validates that it is a non-empty string.
     :param config: Configuration object containing the browser state path and base URL.
-    :type config: Config
     :param name: localStorage key name to retrieve (e.g., ``"access_token"``).
-    :type name: str
     :returns: The string value if found and non-empty, otherwise None.
     :rtype: str | None
     .. note:: Returns None if the file does not exist, cannot be parsed, the origin
@@ -149,7 +143,6 @@ def read_state_or_empty(path: Path) -> dict[str, Any]:
     does not exist or cannot be parsed, it returns a minimal valid state
     structure.
     :param path: Path to the browser storage state JSON file.
-    :type path: Path
     :returns: Parsed storage state dictionary, or ``{"cookies": [], "origins": []}`` if the file is missing or
         cannot be parsed.
     :rtype: dict[str, Any]
@@ -174,9 +167,7 @@ def origin_entry_for(state: dict[str, Any], base_url: str) -> dict[str, Any]:
     the given URL. If not found, creates a new origin entry with an empty
     localStorage array and appends it to the list.
     :param state: Browser storage state dictionary (typically from :func:`read_state_or_empty`).
-    :type state: dict[str, Any]
     :param base_url: Origin URL (e.g., :data:`APP_GAMESHEET_COM`).
-    :type base_url: str
     :returns: The origin entry dictionary containing ``"origin"`` and ``"localStorage"`` keys. The returned
         dict is a **live reference** — modifications to it will update the state.
     :rtype: dict[str, Any]
@@ -203,9 +194,7 @@ def apply_local_storage_updates(
     keys that do not exist.
     :param ls: The ``localStorage`` array from an origin entry (typically ``origin["localStorage"]``). This
         list is **mutated in place**.
-    :type ls: list[dict[str, str]]
     :param updates: Dictionary of key-value pairs to upsert.
-    :type updates: dict[str, str]
     :returns: None
     :rtype: None
     .. warning:: This function **mutates** the ``ls`` list in place. Ensure you write

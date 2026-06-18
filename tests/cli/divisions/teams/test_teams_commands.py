@@ -19,7 +19,7 @@ def test_divisions_teams_get_coverage() -> None:
         patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
         patch(
             "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
-            return_value=MagicMock(model_dump=lambda **_: {"id": "1", "title": "Team 1"}),
+            return_value=MagicMock(model_dump=lambda **__kw: {"id": "1", "title": "Team 1"}),  # noqa: U101
         ),
         patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
     ):
@@ -46,8 +46,8 @@ def test_divisions_teams_create_coverage() -> None:
     def run_action_side_effect(
         session: MagicMock,
         func: Any,
-        *_args: Any,
-        **_kwargs: Any,
+        *__args: Any,  # noqa: U101
+        **__kwargs: Any,  # noqa: U101
     ) -> Any:
         # Call the function to ensure it's covered
         if callable(func):
@@ -129,7 +129,12 @@ def test_divisions_teams_update_coverage() -> None:
     """Ensure divisions teams update command body is covered."""
     runner = CliRunner()
 
-    def run_action_side_effect(session: MagicMock, func: Any, *_args: Any, **_kwargs: Any) -> Any:
+    def run_action_side_effect(
+        session: MagicMock,
+        func: Any,
+        *__args: Any,  # noqa: U101
+        **__kwargs: Any,  # noqa: U101
+    ) -> Any:
         # Call the function to ensure it's covered
         if callable(func):
             return func(session)
@@ -139,7 +144,9 @@ def test_divisions_teams_update_coverage() -> None:
         patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
         patch(
             "gamesheet_sdk.teams.update_team",
-            return_value=MagicMock(model_dump=lambda **_: {"id": "1", "title": "Updated Team"}),
+            return_value=MagicMock(
+                model_dump=lambda **__kw: {"id": "1", "title": "Updated Team"},  # noqa: U101
+            ),
         ),
         patch(
             "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",

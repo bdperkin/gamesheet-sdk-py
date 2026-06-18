@@ -25,6 +25,7 @@ _COACHES_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/coaches"
 
 @responses.activate
 def test_list_players_parses_jsonapi_response(config: Config) -> None:
+    """Test that list_players correctly parses JSON:API response format."""
     responses.add(
         responses.GET,
         _PLAYERS_ENDPOINT,
@@ -88,6 +89,7 @@ def test_list_players_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_coaches_parses_jsonapi_response(config: Config) -> None:
+    """Test that list_coaches correctly parses JSON:API response format."""
     responses.add(
         responses.GET,
         _COACHES_ENDPOINT,
@@ -130,6 +132,7 @@ def test_list_coaches_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_players_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 response raises AuthenticationError."""
     responses.add(responses.GET, _PLAYERS_ENDPOINT, json={}, status=401)
     with Session(config) as session:
         session.set_bearer_token("expired")
@@ -139,6 +142,7 @@ def test_list_players_401_raises_authentication_error(config: Config) -> None:
 
 @responses.activate
 def test_list_players_404_raises_gamesheet_error(config: Config) -> None:
+    """Test that 404 response raises GameSheetError."""
     responses.add(responses.GET, _PLAYERS_ENDPOINT, json={}, status=404)
     with Session(config) as session:
         session.set_bearer_token("valid")
@@ -148,6 +152,7 @@ def test_list_players_404_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_list_players_500_raises_gamesheet_error(config: Config) -> None:
+    """Test that 500 response raises GameSheetError."""
     responses.add(responses.GET, _PLAYERS_ENDPOINT, json={}, status=500)
     with Session(config) as session:
         session.set_bearer_token("valid")
@@ -157,6 +162,7 @@ def test_list_players_500_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_list_coaches_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 response raises AuthenticationError."""
     responses.add(responses.GET, _COACHES_ENDPOINT, json={}, status=401)
     with Session(config) as session:
         session.set_bearer_token("expired")
@@ -166,6 +172,7 @@ def test_list_coaches_401_raises_authentication_error(config: Config) -> None:
 
 @responses.activate
 def test_list_coaches_404_raises_gamesheet_error(config: Config) -> None:
+    """Test that 404 response raises GameSheetError."""
     responses.add(responses.GET, _COACHES_ENDPOINT, json={}, status=404)
     with Session(config) as session:
         session.set_bearer_token("valid")
@@ -175,6 +182,7 @@ def test_list_coaches_404_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_list_coaches_500_raises_gamesheet_error(config: Config) -> None:
+    """Test that 500 response raises GameSheetError."""
     responses.add(responses.GET, _COACHES_ENDPOINT, json={}, status=500)
     with Session(config) as session:
         session.set_bearer_token("valid")
@@ -184,6 +192,7 @@ def test_list_coaches_500_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_list_players_handles_empty_data(config: Config) -> None:
+    """Test that list_players returns empty list when API returns no data."""
     responses.add(responses.GET, _PLAYERS_ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("valid")
@@ -193,6 +202,7 @@ def test_list_players_handles_empty_data(config: Config) -> None:
 
 @responses.activate
 def test_list_coaches_handles_empty_data(config: Config) -> None:
+    """Test that list_coaches returns empty list when API returns no data."""
     responses.add(responses.GET, _COACHES_ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("valid")

@@ -40,7 +40,7 @@ def _make_response(url: str, status: int, body: Any = None) -> MagicMock:
 
 
 _FIREBASE_URL = f"{FIREBASE_AUTH_URL}?key=X"
-_TOKEN_URL = TOKEN_EXCHANGE_URL  # nosec B105
+_TOKEN_URL = TOKEN_EXCHANGE_URL
 
 
 @pytest.fixture
@@ -64,30 +64,33 @@ def fake_browser_session(config: Config) -> MagicMock:
     # Default: no staged responses (simulates timeout).
     page.staged_responses = []
 
-    def click(_selector: str) -> None:
+    def click(__selector: str) -> None:  # noqa: U101
         for response in page.staged_responses:
             listeners["response"](response)
 
     page.click.side_effect = click
     # Make wait_for_timeout actually advance the clock a little so loops
     # don't spin entirely in zero real time.
-    page.wait_for_timeout.side_effect = lambda _ms: None
+    page.wait_for_timeout.side_effect = lambda __ms: None  # noqa: U101
     return sess
 
 
 # ---------- load_access_token ----------------------------------------------
 def test_load_access_token_missing_state_file_returns_none(config: Config) -> None:
+    """Test that load_access_token returns None when state file doesn't exist."""
     assert not config.browser_state_path.exists()
     assert load_access_token(config) is None
 
 
 def test_load_access_token_corrupt_state_file_returns_none(config: Config) -> None:
+    """Test that load_access_token returns None for corrupt state file."""
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     config.browser_state_path.write_text("{ this is not json")
     assert load_access_token(config) is None
 
 
 def test_load_access_token_state_without_token_returns_none(config: Config) -> None:
+    """Test that load_access_token returns None when token not in state."""
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     config.browser_state_path.write_text(
         '{"cookies": [], "origins": ['
@@ -99,6 +102,7 @@ def test_load_access_token_state_without_token_returns_none(config: Config) -> N
 
 
 def test_load_access_token_returns_value_when_present(config: Config) -> None:
+    """Test that load_access_token returns token value when present."""
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     config.browser_state_path.write_text(
         '{"cookies": [], "origins": ['
@@ -123,6 +127,7 @@ def test_load_access_token_ignores_other_origins(config: Config) -> None:
 
 # ---------- save_tokens ---------------------------------------------------
 def test_save_tokens_creates_state_file(config: Config) -> None:
+    """Test that save_tokens creates state file with tokens."""
     assert not config.browser_state_path.exists()
     save_tokens(config, access="new-access", refresh="new-refresh", roles="new-roles")
     assert config.browser_state_path.exists()
@@ -135,6 +140,7 @@ def test_save_tokens_creates_state_file(config: Config) -> None:
 
 
 def test_save_tokens_updates_existing_state(config: Config) -> None:
+    """Test that save_tokens updates tokens in existing state file."""
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     initial = {
         "cookies": [{"name": "preserve", "value": "me", "domain": "test.example"}],
@@ -163,6 +169,7 @@ def test_save_tokens_updates_existing_state(config: Config) -> None:
 
 
 def test_save_tokens_recovers_from_corrupt_state(config: Config) -> None:
+    """Test that save_tokens recovers from corrupt state file."""
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     config.browser_state_path.write_text("{ corrupt")
     save_tokens(config, access="A", refresh="R")
@@ -175,6 +182,7 @@ def test_save_tokens_recovers_from_corrupt_state(config: Config) -> None:
 # ---------- refresh_access_token -----------------------------------------
 @responses.activate
 def test_refresh_access_token_happy_path() -> None:
+    """Test that refresh_access_token successfully refreshes tokens."""
     responses.add(
         responses.POST,
         REFRESH_URL,
@@ -193,6 +201,7 @@ def test_refresh_access_token_happy_path() -> None:
 
 @responses.activate
 def test_refresh_access_token_401_raises_authentication_error() -> None:
+    """Test that 401 response raises AuthenticationError."""
     responses.add(responses.POST, REFRESH_URL, json={"errors": [{}]}, status=401)
     with pytest.raises(AuthenticationError, match="Refresh token rejected"):
         refresh_access_token("DEAD-REFRESH")
@@ -200,6 +209,7 @@ def test_refresh_access_token_401_raises_authentication_error() -> None:
 
 @responses.activate
 def test_refresh_access_token_other_failure_raises_gamesheet_error() -> None:
+    """Test that other HTTP errors raise GameSheetError."""
     responses.add(responses.POST, REFRESH_URL, status=500, body="boom")
     with pytest.raises(GameSheetError, match="HTTP 500"):
         refresh_access_token("R")
@@ -208,6 +218,8 @@ def test_refresh_access_token_other_failure_raises_gamesheet_error() -> None:
 # ---------- AuthenticatedSession -----------------------------------------
 # ---------- load_refresh_token (line 348) ------------------------------------
 def test_load_refresh_token_returns_value_when_present(config: Config) -> None:
+    """Test that load_refresh_token returns token value when present."""
+    # pylint: disable-next=import-outside-toplevel
     from gamesheet_sdk.auth import load_refresh_token as _load_refresh_token
 
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)

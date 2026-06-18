@@ -20,6 +20,7 @@ _CREATE_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/divisions"
 
 @responses.activate
 def test_create_division_sends_correct_payload(config: Config) -> None:
+    """Test that create_division sends correct payload with external_id."""
     responses.add(
         responses.POST,
         _CREATE_ENDPOINT,
@@ -73,6 +74,7 @@ def test_create_division_sends_correct_payload(config: Config) -> None:
 def test_create_division_generates_uuid_if_external_id_not_provided(
     config: Config,
 ) -> None:
+    """Test that create_division generates UUID when external_id not provided."""
     responses.add(
         responses.POST,
         _CREATE_ENDPOINT,
@@ -118,6 +120,7 @@ def test_create_division_generates_uuid_if_external_id_not_provided(
 
 @responses.activate
 def test_create_division_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 response raises AuthenticationError."""
     responses.add(
         responses.POST,
         _CREATE_ENDPOINT,
@@ -134,6 +137,7 @@ def test_create_division_401_raises_authentication_error(config: Config) -> None
 def test_create_division_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
+    """Test that 404 response raises GameSheetError with helpful message."""
     responses.add(responses.POST, _CREATE_ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -148,6 +152,7 @@ def test_create_division_404_raises_gamesheet_error_with_helpful_message(
 def test_create_division_other_failure_raises_gamesheet_error(
     config: Config,
 ) -> None:
+    """Test that other HTTP errors raise GameSheetError."""
     responses.add(responses.POST, _CREATE_ENDPOINT, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")

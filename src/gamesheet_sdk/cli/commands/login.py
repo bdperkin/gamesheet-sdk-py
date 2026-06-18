@@ -59,7 +59,7 @@ if TYPE_CHECKING:
     help="Page-load timeout in milliseconds.",
 )
 @click.pass_context
-def login_command(  # pragma: no cover - requires browser automation
+def login_command(
     ctx: Context,
     email: str | None,
     password: str | None,
@@ -95,11 +95,11 @@ def login_command(  # pragma: no cover - requires browser automation
             $ rm ~/.local/share/gamesheet-sdk-py/browser_state
             $ gamesheet-sdk-py login --email user@example.com
     """
-    config: Config = ctx.obj
+    config: Config = ctx.obj  # pragma: no cover
     try:  # pragma: no cover
         with BrowserSession(config) as session:
             _login_action(session, email=email, password=password, timeout=timeout)
-    except Exception as exc:  # pragma: no cover - browser errors
+    except Exception as exc:  # pragma: no cover
         click.secho(f"Login failed: {exc}", fg="red", err=True)
         raise Exit(1) from exc
-    click.secho("Login successful! Tokens saved.", fg="green")
+    click.secho("Login successful! Tokens saved.", fg="green")  # pragma: no cover

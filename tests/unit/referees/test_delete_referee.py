@@ -15,6 +15,7 @@ _ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/referees"
 
 @responses.activate
 def test_delete_referee_success(config: Config) -> None:
+    """Test successful referee deletion."""
     _referee_id = "1146197"
     _delete_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     responses.add(
@@ -33,6 +34,7 @@ def test_delete_referee_success(config: Config) -> None:
 
 @responses.activate
 def test_delete_referee_sends_bearer_and_jsonapi_accept(config: Config) -> None:
+    """Test that delete_referee sends correct Authorization and Accept headers."""
     _referee_id = "101"
     _delete_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     responses.add(
@@ -51,6 +53,7 @@ def test_delete_referee_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
 @responses.activate
 def test_delete_referee_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 response raises AuthenticationError."""
     _referee_id = "101"
     _delete_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     responses.add(
@@ -69,6 +72,7 @@ def test_delete_referee_401_raises_authentication_error(config: Config) -> None:
 def test_delete_referee_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
+    """Test that 404 response raises GameSheetError with helpful message."""
     _referee_id = "nonexistent"
     _delete_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     responses.add(responses.DELETE, _delete_endpoint, status=404, body="Not found")
@@ -85,6 +89,7 @@ def test_delete_referee_404_raises_gamesheet_error_with_helpful_message(
 def test_delete_referee_other_failure_raises_gamesheet_error(
     config: Config,
 ) -> None:
+    """Test that other HTTP errors raise GameSheetError."""
     _referee_id = "101"
     _delete_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
     responses.add(responses.DELETE, _delete_endpoint, status=500, body="boom")

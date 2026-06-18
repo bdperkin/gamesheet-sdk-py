@@ -50,11 +50,13 @@ ALL_FORMATS: tuple[str, ...] = DATA_FORMATS + TABULATE_FORMATS
 DEFAULT_FORMAT = "simple"
 
 
-def _render_json(rows: list[dict[str, Any]], _columns: list[str]) -> str:
+def _render_json(
+    rows: list[dict[str, Any]],
+    _columns: list[str],  # noqa: U101
+) -> str:
     """Render rows as indented, sorted JSON.
 
     :param rows: List of row dictionaries to serialize.
-    :param _columns: Ignored; JSON format includes all keys from each row.
     :returns: JSON string with 2-space indentation and sorted keys.
     Example output::
         [
@@ -67,11 +69,13 @@ def _render_json(rows: list[dict[str, Any]], _columns: list[str]) -> str:
     return json.dumps(rows, indent=2, sort_keys=True, default=str)
 
 
-def _render_yaml(rows: list[dict[str, Any]], _columns: list[str]) -> str:
+def _render_yaml(
+    rows: list[dict[str, Any]],
+    _columns: list[str],  # noqa: U101
+) -> str:
     """Render rows as block-style YAML.
 
     :param rows: List of row dictionaries to serialize.
-    :param _columns: Ignored; YAML format includes all keys from each row.
     :returns: YAML string in block style with sorted
     keys, trailing whitespace stripped.
 

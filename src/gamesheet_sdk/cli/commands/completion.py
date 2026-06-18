@@ -32,7 +32,7 @@ def completion_command(shell: str) -> None:
     from click.shell_completion import get_completion_class
 
     cls = get_completion_class(shell)
-    if cls is None:  # pragma: no cover - shell choice enum prevents this
+    if cls is None:  # pragma: no cover
         click.secho(f"Unsupported shell: {shell}", fg="red", err=True)
         raise Exit(1)
     # Create the completion instance and echo its source

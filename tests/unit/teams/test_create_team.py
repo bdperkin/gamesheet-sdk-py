@@ -27,6 +27,7 @@ _CREATE_ENDPOINT = f"{_BFF_BASE}/dwg/seasons/{_SEASON_ID}/teams"
 
 @responses.activate
 def test_create_team_sends_correct_payload_without_logo(config: Config) -> None:
+    """Test that create_team sends correct payload without logo."""
     responses.add(
         responses.POST,
         _CREATE_ENDPOINT,
@@ -82,6 +83,7 @@ def test_create_team_sends_correct_payload_without_logo(config: Config) -> None:
 
 @responses.activate
 def test_create_team_with_external_id(config: Config) -> None:
+    """Test that create_team includes external_id in payload when provided."""
     responses.add(
         responses.POST,
         _CREATE_ENDPOINT,
@@ -116,6 +118,7 @@ def test_create_team_with_external_id(config: Config) -> None:
 
 @responses.activate
 def test_create_team_with_logo(config: Config) -> None:
+    """Test that create_team uploads logo and includes it in team creation."""
     # Create a temporary image file
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
@@ -191,6 +194,7 @@ def test_create_team_with_logo(config: Config) -> None:
 
 @responses.activate
 def test_create_team_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 response raises AuthenticationError."""
     responses.add(
         responses.POST,
         _CREATE_ENDPOINT,
@@ -205,6 +209,7 @@ def test_create_team_401_raises_authentication_error(config: Config) -> None:
 
 @responses.activate
 def test_create_team_other_failure_raises_gamesheet_error(config: Config) -> None:
+    """Test that other HTTP errors raise GameSheetError."""
     responses.add(responses.POST, _CREATE_ENDPOINT, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -214,6 +219,7 @@ def test_create_team_other_failure_raises_gamesheet_error(config: Config) -> Non
 
 @responses.activate
 def test_create_team_failed_status_raises_gamesheet_error(config: Config) -> None:
+    """Test that failed status in response raises GameSheetError."""
     responses.add(
         responses.POST,
         _CREATE_ENDPOINT,
@@ -228,6 +234,7 @@ def test_create_team_failed_status_raises_gamesheet_error(config: Config) -> Non
 
 @responses.activate
 def test_upload_logo_invalid_file_raises_error(config: Config) -> None:
+    """Test that invalid logo file path raises GameSheetError."""
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="Logo file not found"):
@@ -242,6 +249,7 @@ def test_upload_logo_invalid_file_raises_error(config: Config) -> None:
 
 @responses.activate
 def test_upload_logo_non_image_file_raises_error(config: Config) -> None:
+    """Test that non-image file raises GameSheetError."""
     # Create a temporary non-image file
     with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as f:
         f.write(b"not an image")
@@ -263,6 +271,7 @@ def test_upload_logo_non_image_file_raises_error(config: Config) -> None:
 
 @responses.activate
 def test_upload_url_request_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 on upload URL request raises AuthenticationError."""
     # Create a temporary image file
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
@@ -290,6 +299,7 @@ def test_upload_url_request_401_raises_authentication_error(config: Config) -> N
 
 @responses.activate
 def test_upload_url_request_failure_raises_gamesheet_error(config: Config) -> None:
+    """Test that HTTP errors on upload URL request raise GameSheetError."""
     # Create a temporary image file
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
@@ -317,6 +327,7 @@ def test_upload_url_request_failure_raises_gamesheet_error(config: Config) -> No
 
 @responses.activate
 def test_upload_url_failed_status_raises_gamesheet_error(config: Config) -> None:
+    """Test that failed status on upload URL request raises GameSheetError."""
     # Create a temporary image file
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
@@ -344,6 +355,7 @@ def test_upload_url_failed_status_raises_gamesheet_error(config: Config) -> None
 
 @responses.activate
 def test_image_upload_failure_raises_gamesheet_error(config: Config) -> None:
+    """Test that HTTP errors during image upload raise GameSheetError."""
     # Create a temporary image file
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
@@ -385,6 +397,7 @@ def test_image_upload_failure_raises_gamesheet_error(config: Config) -> None:
 def test_image_upload_failed_success_flag_raises_gamesheet_error(
     config: Config,
 ) -> None:
+    """Test that failed success flag in upload response raises GameSheetError."""
     # Create a temporary image file
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")

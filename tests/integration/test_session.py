@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
 
 def test_default_user_agent_is_version_stamped(config: Config) -> None:
+    """Test that default User-Agent header includes version."""
     with Session(config) as sess:
         # Session.headers is typed `str | bytes` (matches the requests stub);
         # the SDK only ever stores a str, so narrow here for static checkers.
@@ -24,6 +25,7 @@ def test_default_user_agent_is_version_stamped(config: Config) -> None:
 
 
 def test_user_agent_override(config: Config) -> None:
+    """Test that custom user_agent config overrides default User-Agent."""
     config.user_agent = "custom-agent/1.0"
     with Session(config) as sess:
         assert sess.headers["User-Agent"] == "custom-agent/1.0"
@@ -31,6 +33,7 @@ def test_user_agent_override(config: Config) -> None:
 
 @responses.activate
 def test_relative_url_resolves_against_base(config: Config) -> None:
+    """Test that relative URLs are resolved against base_url."""
     responses.add(
         responses.GET,
         "https://test.example/api/leagues",
@@ -45,6 +48,7 @@ def test_relative_url_resolves_against_base(config: Config) -> None:
 
 @responses.activate
 def test_absolute_url_used_verbatim(config: Config) -> None:
+    """Test that absolute URLs bypass base_url resolution."""
     responses.add(
         responses.GET,
         "https://other.example/foo",
@@ -58,6 +62,7 @@ def test_absolute_url_used_verbatim(config: Config) -> None:
 
 @responses.activate
 def test_post_put_delete_resolve_too(config: Config) -> None:
+    """Test that POST/PUT/DELETE methods also resolve relative URLs."""
     responses.add(responses.POST, "https://test.example/a", status=201)
     responses.add(responses.PUT, "https://test.example/b", status=204)
     responses.add(responses.DELETE, "https://test.example/c", status=204)
@@ -69,6 +74,7 @@ def test_post_put_delete_resolve_too(config: Config) -> None:
 
 @responses.activate
 def test_cookies_persist_across_session_lifecycles(config: Config) -> None:
+    """Test that cookies are saved and restored across session lifecycles."""
     responses.add(
         responses.GET,
         "https://test.example/login",
@@ -85,6 +91,7 @@ def test_cookies_persist_across_session_lifecycles(config: Config) -> None:
 
 
 def test_save_creates_parent_dirs(config: Config) -> None:
+    """Test that saving session creates parent directories if needed."""
     nested = config.session_path.parent / "deep" / "nest" / "session.json"
     config.session_path = nested
     sess = Session(config)
@@ -111,6 +118,7 @@ def test_corrupt_cookie_file_does_not_crash(
 
 
 def test_missing_cookie_file_is_silent(config: Config) -> None:
+    """Test that missing cookie file doesn't raise an error."""
     assert not config.session_path.exists()
     sess = Session(config)
     assert not sess.cookies
@@ -122,7 +130,7 @@ def test_explicit_timeout_overrides_default(config: Config) -> None:
     """A per-call timeout is forwarded to the underlying request."""
     captured: dict[str, object] = {}
 
-    def callback(_req: object) -> tuple[int, dict[str, str], str]:
+    def callback(__req: object) -> tuple[int, dict[str, str], str]:  # noqa: U101
         captured["called"] = True
         return (200, {}, "ok")
 
@@ -151,12 +159,14 @@ def test_default_config_when_none_passed(
 
 
 def test_set_bearer_token_attaches_authorization_header(config: Config) -> None:
+    """Test that set_bearer_token attaches Authorization header."""
     with Session(config) as sess:
         sess.set_bearer_token("eyJhbGci.test.jwt")
         assert sess.headers["Authorization"] == "Bearer eyJhbGci.test.jwt"
 
 
 def test_set_bearer_token_replaces_existing(config: Config) -> None:
+    """Test that set_bearer_token replaces existing Authorization header."""
     with Session(config) as sess:
         sess.set_bearer_token("old")
         sess.set_bearer_token("new")

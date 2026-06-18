@@ -21,6 +21,7 @@ _ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}"
 
 @responses.activate
 def test_delete_team_success(config: Config) -> None:
+    """Test successful team deletion."""
     responses.add(responses.DELETE, _ENDPOINT, status=204)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -31,6 +32,7 @@ def test_delete_team_success(config: Config) -> None:
 
 @responses.activate
 def test_delete_team_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 response raises AuthenticationError."""
     responses.add(
         responses.DELETE,
         _ENDPOINT,
@@ -45,6 +47,7 @@ def test_delete_team_401_raises_authentication_error(config: Config) -> None:
 
 @responses.activate
 def test_delete_team_404_raises_gamesheet_error(config: Config) -> None:
+    """Test that 404 response raises GameSheetError with helpful message."""
     responses.add(responses.DELETE, _ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -57,6 +60,7 @@ def test_delete_team_404_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_delete_team_500_raises_gamesheet_error(config: Config) -> None:
+    """Test that 500 response raises GameSheetError."""
     responses.add(responses.DELETE, _ENDPOINT, status=500, body="Internal error")
     with Session(config) as session:
         session.set_bearer_token("abc")

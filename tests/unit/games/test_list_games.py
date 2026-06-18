@@ -28,6 +28,7 @@ def _bff_response(games: list[dict[str, object]]) -> dict[str, object]:
 
 @responses.activate
 def test_list_completed_parses_bff_response(config: Config) -> None:
+    """Test that list_completed correctly parses BFF API response format."""
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -82,6 +83,7 @@ def test_list_completed_parses_bff_response(config: Config) -> None:
 
 @responses.activate
 def test_list_scheduled_parses_bff_response(config: Config) -> None:
+    """Test that list_scheduled correctly parses BFF API response format."""
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -133,6 +135,7 @@ def test_list_scheduled_parses_bff_response(config: Config) -> None:
 
 @responses.activate
 def test_list_completed_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 response raises AuthenticationError."""
     responses.add(responses.GET, _ENDPOINT, json={}, status=401)
     with Session(config) as session:
         session.set_bearer_token("expired")
@@ -142,6 +145,7 @@ def test_list_completed_401_raises_authentication_error(config: Config) -> None:
 
 @responses.activate
 def test_list_completed_404_raises_gamesheet_error(config: Config) -> None:
+    """Test that 404 response raises GameSheetError."""
     responses.add(responses.GET, _ENDPOINT, json={}, status=404)
     with Session(config) as session:
         session.set_bearer_token("valid")
@@ -151,6 +155,7 @@ def test_list_completed_404_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_list_completed_500_raises_gamesheet_error(config: Config) -> None:
+    """Test that 500 response raises GameSheetError."""
     responses.add(responses.GET, _ENDPOINT, json={}, status=500)
     with Session(config) as session:
         session.set_bearer_token("valid")
@@ -160,6 +165,7 @@ def test_list_completed_500_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_list_scheduled_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 response raises AuthenticationError."""
     responses.add(responses.GET, _ENDPOINT, json={}, status=401)
     with Session(config) as session:
         session.set_bearer_token("expired")
@@ -169,6 +175,7 @@ def test_list_scheduled_401_raises_authentication_error(config: Config) -> None:
 
 @responses.activate
 def test_list_brackets_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 response raises AuthenticationError."""
     responses.add(responses.GET, _ENDPOINT, json={}, status=401)
     with Session(config) as session:
         session.set_bearer_token("expired")
@@ -178,6 +185,7 @@ def test_list_brackets_401_raises_authentication_error(config: Config) -> None:
 
 @responses.activate
 def test_list_completed_handles_empty_data(config: Config) -> None:
+    """Test that list_completed returns empty list when API returns no games."""
     responses.add(responses.GET, _ENDPOINT, json=_bff_response([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("valid")
@@ -187,6 +195,7 @@ def test_list_completed_handles_empty_data(config: Config) -> None:
 
 @responses.activate
 def test_bff_non_success_status_raises_error(config: Config) -> None:
+    """Test that non-success BFF status raises GameSheetError."""
     responses.add(
         responses.GET,
         _ENDPOINT,

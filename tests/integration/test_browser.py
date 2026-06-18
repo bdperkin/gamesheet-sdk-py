@@ -27,18 +27,21 @@ def test_construction_does_not_start_playwright(config: Config) -> None:
 
 
 def test_save_without_start_is_noop(config: Config) -> None:
+    """Test that save() without start() doesn't create state file."""
     bs = BrowserSession(config)
     bs.save()
     assert not config.browser_state_path.exists()
 
 
 def test_close_without_start_is_idempotent(config: Config) -> None:
+    """Test that close() can be called multiple times safely without start()."""
     bs = BrowserSession(config)
     bs.close()
     bs.close()  # second close must not raise
 
 
 def test_context_after_close_raises(config: Config) -> None:
+    """Test that accessing context property after close raises RuntimeError."""
     bs = BrowserSession(config)
     bs.close()
     with pytest.raises(RuntimeError, match="closed"):
@@ -47,33 +50,39 @@ def test_context_after_close_raises(config: Config) -> None:
 
 # ---------- URL resolution -----------------------------------------------
 def test_resolve_relative(config: Config) -> None:
+    """Test that relative URLs are resolved against base_url."""
     bs = BrowserSession(config)
     assert bs._resolve("/login") == "https://test.example/login"
 
 
 def test_resolve_absolute_passes_through(config: Config) -> None:
+    """Test that absolute URLs bypass base_url resolution."""
     bs = BrowserSession(config)
     assert bs._resolve("https://other.example/x") == "https://other.example/x"
 
 
 def test_resolve_data_url_passes_through(config: Config) -> None:
+    """Test that data: URLs are passed through unchanged."""
     bs = BrowserSession(config)
     assert bs._resolve("data:text/html,<h1>x</h1>") == "data:text/html,<h1>x</h1>"
 
 
 def test_resolve_about_blank_passes_through(config: Config) -> None:
+    """Test that about:blank URLs are passed through unchanged."""
     bs = BrowserSession(config)
     assert bs._resolve("about:blank") == "about:blank"
 
 
 # ---------- storage-state load / save ------------------------------------
 def test_load_storage_state_missing_returns_none(config: Config) -> None:
+    """Test that loading storage state from missing file returns None."""
     assert not config.browser_state_path.exists()
     bs = BrowserSession(config)
     assert bs._load_storage_state() is None
 
 
 def test_load_storage_state_reads_json(config: Config) -> None:
+    """Test that loading storage state successfully reads JSON from file."""
     state = {"cookies": [{"name": "x", "value": "y"}], "origins": []}
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     config.browser_state_path.write_text(json.dumps(state))
@@ -85,6 +94,7 @@ def test_load_storage_state_corrupt_warns_and_returns_none(
     config: Config,
     caplog: pytest.LogCaptureFixture,
 ) -> None:
+    """Test that corrupt storage state file logs warning and returns None."""
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     config.browser_state_path.write_text("{ not valid json")
     bs = BrowserSession(config)
@@ -95,6 +105,7 @@ def test_load_storage_state_corrupt_warns_and_returns_none(
 
 
 def test_save_writes_state_to_disk(config: Config) -> None:
+    """Test that save() writes browser storage state to disk."""
     fake_state: dict[str, Any] = {
         "cookies": [{"name": "a", "value": "b", "domain": "test.example"}],
         "origins": [],
@@ -109,6 +120,7 @@ def test_save_writes_state_to_disk(config: Config) -> None:
 
 
 def test_save_creates_parent_dirs(config: Config) -> None:
+    """Test that save() creates parent directories if needed."""
     nested = config.browser_state_path.parent / "deep" / "nest" / "state.json"
     config.browser_state_path = nested
     fake_state: dict[str, Any] = {"cookies": [], "origins": []}
@@ -137,6 +149,7 @@ def _mock_playwright_chain() -> tuple[MagicMock, MagicMock, MagicMock, MagicMock
 
 
 def test_start_launches_chromium_headless_by_default(config: Config) -> None:
+    """Test that accessing context launches Chromium in headless mode by default."""
     pw_factory, pw_runtime, browser, context = _mock_playwright_chain()
     with patch("gamesheet_sdk.browser.sync_playwright", pw_factory):
         bs = BrowserSession(config)
@@ -148,6 +161,7 @@ def test_start_launches_chromium_headless_by_default(config: Config) -> None:
 
 
 def test_start_passes_headless_false_when_configured(config: Config) -> None:
+    """Test that browser_headless=False launches Chromium in headed mode."""
     config.browser_headless = False
     pw_factory, pw_runtime, _, _ = _mock_playwright_chain()
     with patch("gamesheet_sdk.browser.sync_playwright", pw_factory):
@@ -158,6 +172,7 @@ def test_start_passes_headless_false_when_configured(config: Config) -> None:
 
 
 def test_start_restores_storage_state_when_file_exists(config: Config) -> None:
+    """Test that starting browser restores storage state from file if it exists."""
     state = {"cookies": [{"name": "auth", "value": "tok"}], "origins": []}
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     config.browser_state_path.write_text(json.dumps(state))
@@ -170,6 +185,7 @@ def test_start_restores_storage_state_when_file_exists(config: Config) -> None:
 
 
 def test_close_tears_down_in_order(config: Config) -> None:
+    """Test that close() tears down browser context, browser, and Playwright in order."""
     pw_factory, pw_runtime, browser, context = _mock_playwright_chain()
     with patch("gamesheet_sdk.browser.sync_playwright", pw_factory):
         bs = BrowserSession(config)
@@ -183,6 +199,7 @@ def test_close_tears_down_in_order(config: Config) -> None:
 
 
 def test_context_manager_saves_on_exit(config: Config) -> None:
+    """Test that using BrowserSession as context manager saves state on exit."""
     fake_state = {"cookies": [{"name": "k", "value": "v"}], "origins": []}
     pw_factory, _, _, context = _mock_playwright_chain()
     context.storage_state.return_value = fake_state
@@ -196,6 +213,7 @@ def test_context_manager_saves_on_exit(config: Config) -> None:
 
 
 def test_goto_resolves_url_and_returns_page(config: Config) -> None:
+    """Test that goto() resolves URL and returns page object."""
     pw_factory, _, _, context = _mock_playwright_chain()
     page = MagicMock(name="page")
     context.new_page.return_value = page

@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# flake8: noqa: INP001
-# pylint: disable=too-many-lines
 """Spider all GET-traversable paths and mutations for a GameSheet season.
 
 This utility discovers all GET- traversable paths under a season URL, records all Fetch/XHR network requests,
@@ -76,7 +74,8 @@ class NetworkCapture:
 
 
 @dataclass
-class SpiderState:  # pylint: disable=too-many-instance-attributes
+# pylint: disable-next=too-many-instance-attributes
+class SpiderState:
     """Current state of the spider crawl."""
 
     season_id: str
@@ -91,7 +90,8 @@ class SpiderState:  # pylint: disable=too-many-instance-attributes
     request_counter: int = 0  # Counter for naming request artifacts
 
 
-class SeasonSpider:  # pylint: disable=too-few-public-methods
+# pylint: disable-next=too-few-public-methods
+class SeasonSpider:
     """Spider for discovering all paths and mutations under a GameSheet season.
 
     :param season_id: The season ID to spider (e.g., "15020")
@@ -175,11 +175,11 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
             prefix = artifacts_dir / f"{request_num:04d}"
             # Save headers
             headers_file = Path(str(prefix) + "_request_headers.json")
-            headers_file.write_text(json.dumps(dict(request.headers), indent=2))
+            headers_file.write_text(json.dumps(dict(request.headers), indent=2), encoding="utf-8")
             # Save payload (if present)
             if request.post_data:
                 payload_file = Path(str(prefix) + "_request_payload.txt")
-                payload_file.write_text(request.post_data)
+                payload_file.write_text(request.post_data, encoding="utf-8")
         except Exception as exc:
             _LOGGER.warning(
                 "Failed to save request artifacts for %s: %s",
@@ -203,7 +203,7 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
             prefix = artifacts_dir / f"{request_num:04d}"
             # Save response headers
             headers_file = Path(str(prefix) + "_response_headers.json")
-            headers_file.write_text(json.dumps(dict(response.headers), indent=2))
+            headers_file.write_text(json.dumps(dict(response.headers), indent=2), encoding="utf-8")
             # Save response body
             try:
                 body = response.body()
@@ -282,7 +282,8 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
         page.on("request", on_request)
         page.on("response", on_response)
 
-    def _discover_mutations(self, page: Page, current_url: str) -> None:  # pylint: disable=too-many-locals
+    # pylint: disable-next=too-many-locals
+    def _discover_mutations(self, page: Page, current_url: str) -> None:
         """Discover mutation operations without executing them.
 
         :param page: Playwright page to inspect
@@ -404,39 +405,6 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
         try:
             # Attach network capture before navigation
             self._setup_network_capture(self.page, url, artifacts_dir)
-            # Navigate to URL and wait for network to be mostly idle
-            # This is important for SPAs like GameSheet that render content via JavaScript
-            try:
-                self.page.goto(url, wait_until="networkidle", timeout=NAV_TIMEOUT_MS)
-            except PlaywrightTimeoutError:
-                _LOGGER.debug(
-                    "Network didn't reach idle in %dms, proceeding anyway",
-                    NAV_TIMEOUT_MS,
-                )
-            # Mark as visited (both URL and pattern)
-            self.state.visited_urls.add(url)
-            self.state.visited_patterns.add(pattern)
-            # Discover mutations
-            self._discover_mutations(self.page, url)
-            # Queue ALL unvisited internal links
-            all_links = self._extract_links(self.page, url)
-            queued_count = 0
-            for link in all_links:
-                # Skip if already visited or already queued
-                if link in self.state.visited_urls or link in self.state.pending_queue:
-                    continue
-                if self._is_internal_url(link):
-                    self.state.pending_queue.append(link)
-                    queued_count += 1
-                    _LOGGER.debug("Queued for visit: %s", link)
-                else:
-                    # Log external link
-                    if link not in self.state.external_links:
-                        self.state.external_links.add(link)
-                        _LOGGER.info("External link (not traversing): %s", link)
-            if queued_count > 0:
-                _LOGGER.info("Queued %d new URLs for crawling", queued_count)
-            return True
         except PlaywrightTimeoutError as exc:
             _LOGGER.warning("Timeout visiting %s: %s", url, exc)
             self.state.error_urls[url] = f"Timeout: {exc}"
@@ -445,6 +413,39 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
             _LOGGER.exception("Error visiting %s", url)
             self.state.error_urls[url] = f"Error: {exc}"
             return False
+        # Navigate to URL and wait for network to be mostly idle
+        # This is important for SPAs like GameSheet that render content via JavaScript
+        try:  # noqa: TRY101
+            self.page.goto(url, wait_until="networkidle", timeout=NAV_TIMEOUT_MS)
+        except PlaywrightTimeoutError:
+            _LOGGER.debug(
+                "Network didn't reach idle in %dms, proceeding anyway",
+                NAV_TIMEOUT_MS,
+            )
+        # Mark as visited (both URL and pattern)
+        self.state.visited_urls.add(url)
+        self.state.visited_patterns.add(pattern)
+        # Discover mutations
+        self._discover_mutations(self.page, url)
+        # Queue ALL unvisited internal links
+        all_links = self._extract_links(self.page, url)
+        queued_count = 0
+        for link in all_links:
+            # Skip if already visited or already queued
+            if link in self.state.visited_urls or link in self.state.pending_queue:
+                continue
+            if self._is_internal_url(link):
+                self.state.pending_queue.append(link)
+                queued_count += 1
+                _LOGGER.debug("Queued for visit: %s", link)
+            else:
+                # Log external link
+                if link not in self.state.external_links:
+                    self.state.external_links.add(link)
+                    _LOGGER.info("External link (not traversing): %s", link)
+        if queued_count > 0:
+            _LOGGER.info("Queued %d new URLs for crawling", queued_count)
+        return True
 
     def _crawl_loop(self, artifacts_dir: Path | None = None) -> None:
         """Process the queue until empty.
@@ -485,7 +486,8 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
 
         :returns: BrowserSession configured with custom executable
         """
-        from playwright.sync_api import sync_playwright  # pylint: disable=import-outside-toplevel
+        # pylint: disable-next=import-outside-toplevel
+        from playwright.sync_api import sync_playwright
 
         # Create a custom session that patches the browser launch
         session = BrowserSession(self.config)
@@ -501,7 +503,7 @@ class SeasonSpider:  # pylint: disable=too-few-public-methods
             storage_state = session._load_storage_state()
             if storage_state is not None:
                 session._context = session._browser.new_context(
-                    storage_state=storage_state,  # type: ignore[arg-type,unused-ignore]
+                    storage_state=storage_state,
                 )
             else:
                 session._context = session._browser.new_context()
@@ -663,15 +665,15 @@ Environment variables:
     )
     try:
         results = spider.run(output_path=output_path)
-        _LOGGER.info("Spider completed successfully")
-        _LOGGER.info("Results: %s", results)
-        return 0
     except KeyboardInterrupt:
         _LOGGER.warning("Spider interrupted by user")
         return 130
     except Exception:
         _LOGGER.exception("Spider failed with unhandled exception")
         return 1
+    _LOGGER.info("Spider completed successfully")
+    _LOGGER.info("Results: %s", results)
+    return 0
 
 
 if __name__ == "__main__":

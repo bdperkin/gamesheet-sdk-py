@@ -43,7 +43,7 @@ def _default_user_agent() -> str:
     """
     try:
         ver = _resolved_version("gamesheet-sdk-py")
-    except PackageNotFoundError:  # pragma: no cover - uninstalled source tree
+    except PackageNotFoundError:  # pragma: no cover
         ver = "0+unknown"
     return f"gamesheet-sdk-py/{ver} (+https://github.com/bdperkin/gamesheet-sdk-py)"
 
@@ -56,6 +56,7 @@ _DEFAULT_RETRY_STATUSES = frozenset({500, 502, 503, 504})
 _DEFAULT_RETRY_METHODS = frozenset({"GET", "HEAD", "OPTIONS", "PUT", "DELETE"})
 
 
+# pylint: disable-next=too-many-public-methods
 class Session:
     """A ``requests.Session`` wrapper configured for GameSheet WebUI access.
 
@@ -246,7 +247,7 @@ class Session:
         """Persist cookies and release the underlying HTTP connection pool."""
         try:
             self.save()
-        except OSError as exc:  # pragma: no cover - rare disk failure path
+        except OSError as exc:  # pragma: no cover
             _LOGGER.warning("Failed to save session cookies: %s", exc)
         self._http.close()
 
@@ -259,16 +260,13 @@ class Session:
 
     def __exit__(
         self,
-        _exc_type: type[BaseException] | None,
-        _exc_val: BaseException | None,
-        _exc_tb: TracebackType | None,
+        __exc_type: type[BaseException] | None,
+        __exc_val: BaseException | None,
+        __exc_tb: TracebackType | None,
     ) -> None:
         """Exit the context manager, persisting cookies and closing the session.
 
         Called automatically at the end of a ``with`` block. Delegates to :meth:`close` to save state and
         release resources.
-        :param _exc_type: Exception type if an exception occurred, otherwise None.
-        :param _exc_val: Exception instance if an exception occurred, otherwise None.
-        :param _exc_tb: Traceback if an exception occurred, otherwise None.
         """
         self.close()

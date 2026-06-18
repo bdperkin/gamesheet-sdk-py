@@ -74,14 +74,9 @@ def get_association(session: Session, association_id: str) -> Association:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
-    :type session: Session
     :param association_id: The association identifier to retrieve.
-    :type association_id: str
     :returns: The :class:`Association` with the specified ID.
     :rtype: Association
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-sdk-py login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response, including 404 if the association is not found.
     """
     endpoint = f"{_ENDPOINT}/{association_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -98,9 +93,6 @@ def list_associations(session: Session) -> list[Association]:
     :param session: An authenticated :class:`Session`.
     :returns: A list of :class:`Association`, in the order the server returned them. The list may be empty if
         the user has access to no associations.
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-sdk-py login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response.
     """
     response = session.get(_ENDPOINT, headers=JSONAPI_HEADERS)
     handle_response(response, _ENDPOINT, "GET associations")

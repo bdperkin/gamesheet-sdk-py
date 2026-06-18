@@ -15,6 +15,7 @@ _ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/referees"
 
 @responses.activate
 def test_create_referee_sends_correct_payload_with_all_fields(config: Config) -> None:
+    """Test that create_referee sends correct payload with all optional fields."""
     responses.add(
         responses.POST,
         _ENDPOINT,
@@ -69,6 +70,7 @@ def test_create_referee_sends_correct_payload_with_all_fields(config: Config) ->
 def test_create_referee_sends_correct_payload_required_fields_only(
     config: Config,
 ) -> None:
+    """Test that create_referee sends correct payload with only required fields."""
     responses.add(
         responses.POST,
         _ENDPOINT,
@@ -111,6 +113,7 @@ def test_create_referee_sends_correct_payload_required_fields_only(
 
 @responses.activate
 def test_create_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None:
+    """Test that create_referee sends correct Authorization and JSON:API headers."""
     responses.add(
         responses.POST,
         _ENDPOINT,
@@ -143,6 +146,7 @@ def test_create_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
 
 @responses.activate
 def test_create_referee_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 response raises AuthenticationError."""
     responses.add(
         responses.POST,
         _ENDPOINT,
@@ -159,6 +163,7 @@ def test_create_referee_401_raises_authentication_error(config: Config) -> None:
 def test_create_referee_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
+    """Test that 404 response raises GameSheetError with helpful message."""
     responses.add(responses.POST, _ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -173,6 +178,7 @@ def test_create_referee_404_raises_gamesheet_error_with_helpful_message(
 def test_create_referee_other_failure_raises_gamesheet_error(
     config: Config,
 ) -> None:
+    """Test that other HTTP errors raise GameSheetError."""
     responses.add(responses.POST, _ENDPOINT, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")

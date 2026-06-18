@@ -21,6 +21,7 @@ _UPDATE_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/divisions/{_DIVISION_ID}"
 
 @responses.activate
 def test_update_division_updates_title(config: Config) -> None:
+    """Test that update_division successfully updates division title."""
     responses.add(
         responses.PATCH,
         _UPDATE_ENDPOINT,
@@ -74,6 +75,7 @@ def test_update_division_updates_title(config: Config) -> None:
 
 @responses.activate
 def test_update_division_updates_external_id(config: Config) -> None:
+    """Test that update_division fetches current title when updating only external_id."""
     # When updating only external_id, function fetches current title first
     responses.add(
         responses.GET,
@@ -144,6 +146,7 @@ def test_update_division_updates_external_id(config: Config) -> None:
 
 @responses.activate
 def test_update_division_updates_both_fields(config: Config) -> None:
+    """Test that update_division successfully updates both title and external_id."""
     responses.add(
         responses.PATCH,
         _UPDATE_ENDPOINT,
@@ -181,6 +184,7 @@ def test_update_division_updates_both_fields(config: Config) -> None:
 def test_update_division_raises_value_error_if_no_fields_provided(
     config: Config,
 ) -> None:
+    """Test that update_division raises ValueError when no fields are provided."""
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(
@@ -192,6 +196,7 @@ def test_update_division_raises_value_error_if_no_fields_provided(
 
 @responses.activate
 def test_update_division_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 response raises AuthenticationError."""
     responses.add(
         responses.PATCH,
         _UPDATE_ENDPOINT,
@@ -208,6 +213,7 @@ def test_update_division_401_raises_authentication_error(config: Config) -> None
 def test_update_division_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
+    """Test that 404 response raises GameSheetError with helpful message."""
     responses.add(responses.PATCH, _UPDATE_ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -222,6 +228,7 @@ def test_update_division_404_raises_gamesheet_error_with_helpful_message(
 def test_update_division_other_failure_raises_gamesheet_error(
     config: Config,
 ) -> None:
+    """Test that other HTTP errors raise GameSheetError."""
     responses.add(responses.PATCH, _UPDATE_ENDPOINT, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")

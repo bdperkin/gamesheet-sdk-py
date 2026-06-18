@@ -23,6 +23,7 @@ _ENDPOINT = f"{_BASE}/api/associations/{_ASSOCIATION_ID}/leagues"
 
 @responses.activate
 def test_list_leagues_parses_jsonapi_response(config: Config) -> None:
+    """Test that list_leagues correctly parses JSON:API response format."""
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -63,6 +64,7 @@ def test_list_leagues_parses_jsonapi_response(config: Config) -> None:
 
 @responses.activate
 def test_list_leagues_sends_bearer_and_jsonapi_accept(config: Config) -> None:
+    """Test that list_leagues sends correct Authorization and Accept headers."""
     responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -75,6 +77,7 @@ def test_list_leagues_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 
 @responses.activate
 def test_list_leagues_empty_data_returns_empty_list(config: Config) -> None:
+    """Test that list_leagues returns empty list when API returns no leagues."""
     responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -83,6 +86,7 @@ def test_list_leagues_empty_data_returns_empty_list(config: Config) -> None:
 
 @responses.activate
 def test_list_leagues_401_raises_authentication_error(config: Config) -> None:
+    """Test that 401 response raises AuthenticationError."""
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -99,6 +103,7 @@ def test_list_leagues_401_raises_authentication_error(config: Config) -> None:
 def test_list_leagues_404_raises_helpful_gamesheet_error(
     config: Config,
 ) -> None:
+    """Test that 404 response raises GameSheetError with helpful message."""
     responses.add(responses.GET, _ENDPOINT, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -113,6 +118,7 @@ def test_list_leagues_404_raises_helpful_gamesheet_error(
 def test_list_leagues_other_failure_raises_gamesheet_error(
     config: Config,
 ) -> None:
+    """Test that other HTTP errors raise GameSheetError."""
     responses.add(responses.GET, _ENDPOINT, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")
