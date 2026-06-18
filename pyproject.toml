@@ -785,8 +785,8 @@ search-path = [
 # Target environment settings
 pythonVersion = "3.11"
 pythonPlatform = "Linux"
-# Main severity mode: "standard" or "strict"
-typeCheckingMode = "standard"
+# Optional: Keep test errors separate or less severe if they block CI
+# typeCheckingMode = "basic"
 # Look into library code to extract type information if stubs are missing
 useLibraryCodeForTypes = true
 # Directories or files to include for type checking
@@ -796,8 +796,6 @@ include = [
   "src",
   "tests",
 ]
-# Optional: Keep test errors separate or less severe if they block CI
-# typeCheckingMode = "basic"
 # Directories or files to exclude from type checking
 exclude = [
   "**/__pycache__",
