@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.52 (2026-06-19)
+
+### Bug Fixes
+
+- **ci**: Add clarifying comment to release workflow ([#120](https://github.com/bdperkin/gamesheet-sdk-py/pull/120),
+  [`94c92bc`](https://github.com/bdperkin/gamesheet-sdk-py/commit/94c92bcecff08a88c38d2c2b1223cbad84b661b2))
+
+### Documentation
+
+- **readme**: Fix dependency review badge ([#119](https://github.com/bdperkin/gamesheet-sdk-py/pull/119),
+  [`f1a44de`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f1a44de3a54e84ceeed901dc1329b62af561bb72))
+
 ## v0.1.51 (2026-06-19)
 
 ### Bug Fixes
