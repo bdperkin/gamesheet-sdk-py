@@ -4,9 +4,6 @@ name: Version and Release
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - "CHANGELOG.md"
-      - "pyproject.toml"
   pull_request:
     branches-ignore: ["**"]
 
