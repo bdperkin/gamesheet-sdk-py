@@ -8,7 +8,7 @@
 [![Tests](https://github.com/bdperkin/gamesheet-sdk-py/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/bdperkin/gamesheet-sdk-py/actions/workflows/tests.yml)
 [![CodeQL](https://github.com/bdperkin/gamesheet-sdk-py/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/bdperkin/gamesheet-sdk-py/actions/workflows/codeql.yml)
 [![Docs](https://github.com/bdperkin/gamesheet-sdk-py/actions/workflows/docs.yml/badge.svg?branch=main)](https://github.com/bdperkin/gamesheet-sdk-py/actions/workflows/docs.yml)
-[![Dependency review](https://github.com/bdperkin/gamesheet-sdk-py/actions/workflows/dependency-review.yml/badge.svg?branch=)](https://github.com/bdperkin/gamesheet-sdk-py/actions/workflows/dependency-review.yml)
+[![Dependency Review](https://github.com/bdperkin/gamesheet-sdk-py/actions/workflows/dependency-review.yml/badge.svg?branch=main)](https://github.com/bdperkin/gamesheet-sdk-py/actions/workflows/dependency-review.yml)
 [![pre-commit](https://github.com/bdperkin/gamesheet-sdk-py/actions/workflows/pre-commit.yml/badge.svg?branch=main)](https://github.com/bdperkin/gamesheet-sdk-py/actions/workflows/pre-commit.yml)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/bdperkin/gamesheet-sdk-py/main.svg)](https://results.pre-commit.ci/latest/github/bdperkin/gamesheet-sdk-py/main)
 [![codecov](https://codecov.io/gh/bdperkin/gamesheet-sdk-py/graph/badge.svg?token=8608BKui41)](https://codecov.io/gh/bdperkin/gamesheet-sdk-py)
