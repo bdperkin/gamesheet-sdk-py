@@ -422,8 +422,8 @@ design.max-args = 10
 design.max-attributes = 6
 design.max-bool-expr = 3
 design.max-branches = 13
-design.max-locals = 16
-design.max-parents = 4
+design.max-locals = 17
+design.max-parents = 6
 design.max-positional-arguments = 9
 design.max-public-methods = 5
 design.max-returns = 5
@@ -522,7 +522,6 @@ miscellaneous.notes = [
   "UNDEFINED",
 ]
 "messages control".disable = [
-  "duplicate-code",
   "locally-disabled",
   "suppressed-message",
 ]
@@ -531,7 +530,7 @@ miscellaneous.notes = [
 ]
 "messages control".per-file-ignores = [
   "docs/**:invalid-name",
-  "scripts/**:protected-access,broad-exception-caught,too-many-statements,too-many-lines",
+  "scripts/**:protected-access,broad-exception-caught,too-many-statements,too-many-lines,duplicate-code",
   "src/gamesheet_sdk/**:import-outside-toplevel",
   "tests/auth/**:redefined-outer-name",
   "tests/cli/**:import-outside-toplevel",

@@ -56,3 +56,37 @@ def check_bff_response_status(data: dict[str, Any], endpoint: str) -> None:
     if status != "success":
         msg = f"{endpoint} returned non-success status: {status}"
         raise GameSheetError(msg)
+
+
+def handle_season_scoped_response(
+    response: requests.Response,
+    endpoint: str,
+    season_id: str,
+) -> None:
+    """Handle HTTP errors for season-scoped API calls.
+
+    Args:
+        response: The HTTP response object
+        endpoint: The endpoint that was called
+        season_id: The season ID used in the request
+
+    Raises:
+        AuthenticationError: If response status is 401 (Unauthorized)
+        GameSheetError: If response status is 404 or any other >= 400
+    """
+    if response.status_code == 401:
+        _err_msg = (
+            "Access token rejected (HTTP 401). Likely expired; re-run "
+            "`gamesheet-sdk-py login` to refresh and try again.",
+        )
+        raise AuthenticationError(_err_msg)
+    if response.status_code == 404:
+        _err_msg = (
+            f"Season '{season_id}' not found (HTTP 404). "
+            f"Make sure you're using a valid season ID. "
+            f"To get valid season IDs, run: gamesheet-sdk-py seasons list --league-id <LEAGUE_ID>",
+        )
+        raise GameSheetError(_err_msg)
+    if response.status_code >= 400:
+        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        raise GameSheetError(_err_msg)

@@ -69,7 +69,6 @@ def list_division_teams(session: Session, division_id: str) -> list[Team]:
         division has no teams.
     :rtype: list[Team]
     """
-    # pylint: disable-next=import-outside-toplevel
     from gamesheet_sdk.teams import _parse as parse_team
 
     endpoint = f"/api/divisions/{division_id}/teams"
@@ -161,7 +160,6 @@ def create_division(
     :returns: The newly created :class:`Division`.
     :rtype: Division
     """
-    # pylint: disable-next=import-outside-toplevel
     import uuid
 
     endpoint = f"/api/seasons/{season_id}/divisions"

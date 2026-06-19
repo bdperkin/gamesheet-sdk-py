@@ -9,10 +9,7 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.referees import update_referee
-
-_BASE = "https://test.example"
-_SEASON_ID = "15020"
-_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/referees"
+from tests.unit.referees.conftest import _BASE, _SEASON_ID, referee_response_data
 
 
 @responses.activate
@@ -206,21 +203,7 @@ def test_update_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
     responses.add(
         responses.PATCH,
         _patch_endpoint,
-        json={
-            "data": {
-                "type": "referees",
-                "id": _referee_id,
-                "attributes": {
-                    "first_name": "Test",
-                    "last_name": "Ref",
-                    "created_at": "2024-09-01T10:00:00Z",
-                    "updated_at": "2024-09-01T10:00:00Z",
-                },
-                "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
-                },
-            },
-        },
+        json=referee_response_data(_referee_id),
         status=200,
     )
     with Session(config) as session:

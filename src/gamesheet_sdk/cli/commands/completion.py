@@ -25,10 +25,7 @@ def completion_command(shell: str) -> None:
     """
     # click's built-in completion uses an env-var protocol. We mimic what
     # click.shell_completion does internally but surface it as a subcommand.
-    # pylint: disable-next=import-outside-toplevel
     from click import get_current_context
-
-    # pylint: disable-next=import-outside-toplevel
     from click.shell_completion import get_completion_class
 
     cls = get_completion_class(shell)
