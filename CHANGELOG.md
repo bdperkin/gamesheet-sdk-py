@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.53 (2026-06-19)
+
+### Bug Fixes
+
+- **ci**: Disable cancel-in-progress for release workflow ([#121](https://github.com/bdperkin/gamesheet-sdk-py/pull/121),
+  [`574067d`](https://github.com/bdperkin/gamesheet-sdk-py/commit/574067d966563dc8f28f4fbe76c8b40924b026ce))
+
 ## v0.1.52 (2026-06-19)
 
 ### Bug Fixes
