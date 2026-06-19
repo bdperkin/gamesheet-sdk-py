@@ -141,7 +141,7 @@ def test_divisions_teams_update_coverage() -> None:
         return func
 
     with (
-        patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.helpers.build_authenticated_session"),
         patch(
             "gamesheet_sdk.teams.update_team",
             return_value=MagicMock(
@@ -149,10 +149,10 @@ def test_divisions_teams_update_coverage() -> None:
             ),
         ),
         patch(
-            "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
+            "gamesheet_sdk.cli.helpers.run_action_or_exit",
             side_effect=run_action_side_effect,
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
+        patch("gamesheet_sdk.cli.shared.render_list_command"),
     ):
         result = runner.invoke(
             divisions_group,

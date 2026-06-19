@@ -19,6 +19,7 @@ from pydantic import BaseModel, Field
 
 from gamesheet_sdk.constants import BFF_API_BASE_URL, CLOUDFLARE_IMAGE_DELIVERY_BASE
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.shared.gamesheet_http import handle_season_scoped_response
 
 if TYPE_CHECKING:
     from gamesheet_sdk.session import Session
@@ -100,9 +101,6 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
     :returns: A list of :class:`Team`, in the order the server returned them. The list may be empty if the
         season has no teams.
     :rtype: list[Team]
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-sdk-py login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/teams"
     # Request sparse fieldset including logo_url and roster (for player/coach counts)
@@ -116,22 +114,7 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
         params=params,
     )
-    if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if response.status_code == 404:
-        _err_msg = (
-            f"Season '{season_id}' not found (HTTP 404). "
-            f"Make sure you're using a valid season ID. "
-            f"To get valid season IDs, run: gamesheet-sdk-py seasons list --league-id <LEAGUE_ID>",
-        )
-        raise GameSheetError(_err_msg)
-    if response.status_code >= 400:
-        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
-        raise GameSheetError(_err_msg)
+    handle_season_scoped_response(response, endpoint, season_id)
     body: dict[str, Any] = response.json()
     # Build invitation code lookup from included resources
     invitation_codes: dict[str, str] = {}

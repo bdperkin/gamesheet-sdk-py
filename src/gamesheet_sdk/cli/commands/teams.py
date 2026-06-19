@@ -6,24 +6,26 @@ from typing import TYPE_CHECKING, Any
 
 import rich_click as click
 from click.exceptions import Exit
-from rich_click import Path
 
 from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
-from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
+from gamesheet_sdk.cli.helpers import (
+    build_authenticated_session,
+    run_action_or_exit,
+    run_team_update,
+)
 from gamesheet_sdk.cli.shared import (
     common_output_options,
     get_fields_option,
     list_columns_option,
     render_get_command,
     render_list_command,
+    team_create_options,
+    team_update_options,
 )
 from gamesheet_sdk.config import Config
-from gamesheet_sdk.teams import Team
-from gamesheet_sdk.teams import create_team as _create_team_action
 from gamesheet_sdk.teams import delete_team as _delete_team_action
 from gamesheet_sdk.teams import get_team as _get_team_action
 from gamesheet_sdk.teams import list_teams as _list_teams_action
-from gamesheet_sdk.teams import update_team as _update_team_action
 
 if TYPE_CHECKING:
     from rich_click import Context
@@ -138,18 +140,7 @@ def teams_list_command(
     required=True,
     help="Division ID the team belongs to.",
 )
-@click.option(
-    "--external-id",
-    type=str,
-    default=None,
-    help="Optional external identifier for the team.",
-)
-@click.option(
-    "--logo",
-    "logo_path",
-    type=Path(exists=True, dir_okay=False),
-    help="Optional path to a local logo image file.",
-)
+@team_create_options
 @common_output_options
 @click.pass_context
 def teams_create_command(
@@ -166,6 +157,8 @@ def teams_create_command(
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
     """
+    from gamesheet_sdk.teams import create_team as _create_team_action
+
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
 
@@ -180,7 +173,6 @@ def teams_create_command(
         )
 
     result = run_action_or_exit(session, _create_with_kwargs)
-    # For tabular formats, convert to a list of key-value rows
     render_get_command(result, output_format, output_path)
     # Show success message (consistent with divisions create)
     if output_path is None:
@@ -206,36 +198,7 @@ def teams_create_command(
     required=True,
     help="Team ID to update.",
 )
-@click.option(
-    "--title",
-    type=str,
-    default=None,
-    help="New team name/title.",
-)
-@click.option(
-    "--division-id",
-    type=str,
-    default=None,
-    help="New division ID.",
-)
-@click.option(
-    "--external-id",
-    type=str,
-    default=None,
-    help="New external identifier.",
-)
-@click.option(
-    "--logo",
-    "logo_path",
-    type=Path(exists=True, dir_okay=False),
-    help="Path to a new logo image file.",
-)
-@click.option(
-    "--remove-logo",
-    is_flag=True,
-    default=False,
-    help="Remove the team's logo.",
-)
+@team_update_options
 @common_output_options
 @click.pass_context
 def teams_update_command(
@@ -256,23 +219,18 @@ def teams_update_command(
     Requires authentication (run 'gamesheet-sdk-py login' first). At least one field must be provided for
     update.
     """
-    config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
-
-    def _update_with_kwargs(sess: AuthenticatedSession) -> Team:
-        return _update_team_action(
-            sess,
-            season_id,
-            team_id,
-            title=title,
-            division_id=division_id,
-            external_id=external_id,
-            logo_path=logo_path,
-            remove_logo=remove_logo,
-        )
-
-    team = run_action_or_exit(session, _update_with_kwargs)
-    render_list_command([team], output_format, output_path)
+    run_team_update(
+        ctx,
+        season_id,
+        team_id,
+        title,
+        division_id,
+        external_id,
+        logo_path,
+        remove_logo=remove_logo,
+        output_format=output_format,
+        output_path=output_path,
+    )
 
 
 @teams_group.command("delete")

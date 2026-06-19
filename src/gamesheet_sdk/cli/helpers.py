@@ -68,3 +68,55 @@ def run_action_or_exit(session: AuthenticatedSession, action: Any, *args: Any) -
     except GameSheetError as exc:
         click.secho(f"GameSheet error: {exc}", fg="red", err=True)
         raise Exit(1) from exc
+
+
+def run_team_update(
+    ctx: Context,
+    season_id: str,
+    team_id: str,
+    title: str | None,
+    division_id: str | None,
+    external_id: str | None,
+    logo_path: str | None,
+    *,
+    remove_logo: bool,
+    output_format: str,
+    output_path: str | None,
+) -> None:
+    """Run team update action and render output.
+
+    Shared implementation for teams update and divisions teams update commands.
+
+    :param ctx: The click context containing the config.
+    :param season_id: Season ID containing the team.
+    :param team_id: Team ID to update.
+    :param title: New team name/title.
+    :param division_id: New division ID.
+    :param external_id: New external identifier.
+    :param logo_path: Path to a new logo image file.
+    :param remove_logo: Remove the team's logo.
+    :param output_format: Output format for rendering.
+    :param output_path: Optional output file path.
+    """
+    from gamesheet_sdk.teams import Team
+    from gamesheet_sdk.teams import update_team as _update_team_action
+
+    config: Config = ctx.obj
+    session = build_authenticated_session(ctx, config)
+
+    def _update_with_kwargs(sess: AuthenticatedSession) -> Team:
+        return _update_team_action(
+            sess,
+            season_id,
+            team_id,
+            title=title,
+            division_id=division_id,
+            external_id=external_id,
+            logo_path=logo_path,
+            remove_logo=remove_logo,
+        )
+
+    team = run_action_or_exit(session, _update_with_kwargs)
+    from gamesheet_sdk.cli.shared import render_list_command
+
+    render_list_command([team], output_format, output_path)

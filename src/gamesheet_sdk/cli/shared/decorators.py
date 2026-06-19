@@ -80,3 +80,69 @@ def get_fields_option(func: F) -> F:
         default=None,
         help="Comma-separated list of field names to include (default: all fields the API returns).",
     )(func)
+
+
+def team_update_options(func: F) -> F:
+    """Add common team update options.
+
+    Args:
+        func: The Click command function to decorate
+
+    Returns:
+        The decorated function with team update options
+    """
+    func = click.option(
+        "--title",
+        type=str,
+        default=None,
+        help="New team name/title.",
+    )(func)
+    func = click.option(
+        "--division-id",
+        type=str,
+        default=None,
+        help="New division ID.",
+    )(func)
+    func = click.option(
+        "--external-id",
+        type=str,
+        default=None,
+        help="New external identifier.",
+    )(func)
+    func = click.option(
+        "--logo",
+        "logo_path",
+        type=Path(exists=True, dir_okay=False),
+        help="Path to a new logo image file.",
+    )(func)
+    func = click.option(
+        "--remove-logo",
+        is_flag=True,
+        default=False,
+        help="Remove the team's logo.",
+    )(func)
+    return func
+
+
+def team_create_options(func: F) -> F:
+    """Add common team create options.
+
+    Args:
+        func: The Click command function to decorate
+
+    Returns:
+        The decorated function with team create options
+    """
+    func = click.option(
+        "--external-id",
+        type=str,
+        default=None,
+        help="Optional external identifier for the team.",
+    )(func)
+    func = click.option(
+        "--logo",
+        "logo_path",
+        type=Path(exists=True, dir_okay=False),
+        help="Optional path to a local logo image file.",
+    )(func)
+    return func

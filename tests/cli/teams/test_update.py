@@ -28,7 +28,7 @@ _MOCK_TEAM = Team(
 def test_teams_update_basic(runner: CliRunner) -> None:
     """The teams update command should work with required arguments."""
     with (
-        patch("gamesheet_sdk.cli.commands.teams._update_team_action") as mock_update,
+        patch("gamesheet_sdk.teams.update_team") as mock_update,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -56,7 +56,7 @@ def test_teams_update_basic(runner: CliRunner) -> None:
 def test_teams_update_multiple_fields(runner: CliRunner) -> None:
     """The teams update command should accept multiple fields."""
     with (
-        patch("gamesheet_sdk.cli.commands.teams._update_team_action") as mock_update,
+        patch("gamesheet_sdk.teams.update_team") as mock_update,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -87,7 +87,7 @@ def test_teams_update_multiple_fields(runner: CliRunner) -> None:
 def test_teams_update_remove_logo(runner: CliRunner) -> None:
     """The teams update command should support --remove-logo."""
     with (
-        patch("gamesheet_sdk.cli.commands.teams._update_team_action") as mock_update,
+        patch("gamesheet_sdk.teams.update_team") as mock_update,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -113,7 +113,7 @@ def test_teams_update_remove_logo(runner: CliRunner) -> None:
 def test_teams_update_json_output(runner: CliRunner) -> None:
     """The teams update command should support JSON output."""
     with (
-        patch("gamesheet_sdk.cli.commands.teams._update_team_action") as mock_update,
+        patch("gamesheet_sdk.teams.update_team") as mock_update,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -143,7 +143,7 @@ def test_teams_update_json_output(runner: CliRunner) -> None:
 def test_teams_update_alias_set_works(runner: CliRunner) -> None:
     """The 'set' alias should invoke the update command."""
     with (
-        patch("gamesheet_sdk.cli.commands.teams._update_team_action") as mock_update,
+        patch("gamesheet_sdk.teams.update_team") as mock_update,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -171,7 +171,7 @@ def test_teams_update_alias_set_works(runner: CliRunner) -> None:
 def test_teams_update_alias_edit_works(runner: CliRunner) -> None:
     """The 'edit' alias should invoke the update command."""
     with (
-        patch("gamesheet_sdk.cli.commands.teams._update_team_action") as mock_update,
+        patch("gamesheet_sdk.teams.update_team") as mock_update,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
