@@ -18,7 +18,10 @@ jobs:
   version:
     name: Create Version and Tag
     runs-on: ubuntu-latest
-    # Don't run on release commits to avoid loops
+    # Don't run on release commits to avoid loops.
+    # The paths-ignore filter was intentionally removed because it prevented
+    # the workflow from running when semantic-release commits CHANGELOG.md
+    # and pyproject.toml changes, causing build/publish jobs to be skipped.
     if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
     permissions:
       contents: write # Required to create commits and tags
