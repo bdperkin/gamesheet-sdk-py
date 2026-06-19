@@ -2,6 +2,31 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.51 (2026-06-19)
+
+### Bug Fixes
+
+- **ci**: Remove paths-ignore that prevents release workflow from running ([#118](https://github.com/bdperkin/gamesheet-sdk-py/pull/118),
+  [`a764405`](https://github.com/bdperkin/gamesheet-sdk-py/commit/a7644057942cfc8c042b5bf74889533940be061c))
+
+### Build System
+
+- **deps**: Bump actions/checkout in the actions group ([#114](https://github.com/bdperkin/gamesheet-sdk-py/pull/114),
+  [`bb1a83c`](https://github.com/bdperkin/gamesheet-sdk-py/commit/bb1a83c9162be84163ce86677c3b347e2a6ce113))
+
+### Chores
+
+- **ci**: Fix workflow file inconsistencies and add missing concurrency controls ([#115](https://github.com/bdperkin/gamesheet-sdk-py/pull/115),
+  [`e95437e`](https://github.com/bdperkin/gamesheet-sdk-py/commit/e95437e78d9731bc1e1f831f10188408f1100ae1))
+
+### Refactoring
+
+- Reduce code duplication across project ([#116](https://github.com/bdperkin/gamesheet-sdk-py/pull/116),
+  [`1e52b69`](https://github.com/bdperkin/gamesheet-sdk-py/commit/1e52b69a8546afe71ce67d53ba1a1c36926f53a2))
+
+- **cli**: Extract run_team_create helper and disable duplicate-code check ([#117](https://github.com/bdperkin/gamesheet-sdk-py/pull/117),
+  [`a073e52`](https://github.com/bdperkin/gamesheet-sdk-py/commit/a073e52000c416e45ce560e94bb8a2e25389dfad))
+
 ## v0.1.50 (2026-06-18)
 
 ### Bug Fixes
