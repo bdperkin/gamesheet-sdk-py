@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import rich_click as click
 from click.exceptions import Exit
@@ -11,6 +11,7 @@ from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.cli.helpers import (
     build_authenticated_session,
     run_action_or_exit,
+    run_team_create,
     run_team_update,
 )
 from gamesheet_sdk.cli.shared import (
@@ -29,8 +30,6 @@ from gamesheet_sdk.teams import list_teams as _list_teams_action
 
 if TYPE_CHECKING:
     from rich_click import Context
-
-    from gamesheet_sdk.auth.session import AuthenticatedSession
 
 
 @click.group(
@@ -157,31 +156,16 @@ def teams_create_command(
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
     """
-    from gamesheet_sdk.teams import create_team as _create_team_action
-
-    config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
-
-    def _create_with_kwargs(sess: AuthenticatedSession) -> dict[str, Any]:
-        return _create_team_action(
-            sess,
-            season_id,
-            title,
-            division_id,
-            external_id=external_id,
-            logo_path=logo_path,
-        )
-
-    result = run_action_or_exit(session, _create_with_kwargs)
-    render_get_command(result, output_format, output_path)
-    # Show success message (consistent with divisions create)
-    if output_path is None:
-        team_title = result.get("prototeam", {}).get("title", title)
-        team_id = result.get("seasonTeam", {}).get("id", "unknown")
-        click.secho(
-            f"\nTeam '{team_title}' created successfully (ID: {team_id})",
-            fg="green",
-        )
+    run_team_create(
+        ctx,
+        season_id,
+        title,
+        division_id,
+        external_id,
+        logo_path,
+        output_format,
+        output_path,
+    )
 
 
 @teams_group.command("update")

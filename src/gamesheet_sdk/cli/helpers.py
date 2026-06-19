@@ -120,3 +120,55 @@ def run_team_update(
     from gamesheet_sdk.cli.shared import render_list_command
 
     render_list_command([team], output_format, output_path)
+
+
+def run_team_create(
+    ctx: Context,
+    season_id: str,
+    title: str,
+    division_id: str,
+    external_id: str | None,
+    logo_path: str | None,
+    output_format: str,
+    output_path: str | None,
+) -> None:
+    """Run team create action and render output with success message.
+
+    Shared implementation for teams create and divisions teams create commands.
+
+    :param ctx: The click context containing the config.
+    :param season_id: Season ID to create the team in.
+    :param title: Team name/title.
+    :param division_id: Division ID the team belongs to.
+    :param external_id: Optional external identifier.
+    :param logo_path: Optional path to a logo image file.
+    :param output_format: Output format for rendering.
+    :param output_path: Optional output file path.
+    """
+    from gamesheet_sdk.teams import create_team as _create_team_action
+
+    config: Config = ctx.obj
+    session = build_authenticated_session(ctx, config)
+
+    def _create_with_kwargs(sess: AuthenticatedSession) -> Any:
+        return _create_team_action(
+            sess,
+            season_id,
+            title,
+            division_id,
+            external_id=external_id,
+            logo_path=logo_path,
+        )
+
+    result = run_action_or_exit(session, _create_with_kwargs)
+    from gamesheet_sdk.cli.shared import render_get_command
+
+    render_get_command(result, output_format, output_path)
+    # Show success message when output goes to stdout
+    if output_path is None:
+        team_title = result.get("prototeam", {}).get("title", title)
+        team_id = result.get("seasonTeam", {}).get("id", "unknown")
+        click.secho(
+            f"\nTeam '{team_title}' created successfully (ID: {team_id})",
+            fg="green",
+        )

@@ -55,17 +55,17 @@ def test_divisions_teams_create_coverage() -> None:
         return func
 
     with (
-        patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.helpers.build_authenticated_session"),
         patch(
             "gamesheet_sdk.teams.create_team",
             return_value={"prototeam": {"title": "New Team"}, "seasonTeam": {"id": "999"}},
         ),
         patch(
-            "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
+            "gamesheet_sdk.cli.helpers.run_action_or_exit",
             side_effect=run_action_side_effect,
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
-        patch("gamesheet_sdk.cli.commands.divisions.click.secho"),
+        patch("gamesheet_sdk.cli.shared.render_get_command"),
+        patch("gamesheet_sdk.cli.helpers.click.secho"),
     ):
         # Test JSON format
         result = runner.invoke(

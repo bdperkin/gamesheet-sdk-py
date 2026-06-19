@@ -473,7 +473,7 @@ similarities.ignore-comments = true
 similarities.ignore-docstrings = true
 similarities.ignore-imports = true
 similarities.ignore-signatures = true
-similarities.min-similarity-lines = 4
+similarities.min-similarity-lines = 24
 spelling.max-spelling-suggestions = 4
 spelling.spelling-ignore-comment-directives = "fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:"
 typecheck.contextmanager-decorators = [ "contextlib.contextmanager" ]
@@ -530,7 +530,7 @@ miscellaneous.notes = [
 ]
 "messages control".per-file-ignores = [
   "docs/**:invalid-name",
-  "scripts/**:protected-access,broad-exception-caught,too-many-statements,too-many-lines,duplicate-code",
+  "scripts/**:protected-access,broad-exception-caught,too-many-statements,too-many-lines",
   "src/gamesheet_sdk/**:import-outside-toplevel",
   "tests/auth/**:redefined-outer-name",
   "tests/cli/**:import-outside-toplevel",
