@@ -262,3 +262,113 @@ def test_list_division_teams_sends_include_invitations_param(config: Config) -> 
     assert req.url is not None
     assert "include=invitations" in req.url
     assert "fields%5Bteams%5D=title%2Clogo_url%2Croster%2Ccreated_at%2Cupdated_at" in req.url
+
+
+@responses.activate
+def test_list_division_teams_handles_invitation_as_single_object(config: Config) -> None:
+    """Test that invitation relationship as single object (not array) is handled."""
+    responses.add(
+        responses.GET,
+        _DIVISION_TEAMS_ENDPOINT,
+        json={
+            "data": [
+                {
+                    "type": "teams",
+                    "id": "1001",
+                    "attributes": {
+                        "title": "Test Team",
+                        "roster": {"players": [], "coaches": []},
+                        "created_at": "2024-09-01T10:00:00Z",
+                        "updated_at": "2024-09-01T10:00:00Z",
+                    },
+                    "relationships": {
+                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "division": {"data": {"type": "divisions", "id": _DIVISION_ID}},
+                        "invitations": {"data": {"type": "invitations", "id": "inv-456"}},
+                    },
+                },
+            ],
+            "included": [
+                {"type": "invitations", "id": "inv-456", "attributes": {"code": "SINGLE2024"}},
+            ],
+        },
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        result = list_division_teams(session, _DIVISION_ID)
+    assert len(result) == 1
+    assert result[0].invitation_code == "SINGLE2024"
+
+
+@responses.activate
+def test_list_division_teams_handles_missing_invitation_code_gracefully(config: Config) -> None:
+    """Test that teams with invitations relationship but no matching code are handled."""
+    responses.add(
+        responses.GET,
+        _DIVISION_TEAMS_ENDPOINT,
+        json={
+            "data": [
+                {
+                    "type": "teams",
+                    "id": "1001",
+                    "attributes": {
+                        "title": "Test Team",
+                        "roster": {"players": [], "coaches": []},
+                        "created_at": "2024-09-01T10:00:00Z",
+                        "updated_at": "2024-09-01T10:00:00Z",
+                    },
+                    "relationships": {
+                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "division": {"data": {"type": "divisions", "id": _DIVISION_ID}},
+                        "invitations": {"data": [{"type": "invitations", "id": "inv-999"}]},
+                    },
+                },
+            ],
+            "included": [],  # No matching invitation in included
+        },
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        result = list_division_teams(session, _DIVISION_ID)
+    assert len(result) == 1
+    assert result[0].invitation_code is None
+
+
+@responses.activate
+def test_list_division_teams_handles_malformed_invitation_data(config: Config) -> None:
+    """Test that malformed invitation data in included is ignored gracefully."""
+    responses.add(
+        responses.GET,
+        _DIVISION_TEAMS_ENDPOINT,
+        json={
+            "data": [
+                {
+                    "type": "teams",
+                    "id": "1001",
+                    "attributes": {
+                        "title": "Test Team",
+                        "roster": {"players": [], "coaches": []},
+                        "created_at": "2024-09-01T10:00:00Z",
+                        "updated_at": "2024-09-01T10:00:00Z",
+                    },
+                    "relationships": {
+                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "division": {"data": {"type": "divisions", "id": _DIVISION_ID}},
+                    },
+                },
+            ],
+            "included": [
+                {"type": "invitations", "id": "inv-123"},  # Missing code in attributes
+                {"type": "invitations"},  # Missing id
+                {"type": "other-type", "id": "123", "attributes": {"code": "X"}},  # Wrong type
+            ],
+        },
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        result = list_division_teams(session, _DIVISION_ID)
+    assert len(result) == 1
+    assert result[0].invitation_code is None
