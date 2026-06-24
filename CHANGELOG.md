@@ -2,6 +2,37 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.54 (2026-06-24)
+
+### Bug Fixes
+
+- Invitation_code in divisions teams list + better error for team update ([#125](https://github.com/bdperkin/gamesheet-sdk-py/pull/125),
+  [`cd29167`](https://github.com/bdperkin/gamesheet-sdk-py/commit/cd291676f5b2cf51e245f7964619361256fb7bf7))
+
+- **cli**: Show user-friendly error when team update called with no fields ([#125](https://github.com/bdperkin/gamesheet-sdk-py/pull/125),
+  [`cd29167`](https://github.com/bdperkin/gamesheet-sdk-py/commit/cd291676f5b2cf51e245f7964619361256fb7bf7))
+
+- **divisions**: Include invitation_code in list_division_teams output ([#125](https://github.com/bdperkin/gamesheet-sdk-py/pull/125),
+  [`cd29167`](https://github.com/bdperkin/gamesheet-sdk-py/commit/cd291676f5b2cf51e245f7964619361256fb7bf7))
+
+### Build System
+
+- **deps**: Bump actions/cache from 5.0.5 to 6.0.0 in the actions group ([#123](https://github.com/bdperkin/gamesheet-sdk-py/pull/123),
+  [`8fafadc`](https://github.com/bdperkin/gamesheet-sdk-py/commit/8fafadc840ba8f450933b01876250894901e01ec))
+
+- **deps**: Bump actions/setup-python in the actions group ([#124](https://github.com/bdperkin/gamesheet-sdk-py/pull/124),
+  [`9754c73`](https://github.com/bdperkin/gamesheet-sdk-py/commit/9754c73e3e7c970a655af4be459dae1aef58b375))
+
+### Chores
+
+- **deps**: Update pre-commit hooks ([#122](https://github.com/bdperkin/gamesheet-sdk-py/pull/122),
+  [`578b582`](https://github.com/bdperkin/gamesheet-sdk-py/commit/578b582800f7839a138cfade635c1a9641da18ef))
+
+### Testing
+
+- **divisions**: Add comprehensive coverage for invitation code edge cases ([#125](https://github.com/bdperkin/gamesheet-sdk-py/pull/125),
+  [`cd29167`](https://github.com/bdperkin/gamesheet-sdk-py/commit/cd291676f5b2cf51e245f7964619361256fb7bf7))
+
 ## v0.1.53 (2026-06-19)
 
 ### Bug Fixes
