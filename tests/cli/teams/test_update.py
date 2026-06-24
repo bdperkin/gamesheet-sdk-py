@@ -227,3 +227,27 @@ def test_teams_update_with_no_saved_tokens(runner: CliRunner) -> None:
         )
         assert result.exit_code == 1
         assert "login" in result.output.lower()
+
+
+def test_teams_update_with_no_fields_shows_error(runner: CliRunner) -> None:
+    """Calling 'teams update' with no update fields should show a helpful error."""
+    with (
+        patch(
+            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            return_value="refresh-tok",
+        ),
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "teams",
+                "update",
+                "--season-id",
+                "15020",
+                "--team-id",
+                "123",
+            ],
+        )
+        assert result.exit_code == 1
+        assert "at least one field must be provided" in result.output.lower()

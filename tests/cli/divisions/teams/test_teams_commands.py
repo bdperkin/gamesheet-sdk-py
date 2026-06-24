@@ -186,3 +186,29 @@ def test_divisions_teams_delete_coverage() -> None:
             obj=MagicMock(),
         )
         assert not result.exit_code
+
+
+def test_divisions_teams_update_with_no_fields_shows_error() -> None:
+    """Calling 'divisions teams update' with no update fields should show a helpful error."""
+    runner = CliRunner()
+    with (
+        patch(
+            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            return_value="refresh-tok",
+        ),
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+    ):
+        result = runner.invoke(
+            divisions_group,
+            [
+                "teams",
+                "update",
+                "--season-id",
+                "15020",
+                "--team-id",
+                "123",
+            ],
+            obj=MagicMock(),
+        )
+        assert result.exit_code == 1
+        assert "at least one field must be provided" in result.output.lower()
