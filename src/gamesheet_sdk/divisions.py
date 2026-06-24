@@ -72,10 +72,39 @@ def list_division_teams(session: Session, division_id: str) -> list[Team]:
     from gamesheet_sdk.teams import _parse as parse_team
 
     endpoint = f"/api/divisions/{division_id}/teams"
-    response = session.get(endpoint, headers=JSONAPI_HEADERS)
+    # Request sparse fieldset including logo_url and roster (for player/coach counts)
+    # Include invitations relationship to get invitation codes
+    params = {
+        "fields[teams]": "title,logo_url,roster,created_at,updated_at",
+        "include": "invitations",
+    }
+    response = session.get(endpoint, headers=JSONAPI_HEADERS, params=params)
     handle_response(response, endpoint, "GET division teams")
     body: dict[str, Any] = response.json()
-    return [parse_team(item) for item in body.get("data", [])]
+    # Build invitation code lookup from included resources
+    invitation_codes: dict[str, str] = {}
+    for item in body.get("included", []):
+        if item.get("type") == "invitations":
+            invitation_id = item.get("id")
+            code = item.get("attributes", {}).get("code")
+            if invitation_id and code:
+                invitation_codes[invitation_id] = code
+    # Parse teams and match invitation codes via relationships
+    teams = []
+    for item in body.get("data", []):
+        team = parse_team(item)
+        # Look up invitation code from relationship
+        inv_rel = item.get("relationships", {}).get("invitations", {}).get("data")
+        if inv_rel:
+            # invitations relationship can be single object or array
+            inv_id = inv_rel[0]["id"] if isinstance(inv_rel, list) else inv_rel.get("id")
+            if inv_id and inv_id in invitation_codes:
+                # Update the team with the invitation code using model_copy
+                team = team.model_copy(
+                    update={"invitation_code": invitation_codes[inv_id]},
+                )
+        teams.append(team)
+    return teams
 
 
 def get_division(
