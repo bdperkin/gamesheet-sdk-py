@@ -185,7 +185,7 @@ repos:
       - id: tox-ini-fmt # tox-ini-fmt
 
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.24.1
+    rev: v2.25.0
     hooks:
       - id: pyproject-fmt # pyproject-fmt
 
@@ -342,7 +342,7 @@ repos:
           - gamesheet-sdk-py[pylint]
 
   - repo: https://github.com/facebook/pyrefly-pre-commit
-    rev: 1.1.0.dev2
+    rev: 1.1.1
     hooks:
       - id: pyrefly-check # pyrefly check
         additional_dependencies:
