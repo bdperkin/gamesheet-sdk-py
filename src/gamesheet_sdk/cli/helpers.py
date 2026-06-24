@@ -97,9 +97,20 @@ def run_team_update(
     :param remove_logo: Remove the team's logo.
     :param output_format: Output format for rendering.
     :param output_path: Optional output file path.
+    :raises Exit: If no fields are provided for update.
     """
     from gamesheet_sdk.teams import Team
     from gamesheet_sdk.teams import update_team as _update_team_action
+
+    # Validate that at least one field is provided for update
+    if all(v is None or v is False for v in (title, division_id, external_id, logo_path, remove_logo)):
+        click.secho(
+            "Error: At least one field must be provided for update. Use --title, --division-id, "
+            "--external-id, --logo-path, or --remove-logo.",
+            fg="red",
+            err=True,
+        )
+        raise Exit(1)
 
     config: Config = ctx.obj
     session = build_authenticated_session(ctx, config)
