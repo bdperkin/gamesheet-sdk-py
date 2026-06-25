@@ -169,7 +169,7 @@ def teams_roster_players_get_command() -> None:
 )
 @common_output_options
 @click.pass_context
-def teams_roster_players_create_command(  # pylint: disable=too-many-positional-arguments
+def teams_roster_players_create_command(
     ctx: Context,
     first_name: str,
     last_name: str,
