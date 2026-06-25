@@ -6,7 +6,9 @@ import pytest
 import responses
 
 from gamesheet_sdk import Config, GameSheetError, Session
-from gamesheet_sdk.roster import get_team_coach
+from gamesheet_sdk.roster import (
+    get_team_coach,  # pylint: disable=no-name-in-module  # type: ignore[attr-defined]
+)
 
 _BASE = "https://test.example"
 _SEASON_ID = "15020"
@@ -67,6 +69,86 @@ def test_get_team_coach_returns_coach_with_roster_metadata(config: Config) -> No
     assert result.position == "Manager"
     assert result.status == "coaching"
     assert result.signature == "LOU_SIGNATURE"
+
+
+@responses.activate
+def test_get_team_coach_finds_coach_after_skipping_others(config: Config) -> None:
+    """Test that get_team_coach iterates through multiple coaches to find the target."""
+    _coach_id = "1879740"
+    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}"
+    responses.add(
+        responses.GET,
+        _get_endpoint,
+        json={
+            "data": {
+                "type": "teams",
+                "id": _TEAM_ID,
+                "attributes": {
+                    "roster": {
+                        "coaches": [
+                            {"id": "1111111", "position": "Assistant Coach", "status": "coaching"},
+                            {"id": "2222222", "position": "Trainer", "status": "coaching"},
+                            {
+                                "id": _coach_id,
+                                "position": "Manager",
+                                "status": "coaching",
+                                "signature": "LOU_SIGNATURE",
+                            },
+                        ],
+                    },
+                },
+            },
+            "included": [
+                {
+                    "type": "coaches",
+                    "id": "1111111",
+                    "attributes": {
+                        "first_name": "FIRST",
+                        "last_name": "COACH",
+                        "created_at": "2026-06-25T02:48:40.059871Z",
+                        "updated_at": "2026-06-25T03:40:20.968536Z",
+                    },
+                    "relationships": {
+                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    },
+                },
+                {
+                    "type": "coaches",
+                    "id": "2222222",
+                    "attributes": {
+                        "first_name": "SECOND",
+                        "last_name": "COACH",
+                        "created_at": "2026-06-25T02:48:40.059871Z",
+                        "updated_at": "2026-06-25T03:40:20.968536Z",
+                    },
+                    "relationships": {
+                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    },
+                },
+                {
+                    "type": "coaches",
+                    "id": _coach_id,
+                    "attributes": {
+                        "external_id": "FB031B8B-2AB4-4682-817F-6E6076315241",
+                        "first_name": "LOU",
+                        "last_name": "LAMORIELLO",
+                        "created_at": "2026-06-25T02:48:40.059871Z",
+                        "updated_at": "2026-06-25T03:40:20.968536Z",
+                    },
+                    "relationships": {
+                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    },
+                },
+            ],
+        },
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("abc")
+        result = get_team_coach(session, _SEASON_ID, _TEAM_ID, _coach_id)
+    assert result.id == _coach_id
+    assert result.first_name == "LOU"
+    assert result.last_name == "LAMORIELLO"
 
 
 @responses.activate
