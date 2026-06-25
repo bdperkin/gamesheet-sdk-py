@@ -228,7 +228,7 @@ def test_list_team_players_parses_jsonapi_response(config: Config) -> None:
                     {
                         "id": "8043169",
                         "number": "98",
-                        "duty": "",
+                        "duty": "captain",
                         "position": "forward",
                         "status": "",
                         "starting": False,
@@ -254,6 +254,7 @@ def test_list_team_players_parses_jsonapi_response(config: Config) -> None:
     assert result[0].season_id == _SEASON_ID
     assert result[0].number == "98"
     assert result[0].position == "forward"
+    assert result[0].designation == "Captain"
     assert result[0].starting is False
 
 
@@ -386,6 +387,40 @@ def test_list_team_coaches_handles_empty_data(config: Config) -> None:
         session.set_bearer_token("valid")
         result = list_team_coaches(session, _SEASON_ID, _TEAM_ID)
     assert not result
+
+
+@responses.activate
+def test_list_team_players_with_empty_duty(config: Config) -> None:
+    """Test that list_team_players handles empty duty field."""
+    player_data = roster_player_payload(season_id=_SEASON_ID)
+    team_data = {
+        "type": "teams",
+        "id": _TEAM_ID,
+        "attributes": {
+            "title": "Test Team",
+            "roster": {
+                "players": [
+                    {
+                        "id": "8043169",
+                        "number": "98",
+                        "duty": "",
+                        "position": "forward",
+                        "status": "playing",
+                    },
+                ],
+            },
+        },
+        "relationships": {
+            "players": {"data": [{"type": "players", "id": "8043169"}]},
+        },
+    }
+    response_body = {"data": team_data, "included": [player_data]}
+    responses.add(responses.GET, _TEAM_ENDPOINT, json=response_body, status=200)
+    with Session(config) as session:
+        session.set_bearer_token("any-non-empty-token")
+        result = list_team_players(session, _SEASON_ID, _TEAM_ID)
+    assert len(result) == 1
+    assert result[0].designation is None
 
 
 @responses.activate

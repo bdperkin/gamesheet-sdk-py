@@ -451,6 +451,48 @@ def test_create_team_player_with_optional_fields(config: Config) -> None:
 
 
 @responses.activate
+def test_create_team_player_with_affiliated_status(config: Config) -> None:
+    """Test that create_team_player handles Affiliated status."""
+    player_response = roster_player_payload(season_id=_SEASON_ID)
+    responses.add(responses.POST, _PLAYERS_ENDPOINT, json={"data": player_response}, status=201)
+    team_data = {
+        "type": "teams",
+        "id": _TEAM_ID,
+        "attributes": {
+            "title": "Test Team",
+            "external_id": "test-123",
+            "roster": {"players": [], "coaches": []},
+            "data": {},
+            "logo_url": "",
+        },
+        "relationships": {"division": {"data": {"id": "999", "type": "divisions"}}},
+    }
+    responses.add(
+        responses.GET,
+        f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
+        json={"data": team_data},
+        status=200,
+    )
+    responses.add(
+        responses.PATCH,
+        f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
+        json={"data": team_data},
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("valid-token")
+        result = create_team_player(
+            session,
+            _SEASON_ID,
+            _TEAM_ID,
+            "AUSTIN",
+            "ADAMSKY",
+            status="Affiliated",
+        )
+    assert result.id == "8043169"
+
+
+@responses.activate
 def test_create_team_coach_with_position(config: Config) -> None:
     """Test that create_team_coach handles position parameter."""
     coach_response = roster_coach_payload(season_id=_SEASON_ID, external_id=None)

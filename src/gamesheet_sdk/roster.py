@@ -212,7 +212,10 @@ def list_team_players(session: Session, season_id: str, team_id: str) -> list[Pl
             player.number = metadata.get("number")
             player.position = metadata.get("position")
             player.duty = metadata.get("duty")
-            player.designation = metadata.get("designation")
+            # designation is stored as "duty" in the roster
+            # Map back: "captain" -> "Captain", "alternate captain" -> "Alternate Captain"
+            if player.duty:
+                player.designation = player.duty.title()
             player.status = metadata.get("status")
             player.starting = metadata.get("starting")
             player.added_at_game_time = metadata.get("added_at_game_time")
@@ -432,7 +435,7 @@ def list_team_coaches(session: Session, season_id: str, team_id: str) -> list[Co
     return coaches
 
 
-def create_team_player(
+def create_team_player(  # pylint: disable=too-many-locals
     session: Session,
     season_id: str,
     team_id: str,
@@ -473,15 +476,28 @@ def create_team_player(
     # Step 3: Add player to roster
     roster = current_attrs.get("roster", {})
     players_roster = roster.get("players", [])
-    player_entry: dict[str, Any] = {"id": player.id}
+    player_entry: dict[str, Any] = {
+        "id": player.id,
+        "affiliated": False,
+        "status": "playing",
+        "starting": False,
+        "added_at_game_time": False,
+    }
     if jersey:
         player_entry["number"] = jersey
     if position:
-        player_entry["position"] = position
+        player_entry["position"] = position.lower()
     if status:
-        player_entry["status"] = status
+        # Map UI status values to API status values
+        status_map = {"Regular": "playing", "Affiliated": "affiliated"}
+        player_entry["status"] = status_map.get(status, status.lower())
+        # If status is Affiliated, set affiliated flag
+        if status == "Affiliated":
+            player_entry["affiliated"] = True
     if designation:
-        player_entry["designation"] = designation
+        # Designation is stored as "duty" in the roster
+        # Map: "Captain" -> "captain", "Alternate Captain" -> "alternate captain"
+        player_entry["duty"] = designation.lower()
     players_roster.append(player_entry)
     roster["players"] = players_roster
     # Step 4: Update team roster
