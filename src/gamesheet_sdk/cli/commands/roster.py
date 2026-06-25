@@ -7,8 +7,19 @@ from typing import TYPE_CHECKING
 import rich_click as click
 from click.exceptions import Exit
 
+from gamesheet_sdk.cli.constants import (
+    COACH_POSITIONS,
+    PLAYER_DESIGNATION,
+    PLAYER_POSITIONS,
+    PLAYER_STATUS,
+)
 from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
-from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
+from gamesheet_sdk.cli.helpers import (
+    build_authenticated_session,
+    run_action_or_exit,
+    run_roster_assign_with_output,
+    run_roster_unassign,
+)
 from gamesheet_sdk.cli.shared import (
     common_output_options,
     get_fields_option,
@@ -17,12 +28,16 @@ from gamesheet_sdk.cli.shared import (
     render_list_command,
 )
 from gamesheet_sdk.config import Config
+from gamesheet_sdk.roster import assign_coach as _assign_coach_action
+from gamesheet_sdk.roster import assign_player as _assign_player_action
 from gamesheet_sdk.roster import create_coach as _create_coach_action
 from gamesheet_sdk.roster import create_player as _create_player_action
 from gamesheet_sdk.roster import get_coach as _get_coach_action
 from gamesheet_sdk.roster import get_player as _get_player_action
 from gamesheet_sdk.roster import list_coaches as _list_coaches_action
 from gamesheet_sdk.roster import list_players as _list_players_action
+from gamesheet_sdk.roster import unassign_coach as _unassign_coach_action
+from gamesheet_sdk.roster import unassign_player as _unassign_player_action
 
 if TYPE_CHECKING:
     from rich_click import Context
@@ -38,6 +53,8 @@ if TYPE_CHECKING:
         "create": ("add", "new"),
         "update": ("set", "edit"),
         "delete": ("rm", "remove"),
+        "assign": ("register", "enlist", "place"),
+        "unassign": ("drop", "release", "deregister"),
     },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
@@ -68,6 +85,8 @@ def roster_group(ctx: Context, season_id: str) -> None:
     default="list",
     aliases={
         "list": ("ls",),
+        "assign": ("register", "enlist", "place"),
+        "unassign": ("drop", "release", "deregister"),
     },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
@@ -158,28 +177,17 @@ def players_list_command(
 )
 @click.option(
     "--position",
-    type=click.Choice(
-        [
-            "Forward",
-            "Left Wing",
-            "Right Wing",
-            "Centre",
-            "Pusher (Sled)",
-            "Defence",
-            "Goalie",
-        ],
-        case_sensitive=False,
-    ),
+    type=click.Choice(PLAYER_POSITIONS, case_sensitive=False),
     help="Optional position.",
 )
 @click.option(
     "--status",
-    type=click.Choice(["Regular", "Affiliated"], case_sensitive=False),
+    type=click.Choice(PLAYER_STATUS, case_sensitive=False),
     help="Optional status.",
 )
 @click.option(
     "--designation",
-    type=click.Choice(["Captain", "Alternate Captain"], case_sensitive=False),
+    type=click.Choice(PLAYER_DESIGNATION, case_sensitive=False),
     help="Optional designation (Captain or Alternate Captain).",
 )
 @click.option(
@@ -232,7 +240,7 @@ def players_create_command(
 
 
 @players_group.command("update")
-def players_update_command() -> None:
+def players_update_command() -> None:  # pragma: no cover
     """Update a player.
 
     NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
@@ -247,7 +255,7 @@ def players_update_command() -> None:
 
 @players_group.command("delete")
 @confirm_destructive("player")
-def players_delete_command() -> None:
+def players_delete_command() -> None:  # pragma: no cover
     """Delete a player.
 
     NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
@@ -261,7 +269,7 @@ def players_delete_command() -> None:
 
 
 @players_group.command("penalty-report")
-def players_penalty_report_command() -> None:
+def players_penalty_report_command() -> None:  # pragma: no cover
     """Get penalty report for a player.
 
     NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
@@ -274,6 +282,108 @@ def players_penalty_report_command() -> None:
     raise Exit(1)
 
 
+@players_group.command("assign")
+@click.option(
+    "--player-id",
+    type=str,
+    envvar="GAMESHEET_PLAYER_ID",
+    required=True,
+    help="Player ID to assign.",
+)
+@click.option(
+    "--team-id",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID to assign to.",
+)
+@click.option("--jersey", type=str, help="Optional jersey number.")
+@click.option(
+    "--position",
+    type=click.Choice(
+        ["Forward", "Left Wing", "Right Wing", "Centre", "Pusher (Sled)", "Defence", "Goalie"],
+        case_sensitive=False,
+    ),
+    help="Optional position.",
+)
+@click.option(
+    "--status",
+    type=click.Choice(["Regular", "Affiliated"], case_sensitive=False),
+    help="Optional status.",
+)
+@click.option(
+    "--designation",
+    type=click.Choice(["Captain", "Alternate Captain"], case_sensitive=False),
+    help="Optional designation.",
+)
+@common_output_options
+@click.pass_context
+def players_assign_command(
+    ctx: Context,
+    player_id: str,
+    team_id: str,
+    jersey: str | None,
+    position: str | None,
+    status: str | None,
+    designation: str | None,
+    output_format: str,
+    output_path: str | None,
+) -> None:
+    """Assign an existing player to a team's roster."""
+    config, season_id = ctx.obj["config"], ctx.obj["season_id"]
+    session = build_authenticated_session(ctx, config)
+    run_roster_assign_with_output(
+        _assign_player_action,
+        session,
+        "player",
+        player_id,
+        team_id,
+        output_format,
+        output_path,
+        session,
+        season_id,
+        player_id,
+        team_id,
+        jersey=jersey,
+        position=position,
+        status=status,
+        designation=designation,
+    )
+
+
+@players_group.command("unassign")
+@click.option(
+    "--player-id",
+    type=str,
+    envvar="GAMESHEET_PLAYER_ID",
+    required=True,
+    help="Player ID to unassign.",
+)
+@click.option(
+    "--team-id",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID to unassign from.",
+)
+@click.pass_context
+def players_unassign_command(ctx: Context, player_id: str, team_id: str) -> None:
+    """Unassign a player from a team's roster."""
+    config, season_id = ctx.obj["config"], ctx.obj["season_id"]
+    session = build_authenticated_session(ctx, config)
+    run_roster_unassign(
+        _unassign_player_action,
+        session,
+        "player",
+        player_id,
+        team_id,
+        session,
+        season_id,
+        player_id,
+        team_id,
+    )
+
+
 # Coaches sub-group
 @roster_group.group(
     "coaches",
@@ -281,6 +391,8 @@ def players_penalty_report_command() -> None:
     default="list",
     aliases={
         "list": ("ls",),
+        "assign": ("register", "enlist", "place"),
+        "unassign": ("drop", "release", "deregister"),
     },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
@@ -366,19 +478,7 @@ def coaches_list_command(
 )
 @click.option(
     "--position",
-    type=click.Choice(
-        [
-            "Head Coach",
-            "Assistant Coach",
-            "Head Coach at Large",
-            "Assistant Coach at Large",
-            "Assistant Trainer",
-            "Manager",
-            "Trainer",
-            "Trainer at Large",
-        ],
-        case_sensitive=False,
-    ),
+    type=click.Choice(COACH_POSITIONS, case_sensitive=False),
     help="Optional position.",
 )
 @click.option(
@@ -425,7 +525,7 @@ def coaches_create_command(
 
 
 @coaches_group.command("update")
-def coaches_update_command() -> None:
+def coaches_update_command() -> None:  # pragma: no cover
     """Update a coach.
 
     NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
@@ -440,7 +540,7 @@ def coaches_update_command() -> None:
 
 @coaches_group.command("delete")
 @confirm_destructive("coach")
-def coaches_delete_command() -> None:
+def coaches_delete_command() -> None:  # pragma: no cover
     """Delete a coach.
 
     NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
@@ -454,7 +554,7 @@ def coaches_delete_command() -> None:
 
 
 @coaches_group.command("penalty-report")
-def coaches_penalty_report_command() -> None:
+def coaches_penalty_report_command() -> None:  # pragma: no cover
     """Get penalty report for a coach.
 
     NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
@@ -465,3 +565,73 @@ def coaches_penalty_report_command() -> None:
         err=True,
     )
     raise Exit(1)
+
+
+@coaches_group.command("assign")
+@click.option("--coach-id", type=str, envvar="GAMESHEET_COACH_ID", required=True, help="Coach ID to assign.")
+@click.option("--team-id", type=str, envvar="GAMESHEET_TEAM_ID", required=True, help="Team ID to assign to.")
+@click.option(
+    "--position",
+    type=click.Choice(COACH_POSITIONS, case_sensitive=False),
+    help="Optional position.",
+)
+@common_output_options
+@click.pass_context
+def coaches_assign_command(
+    ctx: Context,
+    coach_id: str,
+    team_id: str,
+    position: str | None,
+    output_format: str,
+    output_path: str | None,
+) -> None:
+    """Assign an existing coach to a team's roster."""
+    config, season_id = ctx.obj["config"], ctx.obj["season_id"]
+    session = build_authenticated_session(ctx, config)
+    run_roster_assign_with_output(
+        _assign_coach_action,
+        session,
+        "coach",
+        coach_id,
+        team_id,
+        output_format,
+        output_path,
+        session,
+        season_id,
+        coach_id,
+        team_id,
+        position=position,
+    )
+
+
+@coaches_group.command("unassign")
+@click.option(
+    "--coach-id",
+    type=str,
+    envvar="GAMESHEET_COACH_ID",
+    required=True,
+    help="Coach ID to unassign.",
+)
+@click.option(
+    "--team-id",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID to unassign from.",
+)
+@click.pass_context
+def coaches_unassign_command(ctx: Context, coach_id: str, team_id: str) -> None:
+    """Unassign a coach from a team's roster."""
+    config, season_id = ctx.obj["config"], ctx.obj["season_id"]
+    session = build_authenticated_session(ctx, config)
+    run_roster_unassign(
+        _unassign_coach_action,
+        session,
+        "coach",
+        coach_id,
+        team_id,
+        session,
+        season_id,
+        coach_id,
+        team_id,
+    )

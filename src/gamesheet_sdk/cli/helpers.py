@@ -183,3 +183,72 @@ def run_team_create(
             f"\nTeam '{team_title}' created successfully (ID: {team_id})",
             fg="green",
         )
+
+
+def run_roster_assign_with_output(
+    action: Any,
+    session: AuthenticatedSession,
+    resource_type: str,
+    resource_id: str,
+    target_id: str,
+    output_format: str,
+    output_path: str | None,
+    *args: Any,
+    **kwargs: Any,
+) -> None:
+    """Run roster assign action with error handling and output rendering.
+
+    :param action: The assign action function to call.
+    :param session: Authenticated session.
+    :param resource_type: Type of resource being assigned (player/coach).
+    :param resource_id: ID of the resource being assigned.
+    :param target_id: ID of the target team.
+    :param output_format: Output format for rendering.
+    :param output_path: Optional output file path.
+    :param args: Positional arguments to pass to the action.
+    :param kwargs: Keyword arguments to pass to the action.
+    :raises Exit: If the action raises an exception.
+    """
+    from gamesheet_sdk.cli.shared import render_get_command
+
+    try:
+        with session:
+            result = action(*args, **kwargs)
+    except Exception as exc:
+        click.secho(f"Error assigning {resource_type}: {exc}", fg="red", err=True)
+        raise Exit(1) from exc
+    render_get_command(result, output_format, output_path, None)
+    click.secho(
+        f"{resource_type.capitalize()} {resource_id} assigned to team {target_id} successfully.",
+        fg="green",
+    )
+
+
+def run_roster_unassign(
+    action: Any,
+    session: AuthenticatedSession,
+    resource_type: str,
+    resource_id: str,
+    target_id: str,
+    *args: Any,
+) -> None:
+    """Run roster unassign action with error handling.
+
+    :param action: The unassign action function to call.
+    :param session: Authenticated session.
+    :param resource_type: Type of resource being unassigned (player/coach).
+    :param resource_id: ID of the resource being unassigned.
+    :param target_id: ID of the target team.
+    :param args: Additional arguments to pass to the action.
+    :raises Exit: If the action raises an exception.
+    """
+    try:
+        with session:
+            action(*args)
+    except Exception as exc:
+        click.secho(f"Error unassigning {resource_type}: {exc}", fg="red", err=True)
+        raise Exit(1) from exc
+    click.secho(
+        f"{resource_type.capitalize()} {resource_id} unassigned from team {target_id} successfully.",
+        fg="green",
+    )

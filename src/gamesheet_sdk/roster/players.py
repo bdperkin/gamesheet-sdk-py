@@ -186,6 +186,55 @@ def get_team_player(session: Session, season_id: str, team_id: str, player_id: s
     raise GameSheetError(msg)
 
 
+def _build_player_roster_entry(
+    player_id: str,
+    *,
+    jersey: str | None = None,
+    position: str | None = None,
+    status: str | None = None,
+    designation: str | None = None,
+) -> dict[str, Any]:
+    """Build a player roster entry dict for team roster updates."""
+    entry: dict[str, Any] = {
+        "id": player_id,
+        "affiliated": False,
+        "status": "playing",
+        "starting": False,
+        "added_at_game_time": False,
+    }
+    if jersey:
+        entry["number"] = jersey
+    if position:
+        entry["position"] = position.lower()
+    if status:
+        status_map = {"Regular": "playing", "Affiliated": "affiliated"}
+        entry["status"] = status_map.get(status, status.lower())
+        if status == "Affiliated":
+            entry["affiliated"] = True
+    if designation:
+        entry["duty"] = designation.lower().replace(" ", "_")
+    return entry
+
+
+def _populate_player_metadata(
+    player: Player,
+    *,
+    jersey: str | None = None,
+    position: str | None = None,
+    status: str | None = None,
+    designation: str | None = None,
+) -> None:
+    """Populate player object with roster metadata."""
+    if jersey:
+        player.number = jersey
+    if position:
+        player.position = position
+    if status:
+        player.status = status
+    if designation:
+        player.designation = designation
+
+
 def create_team_player(
     session: Session,
     season_id: str,
@@ -227,39 +276,166 @@ def create_team_player(
     # Step 3: Add player to roster
     roster = current_attrs.get("roster", {})
     players_roster = roster.get("players", [])
-    player_entry: dict[str, Any] = {
-        "id": player.id,
-        "affiliated": False,
-        "status": "playing",
-        "starting": False,
-        "added_at_game_time": False,
-    }
-    if jersey:
-        player_entry["number"] = jersey
-    if position:
-        player_entry["position"] = position.lower()
-    if status:
-        # Map UI status values to API status values
-        status_map = {"Regular": "playing", "Affiliated": "affiliated"}
-        player_entry["status"] = status_map.get(status, status.lower())
-        # If status is Affiliated, set affiliated flag
-        if status == "Affiliated":
-            player_entry["affiliated"] = True
-    if designation:
-        # Designation is stored as "duty" in the roster
-        # Map: "Captain" -> "captain", "Alternate Captain" -> "alternate_captain"
-        player_entry["duty"] = designation.lower().replace(" ", "_")
+    player_entry = _build_player_roster_entry(
+        player.id,
+        jersey=jersey,
+        position=position,
+        status=status,
+        designation=designation,
+    )
     players_roster.append(player_entry)
     roster["players"] = players_roster
     # Step 4: Update team roster
     update_team_roster(session, season_id, team_id, roster, current_attrs, current_relationships)
-    # Return the player with roster metadata populated
-    if jersey:
-        player.number = jersey
-    if position:
-        player.position = position
-    if status:
-        player.status = status
-    if designation:
-        player.designation = designation
+    _populate_player_metadata(
+        player,
+        jersey=jersey,
+        position=position,
+        status=status,
+        designation=designation,
+    )
     return player
+
+
+def assign_player(
+    session: Session,
+    season_id: str,
+    player_id: str,
+    team_id: str,
+    *,
+    jersey: str | None = None,
+    position: str | None = None,
+    status: str | None = None,
+    designation: str | None = None,
+) -> Player:
+    """Assign an existing player to a team's roster.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param player_id: The player identifier to assign.
+    :param team_id: The team identifier to assign the player to.
+    :param jersey: Optional jersey number.
+    :param position: Optional position (Forward, Defence, Goalie, etc.).
+    :param status: Optional status (Regular, Affiliated, etc.).
+    :param designation: Optional designation (Captain, Alternate Captain, etc.).
+    :returns: The :class:`Player` with roster metadata populated.
+    :rtype: Player
+    :raises GameSheetError: If the player is already assigned to the team.
+    """
+    player = get_player(session, season_id, player_id)
+    team_data = get_team_for_roster_update(session, season_id, team_id)
+    current_attrs = team_data.get("data", {}).get("attributes", {})
+    current_relationships = team_data.get("data", {}).get("relationships", {})
+    roster = current_attrs.get("roster", {})
+    players_roster = roster.get("players", [])
+    # Check if player is already on the roster
+    for existing_player in players_roster:
+        if existing_player.get("id") == player_id:
+            from gamesheet_sdk.exceptions import GameSheetError
+
+            msg = f"Player {player_id} is already assigned to team {team_id}"
+            raise GameSheetError(msg)
+    player_entry = _build_player_roster_entry(
+        player_id,
+        jersey=jersey,
+        position=position,
+        status=status,
+        designation=designation,
+    )
+    players_roster.append(player_entry)
+    roster["players"] = players_roster
+    update_team_roster(session, season_id, team_id, roster, current_attrs, current_relationships)
+    _populate_player_metadata(
+        player,
+        jersey=jersey,
+        position=position,
+        status=status,
+        designation=designation,
+    )
+    return player
+
+
+def unassign_player(session: Session, season_id: str, player_id: str, team_id: str) -> None:
+    """Unassign a player from a team's roster.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param player_id: The player identifier to unassign.
+    :param team_id: The team identifier to unassign the player from.
+    :raises GameSheetError: If the player is not assigned to the team.
+    """
+    # Step 1: Fetch current team data
+    team_data = get_team_for_roster_update(session, season_id, team_id)
+    current_attrs = team_data.get("data", {}).get("attributes", {})
+    current_relationships = team_data.get("data", {}).get("relationships", {})
+    # Step 2: Remove player from roster
+    roster = current_attrs.get("roster", {})
+    players_roster = roster.get("players", [])
+    # Find and remove the player
+    original_count = len(players_roster)
+    players_roster = [p for p in players_roster if p.get("id") != player_id]
+    if len(players_roster) == original_count:
+        from gamesheet_sdk.exceptions import GameSheetError
+
+        msg = f"Player {player_id} is not assigned to team {team_id}"
+        raise GameSheetError(msg)
+    roster["players"] = players_roster
+    # Step 3: Update team roster
+    update_team_roster(session, season_id, team_id, roster, current_attrs, current_relationships)
+
+
+def assign_team_player(
+    session: Session,
+    season_id: str,
+    team_id: str,
+    player_id: str,
+    *,
+    jersey: str | None = None,
+    position: str | None = None,
+    status: str | None = None,
+    designation: str | None = None,
+) -> Player:
+    """Assign an existing player to a team's roster (team-scoped alias).
+
+    This is an alias for :func:`assign_player` provided for consistency with the team-scoped command
+    structure. The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param team_id: The team identifier to assign the player to.
+    :param player_id: The player identifier to assign.
+    :param jersey: Optional jersey number.
+    :param position: Optional position (Forward, Defence, Goalie, etc.).
+    :param status: Optional status (Regular, Affiliated, etc.).
+    :param designation: Optional designation (Captain, Alternate Captain, etc.).
+    :returns: The :class:`Player` with roster metadata populated.
+    :rtype: Player
+    """
+    return assign_player(
+        session,
+        season_id,
+        player_id,
+        team_id,
+        jersey=jersey,
+        position=position,
+        status=status,
+        designation=designation,
+    )
+
+
+def unassign_team_player(session: Session, season_id: str, team_id: str, player_id: str) -> None:
+    """Unassign a player from a team's roster (team-scoped alias).
+
+    This is an alias for :func:`unassign_player` provided for consistency with the team-scoped command
+    structure. The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param team_id: The team identifier to unassign the player from.
+    :param player_id: The player identifier to unassign.
+    """
+    unassign_player(session, season_id, player_id, team_id)

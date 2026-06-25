@@ -56,12 +56,14 @@ def bff_payload(items: list[dict[str, Any]] | dict[str, Any]) -> dict[str, Any]:
 def roster_player_payload(
     player_id: str = "8043169",
     season_id: str = "15020",
+    external_id: str | None = "BC7732F4-4993-492E-8CCB-4C2CA9C1912E",
 ) -> dict[str, Any]:
     """Build a JSON:API player resource object for roster tests.
 
     Args:
         player_id: Player ID
         season_id: Season ID
+        external_id: External ID (None for no external ID)
 
     Returns:
         JSON:API player resource object
@@ -69,12 +71,14 @@ def roster_player_payload(
     Example:
         >>> roster_player_payload()
         {'type': 'players', 'id': '8043169', 'attributes': {...}, 'relationships': {...}}
+        >>> roster_player_payload(external_id=None)
+        {'type': 'players', 'id': '8043169', 'attributes': {'external_id': None, ...}, ...}
     """
     return {
         "type": "players",
         "id": player_id,
         "attributes": {
-            "external_id": "BC7732F4-4993-492E-8CCB-4C2CA9C1912E",
+            "external_id": external_id,
             "first_name": "AUSTIN",
             "last_name": "ADAMSKY",
             "birthdate": None,
@@ -142,5 +146,46 @@ def roster_coach_payload(
                     "id": season_id,
                 },
             },
+        },
+    }
+
+
+def team_payload(
+    team_id: str = "12345",
+    *,
+    players: list[dict[str, Any]] | None = None,
+    coaches: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Build a JSON:API team resource object for roster tests.
+
+    Args:
+        team_id: Team ID
+        players: List of player roster entries (defaults to empty list)
+        coaches: List of coach roster entries (defaults to empty list)
+
+    Returns:
+        JSON:API team resource object with roster
+
+    Example:
+        >>> team_payload()
+        {'type': 'teams', 'id': '12345', 'attributes': {...}, 'relationships': {...}}
+        >>> team_payload(players=[{"id": "123", "status": "playing"}])
+        {'type': 'teams', 'id': '12345', 'attributes': {'roster': {'players': [...], 'coaches': []}}}
+    """
+    return {
+        "type": "teams",
+        "id": team_id,
+        "attributes": {
+            "title": "Test Team",
+            "external_id": "test-123",
+            "roster": {
+                "players": players or [],
+                "coaches": coaches or [],
+            },
+            "data": {},
+            "logo_url": "",
+        },
+        "relationships": {
+            "division": {"data": {"id": "999", "type": "divisions"}},
         },
     }

@@ -33,42 +33,7 @@ def test_list_players_parses_jsonapi_response(config: Config) -> None:
     responses.add(
         responses.GET,
         _PLAYERS_ENDPOINT,
-        json=jsonapi_payload(
-            [
-                {
-                    "type": "players",
-                    "id": "8043169",
-                    "attributes": {
-                        "external_id": "BC7732F4-4993-492E-8CCB-4C2CA9C1912E",
-                        "first_name": "AUSTIN",
-                        "last_name": "ADAMSKY",
-                        "birthdate": None,
-                        "photo_url": "",
-                        "biography": "",
-                        "height": "",
-                        "weight": "",
-                        "shot_hand": "",
-                        "province": "",
-                        "hometown": "",
-                        "country": "",
-                        "drafted_by": "",
-                        "committed_to": "",
-                        "vendor_data": {},
-                        "suspension": {"number": 0, "length": 0},
-                        "created_at": "2026-05-18T23:15:08.387021Z",
-                        "updated_at": "2026-06-07T15:03:25.537099Z",
-                    },
-                    "relationships": {
-                        "season": {
-                            "data": {
-                                "type": "seasons",
-                                "id": _SEASON_ID,
-                            },
-                        },
-                    },
-                },
-            ],
-        ),
+        json=jsonapi_payload([roster_player_payload(season_id=_SEASON_ID)]),
         status=200,
     )
     with Session(config) as session:
@@ -97,31 +62,7 @@ def test_list_coaches_parses_jsonapi_response(config: Config) -> None:
     responses.add(
         responses.GET,
         _COACHES_ENDPOINT,
-        json=jsonapi_payload(
-            [
-                {
-                    "type": "coaches",
-                    "id": "1868550",
-                    "attributes": {
-                        "external_id": "530b7441-1db6-437e-8e5f-777ab3f6cd6c",
-                        "first_name": "SHAWN",
-                        "last_name": "ALLIE",
-                        "vendor_data": {},
-                        "suspension": {"number": 0, "length": 0},
-                        "created_at": "2026-05-20T11:51:04.091798Z",
-                        "updated_at": "2026-05-24T19:37:46.806797Z",
-                    },
-                    "relationships": {
-                        "season": {
-                            "data": {
-                                "type": "seasons",
-                                "id": _SEASON_ID,
-                            },
-                        },
-                    },
-                },
-            ],
-        ),
+        json=jsonapi_payload([roster_coach_payload(season_id=_SEASON_ID)]),
         status=200,
     )
     with Session(config) as session:

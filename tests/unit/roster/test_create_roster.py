@@ -17,7 +17,7 @@ from gamesheet_sdk.roster import (
     create_team_coach,
     create_team_player,
 )
-from tests.helpers.payloads import roster_coach_payload, roster_player_payload
+from tests.helpers.payloads import roster_coach_payload, roster_player_payload, team_payload
 
 _BASE = "https://test.example"
 _SEASON_ID = "15020"
@@ -29,38 +29,7 @@ _COACHES_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/coaches"
 @responses.activate
 def test_create_player_minimal_fields(config: Config) -> None:
     """Test creating a player with only required fields."""
-    player_response = {
-        "type": "players",
-        "id": "8043169",
-        "attributes": {
-            "external_id": None,
-            "first_name": "AUSTIN",
-            "last_name": "ADAMSKY",
-            "birthdate": None,
-            "photo_url": "",
-            "biography": "",
-            "height": "",
-            "weight": "",
-            "shot_hand": "",
-            "province": "",
-            "hometown": "",
-            "country": "",
-            "drafted_by": "",
-            "committed_to": "",
-            "vendor_data": {},
-            "suspension": {"number": 0, "length": 0},
-            "created_at": "2026-05-18T23:15:08.387021Z",
-            "updated_at": "2026-06-07T15:03:25.537099Z",
-        },
-        "relationships": {
-            "season": {
-                "data": {
-                    "type": "seasons",
-                    "id": _SEASON_ID,
-                },
-            },
-        },
-    }
+    player_response = roster_player_payload(season_id=_SEASON_ID, external_id=None)
     responses.add(
         responses.POST,
         _PLAYERS_ENDPOINT,
@@ -127,38 +96,7 @@ def test_create_player_with_optional_fields(config: Config) -> None:
 @responses.activate
 def test_create_player_with_team_id(config: Config) -> None:
     """Test creating a player with team_id."""
-    player_response = {
-        "type": "players",
-        "id": "8043169",
-        "attributes": {
-            "external_id": None,
-            "first_name": "AUSTIN",
-            "last_name": "ADAMSKY",
-            "birthdate": None,
-            "photo_url": "",
-            "biography": "",
-            "height": "",
-            "weight": "",
-            "shot_hand": "",
-            "province": "",
-            "hometown": "",
-            "country": "",
-            "drafted_by": "",
-            "committed_to": "",
-            "vendor_data": {},
-            "suspension": {"number": 0, "length": 0},
-            "created_at": "2026-05-18T23:15:08.387021Z",
-            "updated_at": "2026-06-07T15:03:25.537099Z",
-        },
-        "relationships": {
-            "season": {
-                "data": {
-                    "type": "seasons",
-                    "id": _SEASON_ID,
-                },
-            },
-        },
-    }
+    player_response = roster_player_payload(season_id=_SEASON_ID, external_id=None)
     responses.add(
         responses.POST,
         _PLAYERS_ENDPOINT,
@@ -322,20 +260,7 @@ def test_create_team_player_calls_create_player_with_team_id(config: Config) -> 
         status=201,
     )
     # Mock GET team to fetch current roster
-    team_data = {
-        "type": "teams",
-        "id": _TEAM_ID,
-        "attributes": {
-            "title": "Test Team",
-            "external_id": "test-123",
-            "roster": {"players": [], "coaches": []},
-            "data": {},
-            "logo_url": "",
-        },
-        "relationships": {
-            "division": {"data": {"id": "999", "type": "divisions"}},
-        },
-    }
+    team_data = team_payload(_TEAM_ID)
     responses.add(
         responses.GET,
         f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
@@ -367,20 +292,7 @@ def test_create_team_coach_calls_create_coach_with_team_id(config: Config) -> No
         status=201,
     )
     # Mock GET team to fetch current roster
-    team_data = {
-        "type": "teams",
-        "id": _TEAM_ID,
-        "attributes": {
-            "title": "Test Team",
-            "external_id": "test-123",
-            "roster": {"players": [], "coaches": []},
-            "data": {},
-            "logo_url": "",
-        },
-        "relationships": {
-            "division": {"data": {"id": "999", "type": "divisions"}},
-        },
-    }
+    team_data = team_payload(_TEAM_ID)
     responses.add(
         responses.GET,
         f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
@@ -406,18 +318,7 @@ def test_create_team_player_with_optional_fields(config: Config) -> None:
     """Test that create_team_player handles optional fields."""
     player_response = roster_player_payload(season_id=_SEASON_ID)
     responses.add(responses.POST, _PLAYERS_ENDPOINT, json={"data": player_response}, status=201)
-    team_data = {
-        "type": "teams",
-        "id": _TEAM_ID,
-        "attributes": {
-            "title": "Test Team",
-            "external_id": "test-123",
-            "roster": {"players": [], "coaches": []},
-            "data": {},
-            "logo_url": "",
-        },
-        "relationships": {"division": {"data": {"id": "999", "type": "divisions"}}},
-    }
+    team_data = team_payload(_TEAM_ID)
     responses.add(
         responses.GET,
         f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
@@ -455,18 +356,7 @@ def test_create_team_player_with_affiliated_status(config: Config) -> None:
     """Test that create_team_player handles Affiliated status."""
     player_response = roster_player_payload(season_id=_SEASON_ID)
     responses.add(responses.POST, _PLAYERS_ENDPOINT, json={"data": player_response}, status=201)
-    team_data = {
-        "type": "teams",
-        "id": _TEAM_ID,
-        "attributes": {
-            "title": "Test Team",
-            "external_id": "test-123",
-            "roster": {"players": [], "coaches": []},
-            "data": {},
-            "logo_url": "",
-        },
-        "relationships": {"division": {"data": {"id": "999", "type": "divisions"}}},
-    }
+    team_data = team_payload(_TEAM_ID)
     responses.add(
         responses.GET,
         f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
@@ -497,18 +387,7 @@ def test_create_team_coach_with_position(config: Config) -> None:
     """Test that create_team_coach handles position parameter."""
     coach_response = roster_coach_payload(season_id=_SEASON_ID, external_id=None)
     responses.add(responses.POST, _COACHES_ENDPOINT, json={"data": coach_response}, status=201)
-    team_data = {
-        "type": "teams",
-        "id": _TEAM_ID,
-        "attributes": {
-            "title": "Test Team",
-            "external_id": "test-123",
-            "roster": {"players": [], "coaches": []},
-            "data": {},
-            "logo_url": "",
-        },
-        "relationships": {"division": {"data": {"id": "999", "type": "divisions"}}},
-    }
+    team_data = team_payload(_TEAM_ID)
     responses.add(
         responses.GET,
         f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",

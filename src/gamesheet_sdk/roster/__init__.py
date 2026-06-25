@@ -10,26 +10,38 @@ path -- no Playwright needed for read-only access once a bearer token has been o
 """
 
 from gamesheet_sdk.roster.coaches import (
+    assign_coach,
+    assign_team_coach,
     create_coach,
     create_team_coach,
     get_coach,
     get_team_coach,
     list_coaches,
     list_team_coaches,
+    unassign_coach,
+    unassign_team_coach,
 )
 from gamesheet_sdk.roster.models import Coach, Player
 from gamesheet_sdk.roster.players import (
+    assign_player,
+    assign_team_player,
     create_player,
     create_team_player,
     get_player,
     get_team_player,
     list_players,
     list_team_players,
+    unassign_player,
+    unassign_team_player,
 )
 
 __all__ = [
     "Coach",
     "Player",
+    "assign_coach",
+    "assign_player",
+    "assign_team_coach",
+    "assign_team_player",
     "create_coach",
     "create_player",
     "create_team_coach",
@@ -42,4 +54,8 @@ __all__ = [
     "list_players",
     "list_team_coaches",
     "list_team_players",
+    "unassign_coach",
+    "unassign_player",
+    "unassign_team_coach",
+    "unassign_team_player",
 ]

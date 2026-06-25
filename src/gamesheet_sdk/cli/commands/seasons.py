@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 import rich_click as click
 from rich_click import Choice
 
+from gamesheet_sdk.cli.constants import SEASON_STATUS
 from gamesheet_sdk.cli.core import ResourceGroup
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
 from gamesheet_sdk.cli.shared import (
@@ -66,7 +67,7 @@ def seasons_group() -> None:
 )
 @click.option(
     "--status",
-    type=Choice(["archived", "active", "all"], case_sensitive=False),
+    type=Choice(SEASON_STATUS, case_sensitive=False),
     default=None,
     help="Filter by season status.",
 )

@@ -213,3 +213,123 @@ def create_team_coach(
         coach.position = position
     coach.status = "coaching"
     return coach
+
+
+def assign_coach(
+    session: Session,
+    season_id: str,
+    coach_id: str,
+    team_id: str,
+    *,
+    position: str | None = None,
+) -> Coach:
+    """Assign an existing coach to a team's roster.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param coach_id: The coach identifier to assign.
+    :param team_id: The team identifier to assign the coach to.
+    :param position: Optional position (Head Coach, Assistant Coach, etc.).
+    :returns: The :class:`Coach` with roster metadata populated.
+    :rtype: Coach
+    :raises GameSheetError: If the coach is already assigned to the team.
+    """
+    # Step 1: Fetch the coach to ensure it exists
+    coach = get_coach(session, season_id, coach_id)
+    # Step 2: Fetch current team data
+    team_data = get_team_for_roster_update(session, season_id, team_id)
+    current_attrs = team_data.get("data", {}).get("attributes", {})
+    current_relationships = team_data.get("data", {}).get("relationships", {})
+    # Step 3: Add coach to roster
+    roster = current_attrs.get("roster", {})
+    coaches_roster = roster.get("coaches", [])
+    # Check if coach is already on the roster
+    for existing_coach in coaches_roster:
+        if existing_coach.get("id") == coach_id:
+            from gamesheet_sdk.exceptions import GameSheetError
+
+            msg = f"Coach {coach_id} is already assigned to team {team_id}"
+            raise GameSheetError(msg)
+    coach_entry: dict[str, Any] = {"id": coach_id, "status": "coaching"}
+    if position:
+        coach_entry["position"] = position
+    coaches_roster.append(coach_entry)
+    roster["coaches"] = coaches_roster
+    # Step 4: Update team roster
+    update_team_roster(session, season_id, team_id, roster, current_attrs, current_relationships)
+    # Return the coach with roster metadata populated
+    if position:
+        coach.position = position
+    coach.status = "coaching"
+    return coach
+
+
+def unassign_coach(session: Session, season_id: str, coach_id: str, team_id: str) -> None:
+    """Unassign a coach from a team's roster.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param coach_id: The coach identifier to unassign.
+    :param team_id: The team identifier to unassign the coach from.
+    :raises GameSheetError: If the coach is not assigned to the team.
+    """
+    # Step 1: Fetch current team data
+    team_data = get_team_for_roster_update(session, season_id, team_id)
+    current_attrs = team_data.get("data", {}).get("attributes", {})
+    current_relationships = team_data.get("data", {}).get("relationships", {})
+    # Step 2: Remove coach from roster
+    roster = current_attrs.get("roster", {})
+    coaches_roster = roster.get("coaches", [])
+    # Find and remove the coach
+    original_count = len(coaches_roster)
+    coaches_roster = [c for c in coaches_roster if c.get("id") != coach_id]
+    if len(coaches_roster) == original_count:
+        from gamesheet_sdk.exceptions import GameSheetError
+
+        msg = f"Coach {coach_id} is not assigned to team {team_id}"
+        raise GameSheetError(msg)
+    roster["coaches"] = coaches_roster
+    # Step 3: Update team roster
+    update_team_roster(session, season_id, team_id, roster, current_attrs, current_relationships)
+
+
+def assign_team_coach(
+    session: Session,
+    season_id: str,
+    team_id: str,
+    coach_id: str,
+    *,
+    position: str | None = None,
+) -> Coach:
+    """Assign an existing coach to a team's roster (team-scoped alias).
+
+    This is an alias for :func:`assign_coach` provided for consistency with the team-scoped command structure.
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param team_id: The team identifier to assign the coach to.
+    :param coach_id: The coach identifier to assign.
+    :param position: Optional position (Head Coach, Assistant Coach, etc.).
+    :returns: The :class:`Coach` with roster metadata populated.
+    :rtype: Coach
+    """
+    return assign_coach(session, season_id, coach_id, team_id, position=position)
+
+
+def unassign_team_coach(session: Session, season_id: str, team_id: str, coach_id: str) -> None:
+    """Unassign a coach from a team's roster (team-scoped alias).
+
+    This is an alias for :func:`unassign_coach` provided for consistency with the team-scoped command
+    structure. The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param team_id: The team identifier to unassign the coach from.
+    :param coach_id: The coach identifier to unassign.
+    """
+    unassign_coach(session, season_id, coach_id, team_id)
