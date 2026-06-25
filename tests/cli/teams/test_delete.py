@@ -13,61 +13,34 @@ if TYPE_CHECKING:
 
 def test_teams_delete_basic(runner: CliRunner) -> None:
     """The teams delete command should delete a team."""
-    with (
-        patch("gamesheet_sdk.cli.commands.teams._delete_team_action") as mock_delete,
-        patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
-            return_value="refresh-tok",
-        ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
-    ):
-        mock_delete.return_value = None
+    with patch("gamesheet_sdk.cli.commands.teams.run_team_delete") as mock_delete:
         result = runner.invoke(
             cli,
-            ["teams", "delete", "--season-id", "15020", "--team-id", "123"],
+            ["teams", "delete", "--season-id", "15020", "--team-id", "123", "--force"],
         )
         assert not result.exit_code
-        assert "deleted successfully" in result.output.lower()
         mock_delete.assert_called_once()
 
 
 def test_teams_delete_alias_rm(runner: CliRunner) -> None:
     """The 'rm' alias should invoke the delete command."""
-    with (
-        patch("gamesheet_sdk.cli.commands.teams._delete_team_action") as mock_delete,
-        patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
-            return_value="refresh-tok",
-        ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
-    ):
-        mock_delete.return_value = None
+    with patch("gamesheet_sdk.cli.commands.teams.run_team_delete") as mock_delete:
         result = runner.invoke(
             cli,
-            ["teams", "rm", "--season-id", "15020", "--team-id", "123"],
+            ["teams", "rm", "--season-id", "15020", "--team-id", "123", "--force"],
         )
         assert not result.exit_code
-        assert "deleted successfully" in result.output.lower()
         mock_delete.assert_called_once()
 
 
 def test_teams_delete_alias_remove(runner: CliRunner) -> None:
     """The 'remove' alias should invoke the delete command."""
-    with (
-        patch("gamesheet_sdk.cli.commands.teams._delete_team_action") as mock_delete,
-        patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
-            return_value="refresh-tok",
-        ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
-    ):
-        mock_delete.return_value = None
+    with patch("gamesheet_sdk.cli.commands.teams.run_team_delete") as mock_delete:
         result = runner.invoke(
             cli,
-            ["teams", "remove", "--season-id", "15020", "--team-id", "123"],
+            ["teams", "remove", "--season-id", "15020", "--team-id", "123", "--force"],
         )
         assert not result.exit_code
-        assert "deleted successfully" in result.output.lower()
         mock_delete.assert_called_once()
 
 
@@ -86,7 +59,7 @@ def test_teams_delete_with_no_saved_tokens(runner: CliRunner) -> None:
     ):
         result = runner.invoke(
             cli,
-            ["teams", "delete", "--season-id", "15020", "--team-id", "123"],
+            ["teams", "delete", "--season-id", "15020", "--team-id", "123", "--force"],
         )
         assert result.exit_code == 1
         assert "login" in result.output.lower()

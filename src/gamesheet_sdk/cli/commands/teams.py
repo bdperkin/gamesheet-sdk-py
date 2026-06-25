@@ -6,11 +6,12 @@ from typing import TYPE_CHECKING
 
 import rich_click as click
 
-from gamesheet_sdk.cli.core import ResourceGroup
+from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.cli.helpers import (
     build_authenticated_session,
     run_action_or_exit,
     run_team_create,
+    run_team_delete,
     run_team_update,
 )
 from gamesheet_sdk.cli.shared import (
@@ -23,7 +24,6 @@ from gamesheet_sdk.cli.shared import (
     team_update_options,
 )
 from gamesheet_sdk.config import Config
-from gamesheet_sdk.teams import delete_team as _delete_team_action
 from gamesheet_sdk.teams import get_team as _get_team_action
 from gamesheet_sdk.teams import list_teams as _list_teams_action
 
@@ -230,6 +230,7 @@ def teams_update_command(
     required=True,
     help="Team ID to delete.",
 )
+@confirm_destructive("team")
 @click.pass_context
 def teams_delete_command(
     ctx: Context,
@@ -240,7 +241,4 @@ def teams_delete_command(
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
     """
-    config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
-    run_action_or_exit(session, _delete_team_action, season_id, team_id)
-    click.secho(f"Team {team_id} deleted successfully.", fg="green")
+    run_team_delete(ctx, season_id, team_id)

@@ -176,10 +176,7 @@ def test_divisions_teams_update_coverage() -> None:
 def test_divisions_teams_delete_coverage() -> None:
     """Ensure divisions teams delete command body is covered."""
     runner = CliRunner()
-    with (
-        patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
-        patch("gamesheet_sdk.cli.commands.divisions.run_action_or_exit"),
-    ):
+    with patch("gamesheet_sdk.cli.commands.divisions.run_team_delete"):
         result = runner.invoke(
             divisions_group,
             ["teams", "delete", "--season-id", "100", "--team-id", "1", "--force"],

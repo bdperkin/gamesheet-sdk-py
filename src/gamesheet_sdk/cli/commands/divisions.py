@@ -12,6 +12,7 @@ from gamesheet_sdk.cli.helpers import (
     build_authenticated_session,
     run_action_or_exit,
     run_team_create,
+    run_team_delete,
     run_team_update,
 )
 from gamesheet_sdk.cli.shared import (
@@ -449,12 +450,7 @@ def divisions_teams_delete_command(
 
     Delegates to teams delete functionality.
     """
-    from gamesheet_sdk.teams import delete_team as _delete_team_action
-
-    config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
-    run_action_or_exit(session, _delete_team_action, season_id, team_id)
-    click.secho(f"Team {team_id} deleted successfully.", fg="green")
+    run_team_delete(ctx, season_id, team_id)
 
 
 @divisions_group.command("delete")

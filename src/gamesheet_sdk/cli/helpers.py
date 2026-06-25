@@ -185,6 +185,23 @@ def run_team_create(
         )
 
 
+def run_team_delete(ctx: Context, season_id: str, team_id: str) -> None:
+    """Run team delete action with success message.
+
+    Shared implementation for teams delete and divisions teams delete commands.
+
+    :param ctx: The click context containing the config.
+    :param season_id: Season ID containing the team.
+    :param team_id: Team ID to delete.
+    """
+    from gamesheet_sdk.teams import delete_team as _delete_team_action
+
+    config: Config = ctx.obj
+    session = build_authenticated_session(ctx, config)
+    run_action_or_exit(session, _delete_team_action, season_id, team_id)
+    click.secho(f"Team {team_id} deleted successfully.", fg="green")
+
+
 def run_roster_assign_with_output(
     action: Any,
     session: AuthenticatedSession,
