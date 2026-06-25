@@ -22,11 +22,11 @@ if TYPE_CHECKING:
     from gamesheet_sdk.session import Session
 
 
-class Player(BaseModel):
+class Player(BaseModel):  # pylint: disable=too-many-instance-attributes
     """A single player.
 
     Maps the ``data[*]`` items in the JSON:API response of ``GET /api/seasons/{id}/players`` to a flat typed
-    model.
+    model. Includes both base player data and roster-specific metadata (position, jersey, etc.).
     """
 
     id: str = Field(description="Player identifier (string in JSON:API).")
@@ -328,6 +328,69 @@ def create_coach(
     return _parse_coach(body["data"])
 
 
+def _get_team_for_roster_update(session: Session, season_id: str, team_id: str) -> dict[str, Any]:
+    """Fetch team data for roster update.
+
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param team_id: The team identifier.
+    :returns: The team data dict from the JSON:API response.
+    :rtype: dict[str, Any]
+    """
+    endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
+    response = session.get(
+        endpoint,
+        headers=JSONAPI_HEADERS,
+        params={"include": "association,league,season,division,players,coaches"},
+    )
+    handle_response(response, endpoint, "GET team for roster update")
+    data: dict[str, Any] = response.json()
+    return data
+
+
+def _update_team_roster(
+    session: Session,
+    season_id: str,
+    team_id: str,
+    roster: dict[str, Any],
+    current_attrs: dict[str, Any],
+    current_relationships: dict[str, Any],
+) -> None:
+    """Update team's roster via PATCH to teams-v2 endpoint.
+
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param team_id: The team identifier.
+    :param roster: The updated roster dict.
+    :param current_attrs: Current team attributes.
+    :param current_relationships: Current team relationships.
+    """
+    endpoint = f"/api/seasons/{season_id}/teams-v2/{team_id}"
+    payload = {
+        "data": {
+            "id": team_id,
+            "type": "teams",
+            "attributes": {
+                "title": current_attrs.get("title", ""),
+                "external_id": current_attrs.get("external_id"),
+                "roster": roster,
+                "data": current_attrs.get("data", {}),
+                "logo_url": current_attrs.get("logo_url"),
+            },
+            "relationships": {
+                "division": {
+                    "data": {
+                        "id": current_relationships.get("division", {}).get("data", {}).get("id"),
+                        "type": "divisions",
+                    },
+                },
+            },
+        },
+    }
+    response = session.patch(endpoint, json=payload, headers=JSONAPI_HEADERS)
+    handle_response(response, endpoint, "PATCH team roster")
+
+
 def list_team_coaches(session: Session, season_id: str, team_id: str) -> list[Coach]:
     """Return every coach for the specified team.
 
@@ -381,13 +444,15 @@ def create_team_player(
     status: str | None = None,
     designation: str | None = None,
 ) -> Player:
-    """Create a new player and associate with the specified team.
+    """Create a new player and add to the specified team's roster.
 
+    This function performs two operations: (1) creates the player at the season level,
+    (2) updates the team's roster to include the new player with position and other metadata.
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
     :param season_id: The season identifier.
-    :param team_id: The team identifier to associate the player with.
+    :param team_id: The team identifier to add the player to.
     :param first_name: Player's first name.
     :param last_name: Player's last name.
     :param external_id: Optional external identifier for the player.
@@ -398,18 +463,38 @@ def create_team_player(
     :returns: The created :class:`Player`.
     :rtype: Player
     """
-    return create_player(
-        session,
-        season_id,
-        first_name,
-        last_name,
-        external_id=external_id,
-        jersey=jersey,
-        position=position,
-        status=status,
-        designation=designation,
-        team_id=team_id,
-    )
+    # Step 1: Create the player at the season level
+    player = create_player(session, season_id, first_name, last_name, external_id=external_id)
+    # Step 2: Fetch current team data
+    team_data = _get_team_for_roster_update(session, season_id, team_id)
+    current_attrs = team_data.get("data", {}).get("attributes", {})
+    current_relationships = team_data.get("data", {}).get("relationships", {})
+    # Step 3: Add player to roster
+    roster = current_attrs.get("roster", {})
+    players_roster = roster.get("players", [])
+    player_entry: dict[str, Any] = {"id": player.id}
+    if jersey:
+        player_entry["number"] = jersey
+    if position:
+        player_entry["position"] = position
+    if status:
+        player_entry["status"] = status
+    if designation:
+        player_entry["designation"] = designation
+    players_roster.append(player_entry)
+    roster["players"] = players_roster
+    # Step 4: Update team roster
+    _update_team_roster(session, season_id, team_id, roster, current_attrs, current_relationships)
+    # Return the player with roster metadata populated
+    if jersey:
+        player.number = jersey
+    if position:
+        player.position = position
+    if status:
+        player.status = status
+    if designation:
+        player.designation = designation
+    return player
 
 
 def create_team_coach(
@@ -422,13 +507,15 @@ def create_team_coach(
     external_id: str | None = None,
     position: str | None = None,
 ) -> Coach:
-    """Create a new coach and associate with the specified team.
+    """Create a new coach and add to the specified team's roster.
 
+    This function performs two operations: (1) creates the coach at the season level,
+    (2) updates the team's roster to include the new coach with position and other metadata.
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
     :param season_id: The season identifier.
-    :param team_id: The team identifier to associate the coach with.
+    :param team_id: The team identifier to add the coach to.
     :param first_name: Coach's first name.
     :param last_name: Coach's last name.
     :param external_id: Optional external identifier for the coach.
@@ -436,12 +523,24 @@ def create_team_coach(
     :returns: The created :class:`Coach`.
     :rtype: Coach
     """
-    return create_coach(
-        session,
-        season_id,
-        first_name,
-        last_name,
-        external_id=external_id,
-        position=position,
-        team_id=team_id,
-    )
+    # Step 1: Create the coach at the season level
+    coach = create_coach(session, season_id, first_name, last_name, external_id=external_id)
+    # Step 2: Fetch current team data
+    team_data = _get_team_for_roster_update(session, season_id, team_id)
+    current_attrs = team_data.get("data", {}).get("attributes", {})
+    current_relationships = team_data.get("data", {}).get("relationships", {})
+    # Step 3: Add coach to roster
+    roster = current_attrs.get("roster", {})
+    coaches_roster = roster.get("coaches", [])
+    coach_entry: dict[str, Any] = {"id": coach.id, "status": "coaching"}
+    if position:
+        coach_entry["position"] = position
+    coaches_roster.append(coach_entry)
+    roster["coaches"] = coaches_roster
+    # Step 4: Update team roster
+    _update_team_roster(session, season_id, team_id, roster, current_attrs, current_relationships)
+    # Return the coach with roster metadata populated
+    if position:
+        coach.position = position
+    coach.status = "coaching"
+    return coach

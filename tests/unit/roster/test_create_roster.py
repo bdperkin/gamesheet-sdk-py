@@ -312,44 +312,42 @@ def test_create_coach_500_raises_gamesheet_error(config: Config) -> None:
 
 @responses.activate
 def test_create_team_player_calls_create_player_with_team_id(config: Config) -> None:
-    """Test that create_team_player calls create_player with team_id."""
-    player_response = {
-        "type": "players",
-        "id": "8043169",
-        "attributes": {
-            "external_id": None,
-            "first_name": "AUSTIN",
-            "last_name": "ADAMSKY",
-            "birthdate": None,
-            "photo_url": "",
-            "biography": "",
-            "height": "",
-            "weight": "",
-            "shot_hand": "",
-            "province": "",
-            "hometown": "",
-            "country": "",
-            "drafted_by": "",
-            "committed_to": "",
-            "vendor_data": {},
-            "suspension": {"number": 0, "length": 0},
-            "created_at": "2026-05-18T23:15:08.387021Z",
-            "updated_at": "2026-06-07T15:03:25.537099Z",
-        },
-        "relationships": {
-            "season": {
-                "data": {
-                    "type": "seasons",
-                    "id": _SEASON_ID,
-                },
-            },
-        },
-    }
+    """Test that create_team_player creates player and adds to team roster."""
+    player_response = roster_player_payload(season_id=_SEASON_ID)
+    # Mock POST to create player
     responses.add(
         responses.POST,
         _PLAYERS_ENDPOINT,
         json={"data": player_response},
         status=201,
+    )
+    # Mock GET team to fetch current roster
+    team_data = {
+        "type": "teams",
+        "id": _TEAM_ID,
+        "attributes": {
+            "title": "Test Team",
+            "external_id": "test-123",
+            "roster": {"players": [], "coaches": []},
+            "data": {},
+            "logo_url": "",
+        },
+        "relationships": {
+            "division": {"data": {"id": "999", "type": "divisions"}},
+        },
+    }
+    responses.add(
+        responses.GET,
+        f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
+        json={"data": team_data},
+        status=200,
+    )
+    # Mock PATCH to update team roster
+    responses.add(
+        responses.PATCH,
+        f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
+        json={"data": team_data},
+        status=200,
     )
     with Session(config) as session:
         session.set_bearer_token("valid-token")
@@ -359,15 +357,138 @@ def test_create_team_player_calls_create_player_with_team_id(config: Config) -> 
 
 @responses.activate
 def test_create_team_coach_calls_create_coach_with_team_id(config: Config) -> None:
-    """Test that create_team_coach calls create_coach with team_id."""
+    """Test that create_team_coach creates coach and adds to team roster."""
     coach_response = roster_coach_payload(season_id=_SEASON_ID, external_id=None)
+    # Mock POST to create coach
     responses.add(
         responses.POST,
         _COACHES_ENDPOINT,
         json={"data": coach_response},
         status=201,
     )
+    # Mock GET team to fetch current roster
+    team_data = {
+        "type": "teams",
+        "id": _TEAM_ID,
+        "attributes": {
+            "title": "Test Team",
+            "external_id": "test-123",
+            "roster": {"players": [], "coaches": []},
+            "data": {},
+            "logo_url": "",
+        },
+        "relationships": {
+            "division": {"data": {"id": "999", "type": "divisions"}},
+        },
+    }
+    responses.add(
+        responses.GET,
+        f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
+        json={"data": team_data},
+        status=200,
+    )
+    # Mock PATCH to update team roster
+    responses.add(
+        responses.PATCH,
+        f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
+        json={"data": team_data},
+        status=200,
+    )
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = create_team_coach(session, _SEASON_ID, _TEAM_ID, "SHAWN", "ALLIE")
     assert result.id == "1868550"
+    assert result.status == "coaching"
+
+
+@responses.activate
+def test_create_team_player_with_optional_fields(config: Config) -> None:
+    """Test that create_team_player handles optional fields."""
+    player_response = roster_player_payload(season_id=_SEASON_ID)
+    responses.add(responses.POST, _PLAYERS_ENDPOINT, json={"data": player_response}, status=201)
+    team_data = {
+        "type": "teams",
+        "id": _TEAM_ID,
+        "attributes": {
+            "title": "Test Team",
+            "external_id": "test-123",
+            "roster": {"players": [], "coaches": []},
+            "data": {},
+            "logo_url": "",
+        },
+        "relationships": {"division": {"data": {"id": "999", "type": "divisions"}}},
+    }
+    responses.add(
+        responses.GET,
+        f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
+        json={"data": team_data},
+        status=200,
+    )
+    responses.add(
+        responses.PATCH,
+        f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
+        json={"data": team_data},
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("valid-token")
+        result = create_team_player(
+            session,
+            _SEASON_ID,
+            _TEAM_ID,
+            "AUSTIN",
+            "ADAMSKY",
+            jersey="99",
+            position="Forward",
+            status="Regular",
+            designation="Captain",
+        )
+    assert result.id == "8043169"
+    assert result.number == "99"
+    assert result.position == "Forward"
+    assert result.status == "Regular"
+    assert result.designation == "Captain"
+
+
+@responses.activate
+def test_create_team_coach_with_position(config: Config) -> None:
+    """Test that create_team_coach handles position parameter."""
+    coach_response = roster_coach_payload(season_id=_SEASON_ID, external_id=None)
+    responses.add(responses.POST, _COACHES_ENDPOINT, json={"data": coach_response}, status=201)
+    team_data = {
+        "type": "teams",
+        "id": _TEAM_ID,
+        "attributes": {
+            "title": "Test Team",
+            "external_id": "test-123",
+            "roster": {"players": [], "coaches": []},
+            "data": {},
+            "logo_url": "",
+        },
+        "relationships": {"division": {"data": {"id": "999", "type": "divisions"}}},
+    }
+    responses.add(
+        responses.GET,
+        f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
+        json={"data": team_data},
+        status=200,
+    )
+    responses.add(
+        responses.PATCH,
+        f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
+        json={"data": team_data},
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("valid-token")
+        result = create_team_coach(
+            session,
+            _SEASON_ID,
+            _TEAM_ID,
+            "SHAWN",
+            "ALLIE",
+            position="Head Coach",
+        )
+    assert result.id == "1868550"
+    assert result.position == "Head Coach"
+    assert result.status == "coaching"
