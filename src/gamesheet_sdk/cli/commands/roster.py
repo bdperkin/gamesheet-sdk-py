@@ -17,6 +17,8 @@ from gamesheet_sdk.cli.shared import (
     render_list_command,
 )
 from gamesheet_sdk.config import Config
+from gamesheet_sdk.roster import create_coach as _create_coach_action
+from gamesheet_sdk.roster import create_player as _create_player_action
 from gamesheet_sdk.roster import get_coach as _get_coach_action
 from gamesheet_sdk.roster import get_player as _get_player_action
 from gamesheet_sdk.roster import list_coaches as _list_coaches_action
@@ -132,17 +134,101 @@ def players_list_command(
 
 
 @players_group.command("create")
-def players_create_command() -> None:
-    """Create a new player.
+@click.option(
+    "--first-name",
+    type=str,
+    required=True,
+    help="Player's first name.",
+)
+@click.option(
+    "--last-name",
+    type=str,
+    required=True,
+    help="Player's last name.",
+)
+@click.option(
+    "--external-id",
+    type=str,
+    help="Optional external identifier for the player.",
+)
+@click.option(
+    "--jersey",
+    type=str,
+    help="Optional jersey number.",
+)
+@click.option(
+    "--position",
+    type=click.Choice(
+        [
+            "Forward",
+            "Left Wing",
+            "Right Wing",
+            "Centre",
+            "Pusher (Sled)",
+            "Defence",
+            "Goalie",
+        ],
+        case_sensitive=False,
+    ),
+    help="Optional position.",
+)
+@click.option(
+    "--status",
+    type=click.Choice(["Regular", "Affiliated"], case_sensitive=False),
+    help="Optional status.",
+)
+@click.option(
+    "--designation",
+    type=click.Choice(["Captain", "Alternate Captain"], case_sensitive=False),
+    help="Optional designation (Captain or Alternate Captain).",
+)
+@click.option(
+    "--team-id",
+    type=str,
+    help="Optional team ID to associate the player with.",
+)
+@common_output_options
+@click.pass_context
+def players_create_command(
+    ctx: Context,
+    first_name: str,
+    last_name: str,
+    external_id: str | None,
+    jersey: str | None,
+    position: str | None,
+    status: str | None,
+    designation: str | None,
+    team_id: str | None,
+    output_format: str,
+    output_path: str | None,
+) -> None:
+    """Create a new player in the season.
 
-    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+    Requires authentication (run 'gamesheet-sdk-py login' first).
     """
-    click.secho(
-        "Error: roster players create is not yet implemented. Backend support needed.",
-        fg="red",
-        err=True,
-    )
-    raise Exit(1)
+    ctx_data = ctx.obj
+    config: Config = ctx_data["config"]
+    season_id: str = ctx_data["season_id"]
+    session = build_authenticated_session(ctx, config)
+    try:
+        with session:
+            player = _create_player_action(
+                session,
+                season_id,
+                first_name,
+                last_name,
+                external_id=external_id,
+                jersey=jersey,
+                position=position,
+                status=status,
+                designation=designation,
+                team_id=team_id,
+            )
+    except Exception as exc:
+        click.secho(f"Error creating player: {exc}", fg="red", err=True)
+        raise Exit(1) from exc
+    render_get_command(player, output_format, output_path, None)
+    click.secho(f"Player {player.id} created successfully.", fg="green")
 
 
 @players_group.command("update")
@@ -261,17 +347,81 @@ def coaches_list_command(
 
 
 @coaches_group.command("create")
-def coaches_create_command() -> None:
-    """Create a new coach.
+@click.option(
+    "--first-name",
+    type=str,
+    required=True,
+    help="Coach's first name.",
+)
+@click.option(
+    "--last-name",
+    type=str,
+    required=True,
+    help="Coach's last name.",
+)
+@click.option(
+    "--external-id",
+    type=str,
+    help="Optional external identifier for the coach.",
+)
+@click.option(
+    "--position",
+    type=click.Choice(
+        [
+            "Head Coach",
+            "Assistant Coach",
+            "Head Coach at Large",
+            "Assistant Coach at Large",
+            "Assistant Trainer",
+            "Manager",
+            "Trainer",
+            "Trainer at Large",
+        ],
+        case_sensitive=False,
+    ),
+    help="Optional position.",
+)
+@click.option(
+    "--team-id",
+    type=str,
+    help="Optional team ID to associate the coach with.",
+)
+@common_output_options
+@click.pass_context
+def coaches_create_command(
+    ctx: Context,
+    first_name: str,
+    last_name: str,
+    external_id: str | None,
+    position: str | None,
+    team_id: str | None,
+    output_format: str,
+    output_path: str | None,
+) -> None:
+    """Create a new coach in the season.
 
-    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+    Requires authentication (run 'gamesheet-sdk-py login' first).
     """
-    click.secho(
-        "Error: roster coaches create is not yet implemented. Backend support needed.",
-        fg="red",
-        err=True,
-    )
-    raise Exit(1)
+    ctx_data = ctx.obj
+    config: Config = ctx_data["config"]
+    season_id: str = ctx_data["season_id"]
+    session = build_authenticated_session(ctx, config)
+    try:
+        with session:
+            coach = _create_coach_action(
+                session,
+                season_id,
+                first_name,
+                last_name,
+                external_id=external_id,
+                position=position,
+                team_id=team_id,
+            )
+    except Exception as exc:
+        click.secho(f"Error creating coach: {exc}", fg="red", err=True)
+        raise Exit(1) from exc
+    render_get_command(coach, output_format, output_path, None)
+    click.secho(f"Coach {coach.id} created successfully.", fg="green")
 
 
 @coaches_group.command("update")

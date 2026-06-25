@@ -10,7 +10,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli.commands.games import scheduled_group
 from gamesheet_sdk.cli.commands.roster import coaches_group, players_group
-from gamesheet_sdk.cli.commands.teams import (
+from gamesheet_sdk.cli.commands.teams_roster import (
     teams_roster_coaches_group,
     teams_roster_players_group,
 )
@@ -37,13 +37,6 @@ def test_games_scheduled_delete_stub() -> None:
     assert "not yet implemented" in result.output.lower()
 
 
-def test_roster_players_create_stub() -> None:
-    """Test roster players create stub command."""
-    result = CliRunner().invoke(players_group, ["create"])
-    assert result.exit_code == 1
-    assert "not yet implemented" in result.output.lower()
-
-
 def test_roster_players_update_stub() -> None:
     """Test roster players update stub command."""
     result = CliRunner().invoke(players_group, ["update"])
@@ -61,13 +54,6 @@ def test_roster_players_delete_stub() -> None:
 def test_roster_players_penalty_report_stub() -> None:
     """Test roster players penalty-report stub command."""
     result = CliRunner().invoke(players_group, ["penalty-report"])
-    assert result.exit_code == 1
-    assert "not yet implemented" in result.output.lower()
-
-
-def test_roster_coaches_create_stub() -> None:
-    """Test roster coaches create stub command."""
-    result = CliRunner().invoke(coaches_group, ["create"])
     assert result.exit_code == 1
     assert "not yet implemented" in result.output.lower()
 
@@ -100,13 +86,6 @@ def test_teams_roster_players_get_stub() -> None:
     assert "not yet implemented" in result.output.lower()
 
 
-def test_teams_roster_players_create_stub() -> None:
-    """Test teams roster players create stub command."""
-    result = CliRunner().invoke(teams_roster_players_group, ["create"])
-    assert result.exit_code == 1
-    assert "not yet implemented" in result.output.lower()
-
-
 def test_teams_roster_players_update_stub() -> None:
     """Test teams roster players update stub command."""
     result = CliRunner().invoke(teams_roster_players_group, ["update"])
@@ -131,13 +110,6 @@ def test_teams_roster_players_penalty_report_stub() -> None:
 def test_teams_roster_coaches_get_stub() -> None:
     """Test teams roster coaches get stub command."""
     result = CliRunner().invoke(teams_roster_coaches_group, ["get"])
-    assert result.exit_code == 1
-    assert "not yet implemented" in result.output.lower()
-
-
-def test_teams_roster_coaches_create_stub() -> None:
-    """Test teams roster coaches create stub command."""
-    result = CliRunner().invoke(teams_roster_coaches_group, ["create"])
     assert result.exit_code == 1
     assert "not yet implemented" in result.output.lower()
 

@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from gamesheet_sdk.session import Session
 
 
-class Player(BaseModel):  # pylint: disable=too-many-instance-attributes
+class Player(BaseModel):
     """A single player.
 
     Maps the ``data[*]`` items in the JSON:API response of ``GET /api/seasons/{id}/players`` to a flat typed
@@ -54,6 +54,7 @@ class Player(BaseModel):  # pylint: disable=too-many-instance-attributes
     number: str | None = Field(default=None, description="Player's jersey number (team roster only).")
     position: str | None = Field(default=None, description="Player's position (team roster only).")
     duty: str | None = Field(default=None, description="Player's duty (team roster only).")
+    designation: str | None = Field(default=None, description="Player's designation (team roster only).")
     status: str | None = Field(default=None, description="Player's status (team roster only).")
     starting: bool | None = Field(default=None, description="Whether player is starting (team roster only).")
     added_at_game_time: bool | None = Field(
@@ -219,6 +220,114 @@ def list_team_players(session: Session, season_id: str, team_id: str) -> list[Pl
     return players
 
 
+def create_player(
+    session: Session,
+    season_id: str,
+    first_name: str,
+    last_name: str,
+    *,
+    external_id: str | None = None,
+    jersey: str | None = None,
+    position: str | None = None,
+    status: str | None = None,
+    designation: str | None = None,
+    team_id: str | None = None,
+) -> Player:
+    """Create a new player in the specified season.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier to create the player in.
+    :param first_name: Player's first name.
+    :param last_name: Player's last name.
+    :param external_id: Optional external identifier for the player.
+    :param jersey: Optional jersey number.
+    :param position: Optional position (Forward, Defence, Goalie, etc.).
+    :param status: Optional status (Regular, Affiliated, etc.).
+    :param designation: Optional designation (Captain, Alternate Captain, etc.).
+    :param team_id: Optional team identifier to associate the player with.
+    :returns: The created :class:`Player`.
+    :rtype: Player
+    """
+    endpoint = f"/api/seasons/{season_id}/players"
+    payload: dict[str, Any] = {
+        "data": {
+            "type": "players",
+            "attributes": {
+                "first_name": first_name,
+                "last_name": last_name,
+            },
+        },
+    }
+    if external_id:
+        payload["data"]["attributes"]["external_id"] = external_id
+    if jersey:
+        payload["data"]["attributes"]["jersey"] = jersey
+    if position:
+        payload["data"]["attributes"]["position"] = position
+    if status:
+        payload["data"]["attributes"]["status"] = status
+    if designation:
+        payload["data"]["attributes"]["designation"] = designation
+    if team_id:
+        payload["data"]["relationships"] = {
+            "teams": {"data": [{"type": "teams", "id": team_id}]},
+        }
+    response = session.post(endpoint, headers=JSONAPI_HEADERS, json=payload)
+    handle_response(response, endpoint, "POST player")
+    body: dict[str, Any] = response.json()
+    return _parse_player(body["data"])
+
+
+def create_coach(
+    session: Session,
+    season_id: str,
+    first_name: str,
+    last_name: str,
+    *,
+    external_id: str | None = None,
+    position: str | None = None,
+    team_id: str | None = None,
+) -> Coach:
+    """Create a new coach in the specified season.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier to create the coach in.
+    :param first_name: Coach's first name.
+    :param last_name: Coach's last name.
+    :param external_id: Optional external identifier for the coach.
+    :param position: Optional position (Head Coach, Assistant Coach, etc.).
+    :param team_id: Optional team identifier to associate the coach with.
+    :returns: The created :class:`Coach`.
+    :rtype: Coach
+    """
+    endpoint = f"/api/seasons/{season_id}/coaches"
+    payload: dict[str, Any] = {
+        "data": {
+            "type": "coaches",
+            "attributes": {
+                "first_name": first_name,
+                "last_name": last_name,
+            },
+        },
+    }
+    if external_id:
+        payload["data"]["attributes"]["external_id"] = external_id
+    if position:
+        payload["data"]["attributes"]["position"] = position
+    if team_id:
+        payload["data"]["relationships"] = {
+            "teams": {"data": [{"type": "teams", "id": team_id}]},
+        }
+    response = session.post(endpoint, headers=JSONAPI_HEADERS, json=payload)
+    handle_response(response, endpoint, "POST coach")
+    body: dict[str, Any] = response.json()
+    return _parse_coach(body["data"])
+
+
 def list_team_coaches(session: Session, season_id: str, team_id: str) -> list[Coach]:
     """Return every coach for the specified team.
 
@@ -257,3 +366,82 @@ def list_team_coaches(session: Session, season_id: str, team_id: str) -> list[Co
             coach.signature = metadata.get("signature")
         coaches.append(coach)
     return coaches
+
+
+def create_team_player(
+    session: Session,
+    season_id: str,
+    team_id: str,
+    first_name: str,
+    last_name: str,
+    *,
+    external_id: str | None = None,
+    jersey: str | None = None,
+    position: str | None = None,
+    status: str | None = None,
+    designation: str | None = None,
+) -> Player:
+    """Create a new player and associate with the specified team.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param team_id: The team identifier to associate the player with.
+    :param first_name: Player's first name.
+    :param last_name: Player's last name.
+    :param external_id: Optional external identifier for the player.
+    :param jersey: Optional jersey number.
+    :param position: Optional position (Forward, Defence, Goalie, etc.).
+    :param status: Optional status (Regular, Affiliated, etc.).
+    :param designation: Optional designation (Captain, Alternate Captain, etc.).
+    :returns: The created :class:`Player`.
+    :rtype: Player
+    """
+    return create_player(
+        session,
+        season_id,
+        first_name,
+        last_name,
+        external_id=external_id,
+        jersey=jersey,
+        position=position,
+        status=status,
+        designation=designation,
+        team_id=team_id,
+    )
+
+
+def create_team_coach(
+    session: Session,
+    season_id: str,
+    team_id: str,
+    first_name: str,
+    last_name: str,
+    *,
+    external_id: str | None = None,
+    position: str | None = None,
+) -> Coach:
+    """Create a new coach and associate with the specified team.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param team_id: The team identifier to associate the coach with.
+    :param first_name: Coach's first name.
+    :param last_name: Coach's last name.
+    :param external_id: Optional external identifier for the coach.
+    :param position: Optional position (Head Coach, Assistant Coach, etc.).
+    :returns: The created :class:`Coach`.
+    :rtype: Coach
+    """
+    return create_coach(
+        session,
+        season_id,
+        first_name,
+        last_name,
+        external_id=external_id,
+        position=position,
+        team_id=team_id,
+    )

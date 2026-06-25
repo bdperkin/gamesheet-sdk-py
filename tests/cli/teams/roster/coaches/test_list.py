@@ -6,19 +6,19 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.teams import teams_roster_coaches_group
+from gamesheet_sdk.cli.commands.teams_roster import teams_roster_coaches_group
 
 
 def test_teams_roster_coaches_list_coverage() -> None:
     """Ensure teams roster coaches list command body is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.teams.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.teams_roster.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.teams.run_action_or_exit",
+            "gamesheet_sdk.cli.commands.teams_roster.run_action_or_exit",
             return_value=[],
         ),
-        patch("gamesheet_sdk.cli.commands.teams.render_list_command"),
+        patch("gamesheet_sdk.cli.commands.teams_roster.render_list_command"),
     ):
         result = runner.invoke(
             teams_roster_coaches_group,

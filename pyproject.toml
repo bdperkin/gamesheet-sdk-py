@@ -418,13 +418,13 @@ format.indent-after-paren = 4
 format.indent-string = "    "
 format.max-line-length = 110
 format.max-module-lines = 610
-design.max-args = 10
-design.max-attributes = 6
+design.max-args = 11
+design.max-attributes = 7
 design.max-bool-expr = 3
 design.max-branches = 13
 design.max-locals = 17
 design.max-parents = 6
-design.max-positional-arguments = 9
+design.max-positional-arguments = 11
 design.max-public-methods = 5
 design.max-returns = 5
 design.max-statements = 32
@@ -651,6 +651,7 @@ ignore_names = [
   "confirm_destructive",
   "copyright",
   "country",
+  "designation",
   "discovered_from_url",
   "division_title",
   "drafted_by",

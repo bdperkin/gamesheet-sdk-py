@@ -38,6 +38,7 @@ from gamesheet_sdk.cli.commands import (
     seasons_group,
     teams_group,
 )
+from gamesheet_sdk.cli.commands.teams_roster import register_teams_roster_group
 from gamesheet_sdk.cli.core import _configure_logging, resolve_exit
 from gamesheet_sdk.config import Config
 
@@ -156,6 +157,9 @@ cli.add_command(referees_group)
 cli.add_command(ipad_keys_group)
 cli.add_command(games_group)
 cli.add_command(roster_group)
+
+# Register teams roster as a nested group under teams
+register_teams_roster_group(teams_group)
 
 
 def main(argv: list[str] | None = None) -> int:
