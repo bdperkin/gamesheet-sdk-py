@@ -9,6 +9,8 @@ Each view talks to the GameSheet JSON:API at ``/api/seasons/{season_id}/players`
 path -- no Playwright needed for read-only access once a bearer token has been obtained.
 """
 
+# pylint: disable=too-many-lines
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -433,6 +435,62 @@ def list_team_coaches(session: Session, season_id: str, team_id: str) -> list[Co
             coach.signature = metadata.get("signature")
         coaches.append(coach)
     return coaches
+
+
+def get_team_player(session: Session, season_id: str, team_id: str, player_id: str) -> Player:
+    """Get a single player from a team's roster.
+
+    This function retrieves team roster metadata (number, position, status, etc.) that is only available in
+    the team context, unlike :func:`get_player` which fetches from the season-level players endpoint without
+    roster metadata.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param team_id: The team identifier.
+    :param player_id: The player identifier to retrieve.
+    :returns: The :class:`Player` with team roster metadata populated.
+    :rtype: Player
+    :raises GameSheetError: If the player is not found on the team's roster.
+    """
+    players = list_team_players(session, season_id, team_id)
+    for player in players:
+        if player.id == player_id:
+            return player
+    from gamesheet_sdk.exceptions import GameSheetError
+
+    msg = f"Player {player_id} not found on team {team_id}"
+    raise GameSheetError(msg)
+
+
+def get_team_coach(session: Session, season_id: str, team_id: str, coach_id: str) -> Coach:
+    """Get a single coach from a team's roster.
+
+    This function retrieves team roster metadata (position, status, signature) that is only available in the
+    team context, unlike :func:`get_coach` which fetches from the season-level coaches endpoint without roster
+    metadata.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param team_id: The team identifier.
+    :param coach_id: The coach identifier to retrieve.
+    :returns: The :class:`Coach` with team roster metadata populated.
+    :rtype: Coach
+    :raises GameSheetError: If the coach is not found on the team's roster.
+    """
+    coaches = list_team_coaches(session, season_id, team_id)
+    for coach in coaches:
+        if coach.id == coach_id:
+            return coach
+    from gamesheet_sdk.exceptions import GameSheetError
+
+    msg = f"Coach {coach_id} not found on team {team_id}"
+    raise GameSheetError(msg)
 
 
 def create_team_player(  # pylint: disable=too-many-locals

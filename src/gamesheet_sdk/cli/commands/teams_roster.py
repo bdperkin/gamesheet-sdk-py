@@ -11,6 +11,7 @@ from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
 from gamesheet_sdk.cli.shared import (
     common_output_options,
+    get_fields_option,
     list_columns_option,
     render_get_command,
     render_list_command,
@@ -18,6 +19,8 @@ from gamesheet_sdk.cli.shared import (
 from gamesheet_sdk.config import Config
 from gamesheet_sdk.roster import create_team_coach as _create_team_coach_action
 from gamesheet_sdk.roster import create_team_player as _create_team_player_action
+from gamesheet_sdk.roster import get_team_coach as _get_team_coach_action
+from gamesheet_sdk.roster import get_team_player as _get_team_player_action
 from gamesheet_sdk.roster import list_team_coaches as _list_team_coaches_action
 from gamesheet_sdk.roster import list_team_players as _list_team_players_action
 
@@ -105,17 +108,35 @@ def teams_roster_players_list_command(
 
 
 @teams_roster_players_group.command("get")
-def teams_roster_players_get_command() -> None:
-    """Get a specific player for this team.
+@click.option(
+    "--player-id",
+    type=str,
+    envvar="GAMESHEET_PLAYER_ID",
+    required=True,
+    help="Player ID to retrieve details for.",
+)
+@common_output_options
+@get_fields_option
+@click.pass_context
+def teams_roster_players_get_command(
+    ctx: Context,
+    player_id: str,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+) -> None:
+    """Get detailed information about a specific player on this team.
 
-    NOT YET IMPLEMENTED - Backend function needs to be added.
+    The player ID can be provided via --player-id or the GAMESHEET_PLAYER_ID environment variable. The season
+    ID and team ID are inherited from the parent roster command. Requires authentication (run 'gamesheet-sdk-
+    py login' first).
     """
-    click.secho(
-        "Error: teams roster players get is not yet implemented. Backend support needed.",
-        fg="red",
-        err=True,
-    )
-    raise Exit(1)
+    config: Config = ctx.obj["config"]
+    season_id: str = ctx.obj["season_id"]
+    team_id: str = ctx.obj["team_id"]
+    session = build_authenticated_session(ctx, config)
+    player = run_action_or_exit(session, _get_team_player_action, season_id, team_id, player_id)
+    render_get_command(player, output_format, output_path, fields_spec)
 
 
 @teams_roster_players_group.command("create")
@@ -293,17 +314,35 @@ def teams_roster_coaches_list_command(
 
 
 @teams_roster_coaches_group.command("get")
-def teams_roster_coaches_get_command() -> None:
-    """Get a specific coach for this team.
+@click.option(
+    "--coach-id",
+    type=str,
+    envvar="GAMESHEET_COACH_ID",
+    required=True,
+    help="Coach ID to retrieve details for.",
+)
+@common_output_options
+@get_fields_option
+@click.pass_context
+def teams_roster_coaches_get_command(
+    ctx: Context,
+    coach_id: str,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+) -> None:
+    """Get detailed information about a specific coach on this team.
 
-    NOT YET IMPLEMENTED - Backend function needs to be added.
+    The coach ID can be provided via --coach-id or the GAMESHEET_COACH_ID environment variable. The season ID
+    and team ID are inherited from the parent roster command. Requires authentication (run 'gamesheet-sdk-py
+    login' first).
     """
-    click.secho(
-        "Error: teams roster coaches get is not yet implemented. Backend support needed.",
-        fg="red",
-        err=True,
-    )
-    raise Exit(1)
+    config: Config = ctx.obj["config"]
+    season_id: str = ctx.obj["season_id"]
+    team_id: str = ctx.obj["team_id"]
+    session = build_authenticated_session(ctx, config)
+    coach = run_action_or_exit(session, _get_team_coach_action, season_id, team_id, coach_id)
+    render_get_command(coach, output_format, output_path, fields_spec)
 
 
 @teams_roster_coaches_group.command("create")

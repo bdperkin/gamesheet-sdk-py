@@ -79,13 +79,6 @@ def test_roster_coaches_penalty_report_stub() -> None:
     assert "not yet implemented" in result.output.lower()
 
 
-def test_teams_roster_players_get_stub() -> None:
-    """Test teams roster players get stub command."""
-    result = CliRunner().invoke(teams_roster_players_group, ["get"])
-    assert result.exit_code == 1
-    assert "not yet implemented" in result.output.lower()
-
-
 def test_teams_roster_players_update_stub() -> None:
     """Test teams roster players update stub command."""
     result = CliRunner().invoke(teams_roster_players_group, ["update"])
@@ -103,13 +96,6 @@ def test_teams_roster_players_delete_stub() -> None:
 def test_teams_roster_players_penalty_report_stub() -> None:
     """Test teams roster players penalty-report stub command."""
     result = CliRunner().invoke(teams_roster_players_group, ["penalty-report"])
-    assert result.exit_code == 1
-    assert "not yet implemented" in result.output.lower()
-
-
-def test_teams_roster_coaches_get_stub() -> None:
-    """Test teams roster coaches get stub command."""
-    result = CliRunner().invoke(teams_roster_coaches_group, ["get"])
     assert result.exit_code == 1
     assert "not yet implemented" in result.output.lower()
 
