@@ -24,6 +24,8 @@ from gamesheet_sdk.cli.shared import (
     team_update_options,
 )
 from gamesheet_sdk.config import Config
+from gamesheet_sdk.roster import list_team_coaches as _list_team_coaches_action
+from gamesheet_sdk.roster import list_team_players as _list_team_players_action
 from gamesheet_sdk.teams import delete_team as _delete_team_action
 from gamesheet_sdk.teams import get_team as _get_team_action
 from gamesheet_sdk.teams import list_teams as _list_teams_action
@@ -284,6 +286,9 @@ def teams_roster_group(ctx: Context, season_id: str, team_id: str) -> None:
     "players",
     cls=ResourceGroup,
     default="list",
+    aliases={
+        "list": ("ls",),
+    },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def teams_roster_players_group() -> None:
@@ -294,17 +299,25 @@ def teams_roster_players_group() -> None:
 
 
 @teams_roster_players_group.command("list")
-def teams_roster_players_list_command() -> None:
+@common_output_options
+@list_columns_option
+@click.pass_context
+def teams_roster_players_list_command(
+    ctx: Context,
+    output_format: str,
+    output_path: str | None,
+    columns_spec: str | None,
+) -> None:
     """List all players for this team.
 
-    NOT YET IMPLEMENTED - Backend function needs to be added.
+    Requires authentication (run 'gamesheet-sdk-py login' first).
     """
-    click.secho(
-        "Error: teams roster players list is not yet implemented. Backend support needed.",
-        fg="red",
-        err=True,
-    )
-    raise Exit(1)
+    config: Config = ctx.obj["config"]
+    season_id: str = ctx.obj["season_id"]
+    team_id: str = ctx.obj["team_id"]
+    session = build_authenticated_session(ctx, config)
+    players = run_action_or_exit(session, _list_team_players_action, season_id, team_id)
+    render_list_command(players, output_format, output_path, columns_spec)
 
 
 @teams_roster_players_group.command("get")
@@ -383,6 +396,9 @@ def teams_roster_players_penalty_report_command() -> None:
     "coaches",
     cls=ResourceGroup,
     default="list",
+    aliases={
+        "list": ("ls",),
+    },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def teams_roster_coaches_group() -> None:
@@ -393,17 +409,25 @@ def teams_roster_coaches_group() -> None:
 
 
 @teams_roster_coaches_group.command("list")
-def teams_roster_coaches_list_command() -> None:
+@common_output_options
+@list_columns_option
+@click.pass_context
+def teams_roster_coaches_list_command(
+    ctx: Context,
+    output_format: str,
+    output_path: str | None,
+    columns_spec: str | None,
+) -> None:
     """List all coaches for this team.
 
-    NOT YET IMPLEMENTED - Backend function needs to be added.
+    Requires authentication (run 'gamesheet-sdk-py login' first).
     """
-    click.secho(
-        "Error: teams roster coaches list is not yet implemented. Backend support needed.",
-        fg="red",
-        err=True,
-    )
-    raise Exit(1)
+    config: Config = ctx.obj["config"]
+    season_id: str = ctx.obj["season_id"]
+    team_id: str = ctx.obj["team_id"]
+    session = build_authenticated_session(ctx, config)
+    coaches = run_action_or_exit(session, _list_team_coaches_action, season_id, team_id)
+    render_list_command(coaches, output_format, output_path, columns_spec)
 
 
 @teams_roster_coaches_group.command("get")

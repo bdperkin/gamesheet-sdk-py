@@ -638,6 +638,8 @@ exclude = [
 ]
 ignore_names = [
   "__*",
+  "added_at_game_time",
+  "affiliated",
   "autoclass_*",
   "autodoc_*",
   "autosectionlabel_*",
@@ -652,6 +654,7 @@ ignore_names = [
   "discovered_from_url",
   "division_title",
   "drafted_by",
+  "duty",
   "element_type",
   "end_time",
   "epub_*",
@@ -690,6 +693,7 @@ ignore_names = [
   "province",
   "shot_hand",
   "side_effect",
+  "signature",
   "source_*",
   "STYLE_ERRORS_SUGGESTION",
   "templates_*",

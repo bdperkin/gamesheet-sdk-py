@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from gamesheet_sdk.session import Session
 
 
-class Player(BaseModel):
+class Player(BaseModel):  # pylint: disable=too-many-instance-attributes
     """A single player.
 
     Maps the ``data[*]`` items in the JSON:API response of ``GET /api/seasons/{id}/players`` to a flat typed
@@ -51,6 +51,19 @@ class Player(BaseModel):
         default=None,
         description="School/team player committed to.",
     )
+    number: str | None = Field(default=None, description="Player's jersey number (team roster only).")
+    position: str | None = Field(default=None, description="Player's position (team roster only).")
+    duty: str | None = Field(default=None, description="Player's duty (team roster only).")
+    status: str | None = Field(default=None, description="Player's status (team roster only).")
+    starting: bool | None = Field(default=None, description="Whether player is starting (team roster only).")
+    added_at_game_time: bool | None = Field(
+        default=None,
+        description="Whether player was added at game time (team roster only).",
+    )
+    affiliated: bool | None = Field(
+        default=None,
+        description="Whether player is affiliated (team roster only).",
+    )
     created_at: datetime = Field(description="When the player record was created.")
     updated_at: datetime = Field(description="Last time the player record was updated.")
 
@@ -67,6 +80,9 @@ class Coach(BaseModel):
     external_id: str | None = Field(default=None, description="External identifier.")
     first_name: str | None = Field(default=None, description="Coach's first name.")
     last_name: str | None = Field(default=None, description="Coach's last name.")
+    position: str | None = Field(default=None, description="Coach's position (team roster only).")
+    status: str | None = Field(default=None, description="Coach's status (team roster only).")
+    signature: str | None = Field(default=None, description="Coach's signature (team roster only).")
     created_at: datetime = Field(description="When the coach record was created.")
     updated_at: datetime = Field(description="Last time the coach record was updated.")
 
@@ -157,3 +173,87 @@ def list_coaches(session: Session, season_id: str) -> list[Coach]:
     # Parse all coaches
     all_coaches = [_parse_coach(item) for item in body.get("data", [])]
     return all_coaches
+
+
+def list_team_players(session: Session, season_id: str, team_id: str) -> list[Player]:
+    """Return every player for the specified team.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param team_id: The team identifier whose players to list.
+    :returns: A list of :class:`Player`, in the order the server returned them. The list may be empty if the
+        team has no players.
+    :rtype: list[Player]
+    """
+    endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
+    response = session.get(endpoint, headers=JSONAPI_HEADERS, params={"include": "players,coaches"})
+    handle_response(response, endpoint, "GET team")
+    body: dict[str, Any] = response.json()
+    included_players = {
+        item["id"]: item
+        for item in body.get(
+            "included",
+            [],
+        )
+        if item.get("type") == "players"
+    }
+    roster_metadata = {
+        str(p["id"]): p
+        for p in body.get("data", {}).get("attributes", {}).get("roster", {}).get("players", [])
+    }
+    players = []
+    for player_id, player_data in included_players.items():
+        player = _parse_player(player_data)
+        if player_id in roster_metadata:
+            metadata = roster_metadata[player_id]
+            player.number = metadata.get("number")
+            player.position = metadata.get("position")
+            player.duty = metadata.get("duty")
+            player.status = metadata.get("status")
+            player.starting = metadata.get("starting")
+            player.added_at_game_time = metadata.get("added_at_game_time")
+            player.affiliated = metadata.get("affiliated")
+        players.append(player)
+    return players
+
+
+def list_team_coaches(session: Session, season_id: str, team_id: str) -> list[Coach]:
+    """Return every coach for the specified team.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param team_id: The team identifier whose coaches to list.
+    :returns: A list of :class:`Coach`, in the order the server returned them. The list may be empty if the
+        team has no coaches.
+    :rtype: list[Coach]
+    """
+    endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
+    response = session.get(endpoint, headers=JSONAPI_HEADERS, params={"include": "players,coaches"})
+    handle_response(response, endpoint, "GET team")
+    body: dict[str, Any] = response.json()
+    included_coaches = {
+        item["id"]: item
+        for item in body.get(
+            "included",
+            [],
+        )
+        if item.get("type") == "coaches"
+    }
+    roster_metadata = {
+        str(c["id"]): c
+        for c in body.get("data", {}).get("attributes", {}).get("roster", {}).get("coaches", [])
+    }
+    coaches = []
+    for coach_id, coach_data in included_coaches.items():
+        coach = _parse_coach(coach_data)
+        if coach_id in roster_metadata:
+            metadata = roster_metadata[coach_id]
+            coach.position = metadata.get("position")
+            coach.status = metadata.get("status")
+            coach.signature = metadata.get("signature")
+        coaches.append(coach)
+    return coaches
