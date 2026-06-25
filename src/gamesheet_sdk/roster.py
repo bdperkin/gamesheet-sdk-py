@@ -212,6 +212,7 @@ def list_team_players(session: Session, season_id: str, team_id: str) -> list[Pl
             player.number = metadata.get("number")
             player.position = metadata.get("position")
             player.duty = metadata.get("duty")
+            player.designation = metadata.get("designation")
             player.status = metadata.get("status")
             player.starting = metadata.get("starting")
             player.added_at_game_time = metadata.get("added_at_game_time")
