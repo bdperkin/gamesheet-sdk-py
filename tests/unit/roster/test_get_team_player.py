@@ -6,9 +6,7 @@ import pytest
 import responses
 
 from gamesheet_sdk import Config, GameSheetError, Session
-from gamesheet_sdk.roster import (
-    get_team_player,  # pylint: disable=no-name-in-module  # type: ignore[attr-defined]
-)
+from gamesheet_sdk.roster import get_team_player
 
 _BASE = "https://test.example"
 _SEASON_ID = "15020"
