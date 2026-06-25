@@ -186,7 +186,7 @@ def get_team_player(session: Session, season_id: str, team_id: str, player_id: s
     raise GameSheetError(msg)
 
 
-def create_team_player(  # pylint: disable=too-many-locals
+def create_team_player(
     session: Session,
     season_id: str,
     team_id: str,

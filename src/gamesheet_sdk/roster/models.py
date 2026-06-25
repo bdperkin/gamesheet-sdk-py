@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 from gamesheet_sdk.shared import parse_jsonapi_resource
 
 
-class Player(BaseModel):  # pylint: disable=too-many-instance-attributes
+class Player(BaseModel):
     """A single player.
 
     Maps the ``data[*]`` items in the JSON:API response of ``GET /api/seasons/{id}/players`` to a flat typed
