@@ -213,9 +213,9 @@ def list_team_players(session: Session, season_id: str, team_id: str) -> list[Pl
             player.position = metadata.get("position")
             player.duty = metadata.get("duty")
             # designation is stored as "duty" in the roster
-            # Map back: "captain" -> "Captain", "alternate captain" -> "Alternate Captain"
+            # Map back: "captain" -> "Captain", "alternate_captain" -> "Alternate Captain"
             if player.duty:
-                player.designation = player.duty.title()
+                player.designation = player.duty.replace("_", " ").title()
             player.status = metadata.get("status")
             player.starting = metadata.get("starting")
             player.added_at_game_time = metadata.get("added_at_game_time")
@@ -496,8 +496,8 @@ def create_team_player(  # pylint: disable=too-many-locals
             player_entry["affiliated"] = True
     if designation:
         # Designation is stored as "duty" in the roster
-        # Map: "Captain" -> "captain", "Alternate Captain" -> "alternate captain"
-        player_entry["duty"] = designation.lower()
+        # Map: "Captain" -> "captain", "Alternate Captain" -> "alternate_captain"
+        player_entry["duty"] = designation.lower().replace(" ", "_")
     players_roster.append(player_entry)
     roster["players"] = players_roster
     # Step 4: Update team roster
