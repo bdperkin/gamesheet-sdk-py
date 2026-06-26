@@ -68,6 +68,37 @@ def test_create_player_with_external_id(config: Config) -> None:
 
 
 @responses.activate
+def test_create_player_with_all_profile_fields(config: Config) -> None:
+    """Test creating a player with all profile fields (biography, height, etc.)."""
+    player_response = roster_player_payload(season_id=_SEASON_ID)
+    responses.add(
+        responses.POST,
+        _PLAYERS_ENDPOINT,
+        json={"data": player_response},
+        status=201,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("valid-token")
+        result = create_player(
+            session,
+            _SEASON_ID,
+            "AUSTIN",
+            "ADAMSKY",
+            biography="Player biography",
+            height="6'2\"",
+            weight="185",
+            shot_hand="right",
+            birthdate="1990-01-15",
+            hometown="Toronto",
+            country="CA",
+            province="Ontario",
+            drafted_by="Toronto Maple Leafs",
+            committed_to="University of Toronto",
+        )
+    assert result.id == "8043169"
+
+
+@responses.activate
 def test_create_player_with_optional_fields(config: Config) -> None:
     """Test creating a player with all optional fields."""
     player_response = roster_player_payload(season_id=_SEASON_ID)
@@ -413,3 +444,219 @@ def test_create_team_coach_with_position(config: Config) -> None:
     assert result.id == "1868550"
     assert result.position == "Head Coach"
     assert result.status == "coaching"
+
+
+@responses.activate
+def test_create_team_player_with_external_id(config: Config) -> None:
+    """Test that create_team_player handles external_id parameter."""
+    player_response = roster_player_payload(season_id=_SEASON_ID, external_id="TEST-EXT-123")
+    responses.add(responses.POST, _PLAYERS_ENDPOINT, json={"data": player_response}, status=201)
+    team_data = team_payload(_TEAM_ID)
+    responses.add(
+        responses.GET,
+        f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
+        json={"data": team_data},
+        status=200,
+    )
+    responses.add(
+        responses.PATCH,
+        f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
+        json={"data": team_data},
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("valid-token")
+        result = create_team_player(
+            session,
+            _SEASON_ID,
+            _TEAM_ID,
+            "AUSTIN",
+            "ADAMSKY",
+            external_id="TEST-EXT-123",
+        )
+    assert result.id == "8043169"
+    assert result.external_id == "TEST-EXT-123"
+
+
+@responses.activate
+def test_create_team_coach_with_external_id(config: Config) -> None:
+    """Test that create_team_coach handles external_id parameter."""
+    coach_response = roster_coach_payload(season_id=_SEASON_ID, external_id="TEST-EXT-456")
+    responses.add(responses.POST, _COACHES_ENDPOINT, json={"data": coach_response}, status=201)
+    team_data = team_payload(_TEAM_ID)
+    responses.add(
+        responses.GET,
+        f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
+        json={"data": team_data},
+        status=200,
+    )
+    responses.add(
+        responses.PATCH,
+        f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
+        json={"data": team_data},
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("valid-token")
+        result = create_team_coach(
+            session,
+            _SEASON_ID,
+            _TEAM_ID,
+            "SHAWN",
+            "ALLIE",
+            external_id="TEST-EXT-456",
+        )
+    assert result.id == "1868550"
+    assert result.external_id == "TEST-EXT-456"
+
+
+@responses.activate
+def test_create_team_player_with_all_profile_fields(config: Config) -> None:
+    """Test that create_team_player handles all profile fields."""
+    player_response = roster_player_payload(season_id=_SEASON_ID, external_id="TEST-PROFILE")
+    responses.add(responses.POST, _PLAYERS_ENDPOINT, json={"data": player_response}, status=201)
+    team_data = team_payload(_TEAM_ID)
+    responses.add(
+        responses.GET,
+        f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
+        json={"data": team_data},
+        status=200,
+    )
+    responses.add(
+        responses.PATCH,
+        f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
+        json={"data": team_data},
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("valid-token")
+        result = create_team_player(
+            session,
+            _SEASON_ID,
+            _TEAM_ID,
+            "AUSTIN",
+            "ADAMSKY",
+            external_id="TEST-PROFILE",
+            biography="Player biography",
+            height="6'2\"",
+            weight="185",
+            shot_hand="right",
+            birthdate="1990-01-15",
+            hometown="Toronto",
+            country="CA",
+            province="Ontario",
+            drafted_by="Toronto Maple Leafs",
+            committed_to="University of Toronto",
+        )
+    assert result.id == "8043169"
+    assert result.external_id == "TEST-PROFILE"
+
+
+@responses.activate
+def test_create_player_with_photo(config: Config) -> None:
+    """Test creating a player with photo upload."""
+    import tempfile
+
+    # Create a temporary image file
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".jpg", delete=False) as temp_file:
+        temp_file.write("fake image content")
+        temp_path = temp_file.name
+
+    # Mock upload URL request
+    responses.add(
+        responses.POST,
+        "https://bff-dashboard-api-awy26srzoa-nn.a.run.app/dwg/assets/upload-url",
+        json={
+            "status": "success",
+            "data": {"uploadURL": "https://upload.example.com/test", "id": "test-image-id"},
+        },
+        status=200,
+    )
+    # Mock upload request
+    responses.add(
+        responses.POST,
+        "https://upload.example.com/test",
+        json={"success": True},
+        status=200,
+    )
+    # Mock player creation
+    player_response = roster_player_payload(season_id=_SEASON_ID)
+    responses.add(
+        responses.POST,
+        _PLAYERS_ENDPOINT,
+        json={"data": player_response},
+        status=201,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("valid-token")
+        result = create_player(
+            session,
+            _SEASON_ID,
+            "AUSTIN",
+            "ADAMSKY",
+            photo_path=temp_path,
+        )
+    assert result.id == "8043169"
+
+
+@responses.activate
+def test_create_team_player_with_photo(config: Config) -> None:
+    """Test creating a team player with photo upload."""
+    import tempfile
+
+    # Create a temporary image file
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".jpg", delete=False) as temp_file:
+        temp_file.write("fake image content")
+        team_temp_path = temp_file.name
+
+    # Mock upload URL request
+    responses.add(
+        responses.POST,
+        "https://bff-dashboard-api-awy26srzoa-nn.a.run.app/dwg/assets/upload-url",
+        json={
+            "status": "success",
+            "data": {"uploadURL": "https://upload.example.com/test", "id": "test-image-id"},
+        },
+        status=200,
+    )
+    # Mock upload request
+    responses.add(
+        responses.POST,
+        "https://upload.example.com/test",
+        json={"success": True},
+        status=200,
+    )
+    # Mock player creation
+    player_response = roster_player_payload(season_id=_SEASON_ID)
+    responses.add(
+        responses.POST,
+        _PLAYERS_ENDPOINT,
+        json={"data": player_response},
+        status=201,
+    )
+    # Mock team fetch
+    team_response = team_payload()
+    responses.add(
+        responses.GET,
+        f"https://test.example/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
+        json={"data": team_response},
+        status=200,
+    )
+    # Mock team update
+    responses.add(
+        responses.PATCH,
+        f"https://test.example/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
+        json={"data": team_response},
+        status=200,
+    )
+    with Session(config) as session:
+        session.set_bearer_token("valid-token")
+        result = create_team_player(
+            session,
+            _SEASON_ID,
+            _TEAM_ID,
+            "AUSTIN",
+            "ADAMSKY",
+            photo_path=team_temp_path,
+        )
+    assert result.id == "8043169"

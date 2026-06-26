@@ -194,8 +194,65 @@ def teams_roster_players_get_command(
     type=click.Choice(PLAYER_DESIGNATION, case_sensitive=False),
     help="Optional designation (Captain or Alternate Captain).",
 )
+@click.option(
+    "--biography",
+    type=str,
+    help="Optional biography text.",
+)
+@click.option(
+    "--height",
+    type=str,
+    help='Optional height (e.g., "6\'2\\"").',
+)
+@click.option(
+    "--weight",
+    type=str,
+    help='Optional weight (e.g., "185").',
+)
+@click.option(
+    "--shot-hand",
+    type=click.Choice(["left", "right"], case_sensitive=False),
+    help="Optional shooting hand.",
+)
+@click.option(
+    "--birthdate",
+    type=str,
+    help="Optional birthdate (ISO format: YYYY-MM-DD).",
+)
+@click.option(
+    "--hometown",
+    type=str,
+    help="Optional hometown.",
+)
+@click.option(
+    "--country",
+    type=str,
+    help='Optional country code (e.g., "US", "CA").',
+)
+@click.option(
+    "--province",
+    type=str,
+    help="Optional province/state.",
+)
+@click.option(
+    "--drafted-by",
+    type=str,
+    help="Optional drafted by team name.",
+)
+@click.option(
+    "--committed-to",
+    type=str,
+    help="Optional committed to institution.",
+)
+@click.option(
+    "--photo",
+    "photo_path",
+    type=click.Path(exists=True, dir_okay=False),
+    help="Optional path to a local photo image file.",
+)
 @common_output_options
 @click.pass_context
+# pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
 def teams_roster_players_create_command(
     ctx: Context,
     first_name: str,
@@ -205,6 +262,17 @@ def teams_roster_players_create_command(
     position: str | None,
     status: str | None,
     designation: str | None,
+    biography: str | None,
+    height: str | None,
+    weight: str | None,
+    shot_hand: str | None,
+    birthdate: str | None,
+    hometown: str | None,
+    country: str | None,
+    province: str | None,
+    drafted_by: str | None,
+    committed_to: str | None,
+    photo_path: str | None,
     output_format: str,
     output_path: str | None,
 ) -> None:
@@ -229,6 +297,17 @@ def teams_roster_players_create_command(
                 position=position,
                 status=status,
                 designation=designation,
+                biography=biography,
+                height=height,
+                weight=weight,
+                shot_hand=shot_hand,
+                birthdate=birthdate,
+                hometown=hometown,
+                country=country,
+                province=province,
+                drafted_by=drafted_by,
+                committed_to=committed_to,
+                photo_path=photo_path,
             )
     except Exception as exc:
         click.secho(f"Error creating player: {exc}", fg="red", err=True)

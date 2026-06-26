@@ -192,22 +192,32 @@ def create_team_coach(
     :returns: The created :class:`Coach`.
     :rtype: Coach
     """
-    # Step 1: Create the coach at the season level
-    coach = create_coach(session, season_id, first_name, last_name, external_id=external_id)
-    # Step 2: Fetch current team data
+    # Step 1: Create the coach at the season level (without "type" field for team context)
+    endpoint = f"/api/seasons/{season_id}/coaches"
+    payload: dict[str, Any] = {"data": {"attributes": {"first_name": first_name, "last_name": last_name}}}
+    if external_id:
+        payload["data"]["attributes"]["external_id"] = external_id
+    response = session.post(endpoint, headers=JSONAPI_HEADERS, json=payload)
+    handle_response(response, endpoint, "POST coach")
+    coach = parse_coach(response.json()["data"])
+    # Step 2: Fetch current team data and update roster
     team_data = get_team_for_roster_update(session, season_id, team_id)
-    current_attrs = team_data.get("data", {}).get("attributes", {})
-    current_relationships = team_data.get("data", {}).get("relationships", {})
-    # Step 3: Add coach to roster
-    roster = current_attrs.get("roster", {})
+    roster = team_data.get("data", {}).get("attributes", {}).get("roster", {})
     coaches_roster = roster.get("coaches", [])
     coach_entry: dict[str, Any] = {"id": coach.id, "status": "coaching"}
     if position:
         coach_entry["position"] = position
     coaches_roster.append(coach_entry)
     roster["coaches"] = coaches_roster
-    # Step 4: Update team roster
-    update_team_roster(session, season_id, team_id, roster, current_attrs, current_relationships)
+    # Step 3: Update team roster
+    update_team_roster(
+        session,
+        season_id,
+        team_id,
+        roster,
+        team_data.get("data", {}).get("attributes", {}),
+        team_data.get("data", {}).get("relationships", {}),
+    )
     # Return the coach with roster metadata populated
     if position:
         coach.position = position

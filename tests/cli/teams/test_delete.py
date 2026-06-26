@@ -63,3 +63,19 @@ def test_teams_delete_with_no_saved_tokens(runner: CliRunner) -> None:
         )
         assert result.exit_code == 1
         assert "login" in result.output.lower()
+
+
+def test_teams_delete_helper_executes_action(runner: CliRunner) -> None:
+    """Test that run_team_delete helper executes the delete action."""
+    with (
+        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh-tok"),
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch("gamesheet_sdk.teams.delete_team") as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            ["teams", "delete", "--season-id", "15020", "--team-id", "123", "--force"],
+        )
+        assert not result.exit_code
+        mock_action.assert_called_once()
+        assert "deleted successfully" in result.output.lower()

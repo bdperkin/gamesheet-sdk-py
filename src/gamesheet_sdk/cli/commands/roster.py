@@ -195,8 +195,65 @@ def players_list_command(
     type=str,
     help="Optional team ID to associate the player with.",
 )
+@click.option(
+    "--biography",
+    type=str,
+    help="Optional biography text.",
+)
+@click.option(
+    "--height",
+    type=str,
+    help='Optional height (e.g., "6\'2\\"").',
+)
+@click.option(
+    "--weight",
+    type=str,
+    help='Optional weight (e.g., "185").',
+)
+@click.option(
+    "--shot-hand",
+    type=click.Choice(["left", "right"], case_sensitive=False),
+    help="Optional shooting hand.",
+)
+@click.option(
+    "--birthdate",
+    type=str,
+    help="Optional birthdate (ISO format: YYYY-MM-DD).",
+)
+@click.option(
+    "--hometown",
+    type=str,
+    help="Optional hometown.",
+)
+@click.option(
+    "--country",
+    type=str,
+    help='Optional country code (e.g., "US", "CA").',
+)
+@click.option(
+    "--province",
+    type=str,
+    help="Optional province/state.",
+)
+@click.option(
+    "--drafted-by",
+    type=str,
+    help="Optional drafted by team name.",
+)
+@click.option(
+    "--committed-to",
+    type=str,
+    help="Optional committed to institution.",
+)
+@click.option(
+    "--photo",
+    "photo_path",
+    type=click.Path(exists=True, dir_okay=False),
+    help="Optional path to a local photo image file.",
+)
 @common_output_options
 @click.pass_context
+# pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
 def players_create_command(
     ctx: Context,
     first_name: str,
@@ -207,6 +264,17 @@ def players_create_command(
     status: str | None,
     designation: str | None,
     team_id: str | None,
+    biography: str | None,
+    height: str | None,
+    weight: str | None,
+    shot_hand: str | None,
+    birthdate: str | None,
+    hometown: str | None,
+    country: str | None,
+    province: str | None,
+    drafted_by: str | None,
+    committed_to: str | None,
+    photo_path: str | None,
     output_format: str,
     output_path: str | None,
 ) -> None:
@@ -231,6 +299,17 @@ def players_create_command(
                 status=status,
                 designation=designation,
                 team_id=team_id,
+                biography=biography,
+                height=height,
+                weight=weight,
+                shot_hand=shot_hand,
+                birthdate=birthdate,
+                hometown=hometown,
+                country=country,
+                province=province,
+                drafted_by=drafted_by,
+                committed_to=committed_to,
+                photo_path=photo_path,
             )
     except Exception as exc:
         click.secho(f"Error creating player: {exc}", fg="red", err=True)
