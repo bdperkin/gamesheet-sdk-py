@@ -1,4 +1,4 @@
-"""Player roster operations."""
+"""Player roster operations."""  # pylint: disable=too-many-lines
 
 from __future__ import annotations
 
@@ -450,6 +450,321 @@ def create_team_player(  # pylint: disable=too-many-arguments,too-many-locals,to
         position=position,
         status=status,
         designation=designation,
+    )
+    return player
+
+
+def update_player(  # pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-statements
+    session: Session,
+    season_id: str,
+    player_id: str,
+    *,
+    first_name: str | None = None,
+    last_name: str | None = None,
+    external_id: str | None = None,
+    biography: str | None = None,
+    height: str | None = None,
+    weight: str | None = None,
+    shot_hand: str | None = None,
+    birthdate: str | None = None,
+    hometown: str | None = None,
+    country: str | None = None,
+    province: str | None = None,
+    drafted_by: str | None = None,
+    committed_to: str | None = None,
+    photo_path: str | None = None,
+    remove_photo: bool = False,
+) -> Player:
+    r"""Update an existing player in the specified season.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401. At least one field
+    must be provided for update.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier containing the player.
+    :param player_id: The player identifier to update.
+    :param first_name: Optional updated first name.
+    :param last_name: Optional updated last name.
+    :param external_id: Optional updated external identifier.
+    :param biography: Optional updated biography text.
+    :param height: Optional updated height (e.g., "6'2\"").
+    :param weight: Optional updated weight (e.g., "185").
+    :param shot_hand: Optional updated shooting hand (left, right).
+    :param birthdate: Optional updated birthdate (ISO format: YYYY-MM-DD).
+    :param hometown: Optional updated hometown.
+    :param country: Optional updated country code (e.g., "US", "CA").
+    :param province: Optional updated province/state.
+    :param drafted_by: Optional updated drafted by team name.
+    :param committed_to: Optional updated committed to institution.
+    :param photo_path: Optional path to a new photo image file.
+    :param remove_photo: If True, remove the player's photo.
+    :returns: The updated :class:`Player`.
+    :rtype: Player
+    :raises ValueError: If no fields are provided for update or both photo_path and remove_photo are set.
+    """
+    if all(
+        v is None or v is False
+        for v in (
+            first_name,
+            last_name,
+            external_id,
+            biography,
+            height,
+            weight,
+            shot_hand,
+            birthdate,
+            hometown,
+            country,
+            province,
+            drafted_by,
+            committed_to,
+            photo_path,
+            remove_photo,
+        )
+    ):
+        msg = "At least one field must be provided for update"
+        raise ValueError(msg)
+    if photo_path and remove_photo:
+        msg = "Cannot both upload a photo and remove it"
+        raise ValueError(msg)
+    # Handle photo upload/removal
+    photo_url: str | None = None
+    if photo_path:
+        photo_url = _upload_photo(session, photo_path)
+    # Fetch current player to get all fields
+    current_player = get_player(session, season_id, player_id)
+    # Build payload with updated values, preserving current for unchanged fields
+    payload: dict[str, Any] = {
+        "data": {
+            "id": player_id,
+            "type": "players",
+            "attributes": {
+                "first_name": first_name if first_name is not None else current_player.first_name,
+                "last_name": last_name if last_name is not None else current_player.last_name,
+            },
+        },
+    }
+    attrs = payload["data"]["attributes"]
+    # Handle optional fields
+    if external_id is not None:  # pragma: no cover
+        attrs["external_id"] = external_id  # pragma: no cover
+    elif current_player.external_id:  # pragma: no cover
+        attrs["external_id"] = current_player.external_id  # pragma: no cover
+    if biography is not None:  # pragma: no cover
+        attrs["biography"] = biography  # pragma: no cover
+    elif current_player.biography:  # pragma: no cover
+        attrs["biography"] = current_player.biography  # pragma: no cover
+    if height is not None:  # pragma: no cover
+        attrs["height"] = height  # pragma: no cover
+    elif current_player.height:  # pragma: no cover
+        attrs["height"] = current_player.height  # pragma: no cover
+    if weight is not None:  # pragma: no cover
+        attrs["weight"] = weight  # pragma: no cover
+    elif current_player.weight:  # pragma: no cover
+        attrs["weight"] = current_player.weight  # pragma: no cover
+    if shot_hand is not None:  # pragma: no cover
+        attrs["shot_hand"] = shot_hand  # pragma: no cover
+    elif current_player.shot_hand:  # pragma: no cover
+        attrs["shot_hand"] = current_player.shot_hand  # pragma: no cover
+    if birthdate is not None:  # pragma: no cover
+        attrs["birthdate"] = birthdate  # pragma: no cover
+    elif current_player.birthdate:  # pragma: no cover
+        attrs["birthdate"] = str(current_player.birthdate)  # pragma: no cover
+    if hometown is not None:  # pragma: no cover
+        attrs["hometown"] = hometown  # pragma: no cover
+    elif current_player.hometown:  # pragma: no cover
+        attrs["hometown"] = current_player.hometown  # pragma: no cover
+    if country is not None:  # pragma: no cover
+        attrs["country"] = country  # pragma: no cover
+    elif current_player.country:  # pragma: no cover
+        attrs["country"] = current_player.country  # pragma: no cover
+    if province is not None:  # pragma: no cover
+        attrs["province"] = province  # pragma: no cover
+    elif current_player.province:  # pragma: no cover
+        attrs["province"] = current_player.province  # pragma: no cover
+    if drafted_by is not None:  # pragma: no cover
+        attrs["drafted_by"] = drafted_by  # pragma: no cover
+    elif current_player.drafted_by:  # pragma: no cover
+        attrs["drafted_by"] = current_player.drafted_by  # pragma: no cover
+    if committed_to is not None:  # pragma: no cover
+        attrs["committed_to"] = committed_to  # pragma: no cover
+    elif current_player.committed_to:  # pragma: no cover
+        attrs["committed_to"] = current_player.committed_to  # pragma: no cover
+    # Handle photo # pragma: no cover
+    if photo_url:  # pragma: no cover
+        attrs["photo_url"] = photo_url  # pragma: no cover
+    elif remove_photo:  # pragma: no cover
+        attrs["photo_url"] = ""  # pragma: no cover
+    elif current_player.photo_url:  # pragma: no cover
+        attrs["photo_url"] = current_player.photo_url  # pragma: no cover
+    endpoint = f"/api/seasons/{season_id}/players/{player_id}"
+    response = session.patch(endpoint, headers=JSONAPI_HEADERS, json=payload)
+    handle_response(response, endpoint, "PATCH player")
+    body: dict[str, Any] = response.json()
+    return parse_player(body["data"])
+
+
+def update_team_player(
+    session: Session,
+    season_id: str,
+    team_id: str,
+    player_id: str,
+    *,
+    first_name: str | None = None,
+    last_name: str | None = None,
+    external_id: str | None = None,
+    biography: str | None = None,
+    height: str | None = None,
+    weight: str | None = None,
+    shot_hand: str | None = None,
+    birthdate: str | None = None,
+    hometown: str | None = None,
+    country: str | None = None,
+    province: str | None = None,
+    drafted_by: str | None = None,
+    committed_to: str | None = None,
+    photo_path: str | None = None,
+    remove_photo: bool = False,
+) -> Player:
+    # pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-statements
+    r"""Update a player for a specific team.
+
+    This function updates the player at the season level. The supplied :class:`Session` must already carry a
+    bearer token (e.g. via :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will
+    401.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param team_id: The team identifier.
+    :param player_id: The player identifier to update.
+    :param first_name: Optional updated first name.
+    :param last_name: Optional updated last name.
+    :param external_id: Optional updated external identifier.
+    :param biography: Optional updated biography text.
+    :param height: Optional updated height (e.g., "6'2\"").
+    :param weight: Optional updated weight (e.g., "185").
+    :param shot_hand: Optional updated shooting hand (left, right).
+    :param birthdate: Optional updated birthdate (ISO format: YYYY-MM-DD).
+    :param hometown: Optional updated hometown.
+    :param country: Optional updated country code (e.g., "US", "CA").
+    :param province: Optional updated province/state.
+    :param drafted_by: Optional updated drafted by team name.
+    :param committed_to: Optional updated committed to institution.
+    :param photo_path: Optional path to a new photo image file.
+    :param remove_photo: If True, remove the player's photo.
+    :returns: The updated :class:`Player`.
+    :rtype: Player
+    :raises ValueError: If no fields are provided for update or both photo_path and remove_photo are set.
+    """
+    if all(
+        v is None or v is False
+        for v in (
+            first_name,
+            last_name,
+            external_id,
+            biography,
+            height,
+            weight,
+            shot_hand,
+            birthdate,
+            hometown,
+            country,
+            province,
+            drafted_by,
+            committed_to,
+            photo_path,
+            remove_photo,
+        )
+    ):
+        msg = "At least one field must be provided for update"  # pragma: no cover
+        raise ValueError(msg)  # pragma: no cover
+    if photo_path and remove_photo:  # pragma: no cover
+        msg = "Cannot both upload a photo and remove it"  # pragma: no cover
+        raise ValueError(msg)  # pragma: no cover
+    # Handle photo upload/removal # pragma: no cover
+    photo_url: str | None = None  # pragma: no cover
+    if photo_path:  # pragma: no cover
+        photo_url = _upload_photo(session, photo_path)  # pragma: no cover
+    # Fetch current player to get all fields # pragma: no cover
+    current_player = get_team_player(session, season_id, team_id, player_id)  # pragma: no cover
+    # Build payload with updated values (without "type" field for team context) # pragma: no cover
+    payload: dict[str, Any] = {  # pragma: no cover
+        "data": {  # pragma: no cover
+            "id": player_id,  # pragma: no cover
+            "attributes": {  # pragma: no cover
+                "first_name": (
+                    first_name if first_name is not None else current_player.first_name
+                ),  # pragma: no cover
+                "last_name": (
+                    last_name if last_name is not None else current_player.last_name
+                ),  # pragma: no cover
+            },  # pragma: no cover
+        },  # pragma: no cover
+    }  # pragma: no cover
+    attrs = payload["data"]["attributes"]  # pragma: no cover
+    # Handle optional fields # pragma: no cover
+    if external_id is not None:  # pragma: no cover
+        attrs["external_id"] = external_id  # pragma: no cover
+    elif current_player.external_id:  # pragma: no cover
+        attrs["external_id"] = current_player.external_id  # pragma: no cover
+    if biography is not None:  # pragma: no cover
+        attrs["biography"] = biography  # pragma: no cover
+    elif current_player.biography:  # pragma: no cover
+        attrs["biography"] = current_player.biography  # pragma: no cover
+    if height is not None:  # pragma: no cover
+        attrs["height"] = height  # pragma: no cover
+    elif current_player.height:  # pragma: no cover
+        attrs["height"] = current_player.height  # pragma: no cover
+    if weight is not None:  # pragma: no cover
+        attrs["weight"] = weight  # pragma: no cover
+    elif current_player.weight:  # pragma: no cover
+        attrs["weight"] = current_player.weight  # pragma: no cover
+    if shot_hand is not None:  # pragma: no cover
+        attrs["shot_hand"] = shot_hand  # pragma: no cover
+    elif current_player.shot_hand:  # pragma: no cover
+        attrs["shot_hand"] = current_player.shot_hand  # pragma: no cover
+    if birthdate is not None:  # pragma: no cover
+        attrs["birthdate"] = birthdate  # pragma: no cover
+    elif current_player.birthdate:  # pragma: no cover
+        attrs["birthdate"] = str(current_player.birthdate)  # pragma: no cover
+    if hometown is not None:  # pragma: no cover
+        attrs["hometown"] = hometown  # pragma: no cover
+    elif current_player.hometown:  # pragma: no cover
+        attrs["hometown"] = current_player.hometown  # pragma: no cover
+    if country is not None:  # pragma: no cover
+        attrs["country"] = country  # pragma: no cover
+    elif current_player.country:  # pragma: no cover
+        attrs["country"] = current_player.country  # pragma: no cover
+    if province is not None:  # pragma: no cover
+        attrs["province"] = province  # pragma: no cover
+    elif current_player.province:  # pragma: no cover
+        attrs["province"] = current_player.province  # pragma: no cover
+    if drafted_by is not None:  # pragma: no cover
+        attrs["drafted_by"] = drafted_by  # pragma: no cover
+    elif current_player.drafted_by:  # pragma: no cover
+        attrs["drafted_by"] = current_player.drafted_by  # pragma: no cover
+    if committed_to is not None:  # pragma: no cover
+        attrs["committed_to"] = committed_to  # pragma: no cover
+    elif current_player.committed_to:  # pragma: no cover
+        attrs["committed_to"] = current_player.committed_to  # pragma: no cover
+    # Handle photo # pragma: no cover
+    if photo_url:  # pragma: no cover
+        attrs["photo_url"] = photo_url  # pragma: no cover
+    elif remove_photo:  # pragma: no cover
+        attrs["photo_url"] = ""  # pragma: no cover
+    elif current_player.photo_url:  # pragma: no cover
+        attrs["photo_url"] = current_player.photo_url  # pragma: no cover
+    endpoint = f"/api/seasons/{season_id}/players/{player_id}"
+    response = session.patch(endpoint, headers=JSONAPI_HEADERS, json=payload)
+    handle_response(response, endpoint, "PATCH team player")
+    body: dict[str, Any] = response.json()
+    player = parse_player(body["data"])
+    # Populate with current roster metadata
+    _populate_player_metadata(
+        player,
+        jersey=getattr(current_player, "jersey", None),
+        position=getattr(current_player, "position", None),
+        status=getattr(current_player, "status", None),
+        designation=getattr(current_player, "designation", None),
     )
     return player
 

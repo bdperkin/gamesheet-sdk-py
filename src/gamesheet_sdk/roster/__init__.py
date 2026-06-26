@@ -20,6 +20,8 @@ from gamesheet_sdk.roster.coaches import (
     list_team_coaches,
     unassign_coach,
     unassign_team_coach,
+    update_coach,
+    update_team_coach,
 )
 from gamesheet_sdk.roster.models import Coach, Player
 from gamesheet_sdk.roster.players import (
@@ -33,6 +35,8 @@ from gamesheet_sdk.roster.players import (
     list_team_players,
     unassign_player,
     unassign_team_player,
+    update_player,
+    update_team_player,
 )
 
 __all__ = [
@@ -58,4 +62,8 @@ __all__ = [
     "unassign_player",
     "unassign_team_coach",
     "unassign_team_player",
+    "update_coach",
+    "update_player",
+    "update_team_coach",
+    "update_team_player",
 ]

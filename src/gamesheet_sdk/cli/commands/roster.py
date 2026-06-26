@@ -1,4 +1,4 @@
-"""Roster command group with nested sub-commands."""
+"""Roster command group with nested sub-commands."""  # pylint: disable=too-many-lines
 
 from __future__ import annotations
 
@@ -38,6 +38,8 @@ from gamesheet_sdk.roster import list_coaches as _list_coaches_action
 from gamesheet_sdk.roster import list_players as _list_players_action
 from gamesheet_sdk.roster import unassign_coach as _unassign_coach_action
 from gamesheet_sdk.roster import unassign_player as _unassign_player_action
+from gamesheet_sdk.roster import update_coach as _update_coach_action
+from gamesheet_sdk.roster import update_player as _update_player_action
 
 if TYPE_CHECKING:
     from rich_click import Context
@@ -319,17 +321,153 @@ def players_create_command(
 
 
 @players_group.command("update")
-def players_update_command() -> None:  # pragma: no cover
-    """Update a player.
+@click.option(
+    "--player-id",
+    type=str,
+    envvar="GAMESHEET_PLAYER_ID",
+    required=True,
+    help="Player ID to update.",
+)
+@click.option(
+    "--first-name",
+    type=str,
+    help="Updated first name.",
+)
+@click.option(
+    "--last-name",
+    type=str,
+    help="Updated last name.",
+)
+@click.option(
+    "--external-id",
+    type=str,
+    help="Updated external identifier.",
+)
+@click.option(
+    "--biography",
+    type=str,
+    help="Updated biography text.",
+)
+@click.option(
+    "--height",
+    type=str,
+    help="Updated height (e.g., 6'2\").",
+)
+@click.option(
+    "--weight",
+    type=str,
+    help="Updated weight (e.g., 185).",
+)
+@click.option(
+    "--shot-hand",
+    type=click.Choice(["left", "right"], case_sensitive=False),
+    help="Updated shooting hand.",
+)
+@click.option(
+    "--birthdate",
+    type=str,
+    help="Updated birthdate (ISO format: YYYY-MM-DD).",
+)
+@click.option(
+    "--hometown",
+    type=str,
+    help="Updated hometown.",
+)
+@click.option(
+    "--country",
+    type=str,
+    help="Updated country code (e.g., US, CA).",
+)
+@click.option(
+    "--province",
+    type=str,
+    help="Updated province/state.",
+)
+@click.option(
+    "--drafted-by",
+    type=str,
+    help="Updated drafted by team name.",
+)
+@click.option(
+    "--committed-to",
+    type=str,
+    help="Updated committed to institution.",
+)
+@click.option(
+    "--photo",
+    "photo_path",
+    type=click.Path(exists=True, dir_okay=False),
+    help="Path to a new photo image file.",
+)
+@click.option(
+    "--remove-photo",
+    is_flag=True,
+    default=False,
+    help="Remove the player's photo.",
+)
+@common_output_options
+@click.pass_context
+def players_update_command(  # pragma: no cover
+    # pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
+    ctx: Context,
+    player_id: str,
+    first_name: str | None,
+    last_name: str | None,
+    external_id: str | None,
+    biography: str | None,
+    height: str | None,
+    weight: str | None,
+    shot_hand: str | None,
+    birthdate: str | None,
+    hometown: str | None,
+    country: str | None,
+    province: str | None,
+    drafted_by: str | None,
+    committed_to: str | None,
+    photo_path: str | None,
+    remove_photo: bool,  # noqa: FBT001
+    output_format: str,
+    output_path: str | None,
+) -> None:
+    """Update an existing player.
 
-    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+    Requires authentication (run 'gamesheet-sdk-py login' first). At least one field must be provided for
+    update.
     """
-    click.secho(
-        "Error: roster players update is not yet implemented. Backend support needed.",
-        fg="red",
-        err=True,
-    )
-    raise Exit(1)
+    ctx_data = ctx.obj
+    config: Config = ctx_data["config"]
+    season_id: str = ctx_data["season_id"]
+    session = build_authenticated_session(ctx, config)
+    try:
+        with session:
+            player = _update_player_action(
+                session,
+                season_id,
+                player_id,
+                first_name=first_name,
+                last_name=last_name,
+                external_id=external_id,
+                biography=biography,
+                height=height,
+                weight=weight,
+                shot_hand=shot_hand,
+                birthdate=birthdate,
+                hometown=hometown,
+                country=country,
+                province=province,
+                drafted_by=drafted_by,
+                committed_to=committed_to,
+                photo_path=photo_path,
+                remove_photo=remove_photo,
+            )
+    except ValueError as exc:
+        click.secho(f"Error: {exc}", fg="red", err=True)
+        raise Exit(1) from exc
+    except Exception as exc:
+        click.secho(f"Error updating player: {exc}", fg="red", err=True)
+        raise Exit(1) from exc
+    render_get_command(player, output_format, output_path, None)
+    click.secho(f"Player {player.id} updated successfully.", fg="green")
 
 
 @players_group.command("delete")
@@ -604,17 +742,73 @@ def coaches_create_command(
 
 
 @coaches_group.command("update")
-def coaches_update_command() -> None:  # pragma: no cover
-    """Update a coach.
+@click.option(
+    "--coach-id",
+    type=str,
+    envvar="GAMESHEET_COACH_ID",
+    required=True,
+    help="Coach ID to update.",
+)
+@click.option(
+    "--first-name",
+    type=str,
+    help="Updated first name.",
+)
+@click.option(
+    "--last-name",
+    type=str,
+    help="Updated last name.",
+)
+@click.option(
+    "--external-id",
+    type=str,
+    help="Updated external identifier.",
+)
+@click.option(
+    "--position",
+    type=click.Choice(COACH_POSITIONS, case_sensitive=False),
+    help="Updated position.",
+)
+@common_output_options
+@click.pass_context
+def coaches_update_command(  # pragma: no cover
+    ctx: Context,
+    coach_id: str,
+    first_name: str | None,
+    last_name: str | None,
+    external_id: str | None,
+    position: str | None,
+    output_format: str,
+    output_path: str | None,
+) -> None:
+    """Update an existing coach.
 
-    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+    Requires authentication (run 'gamesheet-sdk-py login' first). At least one field must be provided for
+    update.
     """
-    click.secho(
-        "Error: roster coaches update is not yet implemented. Backend support needed.",
-        fg="red",
-        err=True,
-    )
-    raise Exit(1)
+    ctx_data = ctx.obj
+    config: Config = ctx_data["config"]
+    season_id: str = ctx_data["season_id"]
+    session = build_authenticated_session(ctx, config)
+    try:
+        with session:
+            coach = _update_coach_action(
+                session,
+                season_id,
+                coach_id,
+                first_name=first_name,
+                last_name=last_name,
+                external_id=external_id,
+                position=position,
+            )
+    except ValueError as exc:
+        click.secho(f"Error: {exc}", fg="red", err=True)
+        raise Exit(1) from exc
+    except Exception as exc:
+        click.secho(f"Error updating coach: {exc}", fg="red", err=True)
+        raise Exit(1) from exc
+    render_get_command(coach, output_format, output_path, None)
+    click.secho(f"Coach {coach.id} updated successfully.", fg="green")
 
 
 @coaches_group.command("delete")

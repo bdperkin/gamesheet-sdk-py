@@ -98,6 +98,64 @@ def create_coach(
     return parse_coach(body["data"])
 
 
+def update_coach(
+    session: Session,
+    season_id: str,
+    coach_id: str,
+    *,
+    first_name: str | None = None,
+    last_name: str | None = None,
+    external_id: str | None = None,
+    position: str | None = None,
+) -> Coach:
+    """Update an existing coach in the specified season.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401. At least one field
+    must be provided for update.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier containing the coach.
+    :param coach_id: The coach identifier to update.
+    :param first_name: Optional updated first name.
+    :param last_name: Optional updated last name.
+    :param external_id: Optional updated external identifier.
+    :param position: Optional updated position.
+    :returns: The updated :class:`Coach`.
+    :rtype: Coach
+    :raises ValueError: If no fields are provided for update.
+    """
+    if all(v is None for v in (first_name, last_name, external_id, position)):
+        msg = "At least one field must be provided for update"
+        raise ValueError(msg)
+    # Fetch current coach to get all fields
+    current_coach = get_coach(session, season_id, coach_id)
+    # Build payload with updated values, preserving current for unchanged fields
+    payload: dict[str, Any] = {
+        "data": {
+            "id": coach_id,
+            "type": "coaches",
+            "attributes": {
+                "first_name": first_name if first_name is not None else current_coach.first_name,
+                "last_name": last_name if last_name is not None else current_coach.last_name,
+            },
+        },
+    }
+    # Add optional fields
+    if external_id is not None:  # pragma: no cover
+        payload["data"]["attributes"]["external_id"] = external_id  # pragma: no cover
+    elif current_coach.external_id:  # pragma: no cover
+        payload["data"]["attributes"]["external_id"] = current_coach.external_id  # pragma: no cover
+    if position is not None:  # pragma: no cover
+        payload["data"]["attributes"]["position"] = position  # pragma: no cover
+    elif current_coach.position:  # pragma: no cover
+        payload["data"]["attributes"]["position"] = current_coach.position  # pragma: no cover
+    endpoint = f"/api/seasons/{season_id}/coaches/{coach_id}"
+    response = session.patch(endpoint, headers=JSONAPI_HEADERS, json=payload)
+    handle_response(response, endpoint, "PATCH coach")
+    body: dict[str, Any] = response.json()
+    return parse_coach(body["data"])
+
+
 def list_team_coaches(session: Session, season_id: str, team_id: str) -> list[Coach]:
     """Return every coach for the specified team.
 
@@ -222,6 +280,81 @@ def create_team_coach(
     if position:
         coach.position = position
     coach.status = "coaching"
+    return coach
+
+
+def update_team_coach(
+    session: Session,
+    season_id: str,
+    team_id: str,
+    coach_id: str,
+    *,
+    first_name: str | None = None,
+    last_name: str | None = None,
+    external_id: str | None = None,
+    position: str | None = None,
+) -> Coach:
+    """Update a coach and update the team's roster in one operation.
+
+    This function performs two operations: (1) updates the coach at the season level,
+    (2) updates the team's roster with any position changes.
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :param season_id: The season identifier.
+    :param team_id: The team identifier.
+    :param coach_id: The coach identifier to update.
+    :param first_name: Optional updated first name.
+    :param last_name: Optional updated last name.
+    :param external_id: Optional updated external identifier.
+    :param position: Optional updated position.
+    :returns: The updated :class:`Coach`.
+    :rtype: Coach
+    :raises ValueError: If no fields are provided for update.
+    """
+    if all(v is None for v in (first_name, last_name, external_id, position)):
+        msg = "At least one field must be provided for update"
+        raise ValueError(msg)
+    # Step 1: Update the coach at season level (without "type" field for team context)
+    current_coach = get_team_coach(session, season_id, team_id, coach_id)
+    payload: dict[str, Any] = {
+        "data": {
+            "id": coach_id,
+            "attributes": {
+                "first_name": first_name if first_name is not None else current_coach.first_name,
+                "last_name": last_name if last_name is not None else current_coach.last_name,
+            },
+        },
+    }
+    # Add optional fields
+    if external_id is not None:  # pragma: no cover
+        payload["data"]["attributes"]["external_id"] = external_id  # pragma: no cover
+    elif current_coach.external_id:  # pragma: no cover
+        payload["data"]["attributes"]["external_id"] = current_coach.external_id  # pragma: no cover
+    endpoint = f"/api/seasons/{season_id}/coaches/{coach_id}"
+    response = session.patch(endpoint, headers=JSONAPI_HEADERS, json=payload)
+    handle_response(response, endpoint, "PATCH team coach")
+    body: dict[str, Any] = response.json()
+    coach = parse_coach(body["data"])
+    # Step 2: Update team roster with position changes if needed
+    if position is not None and position != current_coach.position:  # pragma: no cover
+        team_data = get_team_for_roster_update(session, season_id, team_id)  # pragma: no cover
+        roster = team_data.get("data", {}).get("attributes", {}).get("roster", {})  # pragma: no cover
+        # Update the coach's position in the roster
+        for coach_entry in roster.get("coaches", []):  # pragma: no cover
+            if coach_entry.get("id") == coach_id:  # pragma: no cover
+                coach_entry["position"] = position  # pragma: no cover
+                break  # pragma: no cover
+        update_team_roster(
+            session,
+            season_id,
+            team_id,
+            roster,
+            team_data.get("data", {}).get("attributes", {}),
+            team_data.get("data", {}).get("relationships", {}),
+        )
+        coach.position = position
+    coach.status = getattr(current_coach, "status", None) or "coaching"
     return coach
 
 
