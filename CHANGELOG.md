@@ -2,6 +2,24 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.57 (2026-06-29)
+
+### Bug Fixes
+
+- **docs**: Add blank lines in docstrings to fix Sphinx warnings ([#130](https://github.com/bdperkin/gamesheet-sdk-py/pull/130),
+  [`ed35870`](https://github.com/bdperkin/gamesheet-sdk-py/commit/ed358707cebf7e4f8d1b3effa4ed2696a257b9ff))
+
+- **docs**: Add missing imports to doctest examples in output.py ([#130](https://github.com/bdperkin/gamesheet-sdk-py/pull/130),
+  [`ed35870`](https://github.com/bdperkin/gamesheet-sdk-py/commit/ed358707cebf7e4f8d1b3effa4ed2696a257b9ff))
+
+- **docs**: Fix all doctest warnings ([#130](https://github.com/bdperkin/gamesheet-sdk-py/pull/130),
+  [`ed35870`](https://github.com/bdperkin/gamesheet-sdk-py/commit/ed358707cebf7e4f8d1b3effa4ed2696a257b9ff))
+
+### Build System
+
+- **deps**: Bump actions/cache from 6.0.0 to 6.1.0 in the actions group ([#126](https://github.com/bdperkin/gamesheet-sdk-py/pull/126),
+  [`6753caf`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6753cafe103e585c7a257fe4c6901b55faf53bfc))
+
 ## v0.1.56 (2026-06-29)
 
 ### Bug Fixes
