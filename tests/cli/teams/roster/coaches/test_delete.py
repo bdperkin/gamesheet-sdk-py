@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from gamesheet_sdk.cli.commands.teams_roster import teams_roster_coaches_group
+from gamesheet_sdk.cli.commands.teams_roster_coaches import teams_roster_coaches_group
 from tests.cli.teams.roster.conftest import run_roster_delete_test
 from tests.helpers import (
     COACH_ID_QUATERNARY,

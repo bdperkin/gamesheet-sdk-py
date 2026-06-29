@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.roster import players_group
+from gamesheet_sdk.cli.commands.roster_players import players_group
 from tests.helpers import PLAYER_ID, SEASON_ID
 
 
@@ -19,12 +19,12 @@ def test_roster_players_update_coverage() -> None:
     mock_player = MagicMock()
     mock_player.id = PLAYER_ID
     with (
-        patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.roster_players.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.roster._update_player_action",
+            "gamesheet_sdk.cli.commands.roster_players._update_player_action",
             return_value=mock_player,
         ),
-        patch("gamesheet_sdk.cli.commands.roster.render_get_command"),
+        patch("gamesheet_sdk.cli.commands.roster_players.render_get_command"),
     ):
         result = runner.invoke(
             players_group,
@@ -54,9 +54,9 @@ def test_roster_players_update_valueerror_handling() -> None:
         raise ValueError(msg)
 
     with (
-        patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.roster_players.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.roster._update_player_action",
+            "gamesheet_sdk.cli.commands.roster_players._update_player_action",
             side_effect=raise_value_error,
         ),
     ):
