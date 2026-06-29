@@ -16,6 +16,7 @@ from tests.helpers import (
     DEFAULT_PLAYER_LAST_NAME,
     REFEREE_EXTERNAL_ID_PRIMARY,
     SEASON_ID,
+    TEST_EMAIL_REFEREE,
 )
 
 
@@ -36,7 +37,7 @@ def test_referees_create_with_all_fields(runner: CliRunner) -> None:
             season_id=SEASON_ID,
             first_name="Wes",
             last_name="McCauley",
-            email="Wes.McCauley@example.com",
+            email=TEST_EMAIL_REFEREE,
             created_at=datetime(2026, 6, 15, 12, 4, 5, tzinfo=timezone.utc),
             updated_at=datetime(2026, 6, 15, 12, 4, 5, tzinfo=timezone.utc),
         )
@@ -52,7 +53,7 @@ def test_referees_create_with_all_fields(runner: CliRunner) -> None:
                 "--last-name",
                 "McCauley",
                 "--email-address",
-                "Wes.McCauley@example.com",
+                TEST_EMAIL_REFEREE,
                 "--external-id",
                 REFEREE_EXTERNAL_ID_PRIMARY,
             ],
@@ -63,7 +64,7 @@ def test_referees_create_with_all_fields(runner: CliRunner) -> None:
         assert args[1] == SEASON_ID
         assert args[2] == "Wes"
         assert args[3] == "McCauley"
-        assert args[4] == "Wes.McCauley@example.com"
+        assert args[4] == TEST_EMAIL_REFEREE
         assert args[5] == REFEREE_EXTERNAL_ID_PRIMARY
 
 

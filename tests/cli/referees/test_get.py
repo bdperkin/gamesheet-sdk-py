@@ -12,7 +12,10 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.referees import Referee
-from tests.helpers import SEASON_ID
+from tests.helpers import (
+    SEASON_ID,
+    TEST_EMAIL_REFEREE,
+)
 
 
 def test_referees_get_with_all_fields(runner: CliRunner) -> None:
@@ -30,7 +33,7 @@ def test_referees_get_with_all_fields(runner: CliRunner) -> None:
             season_id=SEASON_ID,
             first_name="WES",
             last_name="MCCAULEY",
-            email="Wes.McCauley@example.com",
+            email=TEST_EMAIL_REFEREE,
             created_at=datetime(2026, 6, 15, 12, 4, 5, tzinfo=timezone.utc),
             updated_at=datetime(2026, 6, 15, 12, 4, 5, tzinfo=timezone.utc),
         )

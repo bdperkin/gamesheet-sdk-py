@@ -10,6 +10,7 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.commands.login import login_command
+from tests.helpers import TEST_EMAIL_GENERIC
 
 
 def test_login_command_success() -> None:
@@ -28,7 +29,7 @@ def test_login_command_success() -> None:
 
         result = runner.invoke(
             login_command,
-            ["--email", "test@example.com", "--password", "secret"],
+            ["--email", TEST_EMAIL_GENERIC, "--password", "secret"],
             obj=mock_config,
         )
 
@@ -40,7 +41,7 @@ def test_login_command_success() -> None:
         # Verify login action was called
         mock_login.assert_called_once_with(
             mock_browser,
-            email="test@example.com",
+            email=TEST_EMAIL_GENERIC,
             password="secret",
             timeout=30000,
         )
@@ -63,7 +64,7 @@ def test_login_command_with_custom_timeout() -> None:
             login_command,
             [
                 "--email",
-                "test@example.com",
+                TEST_EMAIL_GENERIC,
                 "--password",
                 "secret",
                 "--timeout",
@@ -75,7 +76,7 @@ def test_login_command_with_custom_timeout() -> None:
         assert not result.exit_code
         mock_login.assert_called_once_with(
             mock_browser,
-            email="test@example.com",
+            email=TEST_EMAIL_GENERIC,
             password="secret",
             timeout=60000,
         )
@@ -99,7 +100,7 @@ def test_login_command_failure() -> None:
 
         result = runner.invoke(
             login_command,
-            ["--email", "test@example.com", "--password", "wrong"],
+            ["--email", TEST_EMAIL_GENERIC, "--password", "wrong"],
             obj=mock_config,
         )
 
@@ -124,7 +125,7 @@ def test_login_command_with_email_only() -> None:
 
         result = runner.invoke(
             login_command,
-            ["--email", "test@example.com"],
+            ["--email", TEST_EMAIL_GENERIC],
             obj=mock_config,
         )
 
@@ -132,7 +133,7 @@ def test_login_command_with_email_only() -> None:
         # Verify login was called with None password (will be prompted)
         mock_login.assert_called_once()
         call_kwargs = mock_login.call_args.kwargs
-        assert call_kwargs["email"] == "test@example.com"
+        assert call_kwargs["email"] == TEST_EMAIL_GENERIC
         assert call_kwargs["password"] is None
 
 

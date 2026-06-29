@@ -16,7 +16,7 @@ from tests.helpers import (
     REFEREE_EXTERNAL_ID_PRIMARY,
     SEASON_ID,
     TEST_BASE_URL,
-    TIMESTAMP_2024_01_01,
+    TEST_EMAIL_REFEREE,
     TIMESTAMP_2024_09_01,
 )
 
@@ -37,7 +37,7 @@ def test_create_referee_sends_correct_payload_with_all_fields(config: Config) ->
                     "external_id": REFEREE_EXTERNAL_ID_PRIMARY,
                     "first_name": "Wes",
                     "last_name": "McCauley",
-                    "email_address": "Wes.McCauley@example.com",
+                    "email_address": TEST_EMAIL_REFEREE,
                     "created_at": "2026-06-15T12:04:05.0325Z",
                     "updated_at": "2026-06-15T12:04:05.0325Z",
                 },
@@ -55,13 +55,13 @@ def test_create_referee_sends_correct_payload_with_all_fields(config: Config) ->
             SEASON_ID,
             "Wes",
             "McCauley",
-            email_address="Wes.McCauley@example.com",
+            email_address=TEST_EMAIL_REFEREE,
             external_id=REFEREE_EXTERNAL_ID_PRIMARY,
         )
     assert result.id == "1146197"
     assert result.first_name == "Wes"
     assert result.last_name == "McCauley"
-    assert result.email == "Wes.McCauley@example.com"
+    assert result.email == TEST_EMAIL_REFEREE
     assert result.season_id == SEASON_ID
     # Verify the request payload
     assert len(responses.calls) == 1
@@ -72,7 +72,7 @@ def test_create_referee_sends_correct_payload_with_all_fields(config: Config) ->
     payload = json.loads(req.body)
     assert payload["data"]["attributes"]["first_name"] == "Wes"
     assert payload["data"]["attributes"]["last_name"] == "McCauley"
-    assert payload["data"]["attributes"]["email_address"] == "Wes.McCauley@example.com"
+    assert payload["data"]["attributes"]["email_address"] == TEST_EMAIL_REFEREE
     assert payload["data"]["attributes"]["external_id"] == REFEREE_EXTERNAL_ID_PRIMARY
 
 

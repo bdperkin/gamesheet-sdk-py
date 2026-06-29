@@ -64,3 +64,8 @@ JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
 # Common test timestamps (ISO 8601 format)
 TIMESTAMP_2024_01_01 = "2024-01-01T00:00:00Z"  # Most common default timestamp
 TIMESTAMP_2024_09_01 = "2024-09-01T10:00:00Z"  # Alternative common timestamp
+
+# Common test email addresses
+TEST_EMAIL_MINIMAL = "a@b.c"  # Minimal valid email for basic tests
+TEST_EMAIL_REFEREE = "Wes.McCauley@example.com"  # Referee test data
+TEST_EMAIL_GENERIC = "test@example.com"  # Generic test email

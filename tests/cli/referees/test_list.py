@@ -11,12 +11,11 @@ from unittest.mock import patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
-from tests.helpers import TIMESTAMP_2024_01_01, TIMESTAMP_2024_09_01
 from gamesheet_sdk.referees import Referee
 from tests.helpers import (
     DEFAULT_PLAYER_LAST_NAME,
+    TEST_EMAIL_GENERIC,
     TIMESTAMP_2024_01_01,
-    TIMESTAMP_2024_09_01,
 )
 
 
@@ -143,7 +142,7 @@ def test_referees_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
                 season_id="501",
                 first_name="Test",
                 last_name="User",
-                email="test@example.com",
+                email=TEST_EMAIL_GENERIC,
                 created_at=TIMESTAMP_2024_01_01,
                 updated_at=TIMESTAMP_2024_01_01,
             ),

@@ -18,6 +18,7 @@ from gamesheet_sdk import (
 )
 from gamesheet_sdk.auth.constants import LOGIN_PATH, POST_LOGIN_PATH
 from tests.auth.conftest import _FIREBASE_URL, _TOKEN_URL, _make_response
+from tests.helpers import TEST_EMAIL_MINIMAL
 
 if TYPE_CHECKING:
     from pydantic import SecretStr
@@ -106,7 +107,7 @@ def test_login_succeeds_when_firebase_and_token_both_200(
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
         _make_response(_TOKEN_URL, 200, {}),
     ]
-    login(fake_browser_session, email="a@b.c", password="x")
+    login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x")
     # Two navigations: to the login form, then to the post-login destination.
     assert fake_browser_session.goto.call_count == 2
     fake_browser_session.goto.assert_any_call(LOGIN_PATH, wait_until="load")
@@ -129,7 +130,7 @@ def test_login_post_login_path_can_be_disabled(
     ]
     login(
         fake_browser_session,
-        email="a@b.c",
+        email=TEST_EMAIL_MINIMAL,
         password="x",
         post_login_path=None,
     )
@@ -146,7 +147,7 @@ def test_login_custom_post_login_path(fake_browser_session: MagicMock) -> None:
     ]
     login(
         fake_browser_session,
-        email="a@b.c",
+        email=TEST_EMAIL_MINIMAL,
         password="x",
         post_login_path="/dashboard",
     )
@@ -178,7 +179,7 @@ def test_login_post_login_navigation_timeout_is_swallowed(
 
     fake_browser_session.goto.side_effect = goto_side_effect
     # Must not raise; auth already succeeded by this point.
-    login(fake_browser_session, email="a@b.c", password="x")
+    login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x")
 
 
 # ---------- firebase failures --------------------------------------------
@@ -205,7 +206,7 @@ def test_login_surfaces_firebase_error_code(
         ),
     ]
     with pytest.raises(AuthenticationError) as exc_info:
-        login(fake_browser_session, email="a@b.c", password="bad")
+        login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="bad")
     assert firebase_message in str(exc_info.value)
     assert "Firebase" in str(exc_info.value)
 
@@ -217,7 +218,7 @@ def test_login_firebase_failure_without_parseable_body(
     page = fake_browser_session.goto.return_value
     page.staged_responses = [_make_response(_FIREBASE_URL, 500)]
     with pytest.raises(AuthenticationError) as exc_info:
-        login(fake_browser_session, email="a@b.c", password="x")
+        login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x")
     assert "HTTP 500" in str(exc_info.value)
 
 
@@ -232,7 +233,7 @@ def test_login_token_exchange_failure_raises(
         _make_response(_TOKEN_URL, 401, {}),
     ]
     with pytest.raises(AuthenticationError, match="token exchange failed"):
-        login(fake_browser_session, email="a@b.c", password="x")
+        login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x")
 
 
 # ---------- timeout / silence --------------------------------------------
@@ -241,7 +242,7 @@ def test_login_no_responses_times_out(fake_browser_session: MagicMock) -> None:
     page = fake_browser_session.goto.return_value
     page.staged_responses = []  # nothing arrives
     with pytest.raises(AuthenticationError, match="did not complete"):
-        login(fake_browser_session, email="a@b.c", password="x", timeout=0.01)
+        login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x", timeout=0.01)
 
 
 def test_login_firebase_success_but_token_missing_times_out(
@@ -254,7 +255,7 @@ def test_login_firebase_success_but_token_missing_times_out(
         # No token response - simulates token exchange being blocked or delayed
     ]
     with pytest.raises(AuthenticationError, match="did not complete"):
-        login(fake_browser_session, email="a@b.c", password="x", timeout=0.01)
+        login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x", timeout=0.01)
 
 
 def test_login_form_detection_uses_fixed_timeout(
@@ -266,7 +267,7 @@ def test_login_form_detection_uses_fixed_timeout(
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
         _make_response(_TOKEN_URL, 200, {}),
     ]
-    login(fake_browser_session, email="a@b.c", password="x", timeout=2.0)
+    login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x", timeout=2.0)
     page.wait_for_selector.assert_called_once_with("#email", timeout=5_000)
 
 
@@ -276,7 +277,7 @@ def test_login_short_circuits_when_saved_session_already_authenticates(
     """Test that login short-circuits when saved session already authenticates."""
     page = fake_browser_session.goto.return_value
     page.wait_for_selector.side_effect = PlaywrightTimeoutError("no #email")
-    login(fake_browser_session, email="a@b.c", password="x")
+    login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x")
     page.fill.assert_not_called()
     page.click.assert_not_called()
     # Post-login navigation still runs so the saved state gets re-flushed.
@@ -295,7 +296,7 @@ def test_login_short_circuit_respects_post_login_path_disable(
     page.wait_for_selector.side_effect = PlaywrightTimeoutError("no #email")
     login(
         fake_browser_session,
-        email="a@b.c",
+        email=TEST_EMAIL_MINIMAL,
         password="x",
         post_login_path=None,
     )
@@ -313,7 +314,7 @@ def test_login_captures_token_response_separately(
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
         _make_response(_TOKEN_URL, 200, {}),
     ]
-    login(fake_browser_session, email="a@b.c", password="x")
+    login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x")
     # Should succeed when both responses arrive
     assert fake_browser_session.goto.call_count == 2
 
@@ -329,7 +330,7 @@ def test_login_ignores_duplicate_token_responses(
         _make_response(_TOKEN_URL, 200, {}),
         _make_response(_TOKEN_URL, 200, {}),  # duplicate, should be ignored
     ]
-    login(fake_browser_session, email="a@b.c", password="x")
+    login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x")
     # Should still succeed - duplicates don't break anything
     assert fake_browser_session.goto.call_count == 2
 
@@ -344,7 +345,7 @@ def test_login_firebase_error_with_non_dict_error_field(
         _make_response(_FIREBASE_URL, 403, {"error": "string-not-dict"}),
     ]
     with pytest.raises(AuthenticationError) as exc_info:
-        login(fake_browser_session, email="a@b.c", password="x")
+        login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x")
     assert "HTTP 403" in str(exc_info.value)
 
 
@@ -359,7 +360,7 @@ def test_login_handles_token_response_arriving_first(
         _make_response(_TOKEN_URL, 200, {}),
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
     ]
-    login(fake_browser_session, email="a@b.c", password="x")
+    login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x")
     # Should still succeed when both are present
     assert fake_browser_session.goto.call_count == 2
 
@@ -376,7 +377,7 @@ def test_firebase_error_message_with_non_string_message(
         _make_response(_FIREBASE_URL, 403, {"error": {"message": 12345}}),
     ]
     with pytest.raises(AuthenticationError) as exc_info:
-        login(fake_browser_session, email="a@b.c", password="x")
+        login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x")
     assert "HTTP 403" in str(exc_info.value)
 
 
