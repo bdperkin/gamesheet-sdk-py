@@ -18,7 +18,7 @@ from tests.helpers import SEASON_ID
 def test_coaches_get(runner: CliRunner) -> None:
     """The coaches get command should retrieve a single coach."""
     with (
-        patch("gamesheet_sdk.cli.commands.roster._get_coach_action") as mock_action,
+        patch("gamesheet_sdk.cli.commands.roster_coaches._get_coach_action") as mock_action,
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
     ):
@@ -42,7 +42,7 @@ def test_coaches_get(runner: CliRunner) -> None:
 def test_coaches_get_with_fields(runner: CliRunner) -> None:
     """The coaches get command should support --fields and JSON format."""
     with (
-        patch("gamesheet_sdk.cli.commands.roster._get_coach_action") as mock_action,
+        patch("gamesheet_sdk.cli.commands.roster_coaches._get_coach_action") as mock_action,
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
     ):
@@ -77,7 +77,7 @@ def test_coaches_get_with_fields(runner: CliRunner) -> None:
 def test_coaches_get_empty_fields(runner: CliRunner) -> None:
     """The coaches get command should handle empty fields spec."""
     with (
-        patch("gamesheet_sdk.cli.commands.roster._get_coach_action") as mock_action,
+        patch("gamesheet_sdk.cli.commands.roster_coaches._get_coach_action") as mock_action,
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
     ):
