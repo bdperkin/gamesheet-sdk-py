@@ -5,13 +5,13 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from click import Group
-from click.testing import CliRunner
 import pytest
 
 from gamesheet_sdk import Config
+from tests.cli.roster_helpers import run_roster_delete_test_base
 
 
 @pytest.fixture
@@ -63,38 +63,20 @@ def run_roster_delete_test(
     Returns:
         Tuple of (exit_code, output, mock_action)
     """
-    runner = CliRunner()
-    patches = [
-        patch(
-            "gamesheet_sdk.cli.commands.teams_roster.build_authenticated_session",
-            return_value=session,
-        ),
-    ]
-
-    if should_fail:
-        patches.append(
-            patch(
-                action_path,
-                side_effect=Exception(error_message or "Delete failed"),
-            ),
-        )
-    else:
-        patches.append(patch(action_path))
-
-    with patches[0], patches[1] as mock_action:
-        args = ["delete", f"--{resource_type}-id", resource_id]
-        if with_force:
-            args.append("--force")
-
-        result = runner.invoke(
-            group,
-            args,
-            obj={
-                "config": config,
-                "season_id": season_id,
-                "team_id": team_id,
-            },
-            input=input_text,
-        )
-
-        return result.exit_code, result.output, mock_action
+    return run_roster_delete_test_base(
+        group=group,
+        resource_type=resource_type,
+        resource_id=resource_id,
+        action_path=action_path,
+        build_session_path="gamesheet_sdk.cli.commands.teams_roster.build_authenticated_session",
+        context_obj={
+            "config": config,
+            "season_id": season_id,
+            "team_id": team_id,
+        },
+        session=session,
+        with_force=with_force,
+        input_text=input_text,
+        should_fail=should_fail,
+        error_message=error_message,
+    )

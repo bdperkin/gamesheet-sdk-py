@@ -25,6 +25,7 @@ from gamesheet_sdk.cli.shared import (
     list_columns_option,
     render_get_command,
     render_list_command,
+    render_penalty_report,
 )
 from gamesheet_sdk.config import Config
 from gamesheet_sdk.roster import (
@@ -359,8 +360,6 @@ def teams_roster_coaches_penalty_report_command(
     :param output_path: Optional path to write output file
     :type output_path: str | None
     """
-    import json
-
     ctx_data: dict[str, Any] = ctx.obj
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
@@ -368,17 +367,7 @@ def teams_roster_coaches_penalty_report_command(
         from gamesheet_sdk.roster import get_coach_penalty_report
 
         report = get_coach_penalty_report(session, season_id, coach_id)
-        if output_format == "json":
-            output_text = json.dumps(report, indent=2)
-        elif output_format == "yaml":
-            import yaml
-
-            output_text = yaml.dump(report, default_flow_style=False)
-        else:
-            output_text = json.dumps(report, indent=2)
-        from gamesheet_sdk.output import write_output
-
-        write_output(output_text, output_path, fmt=output_format)
+        render_penalty_report(report, output_format, output_path)
 
 
 @teams_roster_coaches_group.command("assign")

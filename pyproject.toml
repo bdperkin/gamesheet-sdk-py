@@ -937,7 +937,7 @@ format.indent-string = "    "
 # Maximum number of characters on a single line.
 format.max-line-length = 110
 # Maximum number of lines in a module.
-format.max-module-lines = 1300
+format.max-module-lines = 1000
 design.max-args = 22
 design.max-attributes = 7
 design.max-bool-expr = 5

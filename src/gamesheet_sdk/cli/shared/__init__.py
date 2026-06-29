@@ -12,7 +12,11 @@ from gamesheet_sdk.cli.shared.decorators import (
     team_create_options,
     team_update_options,
 )
-from gamesheet_sdk.cli.shared.rendering import render_get_command, render_list_command
+from gamesheet_sdk.cli.shared.rendering import (
+    render_get_command,
+    render_list_command,
+    render_penalty_report,
+)
 
 __all__ = [
     "common_output_options",
@@ -20,6 +24,7 @@ __all__ = [
     "list_columns_option",
     "render_get_command",
     "render_list_command",
+    "render_penalty_report",
     "team_create_options",
     "team_update_options",
 ]
