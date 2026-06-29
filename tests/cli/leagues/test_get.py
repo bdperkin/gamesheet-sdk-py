@@ -1,16 +1,17 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for leagues get command."""
 
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
 from unittest.mock import patch
+
+from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.leagues import League
-
-if TYPE_CHECKING:
-    from click.testing import CliRunner
 
 
 def test_leagues_get(runner: CliRunner) -> None:

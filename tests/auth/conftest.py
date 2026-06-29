@@ -1,17 +1,17 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Shared pytest fixtures for auth tests."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
 
-from gamesheet_sdk import BrowserSession
+from gamesheet_sdk import BrowserSession, Config
 from gamesheet_sdk.auth.constants import FIREBASE_AUTH_URL, TOKEN_EXCHANGE_URL
-
-if TYPE_CHECKING:
-    from gamesheet_sdk import Config
 
 __all__ = ["_make_response", "_FIREBASE_URL", "_TOKEN_URL", "fake_browser_session"]
 
@@ -53,12 +53,12 @@ def fake_browser_session(config: Config) -> MagicMock:
     # Default: no staged responses (simulates timeout).
     page.staged_responses = []
 
-    def click(__selector: str) -> None:  # noqa: U101
+    def click(*__args: Any, **__kwargs: Any) -> None:
         for response in page.staged_responses:
             listeners["response"](response)
 
     page.click.side_effect = click
     # Make wait_for_timeout actually advance the clock a little so loops
     # don't spin entirely in zero real time.
-    page.wait_for_timeout.side_effect = lambda __ms: None  # noqa: U101
+    page.wait_for_timeout.side_effect = lambda __ms__: None
     return sess

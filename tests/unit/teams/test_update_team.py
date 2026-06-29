@@ -1,9 +1,12 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for update_team function."""
 
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
+import tempfile
 from typing import Any
 
 import pytest

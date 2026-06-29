@@ -1,16 +1,18 @@
-# ==============================================================================
+# ======================================================================================================================
 # Project Build & Tooling Configuration (PEP 518 / PEP 621)
-# ==============================================================================
-# ------------------------------------------------------------------------------
+# ======================================================================================================================
+# ----------------------------------------------------------------------------------------------------------------------
 # Build System Back-end Settings
-# ------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 [build-system]
 build-backend = "hatchling.build"
-requires = [ "hatchling" ]
+requires = [
+  "hatchling",
+]
 
-# ------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # Project Metadata
-# ------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 [project]
 name = "gamesheet-sdk-py"
 version = "0.1.54"
@@ -29,7 +31,9 @@ keywords = [
   "sports",
 ]
 license = { file = "LICENSE" }
-authors = [ { name = "bdperkin", email = "bdperkin@gmail.com" } ]
+authors = [
+  { name = "bdperkin", email = "bdperkin@gmail.com" },
+]
 requires-python = ">=3.11"
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -66,8 +70,8 @@ optional-dependencies.add-trailing-comma = [
 optional-dependencies.all = [
   """\
   gamesheet-sdk-py[absolufy-imports,add-trailing-comma,autoflake,autopep8,bandit,black,blacken-docs,blocklint,codespell\
-  ,deptry,dev,docconvert,docformatter,docs,editorconfig-checker,flake8,interrogate,isort,mdformat,mypy,pydocstyle,pylin\
-  t,pymarkdown,pyproject-fmt,pyrefly,pyright,pyroma,psr,pyupgrade,radon,refurb,sphinx-lint,ssort,tox-ini-fmt,unimport,v\
+  ,deptry,dev,docconvert,docformatter,docs,editorconfig-checker,flake8,interrogate,isort,mdformat,mypy,psr,pydocstyle,p\
+  ylint,pymarkdown,pyproject-fmt,pyrefly,pyright,pyroma,pyupgrade,radon,refurb,sphinx-lint,ssort,tox-ini-fmt,unimport,v\
   alidate-pyproject,vulture,yamllint]\
   """,
 ]
@@ -130,6 +134,7 @@ optional-dependencies.flake8-plugins = [
   "fastapi",
   "flake8-2020",
   "flake8-annotations",
+  "flake8-assertive",
   "flake8-async",
   "flake8-bandit",
   "flake8-blind-except",
@@ -147,7 +152,6 @@ optional-dependencies.flake8-plugins = [
   "flake8-future-annotations",
   "flake8-implicit-str-concat",
   "flake8-import-conventions",
-  "flake8-intsights",
   "flake8-logging",
   "flake8-no-pep420",
   "flake8-print",
@@ -171,6 +175,7 @@ optional-dependencies.flake8-plugins = [
   "pyflakes",
   "pylint",
   "pyupgrade",
+  "radon",
   "refurb",
   "tryceratops",
 ]
@@ -274,12 +279,14 @@ urls.Issues = "https://github.com/bdperkin/gamesheet-sdk-py/issues"
 urls.Repository = "https://github.com/bdperkin/gamesheet-sdk-py"
 scripts.gamesheet-sdk-py = "gamesheet_sdk.cli:main"
 
-# ------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # Tool Configurations
-# ------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 ## ## hatch - Extensible, lifecycle management tool for Python
 [tool.hatch]
-build.targets.wheel.packages = [ "src/gamesheet_sdk" ]
+build.targets.wheel.packages = [
+  "src/gamesheet_sdk",
+]
 build.targets.sdist.include = [
   "docs",
   "LICENSE",
@@ -318,13 +325,33 @@ profile = "black"
 py_version = 311
 line_length = 110
 wrap_length = 110
+multi_line_output = 3
+use_parentheses = true
+include_trailing_comma = true
+force_grid_wrap = 0
+force_sort_within_sections = true
+ensure_newline_before_comments = true
+combine_as_imports = true
+combine_star = true
 
 ## ## flake8 - Modular Python linter wrapper
 [tool.flake8]
 check = true
 description = "Combines PyFlakes, pycodestyle, and McCabe to check style compliance and basic logic errors."
 diff = true
-exclude = [
+# Enable plugins and extensions that are otherwise disabled by default.
+# enable-extensions = []
+# Require specific plugins to be installed before running.
+# require-plugins = []
+# Whether to use color in output. Defaults to `auto`.
+color = "auto"
+# Print total number of errors to standard output after all other output.
+count = false
+# Comma-separated list of files or directories to exclude. (Default:
+# .svn,CVS,.bzr,.hg,.git,__pycache__,.tox,.nox,.eggs,*.egg).
+# exclude = []
+# Comma-separated list of files or directories to add to the list of excluded ones.
+extend-exclude = [
   ".coverage",
   "coverage.xml",
   "dist/",
@@ -333,38 +360,407 @@ exclude = [
   ".tox/",
   ".venv/",
 ]
-extend-ignore = []
-extend-select = [
-  "B950",
-  "C901",
-  "E",
-  "F",
-  "W",
+# Only check for filenames matching the patterns in this comma-separated list. (Default: *.py,*.pyi).
+filename = [
+  "*.py",
+  "*.pyi",
 ]
-inline-quotes = "double"
-max-line-length = 110
+# The name used when reporting errors from code passed via stdin. This is useful for editors piping the file contents to
+# flake8. (Default: stdin).
+stdin-display-name = "stdin"
+# Format errors according to the chosen formatter (Flake8-pyproject, default, pylint, quiet-filename, quiet-nothing) or
+# a format string containing %-style mapping keys (code, col, path, row, text). For example, ``--format=pylint`` or
+# ``--format="%(path)s %(code)s"``. (Default: default).
+format = "default"
+# Hang closing bracket instead of matching indentation of opening bracket"s line.
+hang-closing = false
+# Comma-separated list of error codes to ignore (or skip). For example, ``--ignore=E4,E51,W234``. (Default:
+# E121,E123,E126,E226,E24,E704,W503,W504).
+# ignore = []
+# Comma-separated list of error codes to add to the list of ignored ones. For example, ``--extend-ignore=E4,E51,W234``.
+extend-ignore = [
+  "E203",
+  "W503",
+]
+# A pairing of filenames and violation codes that defines which violations to ignore in a particular file. The
+# filenames can be specified in a manner similar to the ``--exclude`` option and the violations work similarly to the
+# ``--ignore`` and ``--select`` options.
 per-file-ignores = [
   "docs/*:INP001",
   "scripts/*:ANN101,INP001,SF01,T201",
-  "src/gamesheet_sdk/*:ANN101,DOC103,TC003",
-  "tests/auth/*:S101,S106",
-  "tests/cli/*:S101",
-  "tests/integration/*:S101,SF01",
-  "tests/unit/*:S101",
+  "src/gamesheet_sdk/*:ANN101",
+  "tests/auth/*:DOC,S101,S106",
+  "tests/cli/*:DOC,S101,S106,SF01",
+  "tests/helpers/*:DOC,S101",
+  "tests/integration/*:DOC,S101,SF01",
+  "tests/unit/*:DOC,S101",
 ]
-recursive = true
-style = "sphinx"
-arg-type-hints-in-signature = true
-arg-type-hints-in-docstring = false
-check-return-types = false
+# Maximum allowed line length for the entirety of this run. (Default: 79).
+max-line-length = 110
+# Maximum allowed doc line length for the entirety of this run. (Default: None).
+max-doc-length = 110
+# Number of spaces used for indentation (Default: 4).
+indent-size = 4
+# Limit the reported error codes to codes prefix-matched by this list. You usually do not need to specify this option as
+# the default includes all installed plugin codes. For example, ``--select=E4,E51,W234``.
+# select = []
+# Add additional error codes to the default ``--select``. You usually do not need to specify this option as the default
+# includes all installed plugin codes. For example, ``--extend-select=E4,E51,W234``.
+# extend-select = []
+# Disable the effect of "# noqa". This will report errors on lines with "# noqa" at the end.
+disable-noqa = false
+# Show the source generate each error or warning.
+show-source = false
+# Negate --show-source.
+no-show-source = false
+# Count errors.
+statistics = false
+# Exit with status code "0" even if there are errors.
+exit-zero = false
+# Number of subprocesses to use to run checks in parallel. This is ignored on Windows. The default, "auto", will
+# auto-detect the number of processors available to use. (Default: auto).
+jobs = "auto"
+# Write to stdout and output-file.
+tee = false
+# Print benchmark information about this run of Flake8.
+benchmark = true
+# Print information necessary when preparing a bug report.
+bug-report = false
+# flake8-annotations #
+# Suppress ANN200-level errors for functions that contain no return statement or contain only bare return statements.
+# (Default: False).
+suppress-none-returning = false
+# Suppress ANN000-level errors for dummy arguments, defined as "_". (Default: False).
+suppress-dummy-args = false
+# Suppress all errors for dynamically typed functions. (Default: False).
+allow-untyped-defs = false
+# Suppress all errors for dynamically typed nested functions. (Default: False).
+allow-untyped-nested = false
+# Allow omission of a return type hint for __init__ if at least one argument is annotated. (Default: False).
+mypy-init-return = false
+# Comma-separated list of decorators flake8-annotations should consider as dispatch decorators. (Default: [
+# "singledispatch", "singledispatchmethod" ]).
+dispatch-decorators = [
+  "singledispatch",
+  "singledispatchmethod",
+]
+# Comma-separated list of decorators flake8-annotations should consider as typing.overload decorators. (Default: [
+# "overload" ]).
+overload-decorators = [
+  "overload",
+]
+# Suppress ANN401 for dynamically typed *args and **kwargs. (Default: False).
+allow-star-arg-any = false
+# Suppress errors for functions annotated with a "type: ignore" comment. (Default: False).
+respect-type-ignore = false
+# flake8-assertive #
+# Use snake_case assert method names ("assert_true()").
+assertive-snakecase = true
+# fnmatch() pattern for identifying unittest test files.
+# assertive-test-pattern = []
+# flake8-async #
+# Comma-separated list of error codes to enable, similar to flake8 --select but is additionally more performant as it
+# will disable non-enabled visitors from running instead of just silencing their errors.
+# enable = []
+# Comma-separated list of error codes to disable, similar to flake8 --ignore but is additionally more performant as it
+# will disable non-enabled visitors from running instead of just silencing their errors.
+# disable = []
+# ...
+# per-file-disable = []
+# Comma-separated list of error-codes to enable autofixing forif implemented. Requires running as a standalone
+# program.
+# autofix = []
+# Whether to also print an error message for autofixed errors.
+error-on-autofix = true
+# Comma-separated list of decorators to disable ASYNC910 & ASYNC911 checkpoint warnings for. Decorators can be dotted
+# or not, as well as support * as a wildcard. For example,
+# ``--no-checkpoint-warning-decorators=app.route,mydecorator,mypackage.mydecorators.*``.
+# no-checkpoint-warning-decorators = []
+# Comma-separated list of decorators to disable ASYNC900 warnings for. Decorators can be dotted or not, as well as
+# support * as a wildcard. For example, ``--transform-async-generator-decorators=fastapi.Depends,trio_util.trio_async_generator``.
+# transform-async-generator-decorators = []
+# Comma-separated list of contextmanagers which may suppress exceptions without reraising, breaking checkpoint
+# guarantees of ASYNC91x. ``contextlib.suppress`` will be added to the list. Decorators can be dotted or not, as well as
+# support * as a wildcard.
+# exception-suppress-context-managers = []
+# Comma-separated list of method calls to additionally enable ASYNC113 warnings for. Will also check for the pattern
+# inside function calls. Methods must be valid identifiers as per `str.isidientifier()` and not reserved keywords. For
+# example, ``--startable-in-context-manager=worker_serve,myfunction``.
+# startable-in-context-manager = []
+# Comma-separated list of key->value pairs, where key is a [ dotted ] function that if found inside an async function
+# will raise ASYNC200, suggesting it be replaced with {value}.
+# trio200-blocking-calls = []
+# Comma-separated list of key->value pairs, where key is a [ dotted ] function that if found inside an async function
+# will raise ASYNC200, suggesting it be replaced with {value}.
+# async200-blocking-calls = []
+# Change the default library for suggestions to be anyio instead of trio. If asyncio/trio is imported it will assume
+# that is also available and print suggestions with [ asyncio/anyio/trio ].
+anyio = false
+# Change the default library for suggestions to be asyncio instead of trio. If anyio/trio is imported it will assume
+# that is also available and print suggestions with [ asyncio/anyio/trio ].
+asyncio = false
+# flake8-bugbear #
+# Skip B008 test for additional immutable calls.
+extend-immutable-calls = false
+# flake8-builtins #
+# A comma separated list of builtins to skip checking.
+builtins-ignorelist = [
+  "id",
+]
+# A comma separated list of builtin module names to allow.
+# builtins-allowed-modules = []
+# flake8-copyright #
+# Checks for copyright notices in every file.
+copyright-check = true
+# Minimum number of characters in a file before requiring a copyright notice.
+copyright-min-file-size = 0
+# Checks for a specific author in the copyright notice.
+# copyright-author = []
+# Changes the copyright regular expression to look for.
+# copyright-regexp = []
+# flake8-future-annotations #
+# Force the use of from __future__ import annotations in all files.
+force-future-annotations = false
+# Verifies <3.10 code with simplified types uses from __future__ import annotations.
+check-future-annotations = true
+# flake8-pytest-style #
+# Omit parentheses for @pytest.fixture decorators without parameters. (Default: True).
+pytest-fixture-no-parentheses = true
+# List of exceptions for which flake8-pytest-style requires a match= argument in pytest.raises(). (Default: [
+# "BaseException", "Exception", "ValueError", "IOError", "OSError", "EnvironmentError", "socket.error" ]).
+pytest-raises-require-match-for = [
+  "BaseException",
+  "Exception",
+  "ValueError",
+  "IOError",
+  "OSError",
+  "EnvironmentError",
+  "socket.error"
+]
+# Preferred type for multiple parameter names in @pytest.mark.parametrize. (Default: tuple).
+pytest-parametrize-names-type = "tuple"
+# Preferred type for values in @pytest.mark.parametrize. (Default: list).
+pytest-parametrize-values-type = "list"
+# Preferred type for each row in @pytest.mark.parametrize in case of multiple parameters. (Default: tuple).
+pytest-parametrize-values-row-type = "tuple"
+# Omit parentheses for @pytest.mark.foo decorators without parameters. (Default: True).
+pytest-mark-no-parentheses = true
+# List of warnings for which flake8-pytest-style requires a match= argument in pytest.warns(). (Default: [ "Warning",
+# "UserWarning", "DeprecationWarning" ]).
+pytest-warns-require-match-for = [
+  "Warning",
+  "UserWarning",
+  "DeprecationWarning",
+]
+# flake8-quotes #
+# Quote to expect in all files (default: ").
+inline-quotes = "double"
+# Quote to expect in all files (default: """).
+multiline-quotes = "double"
+# Quote to expect in all files (default: """).
+docstring-quotes = "double"
+# Avoiding escaping same quotes in inline strings (enabled by default).
+avoid-escape = false
+# Disable avoiding escaping same quotes in inline strings.
+no-avoid-escape = false
+# Check strings inside f-strings, when PEP701 is active (Python 3.12+).
+check-inside-f-strings = true
+# flake8-tidy-imports #
+# A map of modules to ban to the error messages to display in the error.
+# banned-modules = []
+# Ban relative imports, from parental modules or in all cases.
+ban-relative-imports = [
+  true,
+]
+# flake8-type-checking #
+# Enables Python 3.14+ specific annotation semantics.
+type-checking-py314plus = false
+# A list of modules whose exports should be treated equivalently to members of the `typing` module.
+# type-checking-typing-modules = []
+# Skip TC001, TC002, and TC003 checks for specified modules or libraries.
+# type-checking-exempt-modules = []
+# Flag individual imports rather than looking at the module.
+type-checking-strict = true
+# Always emit TC100 as long as there are any annotations and no future import.
+type-checking-force-future-annotation = true
+# Prevent flagging of annotations for class definitions.
+type-checking-pydantic-enabled = true
+# Names of base classes to not treat as pydantic models. For example `NamedTuple` or `TypedDict`.
+# type-checking-pydantic-enabled-baseclass-passlist = []
+# Prevent flagging of annotations on mapped attributes.
+type-checking-sqlalchemy-enabled = false
+# Dotted names of additional Mapped subclasses. For example `a.MyMapped, a.b.MyMapped`.
+# type-checking-sqlalchemy-mapped-dotted-names = []
+# Prevent flagging of annotations for decorated functions.
+type-checking-fastapi-enabled = true
+# Prevent flagging of annotations for any function.
+type-checking-fastapi-dependency-support-enabled = true
+# Prevent flagging of annotations on attrs class definitions.
+type-checking-cattrs-enabled = true
+# Prevent flagging of annotations on injector class definitions.
+type-checking-injector-enabled = true
+# flake8-unused-arguments #
+# If provided, then unused arguments for functions decorated with abstractmethod will be ignored.
+unused-arguments-ignore-abstract-functions = true
+# If provided, then unused arguments for functions decorated with overload will be ignored.
+unused-arguments-ignore-overload-functions = true
+# If provided, then unused arguments for functions decorated with override will be ignored.
+unused-arguments-ignore-override-functions = true
+# If provided, then unused arguments for functions that are only a pass statement will be ignored.
+unused-arguments-ignore-stub-functions = true
+# If provided, then unused *args and **kwargs won"t produce warnings.
+unused-arguments-ignore-variadic-names = true
+# If provided, all lambdas are ignored.
+unused-arguments-ignore-lambdas = true
+# If provided, only functions at the top level of a module or methods of a class in the top level of a module are
+# checked.
+unused-arguments-ignore-nested-functions = true
+# If provided, all double-underscore methods are ignored, e.g., __new__, _init__, __enter__, __exit__, __reduce_ex__,
+# etc.
 unused-arguments-ignore-dunder = true
+# flake8_errmsg #
+# Set a maximum string length to allow inline strings. Default 0 (always disallow).
+errmsg-max-string-length = 0
+# mccabe #
+# McCabe complexity threshold.
+max-complexity = 15
+# pep8-naming #
+# List of names or glob patterns the pep8-naming plugin should ignore. (Defaults to [ "setUp", "tearDown",
+# "setUpClass", "tearDownClass", "setUpModule", "tearDownModule", "asyncSetUp", "asyncTearDown", "setUpTestData",
+# "failureException", "longMessage", "maxDiff" ]).
+ignore-names = [
+  "setUp",
+  "tearDown",
+  "setUpClass",
+  "tearDownClass",
+  "setUpModule",
+  "tearDownModule",
+  "asyncSetUp",
+  "asyncTearDown",
+  "setUpTestData",
+  "failureException",
+  "longMessage",
+  "maxDiff",
+]
+# List of method decorators pep8-naming plugin should consider classmethods (Defaults to [ "classmethod" ]).
+classmethod-decorators = [
+  "classmethod",
+]
+# List of method decorators pep8-naming plugin should consider staticmethods (Defaults to [ "staticmethod" ]).
+staticmethod-decorators = [
+  "staticmethod",
+]
+# pydoclint #
+# Which style of docstring is your code base using.
+style = "sphinx"
+# Whether to require argument type hints in function signatures.
+arg-type-hints-in-signature = true
+# Whether to require type hints in the argument list in docstrings.
+arg-type-hints-in-docstring = true
+# Whether to check argument orders in the docstring against the argument list in the function signature.
+check-arg-order = true
+# If True, skip checking if the docstring only has a short summary.
+skip-checking-short-docstrings = false
+# If True, skip checking docstring "Raises" section against "raise" statements.
+skip-checking-raises = true
+# If True, skip checking docstrings of private functions.
+skip-checking-private-functions = true
+# If True, allow both __init__() and the class def to have docstrings.
+allow-init-docstring = true
+# If False, a return section is not needed in docstring if the function body does not have a "return" statement and the
+# return type annotation is "-> None" or "-> NoReturn".
+require-return-section-when-returning-nothing = false
+# If True, check that the type(s) in the docstring return section and the return annotation in the function signature
+# are consistent.
+check-return-types = true
+# If False, a yields section is not needed in docstring if the function yields None.
+require-yield-section-when-yielding-nothing = true
+# If True, check that the type(s) in the docstring "yields" section and the return annotation in the function signature
+# are consistent.
+check-yield-types = true
+# If True, underscore arguments (such as _, __, ...) in the function signature do not need to appear in the docstring.
+# Note: "underscore arguments" are not the same as "arguments with leading underscores" (such as `_a`).
 ignore-underscore-args = true
+# If True, private arguments (those with leading underscores in their names but are not purely `_`, `__`, etc.) in the
+# function signature do not need to appear in the docstring.
 ignore-private-args = true
-builtins-ignorelist = "id"
+# If True, class attributes (the ones defined right beneath "class MyClass:") are checked against the docstring.
+check-class-attributes = false
+# If True, private class attributes (the ones starting with _) should be documented in the docstring. If False, private
+# class attributes should not appear in the docstring.
+should-document-private-class-attributes = false
+# If True, treat @property methods as class properties. This means that they need to be documented in the "Attributes"
+# section of the class docstring, and there cannot be any docstring under the @property methods. This option is only
+# effective when --check-class-attributes is True. We recommend setting both this option and --check-class-attributes
+# to True.
+treat-property-methods-as-class-attributes = false
+# If True, only the attributes whose type annotations are wrapped within `ClassVar` (where `ClassVar` is imported from
+# `typing`) are treated as class attributes, and all other attributes are treated as instance attributes.
+only-attrs-with-ClassVar-are-treated-as-class-attrs = false
+# If True, require inline documentation for class attributes. If False, require them to be documented in the class
+# docstring instead.
+require-inline-class-var-docs = true
+# If True, "star arguments" (such as *args, **kwargs, **props, etc.) in the function signature should be documented in
+# the docstring. If False, they should not appear in the docstring.
+should-document-star-arguments = false
+# If True, docstrings may omit the leading * when documenting *args/**kwargs, and pydoclint will still match them
+# against the function signature.
+omit-stars-when-documenting-varargs = true
+# If True, we need to declare AssertError in the "Raises" section of the docstring if there are any "assert" statements
+# in the function body. This is because an "assert" statement could raise an AssertError.
+should-declare-assert-error-if-assert-statement-exists = true
+# If True, check that style specified in --style matches the detected style of the docstring. If there is a mismatch,
+# DOC003 will be reported. Setting this to False will silence all DOC003 violations.
+check-style-mismatch = true
+# If True, docstring type hints should contain default values consistent with the function signature. If False,
+# docstring type hints should not contain default values. (Only applies to numpy style for now.).
+check-arg-defaults = false
+# pyflakes #
+# define more built-ins, comma separated.
+# builtins = []
+# also check syntax of the doctests.
+doctests = true
+# radon #
+# Radon complexity threshold.
+radon-max-cc = 15
+# Radon will ignore assert statements.
+radon-no-assert = false
+# Add closures/inner classes to the output.
+radon-show-closures = true
+recursive = true
 
 ## ## pylint - Comprehensive static code analyzer
 [tool.pylint]
+# Analyse import fallback blocks. This can be used to support both Python 2 and 3 compatible code, which means that the
+# block might have code that exists only in one or another interpreter, leading to false positives when analysed.
+# analyse-fallback-blocks =
+# Clear in-memory caches upon conclusion of linting. Useful if running pylint in a server-like mode.
+# clear-cache-post-run =
+# Always return a 0 (non-error) status code, even if linter errors are found. This is primarily useful in continuous
+# integration scripts.
+# exit-zero =
+# A comma-separated list of package or module names from where C extensions may be loaded. Extensions are loading into
+# the active Python interpreter and may run arbitrary code.
+# extension-pkg-allow-list =
+# A comma-separated list of package or module names from where C extensions may be loaded. Extensions are loading into
+# the active Python interpreter and may run arbitrary code. (This is an alternative name to extension-pkg-allow-list for
+# backward compatibility.).
+# extension-pkg-whitelist =
+# Return non-zero exit code if any of these messages/categories are detected, even if score is above --fail-under value.
+# Syntax same as enable. Messages specified are enabled, while categories only check already-enabled messages.
+main.fail-on = [
+  "I",
+  "C",
+  "R",
+  "W",
+  "E",
+  "F",
+]
+# Specify a score threshold under which the program will exit with error.
 main.fail-under = 10
+# Interpret the stdin as a python script, whose filename needs to be passed as the module_or_package argument.
+# from-stdin =
+# Files or directories to be skipped. They should be base names, not paths.
 main.ignore = [
   ".coverage",
   ".mypy_cache",
@@ -374,18 +770,78 @@ main.ignore = [
   "coverage.xml",
   "dist",
 ]
-main.ignore-patterns = [ "^\\.#" ]
+# Add files or directories matching the regular expressions patterns to the ignore-list. The regex matches against
+# paths and can be in Posix or Windows format. Because '\\' represents the directory delimiter on Windows systems, it
+# can't be used as an escape character.
+# ignore-paths =
+# Files or directories matching the regular expression patterns are skipped. The regex matches against base names, not
+# paths. The default value ignores Emacs file locks.
+main.ignore-patterns = [
+  "^\\.#",
+]
+# List of module names for which member attributes should not be checked (useful for projects where namespaces are
+# manipulated during runtime and thus existing member attributes cannot be deduced by static analysis). It supports
+# qualified module names, as well as Unix pattern matching.
+# ignored-modules =
+# Python code to execute, usually for sys.path manipulation such as pygtk.require().
+# init-hook =
+# Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the number of processors available to use,
+# and will cap the count on Windows to avoid hangs.
 main.jobs = 1
+# Control the amount of potential inferred values when inferring a single object. This can help the performance when
+# dealing with large functions or complex, nested conditions.
 main.limit-inference-results = 100
+# List of plugins (as comma separated values of python module names) to load, usually to register additional checkers.
 main.load-plugins = [
+  "pylint.extensions.bad_builtin",
+  "pylint.extensions.check_elif",
+  "pylint.extensions.docparams",
+  "pylint.extensions.overlapping_exceptions",
+  "pylint.extensions.redefined_variable_type",
   "pylint_per_file_ignores",
 ]
+# Pickle collected data for later comparisons.
 main.persistent = true
+# Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.
 main.py-version = "3.11"
+# Discover python modules and packages in the file system subtree.
+# recursive =
+# Add paths to the list of the source roots. Supports globbing patterns. The source root is an absolute path or a path
+# relative to the current working directory used to determine a package namespace for modules located under the source
+# root.
+# source-roots =
+# When enabled, pylint would attempt to guess common misconfiguration and emit user-friendly hints instead of
+# false-positive error messages.
+# main.suggestion-mode = true
+# Python expression which should return a score less than or equal to 10. You have access to the variables 'fatal',
+# 'error', 'warning', 'refactor', 'convention', and 'info' which contain the number of messages in each category, as
+# well as 'statement' which is the total number of statements analyzed. This score is used by the global evaluation
+# report (RP0004).
 reports.evaluation = "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))"
+# Template used to display messages. This is a python new-style format string used to format the message information.
+# See doc for all details.
+# msg-template =
+# Set the output format. Available formats are text, parseable, colorized, json and msvs (visual studio). You can also
+# give a reporter class, e.g. mypackage.mymodule.MyReporterClass.
+# output-format =
+# Tells whether to display a full report or only the messages.
+# reports =
+# Activate the evaluation score.
 reports.score = true
+# Allow loading of arbitrary C extensions. Extensions are imported into the active Python interpreter and may run
+# arbitrary code.
+# unsafe-load-any-extension =
+# Naming style matching correct argument names.
 basic.argument-naming-style = "snake_case"
+# Regular expression matching correct argument names. Overrides argument-naming-style. If left empty, argument names
+# will be checked with the set naming style.
+# argument-rgx =
+# Naming style matching correct attribute names.
 basic.attr-naming-style = "snake_case"
+# Regular expression matching correct attribute names. Overrides attr-naming-style. If left empty, attribute names
+# will be checked with the set naming style.
+# attr-rgx =
+# Bad variable names which should always be refused, separated by a comma.
 basic.bad-names = [
   "bar",
   "baz",
@@ -394,12 +850,36 @@ basic.bad-names = [
   "toto",
   "tutu",
 ]
+# Bad variable names regexes, separated by a comma. If names match any regex, they will always be refused.
+# bad-names-rgxs =
+# Naming style matching correct class attribute names.
 basic.class-attribute-naming-style = "any"
+# Regular expression matching correct class attribute names. Overrides class-attribute-naming-style. If left empty,
+# class attribute names will be checked with the set naming style.
+# class-attribute-rgx =
+# Naming style matching correct class constant names.
 basic.class-const-naming-style = "UPPER_CASE"
+# Regular expression matching correct class constant names. Overrides class-const-naming-style. If left empty, class
+# constant names will be checked with the set naming style.
+# class-const-rgx =
+# Naming style matching correct class names.
 basic.class-naming-style = "PascalCase"
+# Regular expression matching correct class names. Overrides class-naming-style. If left empty, class names will be
+# checked with the set naming style.
+# class-rgx =
+# Naming style matching correct constant names.
 basic.const-naming-style = "UPPER_CASE"
+# Regular expression matching correct constant names. Overrides const-naming-style. If left empty, constant names will
+# be checked with the set naming style.
+# const-rgx =
+# Minimum line length for functions/classes that require docstrings, shorter ones are exempt.
 basic.docstring-min-length = -1
+# Naming style matching correct function names.
 basic.function-naming-style = "snake_case"
+# Regular expression matching correct function names. Overrides function-naming-style. If left empty, function names
+# will be checked with the set naming style.
+# function-rgx =
+# Good variable names which should always be accepted, separated by a comma.
 basic.good-names = [
   "_",
   "ex",
@@ -408,28 +888,71 @@ basic.good-names = [
   "k",
   "Run",
 ]
+# Good variable names regexes, separated by a comma. If names match any regex, they will always be accepted.
+# good-names-rgxs =
+# Include a hint for the correct naming format with invalid-name.
+# include-naming-hint =
+# Naming style matching correct inline iteration names.
 basic.inlinevar-naming-style = "any"
+# Regular expression matching correct inline iteration names. Overrides inlinevar-naming-style. If left empty, inline
+# iteration names will be checked with the set naming style.
+# inlinevar-rgx =
+# Naming style matching correct method names.
 basic.method-naming-style = "snake_case"
+# Regular expression matching correct method names. Overrides method-naming-style. If left empty, method names will be
+# checked with the set naming style.
+# method-rgx =
+# Naming style matching correct module names.
 basic.module-naming-style = "snake_case"
+# Regular expression matching correct module names. Overrides module-naming-style. If left empty, module names will be
+# checked with the set naming style.
+# module-rgx =
+# Colon-delimited sets of names that determine each other's naming style when the name regexes allow several styles.
+# name-group =
+# Regular expression which should only match function or class names that do not require a docstring.
 basic.no-docstring-rgx = "^_"
-basic.property-classes = [ "abc.abstractproperty" ]
+# List of decorators that produce properties, such as abc.abstractproperty. Add to this list to register other
+# decorators that produce valid properties. These decorators are taken in consideration only for invalid-name.
+basic.property-classes = [
+  "abc.abstractproperty",
+]
+# Regular expression matching correct type alias names. If left empty, type alias names will be checked with the set
+# naming style.
+# typealias-rgx =
+# Regular expression matching correct type variable names. If left empty, type variable names will be checked with the
+# set naming style.
+# typevar-rgx =
+# Naming style matching correct variable names.
 basic.variable-naming-style = "snake_case"
+# Expected format of line ending, e.g. empty (any line ending), LF or CRLF.
+# expected-line-ending-format =
+# Regexp for a line that is allowed to be longer than the limit.
 format.ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
+# Number of spaces of indent required inside a hanging or continued line.
 format.indent-after-paren = 4
+# String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1 tab).
 format.indent-string = "    "
+# Maximum number of characters on a single line.
 format.max-line-length = 110
-format.max-module-lines = 750
-design.max-args = 11
-design.max-attributes = 8
-design.max-bool-expr = 3
+# Maximum number of lines in a module.
+format.max-module-lines = 1200
+design.max-args = 22
+design.max-attributes = 7
+design.max-bool-expr = 5
 design.max-branches = 13
-design.max-locals = 18
-design.max-parents = 6
-design.max-positional-arguments = 11
-design.max-public-methods = 5
-design.max-returns = 5
-design.max-statements = 32
+design.max-locals = 30
+design.max-parents = 7
+design.max-positional-arguments = 9
+design.max-public-methods = 20
+design.max-returns = 6
+design.max-statements = 50
 design.min-public-methods = 2
+# Regular expression matching correct variable names. Overrides variable-naming-style. If left empty, variable names
+# will be checked with the set naming style.
+# variable-rgx =
+# Warn about protected attribute access inside special methods.
+# check-protected-access-in-special-methods =
+# List of method names used to declare (i.e. assign) instance attributes.
 classes.defining-attr-methods = [
   "__init__",
   "__new__",
@@ -437,6 +960,7 @@ classes.defining-attr-methods = [
   "asyncSetUp",
   "setUp",
 ]
+# List of member names, which should be excluded from the protected access warning.
 classes.exclude-protected = [
   "_asdict",
   "_fields",
@@ -445,15 +969,56 @@ classes.exclude-protected = [
   "_source",
   "os._exit",
 ]
-classes.valid-classmethod-first-arg = [ "cls" ]
-classes.valid-metaclass-classmethod-first-arg = [ "mcs" ]
+# List of valid names for the first argument in a class method.
+classes.valid-classmethod-first-arg = [
+  "cls",
+]
+# List of valid names for the first argument in a metaclass class method.
+classes.valid-metaclass-classmethod-first-arg = [
+  "mcs",
+]
+# Exceptions that will emit a warning when caught.
 exceptions.overgeneral-exceptions = [
   "builtins.BaseException",
   "builtins.Exception",
 ]
-imports.known-third-party = [ "enchant" ]
+# Allow the body of a class to be on the same line as the declaration if body contains single statement.
+# single-line-class-stmt =
+# Allow the body of an if to be on the same line as the test if there is no else.
+# single-line-if-stmt =
+# List of modules that can be imported at any level, not just the top level one.
+# allow-any-import-level =
+# Allow explicit reexports by alias from a package __init__.
+# allow-reexport-from-package =
+# Allow wildcard imports from modules that define __all__.
+# allow-wildcard-with-all =
+# Deprecated modules which should not be used, separated by a comma.
+# deprecated-modules =
+# Output a graph (.gv or any supported image format) of external dependencies to the given file (report RP0402 must not
+# be disabled).
+# ext-import-graph =
+# Output a graph (.gv or any supported image format) of all (i.e. internal and external) dependencies to the given
+# file (report RP0402 must not be disabled).
+# import-graph =
+# Output a graph (.gv or any supported image format) of internal dependencies to the given file (report RP0402 must not
+# be disabled).
+# int-import-graph =
+# Force import order to recognize a module as part of the standard compatibility libraries.
+# known-standard-library =
+# Force import order to recognize a module as part of a third party library.
+imports.known-third-party = [
+  "enchant",
+]
+# Couples of modules and preferred modules, separated by a comma.
+# preferred-modules =
+# The type of string formatting that logging methods do. `old` means using % formatting, `new` is for `{}` formatting.
 logging.logging-format-style = "old"
-logging.logging-modules = [ "logging" ]
+# Logging modules to check that the string format arguments are in logging function parameter format.
+logging.logging-modules = [
+  "logging",
+]
+# List of qualified names (i.e., library.method) which require a timeout parameter e.g.
+# 'requests.api.get,requests.api.post'.
 method_args.timeout-methods = [
   "requests.api.delete",
   "requests.api.get",
@@ -464,45 +1029,103 @@ method_args.timeout-methods = [
   "requests.api.put",
   "requests.api.request",
 ]
+# Maximum number of nested blocks for function / method body.
 refactoring.max-nested-blocks = 5
+# Complete name of functions that never returns. When checking for inconsistent-return-statements if a never returning
+# function is called then it will be considered as an explicit return statement and no message will be printed.
 refactoring.never-returning-functions = [
   "sys.exit",
   "argparse.parse_error",
 ]
 refactoring.suggest-join-with-non-empty-separator = true
+# Comments are removed from the similarity computation.
 similarities.ignore-comments = true
+# Docstrings are removed from the similarity computation.
 similarities.ignore-docstrings = true
+# Imports are removed from the similarity computation.
 similarities.ignore-imports = true
+# Signatures are removed from the similarity computation.
 similarities.ignore-signatures = true
-similarities.min-similarity-lines = 24
+# Minimum lines number of a similarity.
+similarities.min-similarity-lines = 10
+# Limits count of emitted suggestions for spelling mistakes.
 spelling.max-spelling-suggestions = 4
+# Spelling dictionary name. No available dictionaries : You need to install both the python package and the system
+# dependency for enchant to work.
+# spelling-dict =
+# List of comma separated words that should be considered directives if they appear at the beginning of a comment and
+# should not be checked.
 spelling.spelling-ignore-comment-directives = "fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:"
-typecheck.contextmanager-decorators = [ "contextlib.contextmanager" ]
+# List of comma separated words that should not be checked.
+# spelling-ignore-words =
+# A path to a file that contains the private dictionary; one word per line.
+# spelling-private-dict-file =
+# Tells whether to store unknown words to the private dictionary (see the --spelling-private-dict-file option) instead
+# of raising a message.
+# spelling-store-unknown-words =
+# List of decorators that produce context managers, such as contextlib.contextmanager. Add to this list to register
+# other decorators that produce valid context managers.
+typecheck.contextmanager-decorators = [
+  "contextlib.contextmanager",
+]
+# List of members which are set dynamically and missed by pylint inference system, and so shouldn't trigger E1101 when
+# accessed. Python regular expressions are accepted.
+# generated-members =
+# Tells whether missing members accessed in mixin class should be ignored. A class is considered mixin if its name
+# matches the mixin-class-rgx option. Tells whether to warn about missing members when the owner of the attribute is
+# inferred to be None.
 typecheck.ignore-none = true
+# This flag controls whether pylint should warn about no-member and similar checks whenever an opaque object is
+# returned when inferring. The inference can return multiple potential results while evaluating a Python object, but
+# some branches might not be evaluated, which results in partial inference. In that case, it might be useful to still
+# emit no-member and other checks for the rest of the inferred objects.
 typecheck.ignore-on-opaque-inference = true
+# List of symbolic message names to ignore for Mixin members.
 typecheck.ignored-checks-for-mixins = [
   "no-member",
   "not-async-context-manager",
   "not-context-manager",
   "attribute-defined-outside-init"
 ]
+# List of class names for which member attributes should not be checked (useful for classes with dynamically set
+# attributes). This supports the use of qualified names.
 typecheck.ignored-classes = [
   "_thread._local",
   "argparse.Namespace",
   "optparse.Values",
   "thread._local",
 ]
+# Show a hint with possible names when a member name was not found. The aspect of finding the hint is based on edit
+# distance.
 typecheck.missing-member-hint = true
+# The minimum edit distance a name should have in order to be considered a similar match for a missing member name.
 typecheck.missing-member-hint-distance = 1
+# The total number of similar names that should be taken in consideration when showing a hint for a missing member.
 typecheck.missing-member-max-choices = 1
+# Regex pattern to define which classes are considered mixins.
 typecheck.mixin-class-rgx = ".*[Mm]ixin"
+# List of decorators that change the signature of a decorated function.
+# signature-mutators =
+# List of additional names supposed to be defined in builtins. Remember that you should avoid defining new builtins
+# when possible.
+# additional-builtins =
+# Tells whether unused global variables should be treated as a violation.
 variables.allow-global-unused-variables = true
+# List of names allowed to shadow builtins.
+# allowed-redefined-builtins =
+# List of strings which can identify a callback function by name. A callback name must start or end with one of those
+# strings.
 variables.callbacks = [
   "_cb",
   "cb_",
 ]
+# A regular expression matching the name of dummy variables (i.e. expected to not be used).
 variables.dummy-variables-rgx = "_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_"
+# Argument names that match this expression will be ignored.
 variables.ignored-argument-names = "_.*|^ignored_|^unused_"
+# Tells whether we should check for unused import in __init__ files.
+# init-import =
+# List of qualified module names which can have objects that can redefine builtins.
 variables.redefining-builtins-modules = [
   "six.moves",
   "past.builtins",
@@ -510,11 +1133,14 @@ variables.redefining-builtins-modules = [
   "builtins",
   "io",
 ]
+# List of note tags to take in consideration, separated by a comma.
 miscellaneous.notes = [
   "FIXME",
   "XXX",
   "TODO",
 ]
+# Only show warnings with the listed confidence levels. Leave empty to show all. Valid levels: HIGH, CONTROL_FLOW,
+# INFERENCE, INFERENCE_FAILURE, UNDEFINED.
 "messages control".confidence = [
   "HIGH",
   "CONTROL_FLOW",
@@ -522,27 +1148,50 @@ miscellaneous.notes = [
   "INFERENCE_FAILURE",
   "UNDEFINED",
 ]
+# Disable the message, report, category or checker with the given id(s). You can either give multiple identifiers
+# separated by comma (,) or put this option multiple times (only on the command line, not in the configuration file
+# where it should appear only once). You can also use "--disable=all" to disable everything first and then re-enable
+# specific checks. For example, if you want to run only the similarities checker, you can use "--disable=all
+# --enable=similarities". If you want to run only the classes checker, but have no Warning level messages displayed,
+# use "--disable=all --enable=classes --disable=W".
 "messages control".disable = [
   "locally-disabled",
   "suppressed-message",
 ]
+# Enable the message, report, category or checker with the given id(s). You can either give multiple identifier
+# separated by comma (,) or put this option multiple time (only on the command line, not in the configuration file where
+# it should appear only once). See also the "--disable" option for examples.
 "messages control".enable = [
   "all",
   "useless-suppression",
 ]
 "messages control".per-file-ignores = [
   "docs/**:invalid-name",
-  "scripts/**:protected-access,broad-exception-caught,too-many-statements,too-many-lines",
+  "scripts/**:import-outside-toplevel,protected-access",
   "src/gamesheet_sdk/**:import-outside-toplevel",
-  "tests/auth/**:redefined-outer-name",
-  "tests/cli/**:import-outside-toplevel",
-  "tests/integration/**:protected-access",
-  "tests/unit/**:import-outside-toplevel",
+  "tests/**:import-outside-toplevel,protected-access",
 ]
+# List of builtins function names that should not be used, separated by a comma.
+deprecated_builtins.bad-functions = [
+  "map",
+  "filter",
+]
+# Regular expression of note tags to take in consideration.
+# notes-rgx =
+# Whether to accept totally missing parameter documentation in the docstring of a function that has parameters.
+parameter_documentation.accept-no-param-doc = true
+# Whether to accept totally missing raises documentation in the docstring of a function that raises an exception.
+parameter_documentation.accept-no-raise-doc = true
+# Whether to accept totally missing return documentation in the docstring of a function that returns a statement.
+parameter_documentation.accept-no-return-doc = true
+# Whether to accept totally missing yields documentation in the docstring of a generator.
+parameter_documentation.accept-no-yields-doc = true
+# If the docstring type cannot be guessed the specified docstring type will be used.
+parameter_documentation.default-docstring-type = "default"
 
-## # ----------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## # Documentation & Docstring Tools
-## # ----------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## ## codespell - Typos and spelling checker
 [tool.codespell]
 skip = "./docs/_build,./htmlcov"
@@ -559,6 +1208,7 @@ exclude = [
   "dist",
   ".mypy_cache",
   ".pytest_cache",
+  "tests/cli/test_core_coverage.py",
   ".tox",
   ".venv",
 ]
@@ -642,6 +1292,7 @@ ignore_names = [
   "__*",
   "added_at_game_time",
   "affiliated",
+  "association_payload",
   "autoclass_*",
   "autodoc_*",
   "autosectionlabel_*",
@@ -675,10 +1326,12 @@ ignore_names = [
   "has_overtime",
   "has_shootout",
   "height",
+  "hidden_cmd",
   "hometown",
   "html_*",
   "intersphinx_*",
   "latex_*",
+  "league_payload",
   "linkcheck_*",
   "list_cmd",
   "location",
@@ -738,9 +1391,9 @@ description = "An automated formatter for `pyproject.toml` files to keep depende
 diff = true
 recursive = true
 
-## # ----------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## # Security, Metrics & Complexity
-## # ----------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## ## bandit - Security vulnerability scanner
 [tool.bandit]
 exclude_dirs = [
@@ -768,7 +1421,9 @@ recursive = true
 [tool.mypy]
 python_version = "3.11"
 strict = true
-plugins = [ "pydantic.mypy" ]
+plugins = [
+  "pydantic.mypy",
+]
 
 ## ## pyrefly - Code health and quality reviewer
 [tool.pyrefly]
@@ -784,26 +1439,26 @@ search-path = [
   ".",
 ]
 
-## # ----------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## # Type Checkers
-## # ----------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## ## pyright - Fast Python type checker
 [tool.pyright]
-# Target environment settings
+# Target environment settings.
 pythonVersion = "3.11"
 pythonPlatform = "Linux"
-# Optional: Keep test errors separate or less severe if they block CI
+# Optional: Keep test errors separate or less severe if they block CI.
 # typeCheckingMode = "basic"
-# Look into library code to extract type information if stubs are missing
+# Look into library code to extract type information if stubs are missing.
 useLibraryCodeForTypes = true
-# Directories or files to include for type checking
+# Directories or files to include for type checking.
 include = [
   "docs",
   "scripts",
   "src",
   "tests",
 ]
-# Directories or files to exclude from type checking
+# Directories or files to exclude from type checking.
 exclude = [
   "**/__pycache__",
   ".coverage",
@@ -814,30 +1469,32 @@ exclude = [
   "coverage.xml",
   "dist",
 ]
-# Ignore errors inside specific files
+# Ignore errors inside specific files.
 ignore = []
 extraPaths = [
   ".",
   "src",
 ]
 reportGeneralTypeIssues = "error"
-# Override specific rules
+# Override specific rules.
 reportMissingTypeStubs = "warning"
 reportUnknownMemberType = false
-executionEnvironments = [ { root = "tests", reportArgumentType = false, reportCallIssue = false } ]
+executionEnvironments = [
+  { root = "tests", reportArgumentType = false, reportCallIssue = false },
+]
 
 [tool.coverage]
 run.branch = true
 run.parallel = false
 ## ## coverage - Test coverage measurement
-## Without this block, `pytest --cov` has no source path to instrument
-## and emits an empty coverage.xml — which Codecov registers as an
-## upload but with no data, surfacing as "No report uploaded" on every
-## flag and component. See https://coverage.readthedocs.io/
-run.source = [ "src/gamesheet_sdk" ]
-## Collapse coverage from the installed package onto the src layout so
-## paths in coverage.xml match the component / flag path filters in
-## .codecov.yml.
+# Without this block, `pytest --cov` has no source path to instrument and emits an empty coverage.xml — which Codecov
+# registers as an upload but with no data, surfacing as "No report uploaded" on every flag and component. See
+# https://coverage.readthedocs.io/.
+run.source = [
+  "src/gamesheet_sdk",
+]
+# Collapse coverage from the installed package onto the src layout so paths in coverage.xml match the component / flag
+# path filters in .codecov.yml.
 paths.source = [
   "src/gamesheet_sdk",
   "*/site-packages/gamesheet_sdk",
@@ -854,37 +1511,40 @@ report.show_missing = true
 ## ## python-semantic-release - Automated semantic versioning and changelog generation
 [tool.semantic_release]
 tag_format = "v{version}"
-# Version strategy: patch-only until 1.0.0, then standard semver
+# Version strategy: patch-only until 1.0.0, then standard semver.
 major_on_zero = false
 allow_zero_version = true
-# Version management - PSR writes to pyproject.toml
-version_toml = [ "pyproject.toml:project.version" ]
+# Version management - PSR writes to pyproject.toml.
+version_toml = [
+  "pyproject.toml:project.version",
+]
 build_command = "pre-commit run mdformat --files CHANGELOG.md ; pre-commit run pymarkdown --files CHANGELOG.md && python -m build"
 commit_message = "chore(release): {version}\n\nAutomatically generated by python-semantic-release"
 commit_author = "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
-# Commit parsing - use conventional commits
+# Commit parsing - use conventional commits.
 commit_parser = "conventional"
-# Commit parser options - force patch-only bumps until 1.0.0
-# After 1.0.0, remove this section to restore standard semver (feat → minor, fix → patch)
-commit_parser_options.minor_tags = []  # Empty - no minor bumps until 1.0.0
-# All releasable commits trigger patch bump
+# Commit parser options - force patch-only bumps until 1.0.0. After 1.0.0, remove this section to restore standard
+# semver (feat → minor, fix → patch).
+# Empty - no minor bumps until 1.0.0.
+commit_parser_options.minor_tags = []
+# All releasable commits trigger patch bump.
 commit_parser_options.patch_tags = [
   "feat",
   "fix",
   "perf",
 ]
-# Branches configuration
+# Branches configuration.
 branches.main.match = "main"
 branches.main.prerelease = false
 changelog.default_templates.changelog_file = "CHANGELOG.md"
 changelog.exclude_commit_patterns = []
 changelog.insertion_flag = "<!--next-version-placeholder-->"
 changelog.mode = "update"
-# Enable tag creation and pushing
+# Enable tag creation and pushing.
 push = true
 tag = true
-# We handle PyPI publishing and GitHub Release creation in workflow
-# to support TestPyPI validation step before production publish
+# We handle PyPI publishing and GitHub Release creation in workflow to support TestPyPI validation step before
+# production publish.
 upload_to_pypi = false
 upload_to_release = false
 
@@ -910,12 +1570,12 @@ exclude = [
 ]
 description = "Check docstrings in existing Python files for correct format."
 
-## -----------------------------------------------------------------------------
+## ---------------------------------------------------------------------------------------------------------------------
 ## Non-Python Languages
-## -----------------------------------------------------------------------------
-## # ----------------------------------------------------------------------------
+## ---------------------------------------------------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## # Configuration File Linters & Formatters
-## # ----------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## ## editorconfig-checker - EditorConfig compliance verifier
 [tool.editorconfig-checker]
 check = true
@@ -930,9 +1590,9 @@ description = "Checks YAML files for syntax validity, key duplication, and cosme
 diff = true
 recursive = true
 
-## # ----------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## # Documentation & Markdown Tools
-## # ----------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## ## pymarkdown - Markdown linting engine
 [tool.pymarkdown]
 check = true
@@ -970,12 +1630,12 @@ number = true
 validate = true
 wrap = 160
 
-## -----------------------------------------------------------------------------
+## ---------------------------------------------------------------------------------------------------------------------
 ## Python
-## -----------------------------------------------------------------------------
-## # ----------------------------------------------------------------------------
+## ---------------------------------------------------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## # Configuration File Linters & Formatters
-## # ----------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## ## tox-ini-fmt - Tox configuration formatter
 [tool.tox-ini-fmt]
 check = true
@@ -1001,9 +1661,9 @@ diff = true
 min_score = 10
 recursive = true
 
-## # ----------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## # Code Style & Formatting (Automated Fixers)
-## # ----------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## ## pyupgrade - Syntax modernizer
 [tool.pyupgrade]
 check = true
@@ -1021,9 +1681,9 @@ description = """\
 diff = true
 recursive = true
 
-## # ----------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## # Code Cleaners & Dead Code Detectors
-## # ----------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## ## unimport - Unused import remover
 [tool.unimport]
 gitignore = true
@@ -1051,9 +1711,9 @@ recursive = true
 [tool.pydocstyle]
 add-ignore = "D107"
 
-## # ----------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## # Code Quality Linters & Static Analysis
-## # ----------------------------------------------------------------------------
+## # -------------------------------------------------------------------------------------------------------------------
 ## ## blocklint - Inclusive language checker
 [tool.blocklint]
 check = true
@@ -1065,7 +1725,9 @@ recursive = true
 [tool.refurb]
 enable_all = true
 python_version = "3.11"
-ignore = [ 120 ]
+ignore = [
+  120,
+]
 
 ## ## radon - Code metrics and complexity calculator
 [tool.radon]
@@ -1076,11 +1738,14 @@ description = """\
   confusing code.\
   """
 diff = true
-indent = 4  # Indentation size for output
+# Indentation size for output.
+indent = 4
 min_rank = "A"
 recursive = true
-show_closures = true  # Show closures in the complexity results
-total_average = true  # Display the total average at the end
+# Show closures in the complexity results.
+show_closures = true
+# Display the total average at the end.
+total_average = true
 max-absolute = "A"
 max-modules = "A"
 max-average = "B"

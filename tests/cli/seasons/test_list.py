@@ -1,15 +1,17 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for seasons list command."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
 from unittest.mock import patch
+
+from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.seasons import Season
-
-if TYPE_CHECKING:
-    from click.testing import CliRunner
 
 
 def test_seasons_list_alias_works(runner: CliRunner) -> None:

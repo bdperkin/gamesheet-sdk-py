@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Coverage tests for roster coaches assign/unassign commands."""
 
 from __future__ import annotations
@@ -16,7 +19,10 @@ def test_roster_coaches_assign_coverage() -> None:
     mock_coach.id = "1868550"
     with (
         patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session"),
-        patch("gamesheet_sdk.cli.commands.roster._assign_coach_action", return_value=mock_coach),
+        patch(
+            "gamesheet_sdk.cli.commands.roster._assign_coach_action",
+            return_value=mock_coach,
+        ),
         patch("gamesheet_sdk.cli.shared.render_get_command"),
     ):
         result = runner.invoke(
@@ -25,6 +31,7 @@ def test_roster_coaches_assign_coverage() -> None:
                 "assign",
                 "--coach-id",
                 "1868550",
+                # pylint: disable=duplicate-code
                 "--team-id",
                 "12345",
                 "-F",
@@ -41,7 +48,11 @@ def test_roster_coaches_assign_error_handling() -> None:
     runner = CliRunner()
     with (
         patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session"),
-        patch("gamesheet_sdk.cli.commands.roster._assign_coach_action", side_effect=Exception("Test error")),
+        patch(
+            # pylint: enable=duplicate-code
+            "gamesheet_sdk.cli.commands.roster._assign_coach_action",
+            side_effect=Exception("Test error"),
+        ),
     ):
         result = runner.invoke(
             coaches_group,

@@ -1,13 +1,13 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for associations command group."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
-
-if TYPE_CHECKING:
-    from click.testing import CliRunner
 
 
 def test_associations_group_has_help_option(runner: CliRunner) -> None:

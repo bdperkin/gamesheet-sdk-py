@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Shared fixtures for referee unit tests."""
 
 from __future__ import annotations
@@ -14,11 +17,8 @@ _ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/referees"
 def referee_response_data(referee_id: str) -> dict[str, Any]:
     """Build standard referee response payload for tests.
 
-    Args:
-        referee_id: The referee ID to use in the response
-
-    Returns:
-        A dict representing a JSON:API referee response
+    :param referee_id: The referee ID to use in the response
+    :returns: A dict representing a JSON:API referee response
     """
     return {
         "data": {
@@ -37,4 +37,10 @@ def referee_response_data(referee_id: str) -> dict[str, Any]:
     }
 
 
-__all__ = ["jsonapi_payload", "referee_response_data", "_BASE", "_SEASON_ID", "_ENDPOINT"]
+__all__ = [
+    "jsonapi_payload",
+    "referee_response_data",
+    "_BASE",
+    "_SEASON_ID",
+    "_ENDPOINT",
+]

@@ -1,16 +1,17 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for associations get command."""
 
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
 from unittest.mock import patch
+
+from click.testing import CliRunner
 
 from gamesheet_sdk.associations import Association
 from gamesheet_sdk.cli import cli
-
-if TYPE_CHECKING:
-    from click.testing import CliRunner
 
 
 def test_associations_get(runner: CliRunner) -> None:

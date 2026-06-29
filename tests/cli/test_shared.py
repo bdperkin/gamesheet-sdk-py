@@ -1,12 +1,15 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for CLI shared utilities."""
 
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
+import tempfile
 
-import rich_click as click
 from pydantic import BaseModel
+import rich_click as click
 
 from gamesheet_sdk.cli.shared import (
     common_output_options,
@@ -68,9 +71,7 @@ def test_render_get_command_with_dict() -> None:
     """Test render_get_command with a dict."""
     output_file = Path(tempfile.gettempdir()) / "output.json"
     data = {"id": "123", "name": "Test"}
-
     render_get_command(data, "json", str(output_file), None)
-
     content = output_file.read_text()
     assert "123" in content
     assert "Test" in content
@@ -80,9 +81,7 @@ def test_render_get_command_with_fields_filter() -> None:
     """Test render_get_command with fields filter."""
     output_file = Path(tempfile.gettempdir()) / "output.json"
     data = {"id": "123", "name": "Test", "extra": "Should be filtered"}
-
     render_get_command(data, "json", str(output_file), "id,name")
-
     content = output_file.read_text()
     assert "123" in content
     assert "Test" in content
@@ -96,9 +95,7 @@ def test_render_list_command_with_dicts() -> None:
         {"id": "1", "name": "First"},
         {"id": "2", "name": "Second"},
     ]
-
     render_list_command(items, "json", str(output_file), None)
-
     content = output_file.read_text()
     assert "First" in content
     assert "Second" in content
@@ -111,9 +108,7 @@ def test_render_list_command_with_columns_filter() -> None:
         {"id": "1", "name": "First", "extra": "Data"},
         {"id": "2", "name": "Second", "extra": "More"},
     ]
-
     render_list_command(items, "csv", str(output_file), "id,name")
-
     content = output_file.read_text()
     # CSV should have id and name columns, not extra
     assert "id" in content
@@ -126,9 +121,7 @@ def test_render_get_command_with_pydantic_model() -> None:
     """Test render_get_command with a pydantic model."""
     output_file = Path(tempfile.gettempdir()) / "output.json"
     model = SampleModel(id="456", name="Pydantic Test", extra="Extra data")
-
     render_get_command(model, "json", str(output_file), None)
-
     content = output_file.read_text()
     assert "456" in content
     assert "Pydantic Test" in content
@@ -138,9 +131,7 @@ def test_render_get_command_with_pydantic_model_tabular() -> None:
     """Test render_get_command with pydantic model in tabular format."""
     output_file = Path(tempfile.gettempdir()) / "output.txt"
     model = SampleModel(id="789", name="Tabular Test")
-
     render_get_command(model, "plain", str(output_file), None)
-
     content = output_file.read_text()
     assert "789" in content
     assert "Tabular Test" in content
@@ -153,9 +144,7 @@ def test_render_list_command_with_pydantic_models() -> None:
         SampleModel(id="1", name="Model One"),
         SampleModel(id="2", name="Model Two"),
     ]
-
     render_list_command(items, "json", str(output_file), None)
-
     content = output_file.read_text()
     assert "Model One" in content
     assert "Model Two" in content
@@ -165,10 +154,8 @@ def test_render_get_command_with_whitespace_fields_spec() -> None:
     """Test render_get_command with whitespace-only fields_spec (no filtering)."""
     output_file = Path(tempfile.gettempdir()) / "output.json"
     data = {"id": "999", "name": "Test", "extra": "Should appear"}
-
     # Whitespace-only fields_spec should not filter (parse_columns_spec returns None)
     render_get_command(data, "json", str(output_file), "   ")
-
     content = output_file.read_text()
     assert "999" in content
     assert "Test" in content

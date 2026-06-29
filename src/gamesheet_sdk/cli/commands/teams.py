@@ -1,10 +1,12 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Teams command group."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import rich_click as click
+from rich_click import Context
 
 from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.cli.helpers import (
@@ -24,11 +26,10 @@ from gamesheet_sdk.cli.shared import (
     team_update_options,
 )
 from gamesheet_sdk.config import Config
-from gamesheet_sdk.teams import get_team as _get_team_action
-from gamesheet_sdk.teams import list_teams as _list_teams_action
-
-if TYPE_CHECKING:
-    from rich_click import Context
+from gamesheet_sdk.teams import (
+    get_team as _get_team_action,
+    list_teams as _list_teams_action,
+)
 
 
 @click.group(
@@ -82,9 +83,21 @@ def teams_get_command(
     The team and season IDs can be provided via command-line options or environment variables
     (GAMESHEET_TEAM_ID, GAMESHEET_SEASON_ID). Requires a saved session from `gamesheet-sdk-py login`. The
     output displays team metadata as key-value pairs, with each field on its own row.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param team_id: The team identifier
+    :type team_id: str
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :param fields_spec: Optional comma-separated list of fields to display
+    :type fields_spec: str | None
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     # Convert to dict for rendering
     team = run_action_or_exit(session, _get_team_action, season_id, team_id)
     render_get_command(team, output_format, output_path, fields_spec)
@@ -111,9 +124,19 @@ def teams_list_command(
     """List all teams in the specified season.
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :param columns_spec: Optional comma-separated list of columns to display
+    :type columns_spec: str | None
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     teams = run_action_or_exit(session, _list_teams_action, season_id)
     render_list_command(teams, output_format, output_path, columns_spec)
 
@@ -154,7 +177,24 @@ def teams_create_command(
     """Create a new team in the specified season.
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param title: Team name/title
+    :type title: str
+    :param division_id: Division ID the team belongs to
+    :type division_id: str
+    :param external_id: Optional external identifier
+    :type external_id: str | None
+    :param logo_path: Optional path to a logo image file
+    :type logo_path: str | None
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
     """
+    # pylint: disable=duplicate-code
     run_team_create(
         ctx,
         season_id,
@@ -201,7 +241,28 @@ def teams_update_command(
 
     Requires authentication (run 'gamesheet-sdk-py login' first). At least one field must be provided for
     update.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param team_id: The team identifier to update
+    :type team_id: str
+    :param title: Optional new team name/title
+    :type title: str | None
+    :param division_id: Optional new division ID
+    :type division_id: str | None
+    :param external_id: Optional new external identifier
+    :type external_id: str | None
+    :param logo_path: Optional path to a new logo image file
+    :type logo_path: str | None
+    :param remove_logo: Remove the team's logo
+    :type remove_logo: bool
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
     """
+    # pylint: disable=duplicate-code
     run_team_update(
         ctx,
         season_id,
@@ -240,5 +301,12 @@ def teams_delete_command(
     """Delete a team.
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param team_id: The team identifier to delete
+    :type team_id: str
     """
     run_team_delete(ctx, season_id, team_id)
+    # pylint: enable=duplicate-code

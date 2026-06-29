@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for update_division function."""
 
 from __future__ import annotations
@@ -17,6 +20,19 @@ _BASE = "https://test.example"
 _SEASON_ID = "15020"
 _DIVISION_ID = "80998"
 _UPDATE_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/divisions/{_DIVISION_ID}"
+
+
+def _verify_update_payload(request_body: bytes | str, expected_title: str) -> None:
+    """Verify the structure of an update division request payload."""
+    import json
+
+    payload = json.loads(request_body)
+    assert payload["data"]["type"] == "divisions"
+    assert payload["data"]["id"] == _DIVISION_ID
+    assert payload["data"]["attributes"]["title"] == expected_title
+    assert payload["data"]["attributes"]["settings"] == {}
+    assert payload["data"]["relationships"]["season"]["data"]["id"] == _SEASON_ID
+    assert payload["data"]["relationships"]["season"]["data"]["type"] == "seasons"
 
 
 @responses.activate
@@ -60,16 +76,11 @@ def test_update_division_updates_title(config: Config) -> None:
     assert req.headers["Authorization"] == "Bearer abc"
     assert req.headers["Accept"] == "application/vnd.api+json"
     assert req.headers["Content-Type"] == "application/vnd.api+json"
+    assert req.body is not None
+    _verify_update_payload(req.body, "Updated Division")
     import json
 
-    assert req.body is not None
     payload = json.loads(req.body)
-    assert payload["data"]["type"] == "divisions"
-    assert payload["data"]["id"] == _DIVISION_ID
-    assert payload["data"]["attributes"]["title"] == "Updated Division"
-    assert payload["data"]["attributes"]["settings"] == {}
-    assert payload["data"]["relationships"]["season"]["data"]["id"] == _SEASON_ID
-    assert payload["data"]["relationships"]["season"]["data"]["type"] == "seasons"
     assert "external_id" not in payload["data"]["attributes"]
 
 

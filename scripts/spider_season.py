@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Spider all GET-traversable paths and mutations for a GameSheet season.
 
-This utility discovers all GET- traversable paths under a season URL, records all Fetch/XHR network requests,
-and discovers mutation operations (POST/PATCH/DELETE) without executing them. The spider uses randomized
-human-like delays and respects the base season URL constraint to avoid traversing external links.
+This utility discovers all GET- traversable paths under a season URL, records all Fetch/XHR network
+requests, and discovers mutation operations (POST/PATCH/DELETE) without executing them. The spider uses
+randomized human-like delays and respects the base season URL constraint to avoid traversing external links.
 
 Key behaviors:
 - Only follows GET requests (safe, read-only operations)
@@ -23,19 +26,23 @@ Safety guarantees:
 from __future__ import annotations
 
 import argparse
+from collections import deque
+from dataclasses import asdict, dataclass, field
 import json
 import logging
+from pathlib import Path
 import random
 import sys
 import time
-from collections import deque
-from dataclasses import asdict, dataclass, field
-from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin, urlparse
 
-from playwright.sync_api import Page, Request, Response
-from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+from playwright.sync_api import (
+    Page,
+    Request,
+    Response,
+    TimeoutError as PlaywrightTimeoutError,
+)
 
 from gamesheet_sdk.browser import BrowserSession
 from gamesheet_sdk.config import Config
@@ -95,8 +102,11 @@ class SeasonSpider:
     """Spider for discovering all paths and mutations under a GameSheet season.
 
     :param season_id: The season ID to spider (e.g., "15020")
+    :type season_id: str
     :param config: Configuration object with auth credentials
+    :type config: Config
     :param browser_executable: Optional path to browser executable
+    :type browser_executable: str | None
     """
 
     def __init__(
@@ -119,7 +129,9 @@ class SeasonSpider:
         """Check if a URL is internal to the base season path.
 
         :param url: URL to check
-        :returns: True if URL is under the base season path
+        :type url: str
+        :returns: Boolean result.
+        :rtype: bool
         """
         return url.startswith(self.state.base_url)
 
@@ -129,7 +141,9 @@ class SeasonSpider:
         This treats /teams/123/roster and /teams/456/roster as the same pattern, allowing us to discover
         structure rather than crawling all data.
         :param url: URL to normalize
-        :returns: Normalized URL pattern with {id} placeholders
+        :type url: str
+        :returns: String result.
+        :rtype: str
         """
         parsed = urlparse(url)
         path_parts = parsed.path.split("/")
@@ -146,9 +160,12 @@ class SeasonSpider:
     def _normalize_url(self, url: str, current_url: str | None = None) -> str:
         """Normalize a URL to an absolute form.
 
-        :param url: URL to normalize (may be relative)
-        :param current_url: Current page URL for resolving relative links
-        :returns: Normalized absolute URL
+            :param url: URL to normalize (may be relative)
+            :param str | None current_url: Current page URL for
+                resolving relative links
+            :type url: str
+                :returns: String result.
+        :rtype: str
         """
         # Remove fragment identifiers
         url = url.split("#")[0]
@@ -168,19 +185,27 @@ class SeasonSpider:
         """Save request headers and payload to files.
 
         :param request: Playwright Request object
+        :type request: Request
         :param request_num: Sequential request number for naming
+        :type request_num: int
         :param artifacts_dir: Directory to save artifacts
+        :type artifacts_dir: Path
+        :returns: None
+        :rtype: None
         """
         try:
             prefix = artifacts_dir / f"{request_num:04d}"
             # Save headers
             headers_file = Path(str(prefix) + "_request_headers.json")
-            headers_file.write_text(json.dumps(dict(request.headers), indent=2), encoding="utf-8")
+            headers_file.write_text(
+                json.dumps(dict(request.headers), indent=2),
+                encoding="utf-8",
+            )
             # Save payload (if present)
             if request.post_data:
                 payload_file = Path(str(prefix) + "_request_payload.txt")
                 payload_file.write_text(request.post_data, encoding="utf-8")
-        except Exception as exc:
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
             _LOGGER.warning(
                 "Failed to save request artifacts for %s: %s",
                 request.url,
@@ -196,27 +221,35 @@ class SeasonSpider:
         """Save response headers and body to files.
 
         :param response: Playwright Response object
+        :type response: Response
         :param request_num: Sequential request number for naming
+        :type request_num: int
         :param artifacts_dir: Directory to save artifacts
+        :type artifacts_dir: Path
+        :returns: None
+        :rtype: None
         """
         try:
             prefix = artifacts_dir / f"{request_num:04d}"
             # Save response headers
             headers_file = Path(str(prefix) + "_response_headers.json")
-            headers_file.write_text(json.dumps(dict(response.headers), indent=2), encoding="utf-8")
+            headers_file.write_text(
+                json.dumps(dict(response.headers), indent=2),
+                encoding="utf-8",
+            )
             # Save response body
             try:
                 body = response.body()
                 response_file = Path(str(prefix) + "_response_body.txt")
                 response_file.write_bytes(body)
-            except Exception as exc:
+            except (OSError, RuntimeError) as exc:
                 # Some responses may not have a body or be already consumed
                 _LOGGER.debug(
                     "Could not read response body for %s: %s",
                     response.url,
                     exc,
                 )
-        except Exception as exc:
+        except (OSError, json.JSONDecodeError) as exc:
             _LOGGER.warning(
                 "Failed to save response artifacts for %s: %s",
                 response.url,
@@ -232,8 +265,11 @@ class SeasonSpider:
         """Attach network request/response listeners to a page.
 
         :param page: Playwright page to attach listeners to
-        :param source_url: The source page URL for attribution
-        :param artifacts_dir: Directory to save request/response artifacts (optional)
+        :type page: Page
+        :param source_url: The source page URL for attribution :param Path | None artifacts_dir: Directory
+        :type source_url: str to save request/response artifacts (optional)
+        :returns: None
+        :rtype: None
         """
 
         def on_request(request: Request) -> None:
@@ -282,12 +318,15 @@ class SeasonSpider:
         page.on("request", on_request)
         page.on("response", on_response)
 
-    # pylint: disable-next=too-many-locals
     def _discover_mutations(self, page: Page, current_url: str) -> None:
         """Discover mutation operations without executing them.
 
         :param page: Playwright page to inspect
+        :type page: Page
         :param current_url: Current page URL for attribution
+        :type current_url: str
+        :returns: None
+        :rtype: None
         """
         # Discover forms with POST/PATCH/DELETE methods
         forms = page.query_selector_all("form")
@@ -327,7 +366,7 @@ class SeasonSpider:
         for selector in mutation_selectors:
             try:
                 elements = page.query_selector_all(selector)
-            except Exception as exc:
+            except (RuntimeError, TimeoutError) as exc:
                 _LOGGER.debug("Selector '%s' failed: %s", selector, exc)
                 continue
             for element in elements:
@@ -364,8 +403,11 @@ class SeasonSpider:
         """Extract all clickable links from the current page.
 
         :param page: Playwright page to extract links from
+        :type page: Page
         :param current_url: Current page URL for resolving relative links
-        :returns: List of absolute URLs
+        :type current_url: str
+        :returns: List of results.
+        :rtype: list[str]
         """
         links = []
         link_elements = page.query_selector_all("a[href]")
@@ -381,7 +423,11 @@ class SeasonSpider:
         return links
 
     def _human_delay(self) -> None:
-        """Sleep for a randomized human-like delay."""
+        """Sleep for a randomized human-like delay.
+
+        :returns: None
+        :rtype: None
+        """
         delay = random.uniform(MIN_DELAY, MAX_DELAY)  # noqa: S311 # nosec B311
         _LOGGER.debug("Human delay: %.2fs", delay)
         time.sleep(delay)
@@ -389,9 +435,12 @@ class SeasonSpider:
     def _visit_url(self, url: str, artifacts_dir: Path | None = None) -> bool:
         """Visit a URL and perform discovery.
 
-        :param url: URL to visit
-        :param artifacts_dir: Optional directory to save network artifacts
-        :returns: True if visit succeeded, False on error
+            :param url: URL to visit
+            :param Path | None artifacts_dir: Optional directory to save network
+                artifacts
+            :type url: str
+                :returns: Boolean result.
+        :rtype: bool
         """
         if not self.page:
             _LOGGER.error("Page not initialized")
@@ -402,20 +451,11 @@ class SeasonSpider:
             _LOGGER.info("Skipping %s (pattern already visited: %s)", url, pattern)
             return True
         _LOGGER.info("Visiting: %s (pattern: %s)", url, pattern)
-        try:
-            # Attach network capture before navigation
-            self._setup_network_capture(self.page, url, artifacts_dir)
-        except PlaywrightTimeoutError as exc:
-            _LOGGER.warning("Timeout visiting %s: %s", url, exc)
-            self.state.error_urls[url] = f"Timeout: {exc}"
-            return False
-        except Exception as exc:
-            _LOGGER.exception("Error visiting %s", url)
-            self.state.error_urls[url] = f"Error: {exc}"
-            return False
+        # Attach network capture before navigation
+        self._setup_network_capture(self.page, url, artifacts_dir)
         # Navigate to URL and wait for network to be mostly idle
         # This is important for SPAs like GameSheet that render content via JavaScript
-        try:  # noqa: TRY101
+        try:
             self.page.goto(url, wait_until="networkidle", timeout=NAV_TIMEOUT_MS)
         except PlaywrightTimeoutError:
             _LOGGER.debug(
@@ -438,11 +478,10 @@ class SeasonSpider:
                 self.state.pending_queue.append(link)
                 queued_count += 1
                 _LOGGER.debug("Queued for visit: %s", link)
-            else:
+            elif link not in self.state.external_links:
                 # Log external link
-                if link not in self.state.external_links:
-                    self.state.external_links.add(link)
-                    _LOGGER.info("External link (not traversing): %s", link)
+                self.state.external_links.add(link)
+                _LOGGER.info("External link (not traversing): %s", link)
         if queued_count > 0:
             _LOGGER.info("Queued %d new URLs for crawling", queued_count)
         return True
@@ -451,6 +490,9 @@ class SeasonSpider:
         """Process the queue until empty.
 
         :param artifacts_dir: Optional directory to save network artifacts
+        :type artifacts_dir: Path | None
+        :returns: None
+        :rtype: None
         """
         if not self.page:
             _LOGGER.error("Page not initialized")
@@ -484,9 +526,9 @@ class SeasonSpider:
     def _create_custom_browser_session(self) -> BrowserSession:
         """Create a BrowserSession with custom browser executable.
 
-        :returns: BrowserSession configured with custom executable
+        :returns: Return value.
+        :rtype: BrowserSession
         """
-        # pylint: disable-next=import-outside-toplevel
         from playwright.sync_api import sync_playwright
 
         # Create a custom session that patches the browser launch
@@ -515,6 +557,9 @@ class SeasonSpider:
         """Save spider results to a JSON file.
 
         :param output_path: Path to output JSON file
+        :type output_path: Path
+        :returns: None
+        :rtype: None
         """
         results = {
             "season_id": self.state.season_id,
@@ -541,7 +586,9 @@ class SeasonSpider:
         """Execute the spider crawl.
 
         :param output_path: Optional path to save results JSON
-        :returns: Dictionary of crawl results
+        :type output_path: Path | None
+        :returns: Dictionary of results.
+        :rtype: dict[str, Any]
         """
         _LOGGER.info("Starting spider for season %s", self.season_id)
         _LOGGER.info("Base URL: %s", self.state.base_url)
@@ -585,7 +632,9 @@ def main(argv: list[str] | None = None) -> int:
     """CLI entry point for the season spider.
 
     :param argv: Command-line arguments (defaults to sys.argv[1:])
-    :returns: Exit code (0 = success, non-zero = error)
+    :type argv: list[str] | None
+    :returns: Integer exit code.
+    :rtype: int
     """
     epilog_text = """Examples:
     # Spider season 15020 with default output
@@ -668,8 +717,8 @@ Environment variables:
     except KeyboardInterrupt:
         _LOGGER.warning("Spider interrupted by user")
         return 130
-    except Exception:
-        _LOGGER.exception("Spider failed with unhandled exception")
+    except (RuntimeError, OSError, ValueError):
+        _LOGGER.exception("Spider failed with exception")
         return 1
     _LOGGER.info("Spider completed successfully")
     _LOGGER.info("Results: %s", results)

@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Test coverage for stub commands that are not yet implemented.
 
 These tests ensure all stub commands are covered by tests, even though they just return "not implemented"

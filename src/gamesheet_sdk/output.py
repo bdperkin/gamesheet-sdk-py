@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Multi-format rendering of tabular data for CLI workflows.
 
 Every SDK workflow that produces a list of rows (associations, leagues, teams, ...) flows through
@@ -15,14 +18,14 @@ from __future__ import annotations
 import csv
 import io
 import json
-import sys
 from pathlib import Path
+import sys
 from typing import TYPE_CHECKING, Any
 
-import tabulate as _tabulate
-import yaml
 from rich.console import Console
 from rich.syntax import Syntax
+import tabulate as _tabulate
+import yaml
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -57,8 +60,14 @@ def _render_json(
     """Render rows as indented, sorted JSON.
 
     :param rows: List of row dictionaries to serialize.
+    :type rows: list[dict[str, Any]]
+    :param _columns: Column names list (unused for JSON format).
+    :type _columns: list[str]
     :returns: JSON string with 2-space indentation and sorted keys.
+    :rtype: str
+
     Example output::
+
         [
             {
                 "id": 123,
@@ -76,14 +85,18 @@ def _render_yaml(
     """Render rows as block-style YAML.
 
     :param rows: List of row dictionaries to serialize.
-    :returns: YAML string in block style with sorted
-    keys, trailing whitespace stripped.
+    :type rows: list[dict[str, Any]]
+    :param _columns: Column names list (unused for YAML format).
+    :type _columns: list[str]
+    :returns: YAML string in block style with sorted keys, trailing whitespace stripped.
+    :rtype: str
 
     Example output::
-        |  - id: 123
-        |    name: Example
-        |  - id: 456
-        |    name: Another
+
+        - id: 123
+            name: Example
+        - id: 456
+            name: Another
     """
     return yaml.safe_dump(rows, sort_keys=True, default_flow_style=False).rstrip()
 
@@ -97,8 +110,11 @@ def _render_dsv(
     r"""Render rows as delimiter-separated values (CSV, TSV, etc.).
 
     :param rows: List of row dictionaries to serialize.
+    :type rows: list[dict[str, Any]]
     :param columns: Column names in display order; keys not in this list are ignored.
+    :type columns: list[str]
     :param delimiter: Single-character separator (e.g. ``,`` for CSV, ``\t`` for TSV).
+    :type delimiter: str
     :returns: DSV string with header row, LF line endings, trailing newline stripped.
     None values are converted to empty strings. Extra keys in each row beyond
     ``columns`` are silently ignored (``extrasaction="ignore"``).
@@ -126,10 +142,14 @@ def _render_dsv(
 def _render_csv(rows: list[dict[str, Any]], columns: list[str]) -> str:
     """Render rows as comma-separated values.
 
+    Thin wrapper around :func:`_render_dsv` with ``delimiter=","``.
+
     :param rows: List of row dictionaries to serialize.
+    :type rows: list[dict[str, Any]]
     :param columns: Column names in display order.
-    :returns: CSV string with header row and comma delimiters. Thin wrapper around :func:`_render_dsv` with
-        ``delimiter=","``.
+    :type columns: list[str]
+    :returns: CSV string with header row and comma delimiters.
+    :rtype: str
     """
     return _render_dsv(rows, columns, delimiter=",")
 
@@ -137,10 +157,14 @@ def _render_csv(rows: list[dict[str, Any]], columns: list[str]) -> str:
 def _render_tsv(rows: list[dict[str, Any]], columns: list[str]) -> str:
     r"""Render rows as tab-separated values.
 
+    Thin wrapper around :func:`_render_dsv` with ``delimiter="\t"``.
+
     :param rows: List of row dictionaries to serialize.
+    :type rows: list[dict[str, Any]]
     :param columns: Column names in display order.
-    :returns: TSV string with header row and tab delimiters. Thin wrapper around :func:`_render_dsv` with
-        ``delimiter="\t"``.
+    :type columns: list[str]
+    :returns: TSV string with header row and tab delimiters.
+    :rtype: str
     """
     return _render_dsv(rows, columns, delimiter="\t")
 
@@ -148,12 +172,18 @@ def _render_tsv(rows: list[dict[str, Any]], columns: list[str]) -> str:
 def _render_tabulate(rows: list[dict[str, Any]], columns: list[str], fmt: str) -> str:
     """Render rows using the tabulate library.
 
+    Missing keys in a row default to an empty string. The ``fmt`` parameter controls alignment, borders, and
+    markup dialect.
+
     :param rows: List of row dictionaries to render.
-    :param columns: Column names in display order; used as headers.
-    :param fmt: A ``tablefmt`` value tabulate accepts (e.g. ``"simple"``, ``"grid"``, ``"rst"``).
-    :returns: Formatted table string. Missing keys in a row default to an empty string. The ``fmt`` parameter
-        controls alignment, borders, and markup dialect — see :data:`TABULATE_FORMATS` for the full list of
-        accepted formats.
+    :type rows: list[dict[str, Any]]
+    :param columns: Column names in display order; used as table headers.
+    :type columns: list[str]
+    :param fmt: A ``tablefmt`` value tabulate accepts (e.g. ``"simple"``, ``"grid"``, ``"rst"``). See
+        :data:`TABULATE_FORMATS` for the full list of accepted formats.
+    :type fmt: str
+    :returns: Formatted table string.
+    :rtype: str
     """
     table_rows = [[row.get(col, "") for col in columns] for row in rows]
     return _tabulate.tabulate(table_rows, headers=columns, tablefmt=fmt)
@@ -173,10 +203,13 @@ _DATA_RENDERERS: dict[str, Callable[[list[dict[str, Any]], list[str]], str]] = {
 def _derive_columns(rows: list[dict[str, Any]]) -> list[str]:
     """Derive column names from the first row's keys.
 
+    Used by :func:`render` when the caller does not provide an explicit column list. Column order is the
+    natural iteration order of the first row's keys (insertion order in Python 3.7+).
+
     :param rows: List of row dictionaries.
-    :returns: Keys from the first row, or an empty list if ``rows`` is empty. Used by :func:`render` when the
-        caller does not provide an explicit column list. Column order is the natural iteration order of the
-        first row's keys (insertion order in Python 3.7+).
+    :type rows: list[dict[str, Any]]
+    :returns: Keys from the first row, or an empty list if ``rows`` is empty.
+    :rtype: list[str]
     """
     if not rows:
         return []
@@ -192,36 +225,51 @@ def render(
     """Render ``rows`` as a string in the requested format.
 
     :param rows: A list of mappings -- each becomes one row.
+    :type rows: list[dict[str, Any]]
     :param fmt: One of :data:`ALL_FORMATS`. Defaults to :data:`DEFAULT_FORMAT` (``"simple"``).
+    :type fmt: str
     :param columns: Restrict and order the column set. If ``None`` and ``rows`` is non-empty, the first row's
         keys are used in their natural order.
+    :type columns: list[str] | None
     :returns: Rendered string in the requested format.
+    :rtype: str
     :raises ValueError: If ``fmt`` is not in :data:`ALL_FORMATS`.
+    **Example usage:**
 
-    Example usage::
+    .. code-block:: python
 
-        >>> from gamesheet_sdk.output import render
-        >>> rows = [{"id": 123, "name": "Example"}, {"id": 456, "name": "Another"}]
-        >>> print(render(rows, fmt="simple"))
-        |  id  name
-        |----  -------
-        | 123  Example
-        | 456  Another
-        >>> print(render(rows, fmt="json"))
-        [
-            {
-                "id": 123,
-                "name": "Example"
-            },
-            {
-                "id": 456,
-                "name": "Another"
-            }
-        ]
-        >>> print(render(rows, fmt="csv"))
-        id,name
-        123,Example
-        456,Another
+        from gamesheet_sdk.output import render
+
+        rows = [{"id": 123, "name": "Example"}, {"id": 456, "name": "Another"}]
+
+        # Simple table format
+        print(render(rows, fmt="simple"))
+        # Output:
+        #   id   name
+        # ---  -------
+        # 123  Example
+        # 456  Another
+
+        # JSON format
+        print(render(rows, fmt="json"))
+        # Output:
+        # [
+        #     {
+        #         "id": 123,
+        #         "name": "Example"
+        #     },
+        #     {
+        #         "id": 456,
+        #         "name": "Another"
+        #     }
+        # ]
+
+        # CSV format
+        print(render(rows, fmt="csv"))
+        # Output:
+        # id,name
+        # 123,Example
+        # 456,Another
     """
     if fmt not in ALL_FORMATS:
         _err_msg = f"Unknown format: {fmt!r}. Expected one of {', '.join(ALL_FORMATS)}."
@@ -236,9 +284,13 @@ def render(
 def _ensure_trailing_newline(text: str) -> str:
     """Append a newline to ``text`` if it does not already end with one.
 
+    Used by :func:`write_output` to ensure file writes and stdout prints end with a newline, which most
+    terminals expect.
+
     :param text: Input string.
-    :returns: Text string with a guaranteed trailing newline. Used by :func:`write_output` to ensure file
-        writes and stdout prints end with a newline, which most terminals expect.
+    :type text: str
+    :returns: Text string with a guaranteed trailing newline.
+    :rtype: str
     """
     return text if text.endswith("\n") else text + "\n"
 
@@ -251,32 +303,29 @@ def write_output(
 ) -> None:
     """Write ``text`` to ``path`` or to stdout.
 
-    :param text: Rendered output string to write.
-    :param path: Destination file path (str or :class:`pathlib.Path`), or ``None`` for stdout.
-    :param fmt: Format name (e.g. ``"json"``, ``"yaml"``, ``"csv"``); controls syntax highlighting on TTY
-        stdout.
-    :returns: None
     When ``path`` is ``None`` and stdout is a TTY, JSON and YAML output is syntax-highlighted via
     :class:`rich.syntax.Syntax`. Other formats and any non-TTY destination receive ``text`` verbatim with a
     trailing newline if it does not already have one.
-
     **File output example**::
-
         >>> from gamesheet_sdk.output import render, write_output
         >>> rows = [{"id": 123, "name": "Example"}]
         >>> text = render(rows, fmt="json")
         >>> write_output(text, "output.json", fmt="json")
         # Writes to output.json with trailing newline
-
     **TTY stdout example** (JSON/YAML only)::
-
         >>> write_output(text, None, fmt="json")
         # Syntax-highlighted output to terminal if stdout is a TTY
-
     **Non-TTY / other formats**::
-
         >>> write_output(text, None, fmt="csv")
         # Plain text to stdout with trailing newline
+
+    :param text: Rendered output string to write.
+    :type text: str
+    :param path: Destination file path (str or :class:`pathlib.Path`), or ``None`` for stdout.
+    :type path: str | Path | None
+    :param fmt: Format name (e.g. ``"json"``, ``"yaml"``, ``"csv"``); controls syntax highlighting on TTY
+        stdout.
+    :type fmt: str
     """
     if path is not None:
         Path(path).write_text(_ensure_trailing_newline(text), encoding="utf-8")

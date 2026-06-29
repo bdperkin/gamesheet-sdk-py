@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Coverage tests for teams roster players assign/unassign commands."""
 
 from __future__ import annotations
@@ -16,7 +19,10 @@ def test_teams_roster_players_assign_coverage() -> None:
     mock_player.id = "8043169"
     with (
         patch("gamesheet_sdk.cli.commands.teams_roster.build_authenticated_session"),
-        patch("gamesheet_sdk.cli.commands.teams_roster._assign_team_player_action", return_value=mock_player),
+        patch(
+            "gamesheet_sdk.cli.commands.teams_roster._assign_team_player_action",
+            return_value=mock_player,
+        ),
         patch("gamesheet_sdk.cli.shared.render_get_command"),
     ):
         result = runner.invoke(

@@ -1,9 +1,14 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """GameSheet roster: players and coaches within a season.
 
 Roster data represents the people associated with teams in a season - both players and coaches.
 This module provides access to:
-- Players (players)
-- Coaches (coaches)
+
+- **Players** — player roster operations
+- **Coaches** — coach roster operations
+
 Each view talks to the GameSheet JSON:API at ``/api/seasons/{season_id}/players`` and
 ``/api/seasons/{season_id}/coaches`` directly with the lightweight :class:`gamesheet_sdk.Session`
 path -- no Playwright needed for read-only access once a bearer token has been obtained.

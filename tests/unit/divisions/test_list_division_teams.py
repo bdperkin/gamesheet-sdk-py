@@ -1,8 +1,12 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for list_division_teams function."""
 
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from typing import Any
 
 import pytest
 import responses
@@ -14,12 +18,47 @@ from gamesheet_sdk import (
     Session,
     list_division_teams,
 )
-from tests.helpers import jsonapi_payload
+from tests.helpers import (
+    DIVISION_ID,
+    SEASON_ID,
+    TEST_BASE_URL,
+    jsonapi_payload,
+)
 
-_BASE = "https://test.example"
-_SEASON_ID = "15020"
-_DIVISION_ID = "701"
+_BASE = TEST_BASE_URL
+_SEASON_ID = SEASON_ID
+_DIVISION_ID = DIVISION_ID
 _DIVISION_TEAMS_ENDPOINT = f"{_BASE}/api/divisions/{_DIVISION_ID}/teams"
+
+
+def _create_team_data(
+    team_id: str,
+    title: str,
+    player_count: int,
+    coach_count: int,
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """Create test team data."""
+    data: dict[str, Any] = {
+        "type": "teams",
+        "id": team_id,
+        "attributes": {
+            "title": title,
+            "roster": {
+                "players": [{"id": str(i)} for i in range(player_count)],
+                "coaches": [{"id": str(i)} for i in range(coach_count)],
+            },
+            "created_at": kwargs.get("created_at", "2024-09-01T10:00:00Z"),
+            "updated_at": kwargs.get("updated_at", "2024-09-01T10:00:00Z"),
+        },
+        "relationships": {
+            "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+            "division": {"data": {"type": "divisions", "id": _DIVISION_ID}},
+        },
+    }
+    if "logo_url" in kwargs:
+        data["attributes"]["logo_url"] = kwargs["logo_url"]
+    return data
 
 
 @responses.activate
@@ -30,61 +69,16 @@ def test_list_division_teams_parses_jsonapi_response(config: Config) -> None:
         _DIVISION_TEAMS_ENDPOINT,
         json=jsonapi_payload(
             [
-                {
-                    "type": "teams",
-                    "id": "1001",
-                    "attributes": {
-                        "title": "Raleigh Raptors",
-                        "logo_url": "https://example.com/logo1.png",
-                        "roster": {
-                            "players": [{"id": str(i)} for i in range(15)],
-                            "coaches": [{"id": str(i)} for i in range(3)],
-                        },
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-15T14:30:00Z",
-                    },
-                    "relationships": {
-                        "season": {
-                            "data": {
-                                "type": "seasons",
-                                "id": _SEASON_ID,
-                            },
-                        },
-                        "division": {
-                            "data": {
-                                "type": "divisions",
-                                "id": _DIVISION_ID,
-                            },
-                        },
-                    },
-                },
-                {
-                    "type": "teams",
-                    "id": "1002",
-                    "attributes": {
-                        "title": "Durham Bulls",
-                        "roster": {
-                            "players": [{"id": str(i)} for i in range(12)],
-                            "coaches": [{"id": str(i)} for i in range(2)],
-                        },
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
-                    },
-                    "relationships": {
-                        "season": {
-                            "data": {
-                                "type": "seasons",
-                                "id": _SEASON_ID,
-                            },
-                        },
-                        "division": {
-                            "data": {
-                                "type": "divisions",
-                                "id": _DIVISION_ID,
-                            },
-                        },
-                    },
-                },
+                _create_team_data(
+                    "1001",
+                    "Raleigh Raptors",
+                    15,
+                    3,
+                    logo_url="https://example.com/logo1.png",
+                    created_at="2024-09-01T10:00:00Z",
+                    updated_at="2024-09-15T14:30:00Z",
+                ),
+                _create_team_data("1002", "Durham Bulls", 12, 2),
             ],
         ),
         status=200,
@@ -183,6 +177,9 @@ def test_list_division_teams_other_failure_raises_gamesheet_error(
 @responses.activate
 def test_list_division_teams_with_invitation_codes(config: Config) -> None:
     """Test that invitation codes are parsed when included in the response."""
+    from tests.helpers.payloads import invitation_relationship_and_included
+
+    invitation_rel, invitation_inc = invitation_relationship_and_included()
     responses.add(
         responses.GET,
         _DIVISION_TEAMS_ENDPOINT,
@@ -214,26 +211,11 @@ def test_list_division_teams_with_invitation_codes(config: Config) -> None:
                                 "id": _DIVISION_ID,
                             },
                         },
-                        "invitations": {
-                            "data": [
-                                {
-                                    "type": "invitations",
-                                    "id": "inv-123",
-                                },
-                            ],
-                        },
-                    },
+                    }
+                    | invitation_rel,
                 },
             ],
-            "included": [
-                {
-                    "type": "invitations",
-                    "id": "inv-123",
-                    "attributes": {
-                        "code": "RAPTORS2024",
-                    },
-                },
-            ],
+            "included": invitation_inc,
         },
         status=200,
     )
@@ -265,7 +247,9 @@ def test_list_division_teams_sends_include_invitations_param(config: Config) -> 
 
 
 @responses.activate
-def test_list_division_teams_handles_invitation_as_single_object(config: Config) -> None:
+def test_list_division_teams_handles_invitation_as_single_object(
+    config: Config,
+) -> None:
     """Test that invitation relationship as single object (not array) is handled."""
     responses.add(
         responses.GET,
@@ -284,12 +268,18 @@ def test_list_division_teams_handles_invitation_as_single_object(config: Config)
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
                         "division": {"data": {"type": "divisions", "id": _DIVISION_ID}},
-                        "invitations": {"data": {"type": "invitations", "id": "inv-456"}},
+                        "invitations": {
+                            "data": {"type": "invitations", "id": "inv-456"},
+                        },
                     },
                 },
             ],
             "included": [
-                {"type": "invitations", "id": "inv-456", "attributes": {"code": "SINGLE2024"}},
+                {
+                    "type": "invitations",
+                    "id": "inv-456",
+                    "attributes": {"code": "SINGLE2024"},
+                },
             ],
         },
         status=200,
@@ -302,7 +292,9 @@ def test_list_division_teams_handles_invitation_as_single_object(config: Config)
 
 
 @responses.activate
-def test_list_division_teams_handles_missing_invitation_code_gracefully(config: Config) -> None:
+def test_list_division_teams_handles_missing_invitation_code_gracefully(
+    config: Config,
+) -> None:
     """Test that teams with invitations relationship but no matching code are handled."""
     responses.add(
         responses.GET,
@@ -321,7 +313,9 @@ def test_list_division_teams_handles_missing_invitation_code_gracefully(config: 
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
                         "division": {"data": {"type": "divisions", "id": _DIVISION_ID}},
-                        "invitations": {"data": [{"type": "invitations", "id": "inv-999"}]},
+                        "invitations": {
+                            "data": [{"type": "invitations", "id": "inv-999"}],
+                        },
                     },
                 },
             ],
@@ -362,7 +356,11 @@ def test_list_division_teams_handles_malformed_invitation_data(config: Config) -
             "included": [
                 {"type": "invitations", "id": "inv-123"},  # Missing code in attributes
                 {"type": "invitations"},  # Missing id
-                {"type": "other-type", "id": "123", "attributes": {"code": "X"}},  # Wrong type
+                {
+                    "type": "other-type",
+                    "id": "123",
+                    "attributes": {"code": "X"},
+                },  # Wrong type
             ],
         },
         status=200,

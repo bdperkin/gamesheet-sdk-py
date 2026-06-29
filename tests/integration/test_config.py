@@ -1,7 +1,11 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for :mod:`gamesheet_sdk.config`."""
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 import pytest
@@ -9,8 +13,6 @@ import pytest
 from gamesheet_sdk import DEFAULT_BASE_URL, Config
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from pydantic import SecretStr
 
 

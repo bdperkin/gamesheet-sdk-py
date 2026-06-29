@@ -1,7 +1,10 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+# pylint: disable=missing-param-doc
+
 """Reusable HTTP session for talking to the GameSheet WebUI.
 
-Wraps :class:`requests.Session` with the bits every WebUI workflow.
-
+Wraps :class:`requests.Session` with the bits every WebUI workflow
 needs and nobody wants to wire up by hand:
 - A pinned, version-stamped ``User-Agent``.
 - Configurable base URL so callers can hand in relative paths.
@@ -14,26 +17,23 @@ Direct access to the cookie jar and default headers is via
 
 from __future__ import annotations
 
+from collections.abc import Iterator, MutableMapping
+from importlib.metadata import PackageNotFoundError, version as _resolved_version
 import json
 import logging
-from collections.abc import Iterator
-from importlib.metadata import PackageNotFoundError
-from importlib.metadata import version as _resolved_version
+from types import TracebackType
 from typing import TYPE_CHECKING, Any
 from urllib.parse import urljoin
 
 import requests
 from requests.adapters import HTTPAdapter
+from requests.cookies import RequestsCookieJar
 from urllib3.util.retry import Retry
 
 from gamesheet_sdk.config import Config
 
 if TYPE_CHECKING:
-    from collections.abc import MutableMapping
     from http.cookiejar import Cookie
-    from types import TracebackType
-
-    from requests.cookies import RequestsCookieJar
 
 
 def _default_user_agent() -> str:
@@ -41,10 +41,12 @@ def _default_user_agent() -> str:
 
     Reads from the package's distribution metadata (which is set in `pyproject.toml` and managed by PSR)
     rather than importing ``__version__`` from the parent module, so this module stays free of cyclic imports.
+    :returns: String result.
+    :rtype: str
     """
     try:
         ver = _resolved_version("gamesheet-sdk-py")
-    except PackageNotFoundError:  # pragma: no cover
+    except PackageNotFoundError:
         ver = "0+unknown"
     return f"gamesheet-sdk-py/{ver} (+https://github.com/bdperkin/gamesheet-sdk-py)"
 
@@ -57,7 +59,6 @@ _DEFAULT_RETRY_STATUSES = frozenset({500, 502, 503, 504})
 _DEFAULT_RETRY_METHODS = frozenset({"GET", "HEAD", "OPTIONS", "PUT", "DELETE"})
 
 
-# pylint: disable-next=too-many-public-methods
 class Session:
     """A ``requests.Session`` wrapper configured for GameSheet WebUI access.
 
@@ -68,6 +69,8 @@ class Session:
             resp.raise_for_status()
     The context-manager form persists cookies on exit. If you do not use
     ``with``, call :meth:`Session.close` explicitly to save state.
+    :param config: Optional configuration object
+    :type config: Config | None
     """
 
     # -- internals --------------------------------------------------------
@@ -77,7 +80,8 @@ class Session:
         Attaches a User-Agent header and mounts an HTTPAdapter with retry logic for transient server-side and
         network errors. Retries apply only to idempotent methods (GET, HEAD, OPTIONS, PUT, DELETE); POST is
         excluded to avoid double-submission.
-        :returns: A configured :class:`requests.Session` instance.
+        :returns: Return value.
+        :rtype: requests.Session
         """
         s = requests.Session()
         s.headers["User-Agent"] = self.config.user_agent or _default_user_agent()
@@ -101,6 +105,8 @@ class Session:
         Reads JSON-serialized cookie data and populates the underlying session's cookie jar. If the file does
         not exist or cannot be parsed, the method logs a warning and continues with an empty jar. This method
         is called automatically during :meth:`__init__` to restore session state from a previous run.
+        :returns: None
+        :rtype: None
         """
         path = self.config.session_path
         if not path.exists():
@@ -134,6 +140,8 @@ class Session:
         """Underlying cookie jar.
 
         Mutating this affects subsequent requests.
+        :returns: Return value.
+        :rtype: RequestsCookieJar
         """
         return self._http.cookies
 
@@ -143,6 +151,8 @@ class Session:
 
         The underlying mapping is a case-insensitive dict (as supplied by :class:`requests.Session`), but the
         declared return type matches the stub for :attr:`requests.Session.headers`.
+        :returns: Return value.
+        :rtype: MutableMapping[str, str | bytes]
         """
         return self._http.headers  # pyright: ignore[reportReturnType]
 
@@ -150,6 +160,8 @@ class Session:
         """Attach ``Authorization: Bearer <token>`` to all subsequent requests.
 
         Convenience for ``s.headers["Authorization"] = f"Bearer {token}"``.
+        :param token: The bearer token to attach
+        :type token: str
         """
         self._http.headers["Authorization"] = f"Bearer {token}"
 
@@ -159,7 +171,9 @@ class Session:
         Absolute URLs (starting with ``http://`` or ``https://``) are returned as-is. Relative paths are
         joined to :attr:`Config.base_url`.
         :param url: An absolute URL or a path relative to the base URL.
-        :returns: The fully-qualified URL.
+        :type url: str
+        :returns: String result.
+        :rtype: str
         """
         if url.startswith(("http://", "https://")):
             return url
@@ -177,10 +191,13 @@ class Session:
         """Send an HTTP request, resolving ``url`` against the configured base URL.
 
         :param method: HTTP verb (GET, POST, etc.).
+        :type method: str
         :param url: Absolute URL, or a path relative to :attr:`Config.base_url`.
+        :type url: str
         :param timeout: Per-request timeout override; falls back to :attr:`Config.timeout` if not supplied.
-        :param kwargs: Forwarded to :meth:`requests.Session.request`.
-        :returns: The :class:`requests.Response` returned by the server.
+        :type timeout: float | None
+        :returns: Return value.
+        :rtype: requests.Response
         """
         full_url = self._resolve(url)
         effective_timeout = timeout if timeout is not None else self.config.timeout
@@ -190,6 +207,10 @@ class Session:
         """Send a GET request.
 
         See :meth:`request`.
+        :param url: Absolute URL, or a path relative to :attr:`Config.base_url`.
+        :type url: str
+        :returns: Return value.
+        :rtype: requests.Response
         """
         return self.request("GET", url, **kwargs)
 
@@ -197,6 +218,10 @@ class Session:
         """Send a POST request.
 
         See :meth:`request`.
+        :param url: Absolute URL, or a path relative to :attr:`Config.base_url`.
+        :type url: str
+        :returns: Return value.
+        :rtype: requests.Response
         """
         return self.request("POST", url, **kwargs)
 
@@ -204,6 +229,10 @@ class Session:
         """Send a PUT request.
 
         See :meth:`request`.
+        :param url: Absolute URL, or a path relative to :attr:`Config.base_url`.
+        :type url: str
+        :returns: Return value.
+        :rtype: requests.Response
         """
         return self.request("PUT", url, **kwargs)
 
@@ -211,6 +240,10 @@ class Session:
         """Send a PATCH request.
 
         See :meth:`request`.
+        :param url: Absolute URL, or a path relative to :attr:`Config.base_url`.
+        :type url: str
+        :returns: Return value.
+        :rtype: requests.Response
         """
         return self.request("PATCH", url, **kwargs)
 
@@ -218,6 +251,10 @@ class Session:
         """Send a DELETE request.
 
         See :meth:`request`.
+        :param url: Absolute URL, or a path relative to :attr:`Config.base_url`.
+        :type url: str
+        :returns: Return value.
+        :rtype: requests.Response
         """
         return self.request("DELETE", url, **kwargs)
 
@@ -248,14 +285,15 @@ class Session:
         """Persist cookies and release the underlying HTTP connection pool."""
         try:
             self.save()
-        except OSError as exc:  # pragma: no cover
+        except OSError as exc:
             _LOGGER.warning("Failed to save session cookies: %s", exc)
         self._http.close()
 
     def __enter__(self) -> Session:
         """Enter the context manager, returning the Session instance.
 
-        :returns: This Session instance for use in the ``with`` block.
+        :returns: Return value.
+        :rtype: Session
         """
         return self
 
@@ -269,5 +307,7 @@ class Session:
 
         Called automatically at the end of a ``with`` block. Delegates to :meth:`close` to save state and
         release resources.
+        :returns: None
+        :rtype: None
         """
         self.close()

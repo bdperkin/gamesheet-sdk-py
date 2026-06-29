@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """GameSheet teams: competing organizations within a season.
 
 A team is a competing organization within a season (e.g., "Raleigh Raptors", "Durham Bulls", etc.). Each team
@@ -10,19 +13,20 @@ Playwright needed for read-only access once a bearer token has been obtained (ty
 
 from __future__ import annotations
 
-import mimetypes
 from datetime import datetime
-from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from pydantic import BaseModel, Field
 
-from gamesheet_sdk.constants import BFF_API_BASE_URL, CLOUDFLARE_IMAGE_DELIVERY_BASE
+from gamesheet_sdk.constants import BFF_API_BASE_URL
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.session import Session
 from gamesheet_sdk.shared.gamesheet_http import handle_season_scoped_response
+from gamesheet_sdk.shared.jsonapi import (
+    build_invitation_code_lookup,
+    get_invitation_code_from_relationship,
+)
 
-if TYPE_CHECKING:
-    from gamesheet_sdk.session import Session
 _JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
 
 
@@ -31,6 +35,17 @@ class Team(BaseModel):
 
     Maps the ``data[*]`` items in the JSON:API response of ``GET /api/seasons/{season_id}/teams`` to a flat
     typed model.
+
+    :var id: Team identifier (string in JSON:API).
+    :var season_id: Parent season identifier.
+    :var title: Team name/title.
+    :var division_id: Division identifier if team belongs to a division.
+    :var logo: URL to the team logo image.
+    :var invitation_code: Invitation code for joining the team.
+    :var player_count: Number of players on the team.
+    :var coach_count: Number of coaches on the team.
+    :var created_at: When the team was created.
+    :var updated_at: Last time the team was updated.
     """
 
     id: str = Field(description="Team identifier (string in JSON:API).")
@@ -61,7 +76,13 @@ class Team(BaseModel):
 
 
 def _parse(item: dict[str, Any]) -> Team:
-    """Flatten a JSON:API resource object into a :class:`Team`."""
+    """Flatten a JSON:API resource object into a :class:`Team`.
+
+    :param item: A JSON:API resource object with ``id``, ``attributes``, and ``relationships`` keys.
+    :type item: dict[str, Any]
+    :returns: Parsed Team model instance.
+    :rtype: Team
+    """
     attrs = item.get("attributes", {})
     relationships = item.get("relationships", {})
     # Extract season_id and division_id from relationships
@@ -97,7 +118,9 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier whose teams to list.
+    :type season_id: str
     :returns: A list of :class:`Team`, in the order the server returned them. The list may be empty if the
         season has no teams.
     :rtype: list[Team]
@@ -117,27 +140,16 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
     handle_season_scoped_response(response, endpoint, season_id)
     body: dict[str, Any] = response.json()
     # Build invitation code lookup from included resources
-    invitation_codes: dict[str, str] = {}
-    for item in body.get("included", []):
-        if item.get("type") == "invitations":
-            invitation_id = item.get("id")
-            code = item.get("attributes", {}).get("code")
-            if invitation_id and code:
-                invitation_codes[invitation_id] = code
+    invitation_codes = build_invitation_code_lookup(body)
     # Parse teams and match invitation codes via relationships
     teams = []
     for item in body.get("data", []):
         team = _parse(item)
         # Look up invitation code from relationship
-        inv_rel = item.get("relationships", {}).get("invitations", {}).get("data")
-        if inv_rel:
-            # invitations relationship can be single object or array
-            inv_id = inv_rel[0]["id"] if isinstance(inv_rel, list) else inv_rel.get("id")
-            if inv_id and inv_id in invitation_codes:
-                # Update the team with the invitation code using model_copy
-                team = team.model_copy(
-                    update={"invitation_code": invitation_codes[inv_id]},
-                )
+        invitation_code = get_invitation_code_from_relationship(item, invitation_codes)
+        if invitation_code:
+            # Update the team with the invitation code using model_copy
+            team = team.model_copy(update={"invitation_code": invitation_code})
         teams.append(team)
     return teams
 
@@ -148,8 +160,11 @@ def get_team(session: Session, season_id: str, team_id: str) -> Team:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The parent season identifier.
+    :type season_id: str
     :param team_id: The team identifier to retrieve.
+    :type team_id: str
     :returns: The :class:`Team` with the specified ID.
     :rtype: Team
     :raises GameSheetError: If the team is not found or for any other non-2xx response from the API.
@@ -174,54 +189,59 @@ def get_team(session: Session, season_id: str, team_id: str) -> Team:
 
 
 def _upload_logo(session: Session, logo_path: str) -> str:
-    """Upload a logo image and return its URL."""
-    logo_file_path = Path(logo_path)
-    if not logo_file_path.exists():
-        _err_msg = (f"Logo file not found: {logo_path}",)
-        raise GameSheetError(_err_msg)
-    mime_type, _ = mimetypes.guess_type(logo_path)
-    if not mime_type or not mime_type.startswith("image/"):
-        _err_msg = (f"Invalid image file: {logo_path}",)
-        raise GameSheetError(_err_msg)
-    upload_url_endpoint = f"{BFF_API_BASE_URL}/dwg/assets/upload-url"
-    upload_url_response = session.post(upload_url_endpoint)
-    if upload_url_response.status_code == 401:
+    """Upload a logo image and return its URL.
+
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param logo_path: Path to a local logo image file.
+    :type logo_path: str
+    :returns: The Cloudflare CDN URL for the uploaded logo.
+    :rtype: str
+    :raises GameSheetError: If the file is not found, is not a valid image, or the upload fails.
+    :raises AuthenticationError: If the server returns 401.
+    """
+    from gamesheet_sdk.shared import upload_image
+
+    return upload_image(session, logo_path, "logo")
+
+
+def _handle_team_response_errors(
+    response: Any,
+    endpoint: str,
+    team_id: str,
+    season_id: str,
+) -> None:
+    """Check response for common errors and raise appropriate exceptions.
+
+    :param response: The HTTP response object.
+    :type response: Any
+    :param endpoint: The API endpoint that was called.
+    :type endpoint: str
+    :param team_id: The team identifier.
+    :type team_id: str
+    :param season_id: The season identifier.
+    :type season_id: str
+    :raises AuthenticationError: If the response is 401.
+    :raises GameSheetError: For 404 or other non-2xx responses.
+    """
+    if response.status_code == 401:
         _err_msg = (
             "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
+            "`gamesheet-sdk-py login` to refresh and try again."
         )
         raise AuthenticationError(_err_msg)
-    if upload_url_response.status_code >= 400:
+    if response.status_code == 404:
         _err_msg = (
-            f"POST {upload_url_endpoint} returned HTTP {upload_url_response.status_code}: "
-            f"{upload_url_response.text[:200]!r}",
+            f"Team '{team_id}' not found (HTTP 404). "
+            f"Make sure you're using a valid team ID. "
+            f"To get valid team IDs, run: gamesheet-sdk-py teams list --season-id {season_id}"
         )
         raise GameSheetError(_err_msg)
-    upload_data: dict[str, Any] = upload_url_response.json()
-    if upload_data.get("status") != "success":
-        _err_msg = (f"Failed to get upload URL: {upload_data}",)
+    if response.status_code >= 400:
+        _err_msg = f"{endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}"
         raise GameSheetError(_err_msg)
-    upload_url: str = upload_data["data"]["uploadURL"]
-    image_id: str = upload_data["data"]["id"]
-    with logo_file_path.open("rb") as f:
-        upload_response = session.post(
-            upload_url,
-            files={"file": (logo_file_path.name, f, mime_type)},
-        )
-    if upload_response.status_code >= 400:
-        _err_msg = (
-            f"POST {upload_url} returned HTTP {upload_response.status_code}: "
-            f"{upload_response.text[:200]!r}",
-        )
-        raise GameSheetError(_err_msg)
-    upload_result: dict[str, Any] = upload_response.json()
-    if not upload_result.get("success"):
-        _err_msg = (f"Failed to upload logo: {upload_result}",)
-        raise GameSheetError(_err_msg)
-    return f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/{image_id}"
 
 
-# pylint: disable-next=too-many-statements,too-many-locals
 def update_team(
     session: Session,
     season_id: str,
@@ -240,16 +260,23 @@ def update_team(
     must be provided for update. The API requires sending the full team data, so this function first fetches
     the current team to preserve unchanged fields.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier containing the team.
+    :type season_id: str
     :param team_id: The team identifier to update.
+    :type team_id: str
     :param title: Optional new team name/title.
+    :type title: str | None
     :param external_id: Optional new external identifier.
+    :type external_id: str | None
     :param division_id: Optional new division identifier.
+    :type division_id: str | None
     :param logo_path: Optional path to a new logo image file.
+    :type logo_path: str | None
     :param remove_logo: If True, remove the team's logo.
+    :type remove_logo: bool
     :returns: The updated :class:`Team`.
     :rtype: Team
-    :raises AuthenticationError: If the server returns 401.
     :raises GameSheetError: For any other non-2xx response.
     :raises ValueError: If no fields are provided for update.
     """
@@ -266,24 +293,12 @@ def update_team(
         headers={"Accept": _JSONAPI_CONTENT_TYPE},
         params={"include": "association,league,season,division,players,coaches"},
     )
-    if get_response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if get_response.status_code == 404:
-        _err_msg = (
-            f"Team '{team_id}' not found (HTTP 404). "
-            f"Make sure you're using a valid team ID. "
-            f"To get valid team IDs, run: gamesheet-sdk-py teams list --season-id <SEASON_ID>",
-        )
-        raise GameSheetError(_err_msg)
-    if get_response.status_code >= 400:
-        _err_msg = (
-            f"GET {get_endpoint} returned HTTP {get_response.status_code}: {get_response.text[:200]!r}",
-        )
-        raise GameSheetError(_err_msg)
+    _handle_team_response_errors(
+        get_response,
+        f"GET {get_endpoint}",
+        team_id,
+        season_id,
+    )
     current_data: dict[str, Any] = get_response.json()
     current_attrs = current_data.get("data", {}).get("attributes", {})
     current_relationships = current_data.get("data", {}).get("relationships", {})
@@ -332,25 +347,12 @@ def update_team(
             "Content-Type": _JSONAPI_CONTENT_TYPE,
         },
     )
-    if update_response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if update_response.status_code == 404:
-        _err_msg = (
-            f"Team '{team_id}' not found (HTTP 404). "
-            f"Make sure you're using a valid team ID. "
-            f"To get valid team IDs, run: gamesheet-sdk-py teams list --season-id <SEASON_ID>",
-        )
-        raise GameSheetError(_err_msg)
-    if update_response.status_code >= 400:
-        _err_msg = (
-            f"PATCH {update_endpoint} returned HTTP {update_response.status_code}: "
-            f"{update_response.text[:200]!r}",
-        )
-        raise GameSheetError(_err_msg)
+    _handle_team_response_errors(
+        update_response,
+        f"PATCH {update_endpoint}",
+        team_id,
+        season_id,
+    )
     # If removing logo, send additional DELETE request
     if remove_logo:
         delete_logo_endpoint = f"/api/seasons/{season_id}/teams-v2/{team_id}/logo"
@@ -384,11 +386,17 @@ def create_team(
     2. Upload the logo to the returned URL (if logo_path is provided)
     3. Create the team with the logo URL
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier to create the team in.
+    :type season_id: str
     :param title: The team name/title.
+    :type title: str
     :param division_id: The division identifier the team belongs to.
+    :type division_id: str
     :param external_id: Optional external identifier for the team.
+    :type external_id: str | None
     :param logo_path: Optional path to a local logo image file.
+    :type logo_path: str | None
     :returns: The server's response containing prototeam, seasonTeam, member, and invitation data.
     :rtype: dict[str, Any]
     :raises AuthenticationError: If the server returns 401.
@@ -437,8 +445,11 @@ def delete_team(
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier containing the team.
+    :type season_id: str
     :param team_id: The team identifier to delete.
+    :type team_id: str
     :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
         run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response.

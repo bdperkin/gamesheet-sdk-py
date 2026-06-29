@@ -1,9 +1,12 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Test coverage for divisions teams commands."""
 
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
+import tempfile
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -19,7 +22,9 @@ def test_divisions_teams_get_coverage() -> None:
         patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
         patch(
             "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
-            return_value=MagicMock(model_dump=lambda **__kw: {"id": "1", "title": "Team 1"}),  # noqa: U101
+            return_value=MagicMock(
+                model_dump=lambda **__kw: {"id": "1", "title": "Team 1"},
+            ),
         ),
         patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
     ):
@@ -46,8 +51,8 @@ def test_divisions_teams_create_coverage() -> None:
     def run_action_side_effect(
         session: MagicMock,
         func: Any,
-        *__args: Any,  # noqa: U101
-        **__kwargs: Any,  # noqa: U101
+        *__args: Any,
+        **__kwargs: Any,
     ) -> Any:
         # Call the function to ensure it's covered
         if callable(func):
@@ -58,7 +63,10 @@ def test_divisions_teams_create_coverage() -> None:
         patch("gamesheet_sdk.cli.helpers.build_authenticated_session"),
         patch(
             "gamesheet_sdk.teams.create_team",
-            return_value={"prototeam": {"title": "New Team"}, "seasonTeam": {"id": "999"}},
+            return_value={
+                "prototeam": {"title": "New Team"},
+                "seasonTeam": {"id": "999"},
+            },
         ),
         patch(
             "gamesheet_sdk.cli.helpers.run_action_or_exit",
@@ -132,8 +140,8 @@ def test_divisions_teams_update_coverage() -> None:
     def run_action_side_effect(
         session: MagicMock,
         func: Any,
-        *__args: Any,  # noqa: U101
-        **__kwargs: Any,  # noqa: U101
+        *__args: Any,
+        **__kwargs: Any,
     ) -> Any:
         # Call the function to ensure it's covered
         if callable(func):
@@ -145,7 +153,7 @@ def test_divisions_teams_update_coverage() -> None:
         patch(
             "gamesheet_sdk.teams.update_team",
             return_value=MagicMock(
-                model_dump=lambda **__kw: {"id": "1", "title": "Updated Team"},  # noqa: U101
+                model_dump=lambda **__kw: {"id": "1", "title": "Updated Team"},
             ),
         ),
         patch(

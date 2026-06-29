@@ -1,11 +1,14 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for :mod:`gamesheet_sdk.output`."""
 
 from __future__ import annotations
 
-import json
-import sys
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
+import json
+from pathlib import Path
+import sys
 from unittest.mock import patch
 
 import pytest
@@ -20,8 +23,6 @@ from gamesheet_sdk.output import (
     write_output,
 )
 
-if TYPE_CHECKING:
-    from pathlib import Path
 _ROWS = [
     {"id": "11", "title": "Hockey Time", "logo": ""},
     {"id": "40", "title": "SuperSeries AAA", "logo": "https://x/logo.png"},

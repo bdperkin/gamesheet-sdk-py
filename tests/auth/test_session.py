@@ -1,7 +1,11 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for AuthenticatedSession auto-refresh behavior."""
 
 from __future__ import annotations
 
+import pytest
 import responses
 
 from gamesheet_sdk import AuthenticatedSession, Config
@@ -106,6 +110,46 @@ def test_authenticated_session_post_also_triggers_refresh(config: Config) -> Non
     with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
         resp = session.post("/mutate")
     assert resp.status_code == 201
+
+
+@responses.activate
+def test_authenticated_session_handles_on_refresh_oserror(
+    config: Config,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Test that OSError in on_refresh callback is logged but doesn't crash."""
+    responses.add(responses.GET, "https://test.example/x", json={"err": 1}, status=401)
+    responses.add(
+        responses.POST,
+        REFRESH_URL,
+        json={"access": "A2", "refresh": "R2", "roles": "Rol2"},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://test.example/x",
+        json={"ok": True},
+        status=200,
+    )
+
+    def failing_callback(_tokens: dict[str, str]) -> None:
+        msg = "Disk full"
+        raise OSError(msg)
+
+    with (
+        caplog.at_level("WARNING"),
+        AuthenticatedSession(
+            config,
+            access_token="A1",
+            refresh_token="R1",
+            on_refresh=failing_callback,
+        ) as session,
+    ):
+        resp = session.get("/x")
+    # Refresh still succeeded, request was retried despite callback failure
+    assert resp.status_code == 200
+    assert "on_refresh callback failed to persist" in caplog.text
+    assert "Disk full" in caplog.text
 
 
 # ---------- token response capture (line 131) -------------------------------

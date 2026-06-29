@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for :mod:`gamesheet_sdk.teams`."""
 
 from __future__ import annotations
@@ -15,10 +18,14 @@ from gamesheet_sdk import (
     list_teams,
 )
 from gamesheet_sdk.teams import Team
-from tests.helpers import jsonapi_payload
+from tests.helpers import (
+    SEASON_ID,
+    TEST_BASE_URL,
+    jsonapi_payload,
+)
 
-_BASE = "https://test.example"
-_SEASON_ID = "15020"
+_BASE = TEST_BASE_URL
+_SEASON_ID = SEASON_ID
 _ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/teams"
 
 
@@ -163,7 +170,7 @@ def test_team_model_handles_optional_division_id() -> None:
     """Test that Team model correctly handles optional division_id field."""
     t = Team(
         id="1002",
-        season_id="15020",
+        season_id=SEASON_ID,
         title="Durham Bulls",
         created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -175,6 +182,9 @@ def test_team_model_handles_optional_division_id() -> None:
 @responses.activate
 def test_list_teams_includes_optional_fields(config: Config) -> None:
     """Verify that optional fields (logo_url, roster counts, invitation) are parsed when present."""
+    from tests.helpers.payloads import invitation_relationship_and_included
+
+    invitation_rel, invitation_inc = invitation_relationship_and_included()
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -213,26 +223,11 @@ def test_list_teams_includes_optional_fields(config: Config) -> None:
                                 "id": "5001",
                             },
                         },
-                        "invitations": {
-                            "data": [
-                                {
-                                    "type": "invitations",
-                                    "id": "inv-123",
-                                },
-                            ],
-                        },
-                    },
+                    }
+                    | invitation_rel,
                 },
             ],
-            "included": [
-                {
-                    "type": "invitations",
-                    "id": "inv-123",
-                    "attributes": {
-                        "code": "RAPTORS2024",
-                    },
-                },
-            ],
+            "included": invitation_inc,
         },
         status=200,
     )
@@ -419,7 +414,7 @@ def test_list_teams_uses_correct_endpoint(config: Config) -> None:
                         "updated_at": "2024-09-01T10:00:00Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": "15020"}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                         "division": {"data": None},
                     },
                 },
@@ -429,9 +424,9 @@ def test_list_teams_uses_correct_endpoint(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = list_teams(session, "15020")
+        result = list_teams(session, SEASON_ID)
     # API filters by season_id in URL path, so all results are for that season
     assert len(result) == 1
     assert result[0].id == "1001"
-    assert result[0].season_id == "15020"
+    assert result[0].season_id == SEASON_ID
     assert result[0].title == "Season 15020 Team"

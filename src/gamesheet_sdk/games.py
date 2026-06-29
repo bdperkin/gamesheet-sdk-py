@@ -1,31 +1,40 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """GameSheet games: scheduled, completed, and bracket games within a season.
 
 Games represent matchups between teams. This module provides access to three game views:
-- Scheduled games (upcoming/future games)
-- Completed games (finished games with results)
-- Bracket games (playoff/tournament games)
+
+- **Scheduled games:** Upcoming/future games
+- **Completed games:** Finished games with results
+- **Bracket games:** Playoff/tournament games
+
 The games data is retrieved from the BFF (Backend For Frontend) API at
-the BFF API ``/games-list/v1`` endpoint with various filter parameters.
+the ``/games-list/v1`` endpoint with various filter parameters.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from pydantic import BaseModel, Field
 
 from gamesheet_sdk.constants import BFF_API_BASE_URL
 from gamesheet_sdk.exceptions import GameSheetError
+from gamesheet_sdk.session import Session
 from gamesheet_sdk.shared import check_bff_response_status, handle_response
-
-if TYPE_CHECKING:
-    from gamesheet_sdk.session import Session
 
 _ENDPOINT = "/games-list/v1"
 
 
 class TeamInfo(BaseModel):
-    """Team information within a game."""
+    """Team information within a game.
+
+    :var id: Team identifier.
+    :var title: Team name.
+    :var division_id: Division identifier.
+    :var division_title: Division name.
+    """
 
     id: int = Field(description="Team identifier.")
     title: str = Field(description="Team name.")
@@ -45,6 +54,23 @@ class Game(BaseModel):
     """A single game.
 
     Maps the game objects from the BFF API response.
+
+    :var id: Game identifier.
+    :var status: Game status (e.g., completed, scheduled).
+    :var date: Game date (YYYY-MM-DD).
+    :var time: Game start time.
+    :var end_time: Game end time.
+    :var time_zone_name: Time zone name.
+    :var location: Venue/location of the game.
+    :var game_number: Game number or identifier.
+    :var game_type: Game type (regular, playoff, etc.).
+    :var visitor: Visiting team information.
+    :var home: Home team information.
+    :var visitor_score: Visitor team score.
+    :var home_score: Home team score.
+    :var has_shootout: Whether game had a shootout.
+    :var has_overtime: Whether game had overtime.
+    :var viewed: Whether the user has viewed this game.
     """
 
     id: int = Field(description="Game identifier.")
@@ -141,8 +167,11 @@ def get_game(session: Session, season_id: str, game_id: int) -> Game:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The parent season identifier.
+    :type season_id: str
     :param game_id: The game identifier to retrieve.
+    :type game_id: int
     :returns: The :class:`Game` with the specified ID.
     :rtype: Game
     :raises GameSheetError: For any other non-2xx response, including 404 if the game is not found.
@@ -167,7 +196,9 @@ def list_scheduled(session: Session, season_id: str) -> list[Game]:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier whose scheduled games to list.
+    :type season_id: str
     :returns: A list of :class:`Game`, in the order the server returned them. The list may be empty if the
         season has no scheduled games.
     :rtype: list[Game]
@@ -181,7 +212,9 @@ def list_completed(session: Session, season_id: str) -> list[Game]:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier whose completed games to list.
+    :type season_id: str
     :returns: A list of :class:`Game`, in the order the server returned them. The list may be empty if the
         season has no completed games.
     :rtype: list[Game]
@@ -194,14 +227,20 @@ def list_brackets(session: Session, season_id: str) -> list[Game]:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    Note: The brackets filter is based on the expected API pattern but has not been verified
-    with real bracket data. If this returns unexpected results, the filter parameters may
-    need adjustment.
+
+    .. note:: The brackets filter is based on the expected API pattern but has not been verified
+        with real bracket data. If this returns unexpected results, the filter parameters may
+        need adjustment.
+
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier whose bracket games to list.
+    :type season_id: str
     :returns: A list of :class:`Game`, in the order the server returned them. The list may be empty if the
         season has no bracket games.
     :rtype: list[Game]
+    :raises AuthenticationError: If the server returns 401.
+    :raises GameSheetError: For any other non-2xx response.
     """
     # Try filter[brackets]=true first, fallback to gameType=playoff if needed
     return _make_request(session, season_id, brackets=True)

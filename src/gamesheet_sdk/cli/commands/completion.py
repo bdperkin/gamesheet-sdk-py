@@ -1,9 +1,12 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Completion command."""
 
 from __future__ import annotations
 
-import rich_click as click
 from click.exceptions import Exit
+import rich_click as click
 from rich_click import Choice
 
 from gamesheet_sdk.cli.constants import SHELL_TYPES
@@ -24,6 +27,9 @@ def completion_command(shell: str) -> None:
         eval "$(gamesheet-sdk-py completion zsh)"
     Fish::
         gamesheet-sdk-py completion fish | source
+    :param shell: The shell type (bash, zsh, or fish)
+    :type shell: str
+    :raises Exit: If the shell type is not supported
     """
     # click's built-in completion uses an env-var protocol. We mimic what
     # click.shell_completion does internally but surface it as a subcommand.

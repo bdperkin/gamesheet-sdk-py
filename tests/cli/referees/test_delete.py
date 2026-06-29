@@ -1,14 +1,15 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for referees delete command."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from unittest.mock import patch
 
-from gamesheet_sdk.cli import cli
+from click.testing import CliRunner
 
-if TYPE_CHECKING:
-    from click.testing import CliRunner
+from gamesheet_sdk.cli import cli
 
 
 def test_referees_delete_with_force(runner: CliRunner) -> None:

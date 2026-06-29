@@ -1,11 +1,15 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for login flow and credential handling."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
+from unittest.mock import MagicMock
 
-import pytest
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+import pytest
 
 from gamesheet_sdk import (
     AuthenticationError,
@@ -16,12 +20,10 @@ from gamesheet_sdk.auth.constants import LOGIN_PATH, POST_LOGIN_PATH
 from tests.auth.conftest import _FIREBASE_URL, _TOKEN_URL, _make_response
 
 if TYPE_CHECKING:
-    from unittest.mock import MagicMock
-
     from pydantic import SecretStr
-
-
 # ---------- credential validation ----------------------------------------
+
+
 def test_login_missing_email_raises(fake_browser_session: MagicMock) -> None:
     """Test that login raises AuthenticationError when email is missing."""
     with pytest.raises(AuthenticationError, match="requires an email"):
@@ -66,7 +68,7 @@ def test_login_reads_credentials_from_config(
     def register(ev: str, cb: Any) -> None:
         listeners[ev] = cb
 
-    def click(__selector: str) -> None:  # noqa: U101
+    def click(*__args: Any, **__kwargs: Any) -> None:
         for response in page.staged_responses:
             listeners["response"](response)
 

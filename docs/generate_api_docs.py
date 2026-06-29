@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Generate API documentation using sphinx-apidoc.
 
 This script discovers all Python modules in src/gamesheet_sdk and generates ReStructuredText files with
@@ -7,9 +10,9 @@ automodule directives. It runs automatically during the docs build process.
 
 from __future__ import annotations
 
+from pathlib import Path
 import subprocess  # noqa: S404 # nosec B404
 import sys
-from pathlib import Path
 
 from rich import print as rprint
 
@@ -22,7 +25,11 @@ OUTPUT_DIR = DOCS_DIR / "reference" / "_autosummary"
 
 
 def main() -> int:
-    """Run sphinx-apidoc to generate API documentation."""
+    """Run sphinx-apidoc to generate API documentation.
+
+    :returns: Integer exit code.
+    :rtype: int
+    """
     # Ensure output directory exists
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     # Run sphinx-apidoc

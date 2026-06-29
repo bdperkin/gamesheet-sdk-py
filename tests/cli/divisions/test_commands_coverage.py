@@ -1,9 +1,12 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Coverage tests for divisions commands."""
 
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
+import tempfile
 from typing import Any
 from unittest.mock import MagicMock, patch
 

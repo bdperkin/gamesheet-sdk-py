@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for get_team_coach function."""
 
 from __future__ import annotations
@@ -84,8 +87,16 @@ def test_get_team_coach_finds_coach_after_skipping_others(config: Config) -> Non
                 "attributes": {
                     "roster": {
                         "coaches": [
-                            {"id": "1111111", "position": "Assistant Coach", "status": "coaching"},
-                            {"id": "2222222", "position": "Trainer", "status": "coaching"},
+                            {
+                                "id": "1111111",
+                                "position": "Assistant Coach",
+                                "status": "coaching",
+                            },
+                            {
+                                "id": "2222222",
+                                "position": "Trainer",
+                                "status": "coaching",
+                            },
                             {
                                 "id": _coach_id,
                                 "position": "Manager",

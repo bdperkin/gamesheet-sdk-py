@@ -1,9 +1,12 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Integration tests for games CLI commands."""
 
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
+import tempfile
 
 import responses
 

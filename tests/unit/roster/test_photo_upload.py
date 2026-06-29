@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for photo upload functionality."""
 
 from __future__ import annotations
@@ -25,10 +28,13 @@ def test_upload_photo_invalid_mime_type(config: Config) -> None:
     from gamesheet_sdk.roster.players import _upload_photo
 
     # Create a temporary non-image file
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as temp_file:
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        suffix=".txt",
+        delete=False,
+    ) as temp_file:
         temp_file.write("not an image")
         temp_path = temp_file.name
-
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(GameSheetError, match="Invalid image file"):
@@ -43,10 +49,13 @@ def test_upload_photo_auth_error(config: Config) -> None:
     from gamesheet_sdk.roster.players import _upload_photo
 
     # Create a temporary image file
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".jpg", delete=False) as temp_file:
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        suffix=".jpg",
+        delete=False,
+    ) as temp_file:
         temp_file.write("fake image content")
         temp_path = temp_file.name
-
     # Mock upload URL request with 401
     responses.add(
         responses.POST,
@@ -54,7 +63,6 @@ def test_upload_photo_auth_error(config: Config) -> None:
         json={"error": "unauthorized"},
         status=401,
     )
-
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(AuthenticationError, match="Access token rejected"):
@@ -69,10 +77,13 @@ def test_upload_photo_server_error(config: Config) -> None:
     from gamesheet_sdk.roster.players import _upload_photo
 
     # Create a temporary image file
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".jpg", delete=False) as temp_file:
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        suffix=".jpg",
+        delete=False,
+    ) as temp_file:
         temp_file.write("fake image content")
         temp_path = temp_file.name
-
     # Mock upload URL request with 500
     responses.add(
         responses.POST,
@@ -80,7 +91,6 @@ def test_upload_photo_server_error(config: Config) -> None:
         json={"error": "server error"},
         status=500,
     )
-
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(GameSheetError, match="returned HTTP 500"):
@@ -95,10 +105,13 @@ def test_upload_photo_failed_status(config: Config) -> None:
     from gamesheet_sdk.roster.players import _upload_photo
 
     # Create a temporary image file
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".jpg", delete=False) as temp_file:
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        suffix=".jpg",
+        delete=False,
+    ) as temp_file:
         temp_file.write("fake image content")
         temp_path = temp_file.name
-
     # Mock upload URL request with failure status
     responses.add(
         responses.POST,
@@ -106,7 +119,6 @@ def test_upload_photo_failed_status(config: Config) -> None:
         json={"status": "failed", "error": "could not generate URL"},
         status=200,
     )
-
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(GameSheetError, match="Failed to get upload URL"):
@@ -116,33 +128,13 @@ def test_upload_photo_failed_status(config: Config) -> None:
 @responses.activate
 def test_upload_photo_upload_failed(config: Config) -> None:
     """Test photo upload when actual upload fails."""
-    import tempfile
-
     from gamesheet_sdk.roster.players import _upload_photo
+    from tests.helpers import setup_photo_upload_mocks
 
-    # Create a temporary image file
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".jpg", delete=False) as temp_file:
-        temp_file.write("fake image content")
-        temp_path = temp_file.name
-
-    # Mock upload URL request (success)
-    responses.add(
-        responses.POST,
-        "https://bff-dashboard-api-awy26srzoa-nn.a.run.app/dwg/assets/upload-url",
-        json={
-            "status": "success",
-            "data": {"uploadURL": "https://upload.example.com/test", "id": "test-image-id"},
-        },
-        status=200,
+    temp_path = setup_photo_upload_mocks(
+        upload_status=500,
+        upload_response={"error": "upload failed"},
     )
-    # Mock upload request with 500 error
-    responses.add(
-        responses.POST,
-        "https://upload.example.com/test",
-        json={"error": "upload failed"},
-        status=500,
-    )
-
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(GameSheetError, match="returned HTTP 500"):
@@ -152,33 +144,12 @@ def test_upload_photo_upload_failed(config: Config) -> None:
 @responses.activate
 def test_upload_photo_upload_not_successful(config: Config) -> None:
     """Test photo upload when upload result is not successful."""
-    import tempfile
-
     from gamesheet_sdk.roster.players import _upload_photo
+    from tests.helpers import setup_photo_upload_mocks
 
-    # Create a temporary image file
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".jpg", delete=False) as temp_file:
-        temp_file.write("fake image content")
-        temp_path = temp_file.name
-
-    # Mock upload URL request (success)
-    responses.add(
-        responses.POST,
-        "https://bff-dashboard-api-awy26srzoa-nn.a.run.app/dwg/assets/upload-url",
-        json={
-            "status": "success",
-            "data": {"uploadURL": "https://upload.example.com/test", "id": "test-image-id"},
-        },
-        status=200,
+    temp_path = setup_photo_upload_mocks(
+        upload_response={"success": False, "error": "virus detected"},
     )
-    # Mock upload request with success=false
-    responses.add(
-        responses.POST,
-        "https://upload.example.com/test",
-        json={"success": False, "error": "virus detected"},
-        status=200,
-    )
-
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(GameSheetError, match="Failed to upload photo"):

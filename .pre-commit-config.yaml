@@ -317,14 +317,14 @@ repos:
     hooks:
       - id: yesqa # yesqa
         additional_dependencies:
-          - gamesheet-sdk-py[flake8]
+          - gamesheet-sdk-py[flake8,radon]
 
   - repo: https://github.com/pycqa/flake8
     rev: 7.3.0
     hooks:
       - id: flake8 # flake8
         additional_dependencies:
-          - gamesheet-sdk-py[flake8]
+          - gamesheet-sdk-py[flake8,radon]
 
   - repo: https://github.com/dosisod/refurb
     rev: v2.3.1

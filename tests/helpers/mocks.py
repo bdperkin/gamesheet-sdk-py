@@ -1,0 +1,191 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
+"""Test mock helpers for common API responses."""
+
+from __future__ import annotations
+
+import tempfile
+from typing import Any
+
+import responses
+
+
+def setup_photo_upload_mocks(
+    *,
+    upload_status: int = 200,
+    upload_response: dict[str, Any] | None = None,
+) -> str:
+    """Set up mock responses for photo upload and return temp file path.
+
+    Creates a temporary image file and sets up the mock responses needed for photo upload via the BFF API and
+    Cloudflare upload endpoint.
+
+    :param upload_status: HTTP status code for the upload request (default 200).
+    :type upload_status: int
+    :param upload_response: JSON response for the upload request (default {"success": True}).
+    :type upload_response: dict[str, Any] | None
+    :returns: Path to the temporary image file.
+    :rtype: str
+    """
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        suffix=".jpg",
+        delete=False,
+    ) as temp_file:
+        temp_file.write("fake image content")
+        temp_path = temp_file.name
+    # Mock upload URL request
+    responses.add(
+        responses.POST,
+        "https://bff-dashboard-api-awy26srzoa-nn.a.run.app/dwg/assets/upload-url",
+        json={
+            "status": "success",
+            "data": {
+                "uploadURL": "https://upload.example.com/test",
+                "id": "test-image-id",
+            },
+        },
+        status=200,
+    )
+    # Mock upload request
+    responses.add(
+        responses.POST,
+        "https://upload.example.com/test",
+        json=upload_response if upload_response is not None else {"success": True},
+        status=upload_status,
+    )
+    return temp_path
+
+
+def setup_team_roster_update_mocks(
+    base_url: str,
+    season_id: str,
+    team_id: str,
+    team_data: dict[str, Any],
+) -> None:
+    """Set up mock responses for team roster update operations.
+
+    Mocks the GET team endpoint to fetch current roster and PATCH endpoint to update team roster.
+
+    :param base_url: Base API URL.
+    :type base_url: str
+    :param season_id: Season ID.
+    :type season_id: str
+    :param team_id: Team ID.
+    :type team_id: str
+    :param team_data: Team payload data.
+    :type team_data: dict[str, Any]
+    """
+    # Mock GET team to fetch current roster
+    responses.add(
+        responses.GET,
+        f"{base_url}/api/seasons/{season_id}/teams/{team_id}",
+        json={"data": team_data},
+        status=200,
+    )
+    # Mock PATCH to update team roster
+    responses.add(
+        responses.PATCH,
+        f"{base_url}/api/seasons/{season_id}/teams-v2/{team_id}",
+        json={"data": team_data},
+        status=200,
+    )
+
+
+def setup_update_player_mocks(
+    endpoint: str,
+    current_player: dict[str, Any],
+    updated_player: dict[str, Any],
+) -> None:
+    """Set up mock responses for player update operations.
+
+    Mocks the GET player endpoint to fetch current player and PATCH endpoint to update player.
+
+    :param endpoint: Player endpoint URL.
+    :type endpoint: str
+    :param current_player: Current player payload data.
+    :type current_player: dict[str, Any]
+    :param updated_player: Updated player payload data.
+    :type updated_player: dict[str, Any]
+    """
+    # Mock GET player to fetch current data
+    responses.add(
+        responses.GET,
+        endpoint,
+        json={"data": current_player},
+        status=200,
+    )
+    # Mock PATCH to update player
+    responses.add(
+        responses.PATCH,
+        endpoint,
+        json={"data": updated_player},
+        status=200,
+    )
+
+
+def setup_update_coach_mocks(
+    endpoint: str,
+    current_coach: dict[str, Any],
+    updated_coach: dict[str, Any],
+) -> None:
+    """Set up mock responses for coach update operations.
+
+    Mocks the GET coach endpoint to fetch current coach and PATCH endpoint to update coach.
+
+    :param endpoint: Coach endpoint URL.
+    :type endpoint: str
+    :param current_coach: Current coach payload data.
+    :type current_coach: dict[str, Any]
+    :param updated_coach: Updated coach payload data.
+    :type updated_coach: dict[str, Any]
+    """
+    # Mock GET coach to fetch current data
+    responses.add(
+        responses.GET,
+        endpoint,
+        json={"data": current_coach},
+        status=200,
+    )
+    # Mock PATCH to update coach
+    responses.add(
+        responses.PATCH,
+        endpoint,
+        json={"data": updated_coach},
+        status=200,
+    )
+
+
+def setup_get_team_roster_mocks(
+    endpoint: str,
+    team_id: str,
+    roster_data: dict[str, Any],
+    included: list[dict[str, Any]],
+) -> None:
+    """Set up mock response for getting team with roster data.
+
+    Mocks the GET team endpoint which returns team data with roster and included player/coach resources.
+
+    :param endpoint: Team GET endpoint URL.
+    :type endpoint: str
+    :param team_id: Team ID.
+    :type team_id: str
+    :param roster_data: Team roster attributes (players and coaches arrays).
+    :type roster_data: dict[str, Any]
+    :param included: List of included player/coach resource objects.
+    :type included: list[dict[str, Any]]
+    """
+    responses.add(
+        responses.GET,
+        endpoint,
+        json={
+            "data": {
+                "type": "teams",
+                "id": team_id,
+                "attributes": {"roster": roster_data},
+            },
+            "included": included,
+        },
+        status=200,
+    )

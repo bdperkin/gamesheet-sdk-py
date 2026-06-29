@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for update_referee function."""
 
 from __future__ import annotations
@@ -13,7 +16,7 @@ from tests.unit.referees.conftest import _BASE, _SEASON_ID, referee_response_dat
 
 
 @responses.activate
-def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None:
+def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None:  # noqa: R701
     """Test that update_referee sends correct payload when updating all fields."""
     _referee_id = "1146196"
     _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"

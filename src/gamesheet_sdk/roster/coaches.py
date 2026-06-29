@@ -1,15 +1,16 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Coach roster operations."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from gamesheet_sdk.roster.helpers import get_team_for_roster_update, update_team_roster
 from gamesheet_sdk.roster.models import Coach, parse_coach
+from gamesheet_sdk.session import Session
 from gamesheet_sdk.shared import JSONAPI_HEADERS, handle_response
-
-if TYPE_CHECKING:
-    from gamesheet_sdk.session import Session
 
 
 def get_coach(session: Session, season_id: str, coach_id: str) -> Coach:
@@ -18,9 +19,12 @@ def get_coach(session: Session, season_id: str, coach_id: str) -> Coach:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The parent season identifier.
+    :type season_id: str
     :param coach_id: The coach identifier to retrieve.
-    :returns: The :class:`Coach` with the specified ID.
+    :type coach_id: str
+    :returns: Return value.
     :rtype: Coach
     """
     endpoint = f"/api/seasons/{season_id}/coaches/{coach_id}"
@@ -36,13 +40,19 @@ def list_coaches(session: Session, season_id: str) -> list[Coach]:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier whose coaches to list.
+    :type season_id: str
     :returns: A list of :class:`Coach`, in the order the server returned them. The list may be empty if the
         season has no coaches.
     :rtype: list[Coach]
     """
     endpoint = f"/api/seasons/{season_id}/coaches"
-    response = session.get(endpoint, headers=JSONAPI_HEADERS, params={"include": "teams,divisions"})
+    response = session.get(
+        endpoint,
+        headers=JSONAPI_HEADERS,
+        params={"include": "teams,divisions"},
+    )
     handle_response(response, endpoint, "GET coaches")
     body: dict[str, Any] = response.json()
     # Parse all coaches
@@ -65,13 +75,20 @@ def create_coach(
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier to create the coach in.
+    :type season_id: str
     :param first_name: Coach's first name.
+    :type first_name: str
     :param last_name: Coach's last name.
+    :type last_name: str
     :param external_id: Optional external identifier for the coach.
+    :type external_id: str | None
     :param position: Optional position (Head Coach, Assistant Coach, etc.).
+    :type position: str | None
     :param team_id: Optional team identifier to associate the coach with.
-    :returns: The created :class:`Coach`.
+    :type team_id: str | None
+    :returns: Return value.
     :rtype: Coach
     """
     endpoint = f"/api/seasons/{season_id}/coaches"
@@ -114,12 +131,19 @@ def update_coach(
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401. At least one field
     must be provided for update.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier containing the coach.
+    :type season_id: str
     :param coach_id: The coach identifier to update.
+    :type coach_id: str
     :param first_name: Optional updated first name.
+    :type first_name: str | None
     :param last_name: Optional updated last name.
+    :type last_name: str | None
     :param external_id: Optional updated external identifier.
+    :type external_id: str | None
     :param position: Optional updated position.
+    :type position: str | None
     :returns: The updated :class:`Coach`.
     :rtype: Coach
     :raises ValueError: If no fields are provided for update.
@@ -141,14 +165,14 @@ def update_coach(
         },
     }
     # Add optional fields
-    if external_id is not None:  # pragma: no cover
-        payload["data"]["attributes"]["external_id"] = external_id  # pragma: no cover
-    elif current_coach.external_id:  # pragma: no cover
-        payload["data"]["attributes"]["external_id"] = current_coach.external_id  # pragma: no cover
-    if position is not None:  # pragma: no cover
-        payload["data"]["attributes"]["position"] = position  # pragma: no cover
-    elif current_coach.position:  # pragma: no cover
-        payload["data"]["attributes"]["position"] = current_coach.position  # pragma: no cover
+    if external_id is not None:
+        payload["data"]["attributes"]["external_id"] = external_id
+    elif current_coach.external_id:
+        payload["data"]["attributes"]["external_id"] = current_coach.external_id
+    if position is not None:
+        payload["data"]["attributes"]["position"] = position
+    elif current_coach.position:
+        payload["data"]["attributes"]["position"] = current_coach.position
     endpoint = f"/api/seasons/{season_id}/coaches/{coach_id}"
     response = session.patch(endpoint, headers=JSONAPI_HEADERS, json=payload)
     handle_response(response, endpoint, "PATCH coach")
@@ -162,14 +186,21 @@ def list_team_coaches(session: Session, season_id: str, team_id: str) -> list[Co
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier.
+    :type season_id: str
     :param team_id: The team identifier whose coaches to list.
+    :type team_id: str
     :returns: A list of :class:`Coach`, in the order the server returned them. The list may be empty if the
         team has no coaches.
     :rtype: list[Coach]
     """
     endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
-    response = session.get(endpoint, headers=JSONAPI_HEADERS, params={"include": "players,coaches"})
+    response = session.get(
+        endpoint,
+        headers=JSONAPI_HEADERS,
+        params={"include": "players,coaches"},
+    )
     handle_response(response, endpoint, "GET team")
     body: dict[str, Any] = response.json()
     included_coaches = {
@@ -196,20 +227,26 @@ def list_team_coaches(session: Session, season_id: str, team_id: str) -> list[Co
     return coaches
 
 
-def get_team_coach(session: Session, season_id: str, team_id: str, coach_id: str) -> Coach:
+def get_team_coach(
+    session: Session,
+    season_id: str,
+    team_id: str,
+    coach_id: str,
+) -> Coach:
     """Get a single coach from a team's roster.
 
     This function retrieves team roster metadata (position, status, signature) that is only available in the
     team context, unlike :func:`get_coach` which fetches from the season-level coaches endpoint without roster
-    metadata.
-
-    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    metadata. The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier.
+    :type season_id: str
     :param team_id: The team identifier.
+    :type team_id: str
     :param coach_id: The coach identifier to retrieve.
+    :type coach_id: str
     :returns: The :class:`Coach` with team roster metadata populated.
     :rtype: Coach
     :raises GameSheetError: If the coach is not found on the team's roster.
@@ -236,23 +273,32 @@ def create_team_coach(
 ) -> Coach:
     """Create a new coach and add to the specified team's roster.
 
-    This function performs two operations: (1) creates the coach at the season level,
-    (2) updates the team's roster to include the new coach with position and other metadata.
-    The supplied :class:`Session` must already carry a bearer token (e.g. via
-    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    This function performs two operations: (1) creates the coach at the season level, (2) updates the
+    team's roster to include the new coach with position and other metadata.  The supplied
+    :class:`Session` must already carry a bearer token (e.g. via :meth:`Session.set_bearer_token`);
+    the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier.
+    :type season_id: str
     :param team_id: The team identifier to add the coach to.
+    :type team_id: str
     :param first_name: Coach's first name.
+    :type first_name: str
     :param last_name: Coach's last name.
+    :type last_name: str
     :param external_id: Optional external identifier for the coach.
+    :type external_id: str | None
     :param position: Optional position (Head Coach, Assistant Coach, etc.).
-    :returns: The created :class:`Coach`.
+    :type position: str | None
+    :returns: Return value.
     :rtype: Coach
     """
     # Step 1: Create the coach at the season level (without "type" field for team context)
     endpoint = f"/api/seasons/{season_id}/coaches"
-    payload: dict[str, Any] = {"data": {"attributes": {"first_name": first_name, "last_name": last_name}}}
+    payload: dict[str, Any] = {
+        "data": {"attributes": {"first_name": first_name, "last_name": last_name}},
+    }
     if external_id:
         payload["data"]["attributes"]["external_id"] = external_id
     response = session.post(endpoint, headers=JSONAPI_HEADERS, json=payload)
@@ -301,13 +347,21 @@ def update_team_coach(
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier.
+    :type season_id: str
     :param team_id: The team identifier.
+    :type team_id: str
     :param coach_id: The coach identifier to update.
+    :type coach_id: str
     :param first_name: Optional updated first name.
+    :type first_name: str | None
     :param last_name: Optional updated last name.
+    :type last_name: str | None
     :param external_id: Optional updated external identifier.
+    :type external_id: str | None
     :param position: Optional updated position.
+    :type position: str | None
     :returns: The updated :class:`Coach`.
     :rtype: Coach
     :raises ValueError: If no fields are provided for update.
@@ -327,24 +381,24 @@ def update_team_coach(
         },
     }
     # Add optional fields
-    if external_id is not None:  # pragma: no cover
-        payload["data"]["attributes"]["external_id"] = external_id  # pragma: no cover
-    elif current_coach.external_id:  # pragma: no cover
-        payload["data"]["attributes"]["external_id"] = current_coach.external_id  # pragma: no cover
+    if external_id is not None:
+        payload["data"]["attributes"]["external_id"] = external_id
+    elif current_coach.external_id:
+        payload["data"]["attributes"]["external_id"] = current_coach.external_id
     endpoint = f"/api/seasons/{season_id}/coaches/{coach_id}"
     response = session.patch(endpoint, headers=JSONAPI_HEADERS, json=payload)
     handle_response(response, endpoint, "PATCH team coach")
     body: dict[str, Any] = response.json()
     coach = parse_coach(body["data"])
     # Step 2: Update team roster with position changes if needed
-    if position is not None and position != current_coach.position:  # pragma: no cover
-        team_data = get_team_for_roster_update(session, season_id, team_id)  # pragma: no cover
-        roster = team_data.get("data", {}).get("attributes", {}).get("roster", {})  # pragma: no cover
+    if position is not None and position != current_coach.position:
+        team_data = get_team_for_roster_update(session, season_id, team_id)
+        roster = team_data.get("data", {}).get("attributes", {}).get("roster", {})
         # Update the coach's position in the roster
-        for coach_entry in roster.get("coaches", []):  # pragma: no cover
-            if coach_entry.get("id") == coach_id:  # pragma: no cover
-                coach_entry["position"] = position  # pragma: no cover
-                break  # pragma: no cover
+        for coach_entry in roster.get("coaches", []):
+            if coach_entry.get("id") == coach_id:
+                coach_entry["position"] = position
+                break
         update_team_roster(
             session,
             season_id,
@@ -371,10 +425,15 @@ def assign_coach(
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier.
+    :type season_id: str
     :param coach_id: The coach identifier to assign.
+    :type coach_id: str
     :param team_id: The team identifier to assign the coach to.
+    :type team_id: str
     :param position: Optional position (Head Coach, Assistant Coach, etc.).
+    :type position: str | None
     :returns: The :class:`Coach` with roster metadata populated.
     :rtype: Coach
     :raises GameSheetError: If the coach is already assigned to the team.
@@ -401,7 +460,14 @@ def assign_coach(
     coaches_roster.append(coach_entry)
     roster["coaches"] = coaches_roster
     # Step 4: Update team roster
-    update_team_roster(session, season_id, team_id, roster, current_attrs, current_relationships)
+    update_team_roster(
+        session,
+        season_id,
+        team_id,
+        roster,
+        current_attrs,
+        current_relationships,
+    )
     # Return the coach with roster metadata populated
     if position:
         coach.position = position
@@ -409,15 +475,24 @@ def assign_coach(
     return coach
 
 
-def unassign_coach(session: Session, season_id: str, coach_id: str, team_id: str) -> None:
+def unassign_coach(
+    session: Session,
+    season_id: str,
+    coach_id: str,
+    team_id: str,
+) -> None:
     """Unassign a coach from a team's roster.
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier.
+    :type season_id: str
     :param coach_id: The coach identifier to unassign.
+    :type coach_id: str
     :param team_id: The team identifier to unassign the coach from.
+    :type team_id: str
     :raises GameSheetError: If the coach is not assigned to the team.
     """
     # Step 1: Fetch current team data
@@ -437,7 +512,14 @@ def unassign_coach(session: Session, season_id: str, coach_id: str, team_id: str
         raise GameSheetError(msg)
     roster["coaches"] = coaches_roster
     # Step 3: Update team roster
-    update_team_roster(session, season_id, team_id, roster, current_attrs, current_relationships)
+    update_team_roster(
+        session,
+        season_id,
+        team_id,
+        roster,
+        current_attrs,
+        current_relationships,
+    )
 
 
 def assign_team_coach(
@@ -454,25 +536,39 @@ def assign_team_coach(
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier.
+    :type season_id: str
     :param team_id: The team identifier to assign the coach to.
+    :type team_id: str
     :param coach_id: The coach identifier to assign.
+    :type coach_id: str
     :param position: Optional position (Head Coach, Assistant Coach, etc.).
-    :returns: The :class:`Coach` with roster metadata populated.
+    :type position: str | None
+    :returns: Return value.
     :rtype: Coach
     """
     return assign_coach(session, season_id, coach_id, team_id, position=position)
 
 
-def unassign_team_coach(session: Session, season_id: str, team_id: str, coach_id: str) -> None:
+def unassign_team_coach(
+    session: Session,
+    season_id: str,
+    team_id: str,
+    coach_id: str,
+) -> None:
     """Unassign a coach from a team's roster (team-scoped alias).
 
     This is an alias for :func:`unassign_coach` provided for consistency with the team-scoped command
     structure. The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier.
+    :type season_id: str
     :param team_id: The team identifier to unassign the coach from.
+    :type team_id: str
     :param coach_id: The coach identifier to unassign.
+    :type coach_id: str
     """
     unassign_coach(session, season_id, coach_id, team_id)

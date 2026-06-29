@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Authentication-related constants and configuration values.
 
 This module defines all authentication constants used throughout the

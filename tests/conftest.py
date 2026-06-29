@@ -1,21 +1,25 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Shared pytest fixtures and configuration for the test suite."""
 
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import pytest
 
 from gamesheet_sdk import Config
 
-if TYPE_CHECKING:
-    from pathlib import Path
-
 
 @pytest.fixture(autouse=True)
 def _clear_gamesheet_env(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Strip any ambient ``GAMESHEET_*`` env vars so every test sees defaults."""
+    """Strip any ambient ``GAMESHEET_*`` env vars so every test sees defaults.
+
+    :returns: None
+    :rtype: None
+    """
     for key in list(os.environ):
         if key.startswith("GAMESHEET_"):
             monkeypatch.delenv(key, raising=False)
@@ -27,6 +31,10 @@ def config(tmp_path: Path) -> Config:
 
     Single shared fixture for both HTTP-session and browser-session tests; using one definition avoids the
     pylint ``duplicate-code`` warning that fires when near- identical fixtures live in two test modules.
+    :param tmp_path: Temporary path.
+    :type tmp_path: Path
+    :returns: Return value.
+    :rtype: Config
     """
     return Config(
         base_url="https://test.example",
@@ -43,6 +51,8 @@ def vcr_config() -> dict[str, object]:
 
     Sensitive headers and body fields are scrubbed before cassettes are written, so recordings can be
     committed without leaking credentials.
+    :returns: Dictionary of results.
+    :rtype: dict[str, object]
     """
     return {
         "filter_headers": [
@@ -72,5 +82,7 @@ def browser_type_launch_args() -> dict[str, object]:
 
     Tests opt in to a real browser by adding @pytest.mark.browser and requesting the `page` / `context` /
     `browser` fixtures from pytest-playwright. They are skipped via `pytest -m 'not browser'`.
+    :returns: Dictionary of results.
+    :rtype: dict[str, object]
     """
     return {"headless": True}

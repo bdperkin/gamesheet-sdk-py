@@ -1,19 +1,17 @@
-"""Player roster operations."""  # pylint: disable=too-many-lines
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
+"""Player roster operations."""
 
 from __future__ import annotations
 
-import mimetypes
-from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from gamesheet_sdk.constants import BFF_API_BASE_URL, CLOUDFLARE_IMAGE_DELIVERY_BASE
-from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.exceptions import GameSheetError
 from gamesheet_sdk.roster.helpers import get_team_for_roster_update, update_team_roster
 from gamesheet_sdk.roster.models import Player, parse_player
+from gamesheet_sdk.session import Session
 from gamesheet_sdk.shared import JSONAPI_HEADERS, handle_response
-
-if TYPE_CHECKING:
-    from gamesheet_sdk.session import Session
 
 
 def get_player(session: Session, season_id: str, player_id: str) -> Player:
@@ -21,11 +19,17 @@ def get_player(session: Session, season_id: str, player_id: str) -> Player:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The parent season identifier.
+    :type season_id: str
     :param player_id: The player identifier to retrieve.
-    :returns: The :class:`Player` with the specified ID.
+    :type player_id: str
+    :returns: The requested Player model instance.
     :rtype: Player
+    :raises AuthenticationError: If the server returns 401.
+    :raises GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/players/{player_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -40,13 +44,19 @@ def list_players(session: Session, season_id: str) -> list[Player]:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier whose players to list.
+    :type season_id: str
     :returns: A list of :class:`Player`, in the order the server returned them. The list may be empty if the
         season has no players.
     :rtype: list[Player]
     """
     endpoint = f"/api/seasons/{season_id}/players"
-    response = session.get(endpoint, headers=JSONAPI_HEADERS, params={"include": "teams,divisions"})
+    response = session.get(
+        endpoint,
+        headers=JSONAPI_HEADERS,
+        params={"include": "teams,divisions"},
+    )
     handle_response(response, endpoint, "GET players")
     body: dict[str, Any] = response.json()
     # Parse all players
@@ -60,14 +70,21 @@ def list_team_players(session: Session, season_id: str, team_id: str) -> list[Pl
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier.
+    :type season_id: str
     :param team_id: The team identifier whose players to list.
+    :type team_id: str
     :returns: A list of :class:`Player`, in the order the server returned them. The list may be empty if the
         team has no players.
     :rtype: list[Player]
     """
     endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
-    response = session.get(endpoint, headers=JSONAPI_HEADERS, params={"include": "players,coaches"})
+    response = session.get(
+        endpoint,
+        headers=JSONAPI_HEADERS,
+        params={"include": "players,coaches"},
+    )
     handle_response(response, endpoint, "GET team")
     body: dict[str, Any] = response.json()
     included_players = {
@@ -103,54 +120,37 @@ def list_team_players(session: Session, season_id: str, team_id: str) -> list[Pl
 
 
 def _upload_photo(session: Session, photo_path: str) -> str:
-    """Upload a photo image and return its URL."""
-    photo_file_path = Path(photo_path)
-    if not photo_file_path.exists():
-        _err_msg = (f"Photo file not found: {photo_path}",)
-        raise GameSheetError(_err_msg)
-    mime_type, _ = mimetypes.guess_type(photo_path)
-    if not mime_type or not mime_type.startswith("image/"):
-        _err_msg = (f"Invalid image file: {photo_path}",)
-        raise GameSheetError(_err_msg)
-    upload_url_endpoint = f"{BFF_API_BASE_URL}/dwg/assets/upload-url"
-    upload_url_response = session.post(upload_url_endpoint)
-    if upload_url_response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
-    if upload_url_response.status_code >= 400:
-        _err_msg = (
-            f"POST {upload_url_endpoint} returned HTTP {upload_url_response.status_code}: "
-            f"{upload_url_response.text[:200]!r}",
-        )
-        raise GameSheetError(_err_msg)
-    upload_data: dict[str, Any] = upload_url_response.json()
-    if upload_data.get("status") != "success":
-        _err_msg = (f"Failed to get upload URL: {upload_data}",)
-        raise GameSheetError(_err_msg)
-    upload_url: str = upload_data["data"]["uploadURL"]
-    image_id: str = upload_data["data"]["id"]
-    with photo_file_path.open("rb") as f:
-        upload_response = session.post(
-            upload_url,
-            files={"file": (photo_file_path.name, f, mime_type)},
-        )
-    if upload_response.status_code >= 400:
-        _err_msg = (
-            f"POST {upload_url} returned HTTP {upload_response.status_code}: "
-            f"{upload_response.text[:200]!r}",
-        )
-        raise GameSheetError(_err_msg)
-    upload_result: dict[str, Any] = upload_response.json()
-    if not upload_result.get("success"):
-        _err_msg = (f"Failed to upload photo: {upload_result}",)
-        raise GameSheetError(_err_msg)
-    return f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/{image_id}"
+    """Upload a photo image and return its URL.
+
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param photo_path: Path to a local photo image file.
+    :type photo_path: str
+    :returns: The Cloudflare CDN URL for the uploaded photo.
+    :rtype: str
+    :raises GameSheetError: If the file is not found, is not a valid image, or the upload fails.
+    :raises AuthenticationError: If the server returns 401.
+    """
+    from gamesheet_sdk.shared import upload_image
+
+    return upload_image(session, photo_path, "photo")
 
 
-def create_player(  # pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-statements
+def _add_optional_field(attrs: dict[str, Any], key: str, value: Any) -> None:
+    """Add a field to attrs dict if value is truthy.
+
+    :param attrs: The attributes dictionary to update.
+    :type attrs: dict[str, Any]
+    :param key: The attribute key name.
+    :type key: str
+    :param value: The value to add (only added if truthy).
+    :type value: Any
+    """
+    if value:
+        attrs[key] = value
+
+
+def create_player(
     session: Session,
     season_id: str,
     first_name: str,
@@ -179,28 +179,51 @@ def create_player(  # pylint: disable=too-many-arguments,too-many-locals,too-man
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier to create the player in.
+    :type season_id: str
     :param first_name: Player's first name.
+    :type first_name: str
     :param last_name: Player's last name.
+    :type last_name: str
     :param external_id: Optional external identifier for the player.
+    :type external_id: str | None
     :param jersey: Optional jersey number.
+    :type jersey: str | None
     :param position: Optional position (Forward, Defence, Goalie, etc.).
+    :type position: str | None
     :param status: Optional status (Regular, Affiliated, etc.).
+    :type status: str | None
     :param designation: Optional designation (Captain, Alternate Captain, etc.).
+    :type designation: str | None
     :param team_id: Optional team identifier to associate the player with.
+    :type team_id: str | None
     :param biography: Optional biography text.
+    :type biography: str | None
     :param height: Optional height (e.g., "6'2\"").
+    :type height: str | None
     :param weight: Optional weight (e.g., "185").
+    :type weight: str | None
     :param shot_hand: Optional shooting hand (left, right).
+    :type shot_hand: str | None
     :param birthdate: Optional birthdate (ISO format: YYYY-MM-DD).
+    :type birthdate: str | None
     :param hometown: Optional hometown.
+    :type hometown: str | None
     :param country: Optional country code (e.g., "US", "CA").
+    :type country: str | None
     :param province: Optional province/state.
+    :type province: str | None
     :param drafted_by: Optional drafted by team name.
+    :type drafted_by: str | None
     :param committed_to: Optional committed to institution.
+    :type committed_to: str | None
     :param photo_path: Optional path to a local photo image file.
-    :returns: The created :class:`Player`.
+    :type photo_path: str | None
+    :returns: The newly created Player model instance.
     :rtype: Player
+    :raises AuthenticationError: If the server returns 401.
+    :raises GameSheetError: For any other non-2xx response, or if photo upload fails.
     """
     photo_url: str | None = None
     if photo_path:
@@ -216,38 +239,23 @@ def create_player(  # pylint: disable=too-many-arguments,too-many-locals,too-man
         },
     }
     attrs = payload["data"]["attributes"]
-    if external_id:
-        attrs["external_id"] = external_id
-    if jersey:
-        attrs["jersey"] = jersey
-    if position:
-        attrs["position"] = position
-    if status:
-        attrs["status"] = status
-    if designation:
-        attrs["designation"] = designation
-    if biography:
-        attrs["biography"] = biography
-    if height:
-        attrs["height"] = height
-    if weight:
-        attrs["weight"] = weight
-    if shot_hand:
-        attrs["shot_hand"] = shot_hand
-    if birthdate:
-        attrs["birthdate"] = birthdate
-    if hometown:
-        attrs["hometown"] = hometown
-    if country:
-        attrs["country"] = country
-    if province:
-        attrs["province"] = province
-    if drafted_by:
-        attrs["drafted_by"] = drafted_by
-    if committed_to:
-        attrs["committed_to"] = committed_to
-    if photo_url:
-        attrs["photo_url"] = photo_url
+    # Add optional fields using helper to reduce complexity
+    _add_optional_field(attrs, "external_id", external_id)
+    _add_optional_field(attrs, "jersey", jersey)
+    _add_optional_field(attrs, "position", position)
+    _add_optional_field(attrs, "status", status)
+    _add_optional_field(attrs, "designation", designation)
+    _add_optional_field(attrs, "biography", biography)
+    _add_optional_field(attrs, "height", height)
+    _add_optional_field(attrs, "weight", weight)
+    _add_optional_field(attrs, "shot_hand", shot_hand)
+    _add_optional_field(attrs, "birthdate", birthdate)
+    _add_optional_field(attrs, "hometown", hometown)
+    _add_optional_field(attrs, "country", country)
+    _add_optional_field(attrs, "province", province)
+    _add_optional_field(attrs, "drafted_by", drafted_by)
+    _add_optional_field(attrs, "committed_to", committed_to)
+    _add_optional_field(attrs, "photo_url", photo_url)
     if team_id:
         payload["data"]["relationships"] = {
             "teams": {"data": [{"type": "teams", "id": team_id}]},
@@ -258,20 +266,26 @@ def create_player(  # pylint: disable=too-many-arguments,too-many-locals,too-man
     return parse_player(body["data"])
 
 
-def get_team_player(session: Session, season_id: str, team_id: str, player_id: str) -> Player:
+def get_team_player(
+    session: Session,
+    season_id: str,
+    team_id: str,
+    player_id: str,
+) -> Player:
     """Get a single player from a team's roster.
 
     This function retrieves team roster metadata (number, position, status, etc.) that is only available in
     the team context, unlike :func:`get_player` which fetches from the season-level players endpoint without
-    roster metadata.
-
-    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    roster metadata. The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier.
+    :type season_id: str
     :param team_id: The team identifier.
+    :type team_id: str
     :param player_id: The player identifier to retrieve.
+    :type player_id: str
     :returns: The :class:`Player` with team roster metadata populated.
     :rtype: Player
     :raises GameSheetError: If the player is not found on the team's roster.
@@ -292,7 +306,21 @@ def _build_player_roster_entry(
     status: str | None = None,
     designation: str | None = None,
 ) -> dict[str, Any]:
-    """Build a player roster entry dict for team roster updates."""
+    """Build a player roster entry dict for team roster updates.
+
+    :param player_id: The player identifier.
+    :type player_id: str
+    :param jersey: Optional jersey number.
+    :type jersey: str | None
+    :param position: Optional position (Forward, Defence, Goalie, etc.).
+    :type position: str | None
+    :param status: Optional status (Regular, Affiliated, etc.).
+    :type status: str | None
+    :param designation: Optional designation (Captain, Alternate Captain, etc.).
+    :type designation: str | None
+    :returns: Dictionary containing roster entry data ready for team roster update.
+    :rtype: dict[str, Any]
+    """
     entry: dict[str, Any] = {
         "id": player_id,
         "affiliated": False,
@@ -322,7 +350,21 @@ def _populate_player_metadata(
     status: str | None = None,
     designation: str | None = None,
 ) -> None:
-    """Populate player object with roster metadata."""
+    """Populate player object with roster metadata.
+
+    Mutates the Player object in place to set roster-specific fields.
+
+    :param player: The Player instance to populate.
+    :type player: Player
+    :param jersey: Optional jersey number.
+    :type jersey: str | None
+    :param position: Optional position.
+    :type position: str | None
+    :param status: Optional status.
+    :type status: str | None
+    :param designation: Optional designation.
+    :type designation: str | None
+    """
     if jersey:
         player.number = jersey
     if position:
@@ -333,7 +375,7 @@ def _populate_player_metadata(
         player.designation = designation
 
 
-def create_team_player(  # pylint: disable=too-many-arguments,too-many-locals,too-many-statements
+def create_team_player(
     session: Session,
     season_id: str,
     team_id: str,
@@ -359,40 +401,65 @@ def create_team_player(  # pylint: disable=too-many-arguments,too-many-locals,to
 ) -> Player:
     r"""Create a new player and add to the specified team's roster.
 
-    This function performs two operations: (1) creates the player at the season level,
-    (2) updates the team's roster to include the new player with position and other metadata.
-    The supplied :class:`Session` must already carry a bearer token (e.g. via
-    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    This function performs two operations: (1) creates the player at the season level, (2) updates the
+    team's roster to include the new player with position and other metadata.  The supplied
+    :class:`Session` must already carry a bearer token (e.g. via :meth:`Session.set_bearer_token`);
+    the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier.
+    :type season_id: str
     :param team_id: The team identifier to add the player to.
+    :type team_id: str
     :param first_name: Player's first name.
+    :type first_name: str
     :param last_name: Player's last name.
+    :type last_name: str
     :param external_id: Optional external identifier for the player.
+    :type external_id: str | None
     :param jersey: Optional jersey number.
+    :type jersey: str | None
     :param position: Optional position (Forward, Defence, Goalie, etc.).
+    :type position: str | None
     :param status: Optional status (Regular, Affiliated, etc.).
+    :type status: str | None
     :param designation: Optional designation (Captain, Alternate Captain, etc.).
+    :type designation: str | None
     :param biography: Optional biography text.
+    :type biography: str | None
     :param height: Optional height (e.g., "6'2\"").
+    :type height: str | None
     :param weight: Optional weight (e.g., "185").
+    :type weight: str | None
     :param shot_hand: Optional shooting hand (left, right).
+    :type shot_hand: str | None
     :param birthdate: Optional birthdate (ISO format: YYYY-MM-DD).
+    :type birthdate: str | None
     :param hometown: Optional hometown.
+    :type hometown: str | None
     :param country: Optional country code (e.g., "US", "CA").
+    :type country: str | None
     :param province: Optional province/state.
+    :type province: str | None
     :param drafted_by: Optional drafted by team name.
+    :type drafted_by: str | None
     :param committed_to: Optional committed to institution.
+    :type committed_to: str | None
     :param photo_path: Optional path to a local photo image file.
-    :returns: The created :class:`Player`.
+    :type photo_path: str | None
+    :returns: The newly created Player model instance with roster metadata populated.
     :rtype: Player
+    :raises AuthenticationError: If the server returns 401.
+    :raises GameSheetError: For any other non-2xx response, or if photo upload fails.
     """
     photo_url: str | None = None
     if photo_path:
         photo_url = _upload_photo(session, photo_path)
     # Step 1: Create the player at the season level (without "type" field for team context)
     endpoint = f"/api/seasons/{season_id}/players"
-    payload: dict[str, Any] = {"data": {"attributes": {"first_name": first_name, "last_name": last_name}}}
+    payload: dict[str, Any] = {
+        "data": {"attributes": {"first_name": first_name, "last_name": last_name}},
+    }
     attrs = payload["data"]["attributes"]
     if external_id:
         attrs["external_id"] = external_id
@@ -454,7 +521,30 @@ def create_team_player(  # pylint: disable=too-many-arguments,too-many-locals,to
     return player
 
 
-def update_player(  # pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-statements
+def _merge_optional_field(
+    attrs: dict[str, Any],
+    key: str,
+    new_value: Any,
+    current_value: Any,
+) -> None:
+    """Merge an optional field into attrs dict, preferring new value over current.
+
+    :param attrs: The attributes dictionary to update.
+    :type attrs: dict[str, Any]
+    :param key: The attribute key name.
+    :type key: str
+    :param new_value: The new value (may be None).
+    :type new_value: Any
+    :param current_value: The current value from existing record.
+    :type current_value: Any
+    """
+    if new_value is not None:
+        attrs[key] = new_value
+    elif current_value:
+        attrs[key] = current_value
+
+
+def update_player(
     session: Session,
     season_id: str,
     player_id: str,
@@ -481,23 +571,41 @@ def update_player(  # pylint: disable=too-many-arguments,too-many-locals,too-man
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401. At least one field
     must be provided for update.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier containing the player.
+    :type season_id: str
     :param player_id: The player identifier to update.
+    :type player_id: str
     :param first_name: Optional updated first name.
+    :type first_name: str | None
     :param last_name: Optional updated last name.
+    :type last_name: str | None
     :param external_id: Optional updated external identifier.
+    :type external_id: str | None
     :param biography: Optional updated biography text.
+    :type biography: str | None
     :param height: Optional updated height (e.g., "6'2\"").
+    :type height: str | None
     :param weight: Optional updated weight (e.g., "185").
+    :type weight: str | None
     :param shot_hand: Optional updated shooting hand (left, right).
+    :type shot_hand: str | None
     :param birthdate: Optional updated birthdate (ISO format: YYYY-MM-DD).
+    :type birthdate: str | None
     :param hometown: Optional updated hometown.
+    :type hometown: str | None
     :param country: Optional updated country code (e.g., "US", "CA").
+    :type country: str | None
     :param province: Optional updated province/state.
+    :type province: str | None
     :param drafted_by: Optional updated drafted by team name.
+    :type drafted_by: str | None
     :param committed_to: Optional updated committed to institution.
+    :type committed_to: str | None
     :param photo_path: Optional path to a new photo image file.
+    :type photo_path: str | None
     :param remove_photo: If True, remove the player's photo.
+    :type remove_photo: bool
     :returns: The updated :class:`Player`.
     :rtype: Player
     :raises ValueError: If no fields are provided for update or both photo_path and remove_photo are set.
@@ -545,58 +653,35 @@ def update_player(  # pylint: disable=too-many-arguments,too-many-locals,too-man
         },
     }
     attrs = payload["data"]["attributes"]
-    # Handle optional fields
-    if external_id is not None:  # pragma: no cover
-        attrs["external_id"] = external_id  # pragma: no cover
-    elif current_player.external_id:  # pragma: no cover
-        attrs["external_id"] = current_player.external_id  # pragma: no cover
-    if biography is not None:  # pragma: no cover
-        attrs["biography"] = biography  # pragma: no cover
-    elif current_player.biography:  # pragma: no cover
-        attrs["biography"] = current_player.biography  # pragma: no cover
-    if height is not None:  # pragma: no cover
-        attrs["height"] = height  # pragma: no cover
-    elif current_player.height:  # pragma: no cover
-        attrs["height"] = current_player.height  # pragma: no cover
-    if weight is not None:  # pragma: no cover
-        attrs["weight"] = weight  # pragma: no cover
-    elif current_player.weight:  # pragma: no cover
-        attrs["weight"] = current_player.weight  # pragma: no cover
-    if shot_hand is not None:  # pragma: no cover
-        attrs["shot_hand"] = shot_hand  # pragma: no cover
-    elif current_player.shot_hand:  # pragma: no cover
-        attrs["shot_hand"] = current_player.shot_hand  # pragma: no cover
-    if birthdate is not None:  # pragma: no cover
-        attrs["birthdate"] = birthdate  # pragma: no cover
-    elif current_player.birthdate:  # pragma: no cover
-        attrs["birthdate"] = str(current_player.birthdate)  # pragma: no cover
-    if hometown is not None:  # pragma: no cover
-        attrs["hometown"] = hometown  # pragma: no cover
-    elif current_player.hometown:  # pragma: no cover
-        attrs["hometown"] = current_player.hometown  # pragma: no cover
-    if country is not None:  # pragma: no cover
-        attrs["country"] = country  # pragma: no cover
-    elif current_player.country:  # pragma: no cover
-        attrs["country"] = current_player.country  # pragma: no cover
-    if province is not None:  # pragma: no cover
-        attrs["province"] = province  # pragma: no cover
-    elif current_player.province:  # pragma: no cover
-        attrs["province"] = current_player.province  # pragma: no cover
-    if drafted_by is not None:  # pragma: no cover
-        attrs["drafted_by"] = drafted_by  # pragma: no cover
-    elif current_player.drafted_by:  # pragma: no cover
-        attrs["drafted_by"] = current_player.drafted_by  # pragma: no cover
-    if committed_to is not None:  # pragma: no cover
-        attrs["committed_to"] = committed_to  # pragma: no cover
-    elif current_player.committed_to:  # pragma: no cover
-        attrs["committed_to"] = current_player.committed_to  # pragma: no cover
-    # Handle photo # pragma: no cover
-    if photo_url:  # pragma: no cover
-        attrs["photo_url"] = photo_url  # pragma: no cover
-    elif remove_photo:  # pragma: no cover
-        attrs["photo_url"] = ""  # pragma: no cover
-    elif current_player.photo_url:  # pragma: no cover
-        attrs["photo_url"] = current_player.photo_url  # pragma: no cover
+    # Handle optional fields using helper to reduce complexity
+    _merge_optional_field(attrs, "external_id", external_id, current_player.external_id)
+    _merge_optional_field(attrs, "biography", biography, current_player.biography)
+    _merge_optional_field(attrs, "height", height, current_player.height)
+    _merge_optional_field(attrs, "weight", weight, current_player.weight)
+    _merge_optional_field(attrs, "shot_hand", shot_hand, current_player.shot_hand)
+    _merge_optional_field(
+        attrs,
+        "birthdate",
+        birthdate,
+        str(current_player.birthdate) if current_player.birthdate else None,
+    )
+    _merge_optional_field(attrs, "hometown", hometown, current_player.hometown)
+    _merge_optional_field(attrs, "country", country, current_player.country)
+    _merge_optional_field(attrs, "province", province, current_player.province)
+    _merge_optional_field(attrs, "drafted_by", drafted_by, current_player.drafted_by)
+    _merge_optional_field(
+        attrs,
+        "committed_to",
+        committed_to,
+        current_player.committed_to,
+    )
+    # Handle photo
+    if photo_url:
+        attrs["photo_url"] = photo_url
+    elif remove_photo:
+        attrs["photo_url"] = ""
+    elif current_player.photo_url:
+        attrs["photo_url"] = current_player.photo_url
     endpoint = f"/api/seasons/{season_id}/players/{player_id}"
     response = session.patch(endpoint, headers=JSONAPI_HEADERS, json=payload)
     handle_response(response, endpoint, "PATCH player")
@@ -626,31 +711,49 @@ def update_team_player(
     photo_path: str | None = None,
     remove_photo: bool = False,
 ) -> Player:
-    # pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-statements
     r"""Update a player for a specific team.
 
     This function updates the player at the season level. The supplied :class:`Session` must already carry a
     bearer token (e.g. via :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will
     401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier.
+    :type season_id: str
     :param team_id: The team identifier.
+    :type team_id: str
     :param player_id: The player identifier to update.
+    :type player_id: str
     :param first_name: Optional updated first name.
+    :type first_name: str | None
     :param last_name: Optional updated last name.
+    :type last_name: str | None
     :param external_id: Optional updated external identifier.
+    :type external_id: str | None
     :param biography: Optional updated biography text.
+    :type biography: str | None
     :param height: Optional updated height (e.g., "6'2\"").
+    :type height: str | None
     :param weight: Optional updated weight (e.g., "185").
+    :type weight: str | None
     :param shot_hand: Optional updated shooting hand (left, right).
+    :type shot_hand: str | None
     :param birthdate: Optional updated birthdate (ISO format: YYYY-MM-DD).
+    :type birthdate: str | None
     :param hometown: Optional updated hometown.
+    :type hometown: str | None
     :param country: Optional updated country code (e.g., "US", "CA").
+    :type country: str | None
     :param province: Optional updated province/state.
+    :type province: str | None
     :param drafted_by: Optional updated drafted by team name.
+    :type drafted_by: str | None
     :param committed_to: Optional updated committed to institution.
+    :type committed_to: str | None
     :param photo_path: Optional path to a new photo image file.
+    :type photo_path: str | None
     :param remove_photo: If True, remove the player's photo.
+    :type remove_photo: bool
     :returns: The updated :class:`Player`.
     :rtype: Player
     :raises ValueError: If no fields are provided for update or both photo_path and remove_photo are set.
@@ -675,84 +778,57 @@ def update_team_player(
             remove_photo,
         )
     ):
-        msg = "At least one field must be provided for update"  # pragma: no cover
-        raise ValueError(msg)  # pragma: no cover
-    if photo_path and remove_photo:  # pragma: no cover
-        msg = "Cannot both upload a photo and remove it"  # pragma: no cover
-        raise ValueError(msg)  # pragma: no cover
-    # Handle photo upload/removal # pragma: no cover
-    photo_url: str | None = None  # pragma: no cover
-    if photo_path:  # pragma: no cover
-        photo_url = _upload_photo(session, photo_path)  # pragma: no cover
-    # Fetch current player to get all fields # pragma: no cover
-    current_player = get_team_player(session, season_id, team_id, player_id)  # pragma: no cover
-    # Build payload with updated values (without "type" field for team context) # pragma: no cover
-    payload: dict[str, Any] = {  # pragma: no cover
-        "data": {  # pragma: no cover
-            "id": player_id,  # pragma: no cover
-            "attributes": {  # pragma: no cover
-                "first_name": (
-                    first_name if first_name is not None else current_player.first_name
-                ),  # pragma: no cover
-                "last_name": (
-                    last_name if last_name is not None else current_player.last_name
-                ),  # pragma: no cover
-            },  # pragma: no cover
-        },  # pragma: no cover
-    }  # pragma: no cover
-    attrs = payload["data"]["attributes"]  # pragma: no cover
-    # Handle optional fields # pragma: no cover
-    if external_id is not None:  # pragma: no cover
-        attrs["external_id"] = external_id  # pragma: no cover
-    elif current_player.external_id:  # pragma: no cover
-        attrs["external_id"] = current_player.external_id  # pragma: no cover
-    if biography is not None:  # pragma: no cover
-        attrs["biography"] = biography  # pragma: no cover
-    elif current_player.biography:  # pragma: no cover
-        attrs["biography"] = current_player.biography  # pragma: no cover
-    if height is not None:  # pragma: no cover
-        attrs["height"] = height  # pragma: no cover
-    elif current_player.height:  # pragma: no cover
-        attrs["height"] = current_player.height  # pragma: no cover
-    if weight is not None:  # pragma: no cover
-        attrs["weight"] = weight  # pragma: no cover
-    elif current_player.weight:  # pragma: no cover
-        attrs["weight"] = current_player.weight  # pragma: no cover
-    if shot_hand is not None:  # pragma: no cover
-        attrs["shot_hand"] = shot_hand  # pragma: no cover
-    elif current_player.shot_hand:  # pragma: no cover
-        attrs["shot_hand"] = current_player.shot_hand  # pragma: no cover
-    if birthdate is not None:  # pragma: no cover
-        attrs["birthdate"] = birthdate  # pragma: no cover
-    elif current_player.birthdate:  # pragma: no cover
-        attrs["birthdate"] = str(current_player.birthdate)  # pragma: no cover
-    if hometown is not None:  # pragma: no cover
-        attrs["hometown"] = hometown  # pragma: no cover
-    elif current_player.hometown:  # pragma: no cover
-        attrs["hometown"] = current_player.hometown  # pragma: no cover
-    if country is not None:  # pragma: no cover
-        attrs["country"] = country  # pragma: no cover
-    elif current_player.country:  # pragma: no cover
-        attrs["country"] = current_player.country  # pragma: no cover
-    if province is not None:  # pragma: no cover
-        attrs["province"] = province  # pragma: no cover
-    elif current_player.province:  # pragma: no cover
-        attrs["province"] = current_player.province  # pragma: no cover
-    if drafted_by is not None:  # pragma: no cover
-        attrs["drafted_by"] = drafted_by  # pragma: no cover
-    elif current_player.drafted_by:  # pragma: no cover
-        attrs["drafted_by"] = current_player.drafted_by  # pragma: no cover
-    if committed_to is not None:  # pragma: no cover
-        attrs["committed_to"] = committed_to  # pragma: no cover
-    elif current_player.committed_to:  # pragma: no cover
-        attrs["committed_to"] = current_player.committed_to  # pragma: no cover
-    # Handle photo # pragma: no cover
-    if photo_url:  # pragma: no cover
-        attrs["photo_url"] = photo_url  # pragma: no cover
-    elif remove_photo:  # pragma: no cover
-        attrs["photo_url"] = ""  # pragma: no cover
-    elif current_player.photo_url:  # pragma: no cover
-        attrs["photo_url"] = current_player.photo_url  # pragma: no cover
+        msg = "At least one field must be provided for update"
+        raise ValueError(msg)
+    if photo_path and remove_photo:
+        msg = "Cannot both upload a photo and remove it"
+        raise ValueError(msg)
+    # Handle photo upload/removal
+    photo_url: str | None = None
+    if photo_path:
+        photo_url = _upload_photo(session, photo_path)
+    # Fetch current player to get all fields
+    current_player = get_team_player(session, season_id, team_id, player_id)
+    # Build payload with updated values (without "type" field for team context)
+    payload: dict[str, Any] = {
+        "data": {
+            "id": player_id,
+            "attributes": {
+                "first_name": (first_name if first_name is not None else current_player.first_name),
+                "last_name": (last_name if last_name is not None else current_player.last_name),
+            },
+        },
+    }
+    attrs = payload["data"]["attributes"]
+    # Handle optional fields using helper to reduce complexity
+    _merge_optional_field(attrs, "external_id", external_id, current_player.external_id)
+    _merge_optional_field(attrs, "biography", biography, current_player.biography)
+    _merge_optional_field(attrs, "height", height, current_player.height)
+    _merge_optional_field(attrs, "weight", weight, current_player.weight)
+    _merge_optional_field(attrs, "shot_hand", shot_hand, current_player.shot_hand)
+    _merge_optional_field(
+        attrs,
+        "birthdate",
+        birthdate,
+        str(current_player.birthdate) if current_player.birthdate else None,
+    )
+    _merge_optional_field(attrs, "hometown", hometown, current_player.hometown)
+    _merge_optional_field(attrs, "country", country, current_player.country)
+    _merge_optional_field(attrs, "province", province, current_player.province)
+    _merge_optional_field(attrs, "drafted_by", drafted_by, current_player.drafted_by)
+    _merge_optional_field(
+        attrs,
+        "committed_to",
+        committed_to,
+        current_player.committed_to,
+    )
+    # Handle photo
+    if photo_url:
+        attrs["photo_url"] = photo_url
+    elif remove_photo:
+        attrs["photo_url"] = ""
+    elif current_player.photo_url:
+        attrs["photo_url"] = current_player.photo_url
     endpoint = f"/api/seasons/{season_id}/players/{player_id}"
     response = session.patch(endpoint, headers=JSONAPI_HEADERS, json=payload)
     handle_response(response, endpoint, "PATCH team player")
@@ -784,17 +860,27 @@ def assign_player(
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier.
+    :type season_id: str
     :param player_id: The player identifier to assign.
+    :type player_id: str
     :param team_id: The team identifier to assign the player to.
+    :type team_id: str
     :param jersey: Optional jersey number.
+    :type jersey: str | None
     :param position: Optional position (Forward, Defence, Goalie, etc.).
+    :type position: str | None
     :param status: Optional status (Regular, Affiliated, etc.).
+    :type status: str | None
     :param designation: Optional designation (Captain, Alternate Captain, etc.).
+    :type designation: str | None
     :returns: The :class:`Player` with roster metadata populated.
     :rtype: Player
     :raises GameSheetError: If the player is already assigned to the team.
+    :raises AuthenticationError: If the server returns 401.
     """
     player = get_player(session, season_id, player_id)
     team_data = get_team_for_roster_update(session, season_id, team_id)
@@ -816,7 +902,14 @@ def assign_player(
     )
     players_roster.append(player_entry)
     roster["players"] = players_roster
-    update_team_roster(session, season_id, team_id, roster, current_attrs, current_relationships)
+    update_team_roster(
+        session,
+        season_id,
+        team_id,
+        roster,
+        current_attrs,
+        current_relationships,
+    )
     _populate_player_metadata(
         player,
         jersey=jersey,
@@ -827,15 +920,24 @@ def assign_player(
     return player
 
 
-def unassign_player(session: Session, season_id: str, player_id: str, team_id: str) -> None:
+def unassign_player(
+    session: Session,
+    season_id: str,
+    player_id: str,
+    team_id: str,
+) -> None:
     """Unassign a player from a team's roster.
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier.
+    :type season_id: str
     :param player_id: The player identifier to unassign.
+    :type player_id: str
     :param team_id: The team identifier to unassign the player from.
+    :type team_id: str
     :raises GameSheetError: If the player is not assigned to the team.
     """
     # Step 1: Fetch current team data
@@ -853,7 +955,14 @@ def unassign_player(session: Session, season_id: str, player_id: str, team_id: s
         raise GameSheetError(msg)
     roster["players"] = players_roster
     # Step 3: Update team roster
-    update_team_roster(session, season_id, team_id, roster, current_attrs, current_relationships)
+    update_team_roster(
+        session,
+        season_id,
+        team_id,
+        roster,
+        current_attrs,
+        current_relationships,
+    )
 
 
 def assign_team_player(
@@ -873,15 +982,25 @@ def assign_team_player(
     structure. The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier.
+    :type season_id: str
     :param team_id: The team identifier to assign the player to.
+    :type team_id: str
     :param player_id: The player identifier to assign.
+    :type player_id: str
     :param jersey: Optional jersey number.
+    :type jersey: str | None
     :param position: Optional position (Forward, Defence, Goalie, etc.).
+    :type position: str | None
     :param status: Optional status (Regular, Affiliated, etc.).
+    :type status: str | None
     :param designation: Optional designation (Captain, Alternate Captain, etc.).
+    :type designation: str | None
     :returns: The :class:`Player` with roster metadata populated.
     :rtype: Player
+    :raises GameSheetError: If the player is already assigned to the team.
+    :raises AuthenticationError: If the server returns 401.
     """
     return assign_player(
         session,
@@ -895,15 +1014,24 @@ def assign_team_player(
     )
 
 
-def unassign_team_player(session: Session, season_id: str, team_id: str, player_id: str) -> None:
+def unassign_team_player(
+    session: Session,
+    season_id: str,
+    team_id: str,
+    player_id: str,
+) -> None:
     """Unassign a player from a team's roster (team-scoped alias).
 
     This is an alias for :func:`unassign_player` provided for consistency with the team-scoped command
     structure. The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier.
+    :type season_id: str
     :param team_id: The team identifier to unassign the player from.
+    :type team_id: str
     :param player_id: The player identifier to unassign.
+    :type player_id: str
     """
     unassign_player(session, season_id, player_id, team_id)

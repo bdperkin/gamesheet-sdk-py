@@ -1,14 +1,15 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for teams delete command."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from unittest.mock import patch
 
-from gamesheet_sdk.cli import cli
+from click.testing import CliRunner
 
-if TYPE_CHECKING:
-    from click.testing import CliRunner
+from gamesheet_sdk.cli import cli
 
 
 def test_teams_delete_basic(runner: CliRunner) -> None:
@@ -68,7 +69,10 @@ def test_teams_delete_with_no_saved_tokens(runner: CliRunner) -> None:
 def test_teams_delete_helper_executes_action(runner: CliRunner) -> None:
     """Test that run_team_delete helper executes the delete action."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh-tok"),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            return_value="refresh-tok",
+        ),
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
         patch("gamesheet_sdk.teams.delete_team") as mock_action,
     ):

@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """GameSheet associations: the top-level organizational unit of the platform.
 
 An association corresponds to a league operator (a hockey association, a tournament series, a district body,
@@ -6,11 +9,16 @@ module talks to the GameSheet JSON:API at ``/api/associations`` directly with th
 :class:`gamesheet_sdk.Session` path -- no Playwright needed for read-only access once a bearer token has been
 obtained (typically by reading the SPA's ``accessToken`` from the saved browser storage state via
 :func:`gamesheet_sdk.auth.load_access_token`).
-Examples:
-    Retrieve all associations accessible by the authenticated user::
+
+**Examples:**
+
+Retrieve all associations accessible by the authenticated user:
+
+.. code-block:: python
         from gamesheet_sdk.auth import load_access_token
         from gamesheet_sdk.session import Session
         from gamesheet_sdk.associations import list_associations
+
         # Load the saved access token from previous login
         token = load_access_token()
         # Create an authenticated session
@@ -28,14 +36,16 @@ Examples:
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from pydantic import BaseModel, Field
 
-from gamesheet_sdk.shared import JSONAPI_HEADERS, handle_response, parse_jsonapi_resource
-
-if TYPE_CHECKING:
-    from gamesheet_sdk.session import Session
+from gamesheet_sdk.session import Session
+from gamesheet_sdk.shared import (
+    JSONAPI_HEADERS,
+    handle_response,
+    parse_jsonapi_resource,
+)
 
 _ENDPOINT = "/api/associations"
 
@@ -44,12 +54,12 @@ class Association(BaseModel):
     """A single association.
 
     Maps the ``data[*]`` items in the JSON:API response of ``GET /api/associations`` to a flat typed model.
-    Attributes:
-        id: Association identifier (string in JSON:API).
-        title: Display name of the association.
-        logo: Logo asset URL, possibly empty string.
-        created_at: When the association was created.
-        updated_at: Last time the association was updated.
+
+    :var id: Association identifier (string in JSON:API).
+    :var title: Display name of the association.
+    :var logo: Logo asset URL, possibly empty string.
+    :var created_at: When the association was created.
+    :var updated_at: Last time the association was updated.
     """
 
     id: str = Field(description="Association identifier (string in JSON:API).")
@@ -63,7 +73,9 @@ def _parse(item: dict[str, Any]) -> Association:
     """Flatten a JSON:API resource object into an :class:`Association`.
 
     :param item: A JSON:API resource object with ``id`` and ``attributes`` keys.
-    :returns: An :class:`Association` instance with flattened fields.
+    :type item: dict[str, Any]
+    :returns: Parsed Association model instance.
+    :rtype: Association
     """
     return Association(**parse_jsonapi_resource(item))
 
@@ -73,10 +85,15 @@ def get_association(session: Session, association_id: str) -> Association:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param association_id: The association identifier to retrieve.
-    :returns: The :class:`Association` with the specified ID.
+    :type association_id: str
+    :returns: The requested Association model instance.
     :rtype: Association
+    :raises AuthenticationError: If the server returns 401 (bearer missing or expired).
+    :raises GameSheetError: For any other non-2xx response (including 404 if not found).
     """
     endpoint = f"{_ENDPOINT}/{association_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -91,8 +108,10 @@ def list_associations(session: Session) -> list[Association]:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :returns: A list of :class:`Association`, in the order the server returned them. The list may be empty if
         the user has access to no associations.
+    :rtype: list[Association]
     """
     response = session.get(_ENDPOINT, headers=JSONAPI_HEADERS)
     handle_response(response, _ENDPOINT, "GET associations")

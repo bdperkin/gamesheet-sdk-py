@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Smoke tests for gamesheet_sdk."""
 
 from gamesheet_sdk import __version__

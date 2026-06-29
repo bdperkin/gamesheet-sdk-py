@@ -1,15 +1,17 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for teams update command."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from unittest.mock import patch
+
+from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.teams import Team
 
-if TYPE_CHECKING:
-    from click.testing import CliRunner
 # Mock team used in tests
 _MOCK_TEAM = Team(
     id="123",

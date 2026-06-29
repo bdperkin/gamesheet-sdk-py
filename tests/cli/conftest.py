@@ -1,9 +1,12 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Shared fixtures for CLI tests."""
 
 from __future__ import annotations
 
-import pytest
 from click.testing import CliRunner
+import pytest
 
 
 @pytest.fixture

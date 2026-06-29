@@ -1,17 +1,18 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for :mod:`gamesheet_sdk.session`."""
 
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import Any
 
 import pytest
 import responses
 
 from gamesheet_sdk import DEFAULT_BASE_URL, Config, Session
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def test_default_user_agent_is_version_stamped(config: Config) -> None:
@@ -130,7 +131,7 @@ def test_explicit_timeout_overrides_default(config: Config) -> None:
     """A per-call timeout is forwarded to the underlying request."""
     captured: dict[str, object] = {}
 
-    def callback(__req: object) -> tuple[int, dict[str, str], str]:  # noqa: U101
+    def callback(*__args: Any, **__kwargs: Any) -> tuple[int, dict[str, str], str]:
         captured["called"] = True
         return (200, {}, "ok")
 
@@ -171,3 +172,45 @@ def test_set_bearer_token_replaces_existing(config: Config) -> None:
         sess.set_bearer_token("old")
         sess.set_bearer_token("new")
         assert sess.headers["Authorization"] == "Bearer new"
+
+
+def test_user_agent_falls_back_when_package_not_found() -> None:
+    """Test that user agent falls back to '0+unknown' when package metadata is missing."""
+    from unittest.mock import patch
+
+    from gamesheet_sdk.session import _default_user_agent
+
+    with patch("gamesheet_sdk.session._resolved_version") as mock_version:
+        from importlib.metadata import PackageNotFoundError
+
+        mock_version.side_effect = PackageNotFoundError("gamesheet-sdk-py")
+        ua = _default_user_agent()
+    assert ua == "gamesheet-sdk-py/0+unknown (+https://github.com/bdperkin/gamesheet-sdk-py)"
+
+
+def test_close_handles_save_oserror_gracefully(
+    config: Config,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Test that close() logs warning but continues when save() raises OSError."""
+    from unittest.mock import patch
+
+    sess = Session(config)
+    sess.cookies.set("test", "value", domain="test.example")
+    # Mock the save method to raise OSError
+    with (
+        patch.object(sess, "save", side_effect=OSError("Disk full")),
+        caplog.at_level("WARNING"),
+    ):
+        sess.close()
+    assert "Failed to save session cookies" in caplog.text
+    assert "Disk full" in caplog.text
+
+
+@responses.activate
+def test_patch_resolves_relative_urls(config: Config) -> None:
+    """Test that PATCH method resolves relative URLs."""
+    responses.add(responses.PATCH, "https://test.example/resource", status=204)
+    with Session(config) as sess:
+        resp = sess.patch("/resource")
+    assert resp.status_code == 204

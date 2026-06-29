@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for assign/unassign player and coach functions."""
 
 from __future__ import annotations
@@ -21,13 +24,22 @@ from gamesheet_sdk.roster import (
     unassign_team_coach,
     unassign_team_player,
 )
-from tests.helpers.payloads import roster_coach_payload, roster_player_payload, team_payload
+from tests.helpers import (
+    COACH_ID_PRIMARY,
+    PLAYER_ID,
+    SEASON_ID,
+    TEAM_ID,
+    TEST_BASE_URL,
+    roster_coach_payload,
+    roster_player_payload,
+    team_payload,
+)
 
-_BASE = "https://test.example"
-_SEASON_ID = "15020"
-_TEAM_ID = "12345"
-_PLAYER_ID = "8043169"
-_COACH_ID = "1868550"
+_BASE = TEST_BASE_URL
+_SEASON_ID = SEASON_ID
+_TEAM_ID = TEAM_ID
+_PLAYER_ID = PLAYER_ID
+_COACH_ID = COACH_ID_PRIMARY
 _PLAYERS_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/players/{_PLAYER_ID}"
 _COACHES_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/coaches/{_COACH_ID}"
 
@@ -35,6 +47,8 @@ _COACHES_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/coaches/{_COACH_ID}"
 @responses.activate
 def test_assign_player_minimal_fields(config: Config) -> None:
     """Test assigning a player with no optional fields."""
+    from tests.helpers import setup_team_roster_update_mocks
+
     player_response = roster_player_payload(season_id=_SEASON_ID)
     # Mock GET player to ensure it exists
     responses.add(
@@ -43,21 +57,8 @@ def test_assign_player_minimal_fields(config: Config) -> None:
         json={"data": player_response},
         status=200,
     )
-    # Mock GET team to fetch current roster
     team_data = team_payload(_TEAM_ID)
-    responses.add(
-        responses.GET,
-        f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
-        json={"data": team_data},
-        status=200,
-    )
-    # Mock PATCH to update team roster
-    responses.add(
-        responses.PATCH,
-        f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
-        json={"data": team_data},
-        status=200,
-    )
+    setup_team_roster_update_mocks(_BASE, _SEASON_ID, _TEAM_ID, team_data)
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = assign_player(session, _SEASON_ID, _PLAYER_ID, _TEAM_ID)
@@ -67,21 +68,17 @@ def test_assign_player_minimal_fields(config: Config) -> None:
 @responses.activate
 def test_assign_player_with_optional_fields(config: Config) -> None:
     """Test assigning a player with all optional fields."""
+    from tests.helpers import setup_team_roster_update_mocks
+
     player_response = roster_player_payload(season_id=_SEASON_ID)
-    responses.add(responses.GET, _PLAYERS_ENDPOINT, json={"data": player_response}, status=200)
-    team_data = team_payload(_TEAM_ID)
     responses.add(
         responses.GET,
-        f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
-        json={"data": team_data},
+        _PLAYERS_ENDPOINT,
+        json={"data": player_response},
         status=200,
     )
-    responses.add(
-        responses.PATCH,
-        f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
-        json={"data": team_data},
-        status=200,
-    )
+    team_data = team_payload(_TEAM_ID)
+    setup_team_roster_update_mocks(_BASE, _SEASON_ID, _TEAM_ID, team_data)
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = assign_player(
@@ -105,8 +102,16 @@ def test_assign_player_with_optional_fields(config: Config) -> None:
 def test_assign_player_already_assigned_raises_error(config: Config) -> None:
     """Test that assigning an already-assigned player raises GameSheetError."""
     player_response = roster_player_payload(season_id=_SEASON_ID)
-    responses.add(responses.GET, _PLAYERS_ENDPOINT, json={"data": player_response}, status=200)
-    team_data = team_payload(_TEAM_ID, players=[{"id": _PLAYER_ID, "status": "playing"}])
+    responses.add(
+        responses.GET,
+        _PLAYERS_ENDPOINT,
+        json={"data": player_response},
+        status=200,
+    )
+    team_data = team_payload(
+        _TEAM_ID,
+        players=[{"id": _PLAYER_ID, "status": "playing"}],
+    )
     responses.add(
         responses.GET,
         f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
@@ -122,6 +127,8 @@ def test_assign_player_already_assigned_raises_error(config: Config) -> None:
 @responses.activate
 def test_assign_coach_minimal_fields(config: Config) -> None:
     """Test assigning a coach with no optional fields."""
+    from tests.helpers import setup_team_roster_update_mocks
+
     coach_response = roster_coach_payload(season_id=_SEASON_ID, external_id=None)
     # Mock GET coach to ensure it exists
     responses.add(
@@ -130,21 +137,8 @@ def test_assign_coach_minimal_fields(config: Config) -> None:
         json={"data": coach_response},
         status=200,
     )
-    # Mock GET team to fetch current roster
     team_data = team_payload(_TEAM_ID)
-    responses.add(
-        responses.GET,
-        f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
-        json={"data": team_data},
-        status=200,
-    )
-    # Mock PATCH to update team roster
-    responses.add(
-        responses.PATCH,
-        f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
-        json={"data": team_data},
-        status=200,
-    )
+    setup_team_roster_update_mocks(_BASE, _SEASON_ID, _TEAM_ID, team_data)
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = assign_coach(session, _SEASON_ID, _COACH_ID, _TEAM_ID)
@@ -155,21 +149,17 @@ def test_assign_coach_minimal_fields(config: Config) -> None:
 @responses.activate
 def test_assign_coach_with_position(config: Config) -> None:
     """Test assigning a coach with position."""
+    from tests.helpers import setup_team_roster_update_mocks
+
     coach_response = roster_coach_payload(season_id=_SEASON_ID, external_id=None)
-    responses.add(responses.GET, _COACHES_ENDPOINT, json={"data": coach_response}, status=200)
-    team_data = team_payload(_TEAM_ID)
     responses.add(
         responses.GET,
-        f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
-        json={"data": team_data},
+        _COACHES_ENDPOINT,
+        json={"data": coach_response},
         status=200,
     )
-    responses.add(
-        responses.PATCH,
-        f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
-        json={"data": team_data},
-        status=200,
-    )
+    team_data = team_payload(_TEAM_ID)
+    setup_team_roster_update_mocks(_BASE, _SEASON_ID, _TEAM_ID, team_data)
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = assign_coach(
@@ -188,8 +178,16 @@ def test_assign_coach_with_position(config: Config) -> None:
 def test_assign_coach_already_assigned_raises_error(config: Config) -> None:
     """Test that assigning an already-assigned coach raises GameSheetError."""
     coach_response = roster_coach_payload(season_id=_SEASON_ID, external_id=None)
-    responses.add(responses.GET, _COACHES_ENDPOINT, json={"data": coach_response}, status=200)
-    team_data = team_payload(_TEAM_ID, coaches=[{"id": _COACH_ID, "status": "coaching"}])
+    responses.add(
+        responses.GET,
+        _COACHES_ENDPOINT,
+        json={"data": coach_response},
+        status=200,
+    )
+    team_data = team_payload(
+        _TEAM_ID,
+        coaches=[{"id": _COACH_ID, "status": "coaching"}],
+    )
     responses.add(
         responses.GET,
         f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
@@ -205,7 +203,10 @@ def test_assign_coach_already_assigned_raises_error(config: Config) -> None:
 @responses.activate
 def test_unassign_player_success(config: Config) -> None:
     """Test unassigning a player from a team."""
-    team_data = team_payload(_TEAM_ID, players=[{"id": _PLAYER_ID, "status": "playing"}])
+    team_data = team_payload(
+        _TEAM_ID,
+        players=[{"id": _PLAYER_ID, "status": "playing"}],
+    )
     responses.add(
         responses.GET,
         f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
@@ -242,7 +243,10 @@ def test_unassign_player_not_assigned_raises_error(config: Config) -> None:
 @responses.activate
 def test_unassign_coach_success(config: Config) -> None:
     """Test unassigning a coach from a team."""
-    team_data = team_payload(_TEAM_ID, coaches=[{"id": _COACH_ID, "status": "coaching"}])
+    team_data = team_payload(
+        _TEAM_ID,
+        coaches=[{"id": _COACH_ID, "status": "coaching"}],
+    )
     responses.add(
         responses.GET,
         f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
@@ -279,21 +283,17 @@ def test_unassign_coach_not_assigned_raises_error(config: Config) -> None:
 @responses.activate
 def test_assign_team_player_calls_assign_player(config: Config) -> None:
     """Test that assign_team_player is an alias for assign_player."""
+    from tests.helpers import setup_team_roster_update_mocks
+
     player_response = roster_player_payload(season_id=_SEASON_ID)
-    responses.add(responses.GET, _PLAYERS_ENDPOINT, json={"data": player_response}, status=200)
-    team_data = team_payload(_TEAM_ID)
     responses.add(
         responses.GET,
-        f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
-        json={"data": team_data},
+        _PLAYERS_ENDPOINT,
+        json={"data": player_response},
         status=200,
     )
-    responses.add(
-        responses.PATCH,
-        f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
-        json={"data": team_data},
-        status=200,
-    )
+    team_data = team_payload(_TEAM_ID)
+    setup_team_roster_update_mocks(_BASE, _SEASON_ID, _TEAM_ID, team_data)
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = assign_team_player(session, _SEASON_ID, _TEAM_ID, _PLAYER_ID)
@@ -303,19 +303,13 @@ def test_assign_team_player_calls_assign_player(config: Config) -> None:
 @responses.activate
 def test_unassign_team_player_calls_unassign_player(config: Config) -> None:
     """Test that unassign_team_player is an alias for unassign_player."""
-    team_data = team_payload(_TEAM_ID, players=[{"id": _PLAYER_ID, "status": "playing"}])
-    responses.add(
-        responses.GET,
-        f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
-        json={"data": team_data},
-        status=200,
+    from tests.helpers import setup_team_roster_update_mocks
+
+    team_data = team_payload(
+        _TEAM_ID,
+        players=[{"id": _PLAYER_ID, "status": "playing"}],
     )
-    responses.add(
-        responses.PATCH,
-        f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
-        json={"data": team_data},
-        status=200,
-    )
+    setup_team_roster_update_mocks(_BASE, _SEASON_ID, _TEAM_ID, team_data)
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         unassign_team_player(session, _SEASON_ID, _TEAM_ID, _PLAYER_ID)
@@ -324,21 +318,17 @@ def test_unassign_team_player_calls_unassign_player(config: Config) -> None:
 @responses.activate
 def test_assign_team_coach_calls_assign_coach(config: Config) -> None:
     """Test that assign_team_coach is an alias for assign_coach."""
+    from tests.helpers import setup_team_roster_update_mocks
+
     coach_response = roster_coach_payload(season_id=_SEASON_ID, external_id=None)
-    responses.add(responses.GET, _COACHES_ENDPOINT, json={"data": coach_response}, status=200)
-    team_data = team_payload(_TEAM_ID)
     responses.add(
         responses.GET,
-        f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
-        json={"data": team_data},
+        _COACHES_ENDPOINT,
+        json={"data": coach_response},
         status=200,
     )
-    responses.add(
-        responses.PATCH,
-        f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
-        json={"data": team_data},
-        status=200,
-    )
+    team_data = team_payload(_TEAM_ID)
+    setup_team_roster_update_mocks(_BASE, _SEASON_ID, _TEAM_ID, team_data)
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = assign_team_coach(session, _SEASON_ID, _TEAM_ID, _COACH_ID)
@@ -349,19 +339,13 @@ def test_assign_team_coach_calls_assign_coach(config: Config) -> None:
 @responses.activate
 def test_unassign_team_coach_calls_unassign_coach(config: Config) -> None:
     """Test that unassign_team_coach is an alias for unassign_coach."""
-    team_data = team_payload(_TEAM_ID, coaches=[{"id": _COACH_ID, "status": "coaching"}])
-    responses.add(
-        responses.GET,
-        f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
-        json={"data": team_data},
-        status=200,
+    from tests.helpers import setup_team_roster_update_mocks
+
+    team_data = team_payload(
+        _TEAM_ID,
+        coaches=[{"id": _COACH_ID, "status": "coaching"}],
     )
-    responses.add(
-        responses.PATCH,
-        f"{_BASE}/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
-        json={"data": team_data},
-        status=200,
-    )
+    setup_team_roster_update_mocks(_BASE, _SEASON_ID, _TEAM_ID, team_data)
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         unassign_team_coach(session, _SEASON_ID, _TEAM_ID, _COACH_ID)
@@ -381,7 +365,12 @@ def test_assign_player_401_raises_authentication_error(config: Config) -> None:
 def test_assign_player_with_existing_other_players_on_roster(config: Config) -> None:
     """Test assigning a player when roster has other players (not the one being assigned)."""
     player_response = roster_player_payload(season_id=_SEASON_ID)
-    responses.add(responses.GET, _PLAYERS_ENDPOINT, json={"data": player_response}, status=200)
+    responses.add(
+        responses.GET,
+        _PLAYERS_ENDPOINT,
+        json={"data": player_response},
+        status=200,
+    )
     # Team has other players but not the one being assigned
     team_data = team_payload(
         _TEAM_ID,
@@ -412,7 +401,12 @@ def test_assign_player_with_existing_other_players_on_roster(config: Config) -> 
 def test_assign_coach_with_existing_other_coaches_on_roster(config: Config) -> None:
     """Test assigning a coach when roster has other coaches (not the one being assigned)."""
     coach_response = roster_coach_payload(season_id=_SEASON_ID, external_id=None)
-    responses.add(responses.GET, _COACHES_ENDPOINT, json={"data": coach_response}, status=200)
+    responses.add(
+        responses.GET,
+        _COACHES_ENDPOINT,
+        json={"data": coach_response},
+        status=200,
+    )
     # Team has other coaches but not the one being assigned
     team_data = team_payload(
         _TEAM_ID,

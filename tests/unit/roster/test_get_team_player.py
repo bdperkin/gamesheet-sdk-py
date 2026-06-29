@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for get_team_player function."""
 
 from __future__ import annotations
@@ -7,16 +10,24 @@ import responses
 
 from gamesheet_sdk import Config, GameSheetError, Session
 from gamesheet_sdk.roster import get_team_player
+from tests.helpers import (
+    PLAYER_FIRST_NAME,
+    PLAYER_ID,
+    PLAYER_LAST_NAME,
+    SEASON_ID,
+    TEAM_ID,
+    TEST_BASE_URL,
+)
 
-_BASE = "https://test.example"
-_SEASON_ID = "15020"
-_TEAM_ID = "12345"
+_BASE = TEST_BASE_URL
+_SEASON_ID = SEASON_ID
+_TEAM_ID = TEAM_ID
 
 
 @responses.activate
 def test_get_team_player_returns_player_with_roster_metadata(config: Config) -> None:
     """Test that get_team_player returns a player with team roster metadata."""
-    _player_id = "8043169"
+    _player_id = PLAYER_ID
     _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}"
     responses.add(
         responses.GET,
@@ -48,8 +59,8 @@ def test_get_team_player_returns_player_with_roster_metadata(config: Config) -> 
                     "id": _player_id,
                     "attributes": {
                         "external_id": "BC7732F4-4993-492E-8CCB-4C2CA9C1912E",
-                        "first_name": "AUSTIN",
-                        "last_name": "ADAMSKY",
+                        "first_name": PLAYER_FIRST_NAME,
+                        "last_name": PLAYER_LAST_NAME,
                         "created_at": "2026-05-18T23:15:08.387021Z",
                         "updated_at": "2026-06-07T15:03:25.537099Z",
                     },
@@ -66,8 +77,8 @@ def test_get_team_player_returns_player_with_roster_metadata(config: Config) -> 
         result = get_team_player(session, _SEASON_ID, _TEAM_ID, _player_id)
     assert result.id == _player_id
     assert result.season_id == _SEASON_ID
-    assert result.first_name == "AUSTIN"
-    assert result.last_name == "ADAMSKY"
+    assert result.first_name == PLAYER_FIRST_NAME
+    assert result.last_name == PLAYER_LAST_NAME
     assert result.number == "42"
     assert result.position == "Forward"
     assert result.status == "Regular"
@@ -80,7 +91,7 @@ def test_get_team_player_returns_player_with_roster_metadata(config: Config) -> 
 @responses.activate
 def test_get_team_player_finds_player_after_skipping_others(config: Config) -> None:
     """Test that get_team_player iterates through multiple players to find the target."""
-    _player_id = "8043169"
+    _player_id = PLAYER_ID
     _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}"
     responses.add(
         responses.GET,
@@ -92,8 +103,18 @@ def test_get_team_player_finds_player_after_skipping_others(config: Config) -> N
                 "attributes": {
                     "roster": {
                         "players": [
-                            {"id": "1111111", "number": "1", "position": "Goalie", "status": "Regular"},
-                            {"id": "2222222", "number": "2", "position": "Defence", "status": "Regular"},
+                            {
+                                "id": "1111111",
+                                "number": "1",
+                                "position": "Goalie",
+                                "status": "Regular",
+                            },
+                            {
+                                "id": "2222222",
+                                "number": "2",
+                                "position": "Defence",
+                                "status": "Regular",
+                            },
                             {
                                 "id": _player_id,
                                 "number": "42",
@@ -104,7 +125,12 @@ def test_get_team_player_finds_player_after_skipping_others(config: Config) -> N
                                 "added_at_game_time": False,
                                 "affiliated": False,
                             },
-                            {"id": "3333333", "number": "3", "position": "Forward", "status": "Regular"},
+                            {
+                                "id": "3333333",
+                                "number": "3",
+                                "position": "Forward",
+                                "status": "Regular",
+                            },
                         ],
                     },
                 },
@@ -141,8 +167,8 @@ def test_get_team_player_finds_player_after_skipping_others(config: Config) -> N
                     "id": _player_id,
                     "attributes": {
                         "external_id": "BC7732F4-4993-492E-8CCB-4C2CA9C1912E",
-                        "first_name": "AUSTIN",
-                        "last_name": "ADAMSKY",
+                        "first_name": PLAYER_FIRST_NAME,
+                        "last_name": PLAYER_LAST_NAME,
                         "created_at": "2026-05-18T23:15:08.387021Z",
                         "updated_at": "2026-06-07T15:03:25.537099Z",
                     },
@@ -171,8 +197,8 @@ def test_get_team_player_finds_player_after_skipping_others(config: Config) -> N
         session.set_bearer_token("abc")
         result = get_team_player(session, _SEASON_ID, _TEAM_ID, _player_id)
     assert result.id == _player_id
-    assert result.first_name == "AUSTIN"
-    assert result.last_name == "ADAMSKY"
+    assert result.first_name == PLAYER_FIRST_NAME
+    assert result.last_name == PLAYER_LAST_NAME
 
 
 @responses.activate

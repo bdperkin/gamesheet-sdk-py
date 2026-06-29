@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """GameSheet divisions: organizational groupings within a season.
 
 A division is a grouping of teams within a season (e.g., "U13 AAA", "Bantam A", etc.). Each division belongs
@@ -11,19 +14,21 @@ obtained (typically by reading the SPA's ``accessToken`` from the saved browser 
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from pydantic import BaseModel, Field
 
+from gamesheet_sdk.session import Session
 from gamesheet_sdk.shared import (
     JSONAPI_HEADERS,
     handle_response,
     parse_jsonapi_resource,
 )
-
-if TYPE_CHECKING:
-    from gamesheet_sdk.session import Session
-    from gamesheet_sdk.teams import Team
+from gamesheet_sdk.shared.jsonapi import (
+    build_invitation_code_lookup,
+    get_invitation_code_from_relationship,
+)
+from gamesheet_sdk.teams import Team
 
 _ENDPOINT = "/api/divisions"
 
@@ -33,6 +38,14 @@ class Division(BaseModel):
 
     Maps the ``data[*]`` items in the JSON:API response of ``GET /api/divisions?season_id={id}`` to a flat
     typed model.
+
+    :var id: Division identifier (string in JSON:API).
+    :var season_id: Parent season identifier.
+    :var title: Display name of the division.
+    :var external_id: External identifier for integration with third-party systems.
+    :var team_count: Number of teams in this division (populated when fetched with include_team_counts=True).
+    :var created_at: When the division was created.
+    :var updated_at: Last time the division was updated.
     """
 
     id: str = Field(description="Division identifier (string in JSON:API).")
@@ -53,7 +66,13 @@ class Division(BaseModel):
 
 
 def _parse(item: dict[str, Any]) -> Division:
-    """Flatten a JSON:API resource object into a :class:`Division`."""
+    """Flatten a JSON:API resource object into a :class:`Division`.
+
+    :param item: A JSON:API resource object with ``id`` and ``attributes`` keys.
+    :type item: dict[str, Any]
+    :returns: Parsed Division model instance.
+    :rtype: Division
+    """
     data = parse_jsonapi_resource(item, relationship_map={"season": "season_id"})
     return Division(**data)
 
@@ -64,7 +83,9 @@ def list_division_teams(session: Session, division_id: str) -> list[Team]:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param division_id: The division identifier whose teams to list.
+    :type division_id: str
     :returns: A list of :class:`Team`, in the order the server returned them. The list may be empty if the
         division has no teams.
     :rtype: list[Team]
@@ -82,27 +103,16 @@ def list_division_teams(session: Session, division_id: str) -> list[Team]:
     handle_response(response, endpoint, "GET division teams")
     body: dict[str, Any] = response.json()
     # Build invitation code lookup from included resources
-    invitation_codes: dict[str, str] = {}
-    for item in body.get("included", []):
-        if item.get("type") == "invitations":
-            invitation_id = item.get("id")
-            code = item.get("attributes", {}).get("code")
-            if invitation_id and code:
-                invitation_codes[invitation_id] = code
+    invitation_codes = build_invitation_code_lookup(body)
     # Parse teams and match invitation codes via relationships
     teams = []
     for item in body.get("data", []):
         team = parse_team(item)
         # Look up invitation code from relationship
-        inv_rel = item.get("relationships", {}).get("invitations", {}).get("data")
-        if inv_rel:
-            # invitations relationship can be single object or array
-            inv_id = inv_rel[0]["id"] if isinstance(inv_rel, list) else inv_rel.get("id")
-            if inv_id and inv_id in invitation_codes:
-                # Update the team with the invitation code using model_copy
-                team = team.model_copy(
-                    update={"invitation_code": invitation_codes[inv_id]},
-                )
+        invitation_code = get_invitation_code_from_relationship(item, invitation_codes)
+        if invitation_code:
+            # Update the team with the invitation code using model_copy
+            team = team.model_copy(update={"invitation_code": invitation_code})
         teams.append(team)
     return teams
 
@@ -117,12 +127,18 @@ def get_division(
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param division_id: The division identifier to retrieve.
-    :param include_team_count: If True (default), fetch and populate team_count for the division (requires an
-        additional API call).
-    :returns: The :class:`Division` with the specified ID.
+    :type division_id: str
+    :param include_team_count: If ``True`` (default), fetch and populate ``team_count`` for the division
+        (requires an additional API call).
+    :type include_team_count: bool
+    :returns: The requested Division model instance.
     :rtype: Division
+    :raises AuthenticationError: If the server returns 401.
+    :raises GameSheetError: For any other non-2xx response.
     """
     endpoint = f"{_ENDPOINT}/{division_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -146,15 +162,23 @@ def list_divisions(
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    Note: The GameSheet API returns all divisions, so this function filters client-side to only
-    include divisions that belong to the specified season (via the relationships.season.data.id field).
+
+    .. note:: The GameSheet API returns all divisions, so this function filters client-side to only
+        include divisions that belong to the specified season (via the
+        ``relationships.season.data.id`` field).
+
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier whose divisions to list.
-    :param include_team_counts: If True, fetch and populate team_count for each division (requires an
+    :type season_id: str
+    :param include_team_counts: If ``True``, fetch and populate ``team_count`` for each division (requires an
         additional API call per division).
+    :type include_team_counts: bool
     :returns: A list of :class:`Division`, in the order the server returned them. The list may be empty if the
         season has no divisions.
     :rtype: list[Division]
+    :raises AuthenticationError: If the server returns 401.
+    :raises GameSheetError: For any other non-2xx response.
     """
     response = session.get(_ENDPOINT, headers=JSONAPI_HEADERS)
     handle_response(response, _ENDPOINT, "GET divisions")
@@ -181,13 +205,20 @@ def create_division(
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier in which to create the division.
+    :type season_id: str
     :param title: The display name of the division.
+    :type title: str
     :param external_id: Optional external identifier for integration with third-party systems. If not
-        provided, a UUID will be generated by the server.
-    :returns: The newly created :class:`Division`.
+        provided, a UUID will be generated automatically.
+    :type external_id: str | None
+    :returns: The newly created Division model instance.
     :rtype: Division
+    :raises AuthenticationError: If the server returns 401.
+    :raises GameSheetError: For any other non-2xx response.
     """
     import uuid
 
@@ -233,10 +264,15 @@ def update_division(
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401. At least one of
     title or external_id must be provided.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier containing the division.
+    :type season_id: str
     :param division_id: The division identifier to update.
+    :type division_id: str
     :param title: Optional new display name for the division.
+    :type title: str | None
     :param external_id: Optional new external identifier.
+    :type external_id: str | None
     :returns: The updated :class:`Division`.
     :rtype: Division
     :raises ValueError: If neither title nor external_id is provided.
@@ -248,7 +284,10 @@ def update_division(
     # If user didn't provide a new title, fetch the current one.
     if title is None:
         # Fetch current division to get existing title
-        get_response = session.get(f"/api/divisions/{division_id}", headers=JSONAPI_HEADERS)
+        get_response = session.get(
+            f"/api/divisions/{division_id}",
+            headers=JSONAPI_HEADERS,
+        )
         if get_response.status_code == 200:
             current_data = get_response.json()
             title = current_data.get("data", {}).get("attributes", {}).get("title", "")
@@ -295,8 +334,11 @@ def delete_division(
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier containing the division.
+    :type season_id: str
     :param division_id: The division identifier to delete.
+    :type division_id: str
     """
     endpoint = f"/api/seasons/{season_id}/divisions/{division_id}"
     response = session.delete(endpoint, headers=JSONAPI_HEADERS)

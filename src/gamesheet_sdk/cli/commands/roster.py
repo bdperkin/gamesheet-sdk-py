@@ -1,11 +1,13 @@
-"""Roster command group with nested sub-commands."""  # pylint: disable=too-many-lines
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
+"""Roster command group with nested sub-commands."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-import rich_click as click
 from click.exceptions import Exit
+import rich_click as click
+from rich_click import Context
 
 from gamesheet_sdk.cli.constants import (
     COACH_POSITIONS,
@@ -28,21 +30,20 @@ from gamesheet_sdk.cli.shared import (
     render_list_command,
 )
 from gamesheet_sdk.config import Config
-from gamesheet_sdk.roster import assign_coach as _assign_coach_action
-from gamesheet_sdk.roster import assign_player as _assign_player_action
-from gamesheet_sdk.roster import create_coach as _create_coach_action
-from gamesheet_sdk.roster import create_player as _create_player_action
-from gamesheet_sdk.roster import get_coach as _get_coach_action
-from gamesheet_sdk.roster import get_player as _get_player_action
-from gamesheet_sdk.roster import list_coaches as _list_coaches_action
-from gamesheet_sdk.roster import list_players as _list_players_action
-from gamesheet_sdk.roster import unassign_coach as _unassign_coach_action
-from gamesheet_sdk.roster import unassign_player as _unassign_player_action
-from gamesheet_sdk.roster import update_coach as _update_coach_action
-from gamesheet_sdk.roster import update_player as _update_player_action
-
-if TYPE_CHECKING:
-    from rich_click import Context
+from gamesheet_sdk.roster import (
+    assign_coach as _assign_coach_action,
+    assign_player as _assign_player_action,
+    create_coach as _create_coach_action,
+    create_player as _create_player_action,
+    get_coach as _get_coach_action,
+    get_player as _get_player_action,
+    list_coaches as _list_coaches_action,
+    list_players as _list_players_action,
+    unassign_coach as _unassign_coach_action,
+    unassign_player as _unassign_player_action,
+    update_coach as _update_coach_action,
+    update_player as _update_player_action,
+)
 
 
 @click.group(
@@ -73,6 +74,10 @@ def roster_group(ctx: Context, season_id: str) -> None:
 
     Invoking ``roster`` with no sub-command runs ``players`` by default. The --season-id option is required
     and applies to all sub-commands.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
     """
     # Store season_id in context for sub-commands to access
     # ctx.obj is a Config object from the root CLI - wrap it in a dict
@@ -122,11 +127,21 @@ def players_get_command(
     The player ID can be provided via --player-id or the GAMESHEET_PLAYER_ID environment variable. The season
     ID is inherited from the parent roster command. Requires a saved session from `gamesheet-sdk-py login`.
     The output displays player metadata as key-value pairs, with each field on its own row.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param player_id: The player identifier
+    :type player_id: str
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :param fields_spec: Optional comma-separated list of fields to display
+    :type fields_spec: str | None
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     player = run_action_or_exit(session, _get_player_action, season_id, player_id)
     render_get_command(player, output_format, output_path, fields_spec)
 
@@ -144,12 +159,20 @@ def players_list_command(
     """List all players in the specified season.
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :param columns_spec: Optional comma-separated list of columns to display
+    :type columns_spec: str | None
     """
     # Extract config and season_id from context (set by roster_group)
     # ctx.obj is always a dict set by roster_group with "config" and "season_id" keys
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     players = run_action_or_exit(session, _list_players_action, season_id)
     render_list_command(players, output_format, output_path, columns_spec)
 
@@ -255,7 +278,7 @@ def players_list_command(
 )
 @common_output_options
 @click.pass_context
-# pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
+# pylint: disable-next=too-many-positional-arguments
 def players_create_command(
     ctx: Context,
     first_name: str,
@@ -283,41 +306,88 @@ def players_create_command(
     """Create a new player in the season.
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param first_name: Player's first name
+    :type first_name: str
+    :param last_name: Player's last name
+    :type last_name: str
+    :param external_id: Optional external identifier
+    :type external_id: str | None
+    :param jersey: Optional jersey number
+    :type jersey: str | None
+    :param position: Optional player position
+    :type position: str | None
+    :param status: Optional player status
+    :type status: str | None
+    :param designation: Optional player designation
+    :type designation: str | None
+    :param team_id: Optional team ID to assign player to
+    :type team_id: str | None
+    :param biography: Optional player biography
+    :type biography: str | None
+    :param height: Optional player height
+    :type height: str | None
+    :param weight: Optional player weight
+    :type weight: str | None
+    :param shot_hand: Optional shooting hand
+    :type shot_hand: str | None
+    :param birthdate: Optional birthdate
+    :type birthdate: str | None
+    :param hometown: Optional hometown
+    :type hometown: str | None
+    :param country: Optional country
+    :type country: str | None
+    :param province: Optional province/state
+    :type province: str | None
+    :param drafted_by: Optional drafted by team
+    :type drafted_by: str | None
+    :param committed_to: Optional committed to team
+    :type committed_to: str | None
+    :param photo_path: Optional path to player photo
+    :type photo_path: str | None
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :raises Exit: On authentication or API errors.
     """
     ctx_data = ctx.obj
+    from gamesheet_sdk.cli.helpers import run_roster_create_with_output
+
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
-    session = build_authenticated_session(ctx, config)
-    try:
-        with session:
-            player = _create_player_action(
-                session,
-                season_id,
-                first_name,
-                last_name,
-                external_id=external_id,
-                jersey=jersey,
-                position=position,
-                status=status,
-                designation=designation,
-                team_id=team_id,
-                biography=biography,
-                height=height,
-                weight=weight,
-                shot_hand=shot_hand,
-                birthdate=birthdate,
-                hometown=hometown,
-                country=country,
-                province=province,
-                drafted_by=drafted_by,
-                committed_to=committed_to,
-                photo_path=photo_path,
-            )
-    except Exception as exc:
-        click.secho(f"Error creating player: {exc}", fg="red", err=True)
-        raise Exit(1) from exc
-    render_get_command(player, output_format, output_path, None)
-    click.secho(f"Player {player.id} created successfully.", fg="green")
+    session = build_authenticated_session(config)
+    run_roster_create_with_output(
+        _create_player_action,
+        session,
+        "player",
+        output_format,
+        output_path,
+        session,
+        season_id,
+        first_name,
+        last_name,
+        external_id=external_id,
+        jersey=jersey,
+        position=position,
+        status=status,
+        designation=designation,
+        team_id=team_id,
+        # pylint: disable=duplicate-code
+        biography=biography,
+        height=height,
+        weight=weight,
+        shot_hand=shot_hand,
+        birthdate=birthdate,
+        hometown=hometown,
+        country=country,
+        province=province,
+        drafted_by=drafted_by,
+        committed_to=committed_to,
+        photo_path=photo_path,
+        # pylint: enable=duplicate-code
+    )
 
 
 @players_group.command("update")
@@ -407,8 +477,8 @@ def players_create_command(
 )
 @common_output_options
 @click.pass_context
-def players_update_command(  # pragma: no cover
-    # pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
+# pylint: disable-next=too-many-positional-arguments
+def players_update_command(
     ctx: Context,
     player_id: str,
     first_name: str | None,
@@ -425,7 +495,8 @@ def players_update_command(  # pragma: no cover
     drafted_by: str | None,
     committed_to: str | None,
     photo_path: str | None,
-    remove_photo: bool,  # noqa: FBT001
+    *,
+    remove_photo: bool,
     output_format: str,
     output_path: str | None,
 ) -> None:
@@ -433,51 +504,91 @@ def players_update_command(  # pragma: no cover
 
     Requires authentication (run 'gamesheet-sdk-py login' first). At least one field must be provided for
     update.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param player_id: The player identifier to update
+    :type player_id: str
+    :param first_name: Optional updated first name
+    :type first_name: str | None
+    :param last_name: Optional updated last name
+    :type last_name: str | None
+    :param external_id: Optional updated external identifier
+    :type external_id: str | None
+    :param biography: Optional updated biography
+    :type biography: str | None
+    :param height: Optional updated height
+    :type height: str | None
+    :param weight: Optional updated weight
+    :type weight: str | None
+    :param shot_hand: Optional updated shooting hand
+    :type shot_hand: str | None
+    :param birthdate: Optional updated birthdate
+    :type birthdate: str | None
+    :param hometown: Optional updated hometown
+    :type hometown: str | None
+    :param country: Optional updated country
+    :type country: str | None
+    :param province: Optional updated province/state
+    :type province: str | None
+    :param drafted_by: Optional updated drafted by team
+    :type drafted_by: str | None
+    :param committed_to: Optional updated committed to team
+    :type committed_to: str | None
+    :param photo_path: Optional path to updated player photo
+    :type photo_path: str | None
+    :param remove_photo: Remove the player's photo
+    :type remove_photo: bool
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :raises Exit: On authentication or API errors.
     """
+    from gamesheet_sdk.cli.helpers import run_roster_update_with_output
+
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
-    session = build_authenticated_session(ctx, config)
-    try:
-        with session:
-            player = _update_player_action(
-                session,
-                season_id,
-                player_id,
-                first_name=first_name,
-                last_name=last_name,
-                external_id=external_id,
-                biography=biography,
-                height=height,
-                weight=weight,
-                shot_hand=shot_hand,
-                birthdate=birthdate,
-                hometown=hometown,
-                country=country,
-                province=province,
-                drafted_by=drafted_by,
-                committed_to=committed_to,
-                photo_path=photo_path,
-                remove_photo=remove_photo,
-            )
-    except ValueError as exc:
-        click.secho(f"Error: {exc}", fg="red", err=True)
-        raise Exit(1) from exc
-    except Exception as exc:
-        click.secho(f"Error updating player: {exc}", fg="red", err=True)
-        raise Exit(1) from exc
-    render_get_command(player, output_format, output_path, None)
-    click.secho(f"Player {player.id} updated successfully.", fg="green")
+    session = build_authenticated_session(config)
+    run_roster_update_with_output(
+        _update_player_action,
+        session,
+        "player",
+        output_format,
+        output_path,
+        session,
+        season_id,
+        # pylint: disable=duplicate-code
+        player_id,
+        first_name=first_name,
+        last_name=last_name,
+        external_id=external_id,
+        biography=biography,
+        height=height,
+        weight=weight,
+        shot_hand=shot_hand,
+        birthdate=birthdate,
+        hometown=hometown,
+        country=country,
+        province=province,
+        drafted_by=drafted_by,
+        committed_to=committed_to,
+        photo_path=photo_path,
+        remove_photo=remove_photo,
+    )
 
 
 @players_group.command("delete")
 @confirm_destructive("player")
-def players_delete_command() -> None:  # pragma: no cover
+def players_delete_command() -> None:
     """Delete a player.
 
     NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+
+    :raises Exit: Always raised (exit code 1) because this command is not yet implemented.
     """
     click.secho(
+        # pylint: enable=duplicate-code
         "Error: roster players delete is not yet implemented. Backend support needed.",
         fg="red",
         err=True,
@@ -486,10 +597,12 @@ def players_delete_command() -> None:  # pragma: no cover
 
 
 @players_group.command("penalty-report")
-def players_penalty_report_command() -> None:  # pragma: no cover
+def players_penalty_report_command() -> None:
     """Get penalty report for a player.
 
     NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+
+    :raises Exit: Always raised (exit code 1) because this command is not yet implemented.
     """
     click.secho(
         "Error: roster players penalty-report is not yet implemented. Backend support needed.",
@@ -518,7 +631,15 @@ def players_penalty_report_command() -> None:  # pragma: no cover
 @click.option(
     "--position",
     type=click.Choice(
-        ["Forward", "Left Wing", "Right Wing", "Centre", "Pusher (Sled)", "Defence", "Goalie"],
+        [
+            "Forward",
+            "Left Wing",
+            "Right Wing",
+            "Centre",
+            "Pusher (Sled)",
+            "Defence",
+            "Goalie",
+        ],
         case_sensitive=False,
     ),
     help="Optional position.",
@@ -546,9 +667,29 @@ def players_assign_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Assign an existing player to a team's roster."""
+    """Assign an existing player to a team's roster.
+
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param player_id: The player identifier
+    :type player_id: str
+    :param team_id: The team identifier
+    :type team_id: str
+    :param jersey: Optional jersey number
+    :type jersey: str | None
+    :param position: Optional position
+    :type position: str | None
+    :param status: Optional status
+    :type status: str | None
+    :param designation: Optional designation
+    :type designation: str | None
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    """
     config, season_id = ctx.obj["config"], ctx.obj["season_id"]
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     run_roster_assign_with_output(
         _assign_player_action,
         session,
@@ -585,9 +726,17 @@ def players_assign_command(
 )
 @click.pass_context
 def players_unassign_command(ctx: Context, player_id: str, team_id: str) -> None:
-    """Unassign a player from a team's roster."""
+    """Unassign a player from a team's roster.
+
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param player_id: The player identifier
+    :type player_id: str
+    :param team_id: The team identifier
+    :type team_id: str
+    """
     config, season_id = ctx.obj["config"], ctx.obj["season_id"]
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     run_roster_unassign(
         _unassign_player_action,
         session,
@@ -643,11 +792,21 @@ def coaches_get_command(
     The coach ID can be provided via --coach-id or the GAMESHEET_COACH_ID environment variable. The season ID
     is inherited from the parent roster command. Requires a saved session from `gamesheet-sdk-py login`. The
     output displays coach metadata as key-value pairs, with each field on its own row.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param coach_id: The coach identifier
+    :type coach_id: str
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :param fields_spec: Optional comma-separated list of fields to display
+    :type fields_spec: str | None
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     coach = run_action_or_exit(session, _get_coach_action, season_id, coach_id)
     render_get_command(coach, output_format, output_path, fields_spec)
 
@@ -665,12 +824,20 @@ def coaches_list_command(
     """List all coaches in the specified season.
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :param columns_spec: Optional comma-separated list of columns to display
+    :type columns_spec: str | None
     """
     # Extract config and season_id from context (set by roster_group)
     # ctx.obj is always a dict set by roster_group with "config" and "season_id" keys
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     coaches = run_action_or_exit(session, _list_coaches_action, season_id)
     render_list_command(coaches, output_format, output_path, columns_spec)
 
@@ -718,11 +885,28 @@ def coaches_create_command(
     """Create a new coach in the season.
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param first_name: Optional updated first name
+    :type first_name: str
+    :param last_name: Optional updated last name
+    :type last_name: str
+    :param external_id: Optional updated external identifier
+    :type external_id: str | None
+    :param position: Optional position
+    :type position: str | None
+    :param team_id: The team identifier
+    :type team_id: str | None
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :raises Exit: Always raised (exit code 1) because this command is not yet implemented.
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     try:
         with session:
             coach = _create_coach_action(
@@ -771,7 +955,7 @@ def coaches_create_command(
 )
 @common_output_options
 @click.pass_context
-def coaches_update_command(  # pragma: no cover
+def coaches_update_command(
     ctx: Context,
     coach_id: str,
     first_name: str | None,
@@ -785,38 +969,54 @@ def coaches_update_command(  # pragma: no cover
 
     Requires authentication (run 'gamesheet-sdk-py login' first). At least one field must be provided for
     update.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param coach_id: The coach identifier
+    :type coach_id: str
+    :param first_name: Optional updated first name
+    :type first_name: str | None
+    :param last_name: Optional updated last name
+    :type last_name: str | None
+    :param external_id: Optional updated external identifier
+    :type external_id: str | None
+    :param position: Optional position
+    :type position: str | None
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :raises Exit: Always raised (exit code 1) because this command is not yet implemented.
     """
+    from gamesheet_sdk.cli.helpers import run_roster_update_with_output
+
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
-    session = build_authenticated_session(ctx, config)
-    try:
-        with session:
-            coach = _update_coach_action(
-                session,
-                season_id,
-                coach_id,
-                first_name=first_name,
-                last_name=last_name,
-                external_id=external_id,
-                position=position,
-            )
-    except ValueError as exc:
-        click.secho(f"Error: {exc}", fg="red", err=True)
-        raise Exit(1) from exc
-    except Exception as exc:
-        click.secho(f"Error updating coach: {exc}", fg="red", err=True)
-        raise Exit(1) from exc
-    render_get_command(coach, output_format, output_path, None)
-    click.secho(f"Coach {coach.id} updated successfully.", fg="green")
+    session = build_authenticated_session(config)
+    run_roster_update_with_output(
+        _update_coach_action,
+        session,
+        "coach",
+        output_format,
+        output_path,
+        session,
+        season_id,
+        coach_id,
+        first_name=first_name,
+        last_name=last_name,
+        external_id=external_id,
+        position=position,
+    )
 
 
 @coaches_group.command("delete")
 @confirm_destructive("coach")
-def coaches_delete_command() -> None:  # pragma: no cover
+def coaches_delete_command() -> None:
     """Delete a coach.
 
     NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+
+    :raises Exit: Always raised (exit code 1) because this command is not yet implemented.
     """
     click.secho(
         "Error: roster coaches delete is not yet implemented. Backend support needed.",
@@ -827,10 +1027,12 @@ def coaches_delete_command() -> None:  # pragma: no cover
 
 
 @coaches_group.command("penalty-report")
-def coaches_penalty_report_command() -> None:  # pragma: no cover
+def coaches_penalty_report_command() -> None:
     """Get penalty report for a coach.
 
     NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+
+    :raises Exit: Always raised (exit code 1) because this command is not yet implemented.
     """
     click.secho(
         "Error: roster coaches penalty-report is not yet implemented. Backend support needed.",
@@ -841,8 +1043,20 @@ def coaches_penalty_report_command() -> None:  # pragma: no cover
 
 
 @coaches_group.command("assign")
-@click.option("--coach-id", type=str, envvar="GAMESHEET_COACH_ID", required=True, help="Coach ID to assign.")
-@click.option("--team-id", type=str, envvar="GAMESHEET_TEAM_ID", required=True, help="Team ID to assign to.")
+@click.option(
+    "--coach-id",
+    type=str,
+    envvar="GAMESHEET_COACH_ID",
+    required=True,
+    help="Coach ID to assign.",
+)
+@click.option(
+    "--team-id",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID to assign to.",
+)
 @click.option(
     "--position",
     type=click.Choice(COACH_POSITIONS, case_sensitive=False),
@@ -858,9 +1072,23 @@ def coaches_assign_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Assign an existing coach to a team's roster."""
+    """Assign an existing coach to a team's roster.
+
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param coach_id: The coach identifier
+    :type coach_id: str
+    :param team_id: The team identifier
+    :type team_id: str
+    :param position: Optional position
+    :type position: str | None
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    """
     config, season_id = ctx.obj["config"], ctx.obj["season_id"]
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     run_roster_assign_with_output(
         _assign_coach_action,
         session,
@@ -894,9 +1122,17 @@ def coaches_assign_command(
 )
 @click.pass_context
 def coaches_unassign_command(ctx: Context, coach_id: str, team_id: str) -> None:
-    """Unassign a coach from a team's roster."""
+    """Unassign a coach from a team's roster.
+
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param coach_id: The coach identifier
+    :type coach_id: str
+    :param team_id: The team identifier
+    :type team_id: str
+    """
     config, season_id = ctx.obj["config"], ctx.obj["season_id"]
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     run_roster_unassign(
         _unassign_coach_action,
         session,
