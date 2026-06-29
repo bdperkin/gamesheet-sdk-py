@@ -16,7 +16,15 @@ def test_coaches_delete_requires_coach_id() -> None:
     """Test that delete command requires --coach-id."""
     result = CliRunner().invoke(
         cli,
-        ["--base-url", "https://test.example.com", "roster", "--season-id", "15020", "coaches", "delete"],
+        [
+            "--base-url",
+            "https://test.example.com",
+            "roster",
+            "--season-id",
+            "15020",
+            "coaches",
+            "delete",
+        ],
     )
     assert result.exit_code
     assert "--coach-id" in result.output or "coach-id" in result.output.lower()
@@ -26,7 +34,10 @@ def test_coaches_delete_requires_confirmation(mock_session: MagicMock) -> None:
     """Test that delete requires confirmation without --force."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session", return_value=mock_session),
+        patch(
+            "gamesheet_sdk.cli.commands.roster.build_authenticated_session",
+            return_value=mock_session,
+        ),
         patch("gamesheet_sdk.cli.commands.roster._delete_coach_action") as mock_delete,
     ):
         # Answer 'n' to confirmation
@@ -53,7 +64,10 @@ def test_coaches_delete_with_confirmation(mock_session: MagicMock) -> None:
     """Test successful delete with confirmation."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session", return_value=mock_session),
+        patch(
+            "gamesheet_sdk.cli.commands.roster.build_authenticated_session",
+            return_value=mock_session,
+        ),
         patch("gamesheet_sdk.cli.commands.roster._delete_coach_action") as mock_delete,
     ):
         # Answer 'y' to confirmation
@@ -81,7 +95,10 @@ def test_coaches_delete_with_force(mock_session: MagicMock) -> None:
     """Test successful delete with --force flag."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session", return_value=mock_session),
+        patch(
+            "gamesheet_sdk.cli.commands.roster.build_authenticated_session",
+            return_value=mock_session,
+        ),
         patch("gamesheet_sdk.cli.commands.roster._delete_coach_action") as mock_delete,
     ):
         result = runner.invoke(
@@ -108,7 +125,10 @@ def test_coaches_delete_error_handling(mock_session: MagicMock) -> None:
     """Test error handling when delete fails."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session", return_value=mock_session),
+        patch(
+            "gamesheet_sdk.cli.commands.roster.build_authenticated_session",
+            return_value=mock_session,
+        ),
         patch(
             "gamesheet_sdk.cli.commands.roster._delete_coach_action",
             side_effect=Exception("Delete failed"),
@@ -137,7 +157,10 @@ def test_coaches_delete_uses_env_var(mock_session: MagicMock) -> None:
     """Test that delete uses GAMESHEET_COACH_ID environment variable."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session", return_value=mock_session),
+        patch(
+            "gamesheet_sdk.cli.commands.roster.build_authenticated_session",
+            return_value=mock_session,
+        ),
         patch("gamesheet_sdk.cli.commands.roster._delete_coach_action") as mock_delete,
     ):
         result = runner.invoke(

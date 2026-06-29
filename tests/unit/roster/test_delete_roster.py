@@ -40,7 +40,12 @@ def test_delete_team_coach_success(mock_session: MagicMock) -> None:
         patch("gamesheet_sdk.roster.coaches.delete_coach") as mock_delete,
     ):
         delete_team_coach(mock_session, "15020", "523675", "1879939")
-        mock_unassign.assert_called_once_with(mock_session, "15020", "1879939", "523675")
+        mock_unassign.assert_called_once_with(
+            mock_session,
+            "15020",
+            "1879939",
+            "523675",
+        )
         mock_delete.assert_called_once_with(mock_session, "15020", "1879939")
 
 
@@ -71,7 +76,12 @@ def test_delete_team_player_success(mock_session: MagicMock) -> None:
         patch("gamesheet_sdk.roster.players.delete_player") as mock_delete,
     ):
         delete_team_player(mock_session, "15020", "523675", "8116321")
-        mock_unassign.assert_called_once_with(mock_session, "15020", "8116321", "523675")
+        mock_unassign.assert_called_once_with(
+            mock_session,
+            "15020",
+            "8116321",
+            "523675",
+        )
         mock_delete.assert_called_once_with(mock_session, "15020", "8116321")
 
 

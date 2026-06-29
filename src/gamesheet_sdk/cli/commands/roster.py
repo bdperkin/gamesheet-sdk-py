@@ -615,19 +615,53 @@ def players_delete_command(ctx: Context, player_id: str) -> None:
 
 
 @players_group.command("penalty-report")
-def players_penalty_report_command() -> None:
+@click.option(
+    "--player-id",
+    type=str,
+    envvar="GAMESHEET_PLAYER_ID",
+    required=True,
+    help="Player ID to retrieve penalty report for.",
+)
+@common_output_options
+@click.pass_context
+def players_penalty_report_command(
+    ctx: Context,
+    player_id: str,
+    output_format: str,
+    output_path: str | None,
+) -> None:
     """Get penalty report for a player.
 
-    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+    Retrieves penalty statistics, incidents, and infraction history for the specified player.
 
-    :raises Exit: Always raised (exit code 1) because this command is not yet implemented.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param player_id: Player ID to retrieve penalty report for
+    :type player_id: str
+    :param output_format: Output format (json, yaml, etc.)
+    :type output_format: str
+    :param output_path: Optional path to write output file
+    :type output_path: str | None
     """
-    click.secho(
-        "Error: roster players penalty-report is not yet implemented. Backend support needed.",
-        fg="red",
-        err=True,
-    )
-    raise Exit(1)
+    import json
+
+    config: Config = ctx.obj["config"]
+    season_id: str = ctx.obj["season_id"]
+    with build_authenticated_session(config) as session:
+        from gamesheet_sdk.roster import get_player_penalty_report
+
+        report = get_player_penalty_report(session, season_id, player_id)
+        if output_format == "json":
+            output_text = json.dumps(report, indent=2)
+        elif output_format == "yaml":
+            import yaml
+
+            output_text = yaml.dump(report, default_flow_style=False)
+        else:
+            output_text = json.dumps(report, indent=2)
+        from gamesheet_sdk.output import write_output
+
+        write_output(output_text, output_path, fmt=output_format)
 
 
 @players_group.command("assign")
@@ -1062,19 +1096,53 @@ def coaches_delete_command(ctx: Context, coach_id: str) -> None:
 
 
 @coaches_group.command("penalty-report")
-def coaches_penalty_report_command() -> None:
+@click.option(
+    "--coach-id",
+    type=str,
+    envvar="GAMESHEET_COACH_ID",
+    required=True,
+    help="Coach ID to retrieve penalty report for.",
+)
+@common_output_options
+@click.pass_context
+def coaches_penalty_report_command(
+    ctx: Context,
+    coach_id: str,
+    output_format: str,
+    output_path: str | None,
+) -> None:
     """Get penalty report for a coach.
 
-    NOT YET IMPLEMENTED - Backend function needs to be added to gamesheet_sdk.roster module.
+    Retrieves penalty statistics, incidents, and infraction history for the specified coach.
 
-    :raises Exit: Always raised (exit code 1) because this command is not yet implemented.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param coach_id: Coach ID to retrieve penalty report for
+    :type coach_id: str
+    :param output_format: Output format (json, yaml, etc.)
+    :type output_format: str
+    :param output_path: Optional path to write output file
+    :type output_path: str | None
     """
-    click.secho(
-        "Error: roster coaches penalty-report is not yet implemented. Backend support needed.",
-        fg="red",
-        err=True,
-    )
-    raise Exit(1)
+    import json
+
+    config: Config = ctx.obj["config"]
+    season_id: str = ctx.obj["season_id"]
+    with build_authenticated_session(config) as session:
+        from gamesheet_sdk.roster import get_coach_penalty_report
+
+        report = get_coach_penalty_report(session, season_id, coach_id)
+        if output_format == "json":
+            output_text = json.dumps(report, indent=2)
+        elif output_format == "yaml":
+            import yaml
+
+            output_text = yaml.dump(report, default_flow_style=False)
+        else:
+            output_text = json.dumps(report, indent=2)
+        from gamesheet_sdk.output import write_output
+
+        write_output(output_text, output_path, fmt=output_format)
 
 
 @coaches_group.command("assign")

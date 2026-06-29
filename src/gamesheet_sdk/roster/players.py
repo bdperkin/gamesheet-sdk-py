@@ -1081,3 +1081,36 @@ def unassign_team_player(
     :type player_id: str
     """
     unassign_player(session, season_id, player_id, team_id)
+
+
+def get_player_penalty_report(
+    session: Session,
+    season_id: str,
+    player_id: str,
+) -> dict[str, Any]:
+    """Fetch penalty report for a player.
+
+    First retrieves the player to get their external_id, then fetches the penalty report from the BFF API. The
+    supplied :class:`Session` must already carry a bearer token (e.g. via :meth:`Session.set_bearer_token`);
+    the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param season_id: The season identifier.
+    :type season_id: str
+    :param player_id: The player identifier.
+    :type player_id: str
+    :returns: Penalty report data including player_games, player_penalties, rostered_players, and
+        season_players.
+    :rtype: dict[str, Any]
+    """
+    player = get_player(session, season_id, player_id)
+    external_id = player.external_id
+    bff_url = f"https://bff-dashboard-api-awy26srzoa-nn.a.run.app/reports/player-penalty-report/{external_id}"
+    response = session.get(bff_url)
+    handle_response(response, bff_url, "GET player penalty report")
+    body: dict[str, Any] = response.json()
+    if body.get("status") != "success":
+        msg = f"Penalty report API returned status: {body.get('status')}"
+        raise GameSheetError(msg)
+    data: dict[str, Any] = body["data"]
+    return data
