@@ -9,7 +9,10 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.teams_roster_players import teams_roster_players_group
+# pylint: disable=import-error,no-name-in-module
+from gamesheet_sdk.cli.commands.teams_roster import (  # type: ignore[import-not-found]
+    teams_roster_players_group,
+)
 from tests.helpers import SEASON_ID, TEAM_ID
 
 
@@ -17,12 +20,12 @@ def test_teams_roster_players_list_coverage() -> None:
     """Ensure teams roster players list command body is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.teams_roster.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.teams_roster_players.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster.run_action_or_exit",
+            "gamesheet_sdk.cli.commands.teams_roster_players.run_action_or_exit",
             return_value=[],
         ),
-        patch("gamesheet_sdk.cli.commands.teams_roster.render_list_command"),
+        patch("gamesheet_sdk.cli.commands.teams_roster_players.render_list_command"),
     ):
         result = runner.invoke(
             teams_roster_players_group,
