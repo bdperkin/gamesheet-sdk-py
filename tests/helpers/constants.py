@@ -42,3 +42,6 @@ INVITATION_CODE = "RAPTORS2024"
 
 # Base URLs for test endpoints
 TEST_BASE_URL = "https://test.example"
+
+# JSON:API content type (used in header assertions)
+JSONAPI_CONTENT_TYPE = "application/vnd.api+json"

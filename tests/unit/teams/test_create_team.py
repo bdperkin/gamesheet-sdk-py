@@ -20,12 +20,11 @@ from gamesheet_sdk import (
     Session,
     create_team,
 )
+from tests.helpers import SEASON_ID
 
-_BASE = "https://test.example"
-_SEASON_ID = "15020"
 _BFF_BASE = BFF_API_BASE_URL
 _UPLOAD_URL_ENDPOINT = f"{_BFF_BASE}/dwg/assets/upload-url"
-_CREATE_ENDPOINT = f"{_BFF_BASE}/dwg/seasons/{_SEASON_ID}/teams"
+_CREATE_ENDPOINT = f"{_BFF_BASE}/dwg/seasons/{SEASON_ID}/teams"
 
 
 @responses.activate
@@ -67,7 +66,7 @@ def test_create_team_sends_correct_payload_without_logo(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = create_team(session, _SEASON_ID, "Test Team", "80385")
+        result = create_team(session, SEASON_ID, "Test Team", "80385")
     assert result["prototeam"]["title"] == "Test Team"
     assert result["seasonTeam"]["divisionId"] == 80385
     assert result["invitation"]["code"] == "M9XnAHNBt5"
@@ -105,7 +104,7 @@ def test_create_team_with_external_id(config: Config) -> None:
         session.set_bearer_token("abc")
         result = create_team(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             "Test Team",
             "80385",
             external_id="custom-external-id",
@@ -176,7 +175,7 @@ def test_create_team_with_logo(config: Config) -> None:
             session.set_bearer_token("abc")
             result = create_team(
                 session,
-                _SEASON_ID,
+                SEASON_ID,
                 "Test Team",
                 "80385",
                 logo_path=logo_path,
@@ -207,7 +206,7 @@ def test_create_team_401_raises_authentication_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            create_team(session, _SEASON_ID, "Test Team", "80385")
+            create_team(session, SEASON_ID, "Test Team", "80385")
 
 
 @responses.activate
@@ -217,7 +216,7 @@ def test_create_team_other_failure_raises_gamesheet_error(config: Config) -> Non
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            create_team(session, _SEASON_ID, "Test Team", "80385")
+            create_team(session, SEASON_ID, "Test Team", "80385")
 
 
 @responses.activate
@@ -232,7 +231,7 @@ def test_create_team_failed_status_raises_gamesheet_error(config: Config) -> Non
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="Failed to create team"):
-            create_team(session, _SEASON_ID, "Test Team", "80385")
+            create_team(session, SEASON_ID, "Test Team", "80385")
 
 
 @responses.activate
@@ -243,7 +242,7 @@ def test_upload_logo_invalid_file_raises_error(config: Config) -> None:
         with pytest.raises(GameSheetError, match="Logo file not found"):
             create_team(
                 session,
-                _SEASON_ID,
+                SEASON_ID,
                 "Test Team",
                 "80385",
                 logo_path="/nonexistent/path.png",
@@ -263,7 +262,7 @@ def test_upload_logo_non_image_file_raises_error(config: Config) -> None:
             with pytest.raises(GameSheetError, match="Invalid image file"):
                 create_team(
                     session,
-                    _SEASON_ID,
+                    SEASON_ID,
                     "Test Team",
                     "80385",
                     logo_path=non_image_path,
@@ -291,7 +290,7 @@ def test_upload_url_request_401_raises_authentication_error(config: Config) -> N
             with pytest.raises(AuthenticationError, match="HTTP 401"):
                 create_team(
                     session,
-                    _SEASON_ID,
+                    SEASON_ID,
                     "Test Team",
                     "80385",
                     logo_path=logo_path,
@@ -319,7 +318,7 @@ def test_upload_url_request_failure_raises_gamesheet_error(config: Config) -> No
             with pytest.raises(GameSheetError, match="HTTP 500"):
                 create_team(
                     session,
-                    _SEASON_ID,
+                    SEASON_ID,
                     "Test Team",
                     "80385",
                     logo_path=logo_path,
@@ -347,7 +346,7 @@ def test_upload_url_failed_status_raises_gamesheet_error(config: Config) -> None
             with pytest.raises(GameSheetError, match="Failed to get upload URL"):
                 create_team(
                     session,
-                    _SEASON_ID,
+                    SEASON_ID,
                     "Test Team",
                     "80385",
                     logo_path=logo_path,
@@ -387,7 +386,7 @@ def test_image_upload_failure_raises_gamesheet_error(config: Config) -> None:
             with pytest.raises(GameSheetError, match="HTTP 500"):
                 create_team(
                     session,
-                    _SEASON_ID,
+                    SEASON_ID,
                     "Test Team",
                     "80385",
                     logo_path=logo_path,
@@ -432,7 +431,7 @@ def test_image_upload_failed_success_flag_raises_gamesheet_error(
             with pytest.raises(GameSheetError, match="Failed to upload logo"):
                 create_team(
                     session,
-                    _SEASON_ID,
+                    SEASON_ID,
                     "Test Team",
                     "80385",
                     logo_path=logo_path,

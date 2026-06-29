@@ -10,9 +10,8 @@ import responses
 
 from gamesheet_sdk import Config, GameSheetError, Session
 from gamesheet_sdk.roster import get_team_coach
+from tests.helpers import SEASON_ID, TEST_BASE_URL
 
-_BASE = "https://test.example"
-_SEASON_ID = "15020"
 _TEAM_ID = "12345"
 
 
@@ -20,7 +19,7 @@ _TEAM_ID = "12345"
 def test_get_team_coach_returns_coach_with_roster_metadata(config: Config) -> None:
     """Test that get_team_coach returns a coach with team roster metadata."""
     _coach_id = "1879740"
-    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}"
     responses.add(
         responses.GET,
         _get_endpoint,
@@ -53,7 +52,7 @@ def test_get_team_coach_returns_coach_with_roster_metadata(config: Config) -> No
                         "updated_at": "2026-06-25T03:40:20.968536Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                     },
                 },
             ],
@@ -62,9 +61,9 @@ def test_get_team_coach_returns_coach_with_roster_metadata(config: Config) -> No
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_team_coach(session, _SEASON_ID, _TEAM_ID, _coach_id)
+        result = get_team_coach(session, SEASON_ID, _TEAM_ID, _coach_id)
     assert result.id == _coach_id
-    assert result.season_id == _SEASON_ID
+    assert result.season_id == SEASON_ID
     assert result.first_name == "LOU"
     assert result.last_name == "LAMORIELLO"
     assert result.position == "Manager"
@@ -76,7 +75,7 @@ def test_get_team_coach_returns_coach_with_roster_metadata(config: Config) -> No
 def test_get_team_coach_finds_coach_after_skipping_others(config: Config) -> None:
     """Test that get_team_coach iterates through multiple coaches to find the target."""
     _coach_id = "1879740"
-    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}"
     responses.add(
         responses.GET,
         _get_endpoint,
@@ -118,7 +117,7 @@ def test_get_team_coach_finds_coach_after_skipping_others(config: Config) -> Non
                         "updated_at": "2026-06-25T03:40:20.968536Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                     },
                 },
                 {
@@ -131,7 +130,7 @@ def test_get_team_coach_finds_coach_after_skipping_others(config: Config) -> Non
                         "updated_at": "2026-06-25T03:40:20.968536Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                     },
                 },
                 {
@@ -145,7 +144,7 @@ def test_get_team_coach_finds_coach_after_skipping_others(config: Config) -> Non
                         "updated_at": "2026-06-25T03:40:20.968536Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                     },
                 },
             ],
@@ -154,7 +153,7 @@ def test_get_team_coach_finds_coach_after_skipping_others(config: Config) -> Non
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_team_coach(session, _SEASON_ID, _TEAM_ID, _coach_id)
+        result = get_team_coach(session, SEASON_ID, _TEAM_ID, _coach_id)
     assert result.id == _coach_id
     assert result.first_name == "LOU"
     assert result.last_name == "LAMORIELLO"
@@ -164,7 +163,7 @@ def test_get_team_coach_finds_coach_after_skipping_others(config: Config) -> Non
 def test_get_team_coach_raises_error_when_coach_not_on_team(config: Config) -> None:
     """Test that get_team_coach raises GameSheetError when coach is not on the team."""
     _coach_id = "nonexistent"
-    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}"
     responses.add(
         responses.GET,
         _get_endpoint,
@@ -188,4 +187,4 @@ def test_get_team_coach_raises_error_when_coach_not_on_team(config: Config) -> N
             GameSheetError,
             match=f"Coach {_coach_id} not found on team {_TEAM_ID}",
         ):
-            get_team_coach(session, _SEASON_ID, _TEAM_ID, _coach_id)
+            get_team_coach(session, SEASON_ID, _TEAM_ID, _coach_id)

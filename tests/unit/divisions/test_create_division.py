@@ -15,10 +15,9 @@ from gamesheet_sdk import (
     Session,
     create_division,
 )
+from tests.helpers import JSONAPI_CONTENT_TYPE, SEASON_ID, TEST_BASE_URL
 
-_BASE = "https://test.example"
-_SEASON_ID = "15020"
-_CREATE_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/divisions"
+_CREATE_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/divisions"
 
 
 @responses.activate
@@ -39,7 +38,7 @@ def test_create_division_sends_correct_payload(config: Config) -> None:
                     "updated_at": "2026-06-09T19:39:56.219694Z",
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -49,20 +48,20 @@ def test_create_division_sends_correct_payload(config: Config) -> None:
         session.set_bearer_token("abc")
         result = create_division(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             "Test Division",
             external_id="test-external-id",
         )
     assert result.id == "80997"
     assert result.title == "Test Division"
-    assert result.season_id == _SEASON_ID
+    assert result.season_id == SEASON_ID
     assert result.external_id == "test-external-id"
     # Verify the request payload
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
-    assert req.headers["Accept"] == "application/vnd.api+json"
-    assert req.headers["Content-Type"] == "application/vnd.api+json"
+    assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
+    assert req.headers["Content-Type"] == JSONAPI_CONTENT_TYPE
     import json
 
     assert req.body is not None
@@ -70,7 +69,7 @@ def test_create_division_sends_correct_payload(config: Config) -> None:
     assert payload["data"]["type"] == "divisions"
     assert payload["data"]["attributes"]["title"] == "Test Division"
     assert payload["data"]["attributes"]["external_id"] == "test-external-id"
-    assert payload["data"]["relationships"]["season"]["data"]["id"] == _SEASON_ID
+    assert payload["data"]["relationships"]["season"]["data"]["id"] == SEASON_ID
 
 
 @responses.activate
@@ -93,7 +92,7 @@ def test_create_division_generates_uuid_if_external_id_not_provided(
                     "updated_at": "2026-06-09T19:39:56.219694Z",
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -101,7 +100,7 @@ def test_create_division_generates_uuid_if_external_id_not_provided(
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = create_division(session, _SEASON_ID, "Test Division 2")
+        result = create_division(session, SEASON_ID, "Test Division 2")
     assert result.id == "80998"
     assert result.title == "Test Division 2"
     # Verify a UUID was generated
@@ -133,7 +132,7 @@ def test_create_division_401_raises_authentication_error(config: Config) -> None
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            create_division(session, _SEASON_ID, "Test Division")
+            create_division(session, SEASON_ID, "Test Division")
 
 
 @responses.activate
@@ -148,7 +147,7 @@ def test_create_division_404_raises_gamesheet_error_with_helpful_message(
             GameSheetError,
             match=r"Resource not found \(HTTP 404\)",
         ):
-            create_division(session, _SEASON_ID, "Test Division")
+            create_division(session, SEASON_ID, "Test Division")
 
 
 @responses.activate
@@ -160,4 +159,4 @@ def test_create_division_other_failure_raises_gamesheet_error(
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            create_division(session, _SEASON_ID, "Test Division")
+            create_division(session, SEASON_ID, "Test Division")

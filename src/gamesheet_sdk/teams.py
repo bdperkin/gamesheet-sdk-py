@@ -21,13 +21,12 @@ from pydantic import BaseModel, Field
 from gamesheet_sdk.constants import BFF_API_BASE_URL
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.session import Session
+from gamesheet_sdk.shared import JSONAPI_CONTENT_TYPE, JSONAPI_HEADERS
 from gamesheet_sdk.shared.gamesheet_http import handle_season_scoped_response
 from gamesheet_sdk.shared.jsonapi import (
     build_invitation_code_lookup,
     get_invitation_code_from_relationship,
 )
-
-_JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
 
 
 class Team(BaseModel):
@@ -134,7 +133,7 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
     }
     response = session.get(
         endpoint,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+        headers=JSONAPI_HEADERS,
         params=params,
     )
     handle_season_scoped_response(response, endpoint, season_id)
@@ -290,7 +289,7 @@ def update_team(
     get_endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
     get_response = session.get(
         get_endpoint,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+        headers=JSONAPI_HEADERS,
         params={"include": "association,league,season,division,players,coaches"},
     )
     _handle_team_response_errors(
@@ -343,8 +342,8 @@ def update_team(
         update_endpoint,
         json=payload,
         headers={
-            "Accept": _JSONAPI_CONTENT_TYPE,
-            "Content-Type": _JSONAPI_CONTENT_TYPE,
+            "Accept": JSONAPI_CONTENT_TYPE,
+            "Content-Type": JSONAPI_CONTENT_TYPE,
         },
     )
     _handle_team_response_errors(
@@ -358,7 +357,7 @@ def update_team(
         delete_logo_endpoint = f"/api/seasons/{season_id}/teams-v2/{team_id}/logo"
         delete_response = session.delete(
             delete_logo_endpoint,
-            headers={"Accept": _JSONAPI_CONTENT_TYPE},
+            headers=JSONAPI_HEADERS,
         )
         if delete_response.status_code >= 400:
             _err_msg = (
@@ -457,7 +456,7 @@ def delete_team(
     endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
     response = session.delete(
         endpoint,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+        headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
         _err_msg = (

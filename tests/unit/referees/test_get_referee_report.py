@@ -10,9 +10,7 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.referees import get_referee_report
-
-_BASE = "https://test.example"
-_SEASON_ID = "15020"
+from tests.helpers import SEASON_ID, TEST_BASE_URL
 
 
 @responses.activate
@@ -20,8 +18,8 @@ def test_get_referee_report_returns_complete_report(config: Config) -> None:
     """Test that get_referee_report returns a complete report."""
     _referee_id = "1146198"
     _external_id = "13340CA3-6B7D-4EC1-A183-EE281D2990A6"
-    _get_referee_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
-    _report_endpoint = f"{_BASE}/api/reports/referees/{_external_id}"
+    _get_referee_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    _report_endpoint = f"{TEST_BASE_URL}/api/reports/referees/{_external_id}"
     # Mock the GET referee request
     responses.add(
         responses.GET,
@@ -39,7 +37,7 @@ def test_get_referee_report_returns_complete_report(config: Config) -> None:
                     "updated_at": "2026-06-15T12:04:05Z",
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -67,7 +65,7 @@ def test_get_referee_report_returns_complete_report(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        report = get_referee_report(session, _SEASON_ID, _referee_id)
+        report = get_referee_report(session, SEASON_ID, _referee_id)
     assert report.external_id == _external_id
     assert report.first_name == "WES"
     assert report.last_name == "MCCAULEY"
@@ -84,8 +82,8 @@ def test_get_referee_report_with_minimal_data(config: Config) -> None:
     """Test that get_referee_report handles missing optional fields."""
     _referee_id = "1146199"
     _external_id = "ABC12345-6789-0DEF-ABCD-EF1234567890"
-    _get_referee_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
-    _report_endpoint = f"{_BASE}/api/reports/referees/{_external_id}"
+    _get_referee_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    _report_endpoint = f"{TEST_BASE_URL}/api/reports/referees/{_external_id}"
     # Mock the GET referee request
     responses.add(
         responses.GET,
@@ -102,7 +100,7 @@ def test_get_referee_report_with_minimal_data(config: Config) -> None:
                     "updated_at": "2026-06-15T12:04:05Z",
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -117,7 +115,7 @@ def test_get_referee_report_with_minimal_data(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        report = get_referee_report(session, _SEASON_ID, _referee_id)
+        report = get_referee_report(session, SEASON_ID, _referee_id)
     assert report.external_id == _external_id
     assert report.first_name == "Jane"
     assert report.last_name == "Doe"
@@ -133,7 +131,7 @@ def test_get_referee_report_with_minimal_data(config: Config) -> None:
 def test_get_referee_report_raises_error_if_no_external_id(config: Config) -> None:
     """Test that get_referee_report raises error when referee has no external_id."""
     _referee_id = "1146200"
-    _get_referee_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
+    _get_referee_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
     # Mock the GET referee request without external_id
     responses.add(
         responses.GET,
@@ -150,7 +148,7 @@ def test_get_referee_report_raises_error_if_no_external_id(config: Config) -> No
                     "updated_at": "2026-06-15T12:04:05Z",
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -162,7 +160,7 @@ def test_get_referee_report_raises_error_if_no_external_id(config: Config) -> No
             GameSheetError,
             match=r"does not have an external_id set.*Cannot fetch report",
         ):
-            get_referee_report(session, _SEASON_ID, _referee_id)
+            get_referee_report(session, SEASON_ID, _referee_id)
 
 
 @responses.activate
@@ -170,8 +168,8 @@ def test_get_referee_report_401_raises_authentication_error(config: Config) -> N
     """Test that HTTP 401 on report request raises AuthenticationError."""
     _referee_id = "1146201"
     _external_id = "EXT-401-TEST"
-    _get_referee_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
-    _report_endpoint = f"{_BASE}/api/reports/referees/{_external_id}"
+    _get_referee_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    _report_endpoint = f"{TEST_BASE_URL}/api/reports/referees/{_external_id}"
     # Mock the GET referee request
     responses.add(
         responses.GET,
@@ -188,7 +186,7 @@ def test_get_referee_report_401_raises_authentication_error(config: Config) -> N
                     "updated_at": "2026-06-15T12:04:05Z",
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -204,7 +202,7 @@ def test_get_referee_report_401_raises_authentication_error(config: Config) -> N
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            get_referee_report(session, _SEASON_ID, _referee_id)
+            get_referee_report(session, SEASON_ID, _referee_id)
 
 
 @responses.activate
@@ -214,8 +212,8 @@ def test_get_referee_report_404_raises_gamesheet_error_with_helpful_message(
     """Test that HTTP 404 on report request raises GameSheetError with helpful message."""
     _referee_id = "1146202"
     _external_id = "EXT-404-TEST"
-    _get_referee_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
-    _report_endpoint = f"{_BASE}/api/reports/referees/{_external_id}"
+    _get_referee_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    _report_endpoint = f"{TEST_BASE_URL}/api/reports/referees/{_external_id}"
     # Mock the GET referee request
     responses.add(
         responses.GET,
@@ -232,7 +230,7 @@ def test_get_referee_report_404_raises_gamesheet_error_with_helpful_message(
                     "updated_at": "2026-06-15T12:04:05Z",
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -246,7 +244,7 @@ def test_get_referee_report_404_raises_gamesheet_error_with_helpful_message(
             GameSheetError,
             match=r"Report not found.*may not have officiated any games",
         ):
-            get_referee_report(session, _SEASON_ID, _referee_id)
+            get_referee_report(session, SEASON_ID, _referee_id)
 
 
 @responses.activate
@@ -256,8 +254,8 @@ def test_get_referee_report_other_failure_raises_gamesheet_error(
     """Test that other HTTP errors raise GameSheetError."""
     _referee_id = "1146203"
     _external_id = "EXT-500-TEST"
-    _get_referee_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/referees/{_referee_id}"
-    _report_endpoint = f"{_BASE}/api/reports/referees/{_external_id}"
+    _get_referee_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    _report_endpoint = f"{TEST_BASE_URL}/api/reports/referees/{_external_id}"
     # Mock the GET referee request
     responses.add(
         responses.GET,
@@ -274,7 +272,7 @@ def test_get_referee_report_other_failure_raises_gamesheet_error(
                     "updated_at": "2026-06-15T12:04:05Z",
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -285,4 +283,4 @@ def test_get_referee_report_other_failure_raises_gamesheet_error(
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            get_referee_report(session, _SEASON_ID, _referee_id)
+            get_referee_report(session, SEASON_ID, _referee_id)

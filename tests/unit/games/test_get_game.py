@@ -16,9 +16,9 @@ from gamesheet_sdk import (
     Session,
 )
 from gamesheet_sdk.games import get_game
+from tests.helpers import SEASON_ID
 
 _BFF_BASE = BFF_API_BASE_URL
-_SEASON_ID = "15020"
 
 
 @responses.activate
@@ -49,7 +49,7 @@ def test_get_game_returns_single_game(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_game(session, _SEASON_ID, _game_id)
+        result = get_game(session, SEASON_ID, _game_id)
     assert result.id == _game_id
     assert result.status == "completed"
     assert result.visitor.title == "Team A"
@@ -95,7 +95,7 @@ def test_get_game_finds_game_in_list(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_game(session, _SEASON_ID, _game_id)
+        result = get_game(session, SEASON_ID, _game_id)
     assert result.id == _game_id
     assert result.visitor.title == "Team A"
 
@@ -117,7 +117,7 @@ def test_get_game_404_when_game_not_found(config: Config) -> None:
             GameSheetError,
             match=r"Game '.*' not found.*valid game ID and season ID",
         ):
-            get_game(session, _SEASON_ID, _game_id)
+            get_game(session, SEASON_ID, _game_id)
 
 
 @responses.activate
@@ -134,7 +134,7 @@ def test_get_game_401_raises_authentication_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            get_game(session, _SEASON_ID, _game_id)
+            get_game(session, SEASON_ID, _game_id)
 
 
 @responses.activate
@@ -146,4 +146,4 @@ def test_get_game_other_failure_raises_gamesheet_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            get_game(session, _SEASON_ID, _game_id)
+            get_game(session, SEASON_ID, _game_id)

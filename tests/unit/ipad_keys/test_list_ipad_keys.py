@@ -17,11 +17,9 @@ from gamesheet_sdk import (
     Session,
     list_ipad_keys,
 )
-from tests.helpers import jsonapi_payload
+from tests.helpers import JSONAPI_CONTENT_TYPE, SEASON_ID, TEST_BASE_URL, jsonapi_payload
 
-_BASE = "https://test.example"
-_SEASON_ID = "15020"
-_ENDPOINT = f"{_BASE}/api/api-keys"
+_ENDPOINT = f"{TEST_BASE_URL}/api/api-keys"
 
 
 @responses.activate
@@ -43,7 +41,7 @@ def test_list_ipad_keys_parses_jsonapi_response(config: Config) -> None:
                                 "title": "app",
                                 "level": {
                                     "type": "seasons",
-                                    "id": _SEASON_ID,
+                                    "id": SEASON_ID,
                                 },
                             },
                         ],
@@ -58,13 +56,13 @@ def test_list_ipad_keys_parses_jsonapi_response(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
-        result = list_ipad_keys(session, _SEASON_ID)
+        result = list_ipad_keys(session, SEASON_ID)
     assert len(result) == 1
     assert result[0].id == "3567"
     assert result[0].value == "ipad-ncrr-kw"
     assert result[0].description == "iPad Key - Raleigh Raptors"
     assert result[0].roles == [
-        {"title": "app", "level": {"type": "seasons", "id": _SEASON_ID}},
+        {"title": "app", "level": {"type": "seasons", "id": SEASON_ID}},
     ]
     assert result[0].live_scoring_scopes == ["read", "write"]
     assert result[0].created_at == datetime(
@@ -95,11 +93,11 @@ def test_list_ipad_keys_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
-        list_ipad_keys(session, _SEASON_ID)
+        list_ipad_keys(session, SEASON_ID)
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
-    assert req.headers["Accept"] == "application/vnd.api+json"
+    assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
     # Check that the season filter is applied
     assert req.url is not None
     assert "filter%5Bseason%5D=15020" in req.url or "filter[season]=15020" in req.url
@@ -111,7 +109,7 @@ def test_list_ipad_keys_empty_data_returns_empty_list(config: Config) -> None:
     responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
-        assert not list_ipad_keys(session, _SEASON_ID)
+        assert not list_ipad_keys(session, SEASON_ID)
 
 
 @responses.activate
@@ -126,7 +124,7 @@ def test_list_ipad_keys_401_raises_authentication_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            list_ipad_keys(session, _SEASON_ID)
+            list_ipad_keys(session, SEASON_ID)
 
 
 @responses.activate
@@ -141,7 +139,7 @@ def test_list_ipad_keys_404_raises_helpful_gamesheet_error(
             GameSheetError,
             match=r"No iPad keys found or invalid season ID.*valid season ID.*seasons list --league-id",
         ):
-            list_ipad_keys(session, _SEASON_ID)
+            list_ipad_keys(session, SEASON_ID)
 
 
 @responses.activate
@@ -153,4 +151,4 @@ def test_list_ipad_keys_other_failure_raises_gamesheet_error(
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            list_ipad_keys(session, _SEASON_ID)
+            list_ipad_keys(session, SEASON_ID)

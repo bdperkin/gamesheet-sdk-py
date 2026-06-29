@@ -15,36 +15,35 @@ from gamesheet_sdk.roster import (
     update_team_coach,
     update_team_player,
 )
-from tests.helpers import setup_update_coach_mocks, setup_update_player_mocks
+from tests.helpers import SEASON_ID, setup_update_coach_mocks, setup_update_player_mocks
 from tests.helpers.payloads import (
     roster_coach_payload,
     roster_player_payload,
     team_payload,
 )
 
-_SEASON_ID = "15020"
 _TEAM_ID = "523675"
 _PLAYER_ID = "8043169"
 _COACH_ID = "1879938"
-_PLAYERS_ENDPOINT = f"https://test.example/api/seasons/{_SEASON_ID}/players/{_PLAYER_ID}"
-_COACHES_ENDPOINT = f"https://test.example/api/seasons/{_SEASON_ID}/coaches/{_COACH_ID}"
+_PLAYERS_ENDPOINT = f"https://test.example/api/seasons/{SEASON_ID}/players/{_PLAYER_ID}"
+_COACHES_ENDPOINT = f"https://test.example/api/seasons/{SEASON_ID}/coaches/{_COACH_ID}"
 
 
 @responses.activate
 def test_update_player_updates_fields(config: Config) -> None:
     """Test updating a player updates the specified fields."""
     # Mock GET to fetch current player
-    current_player = roster_player_payload(season_id=_SEASON_ID)
+    current_player = roster_player_payload(season_id=SEASON_ID)
     # Mock PATCH to update player
     # pylint: disable=duplicate-code
-    updated_player = roster_player_payload(season_id=_SEASON_ID)
+    updated_player = roster_player_payload(season_id=SEASON_ID)
     updated_player["attributes"]["last_name"] = "UPDATED"
     setup_update_player_mocks(_PLAYERS_ENDPOINT, current_player, updated_player)
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = update_player(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _PLAYER_ID,
             last_name="UPDATED",
         )
@@ -59,7 +58,7 @@ def test_update_player_with_photo_upload(config: Config) -> None:
 
     temp_path = setup_photo_upload_mocks()
     # Mock GET to fetch current player
-    current_player = roster_player_payload(season_id=_SEASON_ID)
+    current_player = roster_player_payload(season_id=SEASON_ID)
     responses.add(
         responses.GET,
         _PLAYERS_ENDPOINT,
@@ -67,7 +66,7 @@ def test_update_player_with_photo_upload(config: Config) -> None:
         status=200,
     )
     # Mock PATCH to update player
-    updated_player = roster_player_payload(season_id=_SEASON_ID)
+    updated_player = roster_player_payload(season_id=SEASON_ID)
     updated_player["attributes"][
         "photo_url"
     ] = "https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA/test-image-id"
@@ -81,7 +80,7 @@ def test_update_player_with_photo_upload(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_player(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _PLAYER_ID,
             photo_path=temp_path,
         )
@@ -93,7 +92,7 @@ def test_update_player_with_photo_upload(config: Config) -> None:
 def test_update_player_remove_photo(config: Config) -> None:
     """Test updating a player to remove photo."""
     # Mock GET to fetch current player
-    current_player = roster_player_payload(season_id=_SEASON_ID)
+    current_player = roster_player_payload(season_id=SEASON_ID)
     current_player["attributes"]["photo_url"] = "https://example.com/old-photo.jpg"
     responses.add(
         responses.GET,
@@ -102,7 +101,7 @@ def test_update_player_remove_photo(config: Config) -> None:
         status=200,
     )
     # Mock PATCH to update player
-    updated_player = roster_player_payload(season_id=_SEASON_ID)
+    updated_player = roster_player_payload(season_id=SEASON_ID)
     updated_player["attributes"]["photo_url"] = ""
     responses.add(
         responses.PATCH,
@@ -114,7 +113,7 @@ def test_update_player_remove_photo(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_player(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _PLAYER_ID,
             remove_photo=True,
         )
@@ -127,7 +126,7 @@ def test_update_player_no_fields_raises_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(ValueError, match="At least one field must be provided"):
-            update_player(session, _SEASON_ID, _PLAYER_ID)
+            update_player(session, SEASON_ID, _PLAYER_ID)
 
 
 @responses.activate
@@ -147,7 +146,7 @@ def test_update_player_photo_and_remove_photo_raises_error(config: Config) -> No
         ):
             update_player(
                 session,
-                _SEASON_ID,
+                SEASON_ID,
                 _PLAYER_ID,
                 photo_path=photo_path,
                 remove_photo=True,
@@ -158,16 +157,16 @@ def test_update_player_photo_and_remove_photo_raises_error(config: Config) -> No
 def test_update_coach_updates_fields(config: Config) -> None:
     """Test updating a coach updates the specified fields."""
     # Mock GET to fetch current coach
-    current_coach = roster_coach_payload(season_id=_SEASON_ID)
+    current_coach = roster_coach_payload(season_id=SEASON_ID)
     # Mock PATCH to update coach
-    updated_coach = roster_coach_payload(season_id=_SEASON_ID)
+    updated_coach = roster_coach_payload(season_id=SEASON_ID)
     updated_coach["attributes"]["last_name"] = "UPDATED"
     setup_update_coach_mocks(_COACHES_ENDPOINT, current_coach, updated_coach)
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = update_coach(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _COACH_ID,
             last_name="UPDATED",
         )
@@ -180,7 +179,7 @@ def test_update_coach_no_fields_raises_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(ValueError, match="At least one field must be provided"):
-            update_coach(session, _SEASON_ID, _COACH_ID)
+            update_coach(session, SEASON_ID, _COACH_ID)
 
 
 @responses.activate
@@ -188,7 +187,7 @@ def test_update_team_player_updates_fields(config: Config) -> None:
     """Test updating a team player updates the specified fields."""
     # Mock GET team to fetch current team player (via list_team_players)
     team_data = team_payload()
-    current_player_payload = roster_player_payload(season_id=_SEASON_ID)
+    current_player_payload = roster_player_payload(season_id=SEASON_ID)
     team_data["attributes"]["roster"] = {
         "players": [
             {
@@ -206,16 +205,16 @@ def test_update_team_player_updates_fields(config: Config) -> None:
     }
     responses.add(
         responses.GET,
-        f"https://test.example/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
+        f"https://test.example/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
         json={"data": team_data, "included": [current_player_payload]},
         status=200,
     )
     # Mock PATCH to update player
-    updated_player = roster_player_payload(season_id=_SEASON_ID)
+    updated_player = roster_player_payload(season_id=SEASON_ID)
     updated_player["attributes"]["last_name"] = "UPDATED"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{_SEASON_ID}/players/{_PLAYER_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/players/{_PLAYER_ID}",
         json={"data": updated_player},
         status=200,
     )
@@ -223,7 +222,7 @@ def test_update_team_player_updates_fields(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_team_player(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _TEAM_ID,
             _PLAYER_ID,
             last_name="UPDATED",
@@ -238,7 +237,7 @@ def test_update_team_coach_updates_fields(config: Config) -> None:
     team_data = team_payload()
     current_coach_payload = roster_coach_payload(
         coach_id=_COACH_ID,
-        season_id=_SEASON_ID,
+        season_id=SEASON_ID,
     )
     team_data["attributes"]["roster"] = {
         "players": [],
@@ -256,16 +255,16 @@ def test_update_team_coach_updates_fields(config: Config) -> None:
     }
     responses.add(
         responses.GET,
-        f"https://test.example/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
+        f"https://test.example/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
         json={"data": team_data, "included": [current_coach_payload]},
         status=200,
     )
     # Mock PATCH to update coach
-    updated_coach = roster_coach_payload(season_id=_SEASON_ID)
+    updated_coach = roster_coach_payload(season_id=SEASON_ID)
     updated_coach["attributes"]["last_name"] = "UPDATED"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{_SEASON_ID}/coaches/{_COACH_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{_COACH_ID}",
         json={"data": updated_coach},
         status=200,
     )
@@ -273,7 +272,7 @@ def test_update_team_coach_updates_fields(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_team_coach(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _TEAM_ID,
             _COACH_ID,
             last_name="UPDATED",
@@ -288,7 +287,7 @@ def test_update_team_coach_with_position_updates_roster(config: Config) -> None:
     team_data = team_payload()
     current_coach_payload = roster_coach_payload(
         coach_id=_COACH_ID,
-        season_id=_SEASON_ID,
+        season_id=SEASON_ID,
     )
     current_coach_payload["attributes"]["position"] = "Assistant Coach"
     team_data["attributes"]["roster"] = {
@@ -307,16 +306,16 @@ def test_update_team_coach_with_position_updates_roster(config: Config) -> None:
     }
     responses.add(
         responses.GET,
-        f"https://test.example/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
+        f"https://test.example/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
         json={"data": team_data, "included": [current_coach_payload]},
         status=200,
     )
     # Mock PATCH to update coach
-    updated_coach = roster_coach_payload(season_id=_SEASON_ID)
+    updated_coach = roster_coach_payload(season_id=SEASON_ID)
     updated_coach["attributes"]["position"] = "Head Coach"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{_SEASON_ID}/coaches/{_COACH_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{_COACH_ID}",
         json={"data": updated_coach},
         status=200,
     )
@@ -335,14 +334,14 @@ def test_update_team_coach_with_position_updates_roster(config: Config) -> None:
     }
     responses.add(
         responses.GET,
-        f"https://test.example/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}",
         json={"data": team_data2},
         status=200,
     )
     # Mock team PATCH for roster update
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/teams-v2/{_TEAM_ID}",
         json={"data": team_data2},
         status=200,
     )
@@ -350,7 +349,7 @@ def test_update_team_coach_with_position_updates_roster(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_team_coach(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _TEAM_ID,
             _COACH_ID,
             position="Head Coach",
@@ -362,7 +361,7 @@ def test_update_team_coach_with_position_updates_roster(config: Config) -> None:
 def test_update_player_with_all_profile_fields(config: Config) -> None:
     """Test updating a player with all profile fields."""
     # Mock GET to fetch current player
-    current_player = roster_player_payload(season_id=_SEASON_ID)
+    current_player = roster_player_payload(season_id=SEASON_ID)
     responses.add(
         responses.GET,
         _PLAYERS_ENDPOINT,
@@ -370,7 +369,7 @@ def test_update_player_with_all_profile_fields(config: Config) -> None:
         status=200,
     )
     # Mock PATCH to update player
-    updated_player = roster_player_payload(season_id=_SEASON_ID)
+    updated_player = roster_player_payload(season_id=SEASON_ID)
     updated_player["attributes"]["biography"] = "Test bio"
     updated_player["attributes"]["height"] = "6'2\""
     updated_player["attributes"]["weight"] = "200"
@@ -391,7 +390,7 @@ def test_update_player_with_all_profile_fields(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_player(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _PLAYER_ID,
             biography="Test bio",
             height="6'2\"",
@@ -412,7 +411,7 @@ def test_update_player_with_all_profile_fields(config: Config) -> None:
 def test_update_coach_with_all_fields(config: Config) -> None:
     """Test updating a coach with all fields."""
     # Mock GET to fetch current coach
-    current_coach = roster_coach_payload(season_id=_SEASON_ID)
+    current_coach = roster_coach_payload(season_id=SEASON_ID)
     responses.add(
         responses.GET,
         _COACHES_ENDPOINT,
@@ -420,7 +419,7 @@ def test_update_coach_with_all_fields(config: Config) -> None:
         status=200,
     )
     # Mock PATCH to update coach
-    updated_coach = roster_coach_payload(season_id=_SEASON_ID)
+    updated_coach = roster_coach_payload(season_id=SEASON_ID)
     updated_coach["attributes"]["first_name"] = "NEW"
     updated_coach["attributes"]["last_name"] = "COACH"
     updated_coach["attributes"]["position"] = "Head Coach"
@@ -435,7 +434,7 @@ def test_update_coach_with_all_fields(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_coach(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _COACH_ID,
             first_name="NEW",
             last_name="COACH",
@@ -451,7 +450,7 @@ def test_update_team_player_with_all_profile_fields(config: Config) -> None:
     """Test updating a team player with all profile fields."""
     # Mock GET team to fetch current team player (via list_team_players)
     team_data = team_payload()
-    current_player_payload = roster_player_payload(season_id=_SEASON_ID)
+    current_player_payload = roster_player_payload(season_id=SEASON_ID)
     team_data["attributes"]["roster"] = {
         "players": [
             {
@@ -469,12 +468,12 @@ def test_update_team_player_with_all_profile_fields(config: Config) -> None:
     }
     responses.add(
         responses.GET,
-        f"https://test.example/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
+        f"https://test.example/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
         json={"data": team_data, "included": [current_player_payload]},
         status=200,
     )
     # Mock PATCH to update player
-    updated_player = roster_player_payload(season_id=_SEASON_ID)
+    updated_player = roster_player_payload(season_id=SEASON_ID)
     updated_player["attributes"]["biography"] = "Test bio"
     updated_player["attributes"]["height"] = "6'0\""
     updated_player["attributes"]["weight"] = "180"
@@ -487,7 +486,7 @@ def test_update_team_player_with_all_profile_fields(config: Config) -> None:
     updated_player["attributes"]["committed_to"] = "Team D"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{_SEASON_ID}/players/{_PLAYER_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/players/{_PLAYER_ID}",
         json={"data": updated_player},
         status=200,
     )
@@ -495,7 +494,7 @@ def test_update_team_player_with_all_profile_fields(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_team_player(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _TEAM_ID,
             _PLAYER_ID,
             biography="Test bio",
@@ -518,14 +517,14 @@ def test_update_team_coach_no_fields_raises_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(ValueError, match="At least one field must be provided"):
-            update_team_coach(session, _SEASON_ID, _TEAM_ID, _COACH_ID)
+            update_team_coach(session, SEASON_ID, _TEAM_ID, _COACH_ID)
 
 
 @responses.activate
 def test_update_coach_preserves_existing_position(config: Config) -> None:
     """Test updating a coach preserves existing position when position=None."""
     # Mock GET to fetch current coach with position set
-    current_coach = roster_coach_payload(season_id=_SEASON_ID)
+    current_coach = roster_coach_payload(season_id=SEASON_ID)
     current_coach["attributes"]["position"] = "Assistant Coach"
     responses.add(
         responses.GET,
@@ -534,7 +533,7 @@ def test_update_coach_preserves_existing_position(config: Config) -> None:
         status=200,
     )
     # Mock PATCH to update coach
-    updated_coach = roster_coach_payload(season_id=_SEASON_ID)
+    updated_coach = roster_coach_payload(season_id=SEASON_ID)
     updated_coach["attributes"]["last_name"] = "UPDATED"
     updated_coach["attributes"]["position"] = "Assistant Coach"
     responses.add(
@@ -547,7 +546,7 @@ def test_update_coach_preserves_existing_position(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_coach(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _COACH_ID,
             last_name="UPDATED",
         )
@@ -559,7 +558,7 @@ def test_update_coach_preserves_existing_external_id(config: Config) -> None:
     """Test updating a coach preserves existing external_id when external_id=None."""
     # Mock GET to fetch current coach with external_id set
     current_coach = roster_coach_payload(
-        season_id=_SEASON_ID,
+        season_id=SEASON_ID,
         external_id="existing-ext-id",
     )
     responses.add(
@@ -570,7 +569,7 @@ def test_update_coach_preserves_existing_external_id(config: Config) -> None:
     )
     # Mock PATCH to update coach
     updated_coach = roster_coach_payload(
-        season_id=_SEASON_ID,
+        season_id=SEASON_ID,
         external_id="existing-ext-id",
     )
     updated_coach["attributes"]["last_name"] = "UPDATED"
@@ -584,7 +583,7 @@ def test_update_coach_preserves_existing_external_id(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_coach(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _COACH_ID,
             last_name="UPDATED",
         )
@@ -599,7 +598,7 @@ def test_update_team_coach_with_external_id(config: Config) -> None:
     team_data = team_payload()
     current_coach_payload = roster_coach_payload(
         coach_id=_COACH_ID,
-        season_id=_SEASON_ID,
+        season_id=SEASON_ID,
         external_id=None,
     )
     team_data["attributes"]["roster"] = {
@@ -618,20 +617,20 @@ def test_update_team_coach_with_external_id(config: Config) -> None:
     }
     responses.add(
         responses.GET,
-        f"https://test.example/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
+        f"https://test.example/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
         json={"data": team_data, "included": [current_coach_payload]},
         status=200,
     )
     # Mock PATCH to update coach
     updated_coach = roster_coach_payload(
         coach_id=_COACH_ID,
-        season_id=_SEASON_ID,
+        season_id=SEASON_ID,
         external_id="new-ext-id",
     )
     updated_coach["attributes"]["external_id"] = "new-ext-id"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{_SEASON_ID}/coaches/{_COACH_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{_COACH_ID}",
         json={"data": updated_coach},
         status=200,
     )
@@ -639,7 +638,7 @@ def test_update_team_coach_with_external_id(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_team_coach(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _TEAM_ID,
             _COACH_ID,
             external_id="new-ext-id",
@@ -651,7 +650,7 @@ def test_update_team_coach_with_external_id(config: Config) -> None:
 def test_update_coach_with_no_external_id_preserved(config: Config) -> None:
     """Test updating a coach when neither new nor current external_id exists."""
     # Mock GET to fetch current coach without external_id
-    current_coach = roster_coach_payload(season_id=_SEASON_ID, external_id=None)
+    current_coach = roster_coach_payload(season_id=SEASON_ID, external_id=None)
     responses.add(
         responses.GET,
         _COACHES_ENDPOINT,
@@ -659,7 +658,7 @@ def test_update_coach_with_no_external_id_preserved(config: Config) -> None:
         status=200,
     )
     # Mock PATCH to update coach
-    updated_coach = roster_coach_payload(season_id=_SEASON_ID, external_id=None)
+    updated_coach = roster_coach_payload(season_id=SEASON_ID, external_id=None)
     updated_coach["attributes"]["last_name"] = "UPDATED"
     responses.add(
         responses.PATCH,
@@ -671,7 +670,7 @@ def test_update_coach_with_no_external_id_preserved(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_coach(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _COACH_ID,
             last_name="UPDATED",
         )
@@ -685,7 +684,7 @@ def test_update_team_coach_preserves_existing_external_id(config: Config) -> Non
     team_data = team_payload()
     current_coach_payload = roster_coach_payload(
         coach_id=_COACH_ID,
-        season_id=_SEASON_ID,
+        season_id=SEASON_ID,
         external_id="existing-ext-id",
     )
     team_data["attributes"]["roster"] = {
@@ -704,20 +703,20 @@ def test_update_team_coach_preserves_existing_external_id(config: Config) -> Non
     }
     responses.add(
         responses.GET,
-        f"https://test.example/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
+        f"https://test.example/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
         json={"data": team_data, "included": [current_coach_payload]},
         status=200,
     )
     # Mock PATCH to update coach
     updated_coach = roster_coach_payload(
         coach_id=_COACH_ID,
-        season_id=_SEASON_ID,
+        season_id=SEASON_ID,
         external_id="existing-ext-id",
     )
     updated_coach["attributes"]["last_name"] = "UPDATED"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{_SEASON_ID}/coaches/{_COACH_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{_COACH_ID}",
         json={"data": updated_coach},
         status=200,
     )
@@ -725,7 +724,7 @@ def test_update_team_coach_preserves_existing_external_id(config: Config) -> Non
         session.set_bearer_token("valid-token")
         result = update_team_coach(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _TEAM_ID,
             _COACH_ID,
             last_name="UPDATED",
@@ -741,7 +740,7 @@ def test_update_team_coach_with_no_external_id_preserved(config: Config) -> None
     team_data = team_payload()
     current_coach_payload = roster_coach_payload(
         coach_id=_COACH_ID,
-        season_id=_SEASON_ID,
+        season_id=SEASON_ID,
         external_id=None,
     )
     team_data["attributes"]["roster"] = {
@@ -760,20 +759,20 @@ def test_update_team_coach_with_no_external_id_preserved(config: Config) -> None
     }
     responses.add(
         responses.GET,
-        f"https://test.example/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
+        f"https://test.example/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
         json={"data": team_data, "included": [current_coach_payload]},
         status=200,
     )
     # Mock PATCH to update coach
     updated_coach = roster_coach_payload(
         coach_id=_COACH_ID,
-        season_id=_SEASON_ID,
+        season_id=SEASON_ID,
         external_id=None,
     )
     updated_coach["attributes"]["last_name"] = "UPDATED"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{_SEASON_ID}/coaches/{_COACH_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{_COACH_ID}",
         json={"data": updated_coach},
         status=200,
     )
@@ -781,7 +780,7 @@ def test_update_team_coach_with_no_external_id_preserved(config: Config) -> None
         session.set_bearer_token("valid-token")
         result = update_team_coach(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _TEAM_ID,
             _COACH_ID,
             last_name="UPDATED",
@@ -796,7 +795,7 @@ def test_update_team_coach_position_when_not_in_roster(config: Config) -> None:
     team_data = team_payload()
     current_coach_payload = roster_coach_payload(
         coach_id=_COACH_ID,
-        season_id=_SEASON_ID,
+        season_id=SEASON_ID,
     )
     current_coach_payload["attributes"]["position"] = "Assistant Coach"
     team_data["attributes"]["roster"] = {
@@ -815,16 +814,16 @@ def test_update_team_coach_position_when_not_in_roster(config: Config) -> None:
     }
     responses.add(
         responses.GET,
-        f"https://test.example/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
+        f"https://test.example/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
         json={"data": team_data, "included": [current_coach_payload]},
         status=200,
     )
     # Mock PATCH to update coach
-    updated_coach = roster_coach_payload(season_id=_SEASON_ID)
+    updated_coach = roster_coach_payload(season_id=SEASON_ID)
     updated_coach["attributes"]["position"] = "Head Coach"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{_SEASON_ID}/coaches/{_COACH_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{_COACH_ID}",
         json={"data": updated_coach},
         status=200,
     )
@@ -849,14 +848,14 @@ def test_update_team_coach_position_when_not_in_roster(config: Config) -> None:
     }
     responses.add(
         responses.GET,
-        f"https://test.example/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}",
         json={"data": team_data2},
         status=200,
     )
     # Mock team PATCH for roster update
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{_SEASON_ID}/teams-v2/{_TEAM_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/teams-v2/{_TEAM_ID}",
         json={"data": team_data2},
         status=200,
     )
@@ -864,7 +863,7 @@ def test_update_team_coach_position_when_not_in_roster(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_team_coach(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _TEAM_ID,
             _COACH_ID,
             position="Head Coach",
@@ -876,7 +875,7 @@ def test_update_team_coach_position_when_not_in_roster(config: Config) -> None:
 def test_update_player_preserves_existing_photo_url(config: Config) -> None:
     """Test updating a player preserves existing photo_url when not uploading/removing."""
     # Mock GET to fetch current player with photo_url
-    current_player = roster_player_payload(season_id=_SEASON_ID)
+    current_player = roster_player_payload(season_id=SEASON_ID)
     current_player["attributes"]["photo_url"] = "https://example.com/photo.jpg"
     responses.add(
         responses.GET,
@@ -885,7 +884,7 @@ def test_update_player_preserves_existing_photo_url(config: Config) -> None:
         status=200,
     )
     # Mock PATCH to update player
-    updated_player = roster_player_payload(season_id=_SEASON_ID)
+    updated_player = roster_player_payload(season_id=SEASON_ID)
     updated_player["attributes"]["last_name"] = "UPDATED"
     updated_player["attributes"]["photo_url"] = "https://example.com/photo.jpg"
     responses.add(
@@ -898,7 +897,7 @@ def test_update_player_preserves_existing_photo_url(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_player(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _PLAYER_ID,
             last_name="UPDATED",
         )
@@ -912,7 +911,7 @@ def test_update_team_player_no_fields_raises_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(ValueError, match="At least one field must be provided"):
-            update_team_player(session, _SEASON_ID, _TEAM_ID, _PLAYER_ID)
+            update_team_player(session, SEASON_ID, _TEAM_ID, _PLAYER_ID)
 
 
 @responses.activate
@@ -932,7 +931,7 @@ def test_update_team_player_photo_and_remove_photo_raises_error(config: Config) 
         ):
             update_team_player(
                 session,
-                _SEASON_ID,
+                SEASON_ID,
                 _TEAM_ID,
                 _PLAYER_ID,
                 photo_path=photo_path,
@@ -948,7 +947,7 @@ def test_update_team_player_with_photo_upload(config: Config) -> None:
     temp_path = setup_photo_upload_mocks()
     # Mock GET team to fetch current team player
     team_data = team_payload()
-    current_player_payload = roster_player_payload(season_id=_SEASON_ID)
+    current_player_payload = roster_player_payload(season_id=SEASON_ID)
     team_data["attributes"]["roster"] = {
         "players": [
             {
@@ -966,18 +965,18 @@ def test_update_team_player_with_photo_upload(config: Config) -> None:
     }
     responses.add(
         responses.GET,
-        f"https://test.example/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
+        f"https://test.example/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
         json={"data": team_data, "included": [current_player_payload]},
         status=200,
     )
     # Mock PATCH to update player
-    updated_player = roster_player_payload(season_id=_SEASON_ID)
+    updated_player = roster_player_payload(season_id=SEASON_ID)
     updated_player["attributes"][
         "photo_url"
     ] = "https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA/test-image-id"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{_SEASON_ID}/players/{_PLAYER_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/players/{_PLAYER_ID}",
         json={"data": updated_player},
         status=200,
     )
@@ -985,7 +984,7 @@ def test_update_team_player_with_photo_upload(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_team_player(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _TEAM_ID,
             _PLAYER_ID,
             photo_path=temp_path,
@@ -998,7 +997,7 @@ def test_update_team_player_remove_photo(config: Config) -> None:
     """Test updating a team player with remove_photo=True."""
     # Mock GET team to fetch current team player
     team_data = team_payload()
-    current_player_payload = roster_player_payload(season_id=_SEASON_ID)
+    current_player_payload = roster_player_payload(season_id=SEASON_ID)
     current_player_payload["attributes"]["photo_url"] = "https://example.com/old-photo.jpg"
     team_data["attributes"]["roster"] = {
         "players": [
@@ -1017,16 +1016,16 @@ def test_update_team_player_remove_photo(config: Config) -> None:
     }
     responses.add(
         responses.GET,
-        f"https://test.example/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
+        f"https://test.example/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
         json={"data": team_data, "included": [current_player_payload]},
         status=200,
     )
     # Mock PATCH to update player
-    updated_player = roster_player_payload(season_id=_SEASON_ID)
+    updated_player = roster_player_payload(season_id=SEASON_ID)
     updated_player["attributes"]["photo_url"] = ""
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{_SEASON_ID}/players/{_PLAYER_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/players/{_PLAYER_ID}",
         json={"data": updated_player},
         status=200,
     )
@@ -1034,7 +1033,7 @@ def test_update_team_player_remove_photo(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_team_player(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _TEAM_ID,
             _PLAYER_ID,
             remove_photo=True,
@@ -1048,7 +1047,7 @@ def test_update_team_player_preserves_existing_photo_url(config: Config) -> None
     """Test updating a team player preserves existing photo_url when not uploading/removing."""
     # Mock GET team to fetch current team player with photo_url
     team_data = team_payload()
-    current_player_payload = roster_player_payload(season_id=_SEASON_ID)
+    current_player_payload = roster_player_payload(season_id=SEASON_ID)
     current_player_payload["attributes"]["photo_url"] = "https://example.com/photo.jpg"
     team_data["attributes"]["roster"] = {
         "players": [
@@ -1067,17 +1066,17 @@ def test_update_team_player_preserves_existing_photo_url(config: Config) -> None
     }
     responses.add(
         responses.GET,
-        f"https://test.example/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
+        f"https://test.example/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}?include=players%2Ccoaches",
         json={"data": team_data, "included": [current_player_payload]},
         status=200,
     )
     # Mock PATCH to update player
-    updated_player = roster_player_payload(season_id=_SEASON_ID)
+    updated_player = roster_player_payload(season_id=SEASON_ID)
     updated_player["attributes"]["last_name"] = "UPDATED"
     updated_player["attributes"]["photo_url"] = "https://example.com/photo.jpg"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{_SEASON_ID}/players/{_PLAYER_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/players/{_PLAYER_ID}",
         json={"data": updated_player},
         status=200,
     )
@@ -1085,7 +1084,7 @@ def test_update_team_player_preserves_existing_photo_url(config: Config) -> None
         session.set_bearer_token("valid-token")
         result = update_team_player(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _TEAM_ID,
             _PLAYER_ID,
             last_name="UPDATED",

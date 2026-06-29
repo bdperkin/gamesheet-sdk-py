@@ -19,23 +19,19 @@ from tests.helpers import (
     TEST_BASE_URL,
 )
 
-_BASE = TEST_BASE_URL
-_SEASON_ID = SEASON_ID
-_TEAM_ID = TEAM_ID
-
 
 @responses.activate
 def test_get_team_player_returns_player_with_roster_metadata(config: Config) -> None:
     """Test that get_team_player returns a player with team roster metadata."""
     _player_id = PLAYER_ID
-    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams/{TEAM_ID}"
     responses.add(
         responses.GET,
         _get_endpoint,
         json={
             "data": {
                 "type": "teams",
-                "id": _TEAM_ID,
+                "id": TEAM_ID,
                 "attributes": {
                     "roster": {
                         "players": [
@@ -65,7 +61,7 @@ def test_get_team_player_returns_player_with_roster_metadata(config: Config) -> 
                         "updated_at": "2026-06-07T15:03:25.537099Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                     },
                 },
             ],
@@ -74,9 +70,9 @@ def test_get_team_player_returns_player_with_roster_metadata(config: Config) -> 
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_team_player(session, _SEASON_ID, _TEAM_ID, _player_id)
+        result = get_team_player(session, SEASON_ID, TEAM_ID, _player_id)
     assert result.id == _player_id
-    assert result.season_id == _SEASON_ID
+    assert result.season_id == SEASON_ID
     assert result.first_name == PLAYER_FIRST_NAME
     assert result.last_name == PLAYER_LAST_NAME
     assert result.number == "42"
@@ -92,14 +88,14 @@ def test_get_team_player_returns_player_with_roster_metadata(config: Config) -> 
 def test_get_team_player_finds_player_after_skipping_others(config: Config) -> None:
     """Test that get_team_player iterates through multiple players to find the target."""
     _player_id = PLAYER_ID
-    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams/{TEAM_ID}"
     responses.add(
         responses.GET,
         _get_endpoint,
         json={
             "data": {
                 "type": "teams",
-                "id": _TEAM_ID,
+                "id": TEAM_ID,
                 "attributes": {
                     "roster": {
                         "players": [
@@ -146,7 +142,7 @@ def test_get_team_player_finds_player_after_skipping_others(config: Config) -> N
                         "updated_at": "2026-06-07T15:03:25.537099Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                     },
                 },
                 {
@@ -159,7 +155,7 @@ def test_get_team_player_finds_player_after_skipping_others(config: Config) -> N
                         "updated_at": "2026-06-07T15:03:25.537099Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                     },
                 },
                 {
@@ -173,7 +169,7 @@ def test_get_team_player_finds_player_after_skipping_others(config: Config) -> N
                         "updated_at": "2026-06-07T15:03:25.537099Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                     },
                 },
                 {
@@ -186,7 +182,7 @@ def test_get_team_player_finds_player_after_skipping_others(config: Config) -> N
                         "updated_at": "2026-06-07T15:03:25.537099Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                     },
                 },
             ],
@@ -195,7 +191,7 @@ def test_get_team_player_finds_player_after_skipping_others(config: Config) -> N
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_team_player(session, _SEASON_ID, _TEAM_ID, _player_id)
+        result = get_team_player(session, SEASON_ID, TEAM_ID, _player_id)
     assert result.id == _player_id
     assert result.first_name == PLAYER_FIRST_NAME
     assert result.last_name == PLAYER_LAST_NAME
@@ -205,14 +201,14 @@ def test_get_team_player_finds_player_after_skipping_others(config: Config) -> N
 def test_get_team_player_raises_error_when_player_not_on_team(config: Config) -> None:
     """Test that get_team_player raises GameSheetError when player is not on the team."""
     _player_id = "nonexistent"
-    _get_endpoint = f"{_BASE}/api/seasons/{_SEASON_ID}/teams/{_TEAM_ID}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams/{TEAM_ID}"
     responses.add(
         responses.GET,
         _get_endpoint,
         json={
             "data": {
                 "type": "teams",
-                "id": _TEAM_ID,
+                "id": TEAM_ID,
                 "attributes": {
                     "roster": {
                         "players": [],
@@ -227,6 +223,6 @@ def test_get_team_player_raises_error_when_player_not_on_team(config: Config) ->
         session.set_bearer_token("abc")
         with pytest.raises(
             GameSheetError,
-            match=f"Player {_player_id} not found on team {_TEAM_ID}",
+            match=f"Player {_player_id} not found on team {TEAM_ID}",
         ):
-            get_team_player(session, _SEASON_ID, _TEAM_ID, _player_id)
+            get_team_player(session, SEASON_ID, TEAM_ID, _player_id)

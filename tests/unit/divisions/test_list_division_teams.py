@@ -20,15 +20,14 @@ from gamesheet_sdk import (
 )
 from tests.helpers import (
     DIVISION_ID,
+    JSONAPI_CONTENT_TYPE,
     SEASON_ID,
     TEST_BASE_URL,
     jsonapi_payload,
 )
 
-_BASE = TEST_BASE_URL
-_SEASON_ID = SEASON_ID
 _DIVISION_ID = DIVISION_ID
-_DIVISION_TEAMS_ENDPOINT = f"{_BASE}/api/divisions/{_DIVISION_ID}/teams"
+_DIVISION_TEAMS_ENDPOINT = f"{TEST_BASE_URL}/api/divisions/{_DIVISION_ID}/teams"
 
 
 def _create_team_data(
@@ -52,7 +51,7 @@ def _create_team_data(
             "updated_at": kwargs.get("updated_at", "2024-09-01T10:00:00Z"),
         },
         "relationships": {
-            "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+            "season": {"data": {"type": "seasons", "id": SEASON_ID}},
             "division": {"data": {"type": "divisions", "id": _DIVISION_ID}},
         },
     }
@@ -88,7 +87,7 @@ def test_list_division_teams_parses_jsonapi_response(config: Config) -> None:
         result = list_division_teams(session, _DIVISION_ID)
     assert [t.id for t in result] == ["1001", "1002"]
     assert result[0].title == "Raleigh Raptors"
-    assert result[0].season_id == _SEASON_ID
+    assert result[0].season_id == SEASON_ID
     assert result[0].division_id == _DIVISION_ID
     assert result[0].logo == "https://example.com/logo1.png"
     assert result[0].invitation_code is None  # No invitations in this response
@@ -115,7 +114,7 @@ def test_list_division_teams_sends_bearer_and_jsonapi_accept(config: Config) -> 
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
-    assert req.headers["Accept"] == "application/vnd.api+json"
+    assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
 
 
 @responses.activate
@@ -202,7 +201,7 @@ def test_list_division_teams_with_invitation_codes(config: Config) -> None:
                         "season": {
                             "data": {
                                 "type": "seasons",
-                                "id": _SEASON_ID,
+                                "id": SEASON_ID,
                             },
                         },
                         "division": {
@@ -266,7 +265,7 @@ def test_list_division_teams_handles_invitation_as_single_object(
                         "updated_at": "2024-09-01T10:00:00Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                         "division": {"data": {"type": "divisions", "id": _DIVISION_ID}},
                         "invitations": {
                             "data": {"type": "invitations", "id": "inv-456"},
@@ -311,7 +310,7 @@ def test_list_division_teams_handles_missing_invitation_code_gracefully(
                         "updated_at": "2024-09-01T10:00:00Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                         "division": {"data": {"type": "divisions", "id": _DIVISION_ID}},
                         "invitations": {
                             "data": [{"type": "invitations", "id": "inv-999"}],
@@ -348,7 +347,7 @@ def test_list_division_teams_handles_malformed_invitation_data(config: Config) -
                         "updated_at": "2024-09-01T10:00:00Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                         "division": {"data": {"type": "divisions", "id": _DIVISION_ID}},
                     },
                 },

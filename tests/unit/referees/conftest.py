@@ -7,11 +7,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from tests.helpers import jsonapi_payload
+from tests.helpers import SEASON_ID, TEST_BASE_URL, jsonapi_payload
 
-_BASE = "https://test.example"
-_SEASON_ID = "15020"
-_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/referees"
+_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees"
 
 
 def referee_response_data(referee_id: str) -> dict[str, Any]:
@@ -31,7 +29,7 @@ def referee_response_data(referee_id: str) -> dict[str, Any]:
                 "updated_at": "2024-09-01T10:00:00Z",
             },
             "relationships": {
-                "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                "season": {"data": {"type": "seasons", "id": SEASON_ID}},
             },
         },
     }
@@ -40,7 +38,7 @@ def referee_response_data(referee_id: str) -> dict[str, Any]:
 __all__ = [
     "jsonapi_payload",
     "referee_response_data",
-    "_BASE",
-    "_SEASON_ID",
+    "TEST_BASE_URL",
+    "SEASON_ID",
     "_ENDPOINT",
 ]

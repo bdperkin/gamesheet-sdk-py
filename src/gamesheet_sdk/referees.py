@@ -20,9 +20,8 @@ from pydantic import BaseModel, Field
 
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.session import Session
+from gamesheet_sdk.shared import JSONAPI_CONTENT_TYPE, JSONAPI_HEADERS
 from gamesheet_sdk.shared.gamesheet_http import handle_season_scoped_response
-
-_JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
 
 
 class Referee(BaseModel):
@@ -116,7 +115,7 @@ def get_referee(session: Session, season_id: str, referee_id: str) -> Referee:
     endpoint = f"/api/seasons/{season_id}/referees/{referee_id}"
     response = session.get(
         endpoint,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+        headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
         _err_msg = (
@@ -243,8 +242,8 @@ def create_referee(
         endpoint,
         json=payload,
         headers={
-            "Accept": _JSONAPI_CONTENT_TYPE,
-            "Content-Type": _JSONAPI_CONTENT_TYPE,
+            "Accept": JSONAPI_CONTENT_TYPE,
+            "Content-Type": JSONAPI_CONTENT_TYPE,
         },
     )
     handle_season_scoped_response(response, endpoint, season_id)
@@ -291,7 +290,7 @@ def update_referee(
     get_endpoint = f"/api/seasons/{season_id}/referees/{referee_id}"
     get_response = session.get(
         get_endpoint,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+        headers=JSONAPI_HEADERS,
     )
     if get_response.status_code == 401:
         _err_msg = (
@@ -338,8 +337,8 @@ def update_referee(
         patch_endpoint,
         json=payload,
         headers={
-            "Accept": _JSONAPI_CONTENT_TYPE,
-            "Content-Type": _JSONAPI_CONTENT_TYPE,
+            "Accept": JSONAPI_CONTENT_TYPE,
+            "Content-Type": JSONAPI_CONTENT_TYPE,
         },
     )
     if response.status_code == 401:
@@ -383,7 +382,7 @@ def delete_referee(
     endpoint = f"/api/seasons/{season_id}/referees/{referee_id}"
     response = session.delete(
         endpoint,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+        headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
         _err_msg = (
@@ -418,7 +417,7 @@ def list_referees(session: Session, season_id: str) -> list[Referee]:
     endpoint = f"/api/seasons/{season_id}/referees"
     response = session.get(
         endpoint,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+        headers=JSONAPI_HEADERS,
     )
     handle_season_scoped_response(response, endpoint, season_id)
     body: dict[str, Any] = response.json()

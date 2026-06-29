@@ -10,10 +10,9 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.referees import create_referee
+from tests.helpers import JSONAPI_CONTENT_TYPE, SEASON_ID, TEST_BASE_URL
 
-_BASE = "https://test.example"
-_SEASON_ID = "15020"
-_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/referees"
+_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees"
 
 
 @responses.activate
@@ -35,7 +34,7 @@ def test_create_referee_sends_correct_payload_with_all_fields(config: Config) ->
                     "updated_at": "2026-06-15T12:04:05.0325Z",
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -45,7 +44,7 @@ def test_create_referee_sends_correct_payload_with_all_fields(config: Config) ->
         session.set_bearer_token("abc")
         result = create_referee(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             "Wes",
             "McCauley",
             email_address="Wes.McCauley@example.com",
@@ -55,7 +54,7 @@ def test_create_referee_sends_correct_payload_with_all_fields(config: Config) ->
     assert result.first_name == "Wes"
     assert result.last_name == "McCauley"
     assert result.email == "Wes.McCauley@example.com"
-    assert result.season_id == _SEASON_ID
+    assert result.season_id == SEASON_ID
     # Verify the request payload
     assert len(responses.calls) == 1
     req = responses.calls[0].request
@@ -89,7 +88,7 @@ def test_create_referee_sends_correct_payload_required_fields_only(
                     "updated_at": "2026-06-15T13:00:00Z",
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -97,7 +96,7 @@ def test_create_referee_sends_correct_payload_required_fields_only(
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = create_referee(session, _SEASON_ID, "Jane", "Doe")
+        result = create_referee(session, SEASON_ID, "Jane", "Doe")
     assert result.id == "1146198"
     assert result.first_name == "Jane"
     assert result.last_name == "Doe"
@@ -131,7 +130,7 @@ def test_create_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
                     "updated_at": "2024-09-01T10:00:00Z",
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -139,12 +138,12 @@ def test_create_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
     )
     with Session(config) as session:
         session.set_bearer_token("test-token")
-        create_referee(session, _SEASON_ID, "Test", "Ref")
+        create_referee(session, SEASON_ID, "Test", "Ref")
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer test-token"
-    assert req.headers["Accept"] == "application/vnd.api+json"
-    assert req.headers["Content-Type"] == "application/vnd.api+json"
+    assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
+    assert req.headers["Content-Type"] == JSONAPI_CONTENT_TYPE
 
 
 @responses.activate
@@ -159,7 +158,7 @@ def test_create_referee_401_raises_authentication_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            create_referee(session, _SEASON_ID, "Test", "Ref")
+            create_referee(session, SEASON_ID, "Test", "Ref")
 
 
 @responses.activate
@@ -174,7 +173,7 @@ def test_create_referee_404_raises_gamesheet_error_with_helpful_message(
             GameSheetError,
             match=r"Season '.*' not found.*valid season ID.*seasons list --league-id",
         ):
-            create_referee(session, _SEASON_ID, "Test", "Ref")
+            create_referee(session, SEASON_ID, "Test", "Ref")
 
 
 @responses.activate
@@ -186,4 +185,4 @@ def test_create_referee_other_failure_raises_gamesheet_error(
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            create_referee(session, _SEASON_ID, "Test", "Ref")
+            create_referee(session, SEASON_ID, "Test", "Ref")

@@ -9,14 +9,13 @@ import responses
 
 from gamesheet_sdk import Config, Session
 from gamesheet_sdk.roster import update_coach, update_player
-from tests.helpers import setup_update_coach_mocks, setup_update_player_mocks
+from tests.helpers import SEASON_ID, setup_update_coach_mocks, setup_update_player_mocks
 from tests.helpers.payloads import roster_coach_payload, roster_player_payload
 
-_SEASON_ID = "15020"
 _PLAYER_ID = "8043169"
 _COACH_ID = "1879938"
-_PLAYERS_ENDPOINT = f"https://test.example/api/seasons/{_SEASON_ID}/players/{_PLAYER_ID}"
-_COACHES_ENDPOINT = f"https://test.example/api/seasons/{_SEASON_ID}/coaches/{_COACH_ID}"
+_PLAYERS_ENDPOINT = f"https://test.example/api/seasons/{SEASON_ID}/players/{_PLAYER_ID}"
+_COACHES_ENDPOINT = f"https://test.example/api/seasons/{SEASON_ID}/coaches/{_COACH_ID}"
 
 
 @responses.activate
@@ -27,13 +26,13 @@ def test_update_coach_with_empty_position_not_updated(config: Config) -> None:
     (empty string), so position is not added to the payload.
     """
     # Mock GET to fetch current coach with empty position
-    current_coach = roster_coach_payload(season_id=_SEASON_ID)
+    current_coach = roster_coach_payload(season_id=SEASON_ID)
     # Default payload has position="" (empty), which is falsy
     assert current_coach["attributes"]["position"] == "head_coach"
     # Change it to empty to test the falsy branch
     current_coach["attributes"]["position"] = ""
     # Mock PATCH to update coach - verify position is not in payload
-    updated_coach = roster_coach_payload(season_id=_SEASON_ID)
+    updated_coach = roster_coach_payload(season_id=SEASON_ID)
     updated_coach["attributes"]["first_name"] = "UPDATED"
     updated_coach["attributes"]["position"] = ""  # Still empty
     setup_update_coach_mocks(_COACHES_ENDPOINT, current_coach, updated_coach)
@@ -41,7 +40,7 @@ def test_update_coach_with_empty_position_not_updated(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_coach(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _COACH_ID,
             first_name="UPDATED",
             # position=None (not provided), and current is empty
@@ -57,12 +56,12 @@ def test_update_player_with_empty_biography_not_updated(config: Config) -> None:
     (empty string), so the field is not added to attrs. This tests the _merge_optional_field helper function.
     """
     # Mock GET to fetch current player with empty biography
-    current_player = roster_player_payload(season_id=_SEASON_ID)
+    current_player = roster_player_payload(season_id=SEASON_ID)
     # Default payload has biography="" (empty), which is falsy
     assert not current_player["attributes"]["biography"]
     # Mock PATCH to update player - verify biography is not in payload
     # pylint: disable=duplicate-code
-    updated_player = roster_player_payload(season_id=_SEASON_ID)
+    updated_player = roster_player_payload(season_id=SEASON_ID)
     updated_player["attributes"]["last_name"] = "UPDATED"
     # biography stays empty
     setup_update_player_mocks(_PLAYERS_ENDPOINT, current_player, updated_player)
@@ -70,7 +69,7 @@ def test_update_player_with_empty_biography_not_updated(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_player(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _PLAYER_ID,
             last_name="UPDATED",
             # biography=None (not provided), and current is empty
@@ -89,10 +88,10 @@ def test_update_player_preserves_nonempty_biography(config: Config) -> None:
     so current_value is preserved in attrs. This is the truthy branch of the _merge_optional_field helper.
     """
     # Mock GET to fetch current player with non-empty biography
-    current_player = roster_player_payload(season_id=_SEASON_ID)
+    current_player = roster_player_payload(season_id=SEASON_ID)
     current_player["attributes"]["biography"] = "Star forward with 10 years experience"
     # Mock PATCH to update player - biography should be preserved in payload
-    updated_player = roster_player_payload(season_id=_SEASON_ID)
+    updated_player = roster_player_payload(season_id=SEASON_ID)
     updated_player["attributes"]["last_name"] = "UPDATED"
     updated_player["attributes"]["biography"] = "Star forward with 10 years experience"
     setup_update_player_mocks(_PLAYERS_ENDPOINT, current_player, updated_player)
@@ -100,7 +99,7 @@ def test_update_player_preserves_nonempty_biography(config: Config) -> None:
         session.set_bearer_token("valid-token")
         result = update_player(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _PLAYER_ID,
             last_name="UPDATED",
             # biography=None (not provided), current is non-empty, should be preserved

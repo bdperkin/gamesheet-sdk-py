@@ -20,9 +20,9 @@ from pydantic import BaseModel, Field
 
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.session import Session
+from gamesheet_sdk.shared import JSONAPI_HEADERS
 
 _ENDPOINT = "/api/api-keys"
-_JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
 
 
 class IPadKey(BaseModel):
@@ -75,7 +75,7 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
     response = session.get(
         _ENDPOINT,
         params={"filter[season]": season_id},
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+        headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
         _err_msg = (

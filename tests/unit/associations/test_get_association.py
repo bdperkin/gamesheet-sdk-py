@@ -10,15 +10,14 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.associations import get_association
-
-_BASE = "https://test.example"
+from tests.helpers import JSONAPI_CONTENT_TYPE, TEST_BASE_URL
 
 
 @responses.activate
 def test_get_association_returns_single_association(config: Config) -> None:
     """Test that get_association returns a single association."""
     _association_id = "101"
-    _get_endpoint = f"{_BASE}/api/associations/{_association_id}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/associations/{_association_id}"
     responses.add(
         responses.GET,
         _get_endpoint,
@@ -48,7 +47,7 @@ def test_get_association_returns_single_association(config: Config) -> None:
 def test_get_association_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     """Test that get_association sends correct authorization and accept headers."""
     _association_id = "101"
-    _get_endpoint = f"{_BASE}/api/associations/{_association_id}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/associations/{_association_id}"
     responses.add(
         responses.GET,
         _get_endpoint,
@@ -72,14 +71,14 @@ def test_get_association_sends_bearer_and_jsonapi_accept(config: Config) -> None
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer test-token"
-    assert req.headers["Accept"] == "application/vnd.api+json"
+    assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
 
 
 @responses.activate
 def test_get_association_401_raises_authentication_error(config: Config) -> None:
     """Test that HTTP 401 raises AuthenticationError."""
     _association_id = "101"
-    _get_endpoint = f"{_BASE}/api/associations/{_association_id}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/associations/{_association_id}"
     responses.add(
         responses.GET,
         _get_endpoint,
@@ -98,7 +97,7 @@ def test_get_association_404_raises_gamesheet_error_with_helpful_message(
 ) -> None:
     """Test that HTTP 404 raises GameSheetError with helpful message."""
     _association_id = "nonexistent"
-    _get_endpoint = f"{_BASE}/api/associations/{_association_id}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/associations/{_association_id}"
     responses.add(responses.GET, _get_endpoint, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -113,7 +112,7 @@ def test_get_association_404_raises_gamesheet_error_with_helpful_message(
 def test_get_association_other_failure_raises_gamesheet_error(config: Config) -> None:
     """Test that other HTTP errors raise GameSheetError."""
     _association_id = "101"
-    _get_endpoint = f"{_BASE}/api/associations/{_association_id}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/associations/{_association_id}"
     responses.add(responses.GET, _get_endpoint, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")

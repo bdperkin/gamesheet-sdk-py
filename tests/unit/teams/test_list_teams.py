@@ -19,14 +19,13 @@ from gamesheet_sdk import (
 )
 from gamesheet_sdk.teams import Team
 from tests.helpers import (
+    JSONAPI_CONTENT_TYPE,
     SEASON_ID,
     TEST_BASE_URL,
     jsonapi_payload,
 )
 
-_BASE = TEST_BASE_URL
-_SEASON_ID = SEASON_ID
-_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/teams"
+_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
 
 
 @responses.activate
@@ -49,7 +48,7 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
                         "season": {
                             "data": {
                                 "type": "seasons",
-                                "id": _SEASON_ID,
+                                "id": SEASON_ID,
                             },
                         },
                         "division": {
@@ -72,7 +71,7 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
                         "season": {
                             "data": {
                                 "type": "seasons",
-                                "id": _SEASON_ID,
+                                "id": SEASON_ID,
                             },
                         },
                         "division": {
@@ -86,10 +85,10 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
-        result = list_teams(session, _SEASON_ID)
+        result = list_teams(session, SEASON_ID)
     assert [t.id for t in result] == ["1001", "1002"]
     assert result[0].title == "Raleigh Raptors"
-    assert result[0].season_id == _SEASON_ID
+    assert result[0].season_id == SEASON_ID
     assert result[0].division_id == "5001"
     assert result[0].created_at == datetime(2024, 9, 1, 10, tzinfo=timezone.utc)
     assert result[0].updated_at == datetime(2024, 9, 15, 14, 30, tzinfo=timezone.utc)
@@ -103,11 +102,11 @@ def test_list_teams_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
-        list_teams(session, _SEASON_ID)
+        list_teams(session, SEASON_ID)
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
-    assert req.headers["Accept"] == "application/vnd.api+json"
+    assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
     # Verify sparse fieldset is requested to get logo_url and roster
     # URL-encoded: fields[teams] = fields%5Bteams%5D, include = invitations
     url = req.url or ""
@@ -123,7 +122,7 @@ def test_list_teams_empty_data_returns_empty_list(config: Config) -> None:
     responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
-        assert not list_teams(session, _SEASON_ID)
+        assert not list_teams(session, SEASON_ID)
 
 
 @responses.activate
@@ -138,7 +137,7 @@ def test_list_teams_401_raises_authentication_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            list_teams(session, _SEASON_ID)
+            list_teams(session, SEASON_ID)
 
 
 @responses.activate
@@ -151,7 +150,7 @@ def test_list_teams_404_raises_gamesheet_error(config: Config) -> None:
             GameSheetError,
             match=r"Season '.*' not found.*valid season ID.*seasons list --league-id",
         ):
-            list_teams(session, _SEASON_ID)
+            list_teams(session, SEASON_ID)
 
 
 @responses.activate
@@ -163,7 +162,7 @@ def test_list_teams_other_failure_raises_gamesheet_error(
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            list_teams(session, _SEASON_ID)
+            list_teams(session, SEASON_ID)
 
 
 def test_team_model_handles_optional_division_id() -> None:
@@ -214,7 +213,7 @@ def test_list_teams_includes_optional_fields(config: Config) -> None:
                         "season": {
                             "data": {
                                 "type": "seasons",
-                                "id": _SEASON_ID,
+                                "id": SEASON_ID,
                             },
                         },
                         "division": {
@@ -233,7 +232,7 @@ def test_list_teams_includes_optional_fields(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("test-token")
-        result = list_teams(session, _SEASON_ID)
+        result = list_teams(session, SEASON_ID)
     assert len(result) == 1
     team = result[0]
     assert team.logo == "https://example.com/logo.png"
@@ -265,7 +264,7 @@ def test_list_teams_without_invitations(config: Config) -> None:
                     },
                     "relationships": {
                         "season": {
-                            "data": {"type": "seasons", "id": _SEASON_ID},
+                            "data": {"type": "seasons", "id": SEASON_ID},
                         },
                         "division": {"data": None},
                         # No invitations relationship
@@ -278,7 +277,7 @@ def test_list_teams_without_invitations(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("test-token")
-        result = list_teams(session, _SEASON_ID)
+        result = list_teams(session, SEASON_ID)
     assert len(result) == 1
     assert result[0].invitation_code is None
 
@@ -301,7 +300,7 @@ def test_list_teams_with_invitation_as_single_object(config: Config) -> None:
                         "updated_at": "2024-09-01T10:00:00Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                         "division": {"data": None},
                         "invitations": {
                             "data": {"type": "invitations", "id": "inv-456"},
@@ -321,7 +320,7 @@ def test_list_teams_with_invitation_as_single_object(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("test-token")
-        result = list_teams(session, _SEASON_ID)
+        result = list_teams(session, SEASON_ID)
     assert len(result) == 1
     assert result[0].invitation_code == "SINGLE2024"
 
@@ -344,7 +343,7 @@ def test_list_teams_with_malformed_invitation_data(config: Config) -> None:
                         "updated_at": "2024-09-01T10:00:00Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                         "division": {"data": None},
                         "invitations": {
                             # Invitation ID not in included - orphaned reference
@@ -362,7 +361,7 @@ def test_list_teams_with_malformed_invitation_data(config: Config) -> None:
                         "updated_at": "2024-09-01T10:00:00Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                         "division": {"data": None},
                         "invitations": {
                             # Empty/null ID
@@ -390,7 +389,7 @@ def test_list_teams_with_malformed_invitation_data(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("test-token")
-        result = list_teams(session, _SEASON_ID)
+        result = list_teams(session, SEASON_ID)
     assert len(result) == 2
     # No valid invitation matched for either team
     assert result[0].invitation_code is None

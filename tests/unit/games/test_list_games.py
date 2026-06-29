@@ -18,10 +18,9 @@ from gamesheet_sdk import (
     list_completed,
     list_scheduled,
 )
+from tests.helpers import SEASON_ID
 
-_BASE = BFF_API_BASE_URL
-_SEASON_ID = "15020"
-_ENDPOINT = f"{_BASE}/games-list/v1"
+_ENDPOINT = f"{BFF_API_BASE_URL}/games-list/v1"
 
 
 def _bff_response(games: list[dict[str, object]]) -> dict[str, object]:
@@ -73,7 +72,7 @@ def test_list_completed_parses_bff_response(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
-        result = list_completed(session, _SEASON_ID)
+        result = list_completed(session, SEASON_ID)
     assert len(result) == 1
     assert result[0].id == 2826460
     assert result[0].status == "completed"
@@ -128,7 +127,7 @@ def test_list_scheduled_parses_bff_response(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
-        result = list_scheduled(session, _SEASON_ID)
+        result = list_scheduled(session, SEASON_ID)
     assert len(result) == 1
     assert result[0].id == 2437882
     assert result[0].status == "scheduled"
@@ -143,7 +142,7 @@ def test_list_completed_401_raises_authentication_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("expired")
         with pytest.raises(AuthenticationError, match=r"401"):
-            list_completed(session, _SEASON_ID)
+            list_completed(session, SEASON_ID)
 
 
 @responses.activate
@@ -153,7 +152,7 @@ def test_list_completed_404_raises_gamesheet_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid")
         with pytest.raises(GameSheetError, match=r"404"):
-            list_completed(session, _SEASON_ID)
+            list_completed(session, SEASON_ID)
 
 
 @responses.activate
@@ -163,7 +162,7 @@ def test_list_completed_500_raises_gamesheet_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid")
         with pytest.raises(GameSheetError, match=r"500"):
-            list_completed(session, _SEASON_ID)
+            list_completed(session, SEASON_ID)
 
 
 @responses.activate
@@ -173,7 +172,7 @@ def test_list_scheduled_401_raises_authentication_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("expired")
         with pytest.raises(AuthenticationError, match=r"401"):
-            list_scheduled(session, _SEASON_ID)
+            list_scheduled(session, SEASON_ID)
 
 
 @responses.activate
@@ -183,7 +182,7 @@ def test_list_brackets_401_raises_authentication_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("expired")
         with pytest.raises(AuthenticationError, match=r"401"):
-            list_brackets(session, _SEASON_ID)
+            list_brackets(session, SEASON_ID)
 
 
 @responses.activate
@@ -192,7 +191,7 @@ def test_list_completed_handles_empty_data(config: Config) -> None:
     responses.add(responses.GET, _ENDPOINT, json=_bff_response([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("valid")
-        result = list_completed(session, _SEASON_ID)
+        result = list_completed(session, SEASON_ID)
     assert result == []
 
 
@@ -208,4 +207,4 @@ def test_bff_non_success_status_raises_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid")
         with pytest.raises(GameSheetError, match=r"non-success status"):
-            list_completed(session, _SEASON_ID)
+            list_completed(session, SEASON_ID)

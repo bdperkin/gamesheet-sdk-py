@@ -22,9 +22,9 @@ from pydantic import BaseModel, Field
 from gamesheet_sdk.constants import BFF_API_BASE_URL
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.session import Session
+from gamesheet_sdk.shared import JSONAPI_HEADERS
 
 _ENDPOINT = "/api/seasons"
-_JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
 
 
 class Season(BaseModel):
@@ -233,7 +233,7 @@ def list_seasons(
         )
     response = session.get(
         _ENDPOINT,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+        headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
         _err_msg = (
@@ -268,7 +268,7 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
     endpoint = f"{_ENDPOINT}/{season_id}"
     response = session.get(
         endpoint,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+        headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
         _err_msg = (
