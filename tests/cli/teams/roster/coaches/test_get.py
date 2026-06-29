@@ -9,7 +9,10 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.teams_roster_coaches import teams_roster_coaches_group
+# pylint: disable=import-error,no-name-in-module
+from gamesheet_sdk.cli.commands.teams_roster_coaches import (  # type: ignore[import-not-found]
+    teams_roster_coaches_group,
+)
 from tests.helpers import COACH_ID_PRIMARY, SEASON_ID, TEAM_ID
 
 
@@ -19,12 +22,12 @@ def test_teams_roster_coaches_get_coverage() -> None:
     mock_coach = MagicMock()
     mock_coach.id = COACH_ID_PRIMARY
     with (
-        patch("gamesheet_sdk.cli.commands.teams_roster.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.teams_roster_coaches.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster._get_team_coach_action",
+            "gamesheet_sdk.cli.commands.teams_roster_coaches._get_team_coach_action",
             return_value=mock_coach,
         ),
-        patch("gamesheet_sdk.cli.commands.teams_roster.render_get_command"),
+        patch("gamesheet_sdk.cli.commands.teams_roster_coaches.render_get_command"),
     ):
         result = runner.invoke(
             teams_roster_coaches_group,
