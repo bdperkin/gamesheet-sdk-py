@@ -64,7 +64,10 @@ def test_divisions_create_coverage() -> None:
     mock_division = MagicMock()
     mock_division.title = DEFAULT_DIVISION_NAME
     mock_division.id = "80997"
-    mock_division.model_dump.return_value = {"id": "80997", "title": DEFAULT_DIVISION_NAME}
+    mock_division.model_dump.return_value = {
+        "id": "80997",
+        "title": DEFAULT_DIVISION_NAME,
+    }
 
     def mock_run_action(session: MagicMock, action: MagicMock, *args: MagicMock) -> Any:
         # Actually call the action to ensure coverage of the nested function
@@ -110,7 +113,10 @@ def test_divisions_create_with_output_file_coverage() -> None:
     mock_division = MagicMock()
     mock_division.title = DEFAULT_DIVISION_NAME
     mock_division.id = "80997"
-    mock_division.model_dump.return_value = {"id": "80997", "title": DEFAULT_DIVISION_NAME}
+    mock_division.model_dump.return_value = {
+        "id": "80997",
+        "title": DEFAULT_DIVISION_NAME,
+    }
 
     def mock_run_action(session: MagicMock, action: MagicMock, *args: MagicMock) -> Any:
         return action(session, *args)
@@ -156,7 +162,10 @@ def test_divisions_update_coverage() -> None:
     mock_division = MagicMock()
     mock_division.title = "Updated Division"
     mock_division.id = DIVISION_ID
-    mock_division.model_dump.return_value = {"id": DIVISION_ID, "title": "Updated Division"}
+    mock_division.model_dump.return_value = {
+        "id": DIVISION_ID,
+        "title": "Updated Division",
+    }
 
     def mock_run_action(session: MagicMock, action: MagicMock, *args: MagicMock) -> Any:
         return action(session, *args)
@@ -203,7 +212,15 @@ def test_divisions_update_with_no_fields_exits_with_error() -> None:
     with patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"):
         result = runner.invoke(
             divisions_group,
-            ["update", "--season-id", SEASON_ID, "--division-id", DIVISION_ID, "-F", "json"],
+            [
+                "update",
+                "--season-id",
+                SEASON_ID,
+                "--division-id",
+                DIVISION_ID,
+                "-F",
+                "json",
+            ],
             obj=MagicMock(),
         )
         assert result.exit_code == 1
@@ -216,7 +233,10 @@ def test_divisions_update_with_output_file_coverage() -> None:
     mock_division = MagicMock()
     mock_division.title = "Updated Division"
     mock_division.id = DIVISION_ID
-    mock_division.model_dump.return_value = {"id": DIVISION_ID, "title": "Updated Division"}
+    mock_division.model_dump.return_value = {
+        "id": DIVISION_ID,
+        "title": "Updated Division",
+    }
 
     def mock_run_action(session: MagicMock, action: MagicMock, *args: MagicMock) -> Any:
         return action(session, *args)
@@ -268,7 +288,14 @@ def test_divisions_delete_coverage() -> None:
     ):
         result = runner.invoke(
             divisions_group,
-            ["delete", "--season-id", SEASON_ID, "--division-id", DIVISION_ID, "--force"],
+            [
+                "delete",
+                "--season-id",
+                SEASON_ID,
+                "--division-id",
+                DIVISION_ID,
+                "--force",
+            ],
             obj=MagicMock(),
         )
         assert not result.exit_code

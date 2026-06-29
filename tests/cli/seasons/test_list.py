@@ -15,7 +15,6 @@ from gamesheet_sdk.seasons import Season
 from tests.helpers import (
     CLI_TEST_SEASON_ID,
     TIMESTAMP_2024_01_01,
-    TIMESTAMP_2024_09_01,
 )
 
 

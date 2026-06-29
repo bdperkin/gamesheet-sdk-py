@@ -26,7 +26,6 @@ from tests.helpers import (
     SEASON_ID,
     TEST_AUTH_HEADER,
     TEST_BASE_URL,
-    TIMESTAMP_2024_01_01,
     TIMESTAMP_2024_09_01,
     jsonapi_payload,
 )

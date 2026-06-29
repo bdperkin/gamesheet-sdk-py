@@ -47,14 +47,23 @@ def test_delete_team_coach_success(mock_session: MagicMock) -> None:
         patch("gamesheet_sdk.roster.coaches.unassign_coach") as mock_unassign,
         patch("gamesheet_sdk.roster.coaches.delete_coach") as mock_delete,
     ):
-        delete_team_coach(mock_session, SEASON_ID, TEAM_ID_SECONDARY, COACH_ID_QUATERNARY)
+        delete_team_coach(
+            mock_session,
+            SEASON_ID,
+            TEAM_ID_SECONDARY,
+            COACH_ID_QUATERNARY,
+        )
         mock_unassign.assert_called_once_with(
             mock_session,
             SEASON_ID,
             COACH_ID_QUATERNARY,
             TEAM_ID_SECONDARY,
         )
-        mock_delete.assert_called_once_with(mock_session, SEASON_ID, COACH_ID_QUATERNARY)
+        mock_delete.assert_called_once_with(
+            mock_session,
+            SEASON_ID,
+            COACH_ID_QUATERNARY,
+        )
 
 
 def test_delete_team_coach_not_on_roster(mock_session: MagicMock) -> None:
@@ -71,8 +80,17 @@ def test_delete_team_coach_not_on_roster(mock_session: MagicMock) -> None:
         patch("gamesheet_sdk.roster.coaches.delete_coach") as mock_delete,
     ):
         # Should still delete even if unassign fails
-        delete_team_coach(mock_session, SEASON_ID, TEAM_ID_SECONDARY, COACH_ID_QUATERNARY)
-        mock_delete.assert_called_once_with(mock_session, SEASON_ID, COACH_ID_QUATERNARY)
+        delete_team_coach(
+            mock_session,
+            SEASON_ID,
+            TEAM_ID_SECONDARY,
+            COACH_ID_QUATERNARY,
+        )
+        mock_delete.assert_called_once_with(
+            mock_session,
+            SEASON_ID,
+            COACH_ID_QUATERNARY,
+        )
 
 
 def test_delete_team_player_success(mock_session: MagicMock) -> None:
@@ -83,14 +101,23 @@ def test_delete_team_player_success(mock_session: MagicMock) -> None:
         patch("gamesheet_sdk.roster.players.unassign_player") as mock_unassign,
         patch("gamesheet_sdk.roster.players.delete_player") as mock_delete,
     ):
-        delete_team_player(mock_session, SEASON_ID, TEAM_ID_SECONDARY, PLAYER_ID_QUATERNARY)
+        delete_team_player(
+            mock_session,
+            SEASON_ID,
+            TEAM_ID_SECONDARY,
+            PLAYER_ID_QUATERNARY,
+        )
         mock_unassign.assert_called_once_with(
             mock_session,
             SEASON_ID,
             PLAYER_ID_QUATERNARY,
             TEAM_ID_SECONDARY,
         )
-        mock_delete.assert_called_once_with(mock_session, SEASON_ID, PLAYER_ID_QUATERNARY)
+        mock_delete.assert_called_once_with(
+            mock_session,
+            SEASON_ID,
+            PLAYER_ID_QUATERNARY,
+        )
 
 
 def test_delete_team_player_not_on_roster(mock_session: MagicMock) -> None:
@@ -107,5 +134,14 @@ def test_delete_team_player_not_on_roster(mock_session: MagicMock) -> None:
         patch("gamesheet_sdk.roster.players.delete_player") as mock_delete,
     ):
         # Should still delete even if unassign fails
-        delete_team_player(mock_session, SEASON_ID, TEAM_ID_SECONDARY, PLAYER_ID_QUATERNARY)
-        mock_delete.assert_called_once_with(mock_session, SEASON_ID, PLAYER_ID_QUATERNARY)
+        delete_team_player(
+            mock_session,
+            SEASON_ID,
+            TEAM_ID_SECONDARY,
+            PLAYER_ID_QUATERNARY,
+        )
+        mock_delete.assert_called_once_with(
+            mock_session,
+            SEASON_ID,
+            PLAYER_ID_QUATERNARY,
+        )

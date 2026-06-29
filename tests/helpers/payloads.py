@@ -18,10 +18,9 @@ from tests.helpers.constants import (
     INVITATION_ID,
     LEAGUE_ID,
     PLAYER_ID,
-    TIMESTAMP_2024_01_01,
-    TIMESTAMP_2024_09_01,
     SEASON_ID,
     TEAM_ID,
+    TIMESTAMP_2024_01_01,
 )
 
 

@@ -36,7 +36,15 @@ def test_players_get(runner: CliRunner) -> None:
         )
         result = runner.invoke(
             cli,
-            ["roster", "--season-id", SEASON_ID, "players", "get", "--player-id", CLI_TEST_SEASON_ID],
+            [
+                "roster",
+                "--season-id",
+                SEASON_ID,
+                "players",
+                "get",
+                "--player-id",
+                CLI_TEST_SEASON_ID,
+            ],
         )
         assert not result.exit_code
         assert result.output

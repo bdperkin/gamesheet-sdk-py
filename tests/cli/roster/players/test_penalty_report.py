@@ -72,7 +72,11 @@ def test_players_penalty_report_success(mock_session: MagicMock) -> None:
         )
         assert not result.exit_code
         assert "player_games" in result.output
-        mock_get_report.assert_called_once_with(mock_session, SEASON_ID, PLAYER_ID_SECONDARY)
+        mock_get_report.assert_called_once_with(
+            mock_session,
+            SEASON_ID,
+            PLAYER_ID_SECONDARY,
+        )
 
 
 def test_players_penalty_report_uses_env_var(mock_session: MagicMock) -> None:
@@ -103,7 +107,11 @@ def test_players_penalty_report_uses_env_var(mock_session: MagicMock) -> None:
             env={"GAMESHEET_PLAYER_ID": PLAYER_ID_SECONDARY},
         )
         assert not result.exit_code
-        mock_get_report.assert_called_once_with(mock_session, SEASON_ID, PLAYER_ID_SECONDARY)
+        mock_get_report.assert_called_once_with(
+            mock_session,
+            SEASON_ID,
+            PLAYER_ID_SECONDARY,
+        )
 
 
 def test_players_penalty_report_json_format(mock_session: MagicMock) -> None:

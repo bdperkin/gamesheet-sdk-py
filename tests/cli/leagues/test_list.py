@@ -15,7 +15,6 @@ from gamesheet_sdk.leagues import League
 from tests.helpers import (
     DEFAULT_LEAGUE_NAME,
     TIMESTAMP_2024_01_01,
-    TIMESTAMP_2024_09_01,
 )
 
 

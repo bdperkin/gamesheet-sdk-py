@@ -42,11 +42,19 @@ def test_teams_roster_coaches_penalty_report_coverage(
         result = runner.invoke(
             teams_roster_coaches_group,
             ["penalty-report", "--coach-id", COACH_ID_TERTIARY],
-            obj={"config": mock_config, "season_id": SEASON_ID, "team_id": TEAM_ID_SECONDARY},
+            obj={
+                "config": mock_config,
+                "season_id": SEASON_ID,
+                "team_id": TEAM_ID_SECONDARY,
+            },
         )
         assert not result.exit_code
         assert "coach_games" in result.output
-        mock_get_report.assert_called_once_with(mock_session, SEASON_ID, COACH_ID_TERTIARY)
+        mock_get_report.assert_called_once_with(
+            mock_session,
+            SEASON_ID,
+            COACH_ID_TERTIARY,
+        )
 
 
 def test_teams_roster_coaches_penalty_report_requires_coach_id(
@@ -56,7 +64,11 @@ def test_teams_roster_coaches_penalty_report_requires_coach_id(
     result = CliRunner().invoke(
         teams_roster_coaches_group,
         ["penalty-report"],
-        obj={"config": mock_config, "season_id": SEASON_ID, "team_id": TEAM_ID_SECONDARY},
+        obj={
+            "config": mock_config,
+            "season_id": SEASON_ID,
+            "team_id": TEAM_ID_SECONDARY,
+        },
     )
     assert result.exit_code
     assert "--coach-id" in result.output or "coach-id" in result.output.lower()
@@ -82,7 +94,11 @@ def test_teams_roster_coaches_penalty_report_json_format(
         result = runner.invoke(
             teams_roster_coaches_group,
             ["penalty-report", "--coach-id", COACH_ID_TERTIARY, "--format", "json"],
-            obj={"config": mock_config, "season_id": SEASON_ID, "team_id": TEAM_ID_SECONDARY},
+            obj={
+                "config": mock_config,
+                "season_id": SEASON_ID,
+                "team_id": TEAM_ID_SECONDARY,
+            },
         )
         assert not result.exit_code
         assert "coach_games" in result.output
@@ -108,7 +124,11 @@ def test_teams_roster_coaches_penalty_report_yaml_format(
         result = runner.invoke(
             teams_roster_coaches_group,
             ["penalty-report", "--coach-id", COACH_ID_TERTIARY, "--format", "yaml"],
-            obj={"config": mock_config, "season_id": SEASON_ID, "team_id": TEAM_ID_SECONDARY},
+            obj={
+                "config": mock_config,
+                "season_id": SEASON_ID,
+                "team_id": TEAM_ID_SECONDARY,
+            },
         )
         assert not result.exit_code
         assert "coach_games" in result.output

@@ -21,7 +21,6 @@ from tests.helpers import (
     JSONAPI_CONTENT_TYPE,
     TEST_BASE_URL,
     TIMESTAMP_2024_01_01,
-    TIMESTAMP_2024_09_01,
     jsonapi_payload,
 )
 

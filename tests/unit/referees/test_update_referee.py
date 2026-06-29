@@ -15,7 +15,6 @@ from gamesheet_sdk.referees import update_referee
 from tests.helpers import (
     REFEREE_EXTERNAL_ID_SECONDARY,
     TEST_AUTH_HEADER,
-    TIMESTAMP_2024_01_01,
     TIMESTAMP_2024_09_01,
 )
 from tests.unit.referees.conftest import SEASON_ID, TEST_BASE_URL, referee_response_data

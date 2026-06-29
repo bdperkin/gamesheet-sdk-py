@@ -26,7 +26,6 @@ from tests.helpers import (
     JSONAPI_CONTENT_TYPE,
     SEASON_ID,
     TEST_BASE_URL,
-    TIMESTAMP_2024_01_01,
     TIMESTAMP_2024_09_01,
     jsonapi_payload,
 )
@@ -358,7 +357,10 @@ def test_list_division_teams_handles_malformed_invitation_data(config: Config) -
                 },
             ],
             "included": [
-                {"type": "invitations", "id": INVITATION_ID},  # Missing code in attributes
+                {
+                    "type": "invitations",
+                    "id": INVITATION_ID,
+                },  # Missing code in attributes
                 {"type": "invitations"},  # Missing id
                 {
                     "type": "other-type",

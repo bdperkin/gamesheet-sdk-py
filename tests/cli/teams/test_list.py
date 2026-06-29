@@ -17,7 +17,6 @@ from tests.helpers import (
     CLI_TEST_SEASON_ID,
     DEFAULT_TEAM_NAME,
     TIMESTAMP_2024_01_01,
-    TIMESTAMP_2024_09_01,
 )
 
 
@@ -117,7 +116,14 @@ def test_teams_list_columns_filter(runner: CliRunner) -> None:
         ]
         result = runner.invoke(
             cli,
-            ["teams", "list", "--season-id", CLI_TEST_SEASON_ID, "--columns", "id,title"],
+            [
+                "teams",
+                "list",
+                "--season-id",
+                CLI_TEST_SEASON_ID,
+                "--columns",
+                "id,title",
+            ],
         )
         assert not result.exit_code
         assert ASSOCIATION_ID in result.output
@@ -231,7 +237,10 @@ def test_teams_list_with_no_saved_tokens(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=None),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=None),
     ):
-        result = runner.invoke(cli, ["teams", "list", "--season-id", CLI_TEST_SEASON_ID])
+        result = runner.invoke(
+            cli,
+            ["teams", "list", "--season-id", CLI_TEST_SEASON_ID],
+        )
         assert result.exit_code == 1
         assert "No saved session" in result.output or "login" in result.output.lower()
 

@@ -11,14 +11,12 @@ import responses
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.roster import get_coach
 from tests.helpers import (
-    DEFAULT_COACH_FIRST_NAME,
     DEFAULT_COACH_LAST_NAME,
     JSONAPI_CONTENT_TYPE,
     SEASON_ID,
     TEST_AUTH_HEADER,
     TEST_BASE_URL,
     TIMESTAMP_2024_01_01,
-    TIMESTAMP_2024_09_01,
 )
 
 

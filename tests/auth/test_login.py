@@ -242,7 +242,12 @@ def test_login_no_responses_times_out(fake_browser_session: MagicMock) -> None:
     page = fake_browser_session.goto.return_value
     page.staged_responses = []  # nothing arrives
     with pytest.raises(AuthenticationError, match="did not complete"):
-        login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x", timeout=0.01)
+        login(
+            fake_browser_session,
+            email=TEST_EMAIL_MINIMAL,
+            password="x",
+            timeout=0.01,
+        )
 
 
 def test_login_firebase_success_but_token_missing_times_out(
@@ -255,7 +260,12 @@ def test_login_firebase_success_but_token_missing_times_out(
         # No token response - simulates token exchange being blocked or delayed
     ]
     with pytest.raises(AuthenticationError, match="did not complete"):
-        login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x", timeout=0.01)
+        login(
+            fake_browser_session,
+            email=TEST_EMAIL_MINIMAL,
+            password="x",
+            timeout=0.01,
+        )
 
 
 def test_login_form_detection_uses_fixed_timeout(

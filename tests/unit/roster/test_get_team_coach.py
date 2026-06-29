@@ -18,7 +18,6 @@ from tests.helpers import (
 )
 
 
-
 @responses.activate
 def test_get_team_coach_returns_coach_with_roster_metadata(config: Config) -> None:
     """Test that get_team_coach returns a coach with team roster metadata."""

@@ -31,7 +31,10 @@ def test_referees_list_alias_works(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_list.return_value = []
-        result = runner.invoke(cli, ["referees", "ls", "--season-id", CLI_TEST_SEASON_ID])
+        result = runner.invoke(
+            cli,
+            ["referees", "ls", "--season-id", CLI_TEST_SEASON_ID],
+        )
         assert not result.exit_code
         mock_list.assert_called_once()
 
@@ -119,7 +122,14 @@ def test_referees_list_columns_filter(runner: CliRunner) -> None:
         ]
         result = runner.invoke(
             cli,
-            ["referees", "list", "--season-id", CLI_TEST_SEASON_ID, "--columns", "id,first_name"],
+            [
+                "referees",
+                "list",
+                "--season-id",
+                CLI_TEST_SEASON_ID,
+                "--columns",
+                "id,first_name",
+            ],
         )
         assert not result.exit_code
         assert "ref-1" in result.output
@@ -236,7 +246,10 @@ def test_referees_list_with_no_saved_tokens(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=None),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=None),
     ):
-        result = runner.invoke(cli, ["referees", "list", "--season-id", CLI_TEST_SEASON_ID])
+        result = runner.invoke(
+            cli,
+            ["referees", "list", "--season-id", CLI_TEST_SEASON_ID],
+        )
         assert result.exit_code == 1
         assert "No saved session" in result.output or "login" in result.output.lower()
 

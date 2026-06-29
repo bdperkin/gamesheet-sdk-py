@@ -15,7 +15,6 @@ from gamesheet_sdk.cli import cli
 from tests.helpers import (
     DEFAULT_ASSOCIATION_NAME,
     TIMESTAMP_2024_01_01,
-    TIMESTAMP_2024_09_01,
 )
 
 

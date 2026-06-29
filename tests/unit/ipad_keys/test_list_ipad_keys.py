@@ -17,7 +17,12 @@ from gamesheet_sdk import (
     Session,
     list_ipad_keys,
 )
-from tests.helpers import JSONAPI_CONTENT_TYPE, SEASON_ID, TEST_BASE_URL, jsonapi_payload
+from tests.helpers import (
+    JSONAPI_CONTENT_TYPE,
+    SEASON_ID,
+    TEST_BASE_URL,
+    jsonapi_payload,
+)
 
 _ENDPOINT = f"{TEST_BASE_URL}/api/api-keys"
 
