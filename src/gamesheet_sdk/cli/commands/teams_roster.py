@@ -35,6 +35,8 @@ from gamesheet_sdk.roster import (
     assign_team_player as _assign_team_player_action,
     create_team_coach as _create_team_coach_action,
     create_team_player as _create_team_player_action,
+    delete_team_coach as _delete_team_coach_action,
+    delete_team_player as _delete_team_player_action,
     get_team_coach as _get_team_coach_action,
     get_team_player as _get_team_player_action,
     list_team_coaches as _list_team_coaches_action,
@@ -586,21 +588,38 @@ def teams_roster_players_update_command(
 
 
 @teams_roster_players_group.command("delete")
+@click.option(
+    "--player-id",
+    type=str,
+    envvar="GAMESHEET_PLAYER_ID",
+    required=True,
+    help="Player ID to delete.",
+)
 @confirm_destructive("player")
-def teams_roster_players_delete_command() -> None:
-    """Remove a player from this team.
+@click.pass_context
+def teams_roster_players_delete_command(ctx: Context, player_id: str) -> None:
+    """Delete a player from the team's roster and the season.
 
-    NOT YET IMPLEMENTED - Backend function needs to be added.
-
-    :raises Exit: Always raised (exit code 1) because this command is not yet implemented.
+    Requires authentication (run 'gamesheet-sdk-py login' first). This operation is destructive and cannot be
+    undone. Use --force to skip confirmation prompt.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param player_id: The player identifier to delete
+    :type player_id: str
+    :raises Exit: On authentication or API errors.
     """
-    click.secho(
-        # pylint: enable=duplicate-code
-        "Error: teams roster players delete is not yet implemented. Backend support needed.",
-        fg="red",
-        err=True,
-    )
-    raise Exit(1)
+    ctx_data = ctx.obj
+    config: Config = ctx_data["config"]
+    season_id: str = ctx_data["season_id"]
+    team_id: str = ctx_data["team_id"]
+    session = build_authenticated_session(config)
+    try:
+        with session:
+            _delete_team_player_action(session, season_id, team_id, player_id)
+    except Exception as exc:
+        click.secho(f"Error deleting player: {exc}", fg="red", err=True)
+        raise Exit(1) from exc
+    click.secho(f"Player {player_id} deleted successfully.", fg="green")
 
 
 @teams_roster_players_group.command("penalty-report")
@@ -1004,20 +1023,38 @@ def teams_roster_coaches_update_command(
 
 
 @teams_roster_coaches_group.command("delete")
+@click.option(
+    "--coach-id",
+    type=str,
+    envvar="GAMESHEET_COACH_ID",
+    required=True,
+    help="Coach ID to delete.",
+)
 @confirm_destructive("coach")
-def teams_roster_coaches_delete_command() -> None:
-    """Remove a coach from this team.
+@click.pass_context
+def teams_roster_coaches_delete_command(ctx: Context, coach_id: str) -> None:
+    """Delete a coach from the team's roster and the season.
 
-    NOT YET IMPLEMENTED - Backend function needs to be added.
-
-    :raises Exit: Always raised (exit code 1) because this command is not yet implemented.
+    Requires authentication (run 'gamesheet-sdk-py login' first). This operation is destructive and cannot be
+    undone. Use --force to skip confirmation prompt.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param coach_id: The coach identifier to delete
+    :type coach_id: str
+    :raises Exit: On authentication or API errors.
     """
-    click.secho(
-        "Error: teams roster coaches delete is not yet implemented. Backend support needed.",
-        fg="red",
-        err=True,
-    )
-    raise Exit(1)
+    ctx_data = ctx.obj
+    config: Config = ctx_data["config"]
+    season_id: str = ctx_data["season_id"]
+    team_id: str = ctx_data["team_id"]
+    session = build_authenticated_session(config)
+    try:
+        with session:
+            _delete_team_coach_action(session, season_id, team_id, coach_id)
+    except Exception as exc:
+        click.secho(f"Error deleting coach: {exc}", fg="red", err=True)
+        raise Exit(1) from exc
+    click.secho(f"Coach {coach_id} deleted successfully.", fg="green")
 
 
 @teams_roster_coaches_group.command("penalty-report")

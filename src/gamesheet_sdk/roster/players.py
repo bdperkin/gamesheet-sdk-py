@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from contextlib import suppress
 from typing import Any
 
 from gamesheet_sdk.exceptions import GameSheetError
@@ -845,6 +846,96 @@ def update_team_player(
     return player
 
 
+def delete_player(session: Session, season_id: str, player_id: str) -> None:
+    """Delete a player from the specified season.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param season_id: The season identifier containing the player.
+    :type season_id: str
+    :param player_id: The player identifier to delete.
+    :type player_id: str
+    """
+    endpoint = f"/api/seasons/{season_id}/players/{player_id}"
+    response = session.delete(endpoint, headers=JSONAPI_HEADERS)
+    handle_response(response, endpoint, "DELETE player")
+
+
+def unassign_player(
+    session: Session,
+    season_id: str,
+    player_id: str,
+    team_id: str,
+) -> None:
+    """Unassign a player from a team's roster.
+
+    The supplied :class:`Session` must already carry a bearer token (e.g. via
+    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param season_id: The season identifier.
+    :type season_id: str
+    :param player_id: The player identifier to unassign.
+    :type player_id: str
+    :param team_id: The team identifier to unassign the player from.
+    :type team_id: str
+    :raises GameSheetError: If the player is not assigned to the team.
+    """
+    # Step 1: Fetch current team data
+    team_data = get_team_for_roster_update(session, season_id, team_id)
+    current_attrs = team_data.get("data", {}).get("attributes", {})
+    current_relationships = team_data.get("data", {}).get("relationships", {})
+    # Step 2: Remove player from roster
+    roster = current_attrs.get("roster", {})
+    players_roster = roster.get("players", [])
+    # Find and remove the player
+    original_count = len(players_roster)
+    players_roster = [p for p in players_roster if p.get("id") != player_id]
+    if len(players_roster) == original_count:
+        msg = f"Player {player_id} is not assigned to team {team_id}"
+        raise GameSheetError(msg)
+    roster["players"] = players_roster
+    # Step 3: Update team roster
+    update_team_roster(
+        session,
+        season_id,
+        team_id,
+        roster,
+        current_attrs,
+        current_relationships,
+    )
+
+
+def delete_team_player(
+    session: Session,
+    season_id: str,
+    team_id: str,
+    player_id: str,
+) -> None:
+    """Delete a player from a team's roster and the season.
+
+    This function performs two operations: (1) removes the player from the team's roster,
+    (2) deletes the player at the season level. The supplied :class:`Session` must already
+    carry a bearer token (e.g. via :meth:`Session.set_bearer_token`); the call is otherwise
+    unauthenticated and will 401.
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param season_id: The season identifier.
+    :type season_id: str
+    :param team_id: The team identifier.
+    :type team_id: str
+    :param player_id: The player identifier to delete.
+    :type player_id: str
+    """
+    # Step 1: Remove player from team roster (may not be on this team's roster)
+    with suppress(GameSheetError):
+        unassign_player(session, season_id, player_id, team_id)
+    # Step 2: Delete the player at the season level
+    delete_player(session, season_id, player_id)
+
+
 def assign_player(
     session: Session,
     season_id: str,
@@ -918,51 +1009,6 @@ def assign_player(
         designation=designation,
     )
     return player
-
-
-def unassign_player(
-    session: Session,
-    season_id: str,
-    player_id: str,
-    team_id: str,
-) -> None:
-    """Unassign a player from a team's roster.
-
-    The supplied :class:`Session` must already carry a bearer token (e.g. via
-    :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier.
-    :type season_id: str
-    :param player_id: The player identifier to unassign.
-    :type player_id: str
-    :param team_id: The team identifier to unassign the player from.
-    :type team_id: str
-    :raises GameSheetError: If the player is not assigned to the team.
-    """
-    # Step 1: Fetch current team data
-    team_data = get_team_for_roster_update(session, season_id, team_id)
-    current_attrs = team_data.get("data", {}).get("attributes", {})
-    current_relationships = team_data.get("data", {}).get("relationships", {})
-    # Step 2: Remove player from roster
-    roster = current_attrs.get("roster", {})
-    players_roster = roster.get("players", [])
-    # Find and remove the player
-    original_count = len(players_roster)
-    players_roster = [p for p in players_roster if p.get("id") != player_id]
-    if len(players_roster) == original_count:
-        msg = f"Player {player_id} is not assigned to team {team_id}"
-        raise GameSheetError(msg)
-    roster["players"] = players_roster
-    # Step 3: Update team roster
-    update_team_roster(
-        session,
-        season_id,
-        team_id,
-        roster,
-        current_attrs,
-        current_relationships,
-    )
 
 
 def assign_team_player(
