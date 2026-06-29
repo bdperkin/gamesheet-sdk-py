@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.55 (2026-06-29)
+
+### Features
+
+- Comprehensive code quality improvements and constant extraction ([#128](https://github.com/bdperkin/gamesheet-sdk-py/pull/128),
+  [`c242cdc`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c242cdc22c2cf79e5ec0deb84f01f86e4c04e044))
+
 ## v0.1.54 (2026-06-24)
 
 ### Bug Fixes
