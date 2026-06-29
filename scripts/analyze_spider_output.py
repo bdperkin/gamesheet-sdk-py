@@ -39,7 +39,8 @@ def load_spider_output(path: Path) -> dict[str, Any]:
     required_fields = ["season_id", "base_url", "summary", "visited_urls"]
     missing = [f for f in required_fields if f not in data]
     if missing:
-        msg = f"Missing required fields: {', '.join(missing)}"
+        missing_str = ", ".join(missing)
+        msg = f"Missing required fields: {missing_str}"
         raise ValueError(msg)
     return data
 
@@ -51,19 +52,27 @@ def print_summary(data: dict[str, Any]) -> None:
     :type data: dict[str, Any]
     """
     print("=" * 70)
-    print(f"Spider Output Analysis - Season {data['season_id']}")
+    season_id = data["season_id"]
+    print(f"Spider Output Analysis - Season {season_id}")
     print("=" * 70)
-    print(f"Base URL: {data['base_url']}")
-    print(f"Crawl Time: {data.get('crawl_timestamp', 'N/A')}")
+    base_url = data["base_url"]
+    print(f"Base URL: {base_url}")
+    crawl_time = data.get("crawl_timestamp", "N/A")
+    print(f"Crawl Time: {crawl_time}")
     print()
     print("Summary Statistics:")
     print("-" * 70)
     summary = data["summary"]
-    print(f"  Visited URLs:         {summary['visited_urls']:>6}")
-    print(f"  Discovered Mutations: {summary['discovered_mutations']:>6}")
-    print(f"  Network Captures:     {summary['network_captures']:>6}")
-    print(f"  External Links:       {summary['external_links']:>6}")
-    print(f"  Errors:               {summary['errors']:>6}")
+    visited = summary["visited_urls"]
+    mutations = summary["discovered_mutations"]
+    captures = summary["network_captures"]
+    links = summary["external_links"]
+    errors = summary["errors"]
+    print(f"  Visited URLs:         {visited:>6}")
+    print(f"  Discovered Mutations: {mutations:>6}")
+    print(f"  Network Captures:     {captures:>6}")
+    print(f"  External Links:       {links:>6}")
+    print(f"  Errors:               {errors:>6}")
     print()
 
 

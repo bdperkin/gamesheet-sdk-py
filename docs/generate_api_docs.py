@@ -48,7 +48,8 @@ def main() -> int:
         "*/tests/*",  # Test files
         "**/test_*.py",  # Test files
     ]
-    rprint(f"[bold]Running:[/bold] [cyan]{' '.join(cmd)}[/cyan]")
+    cmd_str = " ".join(cmd)
+    rprint(f"[bold]Running:[/bold] [cyan]{cmd_str}[/cyan]")
     result = subprocess.run(cmd, check=False)  # noqa: S603 # nosec B603
     if result.returncode:
         rprint(

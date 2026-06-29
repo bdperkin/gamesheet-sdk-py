@@ -65,7 +65,7 @@ def test_seasons_list_json_output(runner: CliRunner) -> None:
             ["seasons", "list", "--league-id", "1148580", "--format", "json"],
         )
         assert not result.exit_code
-        assert f'"id": "{CLI_TEST_SEASON_ID}"' in result.output
+        assert '"id": "' + CLI_TEST_SEASON_ID + '"' in result.output
         assert '"title": "2024-2025"' in result.output
 
 
@@ -161,7 +161,7 @@ def test_seasons_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
         assert not result.exit_code
         assert output_file.exists()
         content = output_file.read_text()
-        assert f'"id": "{CLI_TEST_SEASON_ID}"' in content
+        assert '"id": "' + CLI_TEST_SEASON_ID + '"' in content
 
 
 def test_seasons_list_csv_output(runner: CliRunner) -> None:

@@ -154,7 +154,8 @@ class ResourceGroup(click.RichGroup):
         :rtype: tuple[str, str]
         """
         alts = sorted(a for a, t in self._aliases.items() if t == name)
-        label = f"{name} ({', '.join(alts)})" if alts else name
+        alts_str = ", ".join(alts)
+        label = f"{name} ({alts_str})" if alts else name
         return label, cmd.get_short_help_str(limit=80)
 
     def _visible_command_rows(

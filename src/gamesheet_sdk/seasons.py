@@ -173,7 +173,8 @@ def _list_seasons_bff(
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
     if body.get("status") != "success":
-        _err_msg = (f"BFF API returned non-success status: {body.get('status')}",)
+        status = body.get("status")
+        _err_msg = (f"BFF API returned non-success status: {status}",)
         raise GameSheetError(_err_msg)
     data = body.get("data", [])
     if isinstance(data, dict):

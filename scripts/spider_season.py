@@ -118,9 +118,10 @@ class SeasonSpider:
         self.season_id = season_id
         self.config = config
         self.browser_executable = browser_executable
+        base_url_stripped = config.base_url.rstrip("/")
         self.state = SpiderState(
             season_id=season_id,
-            base_url=f"{config.base_url.rstrip('/')}/seasons/{season_id}",
+            base_url=f"{base_url_stripped}/seasons/{season_id}",
         )
         self.session: BrowserSession | None = None
         self.page: Page | None = None
@@ -196,14 +197,14 @@ class SeasonSpider:
         try:
             prefix = artifacts_dir / f"{request_num:04d}"
             # Save headers
-            headers_file = Path(str(prefix) + "_request_headers.json")
+            headers_file = Path(f"{prefix!s}_request_headers.json")
             headers_file.write_text(
                 json.dumps(dict(request.headers), indent=2),
                 encoding="utf-8",
             )
             # Save payload (if present)
             if request.post_data:
-                payload_file = Path(str(prefix) + "_request_payload.txt")
+                payload_file = Path(f"{prefix!s}_request_payload.txt")
                 payload_file.write_text(request.post_data, encoding="utf-8")
         except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
             _LOGGER.warning(
@@ -232,7 +233,7 @@ class SeasonSpider:
         try:
             prefix = artifacts_dir / f"{request_num:04d}"
             # Save response headers
-            headers_file = Path(str(prefix) + "_response_headers.json")
+            headers_file = Path(f"{prefix!s}_response_headers.json")
             headers_file.write_text(
                 json.dumps(dict(response.headers), indent=2),
                 encoding="utf-8",
@@ -240,7 +241,7 @@ class SeasonSpider:
             # Save response body
             try:
                 body = response.body()
-                response_file = Path(str(prefix) + "_response_body.txt")
+                response_file = Path(f"{prefix!s}_response_body.txt")
                 response_file.write_bytes(body)
             except (OSError, RuntimeError) as exc:
                 # Some responses may not have a body or be already consumed

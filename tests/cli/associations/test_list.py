@@ -77,7 +77,7 @@ def test_associations_list_json_output(runner: CliRunner) -> None:
         result = runner.invoke(cli, ["associations", "list", "--format", "json"])
         assert not result.exit_code
         assert '"id": "1"' in result.output
-        assert f'"title": "{DEFAULT_ASSOCIATION_NAME}"' in result.output
+        assert '"title": "' + DEFAULT_ASSOCIATION_NAME + '"' in result.output
 
 
 def test_associations_list_yaml_output(runner: CliRunner) -> None:

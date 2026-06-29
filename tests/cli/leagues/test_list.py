@@ -66,7 +66,7 @@ def test_leagues_list_json_output(runner: CliRunner) -> None:
         )
         assert not result.exit_code
         assert '"id": "100"' in result.output
-        assert f'"title": "{DEFAULT_LEAGUE_NAME}"' in result.output
+        assert '"title": "' + DEFAULT_LEAGUE_NAME + '"' in result.output
 
 
 def test_leagues_list_yaml_output(runner: CliRunner) -> None:

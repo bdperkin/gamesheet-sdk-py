@@ -272,7 +272,8 @@ def render(
         # 456,Another
     """
     if fmt not in ALL_FORMATS:
-        _err_msg = f"Unknown format: {fmt!r}. Expected one of {', '.join(ALL_FORMATS)}."
+        _fmt_list = ", ".join(ALL_FORMATS)
+        _err_msg = f"Unknown format: {fmt!r}. Expected one of {_fmt_list}."
         raise ValueError(_err_msg)
     effective_columns = columns if columns is not None else _derive_columns(rows)
     renderer = _DATA_RENDERERS.get(fmt)
@@ -292,7 +293,7 @@ def _ensure_trailing_newline(text: str) -> str:
     :returns: Text string with a guaranteed trailing newline.
     :rtype: str
     """
-    return text if text.endswith("\n") else text + "\n"
+    return text if text.endswith("\n") else f"{text}\n"
 
 
 def write_output(

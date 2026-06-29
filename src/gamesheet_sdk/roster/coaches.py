@@ -643,7 +643,8 @@ def get_coach_penalty_report(
     handle_response(response, bff_url, "GET coach penalty report")
     body: dict[str, Any] = response.json()
     if body.get("status") != "success":
-        msg = f"Penalty report API returned status: {body.get('status')}"
+        status = body.get("status")
+        msg = f"Penalty report API returned status: {status}"
         raise GameSheetError(msg)
     data: dict[str, Any] = body["data"]
     return data
