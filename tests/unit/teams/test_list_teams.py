@@ -22,6 +22,8 @@ from tests.helpers import (
     JSONAPI_CONTENT_TYPE,
     SEASON_ID,
     TEST_BASE_URL,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
     jsonapi_payload,
 )
 
@@ -41,7 +43,7 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
                     "id": "1001",
                     "attributes": {
                         "title": "Raleigh Raptors",
-                        "created_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
                         "updated_at": "2024-09-15T14:30:00Z",
                     },
                     "relationships": {
@@ -64,8 +66,8 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
                     "id": "1002",
                     "attributes": {
                         "title": "Durham Bulls",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {
@@ -206,7 +208,7 @@ def test_list_teams_includes_optional_fields(config: Config) -> None:
                                 {"id": "11", "position": "assistant_coach"},
                             ],
                         },
-                        "created_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
                         "updated_at": "2024-09-15T14:30:00Z",
                     },
                     "relationships": {
@@ -259,8 +261,8 @@ def test_list_teams_without_invitations(config: Config) -> None:
                             "players": [{"id": "1"}],
                             "coaches": [{"id": "10"}],
                         },
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {
@@ -296,8 +298,8 @@ def test_list_teams_with_invitation_as_single_object(config: Config) -> None:
                     "attributes": {
                         "title": "Team",
                         "roster": {"players": [], "coaches": []},
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -339,8 +341,8 @@ def test_list_teams_with_malformed_invitation_data(config: Config) -> None:
                     "attributes": {
                         "title": "Team with orphan invitation",
                         "roster": {"players": [], "coaches": []},
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -357,8 +359,8 @@ def test_list_teams_with_malformed_invitation_data(config: Config) -> None:
                     "attributes": {
                         "title": "Team with empty invitation ID",
                         "roster": {"players": [], "coaches": []},
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -409,8 +411,8 @@ def test_list_teams_uses_correct_endpoint(config: Config) -> None:
                     "id": "1001",
                     "attributes": {
                         "title": "Season 15020 Team",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},

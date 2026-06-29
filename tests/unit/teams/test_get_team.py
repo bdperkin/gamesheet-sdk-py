@@ -14,6 +14,8 @@ from tests.helpers import (
     JSONAPI_CONTENT_TYPE,
     SEASON_ID,
     TEST_BASE_URL,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
 )
 
 
@@ -34,7 +36,7 @@ def test_get_team_returns_single_team(config: Config) -> None:
                         "title": "Test Team",
                         "logo_url": "https://example.com/logo.png",
                         "roster": {"players": [], "coaches": []},
-                        "created_at": "2024-01-01T00:00:00Z",
+                        "created_at": TIMESTAMP_2024_01_01,
                         "updated_at": "2024-06-01T00:00:00Z",
                     },
                     "relationships": {
@@ -70,8 +72,8 @@ def test_get_team_sends_bearer_and_jsonapi_accept(config: Config) -> None:
                         "title": "Test",
                         "logo_url": "",
                         "roster": {},
-                        "created_at": "2024-01-01T00:00:00Z",
-                        "updated_at": "2024-01-01T00:00:00Z",
+                        "created_at": TIMESTAMP_2024_01_01,
+                        "updated_at": TIMESTAMP_2024_01_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -126,8 +128,8 @@ def test_get_team_404_raises_gamesheet_error_with_helpful_message(
                         "title": "Other Team",
                         "logo_url": "",
                         "roster": {},
-                        "created_at": "2024-01-01T00:00:00Z",
-                        "updated_at": "2024-01-01T00:00:00Z",
+                        "created_at": TIMESTAMP_2024_01_01,
+                        "updated_at": TIMESTAMP_2024_01_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -176,7 +178,7 @@ def test_get_team_with_invitation_code(config: Config) -> None:
                         "title": "Test Team",
                         "logo_url": "",
                         "roster": {"players": [], "coaches": []},
-                        "created_at": "2024-01-01T00:00:00Z",
+                        "created_at": TIMESTAMP_2024_01_01,
                         "updated_at": "2024-06-01T00:00:00Z",
                     },
                     "relationships": {
@@ -225,7 +227,7 @@ def test_get_team_without_invitation_code(config: Config) -> None:
                         "title": "Test Team Without Code",
                         "logo_url": "",
                         "roster": {"players": [], "coaches": []},
-                        "created_at": "2024-01-01T00:00:00Z",
+                        "created_at": TIMESTAMP_2024_01_01,
                         "updated_at": "2024-06-01T00:00:00Z",
                     },
                     "relationships": {

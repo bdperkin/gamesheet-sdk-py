@@ -14,6 +14,8 @@ from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.referees import update_referee
 from tests.helpers import (
     REFEREE_EXTERNAL_ID_SECONDARY,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
 )
 from tests.unit.referees.conftest import SEASON_ID, TEST_BASE_URL, referee_response_data
 
@@ -195,8 +197,8 @@ def test_update_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
                 "attributes": {
                     "first_name": "Old",
                     "last_name": "Ref",
-                    "created_at": "2024-09-01T10:00:00Z",
-                    "updated_at": "2024-09-01T10:00:00Z",
+                    "created_at": TIMESTAMP_2024_09_01,
+                    "updated_at": TIMESTAMP_2024_09_01,
                 },
                 "relationships": {
                     "season": {"data": {"type": "seasons", "id": SEASON_ID}},

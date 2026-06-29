@@ -17,7 +17,13 @@ from gamesheet_sdk import (
     Session,
     list_associations,
 )
-from tests.helpers import JSONAPI_CONTENT_TYPE, TEST_BASE_URL, jsonapi_payload
+from tests.helpers import (
+    JSONAPI_CONTENT_TYPE,
+    TEST_BASE_URL,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
+    jsonapi_payload,
+)
 
 _ENDPOINT = f"{TEST_BASE_URL}/api/associations"
 
@@ -46,7 +52,7 @@ def test_list_associations_parses_jsonapi_response(config: Config) -> None:
                     "attributes": {
                         "title": "SuperSeries AAA",
                         "logo": "https://example/logo.png",
-                        "created_at": "2024-01-01T00:00:00Z",
+                        "created_at": TIMESTAMP_2024_01_01,
                         "updated_at": "2024-06-15T12:00:00Z",
                     },
                 },

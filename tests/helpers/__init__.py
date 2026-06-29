@@ -43,6 +43,8 @@ from tests.helpers.constants import (
     TEAM_ID,
     TEAM_ID_SECONDARY,
     TEST_BASE_URL,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
 )
 from tests.helpers.mocks import (
     setup_get_team_roster_mocks,
@@ -100,6 +102,8 @@ __all__ = [
     "TEAM_ID",
     "TEAM_ID_SECONDARY",
     "TEST_BASE_URL",
+    "TIMESTAMP_2024_01_01",
+    "TIMESTAMP_2024_09_01",
     "association_payload",
     "invitation_relationship_and_included",
     "jsonapi_detail_payload",

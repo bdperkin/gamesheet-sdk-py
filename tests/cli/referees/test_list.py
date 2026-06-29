@@ -11,8 +11,13 @@ from unittest.mock import patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
+from tests.helpers import TIMESTAMP_2024_01_01, TIMESTAMP_2024_09_01
 from gamesheet_sdk.referees import Referee
-from tests.helpers import DEFAULT_PLAYER_LAST_NAME
+from tests.helpers import (
+    DEFAULT_PLAYER_LAST_NAME,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
+)
 
 
 def test_referees_list_alias_works(runner: CliRunner) -> None:
@@ -48,8 +53,8 @@ def test_referees_list_json_output(runner: CliRunner) -> None:
                 first_name="John",
                 last_name=DEFAULT_PLAYER_LAST_NAME,
                 email="john@example.com",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -78,8 +83,8 @@ def test_referees_list_yaml_output(runner: CliRunner) -> None:
                 first_name="John",
                 last_name=DEFAULT_PLAYER_LAST_NAME,
                 email="john@example.com",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -108,8 +113,8 @@ def test_referees_list_columns_filter(runner: CliRunner) -> None:
                 first_name="John",
                 last_name=DEFAULT_PLAYER_LAST_NAME,
                 email="john@example.com",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -139,8 +144,8 @@ def test_referees_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
                 first_name="Test",
                 last_name="User",
                 email="test@example.com",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -179,8 +184,8 @@ def test_referees_list_csv_output(runner: CliRunner) -> None:
                 first_name="John",
                 last_name=DEFAULT_PLAYER_LAST_NAME,
                 email="john@example.com",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -210,8 +215,8 @@ def test_referees_list_tsv_output(runner: CliRunner) -> None:
                 first_name="John",
                 last_name=DEFAULT_PLAYER_LAST_NAME,
                 email="john@example.com",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(

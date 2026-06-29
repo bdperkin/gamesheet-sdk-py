@@ -10,7 +10,12 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.associations import get_association
-from tests.helpers import JSONAPI_CONTENT_TYPE, TEST_BASE_URL
+from tests.helpers import (
+    JSONAPI_CONTENT_TYPE,
+    TEST_BASE_URL,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
+)
 
 
 @responses.activate
@@ -28,7 +33,7 @@ def test_get_association_returns_single_association(config: Config) -> None:
                 "attributes": {
                     "title": "Test Association",
                     "logo": "https://example.com/logo.png",
-                    "created_at": "2024-01-01T00:00:00Z",
+                    "created_at": TIMESTAMP_2024_01_01,
                     "updated_at": "2024-06-01T00:00:00Z",
                 },
             },
@@ -58,8 +63,8 @@ def test_get_association_sends_bearer_and_jsonapi_accept(config: Config) -> None
                 "attributes": {
                     "title": "Test",
                     "logo": "",
-                    "created_at": "2024-01-01T00:00:00Z",
-                    "updated_at": "2024-01-01T00:00:00Z",
+                    "created_at": TIMESTAMP_2024_01_01,
+                    "updated_at": TIMESTAMP_2024_01_01,
                 },
             },
         },

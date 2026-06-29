@@ -14,6 +14,8 @@ from gamesheet_sdk.cli import cli
 from gamesheet_sdk.teams import Team
 from tests.helpers import (
     ASSOCIATION_ID,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
 )
 
 
@@ -49,8 +51,8 @@ def test_teams_list_json_output(runner: CliRunner) -> None:
                 season_id="501",
                 title="Raleigh Raptors",
                 division_id="42",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -78,8 +80,8 @@ def test_teams_list_yaml_output(runner: CliRunner) -> None:
                 season_id="501",
                 title="Raleigh Raptors",
                 division_id="42",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -107,8 +109,8 @@ def test_teams_list_columns_filter(runner: CliRunner) -> None:
                 season_id="501",
                 title="Raleigh Raptors",
                 division_id="42",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -137,8 +139,8 @@ def test_teams_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
                 season_id="501",
                 title="Test Team",
                 division_id="42",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -176,8 +178,8 @@ def test_teams_list_csv_output(runner: CliRunner) -> None:
                 season_id="501",
                 title="Raleigh Raptors",
                 division_id="42",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -206,8 +208,8 @@ def test_teams_list_tsv_output(runner: CliRunner) -> None:
                 season_id="501",
                 title="Raleigh Raptors",
                 division_id="42",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(

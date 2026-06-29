@@ -24,6 +24,8 @@ from tests.helpers import (
     SEASON_EXTERNAL_ID,
     SEASON_ID,
     TEST_BASE_URL,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
     jsonapi_payload,
 )
 
@@ -45,7 +47,7 @@ def test_list_seasons_parses_jsonapi_response(config: Config) -> None:
                     "id": "501",
                     "attributes": {
                         "title": "2024-2025",
-                        "created_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
                         "updated_at": "2024-09-15T14:30:00Z",
                     },
                     "relationships": {
@@ -151,8 +153,8 @@ def test_list_seasons_filters_by_league_id(config: Config) -> None:
                     "id": "501",
                     "attributes": {
                         "title": "League 1148580 Season",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "league": {"data": {"type": "leagues", "id": "1148580"}},
@@ -163,8 +165,8 @@ def test_list_seasons_filters_by_league_id(config: Config) -> None:
                     "id": "502",
                     "attributes": {
                         "title": "Other League Season",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "league": {"data": {"type": "leagues", "id": "999"}},

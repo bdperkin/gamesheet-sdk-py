@@ -7,7 +7,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from tests.helpers import SEASON_ID, TEST_BASE_URL, jsonapi_payload
+from tests.helpers import (
+    SEASON_ID,
+    TEST_BASE_URL,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
+    jsonapi_payload,
+)
 
 _ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees"
 
@@ -25,8 +31,8 @@ def referee_response_data(referee_id: str) -> dict[str, Any]:
             "attributes": {
                 "first_name": "Test",
                 "last_name": "Ref",
-                "created_at": "2024-09-01T10:00:00Z",
-                "updated_at": "2024-09-01T10:00:00Z",
+                "created_at": TIMESTAMP_2024_09_01,
+                "updated_at": TIMESTAMP_2024_09_01,
             },
             "relationships": {
                 "season": {"data": {"type": "seasons", "id": SEASON_ID}},

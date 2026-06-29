@@ -12,6 +12,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.associations import Association
 from gamesheet_sdk.cli import cli
+from tests.helpers import TIMESTAMP_2024_01_01, TIMESTAMP_2024_09_01
 
 
 def test_associations_list_alias_works(runner: CliRunner) -> None:
@@ -66,8 +67,8 @@ def test_associations_list_json_output(runner: CliRunner) -> None:
             Association(
                 id="1",
                 title="Test Association",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(cli, ["associations", "list", "--format", "json"])
@@ -92,8 +93,8 @@ def test_associations_list_yaml_output(runner: CliRunner) -> None:
             Association(
                 id="1",
                 title="Test Association",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(cli, ["associations", "list", "--format", "yaml"])
@@ -118,8 +119,8 @@ def test_associations_list_columns_filter(runner: CliRunner) -> None:
             Association(
                 id="1",
                 title="Test Association",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(cli, ["associations", "list", "--columns", "id,title"])
@@ -146,8 +147,8 @@ def test_associations_list_output_to_file(runner: CliRunner, tmp_path: Any) -> N
             Association(
                 id="1",
                 title="Test",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -176,8 +177,8 @@ def test_associations_list_csv_output(runner: CliRunner) -> None:
             Association(
                 id="1",
                 title="Test Association",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(cli, ["associations", "list", "--format", "csv"])

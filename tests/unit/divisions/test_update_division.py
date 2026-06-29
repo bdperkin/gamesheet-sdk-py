@@ -15,7 +15,13 @@ from gamesheet_sdk import (
     Session,
     update_division,
 )
-from tests.helpers import JSONAPI_CONTENT_TYPE, SEASON_ID, TEST_BASE_URL
+from tests.helpers import (
+    JSONAPI_CONTENT_TYPE,
+    SEASON_ID,
+    TEST_BASE_URL,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
+)
 
 _DIVISION_ID = "80998"
 _UPDATE_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/divisions/{_DIVISION_ID}"
@@ -48,7 +54,7 @@ def test_update_division_updates_title(config: Config) -> None:
                     "title": "Updated Division",
                     "external_id": "existing-external-id",
                     "settings": {},
-                    "created_at": "2024-09-01T10:00:00Z",
+                    "created_at": TIMESTAMP_2024_09_01,
                     "updated_at": "2026-06-09T20:00:00Z",
                 },
                 "relationships": {
@@ -98,8 +104,8 @@ def test_update_division_updates_external_id(config: Config) -> None:
                     "title": "Existing Title",
                     "external_id": "old-external-id",
                     "settings": {},
-                    "created_at": "2024-09-01T10:00:00Z",
-                    "updated_at": "2024-09-01T10:00:00Z",
+                    "created_at": TIMESTAMP_2024_09_01,
+                    "updated_at": TIMESTAMP_2024_09_01,
                 },
                 "relationships": {
                     "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -119,7 +125,7 @@ def test_update_division_updates_external_id(config: Config) -> None:
                     "title": "Existing Title",
                     "external_id": "new-external-id",
                     "settings": {},
-                    "created_at": "2024-09-01T10:00:00Z",
+                    "created_at": TIMESTAMP_2024_09_01,
                     "updated_at": "2026-06-09T20:00:00Z",
                 },
                 "relationships": {
@@ -168,7 +174,7 @@ def test_update_division_updates_both_fields(config: Config) -> None:
                     "title": "New Title",
                     "external_id": "new-id",
                     "settings": {},
-                    "created_at": "2024-09-01T10:00:00Z",
+                    "created_at": TIMESTAMP_2024_09_01,
                     "updated_at": "2026-06-09T20:00:00Z",
                 },
                 "relationships": {

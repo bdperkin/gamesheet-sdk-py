@@ -18,6 +18,8 @@ from tests.helpers.constants import (
     INVITATION_ID,
     LEAGUE_ID,
     PLAYER_ID,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
     SEASON_ID,
     TEAM_ID,
 )
@@ -91,8 +93,8 @@ def roster_player_payload(
             "committed_to": "",
             "photo_url": "",
             "external_id": external_id if external_id is not None else "",
-            "created_at": "2024-01-01T00:00:00Z",
-            "updated_at": "2024-01-01T00:00:00Z",
+            "created_at": TIMESTAMP_2024_01_01,
+            "updated_at": TIMESTAMP_2024_01_01,
         },
         "relationships": {
             "season": {
@@ -133,8 +135,8 @@ def roster_coach_payload(
             "last_name": last_name,
             "position": "head_coach",
             "external_id": external_id if external_id is not None else "",
-            "created_at": "2024-01-01T00:00:00Z",
-            "updated_at": "2024-01-01T00:00:00Z",
+            "created_at": TIMESTAMP_2024_01_01,
+            "updated_at": TIMESTAMP_2024_01_01,
         },
         "relationships": {
             "season": {

@@ -19,6 +19,8 @@ from tests.helpers import (
     JSONAPI_CONTENT_TYPE,
     SEASON_ID,
     TEST_BASE_URL,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
     jsonapi_payload,
 )
 
@@ -40,7 +42,7 @@ def test_list_referees_parses_jsonapi_response(config: Config) -> None:
                         "first_name": DEFAULT_PLAYER_FIRST_NAME,
                         "last_name": DEFAULT_COACH_LAST_NAME,
                         "email_address": "john.smith@example.com",
-                        "created_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
                         "updated_at": "2024-09-15T14:30:00Z",
                     },
                     "relationships": {

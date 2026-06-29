@@ -16,6 +16,8 @@ from tests.helpers import (
     JSONAPI_CONTENT_TYPE,
     SEASON_ID,
     TEST_BASE_URL,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
 )
 
 
@@ -34,7 +36,7 @@ def test_get_coach_returns_single_coach(config: Config) -> None:
                 "attributes": {
                     "first_name": "Jane",
                     "last_name": DEFAULT_COACH_LAST_NAME,
-                    "created_at": "2024-01-01T00:00:00Z",
+                    "created_at": TIMESTAMP_2024_01_01,
                     "updated_at": "2024-06-01T00:00:00Z",
                 },
                 "relationships": {
@@ -68,8 +70,8 @@ def test_get_coach_sends_bearer_and_jsonapi_accept(config: Config) -> None:
                 "attributes": {
                     "first_name": "Test",
                     "last_name": "Coach",
-                    "created_at": "2024-01-01T00:00:00Z",
-                    "updated_at": "2024-01-01T00:00:00Z",
+                    "created_at": TIMESTAMP_2024_01_01,
+                    "updated_at": TIMESTAMP_2024_01_01,
                 },
                 "relationships": {
                     "season": {"data": {"type": "seasons", "id": SEASON_ID}},

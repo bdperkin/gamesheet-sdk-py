@@ -14,6 +14,8 @@ from tests.helpers import (
     JSONAPI_CONTENT_TYPE,
     SEASON_ID,
     TEST_BASE_URL,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
 )
 
 
@@ -31,7 +33,7 @@ def test_get_division_returns_single_division(config: Config) -> None:
                 "id": _division_id,
                 "attributes": {
                     "title": "Test Division",
-                    "created_at": "2024-01-01T00:00:00Z",
+                    "created_at": TIMESTAMP_2024_01_01,
                     "updated_at": "2024-06-01T00:00:00Z",
                 },
                 "relationships": {
@@ -63,8 +65,8 @@ def test_get_division_sends_bearer_and_jsonapi_accept(config: Config) -> None:
                 "id": _division_id,
                 "attributes": {
                     "title": "Test",
-                    "created_at": "2024-01-01T00:00:00Z",
-                    "updated_at": "2024-01-01T00:00:00Z",
+                    "created_at": TIMESTAMP_2024_01_01,
+                    "updated_at": TIMESTAMP_2024_01_01,
                 },
                 "relationships": {
                     "season": {"data": {"type": "seasons", "id": "1"}},
@@ -143,7 +145,7 @@ def test_get_division_with_team_count(config: Config) -> None:
                 "id": _division_id,
                 "attributes": {
                     "title": "Test Division",
-                    "created_at": "2024-01-01T00:00:00Z",
+                    "created_at": TIMESTAMP_2024_01_01,
                     "updated_at": "2024-06-01T00:00:00Z",
                 },
                 "relationships": {
@@ -164,8 +166,8 @@ def test_get_division_with_team_count(config: Config) -> None:
                     "attributes": {
                         "title": "Team 1",
                         "roster": {},
-                        "created_at": "2024-01-01T00:00:00Z",
-                        "updated_at": "2024-01-01T00:00:00Z",
+                        "created_at": TIMESTAMP_2024_01_01,
+                        "updated_at": TIMESTAMP_2024_01_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -177,8 +179,8 @@ def test_get_division_with_team_count(config: Config) -> None:
                     "attributes": {
                         "title": "Team 2",
                         "roster": {},
-                        "created_at": "2024-01-01T00:00:00Z",
-                        "updated_at": "2024-01-01T00:00:00Z",
+                        "created_at": TIMESTAMP_2024_01_01,
+                        "updated_at": TIMESTAMP_2024_01_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},

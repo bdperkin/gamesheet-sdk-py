@@ -11,6 +11,7 @@ from unittest.mock import patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
+from tests.helpers import TIMESTAMP_2024_01_01, TIMESTAMP_2024_09_01
 from gamesheet_sdk.seasons import Season
 
 
@@ -52,8 +53,8 @@ def test_seasons_list_json_output(runner: CliRunner) -> None:
                 id="501",
                 league_id="1148580",
                 title="2024-2025",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -80,8 +81,8 @@ def test_seasons_list_yaml_output(runner: CliRunner) -> None:
                 id="501",
                 league_id="1148580",
                 title="2024-2025",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -108,8 +109,8 @@ def test_seasons_list_columns_filter(runner: CliRunner) -> None:
                 id="501",
                 league_id="1148580",
                 title="2024-2025",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -137,8 +138,8 @@ def test_seasons_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
                 id="501",
                 league_id="1148580",
                 title="Test",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -175,8 +176,8 @@ def test_seasons_list_csv_output(runner: CliRunner) -> None:
                 id="501",
                 league_id="1148580",
                 title="2024-2025",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -204,8 +205,8 @@ def test_seasons_list_tsv_output(runner: CliRunner) -> None:
                 id="501",
                 league_id="1148580",
                 title="2024-2025",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(

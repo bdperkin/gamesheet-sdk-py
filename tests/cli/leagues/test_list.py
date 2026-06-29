@@ -11,6 +11,7 @@ from unittest.mock import patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
+from tests.helpers import TIMESTAMP_2024_01_01, TIMESTAMP_2024_09_01
 from gamesheet_sdk.leagues import League
 
 
@@ -52,8 +53,8 @@ def test_leagues_list_json_output(runner: CliRunner) -> None:
                 id="100",
                 association_id="38",
                 title="Test League",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -80,8 +81,8 @@ def test_leagues_list_yaml_output(runner: CliRunner) -> None:
                 id="100",
                 association_id="38",
                 title="Test League",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -108,8 +109,8 @@ def test_leagues_list_columns_filter(runner: CliRunner) -> None:
                 id="100",
                 association_id="38",
                 title="Test League",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -137,8 +138,8 @@ def test_leagues_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
                 id="100",
                 association_id="38",
                 title="Test",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -175,8 +176,8 @@ def test_leagues_list_csv_output(runner: CliRunner) -> None:
                 id="100",
                 association_id="38",
                 title="Test League",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -212,8 +213,8 @@ def test_leagues_list_grid_format(runner: CliRunner) -> None:
                 id="100",
                 association_id="38",
                 title="Test League",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -240,8 +241,8 @@ def test_leagues_list_simple_format(runner: CliRunner) -> None:
                 id="100",
                 association_id="38",
                 title="Test League",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(

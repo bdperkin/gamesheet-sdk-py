@@ -14,6 +14,8 @@ from gamesheet_sdk.cli import cli
 from gamesheet_sdk.seasons import SeasonDetail
 from tests.helpers import (
     SEASON_ID,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
 )
 
 
@@ -37,8 +39,8 @@ def test_seasons_get_alias_show_works(runner: CliRunner) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",
-            updated_at="2024-01-01T00:00:00Z",
+            created_at=TIMESTAMP_2024_01_01,
+            updated_at=TIMESTAMP_2024_01_01,
         )
         result = runner.invoke(cli, ["seasons", "show", "--season-id", SEASON_ID])
         assert not result.exit_code
@@ -65,8 +67,8 @@ def test_seasons_get_alias_view_works(runner: CliRunner) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",
-            updated_at="2024-01-01T00:00:00Z",
+            created_at=TIMESTAMP_2024_01_01,
+            updated_at=TIMESTAMP_2024_01_01,
         )
         result = runner.invoke(cli, ["seasons", "view", "--season-id", SEASON_ID])
         assert not result.exit_code
@@ -100,8 +102,8 @@ def test_seasons_get_json_output(runner: CliRunner) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",
-            updated_at="2024-01-01T00:00:00Z",
+            created_at=TIMESTAMP_2024_01_01,
+            updated_at=TIMESTAMP_2024_01_01,
         )
         result = runner.invoke(
             cli,
@@ -133,8 +135,8 @@ def test_seasons_get_yaml_output(runner: CliRunner) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",
-            updated_at="2024-01-01T00:00:00Z",
+            created_at=TIMESTAMP_2024_01_01,
+            updated_at=TIMESTAMP_2024_01_01,
         )
         result = runner.invoke(
             cli,
@@ -165,8 +167,8 @@ def test_seasons_get_fields_filter(runner: CliRunner) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",
-            updated_at="2024-01-01T00:00:00Z",
+            created_at=TIMESTAMP_2024_01_01,
+            updated_at=TIMESTAMP_2024_01_01,
         )
         result = runner.invoke(
             cli,
@@ -198,8 +200,8 @@ def test_seasons_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",
-            updated_at="2024-01-01T00:00:00Z",
+            created_at=TIMESTAMP_2024_01_01,
+            updated_at=TIMESTAMP_2024_01_01,
         )
         result = runner.invoke(
             cli,
@@ -240,8 +242,8 @@ def test_seasons_get_table_format(runner: CliRunner) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",
-            updated_at="2024-01-01T00:00:00Z",
+            created_at=TIMESTAMP_2024_01_01,
+            updated_at=TIMESTAMP_2024_01_01,
         )
         result = runner.invoke(
             cli,
@@ -273,8 +275,8 @@ def test_seasons_get_grid_format(runner: CliRunner) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",
-            updated_at="2024-01-01T00:00:00Z",
+            created_at=TIMESTAMP_2024_01_01,
+            updated_at=TIMESTAMP_2024_01_01,
         )
         result = runner.invoke(
             cli,
@@ -316,8 +318,8 @@ def test_seasons_get_with_env_var(runner: CliRunner) -> None:
             end_date="2026-12-31",
             sport="hockey",
             stats_year="2026",
-            created_at="2024-01-01T00:00:00Z",
-            updated_at="2024-01-01T00:00:00Z",
+            created_at=TIMESTAMP_2024_01_01,
+            updated_at=TIMESTAMP_2024_01_01,
         )
         result = runner.invoke(
             cli,

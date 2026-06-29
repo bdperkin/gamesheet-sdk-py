@@ -25,6 +25,8 @@ from tests.helpers import (
     JSONAPI_CONTENT_TYPE,
     SEASON_ID,
     TEST_BASE_URL,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
     jsonapi_payload,
 )
 
@@ -49,8 +51,8 @@ def _create_team_data(
                 "players": [{"id": str(i)} for i in range(player_count)],
                 "coaches": [{"id": str(i)} for i in range(coach_count)],
             },
-            "created_at": kwargs.get("created_at", "2024-09-01T10:00:00Z"),
-            "updated_at": kwargs.get("updated_at", "2024-09-01T10:00:00Z"),
+            "created_at": kwargs.get("created_at", TIMESTAMP_2024_09_01),
+            "updated_at": kwargs.get("updated_at", TIMESTAMP_2024_09_01),
         },
         "relationships": {
             "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -76,7 +78,7 @@ def test_list_division_teams_parses_jsonapi_response(config: Config) -> None:
                     15,
                     3,
                     logo_url="https://example.com/logo1.png",
-                    created_at="2024-09-01T10:00:00Z",
+                    created_at=TIMESTAMP_2024_09_01,
                     updated_at="2024-09-15T14:30:00Z",
                 ),
                 _create_team_data("1002", "Durham Bulls", 12, 2),
@@ -196,7 +198,7 @@ def test_list_division_teams_with_invitation_codes(config: Config) -> None:
                             "players": [{"id": str(i)} for i in range(15)],
                             "coaches": [{"id": str(i)} for i in range(3)],
                         },
-                        "created_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
                         "updated_at": "2024-09-15T14:30:00Z",
                     },
                     "relationships": {
@@ -263,8 +265,8 @@ def test_list_division_teams_handles_invitation_as_single_object(
                     "attributes": {
                         "title": "Test Team",
                         "roster": {"players": [], "coaches": []},
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -308,8 +310,8 @@ def test_list_division_teams_handles_missing_invitation_code_gracefully(
                     "attributes": {
                         "title": "Test Team",
                         "roster": {"players": [], "coaches": []},
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -345,8 +347,8 @@ def test_list_division_teams_handles_malformed_invitation_data(config: Config) -
                     "attributes": {
                         "title": "Test Team",
                         "roster": {"players": [], "coaches": []},
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},

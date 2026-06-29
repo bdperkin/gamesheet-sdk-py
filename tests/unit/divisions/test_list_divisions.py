@@ -20,6 +20,8 @@ from tests.helpers import (
     JSONAPI_CONTENT_TYPE,
     SEASON_ID,
     TEST_BASE_URL,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
     jsonapi_payload,
 )
 
@@ -39,7 +41,7 @@ def test_list_divisions_parses_jsonapi_response(config: Config) -> None:
                     "id": DIVISION_ID,
                     "attributes": {
                         "title": "U13 AAA",
-                        "created_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
                         "updated_at": "2024-09-15T14:30:00Z",
                     },
                     "relationships": {
@@ -56,8 +58,8 @@ def test_list_divisions_parses_jsonapi_response(config: Config) -> None:
                     "id": "702",
                     "attributes": {
                         "title": "Bantam A",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {
@@ -162,8 +164,8 @@ def test_list_divisions_filters_by_season_id(config: Config) -> None:
                     "id": DIVISION_ID,
                     "attributes": {
                         "title": "Season 15020 Division",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -174,8 +176,8 @@ def test_list_divisions_filters_by_season_id(config: Config) -> None:
                     "id": "702",
                     "attributes": {
                         "title": "Other Season Division",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": "999"}},
@@ -209,8 +211,8 @@ def test_list_divisions_includes_team_counts_when_requested(config: Config) -> N
                     "id": DIVISION_ID,
                     "attributes": {
                         "title": "U13 AAA",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -221,8 +223,8 @@ def test_list_divisions_includes_team_counts_when_requested(config: Config) -> N
                     "id": "702",
                     "attributes": {
                         "title": "Bantam A",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -243,8 +245,8 @@ def test_list_divisions_includes_team_counts_when_requested(config: Config) -> N
                     "id": "1001",
                     "attributes": {
                         "title": "Team A",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -256,8 +258,8 @@ def test_list_divisions_includes_team_counts_when_requested(config: Config) -> N
                     "id": "1002",
                     "attributes": {
                         "title": "Team B",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -269,8 +271,8 @@ def test_list_divisions_includes_team_counts_when_requested(config: Config) -> N
                     "id": "1003",
                     "attributes": {
                         "title": "Team C",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -291,8 +293,8 @@ def test_list_divisions_includes_team_counts_when_requested(config: Config) -> N
                     "id": "2001",
                     "attributes": {
                         "title": "Team D",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
@@ -326,8 +328,8 @@ def test_list_divisions_without_team_counts_leaves_field_none(config: Config) ->
                     "id": DIVISION_ID,
                     "attributes": {
                         "title": "U13 AAA",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
