@@ -63,12 +63,18 @@ def run_roster_delete_test(
     Returns:
         Tuple of (exit_code, output, mock_action)
     """
+    # Derive build_session_path from action_path module
+    # e.g., "gamesheet_sdk.cli.commands.teams_roster_players._delete..."
+    #    -> "gamesheet_sdk.cli.commands.teams_roster_players.build_authenticated_session"
+    module_path = action_path.rsplit(".", 1)[0]
+    build_session_path = f"{module_path}.build_authenticated_session"
+
     return run_roster_delete_test_base(
         group=group,
         resource_type=resource_type,
         resource_id=resource_id,
         action_path=action_path,
-        build_session_path="gamesheet_sdk.cli.commands.teams_roster.build_authenticated_session",
+        build_session_path=build_session_path,
         context_obj={
             "config": config,
             "season_id": season_id,
