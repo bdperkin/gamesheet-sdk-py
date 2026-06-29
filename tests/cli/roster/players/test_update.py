@@ -13,6 +13,36 @@ from gamesheet_sdk.cli.commands.roster import players_group
 from tests.helpers import PLAYER_ID, SEASON_ID
 
 
+def test_roster_players_update_coverage() -> None:
+    """Ensure roster players update command body is covered."""
+    runner = CliRunner()
+    mock_player = MagicMock()
+    mock_player.id = PLAYER_ID
+    with (
+        patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.cli.commands.roster._update_player_action",
+            return_value=mock_player,
+        ),
+        patch("gamesheet_sdk.cli.commands.roster.render_get_command"),
+    ):
+        result = runner.invoke(
+            players_group,
+            [
+                "update",
+                "--player-id",
+                PLAYER_ID,
+                "--first-name",
+                "UPDATED",
+                "-F",
+                "json",
+            ],
+            obj={"config": MagicMock(), "season_id": SEASON_ID},
+        )
+        assert not result.exit_code
+        assert f"player {PLAYER_ID} updated successfully" in result.output.lower()
+
+
 def test_roster_players_update_valueerror_handling() -> None:
     """Ensure roster players update command handles ValueError from action."""
     from typing import Any

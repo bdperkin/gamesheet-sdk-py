@@ -262,6 +262,48 @@ def get_team_coach(
     raise GameSheetError(msg)
 
 
+def _build_coach_roster_entry(
+    coach_id: str,
+    *,
+    position: str | None = None,
+) -> dict[str, Any]:
+    """Build a coach roster entry dict for team roster updates.
+
+    :param coach_id: The coach identifier.
+    :type coach_id: str
+    :param position: Optional position (Head Coach, Assistant Coach, etc.).
+    :type position: str | None
+    :returns: Dictionary containing roster entry data ready for team roster update.
+    :rtype: dict[str, Any]
+    """
+    entry: dict[str, Any] = {
+        "id": coach_id,
+        "status": "coaching",
+    }
+    if position:
+        entry["position"] = position
+    return entry
+
+
+def _populate_coach_metadata(
+    coach: Coach,
+    *,
+    position: str | None = None,
+) -> None:
+    """Populate coach object with roster metadata.
+
+    Mutates the Coach object in place to set roster-specific fields.
+
+    :param coach: The Coach instance to populate.
+    :type coach: Coach
+    :param position: Optional position (Head Coach, Assistant Coach, etc.).
+    :type position: str | None
+    """
+    if position:
+        coach.position = position
+    coach.status = "coaching"
+
+
 def create_team_coach(
     session: Session,
     season_id: str,
@@ -309,9 +351,7 @@ def create_team_coach(
     team_data = get_team_for_roster_update(session, season_id, team_id)
     roster = team_data.get("data", {}).get("attributes", {}).get("roster", {})
     coaches_roster = roster.get("coaches", [])
-    coach_entry: dict[str, Any] = {"id": coach.id, "status": "coaching"}
-    if position:
-        coach_entry["position"] = position
+    coach_entry = _build_coach_roster_entry(coach.id, position=position)
     coaches_roster.append(coach_entry)
     roster["coaches"] = coaches_roster
     # Step 3: Update team roster
@@ -324,9 +364,7 @@ def create_team_coach(
         team_data.get("data", {}).get("relationships", {}),
     )
     # Return the coach with roster metadata populated
-    if position:
-        coach.position = position
-    coach.status = "coaching"
+    _populate_coach_metadata(coach, position=position)
     return coach
 
 
@@ -543,9 +581,7 @@ def assign_coach(
         if existing_coach.get("id") == coach_id:
             msg = f"Coach {coach_id} is already assigned to team {team_id}"
             raise GameSheetError(msg)
-    coach_entry: dict[str, Any] = {"id": coach_id, "status": "coaching"}
-    if position:
-        coach_entry["position"] = position
+    coach_entry = _build_coach_roster_entry(coach_id, position=position)
     coaches_roster.append(coach_entry)
     roster["coaches"] = coaches_roster
     # Step 4: Update team roster
@@ -558,9 +594,7 @@ def assign_coach(
         current_relationships,
     )
     # Return the coach with roster metadata populated
-    if position:
-        coach.position = position
-    coach.status = "coaching"
+    _populate_coach_metadata(coach, position=position)
     return coach
 
 
