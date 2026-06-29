@@ -11,8 +11,10 @@ import responses
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.teams import get_team
 from tests.helpers import (
+    DEFAULT_TEAM_NAME,
     JSONAPI_CONTENT_TYPE,
     SEASON_ID,
+    TEST_AUTH_HEADER,
     TEST_BASE_URL,
     TIMESTAMP_2024_01_01,
     TIMESTAMP_2024_09_01,
@@ -33,7 +35,7 @@ def test_get_team_returns_single_team(config: Config) -> None:
                     "type": "teams",
                     "id": _team_id,
                     "attributes": {
-                        "title": "Test Team",
+                        "title": DEFAULT_TEAM_NAME,
                         "logo_url": "https://example.com/logo.png",
                         "roster": {"players": [], "coaches": []},
                         "created_at": TIMESTAMP_2024_01_01,
@@ -52,7 +54,7 @@ def test_get_team_returns_single_team(config: Config) -> None:
         result = get_team(session, SEASON_ID, _team_id)
     assert result.id == _team_id
     assert result.season_id == SEASON_ID
-    assert result.title == "Test Team"
+    assert result.title == DEFAULT_TEAM_NAME
 
 
 @responses.activate
@@ -88,7 +90,7 @@ def test_get_team_sends_bearer_and_jsonapi_accept(config: Config) -> None:
         get_team(session, SEASON_ID, _team_id)
     assert len(responses.calls) == 1
     req = responses.calls[0].request
-    assert req.headers["Authorization"] == "Bearer test-token"
+    assert req.headers["Authorization"] == TEST_AUTH_HEADER
     assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
 
 
@@ -175,7 +177,7 @@ def test_get_team_with_invitation_code(config: Config) -> None:
                     "type": "teams",
                     "id": _team_id,
                     "attributes": {
-                        "title": "Test Team",
+                        "title": DEFAULT_TEAM_NAME,
                         "logo_url": "",
                         "roster": {"players": [], "coaches": []},
                         "created_at": TIMESTAMP_2024_01_01,
@@ -206,7 +208,7 @@ def test_get_team_with_invitation_code(config: Config) -> None:
         result = get_team(session, SEASON_ID, _team_id)
     assert result.id == _team_id
     assert result.season_id == SEASON_ID
-    assert result.title == "Test Team"
+    assert result.title == DEFAULT_TEAM_NAME
     assert result.invitation_code == _invitation_code
 
 

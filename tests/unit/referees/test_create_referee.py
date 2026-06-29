@@ -15,6 +15,7 @@ from tests.helpers import (
     JSONAPI_CONTENT_TYPE,
     REFEREE_EXTERNAL_ID_PRIMARY,
     SEASON_ID,
+    TEST_AUTH_HEADER,
     TEST_BASE_URL,
     TEST_EMAIL_REFEREE,
     TIMESTAMP_2024_09_01,
@@ -149,7 +150,7 @@ def test_create_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
         create_referee(session, SEASON_ID, "Test", "Ref")
     assert len(responses.calls) == 1
     req = responses.calls[0].request
-    assert req.headers["Authorization"] == "Bearer test-token"
+    assert req.headers["Authorization"] == TEST_AUTH_HEADER
     assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
     assert req.headers["Content-Type"] == JSONAPI_CONTENT_TYPE
 

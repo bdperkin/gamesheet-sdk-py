@@ -14,6 +14,7 @@ from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.referees import update_referee
 from tests.helpers import (
     REFEREE_EXTERNAL_ID_SECONDARY,
+    TEST_AUTH_HEADER,
     TIMESTAMP_2024_01_01,
     TIMESTAMP_2024_09_01,
 )
@@ -220,9 +221,9 @@ def test_update_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
     assert len(responses.calls) == 2
     get_req = responses.calls[0].request
     patch_req = responses.calls[1].request
-    assert get_req.headers["Authorization"] == "Bearer test-token"
+    assert get_req.headers["Authorization"] == TEST_AUTH_HEADER
     assert get_req.headers["Accept"] == "application/vnd.api+json"
-    assert patch_req.headers["Authorization"] == "Bearer test-token"
+    assert patch_req.headers["Authorization"] == TEST_AUTH_HEADER
     assert patch_req.headers["Accept"] == "application/vnd.api+json"
     assert patch_req.headers["Content-Type"] == "application/vnd.api+json"
 

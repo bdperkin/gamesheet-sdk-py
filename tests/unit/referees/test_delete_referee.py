@@ -10,7 +10,12 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.referees import delete_referee
-from tests.helpers import JSONAPI_CONTENT_TYPE, SEASON_ID, TEST_BASE_URL
+from tests.helpers import (
+    JSONAPI_CONTENT_TYPE,
+    SEASON_ID,
+    TEST_AUTH_HEADER,
+    TEST_BASE_URL,
+)
 
 _ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees"
 
@@ -49,7 +54,7 @@ def test_delete_referee_sends_bearer_and_jsonapi_accept(config: Config) -> None:
         delete_referee(session, SEASON_ID, _referee_id)
     assert len(responses.calls) == 1
     req = responses.calls[0].request
-    assert req.headers["Authorization"] == "Bearer test-token"
+    assert req.headers["Authorization"] == TEST_AUTH_HEADER
     assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
 
 

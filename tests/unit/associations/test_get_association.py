@@ -11,7 +11,9 @@ import responses
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.associations import get_association
 from tests.helpers import (
+    DEFAULT_ASSOCIATION_NAME,
     JSONAPI_CONTENT_TYPE,
+    TEST_AUTH_HEADER,
     TEST_BASE_URL,
     TIMESTAMP_2024_01_01,
     TIMESTAMP_2024_09_01,
@@ -31,7 +33,7 @@ def test_get_association_returns_single_association(config: Config) -> None:
                 "type": "associations",
                 "id": _association_id,
                 "attributes": {
-                    "title": "Test Association",
+                    "title": DEFAULT_ASSOCIATION_NAME,
                     "logo": "https://example.com/logo.png",
                     "created_at": TIMESTAMP_2024_01_01,
                     "updated_at": "2024-06-01T00:00:00Z",
@@ -44,7 +46,7 @@ def test_get_association_returns_single_association(config: Config) -> None:
         session.set_bearer_token("abc")
         result = get_association(session, _association_id)
     assert result.id == _association_id
-    assert result.title == "Test Association"
+    assert result.title == DEFAULT_ASSOCIATION_NAME
     assert result.logo == "https://example.com/logo.png"
 
 
@@ -75,7 +77,7 @@ def test_get_association_sends_bearer_and_jsonapi_accept(config: Config) -> None
         get_association(session, _association_id)
     assert len(responses.calls) == 1
     req = responses.calls[0].request
-    assert req.headers["Authorization"] == "Bearer test-token"
+    assert req.headers["Authorization"] == TEST_AUTH_HEADER
     assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
 
 

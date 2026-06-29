@@ -50,6 +50,10 @@ DEFAULT_PLAYER_FIRST_NAME = "John"
 DEFAULT_PLAYER_LAST_NAME = "Doe"
 DEFAULT_COACH_FIRST_NAME = "Coach"
 DEFAULT_COACH_LAST_NAME = "Smith"
+DEFAULT_TEAM_NAME = "Test Team"
+DEFAULT_DIVISION_NAME = "Test Division"
+DEFAULT_LEAGUE_NAME = "Test League"
+DEFAULT_ASSOCIATION_NAME = "Test Association"
 
 # Invitation/team codes
 INVITATION_ID = "inv-123"
@@ -69,3 +73,7 @@ TIMESTAMP_2024_09_01 = "2024-09-01T10:00:00Z"  # Alternative common timestamp
 TEST_EMAIL_MINIMAL = "a@b.c"  # Minimal valid email for basic tests
 TEST_EMAIL_REFEREE = "Wes.McCauley@example.com"  # Referee test data
 TEST_EMAIL_GENERIC = "test@example.com"  # Generic test email
+
+# Test infrastructure values
+TEST_AUTH_HEADER = "Bearer test-token"  # Standard auth header for test assertions
+CLI_TEST_SEASON_ID = "501"  # Season ID used in CLI tests (distinct from unit test SEASON_ID)

@@ -12,6 +12,7 @@ from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.referees import get_referee
 from tests.helpers import (
     REFEREE_EXTERNAL_ID_PRIMARY,
+    TEST_AUTH_HEADER,
     TEST_EMAIL_REFEREE,
 )
 from tests.unit.referees.conftest import SEASON_ID, TEST_BASE_URL, referee_response_data
@@ -70,7 +71,7 @@ def test_get_referee_sends_bearer_and_jsonapi_accept(config: Config) -> None:
         get_referee(session, SEASON_ID, _referee_id)
     assert len(responses.calls) == 1
     req = responses.calls[0].request
-    assert req.headers["Authorization"] == "Bearer test-token"
+    assert req.headers["Authorization"] == TEST_AUTH_HEADER
     assert req.headers["Accept"] == "application/vnd.api+json"
 
 

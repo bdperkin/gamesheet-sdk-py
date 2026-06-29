@@ -12,7 +12,10 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.teams import Team
-from tests.helpers import SEASON_ID
+from tests.helpers import (
+    DEFAULT_TEAM_NAME,
+    SEASON_ID,
+)
 
 
 def test_teams_get(runner: CliRunner) -> None:
@@ -25,7 +28,7 @@ def test_teams_get(runner: CliRunner) -> None:
         mock_action.return_value = Team(
             id="401",
             season_id=SEASON_ID,
-            title="Test Team",
+            title=DEFAULT_TEAM_NAME,
             roster={"players": [], "coaches": []},
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -49,7 +52,7 @@ def test_teams_get_with_fields(runner: CliRunner) -> None:
         mock_action.return_value = Team(
             id="401",
             season_id=SEASON_ID,
-            title="Test Team",
+            title=DEFAULT_TEAM_NAME,
             roster={"players": [], "coaches": []},
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -83,7 +86,7 @@ def test_teams_get_empty_fields(runner: CliRunner) -> None:
         mock_action.return_value = Team(
             id="401",
             season_id=SEASON_ID,
-            title="Test Team",
+            title=DEFAULT_TEAM_NAME,
             roster={"players": [], "coaches": []},
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),

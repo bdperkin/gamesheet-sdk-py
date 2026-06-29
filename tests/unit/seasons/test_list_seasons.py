@@ -20,9 +20,11 @@ from gamesheet_sdk import (
     list_seasons,
 )
 from tests.helpers import (
+    CLI_TEST_SEASON_ID,
     JSONAPI_CONTENT_TYPE,
     SEASON_EXTERNAL_ID,
     SEASON_ID,
+    TEST_AUTH_HEADER,
     TEST_BASE_URL,
     TIMESTAMP_2024_01_01,
     TIMESTAMP_2024_09_01,
@@ -44,7 +46,7 @@ def test_list_seasons_parses_jsonapi_response(config: Config) -> None:
             [
                 {
                     "type": "seasons",
-                    "id": "501",
+                    "id": CLI_TEST_SEASON_ID,
                     "attributes": {
                         "title": "2024-2025",
                         "created_at": TIMESTAMP_2024_09_01,
@@ -83,7 +85,7 @@ def test_list_seasons_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_seasons(session, _LEAGUE_ID)
-    assert [s.id for s in result] == ["501", "502"]
+    assert [s.id for s in result] == [CLI_TEST_SEASON_ID, "502"]
     assert result[0].title == "2024-2025"
     assert result[0].league_id == _LEAGUE_ID
     assert result[0].created_at == datetime(2024, 9, 1, 10, tzinfo=timezone.utc)
@@ -150,7 +152,7 @@ def test_list_seasons_filters_by_league_id(config: Config) -> None:
             [
                 {
                     "type": "seasons",
-                    "id": "501",
+                    "id": CLI_TEST_SEASON_ID,
                     "attributes": {
                         "title": "League 1148580 Season",
                         "created_at": TIMESTAMP_2024_09_01,
@@ -181,7 +183,7 @@ def test_list_seasons_filters_by_league_id(config: Config) -> None:
         result = list_seasons(session, "1148580")
     # Should only return the season for league 1148580, not the one for league 999
     assert len(result) == 1
-    assert result[0].id == "501"
+    assert result[0].id == CLI_TEST_SEASON_ID
     assert result[0].league_id == "1148580"
     assert result[0].title == "League 1148580 Season"
 
@@ -305,7 +307,7 @@ def test_get_season_sends_bearer_and_jsonapi_accept(config: Config) -> None:
         get_season(session, SEASON_ID)
     assert len(responses.calls) == 1
     req = responses.calls[0].request
-    assert req.headers["Authorization"] == "Bearer test-token"
+    assert req.headers["Authorization"] == TEST_AUTH_HEADER
     assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
 
 

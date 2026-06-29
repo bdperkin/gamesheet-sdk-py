@@ -11,7 +11,9 @@ import responses
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.leagues import get_league
 from tests.helpers import (
+    DEFAULT_LEAGUE_NAME,
     JSONAPI_CONTENT_TYPE,
+    TEST_AUTH_HEADER,
     TEST_BASE_URL,
     TIMESTAMP_2024_01_01,
     TIMESTAMP_2024_09_01,
@@ -33,7 +35,7 @@ def test_get_league_returns_single_league(config: Config) -> None:
                 "type": "leagues",
                 "id": _league_id,
                 "attributes": {
-                    "title": "Test League",
+                    "title": DEFAULT_LEAGUE_NAME,
                     "created_at": TIMESTAMP_2024_01_01,
                     "updated_at": "2024-06-01T00:00:00Z",
                 },
@@ -46,7 +48,7 @@ def test_get_league_returns_single_league(config: Config) -> None:
         result = get_league(session, _ASSOCIATION_ID, _league_id)
     assert result.id == _league_id
     assert result.association_id == _ASSOCIATION_ID
-    assert result.title == "Test League"
+    assert result.title == DEFAULT_LEAGUE_NAME
 
 
 @responses.activate
@@ -75,7 +77,7 @@ def test_get_league_sends_bearer_and_jsonapi_accept(config: Config) -> None:
         get_league(session, _ASSOCIATION_ID, _league_id)
     assert len(responses.calls) == 1
     req = responses.calls[0].request
-    assert req.headers["Authorization"] == "Bearer test-token"
+    assert req.headers["Authorization"] == TEST_AUTH_HEADER
     assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
 
 

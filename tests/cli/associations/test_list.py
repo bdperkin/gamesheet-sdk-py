@@ -12,7 +12,11 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.associations import Association
 from gamesheet_sdk.cli import cli
-from tests.helpers import TIMESTAMP_2024_01_01, TIMESTAMP_2024_09_01
+from tests.helpers import (
+    DEFAULT_ASSOCIATION_NAME,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
+)
 
 
 def test_associations_list_alias_works(runner: CliRunner) -> None:
@@ -66,7 +70,7 @@ def test_associations_list_json_output(runner: CliRunner) -> None:
         mock_list.return_value = [
             Association(
                 id="1",
-                title="Test Association",
+                title=DEFAULT_ASSOCIATION_NAME,
                 created_at=TIMESTAMP_2024_01_01,
                 updated_at=TIMESTAMP_2024_01_01,
             ),
@@ -74,7 +78,7 @@ def test_associations_list_json_output(runner: CliRunner) -> None:
         result = runner.invoke(cli, ["associations", "list", "--format", "json"])
         assert not result.exit_code
         assert '"id": "1"' in result.output
-        assert '"title": "Test Association"' in result.output
+        assert f'"title": "{DEFAULT_ASSOCIATION_NAME}"' in result.output
 
 
 def test_associations_list_yaml_output(runner: CliRunner) -> None:
@@ -92,7 +96,7 @@ def test_associations_list_yaml_output(runner: CliRunner) -> None:
         mock_list.return_value = [
             Association(
                 id="1",
-                title="Test Association",
+                title=DEFAULT_ASSOCIATION_NAME,
                 created_at=TIMESTAMP_2024_01_01,
                 updated_at=TIMESTAMP_2024_01_01,
             ),
@@ -100,7 +104,7 @@ def test_associations_list_yaml_output(runner: CliRunner) -> None:
         result = runner.invoke(cli, ["associations", "list", "--format", "yaml"])
         assert not result.exit_code
         assert "id:" in result.output or "id :" in result.output
-        assert "Test Association" in result.output
+        assert DEFAULT_ASSOCIATION_NAME in result.output
 
 
 def test_associations_list_columns_filter(runner: CliRunner) -> None:
@@ -118,7 +122,7 @@ def test_associations_list_columns_filter(runner: CliRunner) -> None:
         mock_list.return_value = [
             Association(
                 id="1",
-                title="Test Association",
+                title=DEFAULT_ASSOCIATION_NAME,
                 created_at=TIMESTAMP_2024_01_01,
                 updated_at=TIMESTAMP_2024_01_01,
             ),
@@ -127,7 +131,7 @@ def test_associations_list_columns_filter(runner: CliRunner) -> None:
         assert not result.exit_code
         # Should have id and title somewhere
         assert "1" in result.output
-        assert "Test Association" in result.output
+        assert DEFAULT_ASSOCIATION_NAME in result.output
 
 
 def test_associations_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
@@ -176,7 +180,7 @@ def test_associations_list_csv_output(runner: CliRunner) -> None:
         mock_list.return_value = [
             Association(
                 id="1",
-                title="Test Association",
+                title=DEFAULT_ASSOCIATION_NAME,
                 created_at=TIMESTAMP_2024_01_01,
                 updated_at=TIMESTAMP_2024_01_01,
             ),

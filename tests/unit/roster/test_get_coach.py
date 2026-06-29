@@ -15,6 +15,7 @@ from tests.helpers import (
     DEFAULT_COACH_LAST_NAME,
     JSONAPI_CONTENT_TYPE,
     SEASON_ID,
+    TEST_AUTH_HEADER,
     TEST_BASE_URL,
     TIMESTAMP_2024_01_01,
     TIMESTAMP_2024_09_01,
@@ -85,7 +86,7 @@ def test_get_coach_sends_bearer_and_jsonapi_accept(config: Config) -> None:
         get_coach(session, SEASON_ID, _coach_id)
     assert len(responses.calls) == 1
     req = responses.calls[0].request
-    assert req.headers["Authorization"] == "Bearer test-token"
+    assert req.headers["Authorization"] == TEST_AUTH_HEADER
     assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
 
 

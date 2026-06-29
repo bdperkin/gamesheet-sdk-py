@@ -12,7 +12,11 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.roster import Player
-from tests.helpers import DEFAULT_PLAYER_LAST_NAME, SEASON_ID
+from tests.helpers import (
+    CLI_TEST_SEASON_ID,
+    DEFAULT_PLAYER_LAST_NAME,
+    SEASON_ID,
+)
 
 
 def test_players_get(runner: CliRunner) -> None:
@@ -23,7 +27,7 @@ def test_players_get(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Player(
-            id="501",
+            id=CLI_TEST_SEASON_ID,
             season_id=SEASON_ID,
             first_name="John",
             last_name=DEFAULT_PLAYER_LAST_NAME,
@@ -32,7 +36,7 @@ def test_players_get(runner: CliRunner) -> None:
         )
         result = runner.invoke(
             cli,
-            ["roster", "--season-id", SEASON_ID, "players", "get", "--player-id", "501"],
+            ["roster", "--season-id", SEASON_ID, "players", "get", "--player-id", CLI_TEST_SEASON_ID],
         )
         assert not result.exit_code
         assert result.output
@@ -47,7 +51,7 @@ def test_players_get_with_fields(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Player(
-            id="501",
+            id=CLI_TEST_SEASON_ID,
             season_id=SEASON_ID,
             first_name="John",
             last_name=DEFAULT_PLAYER_LAST_NAME,
@@ -63,7 +67,7 @@ def test_players_get_with_fields(runner: CliRunner) -> None:
                 "players",
                 "get",
                 "--player-id",
-                "501",
+                CLI_TEST_SEASON_ID,
                 "--fields",
                 "id",
                 "--format",
@@ -82,7 +86,7 @@ def test_players_get_empty_fields(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Player(
-            id="501",
+            id=CLI_TEST_SEASON_ID,
             season_id=SEASON_ID,
             first_name="John",
             last_name=DEFAULT_PLAYER_LAST_NAME,
@@ -98,7 +102,7 @@ def test_players_get_empty_fields(runner: CliRunner) -> None:
                 "players",
                 "get",
                 "--player-id",
-                "501",
+                CLI_TEST_SEASON_ID,
                 "--fields",
                 ",",
             ],

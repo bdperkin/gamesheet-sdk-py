@@ -21,6 +21,7 @@ from tests.helpers import (
     COACH_FIRST_NAME,
     COACH_ID_PRIMARY,
     COACH_LAST_NAME,
+    DEFAULT_TEAM_NAME,
     PLAYER_FIRST_NAME,
     PLAYER_ID,
     PLAYER_LAST_NAME,
@@ -195,7 +196,7 @@ def test_list_team_players_parses_jsonapi_response(config: Config) -> None:
         "type": "teams",
         "id": TEAM_ID,
         "attributes": {
-            "title": "Test Team",
+            "title": DEFAULT_TEAM_NAME,
             "roster": {
                 "players": [
                     {
@@ -243,7 +244,7 @@ def test_list_team_coaches_parses_jsonapi_response(config: Config) -> None:
         "type": "teams",
         "id": TEAM_ID,
         "attributes": {
-            "title": "Test Team",
+            "title": DEFAULT_TEAM_NAME,
             "roster": {
                 "coaches": [
                     {
@@ -338,7 +339,7 @@ def test_list_team_players_handles_empty_data(config: Config) -> None:
     team_data = {
         "type": "teams",
         "id": TEAM_ID,
-        "attributes": {"title": "Test Team"},
+        "attributes": {"title": DEFAULT_TEAM_NAME},
         "relationships": {"players": {"data": []}},
     }
     response_body = {"data": team_data, "included": []}
@@ -355,7 +356,7 @@ def test_list_team_coaches_handles_empty_data(config: Config) -> None:
     team_data = {
         "type": "teams",
         "id": TEAM_ID,
-        "attributes": {"title": "Test Team"},
+        "attributes": {"title": DEFAULT_TEAM_NAME},
         "relationships": {"coaches": {"data": []}},
     }
     response_body = {"data": team_data, "included": []}
@@ -378,7 +379,7 @@ def test_list_team_players_with_empty_duty(config: Config) -> None:
         "type": "teams",
         "id": TEAM_ID,
         "attributes": {
-            "title": "Test Team",
+            "title": DEFAULT_TEAM_NAME,
             "roster": {
                 "players": [
                     {
@@ -416,7 +417,7 @@ def test_list_team_players_without_roster_metadata(config: Config) -> None:
     team_data = {
         "type": "teams",
         "id": TEAM_ID,
-        "attributes": {"title": "Test Team"},
+        "attributes": {"title": DEFAULT_TEAM_NAME},
         "relationships": {
             "players": {"data": [{"type": "players", "id": PLAYER_ID}]},
         },
@@ -444,7 +445,7 @@ def test_list_team_coaches_without_roster_metadata(config: Config) -> None:
     team_data = {
         "type": "teams",
         "id": TEAM_ID,
-        "attributes": {"title": "Test Team"},
+        "attributes": {"title": DEFAULT_TEAM_NAME},
         "relationships": {
             "coaches": {"data": [{"type": "coaches", "id": COACH_ID_PRIMARY}]},
         },

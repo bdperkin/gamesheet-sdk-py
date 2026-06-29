@@ -13,6 +13,7 @@ from click.testing import CliRunner
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.referees import Referee
 from tests.helpers import (
+    CLI_TEST_SEASON_ID,
     DEFAULT_PLAYER_LAST_NAME,
     TEST_EMAIL_GENERIC,
     TIMESTAMP_2024_01_01,
@@ -30,7 +31,7 @@ def test_referees_list_alias_works(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_list.return_value = []
-        result = runner.invoke(cli, ["referees", "ls", "--season-id", "501"])
+        result = runner.invoke(cli, ["referees", "ls", "--season-id", CLI_TEST_SEASON_ID])
         assert not result.exit_code
         mock_list.assert_called_once()
 
@@ -48,7 +49,7 @@ def test_referees_list_json_output(runner: CliRunner) -> None:
         mock_list.return_value = [
             Referee(
                 id="ref-1",
-                season_id="501",
+                season_id=CLI_TEST_SEASON_ID,
                 first_name="John",
                 last_name=DEFAULT_PLAYER_LAST_NAME,
                 email="john@example.com",
@@ -58,7 +59,7 @@ def test_referees_list_json_output(runner: CliRunner) -> None:
         ]
         result = runner.invoke(
             cli,
-            ["referees", "list", "--season-id", "501", "--format", "json"],
+            ["referees", "list", "--season-id", CLI_TEST_SEASON_ID, "--format", "json"],
         )
         assert not result.exit_code
         assert '"id": "ref-1"' in result.output
@@ -78,7 +79,7 @@ def test_referees_list_yaml_output(runner: CliRunner) -> None:
         mock_list.return_value = [
             Referee(
                 id="ref-1",
-                season_id="501",
+                season_id=CLI_TEST_SEASON_ID,
                 first_name="John",
                 last_name=DEFAULT_PLAYER_LAST_NAME,
                 email="john@example.com",
@@ -88,7 +89,7 @@ def test_referees_list_yaml_output(runner: CliRunner) -> None:
         ]
         result = runner.invoke(
             cli,
-            ["referees", "list", "--season-id", "501", "--format", "yaml"],
+            ["referees", "list", "--season-id", CLI_TEST_SEASON_ID, "--format", "yaml"],
         )
         assert not result.exit_code
         assert "id:" in result.output or "id :" in result.output
@@ -108,7 +109,7 @@ def test_referees_list_columns_filter(runner: CliRunner) -> None:
         mock_list.return_value = [
             Referee(
                 id="ref-1",
-                season_id="501",
+                season_id=CLI_TEST_SEASON_ID,
                 first_name="John",
                 last_name=DEFAULT_PLAYER_LAST_NAME,
                 email="john@example.com",
@@ -118,7 +119,7 @@ def test_referees_list_columns_filter(runner: CliRunner) -> None:
         ]
         result = runner.invoke(
             cli,
-            ["referees", "list", "--season-id", "501", "--columns", "id,first_name"],
+            ["referees", "list", "--season-id", CLI_TEST_SEASON_ID, "--columns", "id,first_name"],
         )
         assert not result.exit_code
         assert "ref-1" in result.output
@@ -139,7 +140,7 @@ def test_referees_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
         mock_list.return_value = [
             Referee(
                 id="ref-1",
-                season_id="501",
+                season_id=CLI_TEST_SEASON_ID,
                 first_name="Test",
                 last_name="User",
                 email=TEST_EMAIL_GENERIC,
@@ -153,7 +154,7 @@ def test_referees_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
                 "referees",
                 "list",
                 "--season-id",
-                "501",
+                CLI_TEST_SEASON_ID,
                 "--format",
                 "json",
                 "--output",
@@ -179,7 +180,7 @@ def test_referees_list_csv_output(runner: CliRunner) -> None:
         mock_list.return_value = [
             Referee(
                 id="ref-1",
-                season_id="501",
+                season_id=CLI_TEST_SEASON_ID,
                 first_name="John",
                 last_name=DEFAULT_PLAYER_LAST_NAME,
                 email="john@example.com",
@@ -189,7 +190,7 @@ def test_referees_list_csv_output(runner: CliRunner) -> None:
         ]
         result = runner.invoke(
             cli,
-            ["referees", "list", "--season-id", "501", "--format", "csv"],
+            ["referees", "list", "--season-id", CLI_TEST_SEASON_ID, "--format", "csv"],
         )
         assert not result.exit_code
         lines = result.output.strip().split("\n")
@@ -210,7 +211,7 @@ def test_referees_list_tsv_output(runner: CliRunner) -> None:
         mock_list.return_value = [
             Referee(
                 id="ref-1",
-                season_id="501",
+                season_id=CLI_TEST_SEASON_ID,
                 first_name="John",
                 last_name=DEFAULT_PLAYER_LAST_NAME,
                 email="john@example.com",
@@ -220,7 +221,7 @@ def test_referees_list_tsv_output(runner: CliRunner) -> None:
         ]
         result = runner.invoke(
             cli,
-            ["referees", "list", "--season-id", "501", "--format", "tsv"],
+            ["referees", "list", "--season-id", CLI_TEST_SEASON_ID, "--format", "tsv"],
         )
         assert not result.exit_code
         lines = result.output.strip().split("\n")
@@ -235,7 +236,7 @@ def test_referees_list_with_no_saved_tokens(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=None),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=None),
     ):
-        result = runner.invoke(cli, ["referees", "list", "--season-id", "501"])
+        result = runner.invoke(cli, ["referees", "list", "--season-id", CLI_TEST_SEASON_ID])
         assert result.exit_code == 1
         assert "No saved session" in result.output or "login" in result.output.lower()
 
@@ -254,7 +255,7 @@ def test_referees_list_with_env_var(runner: CliRunner) -> None:
         result = runner.invoke(
             cli,
             ["referees", "list"],
-            env={"GAMESHEET_SEASON_ID": "501"},
+            env={"GAMESHEET_SEASON_ID": CLI_TEST_SEASON_ID},
         )
         assert not result.exit_code
         mock_list.assert_called_once()

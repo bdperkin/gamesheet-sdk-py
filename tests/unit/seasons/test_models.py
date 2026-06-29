@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 
 from gamesheet_sdk.seasons import Season, SeasonDetail
 from tests.helpers import (
+    CLI_TEST_SEASON_ID,
     SEASON_ID,
 )
 
@@ -16,7 +17,7 @@ from tests.helpers import (
 def test_season_model_ignores_unknown_attributes() -> None:
     """Season model should ignore unknown attributes for forward compatibility."""
     s = Season(
-        id="501",
+        id=CLI_TEST_SEASON_ID,
         league_id="1148580",
         title="2024-2025",
         created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),

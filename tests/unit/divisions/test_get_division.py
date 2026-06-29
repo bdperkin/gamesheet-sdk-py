@@ -11,8 +11,10 @@ import responses
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.divisions import get_division
 from tests.helpers import (
+    DEFAULT_DIVISION_NAME,
     JSONAPI_CONTENT_TYPE,
     SEASON_ID,
+    TEST_AUTH_HEADER,
     TEST_BASE_URL,
     TIMESTAMP_2024_01_01,
     TIMESTAMP_2024_09_01,
@@ -32,7 +34,7 @@ def test_get_division_returns_single_division(config: Config) -> None:
                 "type": "divisions",
                 "id": _division_id,
                 "attributes": {
-                    "title": "Test Division",
+                    "title": DEFAULT_DIVISION_NAME,
                     "created_at": TIMESTAMP_2024_01_01,
                     "updated_at": "2024-06-01T00:00:00Z",
                 },
@@ -48,7 +50,7 @@ def test_get_division_returns_single_division(config: Config) -> None:
         result = get_division(session, _division_id, include_team_count=False)
     assert result.id == _division_id
     assert result.season_id == SEASON_ID
-    assert result.title == "Test Division"
+    assert result.title == DEFAULT_DIVISION_NAME
 
 
 @responses.activate
@@ -80,7 +82,7 @@ def test_get_division_sends_bearer_and_jsonapi_accept(config: Config) -> None:
         get_division(session, _division_id, include_team_count=False)
     assert len(responses.calls) == 1
     req = responses.calls[0].request
-    assert req.headers["Authorization"] == "Bearer test-token"
+    assert req.headers["Authorization"] == TEST_AUTH_HEADER
     assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
 
 
@@ -144,7 +146,7 @@ def test_get_division_with_team_count(config: Config) -> None:
                 "type": "divisions",
                 "id": _division_id,
                 "attributes": {
-                    "title": "Test Division",
+                    "title": DEFAULT_DIVISION_NAME,
                     "created_at": TIMESTAMP_2024_01_01,
                     "updated_at": "2024-06-01T00:00:00Z",
                 },
@@ -195,5 +197,5 @@ def test_get_division_with_team_count(config: Config) -> None:
         result = get_division(session, _division_id, include_team_count=True)
     assert result.id == _division_id
     assert result.season_id == SEASON_ID
-    assert result.title == "Test Division"
+    assert result.title == DEFAULT_DIVISION_NAME
     assert result.team_count == 2

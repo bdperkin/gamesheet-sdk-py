@@ -12,6 +12,9 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.leagues import League
+from tests.helpers import (
+    DEFAULT_LEAGUE_NAME,
+)
 
 
 def test_leagues_get(runner: CliRunner) -> None:
@@ -24,7 +27,7 @@ def test_leagues_get(runner: CliRunner) -> None:
         mock_action.return_value = League(
             id="201",
             association_id="1001",
-            title="Test League",
+            title=DEFAULT_LEAGUE_NAME,
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
@@ -47,7 +50,7 @@ def test_leagues_get_with_fields(runner: CliRunner) -> None:
         mock_action.return_value = League(
             id="201",
             association_id="1001",
-            title="Test League",
+            title=DEFAULT_LEAGUE_NAME,
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
@@ -80,7 +83,7 @@ def test_leagues_get_empty_fields(runner: CliRunner) -> None:
         mock_action.return_value = League(
             id="201",
             association_id="1001",
-            title="Test League",
+            title=DEFAULT_LEAGUE_NAME,
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )

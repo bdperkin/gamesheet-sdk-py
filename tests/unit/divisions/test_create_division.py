@@ -15,7 +15,12 @@ from gamesheet_sdk import (
     Session,
     create_division,
 )
-from tests.helpers import JSONAPI_CONTENT_TYPE, SEASON_ID, TEST_BASE_URL
+from tests.helpers import (
+    DEFAULT_DIVISION_NAME,
+    JSONAPI_CONTENT_TYPE,
+    SEASON_ID,
+    TEST_BASE_URL,
+)
 
 _CREATE_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/divisions"
 
@@ -32,7 +37,7 @@ def test_create_division_sends_correct_payload(config: Config) -> None:
                 "id": "80997",
                 "attributes": {
                     "external_id": "test-external-id",
-                    "title": "Test Division",
+                    "title": DEFAULT_DIVISION_NAME,
                     "settings": {},
                     "created_at": "2026-06-09T19:39:56.219694Z",
                     "updated_at": "2026-06-09T19:39:56.219694Z",
@@ -49,11 +54,11 @@ def test_create_division_sends_correct_payload(config: Config) -> None:
         result = create_division(
             session,
             SEASON_ID,
-            "Test Division",
+            DEFAULT_DIVISION_NAME,
             external_id="test-external-id",
         )
     assert result.id == "80997"
-    assert result.title == "Test Division"
+    assert result.title == DEFAULT_DIVISION_NAME
     assert result.season_id == SEASON_ID
     assert result.external_id == "test-external-id"
     # Verify the request payload
@@ -67,7 +72,7 @@ def test_create_division_sends_correct_payload(config: Config) -> None:
     assert req.body is not None
     payload = json.loads(req.body)
     assert payload["data"]["type"] == "divisions"
-    assert payload["data"]["attributes"]["title"] == "Test Division"
+    assert payload["data"]["attributes"]["title"] == DEFAULT_DIVISION_NAME
     assert payload["data"]["attributes"]["external_id"] == "test-external-id"
     assert payload["data"]["relationships"]["season"]["data"]["id"] == SEASON_ID
 
@@ -132,7 +137,7 @@ def test_create_division_401_raises_authentication_error(config: Config) -> None
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            create_division(session, SEASON_ID, "Test Division")
+            create_division(session, SEASON_ID, DEFAULT_DIVISION_NAME)
 
 
 @responses.activate
@@ -147,7 +152,7 @@ def test_create_division_404_raises_gamesheet_error_with_helpful_message(
             GameSheetError,
             match=r"Resource not found \(HTTP 404\)",
         ):
-            create_division(session, SEASON_ID, "Test Division")
+            create_division(session, SEASON_ID, DEFAULT_DIVISION_NAME)
 
 
 @responses.activate
@@ -159,4 +164,4 @@ def test_create_division_other_failure_raises_gamesheet_error(
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            create_division(session, SEASON_ID, "Test Division")
+            create_division(session, SEASON_ID, DEFAULT_DIVISION_NAME)

@@ -20,6 +20,7 @@ from gamesheet_sdk import (
 )
 from tests.helpers import (
     ASSOCIATION_ID,
+    DEFAULT_TEAM_NAME,
     DIVISION_ID,
     INVITATION_ID,
     JSONAPI_CONTENT_TYPE,
@@ -263,7 +264,7 @@ def test_list_division_teams_handles_invitation_as_single_object(
                     "type": "teams",
                     "id": "1001",
                     "attributes": {
-                        "title": "Test Team",
+                        "title": DEFAULT_TEAM_NAME,
                         "roster": {"players": [], "coaches": []},
                         "created_at": TIMESTAMP_2024_09_01,
                         "updated_at": TIMESTAMP_2024_09_01,
@@ -308,7 +309,7 @@ def test_list_division_teams_handles_missing_invitation_code_gracefully(
                     "type": "teams",
                     "id": "1001",
                     "attributes": {
-                        "title": "Test Team",
+                        "title": DEFAULT_TEAM_NAME,
                         "roster": {"players": [], "coaches": []},
                         "created_at": TIMESTAMP_2024_09_01,
                         "updated_at": TIMESTAMP_2024_09_01,
@@ -345,7 +346,7 @@ def test_list_division_teams_handles_malformed_invitation_data(config: Config) -
                     "type": "teams",
                     "id": "1001",
                     "attributes": {
-                        "title": "Test Team",
+                        "title": DEFAULT_TEAM_NAME,
                         "roster": {"players": [], "coaches": []},
                         "created_at": TIMESTAMP_2024_09_01,
                         "updated_at": TIMESTAMP_2024_09_01,

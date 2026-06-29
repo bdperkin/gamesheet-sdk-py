@@ -11,8 +11,12 @@ from unittest.mock import patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
-from tests.helpers import TIMESTAMP_2024_01_01, TIMESTAMP_2024_09_01
 from gamesheet_sdk.seasons import Season
+from tests.helpers import (
+    CLI_TEST_SEASON_ID,
+    TIMESTAMP_2024_01_01,
+    TIMESTAMP_2024_09_01,
+)
 
 
 def test_seasons_list_alias_works(runner: CliRunner) -> None:
@@ -50,7 +54,7 @@ def test_seasons_list_json_output(runner: CliRunner) -> None:
     ):
         mock_list.return_value = [
             Season(
-                id="501",
+                id=CLI_TEST_SEASON_ID,
                 league_id="1148580",
                 title="2024-2025",
                 created_at=TIMESTAMP_2024_01_01,
@@ -62,7 +66,7 @@ def test_seasons_list_json_output(runner: CliRunner) -> None:
             ["seasons", "list", "--league-id", "1148580", "--format", "json"],
         )
         assert not result.exit_code
-        assert '"id": "501"' in result.output
+        assert f'"id": "{CLI_TEST_SEASON_ID}"' in result.output
         assert '"title": "2024-2025"' in result.output
 
 
@@ -78,7 +82,7 @@ def test_seasons_list_yaml_output(runner: CliRunner) -> None:
     ):
         mock_list.return_value = [
             Season(
-                id="501",
+                id=CLI_TEST_SEASON_ID,
                 league_id="1148580",
                 title="2024-2025",
                 created_at=TIMESTAMP_2024_01_01,
@@ -106,7 +110,7 @@ def test_seasons_list_columns_filter(runner: CliRunner) -> None:
     ):
         mock_list.return_value = [
             Season(
-                id="501",
+                id=CLI_TEST_SEASON_ID,
                 league_id="1148580",
                 title="2024-2025",
                 created_at=TIMESTAMP_2024_01_01,
@@ -118,7 +122,7 @@ def test_seasons_list_columns_filter(runner: CliRunner) -> None:
             ["seasons", "list", "--league-id", "1148580", "--columns", "id,title"],
         )
         assert not result.exit_code
-        assert "501" in result.output
+        assert CLI_TEST_SEASON_ID in result.output
         assert "2024-2025" in result.output
 
 
@@ -135,7 +139,7 @@ def test_seasons_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
     ):
         mock_list.return_value = [
             Season(
-                id="501",
+                id=CLI_TEST_SEASON_ID,
                 league_id="1148580",
                 title="Test",
                 created_at=TIMESTAMP_2024_01_01,
@@ -158,7 +162,7 @@ def test_seasons_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
         assert not result.exit_code
         assert output_file.exists()
         content = output_file.read_text()
-        assert '"id": "501"' in content
+        assert f'"id": "{CLI_TEST_SEASON_ID}"' in content
 
 
 def test_seasons_list_csv_output(runner: CliRunner) -> None:
@@ -173,7 +177,7 @@ def test_seasons_list_csv_output(runner: CliRunner) -> None:
     ):
         mock_list.return_value = [
             Season(
-                id="501",
+                id=CLI_TEST_SEASON_ID,
                 league_id="1148580",
                 title="2024-2025",
                 created_at=TIMESTAMP_2024_01_01,
@@ -202,7 +206,7 @@ def test_seasons_list_tsv_output(runner: CliRunner) -> None:
     ):
         mock_list.return_value = [
             Season(
-                id="501",
+                id=CLI_TEST_SEASON_ID,
                 league_id="1148580",
                 title="2024-2025",
                 created_at=TIMESTAMP_2024_01_01,
