@@ -12,7 +12,11 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.referees import Referee
-from tests.helpers import DEFAULT_PLAYER_LAST_NAME, SEASON_ID
+from tests.helpers import (
+    DEFAULT_PLAYER_LAST_NAME,
+    REFEREE_EXTERNAL_ID_PRIMARY,
+    SEASON_ID,
+)
 
 
 def test_referees_create_with_all_fields(runner: CliRunner) -> None:
@@ -50,7 +54,7 @@ def test_referees_create_with_all_fields(runner: CliRunner) -> None:
                 "--email-address",
                 "Wes.McCauley@example.com",
                 "--external-id",
-                "0EB978DD-66B8-4CA1-AAA8-D855EED39D6A",
+                REFEREE_EXTERNAL_ID_PRIMARY,
             ],
         )
         assert not result.exit_code
@@ -60,7 +64,7 @@ def test_referees_create_with_all_fields(runner: CliRunner) -> None:
         assert args[2] == "Wes"
         assert args[3] == "McCauley"
         assert args[4] == "Wes.McCauley@example.com"
-        assert args[5] == "0EB978DD-66B8-4CA1-AAA8-D855EED39D6A"
+        assert args[5] == REFEREE_EXTERNAL_ID_PRIMARY
 
 
 def test_referees_create_required_fields_only(runner: CliRunner) -> None:

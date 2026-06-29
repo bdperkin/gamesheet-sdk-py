@@ -10,14 +10,19 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.referees import get_referee_report
-from tests.helpers import SEASON_ID, TEST_BASE_URL
+from tests.helpers import (
+    REFEREE_EXTERNAL_ID_TERTIARY,
+    REFEREE_EXTERNAL_ID_TEST,
+    SEASON_ID,
+    TEST_BASE_URL,
+)
 
 
 @responses.activate
 def test_get_referee_report_returns_complete_report(config: Config) -> None:
     """Test that get_referee_report returns a complete report."""
     _referee_id = "1146198"
-    _external_id = "13340CA3-6B7D-4EC1-A183-EE281D2990A6"
+    _external_id = REFEREE_EXTERNAL_ID_TERTIARY
     _get_referee_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
     _report_endpoint = f"{TEST_BASE_URL}/api/reports/referees/{_external_id}"
     # Mock the GET referee request
@@ -81,7 +86,7 @@ def test_get_referee_report_returns_complete_report(config: Config) -> None:
 def test_get_referee_report_with_minimal_data(config: Config) -> None:
     """Test that get_referee_report handles missing optional fields."""
     _referee_id = "1146199"
-    _external_id = "ABC12345-6789-0DEF-ABCD-EF1234567890"
+    _external_id = REFEREE_EXTERNAL_ID_TEST
     _get_referee_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
     _report_endpoint = f"{TEST_BASE_URL}/api/reports/referees/{_external_id}"
     # Mock the GET referee request

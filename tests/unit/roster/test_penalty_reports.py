@@ -13,6 +13,10 @@ from gamesheet_sdk.roster import (
     get_coach_penalty_report,
     get_player_penalty_report,
 )
+from tests.helpers import (
+    COACH_EXTERNAL_ID_TERTIARY,
+    PLAYER_EXTERNAL_ID_SECONDARY,
+)
 
 
 def test_get_coach_penalty_report_success(mock_session: MagicMock) -> None:
@@ -24,7 +28,7 @@ def test_get_coach_penalty_report_success(mock_session: MagicMock) -> None:
             "id": "1879742",
             "type": "coaches",
             "attributes": {
-                "external_id": "C9B37D2D-77DD-4C2D-BF47-D2B8175ECB47",
+                "external_id": PLAYER_EXTERNAL_ID_SECONDARY,
                 "first_name": "SCOTTY",
                 "last_name": "BOWMAN",
                 "created_at": "2026-06-25T02:49:39.469641Z",
@@ -61,7 +65,7 @@ def test_get_player_penalty_report_success(mock_session: MagicMock) -> None:
             "id": "8113805",
             "type": "players",
             "attributes": {
-                "external_id": "35B8EC31-2221-48FB-9C5A-06AA1ED7134D",
+                "external_id": COACH_EXTERNAL_ID_TERTIARY,
                 "first_name": "WAYNE",
                 "last_name": "GRETZKY",
                 "birthdate": None,
@@ -111,7 +115,7 @@ def test_get_coach_penalty_report_api_error(mock_session: MagicMock) -> None:
             "id": "1879742",
             "type": "coaches",
             "attributes": {
-                "external_id": "C9B37D2D-77DD-4C2D-BF47-D2B8175ECB47",
+                "external_id": PLAYER_EXTERNAL_ID_SECONDARY,
                 "first_name": "SCOTTY",
                 "last_name": "BOWMAN",
                 "created_at": "2026-06-25T02:49:39.469641Z",
@@ -143,7 +147,7 @@ def test_get_player_penalty_report_api_error(mock_session: MagicMock) -> None:
             "id": "8113805",
             "type": "players",
             "attributes": {
-                "external_id": "35B8EC31-2221-48FB-9C5A-06AA1ED7134D",
+                "external_id": COACH_EXTERNAL_ID_TERTIARY,
                 "first_name": "WAYNE",
                 "last_name": "GRETZKY",
                 "birthdate": None,

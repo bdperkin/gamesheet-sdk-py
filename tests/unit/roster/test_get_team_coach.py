@@ -10,7 +10,11 @@ import responses
 
 from gamesheet_sdk import Config, GameSheetError, Session
 from gamesheet_sdk.roster import get_team_coach
-from tests.helpers import SEASON_ID, TEST_BASE_URL
+from tests.helpers import (
+    COACH_EXTERNAL_ID_SECONDARY,
+    SEASON_ID,
+    TEST_BASE_URL,
+)
 
 _TEAM_ID = "12345"
 
@@ -45,7 +49,7 @@ def test_get_team_coach_returns_coach_with_roster_metadata(config: Config) -> No
                     "type": "coaches",
                     "id": _coach_id,
                     "attributes": {
-                        "external_id": "FB031B8B-2AB4-4682-817F-6E6076315241",
+                        "external_id": COACH_EXTERNAL_ID_SECONDARY,
                         "first_name": "LOU",
                         "last_name": "LAMORIELLO",
                         "created_at": "2026-06-25T02:48:40.059871Z",
@@ -137,7 +141,7 @@ def test_get_team_coach_finds_coach_after_skipping_others(config: Config) -> Non
                     "type": "coaches",
                     "id": _coach_id,
                     "attributes": {
-                        "external_id": "FB031B8B-2AB4-4682-817F-6E6076315241",
+                        "external_id": COACH_EXTERNAL_ID_SECONDARY,
                         "first_name": "LOU",
                         "last_name": "LAMORIELLO",
                         "created_at": "2026-06-25T02:48:40.059871Z",

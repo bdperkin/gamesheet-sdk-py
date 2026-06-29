@@ -12,6 +12,9 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.referees import update_referee
+from tests.helpers import (
+    REFEREE_EXTERNAL_ID_SECONDARY,
+)
 from tests.unit.referees.conftest import SEASON_ID, TEST_BASE_URL, referee_response_data
 
 
@@ -53,7 +56,7 @@ def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None
                 "type": "referees",
                 "id": _referee_id,
                 "attributes": {
-                    "external_id": "87487685-24B9-46EF-B8A3-D3B7ECEB1F68",
+                    "external_id": REFEREE_EXTERNAL_ID_SECONDARY,
                     "first_name": "WES",
                     "last_name": "MCCAULEY",
                     "email_address": "McCauley.Wes@example.com",
@@ -76,7 +79,7 @@ def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None
             first_name="WES",
             last_name="MCCAULEY",
             email_address="McCauley.Wes@example.com",
-            external_id="87487685-24B9-46EF-B8A3-D3B7ECEB1F68",
+            external_id=REFEREE_EXTERNAL_ID_SECONDARY,
         )
     assert result.id == _referee_id
     assert result.first_name == "WES"
@@ -97,7 +100,7 @@ def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None
     assert payload["data"]["attributes"]["first_name"] == "WES"
     assert payload["data"]["attributes"]["last_name"] == "MCCAULEY"
     assert payload["data"]["attributes"]["email_address"] == "McCauley.Wes@example.com"
-    assert payload["data"]["attributes"]["external_id"] == "87487685-24B9-46EF-B8A3-D3B7ECEB1F68"
+    assert payload["data"]["attributes"]["external_id"] == REFEREE_EXTERNAL_ID_SECONDARY
 
 
 @responses.activate

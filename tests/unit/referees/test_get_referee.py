@@ -10,6 +10,9 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.referees import get_referee
+from tests.helpers import (
+    REFEREE_EXTERNAL_ID_PRIMARY,
+)
 from tests.unit.referees.conftest import SEASON_ID, TEST_BASE_URL, referee_response_data
 
 
@@ -26,7 +29,7 @@ def test_get_referee_returns_single_referee(config: Config) -> None:
                 "type": "referees",
                 "id": _referee_id,
                 "attributes": {
-                    "external_id": "0EB978DD-66B8-4CA1-AAA8-D855EED39D6A",
+                    "external_id": REFEREE_EXTERNAL_ID_PRIMARY,
                     "first_name": "WES",
                     "last_name": "MCCAULEY",
                     "email_address": "Wes.McCauley@example.com",

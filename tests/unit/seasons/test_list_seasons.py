@@ -19,7 +19,13 @@ from gamesheet_sdk import (
     get_season,
     list_seasons,
 )
-from tests.helpers import JSONAPI_CONTENT_TYPE, SEASON_ID, TEST_BASE_URL, jsonapi_payload
+from tests.helpers import (
+    JSONAPI_CONTENT_TYPE,
+    SEASON_EXTERNAL_ID,
+    SEASON_ID,
+    TEST_BASE_URL,
+    jsonapi_payload,
+)
 
 _LEAGUE_ID = "1148580"
 _ENDPOINT = f"{TEST_BASE_URL}/api/seasons"
@@ -199,7 +205,7 @@ def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:  #
                 "id": SEASON_ID,
                 "attributes": {
                     "title": "Test Season 2026-2027",
-                    "external_id": "558772B8-DAF4-4848-B7CA-1FB620F2BA52",
+                    "external_id": SEASON_EXTERNAL_ID,
                     "start_date": "2026-05-15",
                     "end_date": "2027-08-15",
                     "sport": "hockey",
@@ -231,7 +237,7 @@ def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:  #
     assert result.title == "Test Season 2026-2027"
     assert result.association_id == "38"
     assert result.league_id == _LEAGUE_ID
-    assert result.external_id == "558772B8-DAF4-4848-B7CA-1FB620F2BA52"
+    assert result.external_id == SEASON_EXTERNAL_ID
     assert result.start_date == "2026-05-15"
     assert result.end_date == "2027-08-15"
     assert result.sport == "hockey"

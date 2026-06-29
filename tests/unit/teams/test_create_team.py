@@ -20,7 +20,10 @@ from gamesheet_sdk import (
     Session,
     create_team,
 )
-from tests.helpers import SEASON_ID
+from tests.helpers import (
+    PROTOTEAM_ID,
+    SEASON_ID,
+)
 
 _BFF_BASE = BFF_API_BASE_URL
 _UPLOAD_URL_ENDPOINT = f"{_BFF_BASE}/dwg/assets/upload-url"
@@ -37,7 +40,7 @@ def test_create_team_sends_correct_payload_without_logo(config: Config) -> None:
             "status": "success",
             "data": {
                 "prototeam": {
-                    "id": "a86f6c21-9894-46c7-a73c-c3ed509002e9",
+                    "id": PROTOTEAM_ID,
                     "title": "Test Team",
                     "logo": None,
                     "sport": "hockey",
@@ -52,7 +55,7 @@ def test_create_team_sends_correct_payload_without_logo(config: Config) -> None:
                     "seasonId": 15020,
                     "leagueId": 1148580,
                     "associationId": 38,
-                    "prototeamId": "a86f6c21-9894-46c7-a73c-c3ed509002e9",
+                    "prototeamId": PROTOTEAM_ID,
                 },
                 "member": None,
                 "invitation": {

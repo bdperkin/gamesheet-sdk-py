@@ -10,7 +10,12 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.referees import create_referee
-from tests.helpers import JSONAPI_CONTENT_TYPE, SEASON_ID, TEST_BASE_URL
+from tests.helpers import (
+    JSONAPI_CONTENT_TYPE,
+    REFEREE_EXTERNAL_ID_PRIMARY,
+    SEASON_ID,
+    TEST_BASE_URL,
+)
 
 _ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees"
 
@@ -26,7 +31,7 @@ def test_create_referee_sends_correct_payload_with_all_fields(config: Config) ->
                 "type": "referees",
                 "id": "1146197",
                 "attributes": {
-                    "external_id": "0EB978DD-66B8-4CA1-AAA8-D855EED39D6A",
+                    "external_id": REFEREE_EXTERNAL_ID_PRIMARY,
                     "first_name": "Wes",
                     "last_name": "McCauley",
                     "email_address": "Wes.McCauley@example.com",
@@ -48,7 +53,7 @@ def test_create_referee_sends_correct_payload_with_all_fields(config: Config) ->
             "Wes",
             "McCauley",
             email_address="Wes.McCauley@example.com",
-            external_id="0EB978DD-66B8-4CA1-AAA8-D855EED39D6A",
+            external_id=REFEREE_EXTERNAL_ID_PRIMARY,
         )
     assert result.id == "1146197"
     assert result.first_name == "Wes"
@@ -65,7 +70,7 @@ def test_create_referee_sends_correct_payload_with_all_fields(config: Config) ->
     assert payload["data"]["attributes"]["first_name"] == "Wes"
     assert payload["data"]["attributes"]["last_name"] == "McCauley"
     assert payload["data"]["attributes"]["email_address"] == "Wes.McCauley@example.com"
-    assert payload["data"]["attributes"]["external_id"] == "0EB978DD-66B8-4CA1-AAA8-D855EED39D6A"
+    assert payload["data"]["attributes"]["external_id"] == REFEREE_EXTERNAL_ID_PRIMARY
 
 
 @responses.activate

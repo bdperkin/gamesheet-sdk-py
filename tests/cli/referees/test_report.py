@@ -11,7 +11,10 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.referees import RefereeReport
-from tests.helpers import SEASON_ID
+from tests.helpers import (
+    REFEREE_EXTERNAL_ID_TERTIARY,
+    SEASON_ID,
+)
 
 
 def test_referees_report_with_all_fields(runner: CliRunner) -> None:
@@ -27,7 +30,7 @@ def test_referees_report_with_all_fields(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_report.return_value = RefereeReport(
-            external_id="13340CA3-6B7D-4EC1-A183-EE281D2990A6",
+            external_id=REFEREE_EXTERNAL_ID_TERTIARY,
             first_name="WES",
             last_name="MCCAULEY",
             games_refereed=15,

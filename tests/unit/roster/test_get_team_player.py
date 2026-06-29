@@ -11,6 +11,7 @@ import responses
 from gamesheet_sdk import Config, GameSheetError, Session
 from gamesheet_sdk.roster import get_team_player
 from tests.helpers import (
+    PLAYER_EXTERNAL_ID,
     PLAYER_FIRST_NAME,
     PLAYER_ID,
     PLAYER_LAST_NAME,
@@ -54,7 +55,7 @@ def test_get_team_player_returns_player_with_roster_metadata(config: Config) -> 
                     "type": "players",
                     "id": _player_id,
                     "attributes": {
-                        "external_id": "BC7732F4-4993-492E-8CCB-4C2CA9C1912E",
+                        "external_id": PLAYER_EXTERNAL_ID,
                         "first_name": PLAYER_FIRST_NAME,
                         "last_name": PLAYER_LAST_NAME,
                         "created_at": "2026-05-18T23:15:08.387021Z",
@@ -162,7 +163,7 @@ def test_get_team_player_finds_player_after_skipping_others(config: Config) -> N
                     "type": "players",
                     "id": _player_id,
                     "attributes": {
-                        "external_id": "BC7732F4-4993-492E-8CCB-4C2CA9C1912E",
+                        "external_id": PLAYER_EXTERNAL_ID,
                         "first_name": PLAYER_FIRST_NAME,
                         "last_name": PLAYER_LAST_NAME,
                         "created_at": "2026-05-18T23:15:08.387021Z",
