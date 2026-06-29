@@ -22,7 +22,7 @@ from tests.helpers import (
 def test_players_get(runner: CliRunner) -> None:
     """The players get command should retrieve a single player."""
     with (
-        patch("gamesheet_sdk.cli.commands.roster._get_player_action") as mock_action,
+        patch("gamesheet_sdk.cli.commands.roster_players._get_player_action") as mock_action,
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
     ):
@@ -54,7 +54,7 @@ def test_players_get(runner: CliRunner) -> None:
 def test_players_get_with_fields(runner: CliRunner) -> None:
     """The players get command should support --fields and JSON format."""
     with (
-        patch("gamesheet_sdk.cli.commands.roster._get_player_action") as mock_action,
+        patch("gamesheet_sdk.cli.commands.roster_players._get_player_action") as mock_action,
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
     ):
@@ -89,7 +89,7 @@ def test_players_get_with_fields(runner: CliRunner) -> None:
 def test_players_get_empty_fields(runner: CliRunner) -> None:
     """The players get command should handle empty fields spec."""
     with (
-        patch("gamesheet_sdk.cli.commands.roster._get_player_action") as mock_action,
+        patch("gamesheet_sdk.cli.commands.roster_players._get_player_action") as mock_action,
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
     ):
