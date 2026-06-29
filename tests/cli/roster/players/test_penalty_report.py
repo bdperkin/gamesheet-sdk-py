@@ -11,7 +11,10 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.main import cli
-from tests.helpers import SEASON_ID
+from tests.helpers import (
+    PLAYER_ID_SECONDARY,
+    SEASON_ID,
+)
 
 
 def test_players_penalty_report_requires_player_id() -> None:
@@ -64,12 +67,12 @@ def test_players_penalty_report_success(mock_session: MagicMock) -> None:
                 "players",
                 "penalty-report",
                 "--player-id",
-                "8113805",
+                PLAYER_ID_SECONDARY,
             ],
         )
         assert not result.exit_code
         assert "player_games" in result.output
-        mock_get_report.assert_called_once_with(mock_session, SEASON_ID, "8113805")
+        mock_get_report.assert_called_once_with(mock_session, SEASON_ID, PLAYER_ID_SECONDARY)
 
 
 def test_players_penalty_report_uses_env_var(mock_session: MagicMock) -> None:
@@ -97,10 +100,10 @@ def test_players_penalty_report_uses_env_var(mock_session: MagicMock) -> None:
                 "players",
                 "penalty-report",
             ],
-            env={"GAMESHEET_PLAYER_ID": "8113805"},
+            env={"GAMESHEET_PLAYER_ID": PLAYER_ID_SECONDARY},
         )
         assert not result.exit_code
-        mock_get_report.assert_called_once_with(mock_session, SEASON_ID, "8113805")
+        mock_get_report.assert_called_once_with(mock_session, SEASON_ID, PLAYER_ID_SECONDARY)
 
 
 def test_players_penalty_report_json_format(mock_session: MagicMock) -> None:
@@ -128,7 +131,7 @@ def test_players_penalty_report_json_format(mock_session: MagicMock) -> None:
                 "players",
                 "penalty-report",
                 "--player-id",
-                "8113805",
+                PLAYER_ID_SECONDARY,
                 "--format",
                 "json",
             ],
@@ -162,7 +165,7 @@ def test_players_penalty_report_yaml_format(mock_session: MagicMock) -> None:
                 "players",
                 "penalty-report",
                 "--player-id",
-                "8113805",
+                PLAYER_ID_SECONDARY,
                 "--format",
                 "yaml",
             ],

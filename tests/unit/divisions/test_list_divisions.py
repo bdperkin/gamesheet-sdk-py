@@ -15,7 +15,13 @@ from gamesheet_sdk import (
     Session,
     list_divisions,
 )
-from tests.helpers import JSONAPI_CONTENT_TYPE, SEASON_ID, TEST_BASE_URL, jsonapi_payload
+from tests.helpers import (
+    DIVISION_ID,
+    JSONAPI_CONTENT_TYPE,
+    SEASON_ID,
+    TEST_BASE_URL,
+    jsonapi_payload,
+)
 
 _ENDPOINT = f"{TEST_BASE_URL}/api/divisions"
 
@@ -30,7 +36,7 @@ def test_list_divisions_parses_jsonapi_response(config: Config) -> None:
             [
                 {
                     "type": "divisions",
-                    "id": "701",
+                    "id": DIVISION_ID,
                     "attributes": {
                         "title": "U13 AAA",
                         "created_at": "2024-09-01T10:00:00Z",
@@ -69,7 +75,7 @@ def test_list_divisions_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_divisions(session, SEASON_ID)
-    assert [d.id for d in result] == ["701", "702"]
+    assert [d.id for d in result] == [DIVISION_ID, "702"]
     assert result[0].title == "U13 AAA"
     assert result[0].season_id == SEASON_ID
     from datetime import datetime, timezone
@@ -153,14 +159,14 @@ def test_list_divisions_filters_by_season_id(config: Config) -> None:
             [
                 {
                     "type": "divisions",
-                    "id": "701",
+                    "id": DIVISION_ID,
                     "attributes": {
                         "title": "Season 15020 Division",
                         "created_at": "2024-09-01T10:00:00Z",
                         "updated_at": "2024-09-01T10:00:00Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": "15020"}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                     },
                 },
                 {
@@ -181,11 +187,11 @@ def test_list_divisions_filters_by_season_id(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = list_divisions(session, "15020")
+        result = list_divisions(session, SEASON_ID)
     # Should only return the division for season 15020, not the one for season 999
     assert len(result) == 1
-    assert result[0].id == "701"
-    assert result[0].season_id == "15020"
+    assert result[0].id == DIVISION_ID
+    assert result[0].season_id == SEASON_ID
     assert result[0].title == "Season 15020 Division"
 
 
@@ -200,7 +206,7 @@ def test_list_divisions_includes_team_counts_when_requested(config: Config) -> N
             [
                 {
                     "type": "divisions",
-                    "id": "701",
+                    "id": DIVISION_ID,
                     "attributes": {
                         "title": "U13 AAA",
                         "created_at": "2024-09-01T10:00:00Z",
@@ -242,7 +248,7 @@ def test_list_divisions_includes_team_counts_when_requested(config: Config) -> N
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
-                        "division": {"data": {"type": "divisions", "id": "701"}},
+                        "division": {"data": {"type": "divisions", "id": DIVISION_ID}},
                     },
                 },
                 {
@@ -255,7 +261,7 @@ def test_list_divisions_includes_team_counts_when_requested(config: Config) -> N
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
-                        "division": {"data": {"type": "divisions", "id": "701"}},
+                        "division": {"data": {"type": "divisions", "id": DIVISION_ID}},
                     },
                 },
                 {
@@ -268,7 +274,7 @@ def test_list_divisions_includes_team_counts_when_requested(config: Config) -> N
                     },
                     "relationships": {
                         "season": {"data": {"type": "seasons", "id": SEASON_ID}},
-                        "division": {"data": {"type": "divisions", "id": "701"}},
+                        "division": {"data": {"type": "divisions", "id": DIVISION_ID}},
                     },
                 },
             ],
@@ -301,7 +307,7 @@ def test_list_divisions_includes_team_counts_when_requested(config: Config) -> N
         session.set_bearer_token("abc")
         result = list_divisions(session, SEASON_ID, include_team_counts=True)
     assert len(result) == 2
-    assert result[0].id == "701"
+    assert result[0].id == DIVISION_ID
     assert result[0].team_count == 3
     assert result[1].id == "702"
     assert result[1].team_count == 1
@@ -317,7 +323,7 @@ def test_list_divisions_without_team_counts_leaves_field_none(config: Config) ->
             [
                 {
                     "type": "divisions",
-                    "id": "701",
+                    "id": DIVISION_ID,
                     "attributes": {
                         "title": "U13 AAA",
                         "created_at": "2024-09-01T10:00:00Z",

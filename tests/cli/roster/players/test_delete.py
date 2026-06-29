@@ -10,7 +10,10 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.main import cli
-from tests.helpers import SEASON_ID
+from tests.helpers import (
+    PLAYER_ID_TERTIARY,
+    SEASON_ID,
+)
 
 
 def test_players_delete_requires_player_id() -> None:
@@ -53,7 +56,7 @@ def test_players_delete_requires_confirmation(mock_session: MagicMock) -> None:
                 "players",
                 "delete",
                 "--player-id",
-                "8116303",
+                PLAYER_ID_TERTIARY,
             ],
             input="n\n",
         )
@@ -83,13 +86,13 @@ def test_players_delete_with_confirmation(mock_session: MagicMock) -> None:
                 "players",
                 "delete",
                 "--player-id",
-                "8116303",
+                PLAYER_ID_TERTIARY,
             ],
             input="y\n",
         )
         assert not result.exit_code
         assert "deleted successfully" in result.output
-        mock_delete.assert_called_once_with(mock_session, SEASON_ID, "8116303")
+        mock_delete.assert_called_once_with(mock_session, SEASON_ID, PLAYER_ID_TERTIARY)
 
 
 def test_players_delete_with_force(mock_session: MagicMock) -> None:
@@ -113,13 +116,13 @@ def test_players_delete_with_force(mock_session: MagicMock) -> None:
                 "players",
                 "delete",
                 "--player-id",
-                "8116303",
+                PLAYER_ID_TERTIARY,
                 "--force",
             ],
         )
         assert not result.exit_code
         assert "deleted successfully" in result.output
-        mock_delete.assert_called_once_with(mock_session, SEASON_ID, "8116303")
+        mock_delete.assert_called_once_with(mock_session, SEASON_ID, PLAYER_ID_TERTIARY)
 
 
 def test_players_delete_error_handling(mock_session: MagicMock) -> None:
@@ -146,7 +149,7 @@ def test_players_delete_error_handling(mock_session: MagicMock) -> None:
                 "players",
                 "delete",
                 "--player-id",
-                "8116303",
+                PLAYER_ID_TERTIARY,
                 "--force",
             ],
         )
@@ -176,7 +179,7 @@ def test_players_delete_uses_env_var(mock_session: MagicMock) -> None:
                 "delete",
                 "--force",
             ],
-            env={"GAMESHEET_PLAYER_ID": "8116303"},
+            env={"GAMESHEET_PLAYER_ID": PLAYER_ID_TERTIARY},
         )
         assert not result.exit_code
-        mock_delete.assert_called_once_with(mock_session, SEASON_ID, "8116303")
+        mock_delete.assert_called_once_with(mock_session, SEASON_ID, PLAYER_ID_TERTIARY)

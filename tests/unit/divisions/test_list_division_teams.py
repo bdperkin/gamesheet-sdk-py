@@ -19,6 +19,7 @@ from gamesheet_sdk import (
     list_division_teams,
 )
 from tests.helpers import (
+    ASSOCIATION_ID,
     DIVISION_ID,
     JSONAPI_CONTENT_TYPE,
     SEASON_ID,
@@ -357,7 +358,7 @@ def test_list_division_teams_handles_malformed_invitation_data(config: Config) -
                 {"type": "invitations"},  # Missing id
                 {
                     "type": "other-type",
-                    "id": "123",
+                    "id": ASSOCIATION_ID,
                     "attributes": {"code": "X"},
                 },  # Wrong type
             ],

@@ -10,7 +10,11 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.teams import get_team
-from tests.helpers import JSONAPI_CONTENT_TYPE, SEASON_ID, TEST_BASE_URL
+from tests.helpers import (
+    JSONAPI_CONTENT_TYPE,
+    SEASON_ID,
+    TEST_BASE_URL,
+)
 
 
 @responses.activate

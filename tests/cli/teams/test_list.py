@@ -12,7 +12,9 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.teams import Team
-from tests.helpers import ASSOCIATION_ID
+from tests.helpers import (
+    ASSOCIATION_ID,
+)
 
 
 def test_teams_list_alias_works(runner: CliRunner) -> None:
@@ -56,7 +58,7 @@ def test_teams_list_json_output(runner: CliRunner) -> None:
             ["teams", "list", "--season-id", "501", "--format", "json"],
         )
         assert not result.exit_code
-        assert '"id": "123"' in result.output
+        assert f'"id": "{ASSOCIATION_ID}"' in result.output
         assert '"title": "Raleigh Raptors"' in result.output
 
 
@@ -155,7 +157,7 @@ def test_teams_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
         assert not result.exit_code
         assert output_file.exists()
         content = output_file.read_text()
-        assert '"id": "123"' in content
+        assert f'"id": "{ASSOCIATION_ID}"' in content
 
 
 def test_teams_list_csv_output(runner: CliRunner) -> None:

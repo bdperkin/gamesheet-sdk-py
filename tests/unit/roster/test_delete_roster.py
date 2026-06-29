@@ -13,11 +13,18 @@ from gamesheet_sdk.roster import (
     delete_team_coach,
     delete_team_player,
 )
+from tests.helpers import (
+    COACH_ID_QUATERNARY,
+    PLAYER_ID_QUATERNARY,
+    PLAYER_ID_TERTIARY,
+    SEASON_ID,
+    TEAM_ID_SECONDARY,
+)
 
 
 def test_delete_coach_success(mock_session: MagicMock) -> None:
     """Test successful coach deletion."""
-    delete_coach(mock_session, "15020", "1879938")
+    delete_coach(mock_session, SEASON_ID, "1879938")
     mock_session.delete.assert_called_once()
     call_args = mock_session.delete.call_args
     assert "/api/seasons/15020/coaches/1879938" in call_args[0][0]
@@ -25,7 +32,7 @@ def test_delete_coach_success(mock_session: MagicMock) -> None:
 
 def test_delete_player_success(mock_session: MagicMock) -> None:
     """Test successful player deletion."""
-    delete_player(mock_session, "15020", "8116303")
+    delete_player(mock_session, SEASON_ID, PLAYER_ID_TERTIARY)
     mock_session.delete.assert_called_once()
     call_args = mock_session.delete.call_args
     assert "/api/seasons/15020/players/8116303" in call_args[0][0]
@@ -39,14 +46,14 @@ def test_delete_team_coach_success(mock_session: MagicMock) -> None:
         patch("gamesheet_sdk.roster.coaches.unassign_coach") as mock_unassign,
         patch("gamesheet_sdk.roster.coaches.delete_coach") as mock_delete,
     ):
-        delete_team_coach(mock_session, "15020", "523675", "1879939")
+        delete_team_coach(mock_session, SEASON_ID, TEAM_ID_SECONDARY, COACH_ID_QUATERNARY)
         mock_unassign.assert_called_once_with(
             mock_session,
-            "15020",
-            "1879939",
-            "523675",
+            SEASON_ID,
+            COACH_ID_QUATERNARY,
+            TEAM_ID_SECONDARY,
         )
-        mock_delete.assert_called_once_with(mock_session, "15020", "1879939")
+        mock_delete.assert_called_once_with(mock_session, SEASON_ID, COACH_ID_QUATERNARY)
 
 
 def test_delete_team_coach_not_on_roster(mock_session: MagicMock) -> None:
@@ -63,8 +70,8 @@ def test_delete_team_coach_not_on_roster(mock_session: MagicMock) -> None:
         patch("gamesheet_sdk.roster.coaches.delete_coach") as mock_delete,
     ):
         # Should still delete even if unassign fails
-        delete_team_coach(mock_session, "15020", "523675", "1879939")
-        mock_delete.assert_called_once_with(mock_session, "15020", "1879939")
+        delete_team_coach(mock_session, SEASON_ID, TEAM_ID_SECONDARY, COACH_ID_QUATERNARY)
+        mock_delete.assert_called_once_with(mock_session, SEASON_ID, COACH_ID_QUATERNARY)
 
 
 def test_delete_team_player_success(mock_session: MagicMock) -> None:
@@ -75,14 +82,14 @@ def test_delete_team_player_success(mock_session: MagicMock) -> None:
         patch("gamesheet_sdk.roster.players.unassign_player") as mock_unassign,
         patch("gamesheet_sdk.roster.players.delete_player") as mock_delete,
     ):
-        delete_team_player(mock_session, "15020", "523675", "8116321")
+        delete_team_player(mock_session, SEASON_ID, TEAM_ID_SECONDARY, PLAYER_ID_QUATERNARY)
         mock_unassign.assert_called_once_with(
             mock_session,
-            "15020",
-            "8116321",
-            "523675",
+            SEASON_ID,
+            PLAYER_ID_QUATERNARY,
+            TEAM_ID_SECONDARY,
         )
-        mock_delete.assert_called_once_with(mock_session, "15020", "8116321")
+        mock_delete.assert_called_once_with(mock_session, SEASON_ID, PLAYER_ID_QUATERNARY)
 
 
 def test_delete_team_player_not_on_roster(mock_session: MagicMock) -> None:
@@ -99,5 +106,5 @@ def test_delete_team_player_not_on_roster(mock_session: MagicMock) -> None:
         patch("gamesheet_sdk.roster.players.delete_player") as mock_delete,
     ):
         # Should still delete even if unassign fails
-        delete_team_player(mock_session, "15020", "523675", "8116321")
-        mock_delete.assert_called_once_with(mock_session, "15020", "8116321")
+        delete_team_player(mock_session, SEASON_ID, TEAM_ID_SECONDARY, PLAYER_ID_QUATERNARY)
+        mock_delete.assert_called_once_with(mock_session, SEASON_ID, PLAYER_ID_QUATERNARY)

@@ -15,7 +15,12 @@ from gamesheet_sdk.roster import (
     update_team_coach,
     update_team_player,
 )
-from tests.helpers import SEASON_ID, setup_update_coach_mocks, setup_update_player_mocks
+from tests.helpers import (
+    SEASON_ID,
+    TEAM_ID_SECONDARY,
+    setup_update_coach_mocks,
+    setup_update_player_mocks,
+)
 from tests.helpers.payloads import (
     roster_coach_payload,
     roster_player_payload,

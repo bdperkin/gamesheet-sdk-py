@@ -8,6 +8,9 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from gamesheet_sdk.seasons import Season, SeasonDetail
+from tests.helpers import (
+    SEASON_ID,
+)
 
 
 def test_season_model_ignores_unknown_attributes() -> None:
@@ -26,7 +29,7 @@ def test_season_model_ignores_unknown_attributes() -> None:
 def test_season_detail_model_ignores_unknown_attributes() -> None:
     """SeasonDetail model should ignore unknown attributes for forward compatibility."""
     sd = SeasonDetail(
-        id="15020",
+        id=SEASON_ID,
         association_id="38",
         league_id="1148580",
         title="Test",

@@ -386,7 +386,7 @@ def test_list_seasons_with_status_filter_uses_bff_api(config: Config) -> None:
         session.set_bearer_token("abc")
         result = list_seasons(session, _LEAGUE_ID, status="active")
     assert len(result) == 1
-    assert result[0].id == "15020"
+    assert result[0].id == SEASON_ID
     assert result[0].title == "Active Season"
     assert result[0].league_id == _LEAGUE_ID
     # Verify the BFF endpoint was called with correct parameters

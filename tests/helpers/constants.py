@@ -12,10 +12,16 @@ from __future__ import annotations
 
 # Resource IDs (from actual GameSheet responses observed during test recording)
 PLAYER_ID = "8043169"
+PLAYER_ID_SECONDARY = "8113805"  # Used in penalty report tests
+PLAYER_ID_TERTIARY = "8116303"  # Used in delete tests
+PLAYER_ID_QUATERNARY = "8116321"  # Used in team roster delete tests
 COACH_ID_PRIMARY = "1868550"
 COACH_ID_SECONDARY = "1879938"
+COACH_ID_TERTIARY = "1879742"  # Used in penalty report tests
+COACH_ID_QUATERNARY = "1879939"  # Used in team roster delete tests
 SEASON_ID = "15020"
 TEAM_ID = "12345"
+TEAM_ID_SECONDARY = "523675"  # Used in team roster tests
 DIVISION_ID = "701"
 ASSOCIATION_ID = "123"
 LEAGUE_ID = "456"

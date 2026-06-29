@@ -15,7 +15,10 @@ from gamesheet_sdk.roster import (
 )
 from tests.helpers import (
     COACH_EXTERNAL_ID_TERTIARY,
+    COACH_ID_TERTIARY,
     PLAYER_EXTERNAL_ID_SECONDARY,
+    PLAYER_ID_SECONDARY,
+    SEASON_ID,
 )
 
 
@@ -25,7 +28,7 @@ def test_get_coach_penalty_report_success(mock_session: MagicMock) -> None:
     mock_coach_response.status_code = 200
     mock_coach_response.json.return_value = {
         "data": {
-            "id": "1879742",
+            "id": COACH_ID_TERTIARY,
             "type": "coaches",
             "attributes": {
                 "external_id": PLAYER_EXTERNAL_ID_SECONDARY,
@@ -50,7 +53,7 @@ def test_get_coach_penalty_report_success(mock_session: MagicMock) -> None:
         },
     }
     mock_session.get.side_effect = [mock_coach_response, mock_penalty_response]
-    report = get_coach_penalty_report(mock_session, "15020", "1879742")
+    report = get_coach_penalty_report(mock_session, SEASON_ID, COACH_ID_TERTIARY)
     assert "coach_games" in report
     assert "coach_penalties" in report
     assert mock_session.get.call_count == 2
@@ -62,7 +65,7 @@ def test_get_player_penalty_report_success(mock_session: MagicMock) -> None:
     mock_player_response.status_code = 200
     mock_player_response.json.return_value = {
         "data": {
-            "id": "8113805",
+            "id": PLAYER_ID_SECONDARY,
             "type": "players",
             "attributes": {
                 "external_id": COACH_EXTERNAL_ID_TERTIARY,
@@ -98,7 +101,7 @@ def test_get_player_penalty_report_success(mock_session: MagicMock) -> None:
         },
     }
     mock_session.get.side_effect = [mock_player_response, mock_penalty_response]
-    report = get_player_penalty_report(mock_session, "15020", "8113805")
+    report = get_player_penalty_report(mock_session, SEASON_ID, PLAYER_ID_SECONDARY)
     assert "player_games" in report
     assert "player_penalties" in report
     assert mock_session.get.call_count == 2
@@ -112,7 +115,7 @@ def test_get_coach_penalty_report_api_error(mock_session: MagicMock) -> None:
     mock_coach_response.status_code = 200
     mock_coach_response.json.return_value = {
         "data": {
-            "id": "1879742",
+            "id": COACH_ID_TERTIARY,
             "type": "coaches",
             "attributes": {
                 "external_id": PLAYER_EXTERNAL_ID_SECONDARY,
@@ -133,7 +136,7 @@ def test_get_coach_penalty_report_api_error(mock_session: MagicMock) -> None:
     }
     mock_session.get.side_effect = [mock_coach_response, mock_penalty_response]
     with pytest.raises(GameSheetError, match="status: error"):
-        get_coach_penalty_report(mock_session, "15020", "1879742")
+        get_coach_penalty_report(mock_session, SEASON_ID, COACH_ID_TERTIARY)
 
 
 def test_get_player_penalty_report_api_error(mock_session: MagicMock) -> None:
@@ -144,7 +147,7 @@ def test_get_player_penalty_report_api_error(mock_session: MagicMock) -> None:
     mock_player_response.status_code = 200
     mock_player_response.json.return_value = {
         "data": {
-            "id": "8113805",
+            "id": PLAYER_ID_SECONDARY,
             "type": "players",
             "attributes": {
                 "external_id": COACH_EXTERNAL_ID_TERTIARY,
@@ -176,4 +179,4 @@ def test_get_player_penalty_report_api_error(mock_session: MagicMock) -> None:
     }
     mock_session.get.side_effect = [mock_player_response, mock_penalty_response]
     with pytest.raises(GameSheetError, match="status: error"):
-        get_player_penalty_report(mock_session, "15020", "8113805")
+        get_player_penalty_report(mock_session, SEASON_ID, PLAYER_ID_SECONDARY)

@@ -13,7 +13,10 @@ import responses
 # Explicit import for coverage tracking of dynamically-loaded Click commands
 from gamesheet_sdk import DEFAULT_BASE_URL
 from gamesheet_sdk.cli import main
-from tests.helpers import jsonapi_payload
+from tests.helpers import (
+    SEASON_ID,
+    jsonapi_payload,
+)
 
 _BASE = DEFAULT_BASE_URL
 _SEASON_ID = "15020"

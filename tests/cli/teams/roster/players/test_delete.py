@@ -10,7 +10,11 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.commands.teams_roster import teams_roster_players_group
-from tests.helpers import SEASON_ID
+from tests.helpers import (
+    PLAYER_ID_QUATERNARY,
+    SEASON_ID,
+    TEAM_ID_SECONDARY,
+)
 
 
 def test_teams_roster_players_delete_coverage(
@@ -33,18 +37,18 @@ def test_teams_roster_players_delete_coverage(
             [
                 "delete",
                 "--player-id",
-                "8116321",
+                PLAYER_ID_QUATERNARY,
                 "--force",
             ],
-            obj={"config": mock_config, "season_id": SEASON_ID, "team_id": "523675"},
+            obj={"config": mock_config, "season_id": SEASON_ID, "team_id": TEAM_ID_SECONDARY},
         )
         assert not result.exit_code
         assert "deleted successfully" in result.output
         mock_delete.assert_called_once_with(
             mock_session,
             SEASON_ID,
-            "523675",
-            "8116321",
+            TEAM_ID_SECONDARY,
+            PLAYER_ID_QUATERNARY,
         )
 
 
@@ -69,10 +73,10 @@ def test_teams_roster_players_delete_error_handling(
             [
                 "delete",
                 "--player-id",
-                "8116321",
+                PLAYER_ID_QUATERNARY,
                 "--force",
             ],
-            obj={"config": mock_config, "season_id": SEASON_ID, "team_id": "523675"},
+            obj={"config": mock_config, "season_id": SEASON_ID, "team_id": TEAM_ID_SECONDARY},
         )
         assert result.exit_code == 1
         assert "Error deleting player" in result.output
@@ -99,9 +103,9 @@ def test_teams_roster_players_delete_requires_confirmation(
             [
                 "delete",
                 "--player-id",
-                "8116321",
+                PLAYER_ID_QUATERNARY,
             ],
-            obj={"config": mock_config, "season_id": SEASON_ID, "team_id": "523675"},
+            obj={"config": mock_config, "season_id": SEASON_ID, "team_id": TEAM_ID_SECONDARY},
             input="n\n",
         )
         assert result.exit_code == 1

@@ -12,7 +12,9 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.seasons import SeasonDetail
-from tests.helpers import SEASON_ID
+from tests.helpers import (
+    SEASON_ID,
+)
 
 
 def test_seasons_get_alias_show_works(runner: CliRunner) -> None:
@@ -106,7 +108,7 @@ def test_seasons_get_json_output(runner: CliRunner) -> None:
             ["seasons", "get", "--season-id", SEASON_ID, "--format", "json"],
         )
         assert not result.exit_code
-        assert '"id": "15020"' in result.output
+        assert f'"id": "{SEASON_ID}"' in result.output
         assert '"title": "Test Season 2026"' in result.output
         assert '"sport": "hockey"' in result.output
 
@@ -215,7 +217,7 @@ def test_seasons_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
         assert not result.exit_code
         assert output_file.exists()
         content = output_file.read_text()
-        assert '"id": "15020"' in content
+        assert f'"id": "{SEASON_ID}"' in content
 
 
 def test_seasons_get_table_format(runner: CliRunner) -> None:

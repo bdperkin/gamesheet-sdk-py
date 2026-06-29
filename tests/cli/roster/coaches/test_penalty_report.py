@@ -11,7 +11,10 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.main import cli
-from tests.helpers import SEASON_ID
+from tests.helpers import (
+    COACH_ID_TERTIARY,
+    SEASON_ID,
+)
 
 
 def test_coaches_penalty_report_requires_coach_id() -> None:
@@ -64,12 +67,12 @@ def test_coaches_penalty_report_success(mock_session: MagicMock) -> None:
                 "coaches",
                 "penalty-report",
                 "--coach-id",
-                "1879742",
+                COACH_ID_TERTIARY,
             ],
         )
         assert not result.exit_code
         assert "coach_games" in result.output
-        mock_get_report.assert_called_once_with(mock_session, SEASON_ID, "1879742")
+        mock_get_report.assert_called_once_with(mock_session, SEASON_ID, COACH_ID_TERTIARY)
 
 
 def test_coaches_penalty_report_uses_env_var(mock_session: MagicMock) -> None:
@@ -97,10 +100,10 @@ def test_coaches_penalty_report_uses_env_var(mock_session: MagicMock) -> None:
                 "coaches",
                 "penalty-report",
             ],
-            env={"GAMESHEET_COACH_ID": "1879742"},
+            env={"GAMESHEET_COACH_ID": COACH_ID_TERTIARY},
         )
         assert not result.exit_code
-        mock_get_report.assert_called_once_with(mock_session, SEASON_ID, "1879742")
+        mock_get_report.assert_called_once_with(mock_session, SEASON_ID, COACH_ID_TERTIARY)
 
 
 def test_coaches_penalty_report_json_format(mock_session: MagicMock) -> None:
@@ -128,7 +131,7 @@ def test_coaches_penalty_report_json_format(mock_session: MagicMock) -> None:
                 "coaches",
                 "penalty-report",
                 "--coach-id",
-                "1879742",
+                COACH_ID_TERTIARY,
                 "--format",
                 "json",
             ],
@@ -162,7 +165,7 @@ def test_coaches_penalty_report_yaml_format(mock_session: MagicMock) -> None:
                 "coaches",
                 "penalty-report",
                 "--coach-id",
-                "1879742",
+                COACH_ID_TERTIARY,
                 "--format",
                 "yaml",
             ],

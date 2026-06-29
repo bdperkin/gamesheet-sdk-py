@@ -13,6 +13,7 @@ from gamesheet_sdk.roster import get_team_coach
 from tests.helpers import (
     COACH_EXTERNAL_ID_SECONDARY,
     SEASON_ID,
+    TEAM_ID,
     TEST_BASE_URL,
 )
 
