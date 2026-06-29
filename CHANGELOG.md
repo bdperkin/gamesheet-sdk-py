@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.56 (2026-06-29)
+
+### Bug Fixes
+
+- Resolve flake8 Q000 quote style violations ([#129](https://github.com/bdperkin/gamesheet-sdk-py/pull/129),
+  [`c2ada48`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c2ada48a0fbe54d1f6822cc4357ff62167fc07a2))
+
 ## v0.1.55 (2026-06-29)
 
 ### Features
