@@ -11,6 +11,7 @@ import responses
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.referees import get_referee_report
 from tests.helpers import (
+    DEFAULT_PLAYER_LAST_NAME,
     REFEREE_EXTERNAL_ID_TERTIARY,
     REFEREE_EXTERNAL_ID_TEST,
     SEASON_ID,
@@ -100,7 +101,7 @@ def test_get_referee_report_with_minimal_data(config: Config) -> None:
                 "attributes": {
                     "external_id": _external_id,
                     "first_name": "Jane",
-                    "last_name": "Doe",
+                    "last_name": DEFAULT_PLAYER_LAST_NAME,
                     "created_at": "2026-06-15T12:04:05Z",
                     "updated_at": "2026-06-15T12:04:05Z",
                 },
@@ -123,7 +124,7 @@ def test_get_referee_report_with_minimal_data(config: Config) -> None:
         report = get_referee_report(session, SEASON_ID, _referee_id)
     assert report.external_id == _external_id
     assert report.first_name == "Jane"
-    assert report.last_name == "Doe"
+    assert report.last_name == DEFAULT_PLAYER_LAST_NAME
     assert not report.games_refereed
     assert not report.average_pim_per_game
     assert report.most_frequent_penalty is None

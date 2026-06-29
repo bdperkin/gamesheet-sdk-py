@@ -10,7 +10,13 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.roster import get_coach
-from tests.helpers import JSONAPI_CONTENT_TYPE, SEASON_ID, TEST_BASE_URL
+from tests.helpers import (
+    DEFAULT_COACH_FIRST_NAME,
+    DEFAULT_COACH_LAST_NAME,
+    JSONAPI_CONTENT_TYPE,
+    SEASON_ID,
+    TEST_BASE_URL,
+)
 
 
 @responses.activate
@@ -27,7 +33,7 @@ def test_get_coach_returns_single_coach(config: Config) -> None:
                 "id": _coach_id,
                 "attributes": {
                     "first_name": "Jane",
-                    "last_name": "Smith",
+                    "last_name": DEFAULT_COACH_LAST_NAME,
                     "created_at": "2024-01-01T00:00:00Z",
                     "updated_at": "2024-06-01T00:00:00Z",
                 },
@@ -44,7 +50,7 @@ def test_get_coach_returns_single_coach(config: Config) -> None:
     assert result.id == _coach_id
     assert result.season_id == SEASON_ID
     assert result.first_name == "Jane"
-    assert result.last_name == "Smith"
+    assert result.last_name == DEFAULT_COACH_LAST_NAME
 
 
 @responses.activate

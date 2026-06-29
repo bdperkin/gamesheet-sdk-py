@@ -162,9 +162,8 @@ def test_get_team_other_failure_raises_gamesheet_error(config: Config) -> None:
 def test_get_team_with_invitation_code(config: Config) -> None:
     """Test that get_team extracts invitation code from included resources."""
     _team_id = "401"
-    _season_id = "15020"
     _invitation_code = "ABC123"
-    _list_endpoint = f"{TEST_BASE_URL}/api/seasons/{_season_id}/teams"
+    _list_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
     responses.add(
         responses.GET,
         _list_endpoint,
@@ -181,7 +180,7 @@ def test_get_team_with_invitation_code(config: Config) -> None:
                         "updated_at": "2024-06-01T00:00:00Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _season_id}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                         "invitations": {
                             "data": [{"type": "invitations", "id": "inv-1"}],
                         },
@@ -202,9 +201,9 @@ def test_get_team_with_invitation_code(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_team(session, _season_id, _team_id)
+        result = get_team(session, SEASON_ID, _team_id)
     assert result.id == _team_id
-    assert result.season_id == _season_id
+    assert result.season_id == SEASON_ID
     assert result.title == "Test Team"
     assert result.invitation_code == _invitation_code
 
@@ -213,8 +212,7 @@ def test_get_team_with_invitation_code(config: Config) -> None:
 def test_get_team_without_invitation_code(config: Config) -> None:
     """Test that get_team handles missing invitation code gracefully."""
     _team_id = "402"
-    _season_id = "15020"
-    _list_endpoint = f"{TEST_BASE_URL}/api/seasons/{_season_id}/teams"
+    _list_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
     responses.add(
         responses.GET,
         _list_endpoint,
@@ -231,7 +229,7 @@ def test_get_team_without_invitation_code(config: Config) -> None:
                         "updated_at": "2024-06-01T00:00:00Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _season_id}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                     },
                 },
             ],
@@ -241,8 +239,8 @@ def test_get_team_without_invitation_code(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_team(session, _season_id, _team_id)
+        result = get_team(session, SEASON_ID, _team_id)
     assert result.id == _team_id
-    assert result.season_id == _season_id
+    assert result.season_id == SEASON_ID
     assert result.title == "Test Team Without Code"
     assert result.invitation_code is None

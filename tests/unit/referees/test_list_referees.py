@@ -12,7 +12,15 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.referees import list_referees
-from tests.helpers import JSONAPI_CONTENT_TYPE, SEASON_ID, TEST_BASE_URL, jsonapi_payload
+from tests.helpers import (
+    DEFAULT_COACH_LAST_NAME,
+    DEFAULT_PLAYER_FIRST_NAME,
+    DEFAULT_PLAYER_LAST_NAME,
+    JSONAPI_CONTENT_TYPE,
+    SEASON_ID,
+    TEST_BASE_URL,
+    jsonapi_payload,
+)
 
 _ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees"
 
@@ -29,8 +37,8 @@ def test_list_referees_parses_jsonapi_response(config: Config) -> None:
                     "type": "referees",
                     "id": "101",
                     "attributes": {
-                        "first_name": "John",
-                        "last_name": "Smith",
+                        "first_name": DEFAULT_PLAYER_FIRST_NAME,
+                        "last_name": DEFAULT_COACH_LAST_NAME,
                         "email_address": "john.smith@example.com",
                         "created_at": "2024-09-01T10:00:00Z",
                         "updated_at": "2024-09-15T14:30:00Z",
@@ -49,7 +57,7 @@ def test_list_referees_parses_jsonapi_response(config: Config) -> None:
                     "id": "102",
                     "attributes": {
                         "first_name": "Jane",
-                        "last_name": "Doe",
+                        "last_name": DEFAULT_PLAYER_LAST_NAME,
                         "email_address": None,
                         "created_at": "2023-09-01T10:00:00Z",
                         "updated_at": "2023-09-01T10:00:00Z",
@@ -71,14 +79,14 @@ def test_list_referees_parses_jsonapi_response(config: Config) -> None:
         session.set_bearer_token("any-non-empty-token")
         result = list_referees(session, SEASON_ID)
     assert [r.id for r in result] == ["101", "102"]
-    assert result[0].first_name == "John"
-    assert result[0].last_name == "Smith"
+    assert result[0].first_name == DEFAULT_PLAYER_FIRST_NAME
+    assert result[0].last_name == DEFAULT_COACH_LAST_NAME
     assert result[0].email == "john.smith@example.com"
     assert result[0].season_id == SEASON_ID
     assert result[0].created_at == datetime(2024, 9, 1, 10, tzinfo=timezone.utc)
     assert result[0].updated_at == datetime(2024, 9, 15, 14, 30, tzinfo=timezone.utc)
     assert result[1].first_name == "Jane"
-    assert result[1].last_name == "Doe"
+    assert result[1].last_name == DEFAULT_PLAYER_LAST_NAME
     assert result[1].email is None
 
 

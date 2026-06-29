@@ -10,7 +10,13 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.roster import get_player
-from tests.helpers import JSONAPI_CONTENT_TYPE, SEASON_ID, TEST_BASE_URL
+from tests.helpers import (
+    DEFAULT_PLAYER_FIRST_NAME,
+    DEFAULT_PLAYER_LAST_NAME,
+    JSONAPI_CONTENT_TYPE,
+    SEASON_ID,
+    TEST_BASE_URL,
+)
 
 
 @responses.activate
@@ -26,8 +32,8 @@ def test_get_player_returns_single_player(config: Config) -> None:
                 "type": "players",
                 "id": _player_id,
                 "attributes": {
-                    "first_name": "John",
-                    "last_name": "Doe",
+                    "first_name": DEFAULT_PLAYER_FIRST_NAME,
+                    "last_name": DEFAULT_PLAYER_LAST_NAME,
                     "created_at": "2024-01-01T00:00:00Z",
                     "updated_at": "2024-06-01T00:00:00Z",
                 },
@@ -43,8 +49,8 @@ def test_get_player_returns_single_player(config: Config) -> None:
         result = get_player(session, SEASON_ID, _player_id)
     assert result.id == _player_id
     assert result.season_id == SEASON_ID
-    assert result.first_name == "John"
-    assert result.last_name == "Doe"
+    assert result.first_name == DEFAULT_PLAYER_FIRST_NAME
+    assert result.last_name == DEFAULT_PLAYER_LAST_NAME
 
 
 @responses.activate

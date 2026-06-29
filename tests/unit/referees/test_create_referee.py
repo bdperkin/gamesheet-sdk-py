@@ -11,6 +11,7 @@ import responses
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.referees import create_referee
 from tests.helpers import (
+    DEFAULT_PLAYER_LAST_NAME,
     JSONAPI_CONTENT_TYPE,
     REFEREE_EXTERNAL_ID_PRIMARY,
     SEASON_ID,
@@ -87,7 +88,7 @@ def test_create_referee_sends_correct_payload_required_fields_only(
                 "id": "1146198",
                 "attributes": {
                     "first_name": "Jane",
-                    "last_name": "Doe",
+                    "last_name": DEFAULT_PLAYER_LAST_NAME,
                     "email_address": None,
                     "created_at": "2026-06-15T13:00:00Z",
                     "updated_at": "2026-06-15T13:00:00Z",
@@ -101,10 +102,10 @@ def test_create_referee_sends_correct_payload_required_fields_only(
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = create_referee(session, SEASON_ID, "Jane", "Doe")
+        result = create_referee(session, SEASON_ID, "Jane", DEFAULT_PLAYER_LAST_NAME)
     assert result.id == "1146198"
     assert result.first_name == "Jane"
-    assert result.last_name == "Doe"
+    assert result.last_name == DEFAULT_PLAYER_LAST_NAME
     assert result.email is None
     # Verify the request payload
     import json
@@ -113,7 +114,7 @@ def test_create_referee_sends_correct_payload_required_fields_only(
     assert req.body is not None
     payload = json.loads(req.body)
     assert payload["data"]["attributes"]["first_name"] == "Jane"
-    assert payload["data"]["attributes"]["last_name"] == "Doe"
+    assert payload["data"]["attributes"]["last_name"] == DEFAULT_PLAYER_LAST_NAME
     assert "email_address" not in payload["data"]["attributes"]
     assert "external_id" not in payload["data"]["attributes"]
 

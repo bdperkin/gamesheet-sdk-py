@@ -11,6 +11,7 @@ import tempfile
 import responses
 
 # Explicit import for coverage tracking of dynamically-loaded Click commands
+from tests.helpers import SEASON_ID
 from gamesheet_sdk import DEFAULT_BASE_URL
 from gamesheet_sdk.cli import main
 from tests.helpers import (
@@ -19,9 +20,8 @@ from tests.helpers import (
 )
 
 _BASE = DEFAULT_BASE_URL
-_SEASON_ID = "15020"
-_PLAYERS_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/players"
-_COACHES_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/coaches"
+_PLAYERS_ENDPOINT = f"{_BASE}/api/seasons/{SEASON_ID}/players"
+_COACHES_ENDPOINT = f"{_BASE}/api/seasons/{SEASON_ID}/coaches"
 _TOKEN_PATH = Path(tempfile.gettempdir()) / ".gamesheet" / "access_token"
 
 
@@ -48,7 +48,7 @@ def test_roster_players_list_json_format() -> None:
         status=200,
     )
     result = main(
-        ["roster", "--season-id", _SEASON_ID, "players", "list", "-F", "json"],
+        ["roster", "--season-id", SEASON_ID, "players", "list", "-F", "json"],
     )
     assert not result
     _cleanup_token()
@@ -65,7 +65,7 @@ def test_roster_coaches_list_json_format() -> None:
         status=200,
     )
     result = main(
-        ["roster", "--season-id", _SEASON_ID, "coaches", "list", "-F", "json"],
+        ["roster", "--season-id", SEASON_ID, "coaches", "list", "-F", "json"],
     )
     assert not result
     _cleanup_token()

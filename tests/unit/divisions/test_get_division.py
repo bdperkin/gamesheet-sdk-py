@@ -21,7 +21,6 @@ from tests.helpers import (
 def test_get_division_returns_single_division(config: Config) -> None:
     """Test that get_division returns a single division."""
     _division_id = "301"
-    _season_id = "15020"
     _get_endpoint = f"{TEST_BASE_URL}/api/divisions/{_division_id}"
     responses.add(
         responses.GET,
@@ -36,7 +35,7 @@ def test_get_division_returns_single_division(config: Config) -> None:
                     "updated_at": "2024-06-01T00:00:00Z",
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _season_id}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -46,7 +45,7 @@ def test_get_division_returns_single_division(config: Config) -> None:
         session.set_bearer_token("abc")
         result = get_division(session, _division_id, include_team_count=False)
     assert result.id == _division_id
-    assert result.season_id == _season_id
+    assert result.season_id == SEASON_ID
     assert result.title == "Test Division"
 
 
@@ -133,7 +132,6 @@ def test_get_division_other_failure_raises_gamesheet_error(config: Config) -> No
 def test_get_division_with_team_count(config: Config) -> None:
     """Test that get_division can fetch team count."""
     _division_id = "301"
-    _season_id = "15020"
     _get_endpoint = f"{TEST_BASE_URL}/api/divisions/{_division_id}"
     _teams_endpoint = f"{TEST_BASE_URL}/api/divisions/{_division_id}/teams"
     responses.add(
@@ -149,7 +147,7 @@ def test_get_division_with_team_count(config: Config) -> None:
                     "updated_at": "2024-06-01T00:00:00Z",
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _season_id}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -170,7 +168,7 @@ def test_get_division_with_team_count(config: Config) -> None:
                         "updated_at": "2024-01-01T00:00:00Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _season_id}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                     },
                 },
                 {
@@ -183,7 +181,7 @@ def test_get_division_with_team_count(config: Config) -> None:
                         "updated_at": "2024-01-01T00:00:00Z",
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _season_id}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                     },
                 },
             ],
@@ -194,6 +192,6 @@ def test_get_division_with_team_count(config: Config) -> None:
         session.set_bearer_token("abc")
         result = get_division(session, _division_id, include_team_count=True)
     assert result.id == _division_id
-    assert result.season_id == _season_id
+    assert result.season_id == SEASON_ID
     assert result.title == "Test Division"
     assert result.team_count == 2

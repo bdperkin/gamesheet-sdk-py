@@ -17,21 +17,20 @@ from tests.helpers import (
     TEST_BASE_URL,
 )
 
-_TEAM_ID = "12345"
 
 
 @responses.activate
 def test_get_team_coach_returns_coach_with_roster_metadata(config: Config) -> None:
     """Test that get_team_coach returns a coach with team roster metadata."""
     _coach_id = "1879740"
-    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams/{TEAM_ID}"
     responses.add(
         responses.GET,
         _get_endpoint,
         json={
             "data": {
                 "type": "teams",
-                "id": _TEAM_ID,
+                "id": TEAM_ID,
                 "attributes": {
                     "roster": {
                         "coaches": [
@@ -66,7 +65,7 @@ def test_get_team_coach_returns_coach_with_roster_metadata(config: Config) -> No
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_team_coach(session, SEASON_ID, _TEAM_ID, _coach_id)
+        result = get_team_coach(session, SEASON_ID, TEAM_ID, _coach_id)
     assert result.id == _coach_id
     assert result.season_id == SEASON_ID
     assert result.first_name == "LOU"
@@ -80,14 +79,14 @@ def test_get_team_coach_returns_coach_with_roster_metadata(config: Config) -> No
 def test_get_team_coach_finds_coach_after_skipping_others(config: Config) -> None:
     """Test that get_team_coach iterates through multiple coaches to find the target."""
     _coach_id = "1879740"
-    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams/{TEAM_ID}"
     responses.add(
         responses.GET,
         _get_endpoint,
         json={
             "data": {
                 "type": "teams",
-                "id": _TEAM_ID,
+                "id": TEAM_ID,
                 "attributes": {
                     "roster": {
                         "coaches": [
@@ -158,7 +157,7 @@ def test_get_team_coach_finds_coach_after_skipping_others(config: Config) -> Non
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_team_coach(session, SEASON_ID, _TEAM_ID, _coach_id)
+        result = get_team_coach(session, SEASON_ID, TEAM_ID, _coach_id)
     assert result.id == _coach_id
     assert result.first_name == "LOU"
     assert result.last_name == "LAMORIELLO"
@@ -168,14 +167,14 @@ def test_get_team_coach_finds_coach_after_skipping_others(config: Config) -> Non
 def test_get_team_coach_raises_error_when_coach_not_on_team(config: Config) -> None:
     """Test that get_team_coach raises GameSheetError when coach is not on the team."""
     _coach_id = "nonexistent"
-    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams/{TEAM_ID}"
     responses.add(
         responses.GET,
         _get_endpoint,
         json={
             "data": {
                 "type": "teams",
-                "id": _TEAM_ID,
+                "id": TEAM_ID,
                 "attributes": {
                     "roster": {
                         "coaches": [],
@@ -190,6 +189,6 @@ def test_get_team_coach_raises_error_when_coach_not_on_team(config: Config) -> N
         session.set_bearer_token("abc")
         with pytest.raises(
             GameSheetError,
-            match=f"Coach {_coach_id} not found on team {_TEAM_ID}",
+            match=f"Coach {_coach_id} not found on team {TEAM_ID}",
         ):
-            get_team_coach(session, SEASON_ID, _TEAM_ID, _coach_id)
+            get_team_coach(session, SEASON_ID, TEAM_ID, _coach_id)

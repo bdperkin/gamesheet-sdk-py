@@ -16,8 +16,11 @@ from gamesheet_sdk.roster import (
     update_team_player,
 )
 from tests.helpers import (
+    COACH_ID_SECONDARY,
+    PLAYER_ID,
     SEASON_ID,
     TEAM_ID_SECONDARY,
+    TEST_BASE_URL,
     setup_update_coach_mocks,
     setup_update_player_mocks,
 )
@@ -27,11 +30,9 @@ from tests.helpers.payloads import (
     team_payload,
 )
 
-_TEAM_ID = "523675"
-_PLAYER_ID = "8043169"
-_COACH_ID = "1879938"
-_PLAYERS_ENDPOINT = f"https://test.example/api/seasons/{SEASON_ID}/players/{_PLAYER_ID}"
-_COACHES_ENDPOINT = f"https://test.example/api/seasons/{SEASON_ID}/coaches/{_COACH_ID}"
+_TEAM_ID = TEAM_ID_SECONDARY
+_PLAYERS_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/players/{PLAYER_ID}"
+_COACHES_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/coaches/{COACH_ID_SECONDARY}"
 
 
 @responses.activate
@@ -49,7 +50,7 @@ def test_update_player_updates_fields(config: Config) -> None:
         result = update_player(
             session,
             SEASON_ID,
-            _PLAYER_ID,
+            PLAYER_ID,
             last_name="UPDATED",
         )
     assert result.last_name == "UPDATED"
@@ -86,7 +87,7 @@ def test_update_player_with_photo_upload(config: Config) -> None:
         result = update_player(
             session,
             SEASON_ID,
-            _PLAYER_ID,
+            PLAYER_ID,
             photo_path=temp_path,
         )
     assert result.photo_url
@@ -119,7 +120,7 @@ def test_update_player_remove_photo(config: Config) -> None:
         result = update_player(
             session,
             SEASON_ID,
-            _PLAYER_ID,
+            PLAYER_ID,
             remove_photo=True,
         )
     assert not result.photo_url
@@ -131,7 +132,7 @@ def test_update_player_no_fields_raises_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(ValueError, match="At least one field must be provided"):
-            update_player(session, SEASON_ID, _PLAYER_ID)
+            update_player(session, SEASON_ID, PLAYER_ID)
 
 
 @responses.activate
@@ -152,7 +153,7 @@ def test_update_player_photo_and_remove_photo_raises_error(config: Config) -> No
             update_player(
                 session,
                 SEASON_ID,
-                _PLAYER_ID,
+                PLAYER_ID,
                 photo_path=photo_path,
                 remove_photo=True,
             )
@@ -172,7 +173,7 @@ def test_update_coach_updates_fields(config: Config) -> None:
         result = update_coach(
             session,
             SEASON_ID,
-            _COACH_ID,
+            COACH_ID_SECONDARY,
             last_name="UPDATED",
         )
     assert result.last_name == "UPDATED"
@@ -184,7 +185,7 @@ def test_update_coach_no_fields_raises_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(ValueError, match="At least one field must be provided"):
-            update_coach(session, SEASON_ID, _COACH_ID)
+            update_coach(session, SEASON_ID, COACH_ID_SECONDARY)
 
 
 @responses.activate
@@ -196,7 +197,7 @@ def test_update_team_player_updates_fields(config: Config) -> None:
     team_data["attributes"]["roster"] = {
         "players": [
             {
-                "id": _PLAYER_ID,
+                "id": PLAYER_ID,
                 "number": "99",
                 "position": "centre",
                 "status": "playing",
@@ -206,7 +207,7 @@ def test_update_team_player_updates_fields(config: Config) -> None:
         "coaches": [],
     }
     team_data["relationships"]["players"] = {
-        "data": [{"type": "players", "id": _PLAYER_ID}],
+        "data": [{"type": "players", "id": PLAYER_ID}],
     }
     responses.add(
         responses.GET,
@@ -219,7 +220,7 @@ def test_update_team_player_updates_fields(config: Config) -> None:
     updated_player["attributes"]["last_name"] = "UPDATED"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{SEASON_ID}/players/{_PLAYER_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/players/{PLAYER_ID}",
         json={"data": updated_player},
         status=200,
     )
@@ -229,7 +230,7 @@ def test_update_team_player_updates_fields(config: Config) -> None:
             session,
             SEASON_ID,
             _TEAM_ID,
-            _PLAYER_ID,
+            PLAYER_ID,
             last_name="UPDATED",
         )
     assert result.last_name == "UPDATED"
@@ -241,14 +242,14 @@ def test_update_team_coach_updates_fields(config: Config) -> None:
     # Mock GET team to fetch current team coach (via list_team_coaches)
     team_data = team_payload()
     current_coach_payload = roster_coach_payload(
-        coach_id=_COACH_ID,
+        coach_id=COACH_ID_SECONDARY,
         season_id=SEASON_ID,
     )
     team_data["attributes"]["roster"] = {
         "players": [],
         "coaches": [
             {
-                "id": _COACH_ID,
+                "id": COACH_ID_SECONDARY,
                 "position": "Head Coach",
                 "status": "coaching",
                 "signature": "",
@@ -256,7 +257,7 @@ def test_update_team_coach_updates_fields(config: Config) -> None:
         ],
     }
     team_data["relationships"]["coaches"] = {
-        "data": [{"type": "coaches", "id": _COACH_ID}],
+        "data": [{"type": "coaches", "id": COACH_ID_SECONDARY}],
     }
     responses.add(
         responses.GET,
@@ -269,7 +270,7 @@ def test_update_team_coach_updates_fields(config: Config) -> None:
     updated_coach["attributes"]["last_name"] = "UPDATED"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{_COACH_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{COACH_ID_SECONDARY}",
         json={"data": updated_coach},
         status=200,
     )
@@ -279,7 +280,7 @@ def test_update_team_coach_updates_fields(config: Config) -> None:
             session,
             SEASON_ID,
             _TEAM_ID,
-            _COACH_ID,
+            COACH_ID_SECONDARY,
             last_name="UPDATED",
         )
     assert result.last_name == "UPDATED"
@@ -291,7 +292,7 @@ def test_update_team_coach_with_position_updates_roster(config: Config) -> None:
     # Mock GET team to fetch current team coach (via list_team_coaches)
     team_data = team_payload()
     current_coach_payload = roster_coach_payload(
-        coach_id=_COACH_ID,
+        coach_id=COACH_ID_SECONDARY,
         season_id=SEASON_ID,
     )
     current_coach_payload["attributes"]["position"] = "Assistant Coach"
@@ -299,7 +300,7 @@ def test_update_team_coach_with_position_updates_roster(config: Config) -> None:
         "players": [],
         "coaches": [
             {
-                "id": _COACH_ID,
+                "id": COACH_ID_SECONDARY,
                 "position": "Assistant Coach",
                 "status": "coaching",
                 "signature": "",
@@ -307,7 +308,7 @@ def test_update_team_coach_with_position_updates_roster(config: Config) -> None:
         ],
     }
     team_data["relationships"]["coaches"] = {
-        "data": [{"type": "coaches", "id": _COACH_ID}],
+        "data": [{"type": "coaches", "id": COACH_ID_SECONDARY}],
     }
     responses.add(
         responses.GET,
@@ -320,7 +321,7 @@ def test_update_team_coach_with_position_updates_roster(config: Config) -> None:
     updated_coach["attributes"]["position"] = "Head Coach"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{_COACH_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{COACH_ID_SECONDARY}",
         json={"data": updated_coach},
         status=200,
     )
@@ -330,7 +331,7 @@ def test_update_team_coach_with_position_updates_roster(config: Config) -> None:
         "players": [],
         "coaches": [
             {
-                "id": _COACH_ID,
+                "id": COACH_ID_SECONDARY,
                 "position": "Assistant Coach",
                 "status": "coaching",
                 "signature": "",
@@ -356,7 +357,7 @@ def test_update_team_coach_with_position_updates_roster(config: Config) -> None:
             session,
             SEASON_ID,
             _TEAM_ID,
-            _COACH_ID,
+            COACH_ID_SECONDARY,
             position="Head Coach",
         )
     assert result.position == "Head Coach"
@@ -396,7 +397,7 @@ def test_update_player_with_all_profile_fields(config: Config) -> None:
         result = update_player(
             session,
             SEASON_ID,
-            _PLAYER_ID,
+            PLAYER_ID,
             biography="Test bio",
             height="6'2\"",
             weight="200",
@@ -440,7 +441,7 @@ def test_update_coach_with_all_fields(config: Config) -> None:
         result = update_coach(
             session,
             SEASON_ID,
-            _COACH_ID,
+            COACH_ID_SECONDARY,
             first_name="NEW",
             last_name="COACH",
             position="Head Coach",
@@ -459,7 +460,7 @@ def test_update_team_player_with_all_profile_fields(config: Config) -> None:
     team_data["attributes"]["roster"] = {
         "players": [
             {
-                "id": _PLAYER_ID,
+                "id": PLAYER_ID,
                 "number": "99",
                 "position": "centre",
                 "status": "playing",
@@ -469,7 +470,7 @@ def test_update_team_player_with_all_profile_fields(config: Config) -> None:
         "coaches": [],
     }
     team_data["relationships"]["players"] = {
-        "data": [{"type": "players", "id": _PLAYER_ID}],
+        "data": [{"type": "players", "id": PLAYER_ID}],
     }
     responses.add(
         responses.GET,
@@ -491,7 +492,7 @@ def test_update_team_player_with_all_profile_fields(config: Config) -> None:
     updated_player["attributes"]["committed_to"] = "Team D"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{SEASON_ID}/players/{_PLAYER_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/players/{PLAYER_ID}",
         json={"data": updated_player},
         status=200,
     )
@@ -501,7 +502,7 @@ def test_update_team_player_with_all_profile_fields(config: Config) -> None:
             session,
             SEASON_ID,
             _TEAM_ID,
-            _PLAYER_ID,
+            PLAYER_ID,
             biography="Test bio",
             height="6'0\"",
             weight="180",
@@ -522,7 +523,7 @@ def test_update_team_coach_no_fields_raises_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(ValueError, match="At least one field must be provided"):
-            update_team_coach(session, SEASON_ID, _TEAM_ID, _COACH_ID)
+            update_team_coach(session, SEASON_ID, _TEAM_ID, COACH_ID_SECONDARY)
 
 
 @responses.activate
@@ -552,7 +553,7 @@ def test_update_coach_preserves_existing_position(config: Config) -> None:
         result = update_coach(
             session,
             SEASON_ID,
-            _COACH_ID,
+            COACH_ID_SECONDARY,
             last_name="UPDATED",
         )
     assert result.last_name == "UPDATED"
@@ -589,7 +590,7 @@ def test_update_coach_preserves_existing_external_id(config: Config) -> None:
         result = update_coach(
             session,
             SEASON_ID,
-            _COACH_ID,
+            COACH_ID_SECONDARY,
             last_name="UPDATED",
         )
     assert result.last_name == "UPDATED"
@@ -602,7 +603,7 @@ def test_update_team_coach_with_external_id(config: Config) -> None:
     # Mock GET team to fetch current team coach
     team_data = team_payload()
     current_coach_payload = roster_coach_payload(
-        coach_id=_COACH_ID,
+        coach_id=COACH_ID_SECONDARY,
         season_id=SEASON_ID,
         external_id=None,
     )
@@ -610,7 +611,7 @@ def test_update_team_coach_with_external_id(config: Config) -> None:
         "players": [],
         "coaches": [
             {
-                "id": _COACH_ID,
+                "id": COACH_ID_SECONDARY,
                 "position": "Head Coach",
                 "status": "coaching",
                 "signature": "",
@@ -618,7 +619,7 @@ def test_update_team_coach_with_external_id(config: Config) -> None:
         ],
     }
     team_data["relationships"]["coaches"] = {
-        "data": [{"type": "coaches", "id": _COACH_ID}],
+        "data": [{"type": "coaches", "id": COACH_ID_SECONDARY}],
     }
     responses.add(
         responses.GET,
@@ -628,14 +629,14 @@ def test_update_team_coach_with_external_id(config: Config) -> None:
     )
     # Mock PATCH to update coach
     updated_coach = roster_coach_payload(
-        coach_id=_COACH_ID,
+        coach_id=COACH_ID_SECONDARY,
         season_id=SEASON_ID,
         external_id="new-ext-id",
     )
     updated_coach["attributes"]["external_id"] = "new-ext-id"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{_COACH_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{COACH_ID_SECONDARY}",
         json={"data": updated_coach},
         status=200,
     )
@@ -645,7 +646,7 @@ def test_update_team_coach_with_external_id(config: Config) -> None:
             session,
             SEASON_ID,
             _TEAM_ID,
-            _COACH_ID,
+            COACH_ID_SECONDARY,
             external_id="new-ext-id",
         )
     assert result.external_id == "new-ext-id"
@@ -676,7 +677,7 @@ def test_update_coach_with_no_external_id_preserved(config: Config) -> None:
         result = update_coach(
             session,
             SEASON_ID,
-            _COACH_ID,
+            COACH_ID_SECONDARY,
             last_name="UPDATED",
         )
     assert result.last_name == "UPDATED"
@@ -688,7 +689,7 @@ def test_update_team_coach_preserves_existing_external_id(config: Config) -> Non
     # Mock GET team to fetch current team coach with external_id
     team_data = team_payload()
     current_coach_payload = roster_coach_payload(
-        coach_id=_COACH_ID,
+        coach_id=COACH_ID_SECONDARY,
         season_id=SEASON_ID,
         external_id="existing-ext-id",
     )
@@ -696,7 +697,7 @@ def test_update_team_coach_preserves_existing_external_id(config: Config) -> Non
         "players": [],
         "coaches": [
             {
-                "id": _COACH_ID,
+                "id": COACH_ID_SECONDARY,
                 "position": "Head Coach",
                 "status": "coaching",
                 "signature": "",
@@ -704,7 +705,7 @@ def test_update_team_coach_preserves_existing_external_id(config: Config) -> Non
         ],
     }
     team_data["relationships"]["coaches"] = {
-        "data": [{"type": "coaches", "id": _COACH_ID}],
+        "data": [{"type": "coaches", "id": COACH_ID_SECONDARY}],
     }
     responses.add(
         responses.GET,
@@ -714,14 +715,14 @@ def test_update_team_coach_preserves_existing_external_id(config: Config) -> Non
     )
     # Mock PATCH to update coach
     updated_coach = roster_coach_payload(
-        coach_id=_COACH_ID,
+        coach_id=COACH_ID_SECONDARY,
         season_id=SEASON_ID,
         external_id="existing-ext-id",
     )
     updated_coach["attributes"]["last_name"] = "UPDATED"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{_COACH_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{COACH_ID_SECONDARY}",
         json={"data": updated_coach},
         status=200,
     )
@@ -731,7 +732,7 @@ def test_update_team_coach_preserves_existing_external_id(config: Config) -> Non
             session,
             SEASON_ID,
             _TEAM_ID,
-            _COACH_ID,
+            COACH_ID_SECONDARY,
             last_name="UPDATED",
         )
     assert result.last_name == "UPDATED"
@@ -744,7 +745,7 @@ def test_update_team_coach_with_no_external_id_preserved(config: Config) -> None
     # Mock GET team to fetch current team coach without external_id
     team_data = team_payload()
     current_coach_payload = roster_coach_payload(
-        coach_id=_COACH_ID,
+        coach_id=COACH_ID_SECONDARY,
         season_id=SEASON_ID,
         external_id=None,
     )
@@ -752,7 +753,7 @@ def test_update_team_coach_with_no_external_id_preserved(config: Config) -> None
         "players": [],
         "coaches": [
             {
-                "id": _COACH_ID,
+                "id": COACH_ID_SECONDARY,
                 "position": "Head Coach",
                 "status": "coaching",
                 "signature": "",
@@ -760,7 +761,7 @@ def test_update_team_coach_with_no_external_id_preserved(config: Config) -> None
         ],
     }
     team_data["relationships"]["coaches"] = {
-        "data": [{"type": "coaches", "id": _COACH_ID}],
+        "data": [{"type": "coaches", "id": COACH_ID_SECONDARY}],
     }
     responses.add(
         responses.GET,
@@ -770,14 +771,14 @@ def test_update_team_coach_with_no_external_id_preserved(config: Config) -> None
     )
     # Mock PATCH to update coach
     updated_coach = roster_coach_payload(
-        coach_id=_COACH_ID,
+        coach_id=COACH_ID_SECONDARY,
         season_id=SEASON_ID,
         external_id=None,
     )
     updated_coach["attributes"]["last_name"] = "UPDATED"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{_COACH_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{COACH_ID_SECONDARY}",
         json={"data": updated_coach},
         status=200,
     )
@@ -787,7 +788,7 @@ def test_update_team_coach_with_no_external_id_preserved(config: Config) -> None
             session,
             SEASON_ID,
             _TEAM_ID,
-            _COACH_ID,
+            COACH_ID_SECONDARY,
             last_name="UPDATED",
         )
     assert result.last_name == "UPDATED"
@@ -799,7 +800,7 @@ def test_update_team_coach_position_when_not_in_roster(config: Config) -> None:
     # Mock GET team to fetch current team coach
     team_data = team_payload()
     current_coach_payload = roster_coach_payload(
-        coach_id=_COACH_ID,
+        coach_id=COACH_ID_SECONDARY,
         season_id=SEASON_ID,
     )
     current_coach_payload["attributes"]["position"] = "Assistant Coach"
@@ -807,7 +808,7 @@ def test_update_team_coach_position_when_not_in_roster(config: Config) -> None:
         "players": [],
         "coaches": [
             {
-                "id": _COACH_ID,
+                "id": COACH_ID_SECONDARY,
                 "position": "Assistant Coach",
                 "status": "coaching",
                 "signature": "",
@@ -815,7 +816,7 @@ def test_update_team_coach_position_when_not_in_roster(config: Config) -> None:
         ],
     }
     team_data["relationships"]["coaches"] = {
-        "data": [{"type": "coaches", "id": _COACH_ID}],
+        "data": [{"type": "coaches", "id": COACH_ID_SECONDARY}],
     }
     responses.add(
         responses.GET,
@@ -828,7 +829,7 @@ def test_update_team_coach_position_when_not_in_roster(config: Config) -> None:
     updated_coach["attributes"]["position"] = "Head Coach"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{_COACH_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/coaches/{COACH_ID_SECONDARY}",
         json={"data": updated_coach},
         status=200,
     )
@@ -870,7 +871,7 @@ def test_update_team_coach_position_when_not_in_roster(config: Config) -> None:
             session,
             SEASON_ID,
             _TEAM_ID,
-            _COACH_ID,
+            COACH_ID_SECONDARY,
             position="Head Coach",
         )
     assert result.position == "Head Coach"
@@ -903,7 +904,7 @@ def test_update_player_preserves_existing_photo_url(config: Config) -> None:
         result = update_player(
             session,
             SEASON_ID,
-            _PLAYER_ID,
+            PLAYER_ID,
             last_name="UPDATED",
         )
     assert result.last_name == "UPDATED"
@@ -916,7 +917,7 @@ def test_update_team_player_no_fields_raises_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(ValueError, match="At least one field must be provided"):
-            update_team_player(session, SEASON_ID, _TEAM_ID, _PLAYER_ID)
+            update_team_player(session, SEASON_ID, _TEAM_ID, PLAYER_ID)
 
 
 @responses.activate
@@ -938,7 +939,7 @@ def test_update_team_player_photo_and_remove_photo_raises_error(config: Config) 
                 session,
                 SEASON_ID,
                 _TEAM_ID,
-                _PLAYER_ID,
+                PLAYER_ID,
                 photo_path=photo_path,
                 remove_photo=True,
             )
@@ -956,7 +957,7 @@ def test_update_team_player_with_photo_upload(config: Config) -> None:
     team_data["attributes"]["roster"] = {
         "players": [
             {
-                "id": _PLAYER_ID,
+                "id": PLAYER_ID,
                 "number": "99",
                 "position": "centre",
                 "status": "playing",
@@ -966,7 +967,7 @@ def test_update_team_player_with_photo_upload(config: Config) -> None:
         "coaches": [],
     }
     team_data["relationships"]["players"] = {
-        "data": [{"type": "players", "id": _PLAYER_ID}],
+        "data": [{"type": "players", "id": PLAYER_ID}],
     }
     responses.add(
         responses.GET,
@@ -981,7 +982,7 @@ def test_update_team_player_with_photo_upload(config: Config) -> None:
     ] = "https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA/test-image-id"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{SEASON_ID}/players/{_PLAYER_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/players/{PLAYER_ID}",
         json={"data": updated_player},
         status=200,
     )
@@ -991,7 +992,7 @@ def test_update_team_player_with_photo_upload(config: Config) -> None:
             session,
             SEASON_ID,
             _TEAM_ID,
-            _PLAYER_ID,
+            PLAYER_ID,
             photo_path=temp_path,
         )
     assert result.photo_url == "https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA/test-image-id"
@@ -1007,7 +1008,7 @@ def test_update_team_player_remove_photo(config: Config) -> None:
     team_data["attributes"]["roster"] = {
         "players": [
             {
-                "id": _PLAYER_ID,
+                "id": PLAYER_ID,
                 "number": "99",
                 "position": "centre",
                 "status": "playing",
@@ -1017,7 +1018,7 @@ def test_update_team_player_remove_photo(config: Config) -> None:
         "coaches": [],
     }
     team_data["relationships"]["players"] = {
-        "data": [{"type": "players", "id": _PLAYER_ID}],
+        "data": [{"type": "players", "id": PLAYER_ID}],
     }
     responses.add(
         responses.GET,
@@ -1030,7 +1031,7 @@ def test_update_team_player_remove_photo(config: Config) -> None:
     updated_player["attributes"]["photo_url"] = ""
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{SEASON_ID}/players/{_PLAYER_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/players/{PLAYER_ID}",
         json={"data": updated_player},
         status=200,
     )
@@ -1040,7 +1041,7 @@ def test_update_team_player_remove_photo(config: Config) -> None:
             session,
             SEASON_ID,
             _TEAM_ID,
-            _PLAYER_ID,
+            PLAYER_ID,
             remove_photo=True,
         )
     # pylint: disable-next=use-implicit-booleaness-not-comparison-to-string
@@ -1057,7 +1058,7 @@ def test_update_team_player_preserves_existing_photo_url(config: Config) -> None
     team_data["attributes"]["roster"] = {
         "players": [
             {
-                "id": _PLAYER_ID,
+                "id": PLAYER_ID,
                 "number": "99",
                 "position": "centre",
                 "status": "playing",
@@ -1067,7 +1068,7 @@ def test_update_team_player_preserves_existing_photo_url(config: Config) -> None
         "coaches": [],
     }
     team_data["relationships"]["players"] = {
-        "data": [{"type": "players", "id": _PLAYER_ID}],
+        "data": [{"type": "players", "id": PLAYER_ID}],
     }
     responses.add(
         responses.GET,
@@ -1081,7 +1082,7 @@ def test_update_team_player_preserves_existing_photo_url(config: Config) -> None
     updated_player["attributes"]["photo_url"] = "https://example.com/photo.jpg"
     responses.add(
         responses.PATCH,
-        f"https://test.example/api/seasons/{SEASON_ID}/players/{_PLAYER_ID}",
+        f"https://test.example/api/seasons/{SEASON_ID}/players/{PLAYER_ID}",
         json={"data": updated_player},
         status=200,
     )
@@ -1091,7 +1092,7 @@ def test_update_team_player_preserves_existing_photo_url(config: Config) -> None
             session,
             SEASON_ID,
             _TEAM_ID,
-            _PLAYER_ID,
+            PLAYER_ID,
             last_name="UPDATED",
         )
     assert result.last_name == "UPDATED"

@@ -15,6 +15,7 @@ from gamesheet_sdk.roster import (
 )
 from tests.helpers import (
     COACH_ID_QUATERNARY,
+    COACH_ID_SECONDARY,
     PLAYER_ID_QUATERNARY,
     PLAYER_ID_TERTIARY,
     SEASON_ID,
@@ -24,7 +25,7 @@ from tests.helpers import (
 
 def test_delete_coach_success(mock_session: MagicMock) -> None:
     """Test successful coach deletion."""
-    delete_coach(mock_session, SEASON_ID, "1879938")
+    delete_coach(mock_session, SEASON_ID, COACH_ID_SECONDARY)
     mock_session.delete.assert_called_once()
     call_args = mock_session.delete.call_args
     assert "/api/seasons/15020/coaches/1879938" in call_args[0][0]
