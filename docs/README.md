@@ -63,15 +63,7 @@ This is automatically run by `make docs-lint` and in CI.
 CLI documentation uses `sphinx-click` to automatically render the click command tree from `gamesheet_sdk.cli:cli`. The rendered documentation always matches the
 shipped binary because it's generated live from the actual click group.
 
-See `docs/reference/cli.md` which uses:
-
-````{eval-rst}
-```{eval-rst}
-.. click:: gamesheet_sdk.cli:cli
-    :prog: gamesheet-sdk-py
-    :nested: full
-```
-````
+See `docs/reference/cli.md` which uses an `eval-rst` directive with the `click` domain to automatically generate CLI documentation from the code.
 
 ### Custom templates
 

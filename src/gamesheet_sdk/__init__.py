@@ -6,7 +6,9 @@
 This package provides both a Python API and CLI for interacting with the
 GameSheet platform. GameSheet does not publish a public API, so this SDK
 automates the WebUI via HTTP requests and headless browser automation.
+
 **Core modules:**
+
 - :mod:`~gamesheet_sdk.auth` — authentication, token management, session handling
 - :mod:`~gamesheet_sdk.associations` — list associations
 - :mod:`~gamesheet_sdk.leagues` — list leagues by association
@@ -15,7 +17,9 @@ automates the WebUI via HTTP requests and headless browser automation.
 - :mod:`~gamesheet_sdk.browser` — headless browser automation wrapper
 - :mod:`~gamesheet_sdk.config` — configuration resolution (env vars + CLI args)
 - :mod:`~gamesheet_sdk.output` — multi-format output rendering (JSON, YAML, CSV, tables)
+
 **Quick start (API):**
+
 .. code-block:: python
     from gamesheet_sdk import login, list_associations
 
@@ -25,7 +29,9 @@ automates the WebUI via HTTP requests and headless browser automation.
     associations = list_associations(session)
     for assoc in associations:
         print(f"{assoc.name} (ID: {assoc.id})")
+
 **Quick start (CLI):**
+
 .. code-block:: bash
     # Login (stores tokens for subsequent commands)
     gamesheet-sdk-py login
@@ -33,7 +39,9 @@ automates the WebUI via HTTP requests and headless browser automation.
     gamesheet-sdk-py associations list
     # Get season details
     gamesheet-sdk-py seasons get <season-id>
+
 **Type safety:**
+
 This package ships with a ``py.typed`` marker and enforces ``mypy --strict``.
 All public APIs are fully type-annotated.
 **Version resolution:**
