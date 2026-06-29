@@ -36,8 +36,8 @@ def run_roster_delete_test(
     action_path: str,
     season_id: str,
     team_id: str,
-    mock_session: MagicMock,
-    mock_config: MagicMock,
+    session: MagicMock,
+    config: MagicMock,
     *,
     with_force: bool = True,
     input_text: str | None = None,
@@ -53,8 +53,8 @@ def run_roster_delete_test(
         action_path: Full import path to the action function to patch
         season_id: Season ID for the test
         team_id: Team ID for the test
-        mock_session: Mock session fixture
-        mock_config: Mock config fixture
+        session: Mock session fixture
+        config: Mock config fixture
         with_force: Whether to include --force flag (default: True)
         input_text: Input text for confirmation prompt (default: None)
         should_fail: Whether the action should raise an exception (default: False)
@@ -67,7 +67,7 @@ def run_roster_delete_test(
     patches = [
         patch(
             "gamesheet_sdk.cli.commands.teams_roster.build_authenticated_session",
-            return_value=mock_session,
+            return_value=session,
         ),
     ]
 
@@ -90,7 +90,7 @@ def run_roster_delete_test(
             group,
             args,
             obj={
-                "config": mock_config,
+                "config": config,
                 "season_id": season_id,
                 "team_id": team_id,
             },

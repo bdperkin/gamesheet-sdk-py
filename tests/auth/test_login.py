@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 def test_login_missing_email_raises(fake_browser_session: MagicMock) -> None:
     """Test that login raises AuthenticationError when email is missing."""
     with pytest.raises(AuthenticationError, match="requires an email"):
-        login(fake_browser_session, password="hunter2")
+        login(fake_browser_session, password="hunter2")  # pragma: allowlist secret
     fake_browser_session.goto.assert_not_called()
 
 
@@ -92,7 +92,11 @@ def test_login_args_override_config(fake_browser_session: MagicMock) -> None:
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
         _make_response(_TOKEN_URL, 200, {}),
     ]
-    login(fake_browser_session, email="alice@example.com", password="other")
+    login(
+        fake_browser_session,
+        email="alice@example.com",
+        password="other",  # pragma: allowlist secret
+    )
     page.fill.assert_any_call("#email", "alice@example.com")
     page.fill.assert_any_call("#password", "other")
 
@@ -206,7 +210,11 @@ def test_login_surfaces_firebase_error_code(
         ),
     ]
     with pytest.raises(AuthenticationError) as exc_info:
-        login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="bad")
+        login(
+            fake_browser_session,
+            email=TEST_EMAIL_MINIMAL,
+            password="bad",  # pragma: allowlist secret
+        )
     assert firebase_message in str(exc_info.value)
     assert "Firebase" in str(exc_info.value)
 

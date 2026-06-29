@@ -42,7 +42,7 @@ def test_login_command_success() -> None:
         mock_login.assert_called_once_with(
             mock_browser,
             email=TEST_EMAIL_GENERIC,
-            password="secret",
+            password="secret",  # pragma: allowlist secret
             timeout=30000,
         )
 
@@ -77,7 +77,7 @@ def test_login_command_with_custom_timeout() -> None:
         mock_login.assert_called_once_with(
             mock_browser,
             email=TEST_EMAIL_GENERIC,
-            password="secret",
+            password="secret",  # pragma: allowlist secret
             timeout=60000,
         )
 

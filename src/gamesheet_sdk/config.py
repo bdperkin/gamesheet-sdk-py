@@ -86,7 +86,7 @@ class Config(BaseSettings, env_prefix="GAMESHEET_", extra="ignore"):
     Use environment variables to configure the SDK:
     .. code-block:: bash
         export GAMESHEET_USERNAME="user@example.com"
-        export GAMESHEET_PASSWORD="secret"
+        export GAMESHEET_PASSWORD="secret"  # pragma: allowlist secret
         export GAMESHEET_TIMEOUT="60.0"
     Then in Python:
     .. code-block:: python

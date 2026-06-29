@@ -28,8 +28,8 @@ def test_teams_roster_coaches_delete_coverage(
         action_path="gamesheet_sdk.cli.commands.teams_roster._delete_team_coach_action",
         season_id=SEASON_ID,
         team_id=TEAM_ID_SECONDARY,
-        mock_session=mock_session,
-        mock_config=mock_config,
+        session=mock_session,
+        config=mock_config,
         with_force=True,
     )
     assert not exit_code
@@ -54,8 +54,8 @@ def test_teams_roster_coaches_delete_error_handling(
         action_path="gamesheet_sdk.cli.commands.teams_roster._delete_team_coach_action",
         season_id=SEASON_ID,
         team_id=TEAM_ID_SECONDARY,
-        mock_session=mock_session,
-        mock_config=mock_config,
+        session=mock_session,
+        config=mock_config,
         with_force=True,
         should_fail=True,
         error_message="Delete failed",
@@ -76,8 +76,8 @@ def test_teams_roster_coaches_delete_requires_confirmation(
         action_path="gamesheet_sdk.cli.commands.teams_roster._delete_team_coach_action",
         season_id=SEASON_ID,
         team_id=TEAM_ID_SECONDARY,
-        mock_session=mock_session,
-        mock_config=mock_config,
+        session=mock_session,
+        config=mock_config,
         with_force=False,
         input_text="n\n",
     )
