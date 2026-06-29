@@ -355,6 +355,7 @@ extend-exclude = [
   ".coverage",
   "coverage.xml",
   "dist/",
+  ".local/",
   ".mypy_cache/",
   ".pytest_cache/",
   ".tox/",
@@ -763,6 +764,7 @@ main.fail-under = 10
 # Files or directories to be skipped. They should be base names, not paths.
 main.ignore = [
   ".coverage",
+  ".local",
   ".mypy_cache",
   ".pytest_cache",
   ".tox",
@@ -1206,6 +1208,7 @@ exclude = [
   ".coverage",
   "coverage.xml",
   "dist",
+  ".local",
   ".mypy_cache",
   ".pytest_cache",
   "test_core_coverage.py",
@@ -1282,6 +1285,7 @@ optional_dependencies_dev_groups = [
 [tool.vulture]
 exclude = [
   ".coverage",
+  ".local",
   ".mypy_cache",
   ".pytest_cache",
   ".tox",
@@ -1399,6 +1403,7 @@ recursive = true
 [tool.bandit]
 exclude_dirs = [
   ".coverage",
+  ".local",
   ".mypy_cache",
   ".pytest_cache",
   ".tox",
@@ -1463,6 +1468,7 @@ include = [
 exclude = [
   "**/__pycache__",
   ".coverage",
+  ".local",
   ".mypy_cache",
   ".pytest_cache",
   ".tox",
@@ -1564,6 +1570,7 @@ exclude = [
   ".coverage",
   "coverage.xml",
   "dist",
+  ".local",
   ".mypy_cache",
   ".pytest_cache",
   ".tox",
@@ -1622,6 +1629,7 @@ exclude = [
   ".coverage",
   "coverage.xml",
   "dist/**",
+  ".local/**",
   ".mypy_cache/**",
   ".pytest_cache/**",
   ".tox/**",
