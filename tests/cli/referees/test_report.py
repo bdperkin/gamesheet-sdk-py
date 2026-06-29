@@ -1,15 +1,20 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for referees report command."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from unittest.mock import patch
+
+from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.referees import RefereeReport
-
-if TYPE_CHECKING:
-    from click.testing import CliRunner
+from tests.helpers import (
+    REFEREE_EXTERNAL_ID_TERTIARY,
+    SEASON_ID,
+)
 
 
 def test_referees_report_with_all_fields(runner: CliRunner) -> None:
@@ -25,7 +30,7 @@ def test_referees_report_with_all_fields(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_report.return_value = RefereeReport(
-            external_id="13340CA3-6B7D-4EC1-A183-EE281D2990A6",
+            external_id=REFEREE_EXTERNAL_ID_TERTIARY,
             first_name="WES",
             last_name="MCCAULEY",
             games_refereed=15,
@@ -47,7 +52,7 @@ def test_referees_report_with_all_fields(runner: CliRunner) -> None:
                 "referees",
                 "report",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146198",
             ],
@@ -55,7 +60,7 @@ def test_referees_report_with_all_fields(runner: CliRunner) -> None:
         assert not result.exit_code
         mock_report.assert_called_once()
         args = mock_report.call_args[0]
-        assert args[1] == "15020"
+        assert args[1] == SEASON_ID
         assert args[2] == "1146198"
 
 
@@ -67,7 +72,7 @@ def test_referees_report_missing_referee_id_shows_error(runner: CliRunner) -> No
             "referees",
             "report",
             "--season-id",
-            "15020",
+            SEASON_ID,
         ],
     )
     assert result.exit_code == 2
@@ -103,7 +108,7 @@ def test_referees_report_json_output(runner: CliRunner) -> None:
                 "referees",
                 "report",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146199",
                 "--format",

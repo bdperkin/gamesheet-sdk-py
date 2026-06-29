@@ -1,14 +1,21 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for teams create command."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
 from unittest.mock import patch
 
-from gamesheet_sdk.cli import cli
+from click.testing import CliRunner
 
-if TYPE_CHECKING:
-    from click.testing import CliRunner
+from gamesheet_sdk.cli import cli
+from tests.helpers import (
+    ASSOCIATION_ID,
+    DEFAULT_TEAM_NAME,
+    SEASON_ID,
+)
 
 
 def test_teams_create_basic(runner: CliRunner) -> None:
@@ -22,7 +29,7 @@ def test_teams_create_basic(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_create.return_value = {
-            "prototeam": {"id": "proto-id", "title": "Test Team"},
+            "prototeam": {"id": "proto-id", "title": DEFAULT_TEAM_NAME},
             "seasonTeam": {"id": 123, "divisionId": 80385},
             "invitation": {"code": "ABC123"},
         }
@@ -32,9 +39,9 @@ def test_teams_create_basic(runner: CliRunner) -> None:
                 "teams",
                 "create",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--title",
-                "Test Team",
+                DEFAULT_TEAM_NAME,
                 "--division-id",
                 "80385",
             ],
@@ -64,9 +71,9 @@ def test_teams_create_with_external_id(runner: CliRunner) -> None:
                 "teams",
                 "create",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--title",
-                "Test Team",
+                DEFAULT_TEAM_NAME,
                 "--division-id",
                 "80385",
                 "--external-id",
@@ -87,7 +94,7 @@ def test_teams_create_json_output(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_create.return_value = {
-            "prototeam": {"id": "proto-id", "title": "Test Team"},
+            "prototeam": {"id": "proto-id", "title": DEFAULT_TEAM_NAME},
             "seasonTeam": {"id": 123, "divisionId": 80385},
             "invitation": {"code": "ABC123"},
         }
@@ -97,9 +104,9 @@ def test_teams_create_json_output(runner: CliRunner) -> None:
                 "teams",
                 "create",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--title",
-                "Test Team",
+                DEFAULT_TEAM_NAME,
                 "--division-id",
                 "80385",
                 "--format",
@@ -107,7 +114,7 @@ def test_teams_create_json_output(runner: CliRunner) -> None:
             ],
         )
         assert not result.exit_code
-        assert "123" in result.output  # Team ID
+        assert ASSOCIATION_ID in result.output  # Team ID
 
 
 def test_teams_create_alias_add_works(runner: CliRunner) -> None:
@@ -131,9 +138,9 @@ def test_teams_create_alias_add_works(runner: CliRunner) -> None:
                 "teams",
                 "add",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--title",
-                "Test Team",
+                DEFAULT_TEAM_NAME,
                 "--division-id",
                 "80385",
             ],
@@ -163,9 +170,9 @@ def test_teams_create_alias_new_works(runner: CliRunner) -> None:
                 "teams",
                 "new",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--title",
-                "Test Team",
+                DEFAULT_TEAM_NAME,
                 "--division-id",
                 "80385",
             ],
@@ -186,7 +193,7 @@ def test_teams_create_with_output_file(runner: CliRunner, tmp_path: Any) -> None
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_create.return_value = {
-            "prototeam": {"id": "proto-id", "title": "Test Team"},
+            "prototeam": {"id": "proto-id", "title": DEFAULT_TEAM_NAME},
             "seasonTeam": {"id": 123, "divisionId": 80385},
             "invitation": {"code": "ABC123"},
         }
@@ -196,9 +203,9 @@ def test_teams_create_with_output_file(runner: CliRunner, tmp_path: Any) -> None
                 "teams",
                 "create",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--title",
-                "Test Team",
+                DEFAULT_TEAM_NAME,
                 "--division-id",
                 "80385",
                 "--output",
@@ -213,7 +220,7 @@ def test_teams_create_with_output_file(runner: CliRunner, tmp_path: Any) -> None
 
 def test_teams_create_missing_required_args(runner: CliRunner) -> None:
     """Calling 'teams create' without required args should show an error."""
-    result = runner.invoke(cli, ["teams", "create", "--season-id", "15020"])
+    result = runner.invoke(cli, ["teams", "create", "--season-id", SEASON_ID])
     assert result.exit_code == 2  # Usage error
     assert "title" in result.output.lower() or "missing option" in result.output.lower()
 
@@ -230,9 +237,9 @@ def test_teams_create_with_no_saved_tokens(runner: CliRunner) -> None:
                 "teams",
                 "create",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--title",
-                "Test Team",
+                DEFAULT_TEAM_NAME,
                 "--division-id",
                 "80385",
             ],

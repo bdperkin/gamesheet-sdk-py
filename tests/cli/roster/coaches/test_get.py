@@ -1,16 +1,18 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for roster coaches get command."""
 
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
 from unittest.mock import patch
+
+from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.roster import Coach
-
-if TYPE_CHECKING:
-    from click.testing import CliRunner
+from tests.helpers import SEASON_ID
 
 
 def test_coaches_get(runner: CliRunner) -> None:
@@ -22,7 +24,7 @@ def test_coaches_get(runner: CliRunner) -> None:
     ):
         mock_action.return_value = Coach(
             id="601",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="Jane",
             last_name="Smith",
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -30,7 +32,7 @@ def test_coaches_get(runner: CliRunner) -> None:
         )
         result = runner.invoke(
             cli,
-            ["roster", "--season-id", "15020", "coaches", "get", "--coach-id", "601"],
+            ["roster", "--season-id", SEASON_ID, "coaches", "get", "--coach-id", "601"],
         )
         assert not result.exit_code
         assert result.output
@@ -46,7 +48,7 @@ def test_coaches_get_with_fields(runner: CliRunner) -> None:
     ):
         mock_action.return_value = Coach(
             id="601",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="Jane",
             last_name="Smith",
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -57,7 +59,7 @@ def test_coaches_get_with_fields(runner: CliRunner) -> None:
             [
                 "roster",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "coaches",
                 "get",
                 "--coach-id",
@@ -81,7 +83,7 @@ def test_coaches_get_empty_fields(runner: CliRunner) -> None:
     ):
         mock_action.return_value = Coach(
             id="601",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="Jane",
             last_name="Smith",
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -92,7 +94,7 @@ def test_coaches_get_empty_fields(runner: CliRunner) -> None:
             [
                 "roster",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "coaches",
                 "get",
                 "--coach-id",

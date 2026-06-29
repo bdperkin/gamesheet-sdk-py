@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for Referee model."""
 
 from __future__ import annotations
@@ -5,13 +8,16 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from gamesheet_sdk.referees import Referee
+from tests.helpers import (
+    SEASON_ID,
+)
 
 
 def test_referee_model_ignores_unknown_attributes() -> None:
     """Test that Referee model ignores unknown attributes."""
     r = Referee(
         id="101",
-        season_id="15020",
+        season_id=SEASON_ID,
         first_name="John",
         last_name="Smith",
         email="john.smith@example.com",
@@ -27,7 +33,7 @@ def test_referee_model_handles_optional_email() -> None:
     """Test that Referee model handles optional email field."""
     r = Referee(
         id="102",
-        season_id="15020",
+        season_id=SEASON_ID,
         first_name="Jane",
         last_name="Doe",
         email=None,

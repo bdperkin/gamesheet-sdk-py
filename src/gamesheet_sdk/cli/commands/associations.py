@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Associations command group.
 
 This module provides the CLI interface for managing GameSheet associations, which represent the
@@ -18,12 +21,13 @@ Examples:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import rich_click as click
+from rich_click import Context
 
-from gamesheet_sdk.associations import get_association as _get_association_action
-from gamesheet_sdk.associations import list_associations as _list_associations_action
+from gamesheet_sdk.associations import (
+    get_association as _get_association_action,
+    list_associations as _list_associations_action,
+)
 from gamesheet_sdk.cli.core import ResourceGroup
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
 from gamesheet_sdk.cli.shared import (
@@ -34,9 +38,6 @@ from gamesheet_sdk.cli.shared import (
     render_list_command,
 )
 from gamesheet_sdk.config import Config
-
-if TYPE_CHECKING:
-    from rich_click import Context
 
 
 @click.group(
@@ -85,9 +86,20 @@ def associations_get_command(
     variable. Requires a saved session from `gamesheet-sdk-py login` -- the bearer token is read out of the
     browser storage state on disk and attached to the HTTP request. No browser is launched. The output
     displays association metadata as key-value pairs, with each field on its own row.
+
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param association_id: The association identifier
+    :type association_id: str
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :param fields_spec: Optional comma-separated list of fields to display
+    :type fields_spec: str | None
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     association = run_action_or_exit(session, _get_association_action, association_id)
     render_get_command(association, output_format, output_path, fields_spec)
 
@@ -107,17 +119,38 @@ def associations_list_command(
     Requires authentication (run 'gamesheet-sdk-py login' first). Retrieves all
     associations accessible by your account and displays them in the specified
     output format.
-    Examples:
+    .. rubric:: Examples
+
         List all associations in default format:
-            $ gamesheet-sdk-py associations list
+    .. code-block:: bash
+
+        $ gamesheet-sdk-py associations list
+
         List associations in JSON format:
-            $ gamesheet-sdk-py associations list --format json
+    .. code-block:: bash
+
+        $ gamesheet-sdk-py associations list --format json
+
         List associations with only id and title columns:
-            $ gamesheet-sdk-py associations list --columns id,title
+    .. code-block:: bash
+
+        $ gamesheet-sdk-py associations list --columns id,title
+
         Save associations to a YAML file:
-            $ gamesheet-sdk-py associations list --format yaml --output assocs.yaml
+    .. code-block:: bash
+
+        $ gamesheet-sdk-py associations list --format yaml --output assocs.yaml
+
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :param columns_spec: Optional comma-separated list of columns to display
+    :type columns_spec: str | None
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     associations = run_action_or_exit(session, _list_associations_action)
     render_list_command(associations, output_format, output_path, columns_spec)

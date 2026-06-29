@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for get_association function."""
 
 from __future__ import annotations
@@ -7,15 +10,20 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.associations import get_association
-
-_BASE = "https://test.example"
+from tests.helpers import (
+    DEFAULT_ASSOCIATION_NAME,
+    JSONAPI_CONTENT_TYPE,
+    TEST_AUTH_HEADER,
+    TEST_BASE_URL,
+    TIMESTAMP_2024_01_01,
+)
 
 
 @responses.activate
 def test_get_association_returns_single_association(config: Config) -> None:
     """Test that get_association returns a single association."""
     _association_id = "101"
-    _get_endpoint = f"{_BASE}/api/associations/{_association_id}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/associations/{_association_id}"
     responses.add(
         responses.GET,
         _get_endpoint,
@@ -24,9 +32,9 @@ def test_get_association_returns_single_association(config: Config) -> None:
                 "type": "associations",
                 "id": _association_id,
                 "attributes": {
-                    "title": "Test Association",
+                    "title": DEFAULT_ASSOCIATION_NAME,
                     "logo": "https://example.com/logo.png",
-                    "created_at": "2024-01-01T00:00:00Z",
+                    "created_at": TIMESTAMP_2024_01_01,
                     "updated_at": "2024-06-01T00:00:00Z",
                 },
             },
@@ -37,7 +45,7 @@ def test_get_association_returns_single_association(config: Config) -> None:
         session.set_bearer_token("abc")
         result = get_association(session, _association_id)
     assert result.id == _association_id
-    assert result.title == "Test Association"
+    assert result.title == DEFAULT_ASSOCIATION_NAME
     assert result.logo == "https://example.com/logo.png"
 
 
@@ -45,7 +53,7 @@ def test_get_association_returns_single_association(config: Config) -> None:
 def test_get_association_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     """Test that get_association sends correct authorization and accept headers."""
     _association_id = "101"
-    _get_endpoint = f"{_BASE}/api/associations/{_association_id}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/associations/{_association_id}"
     responses.add(
         responses.GET,
         _get_endpoint,
@@ -56,8 +64,8 @@ def test_get_association_sends_bearer_and_jsonapi_accept(config: Config) -> None
                 "attributes": {
                     "title": "Test",
                     "logo": "",
-                    "created_at": "2024-01-01T00:00:00Z",
-                    "updated_at": "2024-01-01T00:00:00Z",
+                    "created_at": TIMESTAMP_2024_01_01,
+                    "updated_at": TIMESTAMP_2024_01_01,
                 },
             },
         },
@@ -68,15 +76,15 @@ def test_get_association_sends_bearer_and_jsonapi_accept(config: Config) -> None
         get_association(session, _association_id)
     assert len(responses.calls) == 1
     req = responses.calls[0].request
-    assert req.headers["Authorization"] == "Bearer test-token"
-    assert req.headers["Accept"] == "application/vnd.api+json"
+    assert req.headers["Authorization"] == TEST_AUTH_HEADER
+    assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
 
 
 @responses.activate
 def test_get_association_401_raises_authentication_error(config: Config) -> None:
     """Test that HTTP 401 raises AuthenticationError."""
     _association_id = "101"
-    _get_endpoint = f"{_BASE}/api/associations/{_association_id}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/associations/{_association_id}"
     responses.add(
         responses.GET,
         _get_endpoint,
@@ -95,7 +103,7 @@ def test_get_association_404_raises_gamesheet_error_with_helpful_message(
 ) -> None:
     """Test that HTTP 404 raises GameSheetError with helpful message."""
     _association_id = "nonexistent"
-    _get_endpoint = f"{_BASE}/api/associations/{_association_id}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/associations/{_association_id}"
     responses.add(responses.GET, _get_endpoint, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
@@ -110,7 +118,7 @@ def test_get_association_404_raises_gamesheet_error_with_helpful_message(
 def test_get_association_other_failure_raises_gamesheet_error(config: Config) -> None:
     """Test that other HTTP errors raise GameSheetError."""
     _association_id = "101"
-    _get_endpoint = f"{_BASE}/api/associations/{_association_id}"
+    _get_endpoint = f"{TEST_BASE_URL}/api/associations/{_association_id}"
     responses.add(responses.GET, _get_endpoint, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")

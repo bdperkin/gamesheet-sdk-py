@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Authentication flows and token management for GameSheet."""
 
 from gamesheet_sdk.auth.login import login

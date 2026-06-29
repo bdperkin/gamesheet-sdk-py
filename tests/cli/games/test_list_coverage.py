@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Coverage tests for games list commands."""
 
 from __future__ import annotations
@@ -11,6 +14,7 @@ from gamesheet_sdk.cli.commands.games import (
     completed_group,
     scheduled_group,
 )
+from tests.helpers import SEASON_ID
 
 
 def test_games_scheduled_list_coverage() -> None:
@@ -27,7 +31,7 @@ def test_games_scheduled_list_coverage() -> None:
         result = runner.invoke(
             scheduled_group,
             ["list", "-F", "json"],
-            obj={"config": MagicMock(), "season_id": "15020"},
+            obj={"config": MagicMock(), "season_id": SEASON_ID},
         )
         assert not result.exit_code
 
@@ -46,7 +50,7 @@ def test_games_completed_list_coverage() -> None:
         result = runner.invoke(
             completed_group,
             ["list", "-F", "json"],
-            obj={"config": MagicMock(), "season_id": "15020"},
+            obj={"config": MagicMock(), "season_id": SEASON_ID},
         )
         assert not result.exit_code
 
@@ -65,6 +69,6 @@ def test_games_brackets_list_coverage() -> None:
         result = runner.invoke(
             brackets_group,
             ["list", "-F", "json"],
-            obj={"config": MagicMock(), "season_id": "15020"},
+            obj={"config": MagicMock(), "season_id": SEASON_ID},
         )
         assert not result.exit_code

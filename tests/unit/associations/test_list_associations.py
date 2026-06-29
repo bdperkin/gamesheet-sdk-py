@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for :mod:`gamesheet_sdk.associations`."""
 
 from __future__ import annotations
@@ -14,10 +17,14 @@ from gamesheet_sdk import (
     Session,
     list_associations,
 )
-from tests.helpers import jsonapi_payload
+from tests.helpers import (
+    JSONAPI_CONTENT_TYPE,
+    TEST_BASE_URL,
+    TIMESTAMP_2024_01_01,
+    jsonapi_payload,
+)
 
-_BASE = "https://test.example"
-_ENDPOINT = f"{_BASE}/api/associations"
+_ENDPOINT = f"{TEST_BASE_URL}/api/associations"
 
 
 @responses.activate
@@ -44,7 +51,7 @@ def test_list_associations_parses_jsonapi_response(config: Config) -> None:
                     "attributes": {
                         "title": "SuperSeries AAA",
                         "logo": "https://example/logo.png",
-                        "created_at": "2024-01-01T00:00:00Z",
+                        "created_at": TIMESTAMP_2024_01_01,
                         "updated_at": "2024-06-15T12:00:00Z",
                     },
                 },
@@ -91,7 +98,7 @@ def test_list_associations_sends_bearer_and_jsonapi_accept(config: Config) -> No
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
-    assert req.headers["Accept"] == "application/vnd.api+json"
+    assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
 
 
 @responses.activate

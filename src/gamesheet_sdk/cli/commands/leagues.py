@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Leagues command group.
 
 This module provides the CLI interface for managing GameSheet leagues, which represent organizational
@@ -21,9 +24,8 @@ Examples:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import rich_click as click
+from rich_click import Context
 
 from gamesheet_sdk.cli.core import ResourceGroup
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
@@ -35,11 +37,10 @@ from gamesheet_sdk.cli.shared import (
     render_list_command,
 )
 from gamesheet_sdk.config import Config
-from gamesheet_sdk.leagues import get_league as _get_league_action
-from gamesheet_sdk.leagues import list_leagues as _list_leagues_action
-
-if TYPE_CHECKING:
-    from rich_click import Context
+from gamesheet_sdk.leagues import (
+    get_league as _get_league_action,
+    list_leagues as _list_leagues_action,
+)
 
 
 @click.group(
@@ -94,9 +95,21 @@ def leagues_get_command(
     The league and association IDs can be provided via command-line options or environment variables
     (GAMESHEET_LEAGUE_ID, GAMESHEET_ASSOCIATION_ID). Requires a saved session from `gamesheet-sdk-py login`.
     The output displays league metadata as key-value pairs, with each field on its own row.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param association_id: The association identifier
+    :type association_id: str
+    :param league_id: The league identifier
+    :type league_id: str
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :param fields_spec: Optional comma-separated list of fields to display
+    :type fields_spec: str | None
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     league = run_action_or_exit(session, _get_league_action, association_id, league_id)
     render_get_command(league, output_format, output_path, fields_spec)
 
@@ -126,20 +139,49 @@ def leagues_list_command(
     specified output format.
     The association ID can be provided via --association-id or the
     GAMESHEET_ASSOCIATION_ID environment variable.
-    Examples:
+    .. rubric:: Examples
+
         List all leagues in an association in default format:
-            $ gamesheet-sdk-py leagues list --association-id ABC123
+    .. code-block:: bash
+
+        $ gamesheet-sdk-py leagues list --association-id ABC123
+
         List leagues in JSON format:
-            $ gamesheet-sdk-py leagues list --association-id ABC123 --format json
+    .. code-block:: bash
+
+        $ gamesheet-sdk-py leagues list --association-id ABC123 --format json
+
         List leagues with only id and name columns:
-            $ gamesheet-sdk-py leagues list --association-id ABC123 --columns id,name
+    .. code-block:: bash
+
+        $ gamesheet-sdk-py leagues list --association-id ABC123 --columns id,name
+
         Save leagues to a YAML file:
-            $ gamesheet-sdk-py leagues list --association-id ABC123 --format yaml --output leagues.yaml
+    .. code-block:: bash
+
+        $ gamesheet-sdk-py leagues list --association-id ABC123 --format yaml --output leagues.yaml
+
         Use environment variable for association ID:
-            $ export GAMESHEET_ASSOCIATION_ID=ABC123
-            $ gamesheet-sdk-py leagues list
+    .. code-block:: bash
+
+        $ export GAMESHEET_ASSOCIATION_ID=ABC123
+
+    .. code-block:: bash
+
+        $ gamesheet-sdk-py leagues list
+
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param association_id: The association identifier
+    :type association_id: str
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :param columns_spec: Optional comma-separated list of columns to display
+    :type columns_spec: str | None
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     leagues = run_action_or_exit(session, _list_leagues_action, association_id)
     render_list_command(leagues, output_format, output_path, columns_spec)

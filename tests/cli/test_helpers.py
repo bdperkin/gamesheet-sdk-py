@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for CLI helper functions and ResourceGroup internals."""
 
 from __future__ import annotations
@@ -5,8 +8,8 @@ from __future__ import annotations
 import os
 from unittest.mock import Mock, patch
 
-import rich_click as click
 from click.testing import CliRunner
+import rich_click as click
 
 from gamesheet_sdk.cli import ResourceGroup, confirm_destructive
 from gamesheet_sdk.cli.core import _configure_logging, _should_color

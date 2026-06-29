@@ -1,15 +1,23 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for teams list command."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
 from unittest.mock import patch
+
+from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.teams import Team
-
-if TYPE_CHECKING:
-    from click.testing import CliRunner
+from tests.helpers import (
+    ASSOCIATION_ID,
+    CLI_TEST_SEASON_ID,
+    DEFAULT_TEAM_NAME,
+    TIMESTAMP_2024_01_01,
+)
 
 
 def test_teams_list_alias_works(runner: CliRunner) -> None:
@@ -23,7 +31,7 @@ def test_teams_list_alias_works(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_list.return_value = []
-        result = runner.invoke(cli, ["teams", "ls", "--season-id", "501"])
+        result = runner.invoke(cli, ["teams", "ls", "--season-id", CLI_TEST_SEASON_ID])
         assert not result.exit_code
         mock_list.assert_called_once()
 
@@ -40,20 +48,20 @@ def test_teams_list_json_output(runner: CliRunner) -> None:
     ):
         mock_list.return_value = [
             Team(
-                id="123",
-                season_id="501",
+                id=ASSOCIATION_ID,
+                season_id=CLI_TEST_SEASON_ID,
                 title="Raleigh Raptors",
                 division_id="42",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
             cli,
-            ["teams", "list", "--season-id", "501", "--format", "json"],
+            ["teams", "list", "--season-id", CLI_TEST_SEASON_ID, "--format", "json"],
         )
         assert not result.exit_code
-        assert '"id": "123"' in result.output
+        assert f'"id": "{ASSOCIATION_ID}"' in result.output
         assert '"title": "Raleigh Raptors"' in result.output
 
 
@@ -69,17 +77,17 @@ def test_teams_list_yaml_output(runner: CliRunner) -> None:
     ):
         mock_list.return_value = [
             Team(
-                id="123",
-                season_id="501",
+                id=ASSOCIATION_ID,
+                season_id=CLI_TEST_SEASON_ID,
                 title="Raleigh Raptors",
                 division_id="42",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
             cli,
-            ["teams", "list", "--season-id", "501", "--format", "yaml"],
+            ["teams", "list", "--season-id", CLI_TEST_SEASON_ID, "--format", "yaml"],
         )
         assert not result.exit_code
         assert "id:" in result.output or "id :" in result.output
@@ -98,20 +106,27 @@ def test_teams_list_columns_filter(runner: CliRunner) -> None:
     ):
         mock_list.return_value = [
             Team(
-                id="123",
-                season_id="501",
+                id=ASSOCIATION_ID,
+                season_id=CLI_TEST_SEASON_ID,
                 title="Raleigh Raptors",
                 division_id="42",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
             cli,
-            ["teams", "list", "--season-id", "501", "--columns", "id,title"],
+            [
+                "teams",
+                "list",
+                "--season-id",
+                CLI_TEST_SEASON_ID,
+                "--columns",
+                "id,title",
+            ],
         )
         assert not result.exit_code
-        assert "123" in result.output
+        assert ASSOCIATION_ID in result.output
         assert "Raleigh Raptors" in result.output
 
 
@@ -128,12 +143,12 @@ def test_teams_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
     ):
         mock_list.return_value = [
             Team(
-                id="123",
-                season_id="501",
-                title="Test Team",
+                id=ASSOCIATION_ID,
+                season_id=CLI_TEST_SEASON_ID,
+                title=DEFAULT_TEAM_NAME,
                 division_id="42",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -142,7 +157,7 @@ def test_teams_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
                 "teams",
                 "list",
                 "--season-id",
-                "501",
+                CLI_TEST_SEASON_ID,
                 "--format",
                 "json",
                 "--output",
@@ -152,7 +167,7 @@ def test_teams_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
         assert not result.exit_code
         assert output_file.exists()
         content = output_file.read_text()
-        assert '"id": "123"' in content
+        assert f'"id": "{ASSOCIATION_ID}"' in content
 
 
 def test_teams_list_csv_output(runner: CliRunner) -> None:
@@ -167,17 +182,17 @@ def test_teams_list_csv_output(runner: CliRunner) -> None:
     ):
         mock_list.return_value = [
             Team(
-                id="123",
-                season_id="501",
+                id=ASSOCIATION_ID,
+                season_id=CLI_TEST_SEASON_ID,
                 title="Raleigh Raptors",
                 division_id="42",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
             cli,
-            ["teams", "list", "--season-id", "501", "--format", "csv"],
+            ["teams", "list", "--season-id", CLI_TEST_SEASON_ID, "--format", "csv"],
         )
         assert not result.exit_code
         lines = result.output.strip().split("\n")
@@ -197,17 +212,17 @@ def test_teams_list_tsv_output(runner: CliRunner) -> None:
     ):
         mock_list.return_value = [
             Team(
-                id="123",
-                season_id="501",
+                id=ASSOCIATION_ID,
+                season_id=CLI_TEST_SEASON_ID,
                 title="Raleigh Raptors",
                 division_id="42",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
             cli,
-            ["teams", "list", "--season-id", "501", "--format", "tsv"],
+            ["teams", "list", "--season-id", CLI_TEST_SEASON_ID, "--format", "tsv"],
         )
         assert not result.exit_code
         lines = result.output.strip().split("\n")
@@ -222,7 +237,10 @@ def test_teams_list_with_no_saved_tokens(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=None),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=None),
     ):
-        result = runner.invoke(cli, ["teams", "list", "--season-id", "501"])
+        result = runner.invoke(
+            cli,
+            ["teams", "list", "--season-id", CLI_TEST_SEASON_ID],
+        )
         assert result.exit_code == 1
         assert "No saved session" in result.output or "login" in result.output.lower()
 

@@ -1,15 +1,17 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for games get command."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
+
+from click.testing import CliRunner
 
 from gamesheet_sdk.config import Config
 from gamesheet_sdk.games import Game, TeamInfo
-
-if TYPE_CHECKING:
-    from click.testing import CliRunner
+from tests.helpers import ASSOCIATION_ID, SEASON_ID, TEAM_ID
 
 
 def test_games_get(runner: CliRunner) -> None:
@@ -37,8 +39,8 @@ def test_games_get(runner: CliRunner) -> None:
         # Use a real Config object to avoid Mock serialization issues
         config = Config(base_url="https://test.example")
         ctx = Mock()
-        ctx.obj = {"config": config, "season_id": "15020"}
-        result = runner.invoke(games_get_command, ["--game-id", "12345"], obj=ctx.obj)
+        ctx.obj = {"config": config, "season_id": SEASON_ID}
+        result = runner.invoke(games_get_command, ["--game-id", TEAM_ID], obj=ctx.obj)
         assert not result.exit_code
         assert result.output
         assert mock_action.called
@@ -66,12 +68,12 @@ def test_games_get_with_fields(runner: CliRunner) -> None:
 
         config = Config(base_url="https://test.example")
         ctx = Mock()
-        ctx.obj = {"config": config, "season_id": "15020"}
+        ctx.obj = {"config": config, "season_id": SEASON_ID}
         result = runner.invoke(
             games_get_command,
             [
                 "--game-id",
-                "12345",
+                TEAM_ID,
                 "--fields",
                 "id",
                 "--format",
@@ -105,10 +107,10 @@ def test_games_get_empty_fields(runner: CliRunner) -> None:
 
         config = Config(base_url="https://test.example")
         ctx = Mock()
-        ctx.obj = {"config": config, "season_id": "15020"}
+        ctx.obj = {"config": config, "season_id": SEASON_ID}
         result = runner.invoke(
             games_get_command,
-            ["--game-id", "12345", "--fields", ","],
+            ["--game-id", TEAM_ID, "--fields", ","],
             obj=ctx.obj,
         )
         assert not result.exit_code
@@ -119,8 +121,6 @@ def test_games_scheduled_get_coverage() -> None:
     """Ensure games scheduled get command body is covered."""
     from unittest.mock import MagicMock
 
-    from click.testing import CliRunner
-
     from gamesheet_sdk.cli.commands.games import games_group
 
     runner = CliRunner()
@@ -129,7 +129,7 @@ def test_games_scheduled_get_coverage() -> None:
         patch(
             "gamesheet_sdk.cli.commands.games.run_action_or_exit",
             return_value=MagicMock(
-                model_dump=lambda **__kw: {  # noqa: U101
+                model_dump=lambda **__kw: {
                     "id": 123,
                     "status": "scheduled",
                     "date": "2024-01-01",
@@ -140,7 +140,16 @@ def test_games_scheduled_get_coverage() -> None:
     ):
         result = runner.invoke(
             games_group,
-            ["--season-id", "100", "scheduled", "get", "--game-id", "123", "-F", "json"],
+            [
+                "--season-id",
+                "100",
+                "scheduled",
+                "get",
+                "--game-id",
+                ASSOCIATION_ID,
+                "-F",
+                "json",
+            ],
             obj=MagicMock(),
         )
         assert not result.exit_code

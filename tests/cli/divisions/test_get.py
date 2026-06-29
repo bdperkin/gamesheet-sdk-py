@@ -1,16 +1,21 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for divisions get command."""
 
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
 from unittest.mock import patch
+
+from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.divisions import Division
-
-if TYPE_CHECKING:
-    from click.testing import CliRunner
+from tests.helpers import (
+    DEFAULT_DIVISION_NAME,
+    SEASON_ID,
+)
 
 
 def test_divisions_get(runner: CliRunner) -> None:
@@ -24,8 +29,8 @@ def test_divisions_get(runner: CliRunner) -> None:
     ):
         mock_action.return_value = Division(
             id="301",
-            season_id="15020",
-            title="Test Division",
+            season_id=SEASON_ID,
+            title=DEFAULT_DIVISION_NAME,
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
@@ -46,8 +51,8 @@ def test_divisions_get_with_fields(runner: CliRunner) -> None:
     ):
         mock_action.return_value = Division(
             id="301",
-            season_id="15020",
-            title="Test Division",
+            season_id=SEASON_ID,
+            title=DEFAULT_DIVISION_NAME,
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )
@@ -79,8 +84,8 @@ def test_divisions_get_empty_fields(runner: CliRunner) -> None:
     ):
         mock_action.return_value = Division(
             id="301",
-            season_id="15020",
-            title="Test Division",
+            season_id=SEASON_ID,
+            title=DEFAULT_DIVISION_NAME,
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         )

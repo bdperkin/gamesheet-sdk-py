@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for :mod:`gamesheet_sdk.seasons`."""
 
 from __future__ import annotations
@@ -16,11 +19,19 @@ from gamesheet_sdk import (
     get_season,
     list_seasons,
 )
-from tests.helpers import jsonapi_payload
+from tests.helpers import (
+    CLI_TEST_SEASON_ID,
+    JSONAPI_CONTENT_TYPE,
+    SEASON_EXTERNAL_ID,
+    SEASON_ID,
+    TEST_AUTH_HEADER,
+    TEST_BASE_URL,
+    TIMESTAMP_2024_09_01,
+    jsonapi_payload,
+)
 
-_BASE = "https://test.example"
 _LEAGUE_ID = "1148580"
-_ENDPOINT = f"{_BASE}/api/seasons"
+_ENDPOINT = f"{TEST_BASE_URL}/api/seasons"
 _BFF_ENDPOINT = f"{BFF_API_BASE_URL}/leagues/{_LEAGUE_ID}/seasons"
 
 
@@ -34,10 +45,10 @@ def test_list_seasons_parses_jsonapi_response(config: Config) -> None:
             [
                 {
                     "type": "seasons",
-                    "id": "501",
+                    "id": CLI_TEST_SEASON_ID,
                     "attributes": {
                         "title": "2024-2025",
-                        "created_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
                         "updated_at": "2024-09-15T14:30:00Z",
                     },
                     "relationships": {
@@ -73,7 +84,7 @@ def test_list_seasons_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_seasons(session, _LEAGUE_ID)
-    assert [s.id for s in result] == ["501", "502"]
+    assert [s.id for s in result] == [CLI_TEST_SEASON_ID, "502"]
     assert result[0].title == "2024-2025"
     assert result[0].league_id == _LEAGUE_ID
     assert result[0].created_at == datetime(2024, 9, 1, 10, tzinfo=timezone.utc)
@@ -91,7 +102,7 @@ def test_list_seasons_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
-    assert req.headers["Accept"] == "application/vnd.api+json"
+    assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
 
 
 @responses.activate
@@ -140,11 +151,11 @@ def test_list_seasons_filters_by_league_id(config: Config) -> None:
             [
                 {
                     "type": "seasons",
-                    "id": "501",
+                    "id": CLI_TEST_SEASON_ID,
                     "attributes": {
                         "title": "League 1148580 Season",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "league": {"data": {"type": "leagues", "id": "1148580"}},
@@ -155,8 +166,8 @@ def test_list_seasons_filters_by_league_id(config: Config) -> None:
                     "id": "502",
                     "attributes": {
                         "title": "Other League Season",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "league": {"data": {"type": "leagues", "id": "999"}},
@@ -171,14 +182,13 @@ def test_list_seasons_filters_by_league_id(config: Config) -> None:
         result = list_seasons(session, "1148580")
     # Should only return the season for league 1148580, not the one for league 999
     assert len(result) == 1
-    assert result[0].id == "501"
+    assert result[0].id == CLI_TEST_SEASON_ID
     assert result[0].league_id == "1148580"
     assert result[0].title == "League 1148580 Season"
 
 
 # Tests for get_season
-_SEASON_ID = "15020"
-_SEASON_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}"
+_SEASON_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}"
 
 
 def _detailjsonapi_payload(data: dict[str, object]) -> dict[str, object]:
@@ -187,7 +197,7 @@ def _detailjsonapi_payload(data: dict[str, object]) -> dict[str, object]:
 
 
 @responses.activate
-def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:
+def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:  # noqa: R701
     """Test that get_season correctly parses detailed JSON:API response."""
     responses.add(
         responses.GET,
@@ -195,10 +205,10 @@ def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:
         json=_detailjsonapi_payload(
             {
                 "type": "seasons",
-                "id": _SEASON_ID,
+                "id": SEASON_ID,
                 "attributes": {
                     "title": "Test Season 2026-2027",
-                    "external_id": "558772B8-DAF4-4848-B7CA-1FB620F2BA52",
+                    "external_id": SEASON_EXTERNAL_ID,
                     "start_date": "2026-05-15",
                     "end_date": "2027-08-15",
                     "sport": "hockey",
@@ -225,12 +235,12 @@ def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
-        result = get_season(session, _SEASON_ID)
-    assert result.id == _SEASON_ID
+        result = get_season(session, SEASON_ID)
+    assert result.id == SEASON_ID
     assert result.title == "Test Season 2026-2027"
     assert result.association_id == "38"
     assert result.league_id == _LEAGUE_ID
-    assert result.external_id == "558772B8-DAF4-4848-B7CA-1FB620F2BA52"
+    assert result.external_id == SEASON_EXTERNAL_ID
     assert result.start_date == "2026-05-15"
     assert result.end_date == "2027-08-15"
     assert result.sport == "hockey"
@@ -272,7 +282,7 @@ def test_get_season_sends_bearer_and_jsonapi_accept(config: Config) -> None:
         json=_detailjsonapi_payload(
             {
                 "type": "seasons",
-                "id": _SEASON_ID,
+                "id": SEASON_ID,
                 "attributes": {
                     "title": "Test",
                     "external_id": "uuid",
@@ -293,11 +303,11 @@ def test_get_season_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("test-token")
-        get_season(session, _SEASON_ID)
+        get_season(session, SEASON_ID)
     assert len(responses.calls) == 1
     req = responses.calls[0].request
-    assert req.headers["Authorization"] == "Bearer test-token"
-    assert req.headers["Accept"] == "application/vnd.api+json"
+    assert req.headers["Authorization"] == TEST_AUTH_HEADER
+    assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
 
 
 @responses.activate
@@ -312,7 +322,7 @@ def test_get_season_401_raises_authentication_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            get_season(session, _SEASON_ID)
+            get_season(session, SEASON_ID)
 
 
 @responses.activate
@@ -325,7 +335,7 @@ def test_get_season_404_raises_gamesheet_error(config: Config) -> None:
             GameSheetError,
             match=r"Season '.*' not found.*valid season ID.*seasons list --league-id",
         ):
-            get_season(session, _SEASON_ID)
+            get_season(session, SEASON_ID)
 
 
 @responses.activate
@@ -335,7 +345,7 @@ def test_get_season_other_failure_raises_gamesheet_error(config: Config) -> None
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            get_season(session, _SEASON_ID)
+            get_season(session, SEASON_ID)
 
 
 # Tests for BFF API filtering
@@ -379,7 +389,7 @@ def test_list_seasons_with_status_filter_uses_bff_api(config: Config) -> None:
         session.set_bearer_token("abc")
         result = list_seasons(session, _LEAGUE_ID, status="active")
     assert len(result) == 1
-    assert result[0].id == "15020"
+    assert result[0].id == SEASON_ID
     assert result[0].title == "Active Season"
     assert result[0].league_id == _LEAGUE_ID
     # Verify the BFF endpoint was called with correct parameters

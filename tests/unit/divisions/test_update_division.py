@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for update_division function."""
 
 from __future__ import annotations
@@ -12,11 +15,28 @@ from gamesheet_sdk import (
     Session,
     update_division,
 )
+from tests.helpers import (
+    JSONAPI_CONTENT_TYPE,
+    SEASON_ID,
+    TEST_BASE_URL,
+    TIMESTAMP_2024_09_01,
+)
 
-_BASE = "https://test.example"
-_SEASON_ID = "15020"
 _DIVISION_ID = "80998"
-_UPDATE_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/divisions/{_DIVISION_ID}"
+_UPDATE_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/divisions/{_DIVISION_ID}"
+
+
+def _verify_update_payload(request_body: bytes | str, expected_title: str) -> None:
+    """Verify the structure of an update division request payload."""
+    import json
+
+    payload = json.loads(request_body)
+    assert payload["data"]["type"] == "divisions"
+    assert payload["data"]["id"] == _DIVISION_ID
+    assert payload["data"]["attributes"]["title"] == expected_title
+    assert payload["data"]["attributes"]["settings"] == {}
+    assert payload["data"]["relationships"]["season"]["data"]["id"] == SEASON_ID
+    assert payload["data"]["relationships"]["season"]["data"]["type"] == "seasons"
 
 
 @responses.activate
@@ -33,11 +53,11 @@ def test_update_division_updates_title(config: Config) -> None:
                     "title": "Updated Division",
                     "external_id": "existing-external-id",
                     "settings": {},
-                    "created_at": "2024-09-01T10:00:00Z",
+                    "created_at": TIMESTAMP_2024_09_01,
                     "updated_at": "2026-06-09T20:00:00Z",
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -47,29 +67,24 @@ def test_update_division_updates_title(config: Config) -> None:
         session.set_bearer_token("abc")
         result = update_division(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _DIVISION_ID,
             title="Updated Division",
         )
     assert result.id == _DIVISION_ID
     assert result.title == "Updated Division"
-    assert result.season_id == _SEASON_ID
+    assert result.season_id == SEASON_ID
     # Verify the request payload
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
-    assert req.headers["Accept"] == "application/vnd.api+json"
-    assert req.headers["Content-Type"] == "application/vnd.api+json"
+    assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
+    assert req.headers["Content-Type"] == JSONAPI_CONTENT_TYPE
+    assert req.body is not None
+    _verify_update_payload(req.body, "Updated Division")
     import json
 
-    assert req.body is not None
     payload = json.loads(req.body)
-    assert payload["data"]["type"] == "divisions"
-    assert payload["data"]["id"] == _DIVISION_ID
-    assert payload["data"]["attributes"]["title"] == "Updated Division"
-    assert payload["data"]["attributes"]["settings"] == {}
-    assert payload["data"]["relationships"]["season"]["data"]["id"] == _SEASON_ID
-    assert payload["data"]["relationships"]["season"]["data"]["type"] == "seasons"
     assert "external_id" not in payload["data"]["attributes"]
 
 
@@ -79,7 +94,7 @@ def test_update_division_updates_external_id(config: Config) -> None:
     # When updating only external_id, function fetches current title first
     responses.add(
         responses.GET,
-        f"{_BASE}/api/divisions/{_DIVISION_ID}",
+        f"{TEST_BASE_URL}/api/divisions/{_DIVISION_ID}",
         json={
             "data": {
                 "type": "divisions",
@@ -88,11 +103,11 @@ def test_update_division_updates_external_id(config: Config) -> None:
                     "title": "Existing Title",
                     "external_id": "old-external-id",
                     "settings": {},
-                    "created_at": "2024-09-01T10:00:00Z",
-                    "updated_at": "2024-09-01T10:00:00Z",
+                    "created_at": TIMESTAMP_2024_09_01,
+                    "updated_at": TIMESTAMP_2024_09_01,
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -109,11 +124,11 @@ def test_update_division_updates_external_id(config: Config) -> None:
                     "title": "Existing Title",
                     "external_id": "new-external-id",
                     "settings": {},
-                    "created_at": "2024-09-01T10:00:00Z",
+                    "created_at": TIMESTAMP_2024_09_01,
                     "updated_at": "2026-06-09T20:00:00Z",
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -123,7 +138,7 @@ def test_update_division_updates_external_id(config: Config) -> None:
         session.set_bearer_token("abc")
         result = update_division(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _DIVISION_ID,
             external_id="new-external-id",
         )
@@ -141,7 +156,7 @@ def test_update_division_updates_external_id(config: Config) -> None:
     assert patch_payload["data"]["attributes"]["title"] == "Existing Title"
     assert patch_payload["data"]["attributes"]["external_id"] == "new-external-id"
     assert patch_payload["data"]["attributes"]["settings"] == {}
-    assert patch_payload["data"]["relationships"]["season"]["data"]["id"] == _SEASON_ID
+    assert patch_payload["data"]["relationships"]["season"]["data"]["id"] == SEASON_ID
 
 
 @responses.activate
@@ -158,11 +173,11 @@ def test_update_division_updates_both_fields(config: Config) -> None:
                     "title": "New Title",
                     "external_id": "new-id",
                     "settings": {},
-                    "created_at": "2024-09-01T10:00:00Z",
+                    "created_at": TIMESTAMP_2024_09_01,
                     "updated_at": "2026-06-09T20:00:00Z",
                 },
                 "relationships": {
-                    "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                    "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                 },
             },
         },
@@ -172,7 +187,7 @@ def test_update_division_updates_both_fields(config: Config) -> None:
         session.set_bearer_token("abc")
         result = update_division(
             session,
-            _SEASON_ID,
+            SEASON_ID,
             _DIVISION_ID,
             title="New Title",
             external_id="new-id",
@@ -191,7 +206,7 @@ def test_update_division_raises_value_error_if_no_fields_provided(
             ValueError,
             match="At least one of title or external_id must be provided",
         ):
-            update_division(session, _SEASON_ID, _DIVISION_ID)
+            update_division(session, SEASON_ID, _DIVISION_ID)
 
 
 @responses.activate
@@ -206,7 +221,7 @@ def test_update_division_401_raises_authentication_error(config: Config) -> None
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            update_division(session, _SEASON_ID, _DIVISION_ID, title="Test")
+            update_division(session, SEASON_ID, _DIVISION_ID, title="Test")
 
 
 @responses.activate
@@ -221,7 +236,7 @@ def test_update_division_404_raises_gamesheet_error_with_helpful_message(
             GameSheetError,
             match=r"Resource not found \(HTTP 404\)",
         ):
-            update_division(session, _SEASON_ID, _DIVISION_ID, title="Test")
+            update_division(session, SEASON_ID, _DIVISION_ID, title="Test")
 
 
 @responses.activate
@@ -233,7 +248,7 @@ def test_update_division_other_failure_raises_gamesheet_error(
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            update_division(session, _SEASON_ID, _DIVISION_ID, title="Test")
+            update_division(session, SEASON_ID, _DIVISION_ID, title="Test")
 
 
 @responses.activate
@@ -242,7 +257,7 @@ def test_update_division_handles_failed_title_fetch(config: Config) -> None:
     # GET fails with 404
     responses.add(
         responses.GET,
-        f"{_BASE}/api/divisions/{_DIVISION_ID}",
+        f"{TEST_BASE_URL}/api/divisions/{_DIVISION_ID}",
         status=404,
     )
     # PATCH will fail due to missing title, which is expected
@@ -262,4 +277,4 @@ def test_update_division_handles_failed_title_fetch(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 400"):
-            update_division(session, _SEASON_ID, _DIVISION_ID, external_id="new-id")
+            update_division(session, SEASON_ID, _DIVISION_ID, external_id="new-id")

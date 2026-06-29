@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Check if API documentation is up-to-date with source code.
 
 This script compares the modification times of source files against generated API documentation to detect when
@@ -7,8 +10,8 @@ docs need regeneration.
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
+import sys
 
 from rich import print as rprint
 
@@ -20,7 +23,11 @@ AUTOSUMMARY_DIR = DOCS_DIR / "reference" / "_autosummary"
 
 
 def get_newest_source_mtime() -> float:
-    """Get the modification time of the newest source file."""
+    """Get the modification time of the newest source file.
+
+    :returns: Return value.
+    :rtype: float
+    """
     if not SRC_DIR.exists():
         return 0.0
     source_files = list(SRC_DIR.rglob("*.py"))
@@ -30,7 +37,11 @@ def get_newest_source_mtime() -> float:
 
 
 def get_oldest_doc_mtime() -> float:
-    """Get the modification time of the oldest generated doc file."""
+    """Get the modification time of the oldest generated doc file.
+
+    :returns: Return value.
+    :rtype: float
+    """
     if not AUTOSUMMARY_DIR.exists():
         return 0.0
     doc_files = list(AUTOSUMMARY_DIR.glob("*.rst"))
@@ -40,7 +51,11 @@ def get_oldest_doc_mtime() -> float:
 
 
 def main() -> int:
-    """Check if API docs need regeneration."""
+    """Check if API docs need regeneration.
+
+    :returns: Integer exit code.
+    :rtype: int
+    """
     newest_source = get_newest_source_mtime()
     oldest_doc = get_oldest_doc_mtime()
     if not newest_source:

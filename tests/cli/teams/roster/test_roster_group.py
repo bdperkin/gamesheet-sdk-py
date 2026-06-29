@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Test coverage for teams roster group context setup."""
 
 from __future__ import annotations

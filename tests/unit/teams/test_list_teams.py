@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for :mod:`gamesheet_sdk.teams`."""
 
 from __future__ import annotations
@@ -15,11 +18,15 @@ from gamesheet_sdk import (
     list_teams,
 )
 from gamesheet_sdk.teams import Team
-from tests.helpers import jsonapi_payload
+from tests.helpers import (
+    JSONAPI_CONTENT_TYPE,
+    SEASON_ID,
+    TEST_BASE_URL,
+    TIMESTAMP_2024_09_01,
+    jsonapi_payload,
+)
 
-_BASE = "https://test.example"
-_SEASON_ID = "15020"
-_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/teams"
+_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
 
 
 @responses.activate
@@ -35,14 +42,14 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
                     "id": "1001",
                     "attributes": {
                         "title": "Raleigh Raptors",
-                        "created_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
                         "updated_at": "2024-09-15T14:30:00Z",
                     },
                     "relationships": {
                         "season": {
                             "data": {
                                 "type": "seasons",
-                                "id": _SEASON_ID,
+                                "id": SEASON_ID,
                             },
                         },
                         "division": {
@@ -58,14 +65,14 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
                     "id": "1002",
                     "attributes": {
                         "title": "Durham Bulls",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {
                             "data": {
                                 "type": "seasons",
-                                "id": _SEASON_ID,
+                                "id": SEASON_ID,
                             },
                         },
                         "division": {
@@ -79,10 +86,10 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
-        result = list_teams(session, _SEASON_ID)
+        result = list_teams(session, SEASON_ID)
     assert [t.id for t in result] == ["1001", "1002"]
     assert result[0].title == "Raleigh Raptors"
-    assert result[0].season_id == _SEASON_ID
+    assert result[0].season_id == SEASON_ID
     assert result[0].division_id == "5001"
     assert result[0].created_at == datetime(2024, 9, 1, 10, tzinfo=timezone.utc)
     assert result[0].updated_at == datetime(2024, 9, 15, 14, 30, tzinfo=timezone.utc)
@@ -96,11 +103,11 @@ def test_list_teams_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
-        list_teams(session, _SEASON_ID)
+        list_teams(session, SEASON_ID)
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
-    assert req.headers["Accept"] == "application/vnd.api+json"
+    assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
     # Verify sparse fieldset is requested to get logo_url and roster
     # URL-encoded: fields[teams] = fields%5Bteams%5D, include = invitations
     url = req.url or ""
@@ -116,7 +123,7 @@ def test_list_teams_empty_data_returns_empty_list(config: Config) -> None:
     responses.add(responses.GET, _ENDPOINT, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")
-        assert not list_teams(session, _SEASON_ID)
+        assert not list_teams(session, SEASON_ID)
 
 
 @responses.activate
@@ -131,7 +138,7 @@ def test_list_teams_401_raises_authentication_error(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            list_teams(session, _SEASON_ID)
+            list_teams(session, SEASON_ID)
 
 
 @responses.activate
@@ -144,7 +151,7 @@ def test_list_teams_404_raises_gamesheet_error(config: Config) -> None:
             GameSheetError,
             match=r"Season '.*' not found.*valid season ID.*seasons list --league-id",
         ):
-            list_teams(session, _SEASON_ID)
+            list_teams(session, SEASON_ID)
 
 
 @responses.activate
@@ -156,14 +163,14 @@ def test_list_teams_other_failure_raises_gamesheet_error(
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            list_teams(session, _SEASON_ID)
+            list_teams(session, SEASON_ID)
 
 
 def test_team_model_handles_optional_division_id() -> None:
     """Test that Team model correctly handles optional division_id field."""
     t = Team(
         id="1002",
-        season_id="15020",
+        season_id=SEASON_ID,
         title="Durham Bulls",
         created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -175,6 +182,9 @@ def test_team_model_handles_optional_division_id() -> None:
 @responses.activate
 def test_list_teams_includes_optional_fields(config: Config) -> None:
     """Verify that optional fields (logo_url, roster counts, invitation) are parsed when present."""
+    from tests.helpers.payloads import invitation_relationship_and_included
+
+    invitation_rel, invitation_inc = invitation_relationship_and_included()
     responses.add(
         responses.GET,
         _ENDPOINT,
@@ -197,14 +207,14 @@ def test_list_teams_includes_optional_fields(config: Config) -> None:
                                 {"id": "11", "position": "assistant_coach"},
                             ],
                         },
-                        "created_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
                         "updated_at": "2024-09-15T14:30:00Z",
                     },
                     "relationships": {
                         "season": {
                             "data": {
                                 "type": "seasons",
-                                "id": _SEASON_ID,
+                                "id": SEASON_ID,
                             },
                         },
                         "division": {
@@ -213,32 +223,17 @@ def test_list_teams_includes_optional_fields(config: Config) -> None:
                                 "id": "5001",
                             },
                         },
-                        "invitations": {
-                            "data": [
-                                {
-                                    "type": "invitations",
-                                    "id": "inv-123",
-                                },
-                            ],
-                        },
-                    },
+                    }
+                    | invitation_rel,
                 },
             ],
-            "included": [
-                {
-                    "type": "invitations",
-                    "id": "inv-123",
-                    "attributes": {
-                        "code": "RAPTORS2024",
-                    },
-                },
-            ],
+            "included": invitation_inc,
         },
         status=200,
     )
     with Session(config) as session:
         session.set_bearer_token("test-token")
-        result = list_teams(session, _SEASON_ID)
+        result = list_teams(session, SEASON_ID)
     assert len(result) == 1
     team = result[0]
     assert team.logo == "https://example.com/logo.png"
@@ -265,12 +260,12 @@ def test_list_teams_without_invitations(config: Config) -> None:
                             "players": [{"id": "1"}],
                             "coaches": [{"id": "10"}],
                         },
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
                         "season": {
-                            "data": {"type": "seasons", "id": _SEASON_ID},
+                            "data": {"type": "seasons", "id": SEASON_ID},
                         },
                         "division": {"data": None},
                         # No invitations relationship
@@ -283,7 +278,7 @@ def test_list_teams_without_invitations(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("test-token")
-        result = list_teams(session, _SEASON_ID)
+        result = list_teams(session, SEASON_ID)
     assert len(result) == 1
     assert result[0].invitation_code is None
 
@@ -302,11 +297,11 @@ def test_list_teams_with_invitation_as_single_object(config: Config) -> None:
                     "attributes": {
                         "title": "Team",
                         "roster": {"players": [], "coaches": []},
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                         "division": {"data": None},
                         "invitations": {
                             "data": {"type": "invitations", "id": "inv-456"},
@@ -326,7 +321,7 @@ def test_list_teams_with_invitation_as_single_object(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("test-token")
-        result = list_teams(session, _SEASON_ID)
+        result = list_teams(session, SEASON_ID)
     assert len(result) == 1
     assert result[0].invitation_code == "SINGLE2024"
 
@@ -345,11 +340,11 @@ def test_list_teams_with_malformed_invitation_data(config: Config) -> None:
                     "attributes": {
                         "title": "Team with orphan invitation",
                         "roster": {"players": [], "coaches": []},
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                         "division": {"data": None},
                         "invitations": {
                             # Invitation ID not in included - orphaned reference
@@ -363,11 +358,11 @@ def test_list_teams_with_malformed_invitation_data(config: Config) -> None:
                     "attributes": {
                         "title": "Team with empty invitation ID",
                         "roster": {"players": [], "coaches": []},
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": _SEASON_ID}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                         "division": {"data": None},
                         "invitations": {
                             # Empty/null ID
@@ -395,7 +390,7 @@ def test_list_teams_with_malformed_invitation_data(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("test-token")
-        result = list_teams(session, _SEASON_ID)
+        result = list_teams(session, SEASON_ID)
     assert len(result) == 2
     # No valid invitation matched for either team
     assert result[0].invitation_code is None
@@ -415,11 +410,11 @@ def test_list_teams_uses_correct_endpoint(config: Config) -> None:
                     "id": "1001",
                     "attributes": {
                         "title": "Season 15020 Team",
-                        "created_at": "2024-09-01T10:00:00Z",
-                        "updated_at": "2024-09-01T10:00:00Z",
+                        "created_at": TIMESTAMP_2024_09_01,
+                        "updated_at": TIMESTAMP_2024_09_01,
                     },
                     "relationships": {
-                        "season": {"data": {"type": "seasons", "id": "15020"}},
+                        "season": {"data": {"type": "seasons", "id": SEASON_ID}},
                         "division": {"data": None},
                     },
                 },
@@ -429,9 +424,9 @@ def test_list_teams_uses_correct_endpoint(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = list_teams(session, "15020")
+        result = list_teams(session, SEASON_ID)
     # API filters by season_id in URL path, so all results are for that season
     assert len(result) == 1
     assert result[0].id == "1001"
-    assert result[0].season_id == "15020"
+    assert result[0].season_id == SEASON_ID
     assert result[0].title == "Season 15020 Team"

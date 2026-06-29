@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for :mod:`gamesheet_sdk.browser`.
 
 Most cases exercise the lazy lifecycle without launching a real browser; one lifecycle test mocks Playwright
@@ -247,3 +250,33 @@ def test_context_raises_when_start_leaves_context_none(config: Config) -> None:
         bs._context = None  # explicitly keep it None
         with pytest.raises(ValueError, match="did not start"):
             _ = bs.context
+
+
+def test_close_handles_save_oserror_gracefully(
+    config: Config,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Test that close() logs warning but continues when save() raises OSError."""
+    fake_context = MagicMock()
+    fake_context.storage_state.side_effect = OSError("Disk full")
+    bs = BrowserSession(config)
+    bs._context = fake_context
+    with caplog.at_level("WARNING"):
+        bs.close()
+    assert "Failed to save browser storage state" in caplog.text
+    assert "Disk full" in caplog.text
+    assert bs._closed
+
+
+def test_context_returns_same_context_on_subsequent_calls(config: Config) -> None:
+    """Test that accessing context property multiple times returns the same context without re-starting."""
+    pw_factory, _, _, context = _mock_playwright_chain()
+    with patch("gamesheet_sdk.browser.sync_playwright", pw_factory):
+        bs = BrowserSession(config)
+        ctx1 = bs.context  # first access triggers _start
+        ctx2 = bs.context  # second access should return existing context
+        bs.close()
+    assert ctx1 is ctx2
+    assert ctx1 is context
+    # _start should only be called once (on first access)
+    pw_factory.assert_called_once_with()

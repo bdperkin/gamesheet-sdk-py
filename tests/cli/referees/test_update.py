@@ -1,16 +1,21 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for referees update command."""
 
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
 from unittest.mock import patch
+
+from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.referees import Referee
-
-if TYPE_CHECKING:
-    from click.testing import CliRunner
+from tests.helpers import (
+    REFEREE_EXTERNAL_ID_SECONDARY,
+    SEASON_ID,
+)
 
 
 def test_referees_update_with_all_fields(runner: CliRunner) -> None:
@@ -27,7 +32,7 @@ def test_referees_update_with_all_fields(runner: CliRunner) -> None:
     ):
         mock_update.return_value = Referee(
             id="1146196",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="WES",
             last_name="MCCAULEY",
             email="McCauley.Wes@example.com",
@@ -40,7 +45,7 @@ def test_referees_update_with_all_fields(runner: CliRunner) -> None:
                 "referees",
                 "update",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146196",
                 "--first-name",
@@ -50,18 +55,18 @@ def test_referees_update_with_all_fields(runner: CliRunner) -> None:
                 "--email-address",
                 "McCauley.Wes@example.com",
                 "--external-id",
-                "87487685-24B9-46EF-B8A3-D3B7ECEB1F68",
+                REFEREE_EXTERNAL_ID_SECONDARY,
             ],
         )
         assert not result.exit_code
         mock_update.assert_called_once()
         args = mock_update.call_args[0]
-        assert args[1] == "15020"
+        assert args[1] == SEASON_ID
         assert args[2] == "1146196"
         assert args[3] == "WES"
         assert args[4] == "MCCAULEY"
         assert args[5] == "McCauley.Wes@example.com"
-        assert args[6] == "87487685-24B9-46EF-B8A3-D3B7ECEB1F68"
+        assert args[6] == REFEREE_EXTERNAL_ID_SECONDARY
 
 
 def test_referees_update_partial_fields(runner: CliRunner) -> None:
@@ -78,7 +83,7 @@ def test_referees_update_partial_fields(runner: CliRunner) -> None:
     ):
         mock_update.return_value = Referee(
             id="1146197",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="Updated",
             last_name="Original",
             created_at=datetime(2026, 6, 15, 13, 0, 0, tzinfo=timezone.utc),
@@ -90,7 +95,7 @@ def test_referees_update_partial_fields(runner: CliRunner) -> None:
                 "referees",
                 "update",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146197",
                 "--first-name",
@@ -100,7 +105,7 @@ def test_referees_update_partial_fields(runner: CliRunner) -> None:
         assert not result.exit_code
         mock_update.assert_called_once()
         args = mock_update.call_args[0]
-        assert args[1] == "15020"
+        assert args[1] == SEASON_ID
         assert args[2] == "1146197"
         assert args[3] == "Updated"
         assert args[4] is None
@@ -122,7 +127,7 @@ def test_referees_update_alias_set(runner: CliRunner) -> None:
     ):
         mock_update.return_value = Referee(
             id="1146198",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="Test",
             last_name="Ref",
             created_at=datetime(2026, 6, 15, 15, 0, 0, tzinfo=timezone.utc),
@@ -134,7 +139,7 @@ def test_referees_update_alias_set(runner: CliRunner) -> None:
                 "referees",
                 "set",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146198",
                 "--first-name",
@@ -159,7 +164,7 @@ def test_referees_update_alias_edit(runner: CliRunner) -> None:
     ):
         mock_update.return_value = Referee(
             id="1146199",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="Another",
             last_name="Test",
             created_at=datetime(2026, 6, 15, 16, 0, 0, tzinfo=timezone.utc),
@@ -171,7 +176,7 @@ def test_referees_update_alias_edit(runner: CliRunner) -> None:
                 "referees",
                 "edit",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146199",
                 "--last-name",
@@ -190,7 +195,7 @@ def test_referees_update_missing_referee_id_shows_error(runner: CliRunner) -> No
             "referees",
             "update",
             "--season-id",
-            "15020",
+            SEASON_ID,
             "--first-name",
             "Test",
         ],
@@ -207,7 +212,7 @@ def test_referees_update_no_fields_shows_error(runner: CliRunner) -> None:
             "referees",
             "update",
             "--season-id",
-            "15020",
+            SEASON_ID,
             "--referee-id",
             "1146200",
         ],
@@ -230,7 +235,7 @@ def test_referees_update_json_output(runner: CliRunner) -> None:
     ):
         mock_update.return_value = Referee(
             id="1146200",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="Json",
             last_name="Updated",
             email="updated@example.com",
@@ -243,7 +248,7 @@ def test_referees_update_json_output(runner: CliRunner) -> None:
                 "referees",
                 "update",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146200",
                 "--last-name",

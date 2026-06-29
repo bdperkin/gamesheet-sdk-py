@@ -1,12 +1,14 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Seasons command group."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import rich_click as click
-from rich_click import Choice
+from rich_click import Choice, Context
 
+from gamesheet_sdk.cli.constants import SEASON_STATUS
 from gamesheet_sdk.cli.core import ResourceGroup
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
 from gamesheet_sdk.cli.shared import (
@@ -17,11 +19,10 @@ from gamesheet_sdk.cli.shared import (
     render_list_command,
 )
 from gamesheet_sdk.config import Config
-from gamesheet_sdk.seasons import get_season as _get_season_action
-from gamesheet_sdk.seasons import list_seasons as _list_seasons_action
-
-if TYPE_CHECKING:
-    from rich_click import Context
+from gamesheet_sdk.seasons import (
+    get_season as _get_season_action,
+    list_seasons as _list_seasons_action,
+)
 
 
 @click.group(
@@ -66,7 +67,7 @@ def seasons_group() -> None:
 )
 @click.option(
     "--status",
-    type=Choice(["archived", "active", "all"], case_sensitive=False),
+    type=Choice(SEASON_STATUS, case_sensitive=False),
     default=None,
     help="Filter by season status.",
 )
@@ -106,9 +107,29 @@ def seasons_list_command(
 
     Optional filters can be applied to narrow the results:
     --starts-after, --ends-before, --status, --stats-year, and --title.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param league_id: The league identifier
+    :type league_id: str
+    :param starts_after: Optional filter for seasons starting after this date
+    :type starts_after: str | None
+    :param ends_before: Optional filter for seasons ending before this date
+    :type ends_before: str | None
+    :param status: Optional filter for season status
+    :type status: str | None
+    :param stats_year: Optional filter for statistics year
+    :type stats_year: str | None
+    :param title: Optional filter for season title
+    :type title: str | None
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :param columns_spec: Optional comma-separated list of columns to display
+    :type columns_spec: str | None
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     seasons = run_action_or_exit(
         session,
         lambda s: _list_seasons_action(
@@ -149,8 +170,18 @@ def seasons_get_command(
     on disk and attached to the HTTP request. No browser is launched. The output displays season metadata as
     key-value pairs, with each field on its own row. Complex nested fields (like settings, flagging_criteria)
     are displayed as JSON.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :param fields_spec: Optional comma-separated list of fields to display
+    :type fields_spec: str | None
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     season = run_action_or_exit(session, _get_season_action, season_id)
     render_get_command(season, output_format, output_path, fields_spec)

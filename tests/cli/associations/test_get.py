@@ -1,16 +1,20 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for associations get command."""
 
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
 from unittest.mock import patch
+
+from click.testing import CliRunner
 
 from gamesheet_sdk.associations import Association
 from gamesheet_sdk.cli import cli
-
-if TYPE_CHECKING:
-    from click.testing import CliRunner
+from tests.helpers import (
+    DEFAULT_ASSOCIATION_NAME,
+)
 
 
 def test_associations_get(runner: CliRunner) -> None:
@@ -24,7 +28,7 @@ def test_associations_get(runner: CliRunner) -> None:
     ):
         mock_action.return_value = Association(
             id="101",
-            title="Test Association",
+            title=DEFAULT_ASSOCIATION_NAME,
             logo="",
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -46,7 +50,7 @@ def test_associations_get_with_fields(runner: CliRunner) -> None:
     ):
         mock_action.return_value = Association(
             id="101",
-            title="Test Association",
+            title=DEFAULT_ASSOCIATION_NAME,
             logo="",
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -70,7 +74,7 @@ def test_associations_get_json_format(runner: CliRunner) -> None:
     ):
         mock_action.return_value = Association(
             id="101",
-            title="Test Association",
+            title=DEFAULT_ASSOCIATION_NAME,
             logo="",
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -94,7 +98,7 @@ def test_associations_get_empty_fields(runner: CliRunner) -> None:
     ):
         mock_action.return_value = Association(
             id="101",
-            title="Test Association",
+            title=DEFAULT_ASSOCIATION_NAME,
             logo="",
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),

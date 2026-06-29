@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """gamesheet_sdk — unofficial Python SDK for the GameSheet Inc. platform.
 
 This package provides both a Python API and CLI for interacting with the
@@ -102,7 +105,7 @@ from gamesheet_sdk.teams import Team, create_team, delete_team, list_teams, upda
 
 try:
     __version__ = version("gamesheet-sdk-py")
-except PackageNotFoundError:  # pragma: no cover
+except PackageNotFoundError:
     __version__ = "0+unknown"
 __all__ = [
     "ALL_FORMATS",

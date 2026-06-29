@@ -1,15 +1,21 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for divisions list command."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
 from unittest.mock import patch
+
+from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.divisions import Division
-
-if TYPE_CHECKING:
-    from click.testing import CliRunner
+from tests.helpers import (
+    CLI_TEST_SEASON_ID,
+    TIMESTAMP_2024_01_01,
+)
 
 
 def test_divisions_list_alias_works(runner: CliRunner) -> None:
@@ -25,7 +31,10 @@ def test_divisions_list_alias_works(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_list.return_value = []
-        result = runner.invoke(cli, ["divisions", "ls", "--season-id", "501"])
+        result = runner.invoke(
+            cli,
+            ["divisions", "ls", "--season-id", CLI_TEST_SEASON_ID],
+        )
         assert not result.exit_code
         mock_list.assert_called_once()
 
@@ -52,15 +61,22 @@ def test_divisions_list_json_output(runner: CliRunner) -> None:
         mock_list.return_value = [
             Division(
                 id="101",
-                season_id="501",
+                season_id=CLI_TEST_SEASON_ID,
                 title="U13 AAA",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
             cli,
-            ["divisions", "list", "--season-id", "501", "--format", "json"],
+            [
+                "divisions",
+                "list",
+                "--season-id",
+                CLI_TEST_SEASON_ID,
+                "--format",
+                "json",
+            ],
         )
         assert not result.exit_code
         assert '"id": "101"' in result.output
@@ -82,15 +98,22 @@ def test_divisions_list_yaml_output(runner: CliRunner) -> None:
         mock_list.return_value = [
             Division(
                 id="101",
-                season_id="501",
+                season_id=CLI_TEST_SEASON_ID,
                 title="U13 AAA",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
             cli,
-            ["divisions", "list", "--season-id", "501", "--format", "yaml"],
+            [
+                "divisions",
+                "list",
+                "--season-id",
+                CLI_TEST_SEASON_ID,
+                "--format",
+                "yaml",
+            ],
         )
         assert not result.exit_code
         assert "id:" in result.output or "id :" in result.output
@@ -112,15 +135,22 @@ def test_divisions_list_columns_filter(runner: CliRunner) -> None:
         mock_list.return_value = [
             Division(
                 id="101",
-                season_id="501",
+                season_id=CLI_TEST_SEASON_ID,
                 title="U13 AAA",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
             cli,
-            ["divisions", "list", "--season-id", "501", "--columns", "id,title"],
+            [
+                "divisions",
+                "list",
+                "--season-id",
+                CLI_TEST_SEASON_ID,
+                "--columns",
+                "id,title",
+            ],
         )
         assert not result.exit_code
         assert "101" in result.output
@@ -143,10 +173,10 @@ def test_divisions_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None
         mock_list.return_value = [
             Division(
                 id="101",
-                season_id="501",
+                season_id=CLI_TEST_SEASON_ID,
                 title="Test",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -155,7 +185,7 @@ def test_divisions_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None
                 "divisions",
                 "list",
                 "--season-id",
-                "501",
+                CLI_TEST_SEASON_ID,
                 "--format",
                 "json",
                 "--output",
@@ -183,15 +213,15 @@ def test_divisions_list_csv_output(runner: CliRunner) -> None:
         mock_list.return_value = [
             Division(
                 id="101",
-                season_id="501",
+                season_id=CLI_TEST_SEASON_ID,
                 title="U13 AAA",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
             cli,
-            ["divisions", "list", "--season-id", "501", "--format", "csv"],
+            ["divisions", "list", "--season-id", CLI_TEST_SEASON_ID, "--format", "csv"],
         )
         assert not result.exit_code
         lines = result.output.strip().split("\n")
@@ -214,15 +244,15 @@ def test_divisions_list_tsv_output(runner: CliRunner) -> None:
         mock_list.return_value = [
             Division(
                 id="101",
-                season_id="501",
+                season_id=CLI_TEST_SEASON_ID,
                 title="U13 AAA",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
             cli,
-            ["divisions", "list", "--season-id", "501", "--format", "tsv"],
+            ["divisions", "list", "--season-id", CLI_TEST_SEASON_ID, "--format", "tsv"],
         )
         assert not result.exit_code
         lines = result.output.strip().split("\n")
@@ -237,7 +267,10 @@ def test_divisions_list_with_no_saved_tokens(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=None),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=None),
     ):
-        result = runner.invoke(cli, ["divisions", "list", "--season-id", "501"])
+        result = runner.invoke(
+            cli,
+            ["divisions", "list", "--season-id", CLI_TEST_SEASON_ID],
+        )
         assert result.exit_code == 1
         assert "No saved session" in result.output or "login" in result.output.lower()
 
@@ -258,7 +291,7 @@ def test_divisions_list_with_env_var(runner: CliRunner) -> None:
         result = runner.invoke(
             cli,
             ["divisions", "list"],
-            env={"GAMESHEET_SEASON_ID": "501"},
+            env={"GAMESHEET_SEASON_ID": CLI_TEST_SEASON_ID},
         )
         assert not result.exit_code
         mock_list.assert_called_once()

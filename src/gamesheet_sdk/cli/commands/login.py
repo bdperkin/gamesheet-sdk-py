@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Login command for GameSheet authentication.
 
 This module provides the CLI interface for authenticating with the GameSheet platform via browser-based
@@ -24,17 +27,13 @@ Examples:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-import rich_click as click
 from click.exceptions import Exit
+import rich_click as click
+from rich_click import Context
 
 from gamesheet_sdk.auth.login import login as _login_action
 from gamesheet_sdk.browser import BrowserSession
 from gamesheet_sdk.config import Config
-
-if TYPE_CHECKING:
-    from rich_click import Context
 
 
 @click.command("login")
@@ -74,32 +73,69 @@ def login_command(
     variables (GAMESHEET_USERNAME, GAMESHEET_PASSWORD), or interactively (password
     is prompted if omitted). If already authenticated from a previous login, the
     command returns immediately.
-    Examples:
+    .. rubric:: Examples
+
         Authenticate with email, password prompted:
-            $ gamesheet-sdk-py login --email user@example.com
-            Password: [hidden input]
-            Login successful! Tokens saved.
+    .. code-block:: bash
+
+        $ gamesheet-sdk-py login --email user@example.com
+        Password: [hidden input]
+        Login successful! Tokens saved.
+
         Authenticate with both credentials from command line:
-            $ gamesheet-sdk-py login --email user@example.com --password secret
-            Login successful! Tokens saved.
+    .. code-block:: bash
+
+        $ gamesheet-sdk-py login --email user@example.com --password secret
+        Login successful! Tokens saved.
+
         Authenticate using environment variables:
-            $ export GAMESHEET_USERNAME=user@example.com
-            $ export GAMESHEET_PASSWORD=secret
-            $ gamesheet-sdk-py login
-            Login successful! Tokens saved.
+    .. code-block:: bash
+
+        $ export GAMESHEET_USERNAME=user@example.com
+
+    .. code-block:: bash
+
+        $ export GAMESHEET_PASSWORD=secret
+
+    .. code-block:: bash
+
+        $ gamesheet-sdk-py login
+        Login successful! Tokens saved.
+
         Authenticate with extended timeout:
-            $ gamesheet-sdk-py login --email user@example.com --timeout 60000
+    .. code-block:: bash
+
+        $ gamesheet-sdk-py login --email user@example.com --timeout 60000
+
         Debug login flow with visible browser and verbose logging:
-            $ gamesheet-sdk-py login --email user@example.com --no-headless -vv
+    .. code-block:: bash
+
+        $ gamesheet-sdk-py login --email user@example.com --no-headless -vv
+
         Force fresh login by clearing saved state:
-            $ rm ~/.local/share/gamesheet-sdk-py/browser_state
-            $ gamesheet-sdk-py login --email user@example.com
+    .. code-block:: bash
+
+        $ rm ~/.local/share/gamesheet-sdk-py/browser_state
+
+    .. code-block:: bash
+
+        $ gamesheet-sdk-py login --email user@example.com
+
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param email: Optional email address for authentication
+    :type email: str | None
+    :param password: Optional password for authentication
+    :type password: str | None
+    :param timeout: Browser operation timeout in milliseconds
+    :type timeout: int
+    :raises Exit: If login fails
     """
-    config: Config = ctx.obj  # pragma: no cover
-    try:  # pragma: no cover
+    config: Config = ctx.obj
+    try:
         with BrowserSession(config) as session:
             _login_action(session, email=email, password=password, timeout=timeout)
-    except Exception as exc:  # pragma: no cover
+    except Exception as exc:
         click.secho(f"Login failed: {exc}", fg="red", err=True)
         raise Exit(1) from exc
-    click.secho("Login successful! Tokens saved.", fg="green")  # pragma: no cover
+    click.secho("Login successful! Tokens saved.", fg="green")

@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for delete_division function."""
 
 from __future__ import annotations
@@ -12,11 +15,10 @@ from gamesheet_sdk import (
     Session,
     delete_division,
 )
+from tests.helpers import JSONAPI_CONTENT_TYPE, SEASON_ID, TEST_BASE_URL
 
-_BASE = "https://test.example"
-_SEASON_ID = "15020"
 _DELETE_DIVISION_ID = "80999"
-_DELETE_ENDPOINT = f"{_BASE}/api/seasons/{_SEASON_ID}/divisions/{_DELETE_DIVISION_ID}"
+_DELETE_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/divisions/{_DELETE_DIVISION_ID}"
 
 
 @responses.activate
@@ -29,13 +31,13 @@ def test_delete_division_sends_delete_request(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        delete_division(session, _SEASON_ID, _DELETE_DIVISION_ID)
+        delete_division(session, SEASON_ID, _DELETE_DIVISION_ID)
     # Verify the request
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.method == "DELETE"
     assert req.headers["Authorization"] == "Bearer abc"
-    assert req.headers["Accept"] == "application/vnd.api+json"
+    assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
 
 
 @responses.activate
@@ -50,7 +52,7 @@ def test_delete_division_401_raises_authentication_error(config: Config) -> None
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            delete_division(session, _SEASON_ID, _DELETE_DIVISION_ID)
+            delete_division(session, SEASON_ID, _DELETE_DIVISION_ID)
 
 
 @responses.activate
@@ -65,7 +67,7 @@ def test_delete_division_404_raises_gamesheet_error_with_helpful_message(
             GameSheetError,
             match=r"Resource not found \(HTTP 404\)",
         ):
-            delete_division(session, _SEASON_ID, _DELETE_DIVISION_ID)
+            delete_division(session, SEASON_ID, _DELETE_DIVISION_ID)
 
 
 @responses.activate
@@ -77,4 +79,4 @@ def test_delete_division_other_failure_raises_gamesheet_error(
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            delete_division(session, _SEASON_ID, _DELETE_DIVISION_ID)
+            delete_division(session, SEASON_ID, _DELETE_DIVISION_ID)

@@ -1,14 +1,14 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for shell completion command."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.cli.commands import completion_command
-
-if TYPE_CHECKING:
-    from click.testing import CliRunner
 
 
 def test_completion_command_exists(runner: CliRunner) -> None:

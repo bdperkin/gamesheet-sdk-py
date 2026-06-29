@@ -1,19 +1,21 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Authenticated session with automatic token refresh on 401."""
 
 from __future__ import annotations
 
-import logging
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any
+import logging
+from typing import Any
 
 import requests
 
 from gamesheet_sdk.auth.tokens import refresh_access_token
-from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.config import Config
+from gamesheet_sdk.exceptions import GameSheetError
 from gamesheet_sdk.session import Session
 
-if TYPE_CHECKING:
-    from gamesheet_sdk.config import Config
 _LOGGER = logging.getLogger(__name__)
 OnRefreshCallback = Callable[[dict[str, str]], None]
 
@@ -41,6 +43,14 @@ class AuthenticatedSession(Session):
         ) as s:
             for assoc in list_associations(s):
                 print(assoc.name)
+    :param config: Optional configuration object
+    :type config: Config | None
+    :param access_token: Current access token to use as bearer
+    :type access_token: str
+    :param refresh_token: Refresh token for automatic renewal
+    :type refresh_token: str
+    :param on_refresh: Optional callback invoked with new token dict after successful refresh
+    :type on_refresh: OnRefreshCallback | None
     """
 
     def __init__(
@@ -62,7 +72,7 @@ class AuthenticatedSession(Session):
             return
         try:
             self._on_refresh(new_tokens)
-        except OSError as exc:  # pragma: no cover
+        except OSError as exc:
             _LOGGER.warning("on_refresh callback failed to persist: %s", exc)
 
     def _try_refresh(self) -> bool:
@@ -73,7 +83,7 @@ class AuthenticatedSession(Session):
                 user_agent=str(self._http.headers.get("User-Agent", "")) or None,
                 timeout=self.config.timeout,
             )
-        except (AuthenticationError, GameSheetError) as exc:
+        except GameSheetError as exc:
             # nosemgrep: python.lang.security.audit.logging.logger-credential-leak
             _LOGGER.warning("Token refresh failed: %s; surfacing 401.", exc)
             return False
@@ -82,6 +92,7 @@ class AuthenticatedSession(Session):
         self._notify_refresh(new_tokens)
         return True
 
+    # pylint: disable-next=missing-param-doc
     def request(
         self,
         method: str,
@@ -97,13 +108,15 @@ class AuthenticatedSession(Session):
         token, updates the bearer token, invokes the ``on_refresh`` callback if provided, and retries the
         original request exactly once.
         :param method: HTTP method (GET, POST, PUT, DELETE, etc.).
+        :type method: str
         :param url: Target URL for the request.
+        :type url: str
         :param timeout: Request timeout in seconds. If None, uses the timeout from
             :attr:`~gamesheet_sdk.session.Session.config`.
-        :param kwargs: Additional keyword arguments passed through to :meth:`requests.Session.request` (e.g.,
-            headers, json, data, params).
+        :type timeout: float | None
         :returns: HTTP response object from the request. If token refresh fails, returns the original 401
             response without raising an exception.
+        :rtype: requests.Response
         """
         response = super().request(method, url, timeout=timeout, **kwargs)
         if response.status_code != 401:

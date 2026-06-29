@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Analyze and summarize spider output JSON files.
 
 This utility provides quick analysis and insights from spider crawl results, including statistics, mutation
@@ -8,10 +11,10 @@ summaries, and API endpoint extraction.
 from __future__ import annotations
 
 import argparse
-import json
-import sys
 from collections import Counter
+import json
 from pathlib import Path
+import sys
 from typing import Any
 
 
@@ -19,7 +22,9 @@ def load_spider_output(path: Path) -> dict[str, Any]:
     """Load and validate spider output JSON.
 
     :param path: Path to spider output JSON file
+    :type path: Path
     :returns: Parsed spider output data
+    :rtype: dict[str, Any]
     :raises FileNotFoundError: If spider output file does not exist
     :raises ValueError: If file is not valid JSON or missing required fields
     """
@@ -43,6 +48,7 @@ def print_summary(data: dict[str, Any]) -> None:
     """Print overview summary statistics.
 
     :param data: Spider output data
+    :type data: dict[str, Any]
     """
     print("=" * 70)
     print(f"Spider Output Analysis - Season {data['season_id']}")
@@ -65,6 +71,7 @@ def analyze_mutations(data: dict[str, Any]) -> None:
     """Analyze and summarize discovered mutations.
 
     :param data: Spider output data
+    :type data: dict[str, Any]
     """
     mutations = data.get("discovered_mutations", [])
     if not mutations:
@@ -97,6 +104,7 @@ def analyze_network(data: dict[str, Any]) -> None:
     """Analyze and summarize network captures.
 
     :param data: Spider output data
+    :type data: dict[str, Any]
     """
     captures = data.get("network_captures", [])
     if not captures:
@@ -140,6 +148,7 @@ def analyze_urls(data: dict[str, Any]) -> None:
     """Analyze visited URLs.
 
     :param data: Spider output data
+    :type data: dict[str, Any]
     """
     urls = data.get("visited_urls", [])
     if not urls:
@@ -150,7 +159,7 @@ def analyze_urls(data: dict[str, Any]) -> None:
     print("-" * 70)
     # URL path depth analysis
     base_url = data["base_url"]
-    depths = Counter(url[len(base_url) :].count("/") for url in urls)  # noqa: E203
+    depths = Counter(url[len(base_url) :].count("/") for url in urls)
     print("  URL Depth Distribution:")
     for depth, count in sorted(depths.items()):
         bar_chart = "█" * (count * 40 // max(depths.values()))
@@ -158,8 +167,7 @@ def analyze_urls(data: dict[str, Any]) -> None:
     print()
     # Common path prefixes
     path_prefixes = Counter(
-        url[len(base_url) :].split("/")[1] if "/" in url[len(base_url) :] else ""  # noqa: E203
-        for url in urls
+        url[len(base_url) :].split("/")[1] if "/" in url[len(base_url) :] else "" for url in urls
     )
     print("  Top URL Path Prefixes:")
     for prefix, count in path_prefixes.most_common(10):
@@ -172,6 +180,7 @@ def analyze_errors(data: dict[str, Any]) -> None:
     """Analyze errors encountered during crawl.
 
     :param data: Spider output data
+    :type data: dict[str, Any]
     """
     errors = data.get("error_urls", {})
     if not errors:
@@ -201,7 +210,9 @@ def export_api_endpoints(data: dict[str, Any], output_path: Path) -> None:
     """Export unique API endpoints to a text file.
 
     :param data: Spider output data
+    :type data: dict[str, Any]
     :param output_path: Path to write API endpoints
+    :type output_path: Path
     """
     captures = data.get("network_captures", [])
     api_endpoints = sorted({c["url"] for c in captures if "/api/" in c["url"]})
@@ -214,7 +225,9 @@ def export_mutations(data: dict[str, Any], output_path: Path) -> None:
     """Export discovered mutations to a JSON file.
 
     :param data: Spider output data
+    :type data: dict[str, Any]
     :param output_path: Path to write mutations JSON
+    :type output_path: Path
     """
     mutations = data.get("discovered_mutations", [])
     output_path.write_text(json.dumps(mutations, indent=2, sort_keys=True))
@@ -226,7 +239,9 @@ def main(argv: list[str] | None = None) -> int:
     """CLI entry point for spider output analysis.
 
     :param argv: Command-line arguments (defaults to sys.argv[1:])
-    :returns: Exit code (0 = success, non-zero = error)
+    :type argv: list[str] | None
+    :returns: Integer exit code.
+    :rtype: int
     """
     parser = argparse.ArgumentParser(
         description="Analyze and summarize spider output JSON files.",
@@ -257,10 +272,10 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         data = load_spider_output(args.input)
-    except (FileNotFoundError, ValueError) as exc:
+    except (FileNotFoundError, json.JSONDecodeError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
-    except Exception as exc:
+    except OSError as exc:
         print(f"Unexpected error: {exc}", file=sys.stderr)
         return 1
     if not args.no_summary:

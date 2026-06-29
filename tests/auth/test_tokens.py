@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for token loading, saving, and refreshing."""
 
 from __future__ import annotations
@@ -164,7 +167,6 @@ def test_refresh_access_token_other_failure_raises_gamesheet_error() -> None:
 # ---------- load_refresh_token (line 348) ------------------------------------
 def test_load_refresh_token_returns_value_when_present(config: Config) -> None:
     """Test that load_refresh_token returns token value when present."""
-    # pylint: disable-next=import-outside-toplevel
     from gamesheet_sdk.auth import load_refresh_token as _load_refresh_token
 
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)

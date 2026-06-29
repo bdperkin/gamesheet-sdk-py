@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """SDK-wide constants and configuration values.
 
 This module defines all URL constants and endpoints used throughout the GameSheet SDK.

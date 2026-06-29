@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Configuration for an SDK session.
 
 Values are resolved by `pydantic-settings`_ in the following precedence:
@@ -22,21 +25,13 @@ from gamesheet_sdk.constants import DEFAULT_BASE_URL
 
 
 def _default_session_path() -> Path:
-    """Return the XDG-compliant default path for persisted session state.
-
-    :returns: Path to session.json under XDG_CACHE_HOME or ~/.cache
-    :rtype: Path
-    """
+    """Return the XDG-compliant default path for persisted session state."""
     xdg = os.environ.get("XDG_CACHE_HOME") or "~/.cache"
     return Path(xdg).expanduser() / "gamesheet-sdk-py" / "session.json"
 
 
 def _default_browser_state_path() -> Path:
-    """Return the XDG-compliant default path for Playwright storage state.
-
-    :returns: Path to browser-state.json under XDG_CACHE_HOME or ~/.cache
-    :rtype: Path
-    """
+    """Return the XDG-compliant default path for Playwright storage state."""
     xdg = os.environ.get("XDG_CACHE_HOME") or "~/.cache"
     return Path(xdg).expanduser() / "gamesheet-sdk-py" / "browser-state.json"
 
@@ -91,7 +86,7 @@ class Config(BaseSettings, env_prefix="GAMESHEET_", extra="ignore"):
     Use environment variables to configure the SDK:
     .. code-block:: bash
         export GAMESHEET_USERNAME="user@example.com"
-        export GAMESHEET_PASSWORD="secret"
+        export GAMESHEET_PASSWORD="secret"  # pragma: allowlist secret
         export GAMESHEET_TIMEOUT="60.0"
     Then in Python:
     .. code-block:: python

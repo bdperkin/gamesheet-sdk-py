@@ -1,15 +1,21 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for leagues list command."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
 from unittest.mock import patch
+
+from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.leagues import League
-
-if TYPE_CHECKING:
-    from click.testing import CliRunner
+from tests.helpers import (
+    DEFAULT_LEAGUE_NAME,
+    TIMESTAMP_2024_01_01,
+)
 
 
 def test_leagues_list_alias_works(runner: CliRunner) -> None:
@@ -49,9 +55,9 @@ def test_leagues_list_json_output(runner: CliRunner) -> None:
             League(
                 id="100",
                 association_id="38",
-                title="Test League",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                title=DEFAULT_LEAGUE_NAME,
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -60,7 +66,7 @@ def test_leagues_list_json_output(runner: CliRunner) -> None:
         )
         assert not result.exit_code
         assert '"id": "100"' in result.output
-        assert '"title": "Test League"' in result.output
+        assert f'"title": "{DEFAULT_LEAGUE_NAME}"' in result.output
 
 
 def test_leagues_list_yaml_output(runner: CliRunner) -> None:
@@ -77,9 +83,9 @@ def test_leagues_list_yaml_output(runner: CliRunner) -> None:
             League(
                 id="100",
                 association_id="38",
-                title="Test League",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                title=DEFAULT_LEAGUE_NAME,
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -88,7 +94,7 @@ def test_leagues_list_yaml_output(runner: CliRunner) -> None:
         )
         assert not result.exit_code
         assert "id:" in result.output or "id :" in result.output
-        assert "Test League" in result.output
+        assert DEFAULT_LEAGUE_NAME in result.output
 
 
 def test_leagues_list_columns_filter(runner: CliRunner) -> None:
@@ -105,9 +111,9 @@ def test_leagues_list_columns_filter(runner: CliRunner) -> None:
             League(
                 id="100",
                 association_id="38",
-                title="Test League",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                title=DEFAULT_LEAGUE_NAME,
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -116,7 +122,7 @@ def test_leagues_list_columns_filter(runner: CliRunner) -> None:
         )
         assert not result.exit_code
         assert "100" in result.output
-        assert "Test League" in result.output
+        assert DEFAULT_LEAGUE_NAME in result.output
 
 
 def test_leagues_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
@@ -135,8 +141,8 @@ def test_leagues_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
                 id="100",
                 association_id="38",
                 title="Test",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -172,9 +178,9 @@ def test_leagues_list_csv_output(runner: CliRunner) -> None:
             League(
                 id="100",
                 association_id="38",
-                title="Test League",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                title=DEFAULT_LEAGUE_NAME,
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -209,9 +215,9 @@ def test_leagues_list_grid_format(runner: CliRunner) -> None:
             League(
                 id="100",
                 association_id="38",
-                title="Test League",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                title=DEFAULT_LEAGUE_NAME,
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(
@@ -237,9 +243,9 @@ def test_leagues_list_simple_format(runner: CliRunner) -> None:
             League(
                 id="100",
                 association_id="38",
-                title="Test League",
-                created_at="2024-01-01T00:00:00Z",
-                updated_at="2024-01-01T00:00:00Z",
+                title=DEFAULT_LEAGUE_NAME,
+                created_at=TIMESTAMP_2024_01_01,
+                updated_at=TIMESTAMP_2024_01_01,
             ),
         ]
         result = runner.invoke(

@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for :mod:`gamesheet_sdk.leagues`."""
 
 from __future__ import annotations
@@ -14,11 +17,10 @@ from gamesheet_sdk import (
     Session,
     list_leagues,
 )
-from tests.helpers import jsonapi_payload
+from tests.helpers import JSONAPI_CONTENT_TYPE, TEST_BASE_URL, jsonapi_payload
 
-_BASE = "https://test.example"
 _ASSOCIATION_ID = "38"
-_ENDPOINT = f"{_BASE}/api/associations/{_ASSOCIATION_ID}/leagues"
+_ENDPOINT = f"{TEST_BASE_URL}/api/associations/{_ASSOCIATION_ID}/leagues"
 
 
 @responses.activate
@@ -72,7 +74,7 @@ def test_list_leagues_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
-    assert req.headers["Accept"] == "application/vnd.api+json"
+    assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
 
 
 @responses.activate
@@ -132,7 +134,7 @@ def test_list_leagues_constructs_correct_endpoint_for_association(
 ) -> None:
     """Verify that different association IDs result in correct endpoint paths."""
     association_id = "42"
-    endpoint = f"{_BASE}/api/associations/{association_id}/leagues"
+    endpoint = f"{TEST_BASE_URL}/api/associations/{association_id}/leagues"
     responses.add(responses.GET, endpoint, json=jsonapi_payload([]), status=200)
     with Session(config) as session:
         session.set_bearer_token("abc")

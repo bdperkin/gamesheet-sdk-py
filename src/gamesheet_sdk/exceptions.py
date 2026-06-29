@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Exceptions raised by gamesheet_sdk.
 
 The hierarchy is intentionally small: a single base class so callers can ``except GameSheetError`` to catch

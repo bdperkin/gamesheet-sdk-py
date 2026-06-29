@@ -1,13 +1,15 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """HTTP response handling utilities."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
+
+import requests
 
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
-
-if TYPE_CHECKING:
-    import requests
 
 
 def handle_response(
@@ -17,14 +19,14 @@ def handle_response(
 ) -> None:
     """Centralized HTTP error handling for all domain modules.
 
-    Args:
-        response: The HTTP response object
-        endpoint: The endpoint that was called
-        context_msg: Context message for error reporting (e.g., "GET associations")
-
-    Raises:
-        AuthenticationError: If response status is 401 (Unauthorized)
-        GameSheetError: If response status is 404 or any other >= 400
+    :param response: The HTTP response object.
+    :type response: requests.Response
+    :param endpoint: The endpoint that was called.
+    :type endpoint: str
+    :param context_msg: Context message for error reporting (e.g., ``"GET associations"``).
+    :type context_msg: str
+    :raises AuthenticationError: If response status is 401 (Unauthorized).
+    :raises GameSheetError: If response status is 404 or any other >= 400.
     """
     if response.status_code == 401:
         msg = (
@@ -43,14 +45,13 @@ def handle_response(
 def check_bff_response_status(data: dict[str, Any], endpoint: str) -> None:
     """Validate BFF API response status field.
 
-    BFF API responses include a "status" field that should be "success".
+    BFF API responses include a ``"status"`` field that should be ``"success"``.
 
-    Args:
-        data: The parsed JSON response data
-        endpoint: The endpoint that was called
-
-    Raises:
-        GameSheetError: If status is not "success"
+    :param data: The parsed JSON response data.
+    :type data: dict[str, Any]
+    :param endpoint: The endpoint that was called.
+    :type endpoint: str
+    :raises GameSheetError: If status is not ``"success"``.
     """
     status = data.get("status")
     if status != "success":
@@ -65,14 +66,16 @@ def handle_season_scoped_response(
 ) -> None:
     """Handle HTTP errors for season-scoped API calls.
 
-    Args:
-        response: The HTTP response object
-        endpoint: The endpoint that was called
-        season_id: The season ID used in the request
+    Provides season-specific error messages for common failures.
 
-    Raises:
-        AuthenticationError: If response status is 401 (Unauthorized)
-        GameSheetError: If response status is 404 or any other >= 400
+    :param response: The HTTP response object.
+    :type response: requests.Response
+    :param endpoint: The endpoint that was called.
+    :type endpoint: str
+    :param season_id: The season ID used in the request.
+    :type season_id: str
+    :raises AuthenticationError: If response status is 401 (Unauthorized).
+    :raises GameSheetError: If response status is 404 or any other >= 400.
     """
     if response.status_code == 401:
         _err_msg = (

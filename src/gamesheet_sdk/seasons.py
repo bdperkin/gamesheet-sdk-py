@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """GameSheet seasons: time periods within a league.
 
 A season is a time period during which games are played within a league (e.g., "2024-2025", "Fall 2024",
@@ -12,17 +15,16 @@ used instead.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from pydantic import BaseModel, Field
 
 from gamesheet_sdk.constants import BFF_API_BASE_URL
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.session import Session
+from gamesheet_sdk.shared import JSONAPI_HEADERS
 
-if TYPE_CHECKING:
-    from gamesheet_sdk.session import Session
 _ENDPOINT = "/api/seasons"
-_JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
 
 
 class Season(BaseModel):
@@ -198,14 +200,22 @@ def list_seasons(
     provided, the BFF API endpoint is used. Otherwise, the JSON:API endpoint is used and results are filtered
     client-side.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param league_id: The league identifier whose seasons to list.
+    :type league_id: str
     :param starts_after: Optional filter for seasons starting after this date (ISO format: YYYY-MM-DD).
+    :type starts_after: str | None
     :param ends_before: Optional filter for seasons ending before this date (ISO format: YYYY-MM-DD).
+    :type ends_before: str | None
     :param status: Optional status filter (e.g., 'archived', 'active', 'all').
+    :type status: str | None
     :param stats_year: Optional statistics year filter (e.g., '2026-2027').
+    :type stats_year: str | None
     :param title: Optional title search filter (free-form text).
+    :type title: str | None
     :returns: A list of :class:`Season`, in the order the server returned them. The list may be empty if the
         league has no seasons.
+    :rtype: list[Season]
     :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
         run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response.
@@ -223,7 +233,7 @@ def list_seasons(
         )
     response = session.get(
         _ENDPOINT,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+        headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
         _err_msg = (
@@ -246,8 +256,11 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier to retrieve.
+    :type season_id: str
     :returns: A :class:`SeasonDetail` with complete season information.
+    :rtype: SeasonDetail
     :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
         run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response (including 404 if the season doesn't exist).
@@ -255,7 +268,7 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
     endpoint = f"{_ENDPOINT}/{season_id}"
     response = session.get(
         endpoint,
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+        headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
         _err_msg = (

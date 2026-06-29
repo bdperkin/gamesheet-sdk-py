@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Coverage tests for roster players list command."""
 
 from __future__ import annotations
@@ -7,6 +10,7 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.commands.roster import players_group
+from tests.helpers import SEASON_ID
 
 
 def test_roster_players_list_coverage() -> None:
@@ -23,6 +27,6 @@ def test_roster_players_list_coverage() -> None:
         result = runner.invoke(
             players_group,
             ["list", "-F", "json"],
-            obj={"config": MagicMock(), "season_id": "15020"},
+            obj={"config": MagicMock(), "season_id": SEASON_ID},
         )
         assert not result.exit_code

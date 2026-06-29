@@ -1,10 +1,12 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Referees command group."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import rich_click as click
+from rich_click import Context
 
 from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
@@ -14,15 +16,14 @@ from gamesheet_sdk.cli.shared import (
     render_list_command,
 )
 from gamesheet_sdk.config import Config
-from gamesheet_sdk.referees import create_referee as _create_referee_action
-from gamesheet_sdk.referees import delete_referee as _delete_referee_action
-from gamesheet_sdk.referees import get_referee as _get_referee_action
-from gamesheet_sdk.referees import get_referee_report as _get_referee_report_action
-from gamesheet_sdk.referees import list_referees as _list_referees_action
-from gamesheet_sdk.referees import update_referee as _update_referee_action
-
-if TYPE_CHECKING:
-    from rich_click import Context
+from gamesheet_sdk.referees import (
+    create_referee as _create_referee_action,
+    delete_referee as _delete_referee_action,
+    get_referee as _get_referee_action,
+    get_referee_report as _get_referee_report_action,
+    list_referees as _list_referees_action,
+    update_referee as _update_referee_action,
+)
 
 
 @click.group(
@@ -71,9 +72,19 @@ def referees_get_command(
     """Get a single referee by ID.
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param referee_id: The referee identifier
+    :type referee_id: str
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     referee = run_action_or_exit(session, _get_referee_action, season_id, referee_id)
     render_list_command([referee], output_format, output_path)
 
@@ -105,9 +116,19 @@ def referees_report_command(
 
     Retrieves career statistics, games officiated, and penalty details. Requires authentication (run
     'gamesheet-sdk-py login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param referee_id: The referee identifier
+    :type referee_id: str
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     report = run_action_or_exit(
         session,
         _get_referee_report_action,
@@ -164,9 +185,25 @@ def referees_create_command(
     """Create a new referee in the specified season.
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param first_name: Referee's first name
+    :type first_name: str
+    :param last_name: Referee's last name
+    :type last_name: str
+    :param email_address: Optional email address for the referee
+    :type email_address: str | None
+    :param external_id: Optional external identifier for the referee
+    :type external_id: str | None
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     referee = run_action_or_exit(
         session,
         _create_referee_action,
@@ -234,6 +271,25 @@ def referees_update_command(
 
     At least one field must be provided to update. Requires authentication (run 'gamesheet-sdk-py login'
     first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param referee_id: The referee identifier to update
+    :type referee_id: str
+    :param first_name: Optional updated first name
+    :type first_name: str | None
+    :param last_name: Optional updated last name
+    :type last_name: str | None
+    :param email_address: Optional updated email address
+    :type email_address: str | None
+    :param external_id: Optional updated external identifier
+    :type external_id: str | None
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :raises click.UsageError: If no fields are provided for update
     """
     # Validate that at least one field is provided
     if not any([first_name, last_name, email_address, external_id]):
@@ -243,7 +299,7 @@ def referees_update_command(
         )
         raise click.UsageError(msg)
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     referee = run_action_or_exit(
         session,
         _update_referee_action,
@@ -281,9 +337,15 @@ def referees_delete_command(
     """Delete a referee.
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param referee_id: The referee identifier to delete
+    :type referee_id: str
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     run_action_or_exit(session, _delete_referee_action, season_id, referee_id)
     click.secho(f"Referee {referee_id} deleted successfully.", fg="green")
 
@@ -309,8 +371,18 @@ def referees_list_command(
     """List all referees in the specified season.
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :param columns_spec: Optional comma-separated list of columns to display
+    :type columns_spec: str | None
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     referees = run_action_or_exit(session, _list_referees_action, season_id)
     render_list_command(referees, output_format, output_path, columns_spec)

@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Sphinx configuration for the gamesheet-sdk-py documentation."""
 
 from __future__ import annotations

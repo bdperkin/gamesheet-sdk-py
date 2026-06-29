@@ -1,28 +1,47 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Main CLI entry point and root command group.
 
 This module provides the top-level ``gamesheet-sdk-py`` command-line interface. The :func:`cli` function is
 the root click group that all resource-based subcommands attach to, and :func:`main` is the entry-point
 wrapper that returns an integer exit code for the package's console script.
 
-Examples
---------
-Basic usage (show help)::
+**Examples:**
+
+Basic usage (show help):
+
+.. code-block:: bash
+
     $ gamesheet-sdk-py --help
-Login to GameSheet::
+
+Login to GameSheet:
+
+.. code-block:: bash
+
     $ gamesheet-sdk-py login
-List associations with verbose logging::
+
+List associations with verbose logging:
+
+.. code-block:: bash
+
     $ gamesheet-sdk-py -v associations list
-Show browser window during headless operations::
+
+Show browser window during headless operations:
+
+.. code-block:: bash
+
     $ gamesheet-sdk-py --no-headless login
 """
 
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-import rich_click as click
 from click.exceptions import Abort, Exit, UsageError
+import rich_click as click
+from rich_click import Context
 
 from gamesheet_sdk import __version__
 from gamesheet_sdk.cli.commands import (
@@ -38,11 +57,10 @@ from gamesheet_sdk.cli.commands import (
     seasons_group,
     teams_group,
 )
+from gamesheet_sdk.cli.commands.teams_roster import register_teams_roster_group
 from gamesheet_sdk.cli.core import _configure_logging, resolve_exit
 from gamesheet_sdk.config import Config
 
-if TYPE_CHECKING:
-    from rich_click import Context
 # Configure rich-click for attractive help output
 click.rich_click.TEXT_MARKUP = "rich"  # Use rich markup (replaces USE_RICH_MARKUP and USE_MARKDOWN)
 click.rich_click.SHOW_ARGUMENTS = True
@@ -131,7 +149,17 @@ def cli(
     no_headless: bool,
     verbose: int,
 ) -> None:
-    """Unofficial SDK for the GameSheet platform."""
+    """Unofficial SDK for the GameSheet platform.
+
+    :param ctx: Click context object
+    :type ctx: Context
+    :param base_url: Optional base URL override for GameSheet API
+    :type base_url: str | None
+    :param no_headless: If True, run browser in visible mode (not headless)
+    :type no_headless: bool
+    :param verbose: Logging verbosity level (0=WARNING, 1=INFO, 2+=DEBUG)
+    :type verbose: int
+    """
     _configure_logging(verbose)
     overrides: dict[str, Any] = {}
     if base_url is not None:
@@ -156,23 +184,28 @@ cli.add_command(referees_group)
 cli.add_command(ipad_keys_group)
 cli.add_command(games_group)
 cli.add_command(roster_group)
+# Register teams roster as a nested group under teams
+register_teams_roster_group(teams_group)
 
 
 def main(argv: list[str] | None = None) -> int:
     """Entry-point wrapper for the gamesheet-sdk-py console script.
 
-    Invokes the :func:`cli` click group with ``standalone_mode=False`` so that.
+    Invokes the :func:`cli` click group with ``standalone_mode=False`` so that
+    click's control-flow exceptions are converted to integer exit codes rather
+    than triggering ``sys.exit()`` calls. This preserves the ``main(argv) -> int``
+    contract expected by test harnesses and allows the caller to control process exit.
 
-    click's control-flow exceptions:
-        * :exc:`Exit`
-        * :exc:`UsageError`
-        * :exc:`Abort`
-    are converted to integer exit codes rather than triggering ``sys.exit()``
-    calls.  This preserves the ``main(argv) -> int`` contract expected by test
-    harnesses and allows the caller to control process exit.
+    **Exceptions converted to exit codes:**
+
+    - :exc:`Exit`
+    - :exc:`UsageError`
+    - :exc:`Abort`
+
     :param argv: Optional command-line arguments to parse. If ``None``, defaults to ``sys.argv[1:]`` (click's
         standard behavior).
-    :returns: Exit code. 0 indicates success, non-zero indicates failure.
+    :type argv: list[str] | None
+    :returns: Integer exit code (0 for success, non-zero for errors).
     :rtype: int
     """
     try:

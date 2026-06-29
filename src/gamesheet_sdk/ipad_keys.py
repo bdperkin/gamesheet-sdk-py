@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """GameSheet iPad keys: Scoring Access Keys for season scoring via iPad app.
 
 iPad Keys (also called Scoring Access Keys or API Keys) are credentials used by the GameSheet iPad app for
@@ -11,16 +14,15 @@ Playwright needed for read-only access once a bearer token has been obtained (ty
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from pydantic import BaseModel, Field
 
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.session import Session
+from gamesheet_sdk.shared import JSONAPI_HEADERS
 
-if TYPE_CHECKING:
-    from gamesheet_sdk.session import Session
 _ENDPOINT = "/api/api-keys"
-_JSONAPI_CONTENT_TYPE = "application/vnd.api+json"
 
 
 class IPadKey(BaseModel):
@@ -60,9 +62,12 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
     :param session: An authenticated :class:`Session`.
+    :type session: Session
     :param season_id: The season identifier whose iPad keys to list.
+    :type season_id: str
     :returns: A list of :class:`IPadKey`, in the order the server returned them. The list may be empty if the
         season has no iPad keys configured.
+    :rtype: list[IPadKey]
     :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
         run ``gamesheet-sdk-py login`` to refresh).
     :raises GameSheetError: For any other non-2xx response.
@@ -70,7 +75,7 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
     response = session.get(
         _ENDPOINT,
         params={"filter[season]": season_id},
-        headers={"Accept": _JSONAPI_CONTENT_TYPE},
+        headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
         _err_msg = (

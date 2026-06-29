@@ -1,3 +1,6 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Tests for Season models."""
 
 from __future__ import annotations
@@ -5,12 +8,16 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from gamesheet_sdk.seasons import Season, SeasonDetail
+from tests.helpers import (
+    CLI_TEST_SEASON_ID,
+    SEASON_ID,
+)
 
 
 def test_season_model_ignores_unknown_attributes() -> None:
     """Season model should ignore unknown attributes for forward compatibility."""
     s = Season(
-        id="501",
+        id=CLI_TEST_SEASON_ID,
         league_id="1148580",
         title="2024-2025",
         created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -23,7 +30,7 @@ def test_season_model_ignores_unknown_attributes() -> None:
 def test_season_detail_model_ignores_unknown_attributes() -> None:
     """SeasonDetail model should ignore unknown attributes for forward compatibility."""
     sd = SeasonDetail(
-        id="15020",
+        id=SEASON_ID,
         association_id="38",
         league_id="1148580",
         title="Test",

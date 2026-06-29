@@ -1,17 +1,21 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
 """Divisions command group."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-import rich_click as click
 from click.exceptions import Exit
+import rich_click as click
+from rich_click import Context
 
+from gamesheet_sdk.auth.session import AuthenticatedSession
 from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.cli.helpers import (
     build_authenticated_session,
     run_action_or_exit,
     run_team_create,
+    run_team_delete,
     run_team_update,
 )
 from gamesheet_sdk.cli.shared import (
@@ -24,18 +28,15 @@ from gamesheet_sdk.cli.shared import (
     team_update_options,
 )
 from gamesheet_sdk.config import Config
-from gamesheet_sdk.divisions import create_division as _create_division_action
-from gamesheet_sdk.divisions import delete_division as _delete_division_action
-from gamesheet_sdk.divisions import get_division as _get_division_action
-from gamesheet_sdk.divisions import list_division_teams as _list_division_teams_action
-from gamesheet_sdk.divisions import list_divisions as _list_divisions_action
-from gamesheet_sdk.divisions import update_division as _update_division_action
-
-if TYPE_CHECKING:
-    from rich_click import Context
-
-    from gamesheet_sdk.auth.session import AuthenticatedSession
-    from gamesheet_sdk.divisions import Division
+from gamesheet_sdk.divisions import (
+    Division,
+    create_division as _create_division_action,
+    delete_division as _delete_division_action,
+    get_division as _get_division_action,
+    list_division_teams as _list_division_teams_action,
+    list_divisions as _list_divisions_action,
+    update_division as _update_division_action,
+)
 
 
 @click.group(
@@ -81,9 +82,19 @@ def divisions_get_command(
     The division ID can be provided via --division-id or the GAMESHEET_DIVISION_ID environment variable.
     Requires a saved session from `gamesheet-sdk-py login`. The output displays division metadata as key-value
     pairs, with each field on its own row.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param division_id: The division identifier
+    :type division_id: str
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :param fields_spec: Optional comma-separated list of fields to display
+    :type fields_spec: str | None
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     division = run_action_or_exit(session, _get_division_action, division_id)
     render_get_command(division, output_format, output_path, fields_spec)
 
@@ -109,9 +120,19 @@ def divisions_list_command(
     """List all divisions in the specified season.
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :param columns_spec: Optional comma-separated list of columns to display
+    :type columns_spec: str | None
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
 
     def _list_with_counts(sess: AuthenticatedSession, sid: str) -> list[Division]:
         return _list_divisions_action(sess, sid, include_team_counts=True)
@@ -153,9 +174,21 @@ def divisions_create_command(
     """Create a new division in the specified season.
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param title: Division name/title
+    :type title: str
+    :param external_id: Optional external identifier
+    :type external_id: str | None
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
 
     def _create_with_kwargs(
         sess: AuthenticatedSession,
@@ -214,6 +247,21 @@ def divisions_update_command(
 
     At least one of --title or --external-id must be provided. Requires authentication (run 'gamesheet-sdk-py
     login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param division_id: The division identifier to update
+    :type division_id: str
+    :param title: Optional new division name/title
+    :type title: str | None
+    :param external_id: Optional new external identifier
+    :type external_id: str | None
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :raises Exit: If neither title nor external_id is provided
     """
     if title is None is external_id:
         click.secho(
@@ -223,7 +271,7 @@ def divisions_update_command(
         )
         raise Exit(1)
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
 
     def _update_with_kwargs(
         sess: AuthenticatedSession,
@@ -281,9 +329,19 @@ def divisions_teams_list_command(
     """List all teams in the specified division.
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param division_id: The division identifier
+    :type division_id: str
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
+    :param columns_spec: Optional comma-separated list of columns to display
+    :type columns_spec: str | None
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     teams = run_action_or_exit(session, _list_division_teams_action, division_id)
     render_list_command(teams, output_format, output_path, columns_spec)
 
@@ -315,11 +373,21 @@ def divisions_teams_get_command(
     """Get detailed information about a specific team.
 
     Delegates to teams get functionality.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param team_id: The team identifier
+    :type team_id: str
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
     """
     from gamesheet_sdk.teams import get_team as _get_team_action
 
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     item = run_action_or_exit(session, _get_team_action, season_id, team_id)
     render_get_command(item, output_format, output_path)
 
@@ -361,7 +429,24 @@ def divisions_teams_create_command(
     """Create a new team in the specified division.
 
     Delegates to teams create functionality.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param division_id: Division ID the team belongs to
+    :type division_id: str
+    :param title: Team name/title
+    :type title: str
+    :param external_id: Optional external identifier
+    :type external_id: str | None
+    :param logo_path: Optional path to a logo image file
+    :type logo_path: str | None
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
     """
+    # pylint: disable=duplicate-code
     run_team_create(
         ctx,
         season_id,
@@ -408,7 +493,28 @@ def divisions_teams_update_command(
     """Update an existing team.
 
     Delegates to teams update functionality.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param team_id: The team identifier to update
+    :type team_id: str
+    :param title: Optional new team name/title
+    :type title: str | None
+    :param division_id: Optional new division ID
+    :type division_id: str | None
+    :param external_id: Optional new external identifier
+    :type external_id: str | None
+    :param logo_path: Optional path to a new logo image file
+    :type logo_path: str | None
+    :param remove_logo: Remove the team's logo
+    :type remove_logo: bool
+    :param output_format: Output format for rendering
+    :type output_format: str
+    :param output_path: Optional output file path
+    :type output_path: str | None
     """
+    # pylint: disable=duplicate-code
     run_team_update(
         ctx,
         season_id,
@@ -448,13 +554,15 @@ def divisions_teams_delete_command(
     """Delete a team.
 
     Delegates to teams delete functionality.
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param team_id: The team identifier to delete
+    :type team_id: str
     """
-    from gamesheet_sdk.teams import delete_team as _delete_team_action
-
-    config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
-    run_action_or_exit(session, _delete_team_action, season_id, team_id)
-    click.secho(f"Team {team_id} deleted successfully.", fg="green")
+    run_team_delete(ctx, season_id, team_id)
+    # pylint: enable=duplicate-code
 
 
 @divisions_group.command("delete")
@@ -481,8 +589,14 @@ def divisions_delete_command(
     """Delete a division.
 
     Requires authentication (run 'gamesheet-sdk-py login' first).
+    :param ctx: Click context object containing config
+    :type ctx: Context
+    :param season_id: The season identifier
+    :type season_id: str
+    :param division_id: The division identifier to delete
+    :type division_id: str
     """
     config: Config = ctx.obj
-    session = build_authenticated_session(ctx, config)
+    session = build_authenticated_session(config)
     run_action_or_exit(session, _delete_division_action, season_id, division_id)
     click.secho(f"Division {division_id} deleted successfully.", fg="green")
