@@ -26,6 +26,7 @@ def test_teams_roster_coaches_delete_coverage(
         resource_type="coach",
         resource_id=COACH_ID_QUATERNARY,
         action_path="gamesheet_sdk.cli.commands.teams_roster._delete_team_coach_action",
+        # pylint: disable=duplicate-code
         season_id=SEASON_ID,
         team_id=TEAM_ID_SECONDARY,
         session=mock_session,
@@ -38,6 +39,7 @@ def test_teams_roster_coaches_delete_coverage(
         mock_session,
         SEASON_ID,
         TEAM_ID_SECONDARY,
+        # pylint: enable=duplicate-code
         COACH_ID_QUATERNARY,
     )
 
