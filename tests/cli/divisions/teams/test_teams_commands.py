@@ -13,6 +13,7 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.commands.divisions import divisions_group
+from tests.helpers import ASSOCIATION_ID, SEASON_ID
 
 
 def test_divisions_teams_get_coverage() -> None:
@@ -209,9 +210,9 @@ def test_divisions_teams_update_with_no_fields_shows_error() -> None:
                 "teams",
                 "update",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--team-id",
-                "123",
+                ASSOCIATION_ID,
             ],
             obj=MagicMock(),
         )

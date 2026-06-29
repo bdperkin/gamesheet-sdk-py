@@ -12,6 +12,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.teams import Team
+from tests.helpers import ASSOCIATION_ID
 
 
 def test_teams_list_alias_works(runner: CliRunner) -> None:
@@ -42,7 +43,7 @@ def test_teams_list_json_output(runner: CliRunner) -> None:
     ):
         mock_list.return_value = [
             Team(
-                id="123",
+                id=ASSOCIATION_ID,
                 season_id="501",
                 title="Raleigh Raptors",
                 division_id="42",
@@ -71,7 +72,7 @@ def test_teams_list_yaml_output(runner: CliRunner) -> None:
     ):
         mock_list.return_value = [
             Team(
-                id="123",
+                id=ASSOCIATION_ID,
                 season_id="501",
                 title="Raleigh Raptors",
                 division_id="42",
@@ -100,7 +101,7 @@ def test_teams_list_columns_filter(runner: CliRunner) -> None:
     ):
         mock_list.return_value = [
             Team(
-                id="123",
+                id=ASSOCIATION_ID,
                 season_id="501",
                 title="Raleigh Raptors",
                 division_id="42",
@@ -113,7 +114,7 @@ def test_teams_list_columns_filter(runner: CliRunner) -> None:
             ["teams", "list", "--season-id", "501", "--columns", "id,title"],
         )
         assert not result.exit_code
-        assert "123" in result.output
+        assert ASSOCIATION_ID in result.output
         assert "Raleigh Raptors" in result.output
 
 
@@ -130,7 +131,7 @@ def test_teams_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
     ):
         mock_list.return_value = [
             Team(
-                id="123",
+                id=ASSOCIATION_ID,
                 season_id="501",
                 title="Test Team",
                 division_id="42",
@@ -169,7 +170,7 @@ def test_teams_list_csv_output(runner: CliRunner) -> None:
     ):
         mock_list.return_value = [
             Team(
-                id="123",
+                id=ASSOCIATION_ID,
                 season_id="501",
                 title="Raleigh Raptors",
                 division_id="42",
@@ -199,7 +200,7 @@ def test_teams_list_tsv_output(runner: CliRunner) -> None:
     ):
         mock_list.return_value = [
             Team(
-                id="123",
+                id=ASSOCIATION_ID,
                 season_id="501",
                 title="Raleigh Raptors",
                 division_id="42",

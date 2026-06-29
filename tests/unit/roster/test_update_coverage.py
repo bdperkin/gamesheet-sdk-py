@@ -9,11 +9,17 @@ import responses
 
 from gamesheet_sdk import Config, Session
 from gamesheet_sdk.roster import update_coach, update_player
-from tests.helpers import SEASON_ID, setup_update_coach_mocks, setup_update_player_mocks
+from tests.helpers import (
+    COACH_ID_SECONDARY,
+    PLAYER_ID,
+    SEASON_ID,
+    setup_update_coach_mocks,
+    setup_update_player_mocks,
+)
 from tests.helpers.payloads import roster_coach_payload, roster_player_payload
 
-_PLAYER_ID = "8043169"
-_COACH_ID = "1879938"
+_PLAYER_ID = PLAYER_ID
+_COACH_ID = COACH_ID_SECONDARY
 _PLAYERS_ENDPOINT = f"https://test.example/api/seasons/{SEASON_ID}/players/{_PLAYER_ID}"
 _COACHES_ENDPOINT = f"https://test.example/api/seasons/{SEASON_ID}/coaches/{_COACH_ID}"
 

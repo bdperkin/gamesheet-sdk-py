@@ -10,6 +10,7 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.main import cli
+from tests.helpers import COACH_ID_SECONDARY, SEASON_ID
 
 
 def test_coaches_delete_requires_coach_id() -> None:
@@ -21,7 +22,7 @@ def test_coaches_delete_requires_coach_id() -> None:
             "https://test.example.com",
             "roster",
             "--season-id",
-            "15020",
+            SEASON_ID,
             "coaches",
             "delete",
         ],
@@ -48,11 +49,11 @@ def test_coaches_delete_requires_confirmation(mock_session: MagicMock) -> None:
                 "https://test.example.com",
                 "roster",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "coaches",
                 "delete",
                 "--coach-id",
-                "1879938",
+                COACH_ID_SECONDARY,
             ],
             input="n\n",
         )
@@ -78,17 +79,17 @@ def test_coaches_delete_with_confirmation(mock_session: MagicMock) -> None:
                 "https://test.example.com",
                 "roster",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "coaches",
                 "delete",
                 "--coach-id",
-                "1879938",
+                COACH_ID_SECONDARY,
             ],
             input="y\n",
         )
         assert not result.exit_code
         assert "deleted successfully" in result.output
-        mock_delete.assert_called_once_with(mock_session, "15020", "1879938")
+        mock_delete.assert_called_once_with(mock_session, SEASON_ID, COACH_ID_SECONDARY)
 
 
 def test_coaches_delete_with_force(mock_session: MagicMock) -> None:
@@ -108,17 +109,17 @@ def test_coaches_delete_with_force(mock_session: MagicMock) -> None:
                 "https://test.example.com",
                 "roster",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "coaches",
                 "delete",
                 "--coach-id",
-                "1879938",
+                COACH_ID_SECONDARY,
                 "--force",
             ],
         )
         assert not result.exit_code
         assert "deleted successfully" in result.output
-        mock_delete.assert_called_once_with(mock_session, "15020", "1879938")
+        mock_delete.assert_called_once_with(mock_session, SEASON_ID, COACH_ID_SECONDARY)
 
 
 def test_coaches_delete_error_handling(mock_session: MagicMock) -> None:
@@ -141,11 +142,11 @@ def test_coaches_delete_error_handling(mock_session: MagicMock) -> None:
                 "https://test.example.com",
                 "roster",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "coaches",
                 "delete",
                 "--coach-id",
-                "1879938",
+                COACH_ID_SECONDARY,
                 "--force",
             ],
         )
@@ -170,12 +171,12 @@ def test_coaches_delete_uses_env_var(mock_session: MagicMock) -> None:
                 "https://test.example.com",
                 "roster",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "coaches",
                 "delete",
                 "--force",
             ],
-            env={"GAMESHEET_COACH_ID": "1879938"},
+            env={"GAMESHEET_COACH_ID": COACH_ID_SECONDARY},
         )
         assert not result.exit_code
-        mock_delete.assert_called_once_with(mock_session, "15020", "1879938")
+        mock_delete.assert_called_once_with(mock_session, SEASON_ID, COACH_ID_SECONDARY)

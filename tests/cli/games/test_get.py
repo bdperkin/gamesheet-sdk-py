@@ -11,6 +11,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.config import Config
 from gamesheet_sdk.games import Game, TeamInfo
+from tests.helpers import ASSOCIATION_ID, SEASON_ID, TEAM_ID
 
 
 def test_games_get(runner: CliRunner) -> None:
@@ -38,8 +39,8 @@ def test_games_get(runner: CliRunner) -> None:
         # Use a real Config object to avoid Mock serialization issues
         config = Config(base_url="https://test.example")
         ctx = Mock()
-        ctx.obj = {"config": config, "season_id": "15020"}
-        result = runner.invoke(games_get_command, ["--game-id", "12345"], obj=ctx.obj)
+        ctx.obj = {"config": config, "season_id": SEASON_ID}
+        result = runner.invoke(games_get_command, ["--game-id", TEAM_ID], obj=ctx.obj)
         assert not result.exit_code
         assert result.output
         assert mock_action.called
@@ -67,12 +68,12 @@ def test_games_get_with_fields(runner: CliRunner) -> None:
 
         config = Config(base_url="https://test.example")
         ctx = Mock()
-        ctx.obj = {"config": config, "season_id": "15020"}
+        ctx.obj = {"config": config, "season_id": SEASON_ID}
         result = runner.invoke(
             games_get_command,
             [
                 "--game-id",
-                "12345",
+                TEAM_ID,
                 "--fields",
                 "id",
                 "--format",
@@ -106,10 +107,10 @@ def test_games_get_empty_fields(runner: CliRunner) -> None:
 
         config = Config(base_url="https://test.example")
         ctx = Mock()
-        ctx.obj = {"config": config, "season_id": "15020"}
+        ctx.obj = {"config": config, "season_id": SEASON_ID}
         result = runner.invoke(
             games_get_command,
-            ["--game-id", "12345", "--fields", ","],
+            ["--game-id", TEAM_ID, "--fields", ","],
             obj=ctx.obj,
         )
         assert not result.exit_code
@@ -145,7 +146,7 @@ def test_games_scheduled_get_coverage() -> None:
                 "scheduled",
                 "get",
                 "--game-id",
-                "123",
+                ASSOCIATION_ID,
                 "-F",
                 "json",
             ],

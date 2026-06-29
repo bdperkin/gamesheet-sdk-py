@@ -13,9 +13,10 @@ import responses
 # Explicit import for coverage tracking of dynamically-loaded Click commands
 from gamesheet_sdk import BFF_API_BASE_URL
 from gamesheet_sdk.cli import main
+from tests.helpers import SEASON_ID
 
 _BFF_BASE = BFF_API_BASE_URL
-_SEASON_ID = "15020"
+_SEASON_ID = SEASON_ID
 _ENDPOINT = f"{_BFF_BASE}/games-list/v1"
 _TOKEN_PATH = Path(tempfile.gettempdir()) / ".gamesheet" / "access_token"
 

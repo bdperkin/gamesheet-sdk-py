@@ -11,11 +11,12 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.teams import Team
+from tests.helpers import ASSOCIATION_ID, SEASON_ID
 
 # Mock team used in tests
 _MOCK_TEAM = Team(
-    id="123",
-    season_id="15020",
+    id=ASSOCIATION_ID,
+    season_id=SEASON_ID,
     title="Test Team",
     division_id="80385",
     logo=None,
@@ -44,9 +45,9 @@ def test_teams_update_basic(runner: CliRunner) -> None:
                 "teams",
                 "update",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--team-id",
-                "123",
+                ASSOCIATION_ID,
                 "--title",
                 "Updated Team",
             ],
@@ -72,9 +73,9 @@ def test_teams_update_multiple_fields(runner: CliRunner) -> None:
                 "teams",
                 "update",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--team-id",
-                "123",
+                ASSOCIATION_ID,
                 "--title",
                 "New Title",
                 "--division-id",
@@ -103,9 +104,9 @@ def test_teams_update_remove_logo(runner: CliRunner) -> None:
                 "teams",
                 "update",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--team-id",
-                "123",
+                ASSOCIATION_ID,
                 "--remove-logo",
             ],
         )
@@ -129,9 +130,9 @@ def test_teams_update_json_output(runner: CliRunner) -> None:
                 "teams",
                 "update",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--team-id",
-                "123",
+                ASSOCIATION_ID,
                 "--title",
                 "Updated Team",
                 "--format",
@@ -139,7 +140,7 @@ def test_teams_update_json_output(runner: CliRunner) -> None:
             ],
         )
         assert not result.exit_code
-        assert "123" in result.output  # Team ID
+        assert ASSOCIATION_ID in result.output  # Team ID
 
 
 def test_teams_update_alias_set_works(runner: CliRunner) -> None:
@@ -159,9 +160,9 @@ def test_teams_update_alias_set_works(runner: CliRunner) -> None:
                 "teams",
                 "set",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--team-id",
-                "123",
+                ASSOCIATION_ID,
                 "--title",
                 "New Title",
             ],
@@ -187,9 +188,9 @@ def test_teams_update_alias_edit_works(runner: CliRunner) -> None:
                 "teams",
                 "edit",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--team-id",
-                "123",
+                ASSOCIATION_ID,
                 "--title",
                 "New Title",
             ],
@@ -202,7 +203,7 @@ def test_teams_update_missing_team_id(runner: CliRunner) -> None:
     """Calling 'teams update' without team-id should show an error."""
     result = runner.invoke(
         cli,
-        ["teams", "update", "--season-id", "15020", "--title", "New"],
+        ["teams", "update", "--season-id", SEASON_ID, "--title", "New"],
     )
     assert result.exit_code == 2  # Usage error
     assert "team-id" in result.output.lower() or "missing option" in result.output.lower()
@@ -220,9 +221,9 @@ def test_teams_update_with_no_saved_tokens(runner: CliRunner) -> None:
                 "teams",
                 "update",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--team-id",
-                "123",
+                ASSOCIATION_ID,
                 "--title",
                 "New Title",
             ],
@@ -246,9 +247,9 @@ def test_teams_update_with_no_fields_shows_error(runner: CliRunner) -> None:
                 "teams",
                 "update",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--team-id",
-                "123",
+                ASSOCIATION_ID,
             ],
         )
         assert result.exit_code == 1

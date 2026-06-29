@@ -11,6 +11,7 @@ from unittest.mock import patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
+from tests.helpers import ASSOCIATION_ID, SEASON_ID
 
 
 def test_teams_create_basic(runner: CliRunner) -> None:
@@ -34,7 +35,7 @@ def test_teams_create_basic(runner: CliRunner) -> None:
                 "teams",
                 "create",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--title",
                 "Test Team",
                 "--division-id",
@@ -66,7 +67,7 @@ def test_teams_create_with_external_id(runner: CliRunner) -> None:
                 "teams",
                 "create",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--title",
                 "Test Team",
                 "--division-id",
@@ -99,7 +100,7 @@ def test_teams_create_json_output(runner: CliRunner) -> None:
                 "teams",
                 "create",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--title",
                 "Test Team",
                 "--division-id",
@@ -109,7 +110,7 @@ def test_teams_create_json_output(runner: CliRunner) -> None:
             ],
         )
         assert not result.exit_code
-        assert "123" in result.output  # Team ID
+        assert ASSOCIATION_ID in result.output  # Team ID
 
 
 def test_teams_create_alias_add_works(runner: CliRunner) -> None:
@@ -133,7 +134,7 @@ def test_teams_create_alias_add_works(runner: CliRunner) -> None:
                 "teams",
                 "add",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--title",
                 "Test Team",
                 "--division-id",
@@ -165,7 +166,7 @@ def test_teams_create_alias_new_works(runner: CliRunner) -> None:
                 "teams",
                 "new",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--title",
                 "Test Team",
                 "--division-id",
@@ -198,7 +199,7 @@ def test_teams_create_with_output_file(runner: CliRunner, tmp_path: Any) -> None
                 "teams",
                 "create",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--title",
                 "Test Team",
                 "--division-id",
@@ -215,7 +216,7 @@ def test_teams_create_with_output_file(runner: CliRunner, tmp_path: Any) -> None
 
 def test_teams_create_missing_required_args(runner: CliRunner) -> None:
     """Calling 'teams create' without required args should show an error."""
-    result = runner.invoke(cli, ["teams", "create", "--season-id", "15020"])
+    result = runner.invoke(cli, ["teams", "create", "--season-id", SEASON_ID])
     assert result.exit_code == 2  # Usage error
     assert "title" in result.output.lower() or "missing option" in result.output.lower()
 
@@ -232,7 +233,7 @@ def test_teams_create_with_no_saved_tokens(runner: CliRunner) -> None:
                 "teams",
                 "create",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--title",
                 "Test Team",
                 "--division-id",

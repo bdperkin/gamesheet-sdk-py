@@ -10,13 +10,19 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.commands.roster import players_group
+from tests.helpers import (
+    PLAYER_FIRST_NAME,
+    PLAYER_ID,
+    PLAYER_LAST_NAME,
+    SEASON_ID,
+)
 
 
 def test_roster_players_create_coverage() -> None:
     """Ensure players create command body is covered."""
     runner = CliRunner()
     mock_player = MagicMock()
-    mock_player.id = "8043169"
+    mock_player.id = PLAYER_ID
     with (
         patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session"),
         patch(
@@ -30,13 +36,13 @@ def test_roster_players_create_coverage() -> None:
             [
                 "create",
                 "--first-name",
-                "AUSTIN",
+                PLAYER_FIRST_NAME,
                 "--last-name",
-                "ADAMSKY",
+                PLAYER_LAST_NAME,
                 "-F",
                 "json",
             ],
-            obj={"config": MagicMock(), "season_id": "15020"},
+            obj={"config": MagicMock(), "season_id": SEASON_ID},
         )
         assert not result.exit_code
         assert "created successfully" in result.output.lower()
@@ -57,13 +63,13 @@ def test_roster_players_create_error_handling() -> None:
             [
                 "create",
                 "--first-name",
-                "AUSTIN",
+                PLAYER_FIRST_NAME,
                 "--last-name",
-                "ADAMSKY",
+                PLAYER_LAST_NAME,
                 "-F",
                 "json",
             ],
-            obj={"config": MagicMock(), "season_id": "15020"},
+            obj={"config": MagicMock(), "season_id": SEASON_ID},
         )
         assert result.exit_code == 1
         assert "error creating player" in result.output.lower()

@@ -12,6 +12,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.teams import Team
+from tests.helpers import SEASON_ID
 
 
 def test_teams_get(runner: CliRunner) -> None:
@@ -23,7 +24,7 @@ def test_teams_get(runner: CliRunner) -> None:
     ):
         mock_action.return_value = Team(
             id="401",
-            season_id="15020",
+            season_id=SEASON_ID,
             title="Test Team",
             roster={"players": [], "coaches": []},
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -31,7 +32,7 @@ def test_teams_get(runner: CliRunner) -> None:
         )
         result = runner.invoke(
             cli,
-            ["teams", "get", "--season-id", "15020", "--team-id", "401"],
+            ["teams", "get", "--season-id", SEASON_ID, "--team-id", "401"],
         )
         assert not result.exit_code
         assert result.output
@@ -47,7 +48,7 @@ def test_teams_get_with_fields(runner: CliRunner) -> None:
     ):
         mock_action.return_value = Team(
             id="401",
-            season_id="15020",
+            season_id=SEASON_ID,
             title="Test Team",
             roster={"players": [], "coaches": []},
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -59,7 +60,7 @@ def test_teams_get_with_fields(runner: CliRunner) -> None:
                 "teams",
                 "get",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--team-id",
                 "401",
                 "--fields",
@@ -81,7 +82,7 @@ def test_teams_get_empty_fields(runner: CliRunner) -> None:
     ):
         mock_action.return_value = Team(
             id="401",
-            season_id="15020",
+            season_id=SEASON_ID,
             title="Test Team",
             roster={"players": [], "coaches": []},
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -93,7 +94,7 @@ def test_teams_get_empty_fields(runner: CliRunner) -> None:
                 "teams",
                 "get",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--team-id",
                 "401",
                 "--fields",

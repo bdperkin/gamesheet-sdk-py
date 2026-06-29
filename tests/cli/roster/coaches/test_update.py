@@ -10,13 +10,14 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.commands.roster import coaches_group
+from tests.helpers import COACH_ID_SECONDARY, SEASON_ID
 
 
 def test_roster_coaches_update_coverage() -> None:
     """Ensure roster coaches update command body is covered."""
     runner = CliRunner()
     mock_coach = MagicMock()
-    mock_coach.id = "1879938"
+    mock_coach.id = COACH_ID_SECONDARY
     with (
         patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session"),
         patch(
@@ -30,13 +31,13 @@ def test_roster_coaches_update_coverage() -> None:
             [
                 "update",
                 "--coach-id",
-                "1879938",
+                COACH_ID_SECONDARY,
                 "--first-name",
                 "UPDATED",
                 "-F",
                 "json",
             ],
-            obj={"config": MagicMock(), "season_id": "15020"},
+            obj={"config": MagicMock(), "season_id": SEASON_ID},
         )
         assert not result.exit_code
         assert "coach 1879938 updated successfully" in result.output.lower()
@@ -64,13 +65,13 @@ def test_roster_coaches_update_valueerror_handling() -> None:
             [
                 "update",
                 "--coach-id",
-                "1879938",
+                COACH_ID_SECONDARY,
                 "--first-name",
                 "UPDATED",
                 "-F",
                 "json",
             ],
-            obj={"config": MagicMock(), "season_id": "15020"},
+            obj={"config": MagicMock(), "season_id": SEASON_ID},
         )
         assert result.exit_code == 1
         assert "error:" in result.output.lower()

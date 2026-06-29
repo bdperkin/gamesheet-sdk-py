@@ -10,6 +10,7 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.commands.teams_roster import teams_roster_players_group
+from tests.helpers import SEASON_ID
 
 
 def test_teams_roster_players_delete_coverage(
@@ -35,13 +36,13 @@ def test_teams_roster_players_delete_coverage(
                 "8116321",
                 "--force",
             ],
-            obj={"config": mock_config, "season_id": "15020", "team_id": "523675"},
+            obj={"config": mock_config, "season_id": SEASON_ID, "team_id": "523675"},
         )
         assert not result.exit_code
         assert "deleted successfully" in result.output
         mock_delete.assert_called_once_with(
             mock_session,
-            "15020",
+            SEASON_ID,
             "523675",
             "8116321",
         )
@@ -71,7 +72,7 @@ def test_teams_roster_players_delete_error_handling(
                 "8116321",
                 "--force",
             ],
-            obj={"config": mock_config, "season_id": "15020", "team_id": "523675"},
+            obj={"config": mock_config, "season_id": SEASON_ID, "team_id": "523675"},
         )
         assert result.exit_code == 1
         assert "Error deleting player" in result.output
@@ -100,7 +101,7 @@ def test_teams_roster_players_delete_requires_confirmation(
                 "--player-id",
                 "8116321",
             ],
-            obj={"config": mock_config, "season_id": "15020", "team_id": "523675"},
+            obj={"config": mock_config, "season_id": SEASON_ID, "team_id": "523675"},
             input="n\n",
         )
         assert result.exit_code == 1

@@ -11,6 +11,7 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.main import cli
+from tests.helpers import SEASON_ID
 
 
 def test_players_penalty_report_requires_player_id() -> None:
@@ -22,7 +23,7 @@ def test_players_penalty_report_requires_player_id() -> None:
             "https://test.example.com",
             "roster",
             "--season-id",
-            "15020",
+            SEASON_ID,
             "players",
             "penalty-report",
         ],
@@ -59,7 +60,7 @@ def test_players_penalty_report_success(mock_session: MagicMock) -> None:
                 "https://test.example.com",
                 "roster",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "players",
                 "penalty-report",
                 "--player-id",
@@ -68,7 +69,7 @@ def test_players_penalty_report_success(mock_session: MagicMock) -> None:
         )
         assert not result.exit_code
         assert "player_games" in result.output
-        mock_get_report.assert_called_once_with(mock_session, "15020", "8113805")
+        mock_get_report.assert_called_once_with(mock_session, SEASON_ID, "8113805")
 
 
 def test_players_penalty_report_uses_env_var(mock_session: MagicMock) -> None:
@@ -92,14 +93,14 @@ def test_players_penalty_report_uses_env_var(mock_session: MagicMock) -> None:
                 "https://test.example.com",
                 "roster",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "players",
                 "penalty-report",
             ],
             env={"GAMESHEET_PLAYER_ID": "8113805"},
         )
         assert not result.exit_code
-        mock_get_report.assert_called_once_with(mock_session, "15020", "8113805")
+        mock_get_report.assert_called_once_with(mock_session, SEASON_ID, "8113805")
 
 
 def test_players_penalty_report_json_format(mock_session: MagicMock) -> None:
@@ -123,7 +124,7 @@ def test_players_penalty_report_json_format(mock_session: MagicMock) -> None:
                 "https://test.example.com",
                 "roster",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "players",
                 "penalty-report",
                 "--player-id",
@@ -157,7 +158,7 @@ def test_players_penalty_report_yaml_format(mock_session: MagicMock) -> None:
                 "https://test.example.com",
                 "roster",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "players",
                 "penalty-report",
                 "--player-id",

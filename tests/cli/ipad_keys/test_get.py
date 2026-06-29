@@ -11,6 +11,7 @@ from unittest.mock import patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
+from tests.helpers import SEASON_ID
 
 
 def test_ipad_keys_get_alias_show_works(runner: CliRunner) -> None:
@@ -35,7 +36,7 @@ def test_ipad_keys_get_alias_show_works(runner: CliRunner) -> None:
                 updated_at="2026-05-15T17:42:34Z",
             ),
         ]
-        result = runner.invoke(cli, ["ipad-keys", "show", "--season-id", "15020"])
+        result = runner.invoke(cli, ["ipad-keys", "show", "--season-id", SEASON_ID])
         assert not result.exit_code
         assert "ipad-test-kw" in result.output
 
@@ -62,7 +63,7 @@ def test_ipad_keys_get_alias_view_works(runner: CliRunner) -> None:
                 updated_at="2026-05-15T17:42:34Z",
             ),
         ]
-        result = runner.invoke(cli, ["ipad-keys", "view", "--season-id", "15020"])
+        result = runner.invoke(cli, ["ipad-keys", "view", "--season-id", SEASON_ID])
         assert not result.exit_code
         assert "ipad-test-kw" in result.output
 
@@ -99,7 +100,7 @@ def test_ipad_keys_get_json_output(runner: CliRunner) -> None:
         ]
         result = runner.invoke(
             cli,
-            ["ipad-keys", "get", "--season-id", "15020", "-F", "json"],
+            ["ipad-keys", "get", "--season-id", SEASON_ID, "-F", "json"],
         )
         assert not result.exit_code
         import json
@@ -134,7 +135,7 @@ def test_ipad_keys_get_yaml_output(runner: CliRunner) -> None:
         ]
         result = runner.invoke(
             cli,
-            ["ipad-keys", "get", "--season-id", "15020", "-F", "yaml"],
+            ["ipad-keys", "get", "--season-id", SEASON_ID, "-F", "yaml"],
         )
         assert not result.exit_code
         assert "id: '3567'" in result.output or 'id: "3567"' in result.output
@@ -165,7 +166,7 @@ def test_ipad_keys_get_columns_filter(runner: CliRunner) -> None:
         ]
         result = runner.invoke(
             cli,
-            ["ipad-keys", "get", "--season-id", "15020", "-c", "id,value"],
+            ["ipad-keys", "get", "--season-id", SEASON_ID, "-c", "id,value"],
         )
         assert not result.exit_code
         # Check that id and value are in the output
@@ -202,7 +203,7 @@ def test_ipad_keys_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
                 "ipad-keys",
                 "get",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "-F",
                 "json",
                 "-o",
@@ -240,7 +241,7 @@ def test_ipad_keys_get_table_format(runner: CliRunner) -> None:
                 updated_at="2026-05-15T17:42:34Z",
             ),
         ]
-        result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020"])
+        result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", SEASON_ID])
         assert not result.exit_code
         # Table format should have column headers and the value
         assert "ipad-test-kw" in result.output
@@ -270,7 +271,7 @@ def test_ipad_keys_get_grid_format(runner: CliRunner) -> None:
         ]
         result = runner.invoke(
             cli,
-            ["ipad-keys", "get", "--season-id", "15020", "-F", "grid"],
+            ["ipad-keys", "get", "--season-id", SEASON_ID, "-F", "grid"],
         )
         assert not result.exit_code
         # Grid format has border characters
@@ -283,7 +284,7 @@ def test_ipad_keys_get_with_no_saved_tokens(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=None),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=None),
     ):
-        result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", "15020"])
+        result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", SEASON_ID])
         assert result.exit_code == 1
         assert "No saved session" in result.output or "login" in result.output.lower()
 
@@ -313,7 +314,7 @@ def test_ipad_keys_get_with_env_var(runner: CliRunner) -> None:
         result = runner.invoke(
             cli,
             ["ipad-keys", "get"],
-            env={"GAMESHEET_SEASON_ID": "15020"},
+            env={"GAMESHEET_SEASON_ID": SEASON_ID},
         )
         assert not result.exit_code
         mock_action.assert_called_once()

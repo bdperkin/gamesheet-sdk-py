@@ -10,6 +10,7 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.main import cli
+from tests.helpers import SEASON_ID
 
 
 def test_players_delete_requires_player_id() -> None:
@@ -21,7 +22,7 @@ def test_players_delete_requires_player_id() -> None:
             "https://test.example.com",
             "roster",
             "--season-id",
-            "15020",
+            SEASON_ID,
             "players",
             "delete",
         ],
@@ -48,7 +49,7 @@ def test_players_delete_requires_confirmation(mock_session: MagicMock) -> None:
                 "https://test.example.com",
                 "roster",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "players",
                 "delete",
                 "--player-id",
@@ -78,7 +79,7 @@ def test_players_delete_with_confirmation(mock_session: MagicMock) -> None:
                 "https://test.example.com",
                 "roster",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "players",
                 "delete",
                 "--player-id",
@@ -88,7 +89,7 @@ def test_players_delete_with_confirmation(mock_session: MagicMock) -> None:
         )
         assert not result.exit_code
         assert "deleted successfully" in result.output
-        mock_delete.assert_called_once_with(mock_session, "15020", "8116303")
+        mock_delete.assert_called_once_with(mock_session, SEASON_ID, "8116303")
 
 
 def test_players_delete_with_force(mock_session: MagicMock) -> None:
@@ -108,7 +109,7 @@ def test_players_delete_with_force(mock_session: MagicMock) -> None:
                 "https://test.example.com",
                 "roster",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "players",
                 "delete",
                 "--player-id",
@@ -118,7 +119,7 @@ def test_players_delete_with_force(mock_session: MagicMock) -> None:
         )
         assert not result.exit_code
         assert "deleted successfully" in result.output
-        mock_delete.assert_called_once_with(mock_session, "15020", "8116303")
+        mock_delete.assert_called_once_with(mock_session, SEASON_ID, "8116303")
 
 
 def test_players_delete_error_handling(mock_session: MagicMock) -> None:
@@ -141,7 +142,7 @@ def test_players_delete_error_handling(mock_session: MagicMock) -> None:
                 "https://test.example.com",
                 "roster",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "players",
                 "delete",
                 "--player-id",
@@ -170,7 +171,7 @@ def test_players_delete_uses_env_var(mock_session: MagicMock) -> None:
                 "https://test.example.com",
                 "roster",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "players",
                 "delete",
                 "--force",
@@ -178,4 +179,4 @@ def test_players_delete_uses_env_var(mock_session: MagicMock) -> None:
             env={"GAMESHEET_PLAYER_ID": "8116303"},
         )
         assert not result.exit_code
-        mock_delete.assert_called_once_with(mock_session, "15020", "8116303")
+        mock_delete.assert_called_once_with(mock_session, SEASON_ID, "8116303")

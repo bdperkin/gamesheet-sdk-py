@@ -10,6 +10,7 @@ from unittest.mock import patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
+from tests.helpers import ASSOCIATION_ID, SEASON_ID
 
 
 def test_teams_delete_basic(runner: CliRunner) -> None:
@@ -17,7 +18,7 @@ def test_teams_delete_basic(runner: CliRunner) -> None:
     with patch("gamesheet_sdk.cli.commands.teams.run_team_delete") as mock_delete:
         result = runner.invoke(
             cli,
-            ["teams", "delete", "--season-id", "15020", "--team-id", "123", "--force"],
+            ["teams", "delete", "--season-id", SEASON_ID, "--team-id", ASSOCIATION_ID, "--force"],
         )
         assert not result.exit_code
         mock_delete.assert_called_once()
@@ -28,7 +29,7 @@ def test_teams_delete_alias_rm(runner: CliRunner) -> None:
     with patch("gamesheet_sdk.cli.commands.teams.run_team_delete") as mock_delete:
         result = runner.invoke(
             cli,
-            ["teams", "rm", "--season-id", "15020", "--team-id", "123", "--force"],
+            ["teams", "rm", "--season-id", SEASON_ID, "--team-id", ASSOCIATION_ID, "--force"],
         )
         assert not result.exit_code
         mock_delete.assert_called_once()
@@ -39,7 +40,7 @@ def test_teams_delete_alias_remove(runner: CliRunner) -> None:
     with patch("gamesheet_sdk.cli.commands.teams.run_team_delete") as mock_delete:
         result = runner.invoke(
             cli,
-            ["teams", "remove", "--season-id", "15020", "--team-id", "123", "--force"],
+            ["teams", "remove", "--season-id", SEASON_ID, "--team-id", ASSOCIATION_ID, "--force"],
         )
         assert not result.exit_code
         mock_delete.assert_called_once()
@@ -47,7 +48,7 @@ def test_teams_delete_alias_remove(runner: CliRunner) -> None:
 
 def test_teams_delete_missing_team_id(runner: CliRunner) -> None:
     """Calling 'teams delete' without team-id should show an error."""
-    result = runner.invoke(cli, ["teams", "delete", "--season-id", "15020"])
+    result = runner.invoke(cli, ["teams", "delete", "--season-id", SEASON_ID])
     assert result.exit_code == 2  # Usage error
     assert "team-id" in result.output.lower() or "missing option" in result.output.lower()
 
@@ -60,7 +61,7 @@ def test_teams_delete_with_no_saved_tokens(runner: CliRunner) -> None:
     ):
         result = runner.invoke(
             cli,
-            ["teams", "delete", "--season-id", "15020", "--team-id", "123", "--force"],
+            ["teams", "delete", "--season-id", SEASON_ID, "--team-id", ASSOCIATION_ID, "--force"],
         )
         assert result.exit_code == 1
         assert "login" in result.output.lower()
@@ -78,7 +79,7 @@ def test_teams_delete_helper_executes_action(runner: CliRunner) -> None:
     ):
         result = runner.invoke(
             cli,
-            ["teams", "delete", "--season-id", "15020", "--team-id", "123", "--force"],
+            ["teams", "delete", "--season-id", SEASON_ID, "--team-id", ASSOCIATION_ID, "--force"],
         )
         assert not result.exit_code
         mock_action.assert_called_once()

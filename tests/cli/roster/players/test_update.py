@@ -10,6 +10,7 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.commands.roster import players_group
+from tests.helpers import PLAYER_ID, SEASON_ID
 
 
 def test_roster_players_update_valueerror_handling() -> None:
@@ -34,13 +35,13 @@ def test_roster_players_update_valueerror_handling() -> None:
             [
                 "update",
                 "--player-id",
-                "8043169",
+                PLAYER_ID,
                 "--first-name",
                 "UPDATED",
                 "-F",
                 "json",
             ],
-            obj={"config": MagicMock(), "season_id": "15020"},
+            obj={"config": MagicMock(), "season_id": SEASON_ID},
         )
         assert result.exit_code == 1
         assert "error:" in result.output.lower()

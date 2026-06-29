@@ -11,6 +11,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.referees import RefereeReport
+from tests.helpers import SEASON_ID
 
 
 def test_referees_report_with_all_fields(runner: CliRunner) -> None:
@@ -48,7 +49,7 @@ def test_referees_report_with_all_fields(runner: CliRunner) -> None:
                 "referees",
                 "report",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146198",
             ],
@@ -56,7 +57,7 @@ def test_referees_report_with_all_fields(runner: CliRunner) -> None:
         assert not result.exit_code
         mock_report.assert_called_once()
         args = mock_report.call_args[0]
-        assert args[1] == "15020"
+        assert args[1] == SEASON_ID
         assert args[2] == "1146198"
 
 
@@ -68,7 +69,7 @@ def test_referees_report_missing_referee_id_shows_error(runner: CliRunner) -> No
             "referees",
             "report",
             "--season-id",
-            "15020",
+            SEASON_ID,
         ],
     )
     assert result.exit_code == 2
@@ -104,7 +105,7 @@ def test_referees_report_json_output(runner: CliRunner) -> None:
                 "referees",
                 "report",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146199",
                 "--format",

@@ -12,6 +12,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.divisions import Division
+from tests.helpers import SEASON_ID
 
 
 def test_divisions_get(runner: CliRunner) -> None:
@@ -25,7 +26,7 @@ def test_divisions_get(runner: CliRunner) -> None:
     ):
         mock_action.return_value = Division(
             id="301",
-            season_id="15020",
+            season_id=SEASON_ID,
             title="Test Division",
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -47,7 +48,7 @@ def test_divisions_get_with_fields(runner: CliRunner) -> None:
     ):
         mock_action.return_value = Division(
             id="301",
-            season_id="15020",
+            season_id=SEASON_ID,
             title="Test Division",
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -80,7 +81,7 @@ def test_divisions_get_empty_fields(runner: CliRunner) -> None:
     ):
         mock_action.return_value = Division(
             id="301",
-            season_id="15020",
+            season_id=SEASON_ID,
             title="Test Division",
             created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
             updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),

@@ -11,6 +11,7 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.commands.teams_roster import teams_roster_coaches_group
+from tests.helpers import SEASON_ID
 
 
 def test_teams_roster_coaches_penalty_report_coverage(
@@ -37,11 +38,11 @@ def test_teams_roster_coaches_penalty_report_coverage(
         result = runner.invoke(
             teams_roster_coaches_group,
             ["penalty-report", "--coach-id", "1879742"],
-            obj={"config": mock_config, "season_id": "15020", "team_id": "523675"},
+            obj={"config": mock_config, "season_id": SEASON_ID, "team_id": "523675"},
         )
         assert not result.exit_code
         assert "coach_games" in result.output
-        mock_get_report.assert_called_once_with(mock_session, "15020", "1879742")
+        mock_get_report.assert_called_once_with(mock_session, SEASON_ID, "1879742")
 
 
 def test_teams_roster_coaches_penalty_report_requires_coach_id(
@@ -51,7 +52,7 @@ def test_teams_roster_coaches_penalty_report_requires_coach_id(
     result = CliRunner().invoke(
         teams_roster_coaches_group,
         ["penalty-report"],
-        obj={"config": mock_config, "season_id": "15020", "team_id": "523675"},
+        obj={"config": mock_config, "season_id": SEASON_ID, "team_id": "523675"},
     )
     assert result.exit_code
     assert "--coach-id" in result.output or "coach-id" in result.output.lower()
@@ -77,7 +78,7 @@ def test_teams_roster_coaches_penalty_report_json_format(
         result = runner.invoke(
             teams_roster_coaches_group,
             ["penalty-report", "--coach-id", "1879742", "--format", "json"],
-            obj={"config": mock_config, "season_id": "15020", "team_id": "523675"},
+            obj={"config": mock_config, "season_id": SEASON_ID, "team_id": "523675"},
         )
         assert not result.exit_code
         assert "coach_games" in result.output
@@ -103,7 +104,7 @@ def test_teams_roster_coaches_penalty_report_yaml_format(
         result = runner.invoke(
             teams_roster_coaches_group,
             ["penalty-report", "--coach-id", "1879742", "--format", "yaml"],
-            obj={"config": mock_config, "season_id": "15020", "team_id": "523675"},
+            obj={"config": mock_config, "season_id": SEASON_ID, "team_id": "523675"},
         )
         assert not result.exit_code
         assert "coach_games" in result.output

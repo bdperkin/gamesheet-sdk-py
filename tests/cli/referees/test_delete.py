@@ -10,6 +10,7 @@ from unittest.mock import patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
+from tests.helpers import SEASON_ID
 
 
 def test_referees_delete_with_force(runner: CliRunner) -> None:
@@ -31,7 +32,7 @@ def test_referees_delete_with_force(runner: CliRunner) -> None:
                 "referees",
                 "delete",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146200",
                 "--force",
@@ -40,7 +41,7 @@ def test_referees_delete_with_force(runner: CliRunner) -> None:
         assert not result.exit_code
         mock_delete.assert_called_once()
         args = mock_delete.call_args[0]
-        assert args[1] == "15020"
+        assert args[1] == SEASON_ID
         assert args[2] == "1146200"
         assert "deleted successfully" in result.output
 
@@ -64,7 +65,7 @@ def test_referees_delete_alias_rm(runner: CliRunner) -> None:
                 "referees",
                 "rm",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146201",
                 "--force",
@@ -93,7 +94,7 @@ def test_referees_delete_alias_remove(runner: CliRunner) -> None:
                 "referees",
                 "remove",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146202",
                 "--force",
@@ -111,7 +112,7 @@ def test_referees_delete_missing_referee_id_shows_error(runner: CliRunner) -> No
             "referees",
             "delete",
             "--season-id",
-            "15020",
+            SEASON_ID,
             "--force",
         ],
     )
@@ -139,7 +140,7 @@ def test_referees_delete_without_force_prompts_confirmation(runner: CliRunner) -
                 "referees",
                 "delete",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146203",
             ],

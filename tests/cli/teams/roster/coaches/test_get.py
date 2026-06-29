@@ -10,13 +10,14 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.commands.teams_roster import teams_roster_coaches_group
+from tests.helpers import COACH_ID_PRIMARY, SEASON_ID, TEAM_ID
 
 
 def test_teams_roster_coaches_get_coverage() -> None:
     """Ensure teams roster coaches get command body is covered."""
     runner = CliRunner()
     mock_coach = MagicMock()
-    mock_coach.id = "1868550"
+    mock_coach.id = COACH_ID_PRIMARY
     with (
         patch("gamesheet_sdk.cli.commands.teams_roster.build_authenticated_session"),
         patch(
@@ -30,10 +31,10 @@ def test_teams_roster_coaches_get_coverage() -> None:
             [
                 "get",
                 "--coach-id",
-                "1868550",
+                COACH_ID_PRIMARY,
                 "-F",
                 "json",
             ],
-            obj={"config": MagicMock(), "season_id": "15020", "team_id": "12345"},
+            obj={"config": MagicMock(), "season_id": SEASON_ID, "team_id": TEAM_ID},
         )
         assert not result.exit_code

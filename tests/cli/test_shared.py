@@ -18,6 +18,7 @@ from gamesheet_sdk.cli.shared import (
     render_get_command,
     render_list_command,
 )
+from tests.helpers import ASSOCIATION_ID, LEAGUE_ID
 
 
 class SampleModel(BaseModel):
@@ -70,20 +71,20 @@ def test_get_fields_option_decorator() -> None:
 def test_render_get_command_with_dict() -> None:
     """Test render_get_command with a dict."""
     output_file = Path(tempfile.gettempdir()) / "output.json"
-    data = {"id": "123", "name": "Test"}
+    data = {"id": ASSOCIATION_ID, "name": "Test"}
     render_get_command(data, "json", str(output_file), None)
     content = output_file.read_text()
-    assert "123" in content
+    assert ASSOCIATION_ID in content
     assert "Test" in content
 
 
 def test_render_get_command_with_fields_filter() -> None:
     """Test render_get_command with fields filter."""
     output_file = Path(tempfile.gettempdir()) / "output.json"
-    data = {"id": "123", "name": "Test", "extra": "Should be filtered"}
+    data = {"id": ASSOCIATION_ID, "name": "Test", "extra": "Should be filtered"}
     render_get_command(data, "json", str(output_file), "id,name")
     content = output_file.read_text()
-    assert "123" in content
+    assert ASSOCIATION_ID in content
     assert "Test" in content
     assert "extra" not in content
 
@@ -120,10 +121,10 @@ def test_render_list_command_with_columns_filter() -> None:
 def test_render_get_command_with_pydantic_model() -> None:
     """Test render_get_command with a pydantic model."""
     output_file = Path(tempfile.gettempdir()) / "output.json"
-    model = SampleModel(id="456", name="Pydantic Test", extra="Extra data")
+    model = SampleModel(id=LEAGUE_ID, name="Pydantic Test", extra="Extra data")
     render_get_command(model, "json", str(output_file), None)
     content = output_file.read_text()
-    assert "456" in content
+    assert LEAGUE_ID in content
     assert "Pydantic Test" in content
 
 

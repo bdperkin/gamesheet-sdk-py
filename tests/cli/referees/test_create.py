@@ -12,6 +12,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.referees import Referee
+from tests.helpers import DEFAULT_PLAYER_LAST_NAME, SEASON_ID
 
 
 def test_referees_create_with_all_fields(runner: CliRunner) -> None:
@@ -28,7 +29,7 @@ def test_referees_create_with_all_fields(runner: CliRunner) -> None:
     ):
         mock_create.return_value = Referee(
             id="1146197",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="Wes",
             last_name="McCauley",
             email="Wes.McCauley@example.com",
@@ -41,7 +42,7 @@ def test_referees_create_with_all_fields(runner: CliRunner) -> None:
                 "referees",
                 "create",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--first-name",
                 "Wes",
                 "--last-name",
@@ -55,7 +56,7 @@ def test_referees_create_with_all_fields(runner: CliRunner) -> None:
         assert not result.exit_code
         mock_create.assert_called_once()
         args = mock_create.call_args[0]
-        assert args[1] == "15020"
+        assert args[1] == SEASON_ID
         assert args[2] == "Wes"
         assert args[3] == "McCauley"
         assert args[4] == "Wes.McCauley@example.com"
@@ -76,9 +77,9 @@ def test_referees_create_required_fields_only(runner: CliRunner) -> None:
     ):
         mock_create.return_value = Referee(
             id="1146198",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="Jane",
-            last_name="Doe",
+            last_name=DEFAULT_PLAYER_LAST_NAME,
             created_at=datetime(2026, 6, 15, 13, 0, 0, tzinfo=timezone.utc),
             updated_at=datetime(2026, 6, 15, 13, 0, 0, tzinfo=timezone.utc),
         )
@@ -88,19 +89,19 @@ def test_referees_create_required_fields_only(runner: CliRunner) -> None:
                 "referees",
                 "create",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--first-name",
                 "Jane",
                 "--last-name",
-                "Doe",
+                DEFAULT_PLAYER_LAST_NAME,
             ],
         )
         assert not result.exit_code
         mock_create.assert_called_once()
         args = mock_create.call_args[0]
-        assert args[1] == "15020"
+        assert args[1] == SEASON_ID
         assert args[2] == "Jane"
-        assert args[3] == "Doe"
+        assert args[3] == DEFAULT_PLAYER_LAST_NAME
         assert args[4] is None
         assert args[5] is None
 
@@ -119,7 +120,7 @@ def test_referees_create_alias_add(runner: CliRunner) -> None:
     ):
         mock_create.return_value = Referee(
             id="1146199",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="Test",
             last_name="Ref",
             created_at=datetime(2026, 6, 15, 14, 0, 0, tzinfo=timezone.utc),
@@ -131,7 +132,7 @@ def test_referees_create_alias_add(runner: CliRunner) -> None:
                 "referees",
                 "add",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--first-name",
                 "Test",
                 "--last-name",
@@ -156,7 +157,7 @@ def test_referees_create_alias_new(runner: CliRunner) -> None:
     ):
         mock_create.return_value = Referee(
             id="1146200",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="Another",
             last_name="Test",
             created_at=datetime(2026, 6, 15, 15, 0, 0, tzinfo=timezone.utc),
@@ -168,7 +169,7 @@ def test_referees_create_alias_new(runner: CliRunner) -> None:
                 "referees",
                 "new",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--first-name",
                 "Another",
                 "--last-name",
@@ -187,9 +188,9 @@ def test_referees_create_missing_first_name_shows_error(runner: CliRunner) -> No
             "referees",
             "create",
             "--season-id",
-            "15020",
+            SEASON_ID,
             "--last-name",
-            "Doe",
+            DEFAULT_PLAYER_LAST_NAME,
         ],
     )
     assert result.exit_code == 2
@@ -204,7 +205,7 @@ def test_referees_create_missing_last_name_shows_error(runner: CliRunner) -> Non
             "referees",
             "create",
             "--season-id",
-            "15020",
+            SEASON_ID,
             "--first-name",
             "Jane",
         ],
@@ -227,7 +228,7 @@ def test_referees_create_json_output(runner: CliRunner) -> None:
     ):
         mock_create.return_value = Referee(
             id="1146201",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="Json",
             last_name="Test",
             email="json@example.com",
@@ -240,7 +241,7 @@ def test_referees_create_json_output(runner: CliRunner) -> None:
                 "referees",
                 "create",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--first-name",
                 "Json",
                 "--last-name",

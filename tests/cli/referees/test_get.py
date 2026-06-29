@@ -12,6 +12,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.referees import Referee
+from tests.helpers import SEASON_ID
 
 
 def test_referees_get_with_all_fields(runner: CliRunner) -> None:
@@ -26,7 +27,7 @@ def test_referees_get_with_all_fields(runner: CliRunner) -> None:
     ):
         mock_get.return_value = Referee(
             id="1146197",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="WES",
             last_name="MCCAULEY",
             email="Wes.McCauley@example.com",
@@ -39,7 +40,7 @@ def test_referees_get_with_all_fields(runner: CliRunner) -> None:
                 "referees",
                 "get",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146197",
             ],
@@ -47,7 +48,7 @@ def test_referees_get_with_all_fields(runner: CliRunner) -> None:
         assert not result.exit_code
         mock_get.assert_called_once()
         args = mock_get.call_args[0]
-        assert args[1] == "15020"
+        assert args[1] == SEASON_ID
         assert args[2] == "1146197"
 
 
@@ -63,7 +64,7 @@ def test_referees_get_alias_show(runner: CliRunner) -> None:
     ):
         mock_get.return_value = Referee(
             id="1146198",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="Test",
             last_name="Ref",
             created_at=datetime(2026, 6, 15, 13, 0, 0, tzinfo=timezone.utc),
@@ -75,7 +76,7 @@ def test_referees_get_alias_show(runner: CliRunner) -> None:
                 "referees",
                 "show",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146198",
             ],
@@ -96,7 +97,7 @@ def test_referees_get_alias_view(runner: CliRunner) -> None:
     ):
         mock_get.return_value = Referee(
             id="1146199",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="Another",
             last_name="Test",
             created_at=datetime(2026, 6, 15, 14, 0, 0, tzinfo=timezone.utc),
@@ -108,7 +109,7 @@ def test_referees_get_alias_view(runner: CliRunner) -> None:
                 "referees",
                 "view",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146199",
             ],
@@ -125,7 +126,7 @@ def test_referees_get_missing_referee_id_shows_error(runner: CliRunner) -> None:
             "referees",
             "get",
             "--season-id",
-            "15020",
+            SEASON_ID,
         ],
     )
     assert result.exit_code == 2
@@ -144,7 +145,7 @@ def test_referees_get_json_output(runner: CliRunner) -> None:
     ):
         mock_get.return_value = Referee(
             id="1146200",
-            season_id="15020",
+            season_id=SEASON_ID,
             first_name="Json",
             last_name="Output",
             email="json@example.com",
@@ -157,7 +158,7 @@ def test_referees_get_json_output(runner: CliRunner) -> None:
                 "referees",
                 "get",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--referee-id",
                 "1146200",
                 "--format",

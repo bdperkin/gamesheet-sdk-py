@@ -10,13 +10,14 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.commands.roster import coaches_group
+from tests.helpers import COACH_ID_PRIMARY, SEASON_ID, TEAM_ID
 
 
 def test_roster_coaches_assign_coverage() -> None:
     """Ensure coaches assign command body is covered."""
     runner = CliRunner()
     mock_coach = MagicMock()
-    mock_coach.id = "1868550"
+    mock_coach.id = COACH_ID_PRIMARY
     with (
         patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session"),
         patch(
@@ -30,14 +31,14 @@ def test_roster_coaches_assign_coverage() -> None:
             [
                 "assign",
                 "--coach-id",
-                "1868550",
+                COACH_ID_PRIMARY,
                 # pylint: disable=duplicate-code
                 "--team-id",
-                "12345",
+                TEAM_ID,
                 "-F",
                 "json",
             ],
-            obj={"config": MagicMock(), "season_id": "15020"},
+            obj={"config": MagicMock(), "season_id": SEASON_ID},
         )
         assert not result.exit_code
         assert "assigned to team" in result.output.lower()
@@ -59,13 +60,13 @@ def test_roster_coaches_assign_error_handling() -> None:
             [
                 "assign",
                 "--coach-id",
-                "1868550",
+                COACH_ID_PRIMARY,
                 "--team-id",
-                "12345",
+                TEAM_ID,
                 "-F",
                 "json",
             ],
-            obj={"config": MagicMock(), "season_id": "15020"},
+            obj={"config": MagicMock(), "season_id": SEASON_ID},
         )
         assert result.exit_code == 1
         assert "error assigning coach" in result.output.lower()
@@ -83,11 +84,11 @@ def test_roster_coaches_unassign_coverage() -> None:
             [
                 "unassign",
                 "--coach-id",
-                "1868550",
+                COACH_ID_PRIMARY,
                 "--team-id",
-                "12345",
+                TEAM_ID,
             ],
-            obj={"config": MagicMock(), "season_id": "15020"},
+            obj={"config": MagicMock(), "season_id": SEASON_ID},
         )
         assert not result.exit_code
         assert "unassigned from team" in result.output.lower()
@@ -108,11 +109,11 @@ def test_roster_coaches_unassign_error_handling() -> None:
             [
                 "unassign",
                 "--coach-id",
-                "1868550",
+                COACH_ID_PRIMARY,
                 "--team-id",
-                "12345",
+                TEAM_ID,
             ],
-            obj={"config": MagicMock(), "season_id": "15020"},
+            obj={"config": MagicMock(), "season_id": SEASON_ID},
         )
         assert result.exit_code == 1
         assert "error unassigning coach" in result.output.lower()

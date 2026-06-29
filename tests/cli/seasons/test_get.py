@@ -12,6 +12,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.seasons import SeasonDetail
+from tests.helpers import SEASON_ID
 
 
 def test_seasons_get_alias_show_works(runner: CliRunner) -> None:
@@ -25,7 +26,7 @@ def test_seasons_get_alias_show_works(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_get.return_value = SeasonDetail(
-            id="15020",
+            id=SEASON_ID,
             association_id="38",
             league_id="1148580",
             title="Test Season",
@@ -37,7 +38,7 @@ def test_seasons_get_alias_show_works(runner: CliRunner) -> None:
             created_at="2024-01-01T00:00:00Z",
             updated_at="2024-01-01T00:00:00Z",
         )
-        result = runner.invoke(cli, ["seasons", "show", "--season-id", "15020"])
+        result = runner.invoke(cli, ["seasons", "show", "--season-id", SEASON_ID])
         assert not result.exit_code
         mock_get.assert_called_once()
 
@@ -53,7 +54,7 @@ def test_seasons_get_alias_view_works(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_get.return_value = SeasonDetail(
-            id="15020",
+            id=SEASON_ID,
             association_id="38",
             league_id="1148580",
             title="Test Season",
@@ -65,7 +66,7 @@ def test_seasons_get_alias_view_works(runner: CliRunner) -> None:
             created_at="2024-01-01T00:00:00Z",
             updated_at="2024-01-01T00:00:00Z",
         )
-        result = runner.invoke(cli, ["seasons", "view", "--season-id", "15020"])
+        result = runner.invoke(cli, ["seasons", "view", "--season-id", SEASON_ID])
         assert not result.exit_code
         mock_get.assert_called_once()
 
@@ -88,7 +89,7 @@ def test_seasons_get_json_output(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_get.return_value = SeasonDetail(
-            id="15020",
+            id=SEASON_ID,
             association_id="38",
             league_id="1148580",
             title="Test Season 2026",
@@ -102,7 +103,7 @@ def test_seasons_get_json_output(runner: CliRunner) -> None:
         )
         result = runner.invoke(
             cli,
-            ["seasons", "get", "--season-id", "15020", "--format", "json"],
+            ["seasons", "get", "--season-id", SEASON_ID, "--format", "json"],
         )
         assert not result.exit_code
         assert '"id": "15020"' in result.output
@@ -121,7 +122,7 @@ def test_seasons_get_yaml_output(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_get.return_value = SeasonDetail(
-            id="15020",
+            id=SEASON_ID,
             association_id="38",
             league_id="1148580",
             title="Test Season",
@@ -135,7 +136,7 @@ def test_seasons_get_yaml_output(runner: CliRunner) -> None:
         )
         result = runner.invoke(
             cli,
-            ["seasons", "get", "--season-id", "15020", "--format", "yaml"],
+            ["seasons", "get", "--season-id", SEASON_ID, "--format", "yaml"],
         )
         assert not result.exit_code
         assert "id:" in result.output or "id :" in result.output
@@ -153,7 +154,7 @@ def test_seasons_get_fields_filter(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_get.return_value = SeasonDetail(
-            id="15020",
+            id=SEASON_ID,
             association_id="38",
             league_id="1148580",
             title="Test Season",
@@ -167,10 +168,10 @@ def test_seasons_get_fields_filter(runner: CliRunner) -> None:
         )
         result = runner.invoke(
             cli,
-            ["seasons", "get", "--season-id", "15020", "--fields", "id,title,sport"],
+            ["seasons", "get", "--season-id", SEASON_ID, "--fields", "id,title,sport"],
         )
         assert not result.exit_code
-        assert "15020" in result.output
+        assert SEASON_ID in result.output
         assert "Test Season" in result.output
 
 
@@ -186,7 +187,7 @@ def test_seasons_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_get.return_value = SeasonDetail(
-            id="15020",
+            id=SEASON_ID,
             association_id="38",
             league_id="1148580",
             title="Test",
@@ -204,7 +205,7 @@ def test_seasons_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
                 "seasons",
                 "get",
                 "--season-id",
-                "15020",
+                SEASON_ID,
                 "--format",
                 "json",
                 "--output",
@@ -228,7 +229,7 @@ def test_seasons_get_table_format(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_get.return_value = SeasonDetail(
-            id="15020",
+            id=SEASON_ID,
             association_id="38",
             league_id="1148580",
             title="Test Season",
@@ -242,11 +243,11 @@ def test_seasons_get_table_format(runner: CliRunner) -> None:
         )
         result = runner.invoke(
             cli,
-            ["seasons", "get", "--season-id", "15020", "--format", "simple"],
+            ["seasons", "get", "--season-id", SEASON_ID, "--format", "simple"],
         )
         assert not result.exit_code
         # Should have field and value columns
-        assert "field" in result.output.lower() or "15020" in result.output
+        assert "field" in result.output.lower() or SEASON_ID in result.output
         assert "Test Season" in result.output
 
 
@@ -261,7 +262,7 @@ def test_seasons_get_grid_format(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_get.return_value = SeasonDetail(
-            id="15020",
+            id=SEASON_ID,
             association_id="38",
             league_id="1148580",
             title="Test Season",
@@ -275,7 +276,7 @@ def test_seasons_get_grid_format(runner: CliRunner) -> None:
         )
         result = runner.invoke(
             cli,
-            ["seasons", "get", "--season-id", "15020", "--format", "grid"],
+            ["seasons", "get", "--season-id", SEASON_ID, "--format", "grid"],
         )
         assert not result.exit_code
         # Grid format should have borders
@@ -288,7 +289,7 @@ def test_seasons_get_with_no_saved_tokens(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=None),
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=None),
     ):
-        result = runner.invoke(cli, ["seasons", "get", "--season-id", "15020"])
+        result = runner.invoke(cli, ["seasons", "get", "--season-id", SEASON_ID])
         assert result.exit_code == 1
         assert "No saved session" in result.output or "login" in result.output.lower()
 
@@ -304,7 +305,7 @@ def test_seasons_get_with_env_var(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
         mock_get.return_value = SeasonDetail(
-            id="15020",
+            id=SEASON_ID,
             association_id="38",
             league_id="1148580",
             title="Test Season",
@@ -319,7 +320,7 @@ def test_seasons_get_with_env_var(runner: CliRunner) -> None:
         result = runner.invoke(
             cli,
             ["seasons", "get"],
-            env={"GAMESHEET_SEASON_ID": "15020"},
+            env={"GAMESHEET_SEASON_ID": SEASON_ID},
         )
         assert not result.exit_code
         mock_get.assert_called_once()
