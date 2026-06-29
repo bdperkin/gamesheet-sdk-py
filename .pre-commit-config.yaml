@@ -185,7 +185,7 @@ repos:
       - id: tox-ini-fmt # tox-ini-fmt
 
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.25.0
+    rev: v2.25.1
     hooks:
       - id: pyproject-fmt # pyproject-fmt
 
@@ -380,7 +380,7 @@ repos:
   # upstream repo to avoid duplicating runtime deps in additional_dependencies.
 
   - repo: https://github.com/robertcraigie/pyright-python
-    rev: v1.1.410
+    rev: v1.1.411
     hooks:
       - id: pyright # pyright
         additional_dependencies:
