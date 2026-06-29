@@ -1208,6 +1208,7 @@ exclude = [
   "dist",
   ".mypy_cache",
   ".pytest_cache",
+  "test_core_coverage.py",
   "tests/cli/test_core_coverage.py",
   ".tox",
   ".venv",
