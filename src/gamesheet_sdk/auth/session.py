@@ -29,7 +29,9 @@ class AuthenticatedSession(Session):
     :data:`REFRESH_URL`, updates its bearer, optionally invokes ``on_refresh`` with the new token bundle, and
     retries the original request *once*. If the refresh itself fails the original 401 propagates to the
     caller, who can decide whether to log in again.
+
     Example::
+
         from gamesheet_sdk.auth import load_access_token, load_refresh_token, save_tokens
         from gamesheet_sdk.auth.session import AuthenticatedSession
         from gamesheet_sdk.associations import list_associations
@@ -43,6 +45,7 @@ class AuthenticatedSession(Session):
         ) as s:
             for assoc in list_associations(s):
                 print(assoc.name)
+
     :param config: Optional configuration object
     :type config: Config | None
     :param access_token: Current access token to use as bearer
@@ -107,6 +110,7 @@ class AuthenticatedSession(Session):
         response status is 401 Unauthorized, attempts to refresh the access token using the stored refresh
         token, updates the bearer token, invokes the ``on_refresh`` callback if provided, and retries the
         original request exactly once.
+
         :param method: HTTP method (GET, POST, PUT, DELETE, etc.).
         :type method: str
         :param url: Target URL for the request.

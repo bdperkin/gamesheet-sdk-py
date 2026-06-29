@@ -40,11 +40,14 @@ class BrowserSession:
     Mirror of :class:`gamesheet_sdk.Session` for flows where ``requests``
     is not enough (single-page apps, anti-bot challenges, anything that
     needs a real engine to render).
+
     Example::
+
         from gamesheet_sdk import BrowserSession, Config
         with BrowserSession(Config()) as bs:
             page = bs.goto("/login")
             page.fill("input[name='email']", "...")
+
     :param config: Optional configuration object
     :type config: Config | None
     """
@@ -150,7 +153,9 @@ class BrowserSession:
 
         ``url`` may be absolute or a path relative to :attr:`Config.base_url`.
         Starts Playwright and Chromium on first call if not already running.
+
         Example::
+
             with BrowserSession() as bs:
                 page = bs.goto("/login", wait_until="networkidle")
                 page.fill("input[name='email']", "test@example.com")
