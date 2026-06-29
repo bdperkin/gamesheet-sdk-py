@@ -29,3 +29,12 @@ CVE-2026-56409
 # libasound2 (ALSA) vulnerabilities - no fixed version available
 # Audio libraries not used by this Python SDK
 CVE-2026-56109
+
+# libacl1 (ACL) vulnerabilities - no fixed version available
+# Access control list libraries not used by this Python SDK
+CVE-2026-54369
+CVE-2026-54370
+
+# libattr1 (extended attributes) vulnerabilities - no fixed version available
+# File attribute libraries not used by this Python SDK
+CVE-2026-54371
