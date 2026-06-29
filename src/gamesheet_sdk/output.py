@@ -307,16 +307,24 @@ def write_output(
     When ``path`` is ``None`` and stdout is a TTY, JSON and YAML output is syntax-highlighted via
     :class:`rich.syntax.Syntax`. Other formats and any non-TTY destination receive ``text`` verbatim with a
     trailing newline if it does not already have one.
+
     **File output example**::
+
         >>> from gamesheet_sdk.output import render, write_output
         >>> rows = [{"id": 123, "name": "Example"}]
         >>> text = render(rows, fmt="json")
         >>> write_output(text, "output.json", fmt="json")
         # Writes to output.json with trailing newline
+
     **TTY stdout example** (JSON/YAML only)::
+
+        >>> from gamesheet_sdk.output import write_output
         >>> write_output(text, None, fmt="json")
         # Syntax-highlighted output to terminal if stdout is a TTY
+
     **Non-TTY / other formats**::
+
+        >>> from gamesheet_sdk.output import write_output
         >>> write_output(text, None, fmt="csv")
         # Plain text to stdout with trailing newline
 
