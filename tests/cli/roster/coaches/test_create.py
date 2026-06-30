@@ -9,7 +9,9 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.roster import coaches_group
+from gamesheet_sdk.cli.commands.roster_coaches import (
+    coaches_group,
+)
 from tests.helpers import (
     COACH_FIRST_NAME,
     COACH_ID_PRIMARY,
@@ -24,12 +26,12 @@ def test_roster_coaches_create_coverage() -> None:
     mock_coach = MagicMock()
     mock_coach.id = COACH_ID_PRIMARY
     with (
-        patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.roster_coaches.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.roster._create_coach_action",
+            "gamesheet_sdk.cli.commands.roster_coaches._create_coach_action",
             return_value=mock_coach,
         ),
-        patch("gamesheet_sdk.cli.commands.roster.render_get_command"),
+        patch("gamesheet_sdk.cli.commands.roster_coaches.render_get_command"),
     ):
         result = runner.invoke(
             coaches_group,
@@ -52,9 +54,9 @@ def test_roster_coaches_create_error_handling() -> None:
     """Ensure coaches create command error path is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.roster_coaches.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.roster._create_coach_action",
+            "gamesheet_sdk.cli.commands.roster_coaches._create_coach_action",
             side_effect=Exception("Test error"),
         ),
     ):

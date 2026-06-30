@@ -9,7 +9,9 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.roster import coaches_group
+from gamesheet_sdk.cli.commands.roster_coaches import (
+    coaches_group,
+)
 from tests.helpers import COACH_ID_PRIMARY, SEASON_ID, TEAM_ID
 
 
@@ -19,9 +21,9 @@ def test_roster_coaches_assign_coverage() -> None:
     mock_coach = MagicMock()
     mock_coach.id = COACH_ID_PRIMARY
     with (
-        patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.roster_coaches.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.roster._assign_coach_action",
+            "gamesheet_sdk.cli.commands.roster_coaches._assign_coach_action",
             return_value=mock_coach,
         ),
         patch("gamesheet_sdk.cli.shared.render_get_command"),
@@ -32,7 +34,6 @@ def test_roster_coaches_assign_coverage() -> None:
                 "assign",
                 "--coach-id",
                 COACH_ID_PRIMARY,
-                # pylint: disable=duplicate-code
                 "--team-id",
                 TEAM_ID,
                 "-F",
@@ -48,10 +49,9 @@ def test_roster_coaches_assign_error_handling() -> None:
     """Ensure coaches assign command error handling is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.roster_coaches.build_authenticated_session"),
         patch(
-            # pylint: enable=duplicate-code
-            "gamesheet_sdk.cli.commands.roster._assign_coach_action",
+            "gamesheet_sdk.cli.commands.roster_coaches._assign_coach_action",
             side_effect=Exception("Test error"),
         ),
     ):
@@ -76,8 +76,8 @@ def test_roster_coaches_unassign_coverage() -> None:
     """Ensure coaches unassign command body is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session"),
-        patch("gamesheet_sdk.cli.commands.roster._unassign_coach_action"),
+        patch("gamesheet_sdk.cli.commands.roster_coaches.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.roster_coaches._unassign_coach_action"),
     ):
         result = runner.invoke(
             coaches_group,
@@ -98,9 +98,9 @@ def test_roster_coaches_unassign_error_handling() -> None:
     """Ensure coaches unassign command error handling is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.roster.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.roster_coaches.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.roster._unassign_coach_action",
+            "gamesheet_sdk.cli.commands.roster_coaches._unassign_coach_action",
             side_effect=Exception("Test error"),
         ),
     ):

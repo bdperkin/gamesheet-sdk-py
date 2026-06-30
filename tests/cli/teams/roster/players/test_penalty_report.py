@@ -10,7 +10,9 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.teams_roster import teams_roster_players_group
+from gamesheet_sdk.cli.commands.teams_roster_players import (
+    teams_roster_players_group,
+)
 from tests.helpers import (
     PLAYER_ID_SECONDARY,
     SEASON_ID,
@@ -31,7 +33,7 @@ def test_teams_roster_players_penalty_report_coverage(
     }
     with (
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster.build_authenticated_session",
+            "gamesheet_sdk.cli.commands.teams_roster_players.build_authenticated_session",
             return_value=mock_session,
         ),
         patch(
@@ -83,7 +85,7 @@ def test_teams_roster_players_penalty_report_json_format(
     mock_report: dict[str, Any] = {"player_games": [], "player_penalties": []}
     with (
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster.build_authenticated_session",
+            "gamesheet_sdk.cli.commands.teams_roster_players.build_authenticated_session",
             return_value=mock_session,
         ),
         patch(
@@ -113,7 +115,7 @@ def test_teams_roster_players_penalty_report_yaml_format(
     mock_report: dict[str, Any] = {"player_games": [], "player_penalties": []}
     with (
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster.build_authenticated_session",
+            "gamesheet_sdk.cli.commands.teams_roster_players.build_authenticated_session",
             return_value=mock_session,
         ),
         patch(

@@ -66,7 +66,7 @@ def test_update_player_with_empty_biography_not_updated(config: Config) -> None:
     # Default payload has biography="" (empty), which is falsy
     assert not current_player["attributes"]["biography"]
     # Mock PATCH to update player - verify biography is not in payload
-    # pylint: disable=duplicate-code
+
     updated_player = roster_player_payload(season_id=SEASON_ID)
     updated_player["attributes"]["last_name"] = "UPDATED"
     # biography stays empty
@@ -81,7 +81,7 @@ def test_update_player_with_empty_biography_not_updated(config: Config) -> None:
             # biography=None (not provided), and current is empty
         )
     assert result.last_name == "UPDATED"
-    # pylint: enable=duplicate-code
+
     # biography remains empty
     assert not result.biography
 

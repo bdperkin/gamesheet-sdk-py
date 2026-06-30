@@ -73,3 +73,30 @@ def render_list_command(
     # Render and write
     rendered = render(rows, fmt=output_format, columns=columns)
     write_output(rendered, output_path, fmt=output_format)
+
+
+def render_penalty_report(
+    report: dict[str, Any],
+    output_format: str,
+    output_path: str | None,
+) -> None:
+    """Render penalty report output.
+
+    :param report: The penalty report dictionary to render
+    :type report: dict[str, Any]
+    :param output_format: Output format (json or yaml)
+    :type output_format: str
+    :param output_path: Optional file path to write output to
+    :type output_path: str | None
+    """
+    import json
+
+    if output_format == "json":
+        output_text = json.dumps(report, indent=2)
+    elif output_format == "yaml":
+        import yaml
+
+        output_text = yaml.dump(report, default_flow_style=False)
+    else:
+        output_text = json.dumps(report, indent=2)
+    write_output(output_text, output_path, fmt=output_format)
