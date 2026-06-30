@@ -2,6 +2,64 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.58 (2026-06-30)
+
+### Bug Fixes
+
+- **tests**: Update import and patch paths in roster coaches list test ([#133](https://github.com/bdperkin/gamesheet-sdk-py/pull/133),
+  [`501d324`](https://github.com/bdperkin/gamesheet-sdk-py/commit/501d3243e6e444433352adc5ca02622079fe0c1d))
+
+- **tests**: Update import and patch paths in roster players list test ([#133](https://github.com/bdperkin/gamesheet-sdk-py/pull/133),
+  [`501d324`](https://github.com/bdperkin/gamesheet-sdk-py/commit/501d3243e6e444433352adc5ca02622079fe0c1d))
+
+- **tests**: Update import and patch paths in teams roster coaches list test ([#133](https://github.com/bdperkin/gamesheet-sdk-py/pull/133),
+  [`501d324`](https://github.com/bdperkin/gamesheet-sdk-py/commit/501d3243e6e444433352adc5ca02622079fe0c1d))
+
+- **tests**: Update import and patch paths in teams roster players list test ([#133](https://github.com/bdperkin/gamesheet-sdk-py/pull/133),
+  [`501d324`](https://github.com/bdperkin/gamesheet-sdk-py/commit/501d3243e6e444433352adc5ca02622079fe0c1d))
+
+- **tests**: Update patch paths in roster coaches tests ([#133](https://github.com/bdperkin/gamesheet-sdk-py/pull/133),
+  [`501d324`](https://github.com/bdperkin/gamesheet-sdk-py/commit/501d3243e6e444433352adc5ca02622079fe0c1d))
+
+- **tests**: Update patch paths in roster players tests ([#133](https://github.com/bdperkin/gamesheet-sdk-py/pull/133),
+  [`501d324`](https://github.com/bdperkin/gamesheet-sdk-py/commit/501d3243e6e444433352adc5ca02622079fe0c1d))
+
+- **tests**: Update patch paths in teams roster coaches tests ([#133](https://github.com/bdperkin/gamesheet-sdk-py/pull/133),
+  [`501d324`](https://github.com/bdperkin/gamesheet-sdk-py/commit/501d3243e6e444433352adc5ca02622079fe0c1d))
+
+- **tests**: Update patch paths in teams roster players tests ([#133](https://github.com/bdperkin/gamesheet-sdk-py/pull/133),
+  [`501d324`](https://github.com/bdperkin/gamesheet-sdk-py/commit/501d3243e6e444433352adc5ca02622079fe0c1d))
+
+### Chores
+
+- **deps**: Update pre-commit hooks ([#127](https://github.com/bdperkin/gamesheet-sdk-py/pull/127),
+  [`88bb557`](https://github.com/bdperkin/gamesheet-sdk-py/commit/88bb5573d5b7f722bee76d624ac8ea269b607ac6))
+
+- **security**: Suppress 3 additional Trivy false-positive findings ([#132](https://github.com/bdperkin/gamesheet-sdk-py/pull/132),
+  [`eb60ea0`](https://github.com/bdperkin/gamesheet-sdk-py/commit/eb60ea0ae9044020532c29a4a267216d052f8765))
+
+- **security**: Suppress false-positive Trivy findings for system libraries ([#131](https://github.com/bdperkin/gamesheet-sdk-py/pull/131),
+  [`8c7dcc3`](https://github.com/bdperkin/gamesheet-sdk-py/commit/8c7dcc3b659192d14cab7da8c28e7b3b18f8adf4))
+
+### Code Style
+
+- **tests**: Fix line length in teams roster coaches test ([#133](https://github.com/bdperkin/gamesheet-sdk-py/pull/133),
+  [`501d324`](https://github.com/bdperkin/gamesheet-sdk-py/commit/501d3243e6e444433352adc5ca02622079fe0c1d))
+
+### Refactoring
+
+- **cli**: De-duplicate test helpers and penalty report rendering ([#133](https://github.com/bdperkin/gamesheet-sdk-py/pull/133),
+  [`501d324`](https://github.com/bdperkin/gamesheet-sdk-py/commit/501d3243e6e444433352adc5ca02622079fe0c1d))
+
+- **cli**: Export roster submodules from commands package ([#133](https://github.com/bdperkin/gamesheet-sdk-py/pull/133),
+  [`501d324`](https://github.com/bdperkin/gamesheet-sdk-py/commit/501d3243e6e444433352adc5ca02622079fe0c1d))
+
+- **cli**: Split large roster command files by resource type ([#133](https://github.com/bdperkin/gamesheet-sdk-py/pull/133),
+  [`501d324`](https://github.com/bdperkin/gamesheet-sdk-py/commit/501d3243e6e444433352adc5ca02622079fe0c1d))
+
+- **roster**: Improve code consistency between players and coaches ([#133](https://github.com/bdperkin/gamesheet-sdk-py/pull/133),
+  [`501d324`](https://github.com/bdperkin/gamesheet-sdk-py/commit/501d3243e6e444433352adc5ca02622079fe0c1d))
+
 ## v0.1.57 (2026-06-29)
 
 ### Bug Fixes
