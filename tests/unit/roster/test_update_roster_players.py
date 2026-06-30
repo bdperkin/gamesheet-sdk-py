@@ -29,7 +29,7 @@ def test_update_player_updates_fields(config: Config) -> None:
     # Mock GET to fetch current player
     current_player = roster_player_payload(season_id=SEASON_ID)
     # Mock PATCH to update player
-    # pylint: disable=duplicate-code
+
     updated_player = roster_player_payload(season_id=SEASON_ID)
     updated_player["attributes"]["last_name"] = "UPDATED"
     setup_update_player_mocks(_PLAYERS_ENDPOINT, current_player, updated_player)
@@ -42,7 +42,6 @@ def test_update_player_updates_fields(config: Config) -> None:
             last_name="UPDATED",
         )
     assert result.last_name == "UPDATED"
-    # pylint: enable=duplicate-code
 
 
 @responses.activate
@@ -478,8 +477,8 @@ def test_update_team_player_remove_photo(config: Config) -> None:
             PLAYER_ID,
             remove_photo=True,
         )
-    # pylint: disable-next=use-implicit-booleaness-not-comparison-to-string
-    assert result.photo_url == ""
+
+    assert not result.photo_url
 
 
 @responses.activate

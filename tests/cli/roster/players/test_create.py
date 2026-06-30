@@ -9,8 +9,7 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-# pylint: disable=import-error,no-name-in-module
-from gamesheet_sdk.cli.commands.roster_players import (  # type: ignore[import-not-found]
+from gamesheet_sdk.cli.commands.roster_players import (
     players_group,
 )
 from tests.helpers import (

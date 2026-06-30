@@ -9,8 +9,7 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-# pylint: disable=import-error,no-name-in-module
-from gamesheet_sdk.cli.commands.teams_roster_players import (  # type: ignore[import-not-found]
+from gamesheet_sdk.cli.commands.teams_roster_players import (
     teams_roster_players_group,
 )
 from tests.helpers import PLAYER_ID, SEASON_ID, TEAM_ID
@@ -22,7 +21,9 @@ def test_teams_roster_players_update_coverage() -> None:
     mock_player = MagicMock()
     mock_player.id = PLAYER_ID
     with (
-        patch("gamesheet_sdk.cli.commands.teams_roster_players.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.cli.commands.teams_roster_players.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.cli.commands.teams_roster_players._update_team_player_action",
             return_value=mock_player,
@@ -50,7 +51,9 @@ def test_teams_roster_players_update_error_handling() -> None:
     """Ensure teams roster players update command error path is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.teams_roster_players.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.cli.commands.teams_roster_players.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.cli.commands.teams_roster_players._update_team_player_action",
             side_effect=Exception("Test error"),

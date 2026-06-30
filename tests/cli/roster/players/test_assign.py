@@ -9,8 +9,7 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-# pylint: disable=import-error,no-name-in-module
-from gamesheet_sdk.cli.commands.roster_players import (  # type: ignore[import-not-found]
+from gamesheet_sdk.cli.commands.roster_players import (
     players_group,
 )
 from tests.helpers import PLAYER_ID, SEASON_ID, TEAM_ID
@@ -35,7 +34,6 @@ def test_roster_players_assign_coverage() -> None:
                 "assign",
                 "--player-id",
                 PLAYER_ID,
-                # pylint: disable=duplicate-code
                 "--team-id",
                 TEAM_ID,
                 "-F",
@@ -53,7 +51,6 @@ def test_roster_players_assign_error_handling() -> None:
     with (
         patch("gamesheet_sdk.cli.commands.roster_players.build_authenticated_session"),
         patch(
-            # pylint: enable=duplicate-code
             "gamesheet_sdk.cli.commands.roster_players._assign_player_action",
             side_effect=Exception("Test error"),
         ),

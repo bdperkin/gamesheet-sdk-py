@@ -7,8 +7,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-# pylint: disable=import-error,no-name-in-module
-from gamesheet_sdk.cli.commands.teams_roster_players import (  # type: ignore[import-not-found]
+from gamesheet_sdk.cli.commands.teams_roster_players import (
     teams_roster_players_group,
 )
 from tests.cli.teams.roster.conftest import run_roster_delete_test

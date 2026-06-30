@@ -39,7 +39,9 @@ def test_coaches_delete_requires_confirmation(mock_session: MagicMock) -> None:
             "gamesheet_sdk.cli.commands.roster_coaches.build_authenticated_session",
             return_value=mock_session,
         ),
-        patch("gamesheet_sdk.cli.commands.roster_coaches._delete_coach_action") as mock_delete,
+        patch(
+            "gamesheet_sdk.cli.commands.roster_coaches._delete_coach_action",
+        ) as mock_delete,
     ):
         # Answer 'n' to confirmation
         result = runner.invoke(
@@ -69,7 +71,9 @@ def test_coaches_delete_with_confirmation(mock_session: MagicMock) -> None:
             "gamesheet_sdk.cli.commands.roster_coaches.build_authenticated_session",
             return_value=mock_session,
         ),
-        patch("gamesheet_sdk.cli.commands.roster_coaches._delete_coach_action") as mock_delete,
+        patch(
+            "gamesheet_sdk.cli.commands.roster_coaches._delete_coach_action",
+        ) as mock_delete,
     ):
         # Answer 'y' to confirmation
         result = runner.invoke(
@@ -100,7 +104,9 @@ def test_coaches_delete_with_force(mock_session: MagicMock) -> None:
             "gamesheet_sdk.cli.commands.roster_coaches.build_authenticated_session",
             return_value=mock_session,
         ),
-        patch("gamesheet_sdk.cli.commands.roster_coaches._delete_coach_action") as mock_delete,
+        patch(
+            "gamesheet_sdk.cli.commands.roster_coaches._delete_coach_action",
+        ) as mock_delete,
     ):
         result = runner.invoke(
             cli,
@@ -162,7 +168,9 @@ def test_coaches_delete_uses_env_var(mock_session: MagicMock) -> None:
             "gamesheet_sdk.cli.commands.roster_coaches.build_authenticated_session",
             return_value=mock_session,
         ),
-        patch("gamesheet_sdk.cli.commands.roster_coaches._delete_coach_action") as mock_delete,
+        patch(
+            "gamesheet_sdk.cli.commands.roster_coaches._delete_coach_action",
+        ) as mock_delete,
     ):
         result = runner.invoke(
             cli,

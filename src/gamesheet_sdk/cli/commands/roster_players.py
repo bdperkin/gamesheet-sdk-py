@@ -557,6 +557,7 @@ def players_delete_command(ctx: Context, player_id: str) -> None:
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
+    # pylint: enable=duplicate-code
     session = build_authenticated_session(config)
     try:
         with session:
