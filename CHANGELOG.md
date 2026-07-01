@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.0 (2026-07-01)
+
+### Features
+
+- Stabilize API for 0.2.0 release ([#134](https://github.com/bdperkin/gamesheet-sdk-py/pull/134),
+  [`f4be0a8`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f4be0a899c98506ccc60ed84c5f181b7e656e777))
+
+### Breaking Changes
+
+- Marking this as a breaking change to signal API stability milestone and increment to 0.2.0
+
 ## v0.1.58 (2026-06-30)
 
 ### Bug Fixes
