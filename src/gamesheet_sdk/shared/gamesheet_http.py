@@ -25,13 +25,20 @@ def handle_response(
     :type endpoint: str
     :param context_msg: Context message for error reporting (e.g., ``"GET associations"``).
     :type context_msg: str
-    :raises AuthenticationError: If response status is 401 (Unauthorized).
+    :raises AuthenticationError: If response status is 401 (Unauthorized) or 403 (Forbidden).
     :raises GameSheetError: If response status is 404 or any other >= 400.
     """
     if response.status_code == 401:
         msg = (
             f"Access token rejected (HTTP 401) for {context_msg}. "
             "Use `gamesheet-sdk-py login` to authenticate."
+        )
+        raise AuthenticationError(msg)
+    if response.status_code == 403:
+        msg = (
+            f"Access forbidden (HTTP 403) for {context_msg}. "
+            "Your session cookies may have expired. "
+            "Use `gamesheet-sdk-py login` to re-authenticate."
         )
         raise AuthenticationError(msg)
     if response.status_code == 404:

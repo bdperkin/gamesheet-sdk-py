@@ -250,7 +250,7 @@ def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:  #
     assert result.flagging_criteria == {"penalty": True, "unlocked": True}
     assert result.flagged_penalties == ["BDG-MAJ", "CHG-MAJ"]
     assert result.settings == {"penalty_lengths": ["2", "5", "10"], "goal_value": 1}
-    assert result.vendor_data == {}
+    assert not result.vendor_data
     assert result.created_at == datetime(
         2026,
         5,

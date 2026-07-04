@@ -55,7 +55,7 @@ DEFAULT_FORMAT = "simple"
 
 def _render_json(
     rows: list[dict[str, Any]],
-    _columns: list[str],  # noqa: U101
+    _columns: list[str],
 ) -> str:
     """Render rows as indented, sorted JSON.
 
@@ -80,7 +80,7 @@ def _render_json(
 
 def _render_yaml(
     rows: list[dict[str, Any]],
-    _columns: list[str],  # noqa: U101
+    _columns: list[str],
 ) -> str:
     """Render rows as block-style YAML.
 

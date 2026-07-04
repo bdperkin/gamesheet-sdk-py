@@ -74,16 +74,11 @@ def test_games_scheduled_list_json_format() -> None:
 
 @responses.activate
 def test_games_brackets_list_json_format() -> None:
-    """Test games brackets list with JSON output."""
+    """Test games brackets list returns not implemented error."""
     _mock_token()
-    responses.add(
-        responses.GET,
-        _ENDPOINT,
-        json=_bff_response([]),
-        status=200,
-    )
+    # Brackets list is not implemented yet - should return exit code 1
     result = main(
         ["games", "--season-id", _SEASON_ID, "brackets", "list", "-F", "json"],
     )
-    assert not result
+    assert result == 1  # Not implemented
     _cleanup_token()

@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from click.testing import CliRunner
 
@@ -15,9 +15,11 @@ from tests.helpers import ASSOCIATION_ID, SEASON_ID, TEAM_ID
 
 
 def test_games_get(runner: CliRunner) -> None:
-    """The games get command should retrieve a single game."""
+    """The games completed get command should retrieve a single game."""
     with (
-        patch("gamesheet_sdk.cli.commands.games._get_game_action") as mock_action,
+        patch(
+            "gamesheet_sdk.cli.commands.games._get_completed_game_action",
+        ) as mock_action,
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
     ):
@@ -32,24 +34,28 @@ def test_games_get(runner: CliRunner) -> None:
             visitor_score=3,
             home_score=2,
         )
-        # Invoke via the CLI to exercise the full games_group -> games_get_command path
-        # but can't use "games get" due to ResourceGroup alias conflict, so invoke function directly
-        from gamesheet_sdk.cli.commands.games import games_get_command
+        from gamesheet_sdk.cli.commands.games import completed_get_command
 
         # Use a real Config object to avoid Mock serialization issues
         config = Config(base_url="https://test.example")
-        ctx = Mock()
-        ctx.obj = {"config": config, "season_id": SEASON_ID}
-        result = runner.invoke(games_get_command, ["--game-id", TEAM_ID], obj=ctx.obj)
+        # completed_get_command expects ctx.obj to be {"config": config, "season_id": season_id}
+        ctx_obj = {"config": config, "season_id": SEASON_ID}
+        result = runner.invoke(
+            completed_get_command,
+            ["--game-id", TEAM_ID],
+            obj=ctx_obj,
+        )
         assert not result.exit_code
         assert result.output
         assert mock_action.called
 
 
 def test_games_get_with_fields(runner: CliRunner) -> None:
-    """The games get command should support --fields and JSON format."""
+    """The games completed get command should support --fields and JSON format."""
     with (
-        patch("gamesheet_sdk.cli.commands.games._get_game_action") as mock_action,
+        patch(
+            "gamesheet_sdk.cli.commands.games._get_completed_game_action",
+        ) as mock_action,
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
     ):
@@ -64,13 +70,12 @@ def test_games_get_with_fields(runner: CliRunner) -> None:
             visitor_score=3,
             home_score=2,
         )
-        from gamesheet_sdk.cli.commands.games import games_get_command
+        from gamesheet_sdk.cli.commands.games import completed_get_command
 
         config = Config(base_url="https://test.example")
-        ctx = Mock()
-        ctx.obj = {"config": config, "season_id": SEASON_ID}
+        ctx_obj = {"config": config, "season_id": SEASON_ID}
         result = runner.invoke(
-            games_get_command,
+            completed_get_command,
             [
                 "--game-id",
                 TEAM_ID,
@@ -79,16 +84,18 @@ def test_games_get_with_fields(runner: CliRunner) -> None:
                 "--format",
                 "json",
             ],
-            obj=ctx.obj,
+            obj=ctx_obj,
         )
         assert not result.exit_code
         assert result.output
 
 
 def test_games_get_empty_fields(runner: CliRunner) -> None:
-    """The games get command should handle empty fields spec."""
+    """The games completed get command should handle empty fields spec."""
     with (
-        patch("gamesheet_sdk.cli.commands.games._get_game_action") as mock_action,
+        patch(
+            "gamesheet_sdk.cli.commands.games._get_completed_game_action",
+        ) as mock_action,
         patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
     ):
@@ -103,15 +110,14 @@ def test_games_get_empty_fields(runner: CliRunner) -> None:
             visitor_score=3,
             home_score=2,
         )
-        from gamesheet_sdk.cli.commands.games import games_get_command
+        from gamesheet_sdk.cli.commands.games import completed_get_command
 
         config = Config(base_url="https://test.example")
-        ctx = Mock()
-        ctx.obj = {"config": config, "season_id": SEASON_ID}
+        ctx_obj = {"config": config, "season_id": SEASON_ID}
         result = runner.invoke(
-            games_get_command,
+            completed_get_command,
             ["--game-id", TEAM_ID, "--fields", ","],
-            obj=ctx.obj,
+            obj=ctx_obj,
         )
         assert not result.exit_code
         assert result.output

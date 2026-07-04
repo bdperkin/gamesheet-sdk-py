@@ -51,6 +51,7 @@ from gamesheet_sdk.cli.commands import (
     games_group,
     ipad_keys_group,
     leagues_group,
+    locations_group,
     login_command,
     referees_group,
     roster_group,
@@ -113,6 +114,7 @@ click.rich_click.COMMAND_GROUPS = {
                 "referees",
                 "ipad-keys",
                 "games",
+                "locations",
                 "roster",
             ],
         },
@@ -183,6 +185,7 @@ cli.add_command(teams_group)
 cli.add_command(referees_group)
 cli.add_command(ipad_keys_group)
 cli.add_command(games_group)
+cli.add_command(locations_group)
 cli.add_command(roster_group)
 # Register teams roster as a nested group under teams
 register_teams_roster_group(teams_group)
@@ -208,8 +211,13 @@ def main(argv: list[str] | None = None) -> int:
     :returns: Integer exit code (0 for success, non-zero for errors).
     :rtype: int
     """
+    # pylint: disable-next=no-else-return
     try:
-        cli.main(args=argv, prog_name="gamesheet-sdk-py", standalone_mode=False)
+        result = cli.main(
+            args=argv,
+            prog_name="gamesheet-sdk-py",
+            standalone_mode=False,
+        )
     except (
         Exit,
         UsageError,
@@ -217,7 +225,9 @@ def main(argv: list[str] | None = None) -> int:
         SystemExit,
     ) as exc:
         return resolve_exit(exc)
-    return 0
+    else:
+        # In standalone_mode=False, Click returns exit codes directly instead of raising
+        return result if isinstance(result, int) else 0
 
 
 if __name__ == "__main__":  # pragma: no cover

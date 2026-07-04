@@ -64,7 +64,7 @@ A few practical implications drop out of this design:
 - **Reverse-engineering a private API.** Strictly worse than UI automation: same fragility, plus the discomfort of inviting a vendor conversation about the
   boundary between observed traffic and legitimate use. UI automation is at least transparent about what it is doing.
 - **Lobbying GameSheet to publish an API.** Not in this project's scope. If they ever do, this SDK should wrap _that_ and the WebUI layer should be deprecated.
-- **A "headed" desktop-driver mode.** Adds operational complexity for no behavioural gain over headless Chromium.
+- **A "headed" desktop-driver mode.** Adds operational complexity for no behavioral gain over headless Chromium.
 
 ## Further reading
 

@@ -12,6 +12,8 @@ APP_GAMESHEET_COM : str
     Legacy GameSheet domain (used for browser storage).
 BFF_API_BASE_URL : str
     Backend-for-Frontend API base URL.
+SCORESHEET_SERVICE_BASE_URL : str
+    Scoresheet service base URL (for PDF downloads).
 CLOUDFLARE_IMAGE_DELIVERY_BASE : str
     Cloudflare image delivery CDN base URL with account hash.
 Examples
@@ -46,5 +48,7 @@ PLAY_GAMESHEET_APP: Final[str] = "https://play.gamesheet.app"
 APP_GAMESHEET_COM: Final[str] = "https://app.gamesheet.com"
 # Backend-for-Frontend (BFF) API base URL
 BFF_API_BASE_URL: Final[str] = "https://bff-dashboard-api-awy26srzoa-nn.a.run.app"
+# Scoresheet service base URL (for PDF downloads)
+SCORESHEET_SERVICE_BASE_URL: Final[str] = "https://scoresheet-service-awy26srzoa-nn.a.run.app"
 # Cloudflare image delivery CDN base URL
 CLOUDFLARE_IMAGE_DELIVERY_BASE: Final[str] = "https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA"

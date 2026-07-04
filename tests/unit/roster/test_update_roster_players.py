@@ -77,8 +77,8 @@ def test_update_player_with_photo_upload(config: Config) -> None:
             PLAYER_ID,
             photo_path=temp_path,
         )
-    assert result.photo_url
-    assert "test-image-id" in result.photo_url
+    assert result.photo_url is not None
+    assert result.photo_url.find("test-image-id") != -1
 
 
 @responses.activate

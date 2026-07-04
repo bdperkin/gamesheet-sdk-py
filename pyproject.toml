@@ -59,6 +59,7 @@ dependencies = [
   "rich",
   "rich-click",
   "tabulate",
+  "tzlocal",
   "urllib3",
 ]
 optional-dependencies.absolufy-imports = [
@@ -205,6 +206,7 @@ optional-dependencies.pydocstyle = [
 optional-dependencies.pylint = [
   "gamesheet-sdk-py[pytest]",
   "pylint-per-file-ignores",
+  "pylint-pydantic",
 ]
 optional-dependencies.pymarkdown = [
   "pymarkdownlnt",
@@ -253,12 +255,12 @@ optional-dependencies.tox-ini-fmt = [
 optional-dependencies.type-stubs = [
   "types-certifi",
   "types-click",
-  "types-docutils",
   "types-greenlet",
   "types-pygments",
   "types-pyyaml",
   "types-requests",
   "types-tabulate",
+  "types-tzlocal",
   "types-urllib3",
 ]
 optional-dependencies.unimport = [
@@ -381,6 +383,7 @@ hang-closing = false
 # Comma-separated list of error codes to add to the list of ignored ones. For example, ``--extend-ignore=E4,E51,W234``.
 extend-ignore = [
   "E203",
+  "U101",
   "W503",
 ]
 # A pairing of filenames and violation codes that defines which violations to ignore in a particular file. The
@@ -507,6 +510,7 @@ extend-immutable-calls = false
 # A comma separated list of builtins to skip checking.
 builtins-ignorelist = [
   "id",
+  "type",
 ]
 # A comma separated list of builtin module names to allow.
 # builtins-allowed-modules = []
@@ -732,8 +736,8 @@ recursive = true
 
 ## ## pylint - Comprehensive static code analyzer
 [tool.pylint]
-# Analyse import fallback blocks. This can be used to support both Python 2 and 3 compatible code, which means that the
-# block might have code that exists only in one or another interpreter, leading to false positives when analysed.
+# Analyze import fallback blocks. This can be used to support both Python 2 and 3 compatible code, which means that the
+# block might have code that exists only in one or another interpreter, leading to false positives when analyzed.
 # analyse-fallback-blocks =
 # Clear in-memory caches upon conclusion of linting. Useful if running pylint in a server-like mode.
 # clear-cache-post-run =
@@ -801,6 +805,7 @@ main.load-plugins = [
   "pylint.extensions.overlapping_exceptions",
   "pylint.extensions.redefined_variable_type",
   "pylint_per_file_ignores",
+  "pylint_pydantic",
 ]
 # Pickle collected data for later comparisons.
 main.persistent = true
@@ -1196,6 +1201,8 @@ parameter_documentation.default-docstring-type = "default"
 ## # -------------------------------------------------------------------------------------------------------------------
 ## ## codespell - Typos and spelling checker
 [tool.codespell]
+builtin = "code,en-GB_to_en-US,informal,names,rare,usage"
+ignore-words = "custom-dictionary.txt"
 skip = "./docs/_build,./htmlcov"
 
 ## ## docformatter - Docstring formatter
@@ -1294,99 +1301,63 @@ exclude = [
   "dist",
 ]
 ignore_names = [
-  "__*",
-  "added_at_game_time",
-  "affiliated",
-  "association_payload",
+  "_*",
   "autoclass_*",
   "autodoc_*",
   "autosectionlabel_*",
   "autosummary_*",
-  "average_pim_per_game",
-  "biography",
-  "birthdate",
-  "committed_to",
-  "confirm_destructive",
+  "broadcaster_*",
+  "category",
+  "city",
   "copyright",
-  "country",
-  "designation",
-  "discovered_from_url",
-  "division_title",
-  "drafted_by",
-  "duty",
-  "element_type",
-  "end_time",
+  "discovered_*",
+  "element_*",
+  "end_*",
   "epub_*",
-  "ERRORS_EPILOGUE",
-  "ERRORS_SUGGESTION",
-  "exclude_*",
+  "ERRORS_*",
   "extensions",
-  "form_action",
-  "format_commands",
-  "game_date",
-  "game_number",
-  "game_type",
-  "games_refereed",
-  "get_cmd",
-  "has_overtime",
-  "has_shootout",
-  "height",
-  "hidden_cmd",
-  "hometown",
+  "form_*",
+  "has_*",
   "html_*",
   "intersphinx_*",
+  "is_*",
   "latex_*",
-  "league_payload",
   "linkcheck_*",
-  "list_cmd",
-  "location",
-  "major_penalties",
-  "major_penalties_count",
   "man_*",
-  "mock_stdout",
-  "model_config",
-  "most_frequent_penalty",
+  "model_*",
   "myst_*",
   "napoleon_*",
-  "OPTIONS_TABLE_COLUMN_TYPES",
-  "OPTIONS_TABLE_HELP_SECTIONS",
-  "photo_url",
-  "province",
-  "shot_hand",
+  "OPTIONS_*",
+  "province_*",
+  "scheduled_*",
+  "SecretStr",
   "side_effect",
-  "signature",
   "source_*",
-  "STYLE_ERRORS_SUGGESTION",
+  "STYLE_*",
   "templates_*",
-  "time_zone_name",
   "todo_*",
+  "vendors",
   "viewed",
-  "weight",
 ]
 ignore_decorators = [
   "@associations_group.command",
   "@brackets_group.command",
-  "@cli.command",
   "@coaches_group.command",
   "@completed_group.command",
-  "@confirm_destructive",
   "@divisions_group.command",
   "@divisions_teams_group.command",
-  "@games_group.command",
-  "@group.command",
   "@ipad_keys_group.command",
   "@leagues_group.command",
+  "@locations_group.command",
   "@players_group.command",
   "@pytest.fixture",
   "@referees_group.command",
-  "@roster_group.command",
   "@scheduled_group.command",
-  "@season_group.command",
   "@seasons_group.command",
   "@teams_group.command",
   "@teams_roster_coaches_group.command",
-  "@teams_roster_group.command",
   "@teams_roster_players_group.command",
+  "@test_group.command",
 ]
 
 ## ## pyproject-fmt - Pyproject.toml formatter

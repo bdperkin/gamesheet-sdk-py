@@ -100,14 +100,38 @@ class Session:
         return s
 
     def _load_cookies(self) -> None:
-        """Restore cookies from disk if :attr:`Config.session_path` exists.
+        """Restore cookies from disk if :attr:`Config.session_path` or browser_state_path exists.
 
-        Reads JSON-serialized cookie data and populates the underlying session's cookie jar. If the file does
-        not exist or cannot be parsed, the method logs a warning and continues with an empty jar. This method
-        is called automatically during :meth:`__init__` to restore session state from a previous run.
+        Reads JSON-serialized cookie data from both session.json and browser-state.json (if they exist) and
+        populates the underlying session's cookie jar. Browser state cookies are loaded first, then session
+        cookies (which can override). If a file does not exist or cannot be parsed, the method logs a warning
+        and continues. This method is called automatically during :meth:`__init__` to restore session state
+        from a previous run.
         :returns: None
         :rtype: None
         """
+        # Load from browser state file first (from login flow)
+        browser_state_path = self.config.browser_state_path
+        if browser_state_path.exists():
+            try:
+                data = json.loads(browser_state_path.read_text())
+                for raw in data.get("cookies", []):
+                    cookie_dict = {
+                        "name": raw["name"],
+                        "value": raw["value"],
+                        "domain": raw.get("domain", ""),
+                        "path": raw.get("path", "/"),
+                        "secure": raw.get("secure", False),
+                        "expires": raw.get("expires"),
+                    }
+                    self._http.cookies.set(**cookie_dict)
+            except (OSError, json.JSONDecodeError) as exc:
+                _LOGGER.warning(
+                    "Failed to load browser state cookies from %s: %s",
+                    browser_state_path,
+                    exc,
+                )
+        # Load from session file (can override browser state cookies)
         path = self.config.session_path
         if not path.exists():
             return

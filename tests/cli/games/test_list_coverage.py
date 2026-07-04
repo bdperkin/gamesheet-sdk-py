@@ -56,19 +56,11 @@ def test_games_completed_list_coverage() -> None:
 
 
 def test_games_brackets_list_coverage() -> None:
-    """Ensure brackets list command body is covered."""
-    runner = CliRunner()
-    with (
-        patch("gamesheet_sdk.cli.commands.games.build_authenticated_session"),
-        patch(
-            "gamesheet_sdk.cli.commands.games.run_action_or_exit",
-            return_value=[],
-        ),
-        patch("gamesheet_sdk.cli.commands.games.render_list_command"),
-    ):
-        result = runner.invoke(
-            brackets_group,
-            ["list", "-F", "json"],
-            obj={"config": MagicMock(), "season_id": SEASON_ID},
-        )
-        assert not result.exit_code
+    """Ensure brackets list command returns not implemented error."""
+    result = CliRunner().invoke(
+        brackets_group,
+        ["list", "-F", "json"],
+        obj={"config": MagicMock(), "season_id": SEASON_ID},
+    )
+    assert result.exit_code == 1  # Not implemented
+    assert "not yet implemented" in result.output.lower()

@@ -44,7 +44,6 @@ def test_env_vars_are_picked_up(monkeypatch: pytest.MonkeyPatch) -> None:
     cfg = Config()
     assert cfg.username == "alice"
     assert cfg.password is not None
-    # pylint: disable-next=no-member
     assert cfg.password.get_secret_value() == "hunter2"
     assert cfg.timeout == 10.0
 
