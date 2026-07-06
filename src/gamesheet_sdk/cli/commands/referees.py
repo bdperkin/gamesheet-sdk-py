@@ -8,6 +8,15 @@ from __future__ import annotations
 import rich_click as click
 from rich_click import Context
 
+from gamesheet_sdk import errors
+from gamesheet_sdk.cli.constants import (
+    HELP_REFEREE_FIRST_NAME,
+    HELP_REFEREE_LAST_NAME,
+    HELP_SEASON_ID_FOR_REFEREE,
+    HELP_UPDATED_EXTERNAL_ID,
+    HELP_UPDATED_FIRST_NAME,
+    HELP_UPDATED_LAST_NAME,
+)
 from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
 from gamesheet_sdk.cli.shared import (
@@ -52,7 +61,7 @@ def referees_group() -> None:
     type=str,
     envvar="GAMESHEET_SEASON_ID",
     required=True,
-    help="Season ID containing the referee.",
+    help=HELP_SEASON_ID_FOR_REFEREE,
 )
 @click.option(
     "--referee-id",
@@ -95,7 +104,7 @@ def referees_get_command(
     type=str,
     envvar="GAMESHEET_SEASON_ID",
     required=True,
-    help="Season ID containing the referee.",
+    help=HELP_SEASON_ID_FOR_REFEREE,
 )
 @click.option(
     "--referee-id",
@@ -150,13 +159,13 @@ def referees_report_command(
     "--first-name",
     type=str,
     required=True,
-    help="Referee's first name.",
+    help=HELP_REFEREE_FIRST_NAME,
 )
 @click.option(
     "--last-name",
     type=str,
     required=True,
-    help="Referee's last name.",
+    help=HELP_REFEREE_LAST_NAME,
 )
 @click.option(
     "--email-address",
@@ -222,7 +231,7 @@ def referees_create_command(
     type=str,
     envvar="GAMESHEET_SEASON_ID",
     required=True,
-    help="Season ID containing the referee.",
+    help=HELP_SEASON_ID_FOR_REFEREE,
 )
 @click.option(
     "--referee-id",
@@ -234,13 +243,13 @@ def referees_create_command(
     "--first-name",
     type=str,
     default=None,
-    help="Updated first name.",
+    help=HELP_UPDATED_FIRST_NAME,
 )
 @click.option(
     "--last-name",
     type=str,
     default=None,
-    help="Updated last name.",
+    help=HELP_UPDATED_LAST_NAME,
 )
 @click.option(
     "--email-address",
@@ -252,7 +261,7 @@ def referees_create_command(
     "--external-id",
     type=str,
     default=None,
-    help="Updated external identifier.",
+    help=HELP_UPDATED_EXTERNAL_ID,
 )
 @common_output_options
 @click.pass_context
@@ -294,7 +303,7 @@ def referees_update_command(
     # Validate that at least one field is provided
     if not any([first_name, last_name, email_address, external_id]):
         msg = (
-            "At least one field must be provided to update. "
+            f"{errors.ERROR_MSG_CLI_AT_LEAST_ONE_FIELD_UPDATE}. "
             "Use --first-name, --last-name, --email-address, or --external-id."
         )
         raise click.UsageError(msg)
@@ -319,7 +328,7 @@ def referees_update_command(
     type=str,
     envvar="GAMESHEET_SEASON_ID",
     required=True,
-    help="Season ID containing the referee.",
+    help=HELP_SEASON_ID_FOR_REFEREE,
 )
 @click.option(
     "--referee-id",

@@ -21,14 +21,16 @@ OnRefreshCallback = Callable[[dict[str, str]], None]
 
 
 class AuthenticatedSession(Session):
-    """A :class:`Session` that auto-refreshes its bearer on 401.
+    """A :class:`Session` that auto-refreshes its bearer on 401 or 403.
 
-    Wraps :class:`Session` with the refresh-on-401 pattern that every bearer-authenticated API client ends
-    up needing. Construction takes the current access + refresh tokens; the access token is attached as the
-    bearer automatically. On any 401 response, the session calls :func:`refresh_access_token` against
-    :data:`REFRESH_URL`, updates its bearer, optionally invokes ``on_refresh`` with the new token bundle, and
-    retries the original request *once*. If the refresh itself fails the original 401 propagates to the
-    caller, who can decide whether to log in again.
+    Wraps :class:`Session` with the refresh-on-auth-failure pattern that every bearer-authenticated API
+    client ends up needing. Construction takes the current access + refresh tokens; the access token is
+    attached as the bearer automatically. On any 401 or 403 response, the session calls
+    :func:`refresh_access_token` against :data:`REFRESH_URL`, updates its bearer, optionally invokes
+    ``on_refresh`` with the new token bundle, and retries the original request *once*. Both 401 and 403 are
+    treated as authentication failures because different GameSheet API endpoints use different status codes
+    for expired tokens. If the refresh itself fails the original response propagates to the caller, who can
+    decide whether to log in again.
 
     Example::
 
@@ -104,12 +106,13 @@ class AuthenticatedSession(Session):
         timeout: float | None = None,
         **kwargs: Any,
     ) -> requests.Response:
-        """Send a request, refreshing the bearer and retrying once on 401.
+        """Send a request, refreshing the bearer and retrying once on 401 or 403.
 
         Performs the request using the parent :class:`~gamesheet_sdk.session.Session.request` method. If the
-        response status is 401 Unauthorized, attempts to refresh the access token using the stored refresh
-        token, updates the bearer token, invokes the ``on_refresh`` callback if provided, and retries the
-        original request exactly once.
+        response status is 401 Unauthorized or 403 Forbidden, attempts to refresh the access token using the
+        stored refresh token, updates the bearer token, invokes the ``on_refresh`` callback if provided, and
+        retries the original request exactly once. Both 401 and 403 are treated as authentication failures
+        because different GameSheet API endpoints use different status codes for expired tokens.
 
         :param method: HTTP method (GET, POST, PUT, DELETE, etc.).
         :type method: str
@@ -118,12 +121,12 @@ class AuthenticatedSession(Session):
         :param timeout: Request timeout in seconds. If None, uses the timeout from
             :attr:`~gamesheet_sdk.session.Session.config`.
         :type timeout: float | None
-        :returns: HTTP response object from the request. If token refresh fails, returns the original 401
+        :returns: HTTP response object from the request. If token refresh fails, returns the original 401/403
             response without raising an exception.
         :rtype: requests.Response
         """
         response = super().request(method, url, timeout=timeout, **kwargs)
-        if response.status_code != 401:
+        if response.status_code not in (401, 403):
             return response
         if not self._try_refresh():
             return response

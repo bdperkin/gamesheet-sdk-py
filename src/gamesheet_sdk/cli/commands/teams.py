@@ -8,6 +8,7 @@ from __future__ import annotations
 import rich_click as click
 from rich_click import Context
 
+from gamesheet_sdk.cli.constants import HELP_SEASON_ID_FOR_TEAM
 from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.cli.helpers import (
     build_authenticated_session,
@@ -58,7 +59,7 @@ def teams_group() -> None:
     type=str,
     envvar="GAMESHEET_SEASON_ID",
     required=True,
-    help="Season ID containing the team.",
+    help=HELP_SEASON_ID_FOR_TEAM,
 )
 @click.option(
     "--team-id",
@@ -213,7 +214,7 @@ def teams_create_command(
     type=str,
     envvar="GAMESHEET_SEASON_ID",
     required=True,
-    help="Season ID containing the team.",
+    help=HELP_SEASON_ID_FOR_TEAM,
 )
 @click.option(
     "--team-id",
@@ -283,7 +284,7 @@ def teams_update_command(
     type=str,
     envvar="GAMESHEET_SEASON_ID",
     required=True,
-    help="Season ID containing the team.",
+    help=HELP_SEASON_ID_FOR_TEAM,
 )
 @click.option(
     "--team-id",

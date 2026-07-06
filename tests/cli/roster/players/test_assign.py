@@ -12,6 +12,7 @@ from click.testing import CliRunner
 from gamesheet_sdk.cli.commands.roster_players import (
     players_group,
 )
+from tests.fixtures.constants import TEST_ERROR_GENERIC
 from tests.helpers import PLAYER_ID, SEASON_ID, TEAM_ID
 
 
@@ -52,7 +53,7 @@ def test_roster_players_assign_error_handling() -> None:
         patch("gamesheet_sdk.cli.commands.roster_players.build_authenticated_session"),
         patch(
             "gamesheet_sdk.cli.commands.roster_players._assign_player_action",
-            side_effect=Exception("Test error"),
+            side_effect=Exception(TEST_ERROR_GENERIC),
         ),
     ):
         result = runner.invoke(
@@ -101,7 +102,7 @@ def test_roster_players_unassign_error_handling() -> None:
         patch("gamesheet_sdk.cli.commands.roster_players.build_authenticated_session"),
         patch(
             "gamesheet_sdk.cli.commands.roster_players._unassign_player_action",
-            side_effect=Exception("Test error"),
+            side_effect=Exception(TEST_ERROR_GENERIC),
         ),
     ):
         result = runner.invoke(

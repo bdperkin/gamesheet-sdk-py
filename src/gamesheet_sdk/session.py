@@ -31,6 +31,7 @@ from requests.cookies import RequestsCookieJar
 from urllib3.util.retry import Retry
 
 from gamesheet_sdk.config import Config
+from gamesheet_sdk.constants import HTTP_RETRY_STATUSES
 
 if TYPE_CHECKING:
     from http.cookiejar import Cookie
@@ -53,7 +54,7 @@ def _default_user_agent() -> str:
 
 _LOGGER = logging.getLogger(__name__)
 # Retry on transient server-side and gateway errors only.
-_DEFAULT_RETRY_STATUSES = frozenset({500, 502, 503, 504})
+_DEFAULT_RETRY_STATUSES = HTTP_RETRY_STATUSES
 # Idempotent methods are safe to retry. POST is excluded so we never
 # double-submit a mutation that happened to time out on the response.
 _DEFAULT_RETRY_METHODS = frozenset({"GET", "HEAD", "OPTIONS", "PUT", "DELETE"})
@@ -100,14 +101,38 @@ class Session:
         return s
 
     def _load_cookies(self) -> None:
-        """Restore cookies from disk if :attr:`Config.session_path` exists.
+        """Restore cookies from disk if :attr:`Config.session_path` or browser_state_path exists.
 
-        Reads JSON-serialized cookie data and populates the underlying session's cookie jar. If the file does
-        not exist or cannot be parsed, the method logs a warning and continues with an empty jar. This method
-        is called automatically during :meth:`__init__` to restore session state from a previous run.
+        Reads JSON-serialized cookie data from both session.json and browser-state.json (if they exist) and
+        populates the underlying session's cookie jar. Browser state cookies are loaded first, then session
+        cookies (which can override). If a file does not exist or cannot be parsed, the method logs a warning
+        and continues. This method is called automatically during :meth:`__init__` to restore session state
+        from a previous run.
         :returns: None
         :rtype: None
         """
+        # Load from browser state file first (from login flow)
+        browser_state_path = self.config.browser_state_path
+        if browser_state_path.exists():
+            try:
+                data = json.loads(browser_state_path.read_text())
+                for raw in data.get("cookies", []):
+                    cookie_dict = {
+                        "name": raw["name"],
+                        "value": raw["value"],
+                        "domain": raw.get("domain", ""),
+                        "path": raw.get("path", "/"),
+                        "secure": raw.get("secure", False),
+                        "expires": raw.get("expires"),
+                    }
+                    self._http.cookies.set(**cookie_dict)
+            except (OSError, json.JSONDecodeError) as exc:
+                _LOGGER.warning(
+                    "Failed to load browser state cookies from %s: %s",
+                    browser_state_path,
+                    exc,
+                )
+        # Load from session file (can override browser state cookies)
         path = self.config.session_path
         if not path.exists():
             return

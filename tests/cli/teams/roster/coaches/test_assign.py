@@ -12,6 +12,7 @@ from click.testing import CliRunner
 from gamesheet_sdk.cli.commands.teams_roster_coaches import (
     teams_roster_coaches_group,
 )
+from tests.fixtures.constants import TEST_ERROR_GENERIC
 from tests.helpers import COACH_ID_PRIMARY, SEASON_ID, TEAM_ID
 
 
@@ -54,7 +55,7 @@ def test_teams_roster_coaches_assign_error_handling() -> None:
         ),
         patch(
             "gamesheet_sdk.cli.commands.teams_roster_coaches._assign_team_coach_action",
-            side_effect=Exception("Test error"),
+            side_effect=Exception(TEST_ERROR_GENERIC),
         ),
     ):
         result = runner.invoke(
@@ -105,7 +106,7 @@ def test_teams_roster_coaches_unassign_error_handling() -> None:
         ),
         patch(
             "gamesheet_sdk.cli.commands.teams_roster_coaches._unassign_team_coach_action",
-            side_effect=Exception("Test error"),
+            side_effect=Exception(TEST_ERROR_GENERIC),
         ),
     ):
         result = runner.invoke(

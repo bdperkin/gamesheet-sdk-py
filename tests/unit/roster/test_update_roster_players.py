@@ -10,6 +10,7 @@ import responses
 
 from gamesheet_sdk import Config, Session
 from gamesheet_sdk.roster import update_player, update_team_player
+from tests.fixtures.constants import TEST_ERROR_PATTERN_AT_LEAST_ONE_FIELD
 from tests.helpers import (
     PLAYER_ID,
     SEASON_ID,
@@ -77,8 +78,8 @@ def test_update_player_with_photo_upload(config: Config) -> None:
             PLAYER_ID,
             photo_path=temp_path,
         )
-    assert result.photo_url
-    assert "test-image-id" in result.photo_url
+    assert result.photo_url is not None
+    assert result.photo_url.find("test-image-id") != -1
 
 
 @responses.activate
@@ -118,7 +119,7 @@ def test_update_player_no_fields_raises_error(config: Config) -> None:
     """Test updating a player with no fields raises ValueError."""
     with Session(config) as session:
         session.set_bearer_token("valid-token")
-        with pytest.raises(ValueError, match="At least one field must be provided"):
+        with pytest.raises(ValueError, match=TEST_ERROR_PATTERN_AT_LEAST_ONE_FIELD):
             update_player(session, SEASON_ID, PLAYER_ID)
 
 
@@ -349,7 +350,7 @@ def test_update_team_player_no_fields_raises_error(config: Config) -> None:
     """Test updating a team player with no fields raises ValueError."""
     with Session(config) as session:
         session.set_bearer_token("valid-token")
-        with pytest.raises(ValueError, match="At least one field must be provided"):
+        with pytest.raises(ValueError, match=TEST_ERROR_PATTERN_AT_LEAST_ONE_FIELD):
             update_team_player(session, SEASON_ID, _TEAM_ID, PLAYER_ID)
 
 

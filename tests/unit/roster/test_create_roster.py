@@ -32,13 +32,15 @@ from tests.helpers import (
     SEASON_ID,
     TEAM_ID,
     TEST_BASE_URL,
+    coaches_endpoint,
+    players_endpoint,
     roster_coach_payload,
     roster_player_payload,
     team_payload,
 )
 
-_PLAYERS_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/players"
-_COACHES_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/coaches"
+_PLAYERS_ENDPOINT = players_endpoint(SEASON_ID)
+_COACHES_ENDPOINT = coaches_endpoint(SEASON_ID)
 
 
 @responses.activate

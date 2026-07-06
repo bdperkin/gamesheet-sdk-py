@@ -27,6 +27,14 @@ from rich.syntax import Syntax
 import tabulate as _tabulate
 import yaml
 
+from gamesheet_sdk.constants import (
+    DEFAULT_OUTPUT_FORMAT,
+    ENCODING_UTF8,
+    JSON_INDENT_SPACES,
+    SYNTAX_BG_COLOR,
+    SYNTAX_THEME,
+)
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 # Every ``tablefmt`` value :func:`render` accepts from tabulate.
@@ -50,12 +58,12 @@ DATA_FORMATS: tuple[str, ...] = ("json", "yaml", "csv", "tsv")
 # Union of every format :func:`render` understands.
 ALL_FORMATS: tuple[str, ...] = DATA_FORMATS + TABULATE_FORMATS
 # Format used when the caller does not specify one.
-DEFAULT_FORMAT = "simple"
+DEFAULT_FORMAT = DEFAULT_OUTPUT_FORMAT
 
 
 def _render_json(
     rows: list[dict[str, Any]],
-    _columns: list[str],  # noqa: U101
+    _columns: list[str],
 ) -> str:
     """Render rows as indented, sorted JSON.
 
@@ -75,12 +83,12 @@ def _render_json(
             }
         ]
     """
-    return json.dumps(rows, indent=2, sort_keys=True, default=str)
+    return json.dumps(rows, indent=JSON_INDENT_SPACES, sort_keys=True, default=str)
 
 
 def _render_yaml(
     rows: list[dict[str, Any]],
-    _columns: list[str],  # noqa: U101
+    _columns: list[str],
 ) -> str:
     """Render rows as block-style YAML.
 
@@ -337,15 +345,15 @@ def write_output(
     :type fmt: str
     """
     if path is not None:
-        Path(path).write_text(_ensure_trailing_newline(text), encoding="utf-8")
+        Path(path).write_text(_ensure_trailing_newline(text), encoding=ENCODING_UTF8)
         return
     if sys.stdout.isatty() and fmt in ("json", "yaml"):
         Console().print(
             Syntax(
                 text,
                 fmt,
-                theme="ansi_dark",
-                background_color="default",
+                theme=SYNTAX_THEME,
+                background_color=SYNTAX_BG_COLOR,
                 word_wrap=True,
             ),
         )

@@ -18,9 +18,15 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from gamesheet_sdk import errors
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.session import Session
 from gamesheet_sdk.shared import JSONAPI_CONTENT_TYPE, JSONAPI_HEADERS
+from gamesheet_sdk.shared.constants import (
+    FIELD_DESC_PARENT_SEASON_ID,
+    FIELD_DESC_REFEREE_FIRST_NAME,
+    FIELD_DESC_REFEREE_LAST_NAME,
+)
 from gamesheet_sdk.shared.gamesheet_http import handle_season_scoped_response
 
 
@@ -32,9 +38,9 @@ class Referee(BaseModel):
     """
 
     id: str = Field(description="Referee identifier (string in JSON:API).")
-    season_id: str = Field(description="Parent season identifier.")
-    first_name: str = Field(description="Referee's first name.")
-    last_name: str = Field(description="Referee's last name.")
+    season_id: str = Field(description=FIELD_DESC_PARENT_SEASON_ID)
+    first_name: str = Field(description=FIELD_DESC_REFEREE_FIRST_NAME)
+    last_name: str = Field(description=FIELD_DESC_REFEREE_LAST_NAME)
     email: str | None = Field(default=None, description="Referee's email address.")
     external_id: str | None = Field(
         default=None,
@@ -51,8 +57,8 @@ class RefereeReport(BaseModel):
     """
 
     external_id: str = Field(description="External referee identifier.")
-    first_name: str = Field(description="Referee's first name.")
-    last_name: str = Field(description="Referee's last name.")
+    first_name: str = Field(description=FIELD_DESC_REFEREE_FIRST_NAME)
+    last_name: str = Field(description=FIELD_DESC_REFEREE_LAST_NAME)
     games_refereed: int = Field(description="Total number of games refereed.")
     average_pim_per_game: float = Field(
         description="Average penalties in minutes per game.",
@@ -118,19 +124,19 @@ def get_referee(session: Session, season_id: str, referee_id: str) -> Referee:
         headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
+        raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
     if response.status_code == 404:
-        _err_msg = (
-            f"Referee '{referee_id}' not found in season '{season_id}' (HTTP 404). "
-            f"Make sure you're using a valid referee ID and season ID.",
+        _err_msg = errors.ERROR_MSG_404_REFEREE_IN_SEASON.format(
+            referee_id=referee_id,
+            season_id=season_id,
         )
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        _err_msg = errors.ERROR_MSG_HTTP_GET.format(
+            endpoint=endpoint,
+            status_code=response.status_code,
+            text=repr(response.text[:200]),
+        )
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
     return _parse(body["data"])
@@ -171,19 +177,18 @@ def get_referee_report(
     endpoint = f"/api/reports/referees/{referee.external_id}"
     response = session.get(endpoint)
     if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again."
-        )
-        raise AuthenticationError(_err_msg)
+        raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
     if response.status_code == 404:
-        _err_msg = (
-            f"Report not found for referee with external_id '{referee.external_id}' (HTTP 404). "
-            f"The referee may not have officiated any games yet."
+        _err_msg = errors.ERROR_MSG_404_REFEREE_REPORT.format(
+            external_id=referee.external_id,
         )
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-        _err_msg = f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}"
+        _err_msg = errors.ERROR_MSG_HTTP_GET.format(
+            endpoint=endpoint,
+            status_code=response.status_code,
+            text=repr(response.text[:200]),
+        )
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
     # Parse the report response
@@ -293,20 +298,18 @@ def update_referee(
         headers=JSONAPI_HEADERS,
     )
     if get_response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
+        raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
     if get_response.status_code == 404:
-        _err_msg = (
-            f"Referee '{referee_id}' not found in season '{season_id}' (HTTP 404). "
-            f"Make sure you're using a valid referee ID and season ID.",
+        _err_msg = errors.ERROR_MSG_404_REFEREE_IN_SEASON.format(
+            referee_id=referee_id,
+            season_id=season_id,
         )
         raise GameSheetError(_err_msg)
     if get_response.status_code >= 400:
-        _err_msg = (
-            f"GET {get_endpoint} returned HTTP {get_response.status_code}: {get_response.text[:200]!r}",
+        _err_msg = errors.ERROR_MSG_HTTP_GET.format(
+            endpoint=get_endpoint,
+            status_code=get_response.status_code,
+            text=repr(get_response.text[:200]),
         )
         raise GameSheetError(_err_msg)
     current_attrs = get_response.json().get("data", {}).get("attributes", {})
@@ -342,19 +345,19 @@ def update_referee(
         },
     )
     if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
+        raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
     if response.status_code == 404:
-        _err_msg = (
-            f"Referee '{referee_id}' not found in season '{season_id}' (HTTP 404). "
-            f"Make sure you're using a valid referee ID and season ID.",
+        _err_msg = errors.ERROR_MSG_404_REFEREE_IN_SEASON.format(
+            referee_id=referee_id,
+            season_id=season_id,
         )
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-        _err_msg = (f"PATCH {patch_endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        _err_msg = errors.ERROR_MSG_HTTP_PATCH.format(
+            endpoint=patch_endpoint,
+            status_code=response.status_code,
+            text=repr(response.text[:200]),
+        )
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
     return _parse(body["data"])
@@ -385,11 +388,7 @@ def delete_referee(
         headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again."
-        )
-        raise AuthenticationError(_err_msg)
+        raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
     if response.status_code == 404:
         _err_msg = (
             f"Referee '{referee_id}' not found in season '{season_id}' (HTTP 404). "
@@ -397,7 +396,11 @@ def delete_referee(
         )
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-        _err_msg = f"DELETE {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}"
+        _err_msg = errors.ERROR_MSG_HTTP_DELETE.format(
+            endpoint=endpoint,
+            status_code=response.status_code,
+            text=repr(response.text[:200]),
+        )
         raise GameSheetError(_err_msg)
 
 

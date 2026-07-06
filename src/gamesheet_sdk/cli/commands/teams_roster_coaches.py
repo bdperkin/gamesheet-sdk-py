@@ -11,7 +11,14 @@ from click.exceptions import Exit
 import rich_click as click
 from rich_click import Context
 
-from gamesheet_sdk.cli.constants import COACH_POSITIONS
+from gamesheet_sdk.cli.constants import (
+    COACH_POSITIONS,
+    HELP_COACH_FIRST_NAME,
+    HELP_COACH_LAST_NAME,
+    HELP_UPDATED_EXTERNAL_ID,
+    HELP_UPDATED_FIRST_NAME,
+    HELP_UPDATED_LAST_NAME,
+)
 from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.cli.helpers import (
     build_authenticated_session,
@@ -141,13 +148,13 @@ def teams_roster_coaches_get_command(
     "--first-name",
     type=str,
     required=True,
-    help="Coach's first name.",
+    help=HELP_COACH_FIRST_NAME,
 )
 @click.option(
     "--last-name",
     type=str,
     required=True,
-    help="Coach's last name.",
+    help=HELP_COACH_LAST_NAME,
 )
 @click.option(
     "--external-id",
@@ -222,17 +229,17 @@ def teams_roster_coaches_create_command(
 @click.option(
     "--first-name",
     type=str,
-    help="Updated first name.",
+    help=HELP_UPDATED_FIRST_NAME,
 )
 @click.option(
     "--last-name",
     type=str,
-    help="Updated last name.",
+    help=HELP_UPDATED_LAST_NAME,
 )
 @click.option(
     "--external-id",
     type=str,
-    help="Updated external identifier.",
+    help=HELP_UPDATED_EXTERNAL_ID,
 )
 @click.option(
     "--position",

@@ -10,6 +10,7 @@ import responses
 
 from gamesheet_sdk import AuthenticatedSession, Config
 from gamesheet_sdk.auth.constants import REFRESH_URL
+from tests.fixtures.constants import TEST_ERROR_DISK_FULL
 
 
 # ---------- AuthenticatedSession -----------------------------------------
@@ -133,8 +134,7 @@ def test_authenticated_session_handles_on_refresh_oserror(
     )
 
     def failing_callback(_tokens: dict[str, str]) -> None:
-        msg = "Disk full"
-        raise OSError(msg)
+        raise OSError(TEST_ERROR_DISK_FULL)
 
     with (
         caplog.at_level("WARNING"),
@@ -149,7 +149,66 @@ def test_authenticated_session_handles_on_refresh_oserror(
     # Refresh still succeeded, request was retried despite callback failure
     assert resp.status_code == 200
     assert "on_refresh callback failed to persist" in caplog.text
-    assert "Disk full" in caplog.text
+    assert TEST_ERROR_DISK_FULL in caplog.text
+
+
+@responses.activate
+def test_authenticated_session_refreshes_and_retries_on_403(config: Config) -> None:
+    """Test that AuthenticatedSession refreshes token and retries on 403.
+
+    Some GameSheet API endpoints (e.g., SCORESHEET_SERVICE_BASE_URL) return 403 Forbidden instead of 401
+    Unauthorized when tokens are expired. The session should treat both status codes identically and attempt
+    token refresh.
+    """
+    # 1st: 403, refresh, 2nd: 200 with the new bearer.
+    responses.add(responses.GET, "https://test.example/y", json={"err": 1}, status=403)
+    responses.add(
+        responses.POST,
+        REFRESH_URL,
+        json={"access": "A2", "refresh": "R2", "roles": "Rol2"},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://test.example/y",
+        json={"ok": True},
+        status=200,
+    )
+    persisted: list[dict[str, str]] = []
+    with AuthenticatedSession(
+        config,
+        access_token="A1",
+        refresh_token="R1",
+        on_refresh=persisted.append,
+    ) as session:
+        resp = session.get("/y")
+    assert resp.status_code == 200
+    assert resp.json() == {"ok": True}
+    assert persisted == [{"access": "A2", "refresh": "R2", "roles": "Rol2"}]
+    # Three calls: original GET, refresh, retried GET.
+    assert len(responses.calls) == 3
+    assert responses.calls[0].request.headers["Authorization"] == "Bearer A1"
+    assert responses.calls[1].request.url == REFRESH_URL
+    assert responses.calls[1].request.headers["Authorization"] == "Bearer R1"
+    assert responses.calls[2].request.headers["Authorization"] == "Bearer A2"
+
+
+@responses.activate
+def test_authenticated_session_propagates_403_when_refresh_fails(
+    config: Config,
+) -> None:
+    """Test that 403 is propagated when token refresh fails."""
+    responses.add(responses.GET, "https://test.example/z", json={"err": 1}, status=403)
+    responses.add(responses.POST, REFRESH_URL, status=401, json={"errors": [{}]})
+    with AuthenticatedSession(
+        config,
+        access_token="A1",
+        refresh_token="DEAD",
+    ) as session:
+        resp = session.get("/z")
+    # Original 403 surfaces to the caller; no further retries.
+    assert resp.status_code == 403
+    assert len(responses.calls) == 2
 
 
 # ---------- token response capture (line 131) -------------------------------

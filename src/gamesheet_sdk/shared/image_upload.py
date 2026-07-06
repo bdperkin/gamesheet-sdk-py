@@ -9,7 +9,12 @@ import mimetypes
 from pathlib import Path
 from typing import Any
 
-from gamesheet_sdk.constants import BFF_API_BASE_URL, CLOUDFLARE_IMAGE_DELIVERY_BASE
+from gamesheet_sdk import errors
+from gamesheet_sdk.constants import (
+    BFF_API_BASE_URL,
+    BFF_ASSETS_UPLOAD_URL,
+    CLOUDFLARE_IMAGE_DELIVERY_BASE,
+)
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.session import Session
 
@@ -36,18 +41,15 @@ def upload_image(session: Session, image_path: str, image_type: str = "image") -
     if not mime_type or not mime_type.startswith("image/"):
         _err_msg = f"Invalid image file: {image_path}"
         raise GameSheetError(_err_msg)
-    upload_url_endpoint = f"{BFF_API_BASE_URL}/dwg/assets/upload-url"
+    upload_url_endpoint = f"{BFF_API_BASE_URL}{BFF_ASSETS_UPLOAD_URL}"
     upload_url_response = session.post(upload_url_endpoint)
     if upload_url_response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again."
-        )
-        raise AuthenticationError(_err_msg)
+        raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
     if upload_url_response.status_code >= 400:
-        _err_msg = (
-            f"POST {upload_url_endpoint} returned HTTP {upload_url_response.status_code}: "
-            f"{upload_url_response.text[:200]!r}"
+        _err_msg = errors.ERROR_MSG_HTTP_POST.format(
+            endpoint=upload_url_endpoint,
+            status_code=upload_url_response.status_code,
+            text=repr(upload_url_response.text[:200]),
         )
         raise GameSheetError(_err_msg)
     upload_data: dict[str, Any] = upload_url_response.json()
@@ -62,9 +64,10 @@ def upload_image(session: Session, image_path: str, image_type: str = "image") -
             files={"file": (image_file_path.name, f, mime_type)},
         )
     if upload_response.status_code >= 400:
-        _err_msg = (
-            f"POST {upload_url} returned HTTP {upload_response.status_code}: "
-            f"{upload_response.text[:200]!r}"
+        _err_msg = errors.ERROR_MSG_HTTP_POST.format(
+            endpoint=upload_url,
+            status_code=upload_response.status_code,
+            text=repr(upload_response.text[:200]),
         )
         raise GameSheetError(_err_msg)
     upload_result: dict[str, Any] = upload_response.json()

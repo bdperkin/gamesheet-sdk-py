@@ -18,6 +18,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from gamesheet_sdk import errors
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.session import Session
 from gamesheet_sdk.shared import JSONAPI_HEADERS
@@ -78,20 +79,16 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
         headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
+        raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
     if response.status_code == 404:
-        _err_msg = (
-            f"No iPad keys found or invalid season ID '{season_id}' (HTTP 404). "
-            f"Make sure you're using a valid season ID, not a league ID. "
-            f"To get valid season IDs, run: gamesheet-sdk-py seasons list --league-id <LEAGUE_ID>",
-        )
+        _err_msg = errors.ERROR_MSG_404_IPAD_KEYS.format(season_id=season_id)
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-        _err_msg = (f"GET {_ENDPOINT} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        _err_msg = errors.ERROR_MSG_HTTP_GET.format(
+            endpoint=_ENDPOINT,
+            status_code=response.status_code,
+            text=repr(response.text[:200]),
+        )
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
     return [_parse(item) for item in body.get("data", [])]

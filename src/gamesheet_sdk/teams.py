@@ -18,10 +18,12 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from gamesheet_sdk import errors
 from gamesheet_sdk.constants import BFF_API_BASE_URL
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.session import Session
 from gamesheet_sdk.shared import JSONAPI_CONTENT_TYPE, JSONAPI_HEADERS
+from gamesheet_sdk.shared.constants import FIELD_DESC_PARENT_SEASON_ID
 from gamesheet_sdk.shared.gamesheet_http import handle_season_scoped_response
 from gamesheet_sdk.shared.jsonapi import (
     build_invitation_code_lookup,
@@ -48,7 +50,7 @@ class Team(BaseModel):
     """
 
     id: str = Field(description="Team identifier (string in JSON:API).")
-    season_id: str = Field(description="Parent season identifier.")
+    season_id: str = Field(description=FIELD_DESC_PARENT_SEASON_ID)
     title: str = Field(description="Team name/title.")
     division_id: str | None = Field(
         default=None,
@@ -224,20 +226,20 @@ def _handle_team_response_errors(
     :raises GameSheetError: For 404 or other non-2xx responses.
     """
     if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again."
-        )
-        raise AuthenticationError(_err_msg)
+        raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
     if response.status_code == 404:
-        _err_msg = (
-            f"Team '{team_id}' not found (HTTP 404). "
-            f"Make sure you're using a valid team ID. "
-            f"To get valid team IDs, run: gamesheet-sdk-py teams list --season-id {season_id}"
+        _err_msg = errors.ERROR_MSG_404_TEAM.format(
+            team_id=team_id,
+            season_id=season_id,
         )
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-        _err_msg = f"{endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}"
+        _err_msg = errors.ERROR_MSG_GENERIC_HTTP.format(
+            context="",
+            endpoint=endpoint,
+            status_code=response.status_code,
+            text=repr(response.text[:200]),
+        )
         raise GameSheetError(_err_msg)
 
 
@@ -280,11 +282,9 @@ def update_team(
     :raises ValueError: If no fields are provided for update.
     """
     if all(v is None or v is False for v in (title, external_id, division_id, logo_path, remove_logo)):
-        msg = "At least one field must be provided for update"
-        raise ValueError(msg)
+        raise ValueError(errors.ERROR_MSG_AT_LEAST_ONE_FIELD)
     if logo_path and remove_logo:
-        msg = "Cannot both upload a logo and remove it"
-        raise ValueError(msg)
+        raise ValueError(errors.ERROR_MSG_CANNOT_UPLOAD_AND_REMOVE_LOGO)
     # Fetch current team data to get all fields
     get_endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
     get_response = session.get(
@@ -360,9 +360,10 @@ def update_team(
             headers=JSONAPI_HEADERS,
         )
         if delete_response.status_code >= 400:
-            _err_msg = (
-                f"DELETE {delete_logo_endpoint} returned HTTP {delete_response.status_code}: "
-                f"{delete_response.text[:200]!r}",
+            _err_msg = errors.ERROR_MSG_HTTP_DELETE.format(
+                endpoint=delete_logo_endpoint,
+                status_code=delete_response.status_code,
+                text=repr(delete_response.text[:200]),
             )
             raise GameSheetError(_err_msg)
     body: dict[str, Any] = update_response.json()
@@ -415,20 +416,17 @@ def create_team(
         payload["logo"] = logo_url
     create_response = session.post(create_endpoint, json=payload)
     if create_response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
+        raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
     if create_response.status_code >= 400:
-        _err_msg = (
-            f"POST {create_endpoint} returned HTTP {create_response.status_code}: "
-            f"{create_response.text[:200]!r}",
+        _err_msg = errors.ERROR_MSG_HTTP_POST.format(
+            endpoint=create_endpoint,
+            status_code=create_response.status_code,
+            text=repr(create_response.text[:200]),
         )
         raise GameSheetError(_err_msg)
     result: dict[str, Any] = create_response.json()
     if result.get("status") != "success":
-        _err_msg = (f"Failed to create team: {result}",)
+        _err_msg = f"Failed to create team: {result}"
         raise GameSheetError(_err_msg)
     data: dict[str, Any] = result["data"]
     return data
@@ -459,18 +457,17 @@ def delete_team(
         headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
+        raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
     if response.status_code == 404:
-        _err_msg = (
-            f"Team '{team_id}' not found (HTTP 404). "
-            f"Make sure you're using a valid team ID. "
-            f"To get valid team IDs, run: gamesheet-sdk-py teams list --season-id <SEASON_ID>",
+        _err_msg = errors.ERROR_MSG_404_TEAM.format(
+            team_id=team_id,
+            season_id=season_id,
         )
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-        _err_msg = (f"DELETE {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        _err_msg = errors.ERROR_MSG_HTTP_DELETE.format(
+            endpoint=endpoint,
+            status_code=response.status_code,
+            text=repr(response.text[:200]),
+        )
         raise GameSheetError(_err_msg)

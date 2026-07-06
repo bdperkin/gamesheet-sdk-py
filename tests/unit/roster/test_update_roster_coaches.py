@@ -10,6 +10,7 @@ import responses
 
 from gamesheet_sdk import Config, Session
 from gamesheet_sdk.roster import update_coach, update_team_coach
+from tests.fixtures.constants import TEST_ERROR_PATTERN_AT_LEAST_ONE_FIELD
 from tests.helpers import (
     COACH_ID_SECONDARY,
     SEASON_ID,
@@ -48,7 +49,7 @@ def test_update_coach_no_fields_raises_error(config: Config) -> None:
     """Test updating a coach with no fields raises ValueError."""
     with Session(config) as session:
         session.set_bearer_token("valid-token")
-        with pytest.raises(ValueError, match="At least one field must be provided"):
+        with pytest.raises(ValueError, match=TEST_ERROR_PATTERN_AT_LEAST_ONE_FIELD):
             update_coach(session, SEASON_ID, COACH_ID_SECONDARY)
 
 
@@ -222,7 +223,7 @@ def test_update_team_coach_no_fields_raises_error(config: Config) -> None:
     """Test updating a team coach with no fields raises ValueError."""
     with Session(config) as session:
         session.set_bearer_token("valid-token")
-        with pytest.raises(ValueError, match="At least one field must be provided"):
+        with pytest.raises(ValueError, match=TEST_ERROR_PATTERN_AT_LEAST_ONE_FIELD):
             update_team_coach(session, SEASON_ID, _TEAM_ID, COACH_ID_SECONDARY)
 
 

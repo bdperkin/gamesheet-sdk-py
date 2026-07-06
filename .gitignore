@@ -38,7 +38,7 @@ htmlcov/
 .nox/
 .coverage
 .coverage.*
-.cache
+.cache/
 nosetests.xml
 coverage.xml
 *.cover
@@ -58,7 +58,8 @@ dmypy.json
 # ---- Virtual environments ----
 .env
 .envrc
-.venv
+.venv/
+.venv-*/
 env/
 venv/
 ENV/
@@ -69,7 +70,7 @@ venv.bak/
 poetry.lock
 Pipfile.lock
 .pdm.toml
-.pdm-python
+.pdm-python/
 .pdm-build/
 .hatch/
 
@@ -89,7 +90,7 @@ test-results/
 *.swp
 *.swo
 *~
-.DS_Store
+.DS_Store/
 
 # ---- Sphinx documentation ----
 docs/_build/
@@ -103,9 +104,9 @@ _autosummary/
 *.patch
 .local/
 secrets.toml
-# Test
+# Test/
 
-# Spider output files
+# ---- Spider output files ----
 season-*-spider.json
 season-*-spider_artifacts/
 spider-results/

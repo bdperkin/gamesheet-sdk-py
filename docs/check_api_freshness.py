@@ -10,16 +10,16 @@ docs need regeneration.
 
 from __future__ import annotations
 
-from pathlib import Path
 import sys
 
+from _constants import (  # type: ignore[import-not-found] # pylint: disable=import-error
+    AUTOSUMMARY_DIR,
+    PACKAGE_DIR,
+)
 from rich import print as rprint
 
-# Paths
-DOCS_DIR = Path(__file__).parent
-PROJECT_ROOT = DOCS_DIR.parent
-SRC_DIR = PROJECT_ROOT / "src" / "gamesheet_sdk"
-AUTOSUMMARY_DIR = DOCS_DIR / "reference" / "_autosummary"
+# Alias for backward compatibility
+SRC_DIR = PACKAGE_DIR
 
 
 def get_newest_source_mtime() -> float:
@@ -33,7 +33,7 @@ def get_newest_source_mtime() -> float:
     source_files = list(SRC_DIR.rglob("*.py"))
     if not source_files:
         return 0.0
-    return max(f.stat().st_mtime for f in source_files)
+    return float(max(f.stat().st_mtime for f in source_files))
 
 
 def get_oldest_doc_mtime() -> float:
@@ -47,7 +47,7 @@ def get_oldest_doc_mtime() -> float:
     doc_files = list(AUTOSUMMARY_DIR.glob("*.rst"))
     if not doc_files:
         return 0.0
-    return min(f.stat().st_mtime for f in doc_files)
+    return float(min(f.stat().st_mtime for f in doc_files))
 
 
 def main() -> int:

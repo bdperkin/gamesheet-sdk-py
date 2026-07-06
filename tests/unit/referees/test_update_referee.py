@@ -220,11 +220,13 @@ def test_update_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
     assert len(responses.calls) == 2
     get_req = responses.calls[0].request
     patch_req = responses.calls[1].request
+    from tests.helpers import JSONAPI_CONTENT_TYPE
+
     assert get_req.headers["Authorization"] == TEST_AUTH_HEADER
-    assert get_req.headers["Accept"] == "application/vnd.api+json"
+    assert get_req.headers["Accept"] == JSONAPI_CONTENT_TYPE
     assert patch_req.headers["Authorization"] == TEST_AUTH_HEADER
-    assert patch_req.headers["Accept"] == "application/vnd.api+json"
-    assert patch_req.headers["Content-Type"] == "application/vnd.api+json"
+    assert patch_req.headers["Accept"] == JSONAPI_CONTENT_TYPE
+    assert patch_req.headers["Content-Type"] == JSONAPI_CONTENT_TYPE
 
 
 @responses.activate

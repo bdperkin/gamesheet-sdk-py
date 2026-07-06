@@ -8,6 +8,7 @@ from __future__ import annotations
 from contextlib import suppress
 from typing import Any
 
+from gamesheet_sdk import errors
 from gamesheet_sdk.exceptions import GameSheetError
 from gamesheet_sdk.roster.helpers import get_team_for_roster_update, update_team_roster
 from gamesheet_sdk.roster.models import Coach, parse_coach
@@ -151,8 +152,7 @@ def update_coach(
     :raises ValueError: If no fields are provided for update.
     """
     if all(v is None for v in (first_name, last_name, external_id, position)):
-        msg = "At least one field must be provided for update"
-        raise ValueError(msg)
+        raise ValueError(errors.ERROR_MSG_AT_LEAST_ONE_FIELD)
     # Fetch current coach to get all fields
     current_coach = get_coach(session, season_id, coach_id)
     # Build payload with updated values, preserving current for unchanged fields
@@ -406,8 +406,7 @@ def update_team_coach(
     :raises ValueError: If no fields are provided for update.
     """
     if all(v is None for v in (first_name, last_name, external_id, position)):
-        msg = "At least one field must be provided for update"
-        raise ValueError(msg)
+        raise ValueError(errors.ERROR_MSG_AT_LEAST_ONE_FIELD)
     # Step 1: Update the coach at season level (without "type" field for team context)
     current_coach = get_team_coach(session, season_id, team_id, coach_id)
     payload: dict[str, Any] = {
@@ -678,7 +677,7 @@ def get_coach_penalty_report(
     body: dict[str, Any] = response.json()
     if body.get("status") != "success":
         status = body.get("status")
-        msg = f"Penalty report API returned status: {status}"
+        msg = errors.ERROR_MSG_PENALTY_REPORT_API_STATUS.format(status=status)
         raise GameSheetError(msg)
     data: dict[str, Any] = body["data"]
     return data

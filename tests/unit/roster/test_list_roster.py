@@ -27,15 +27,17 @@ from tests.helpers import (
     PLAYER_LAST_NAME,
     SEASON_ID,
     TEAM_ID,
-    TEST_BASE_URL,
+    coaches_endpoint,
     jsonapi_payload,
+    players_endpoint,
     roster_coach_payload,
     roster_player_payload,
+    team_endpoint,
 )
 
-_PLAYERS_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/players"
-_COACHES_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/coaches"
-_TEAM_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams/{TEAM_ID}"
+_PLAYERS_ENDPOINT = players_endpoint(SEASON_ID)
+_COACHES_ENDPOINT = coaches_endpoint(SEASON_ID)
+_TEAM_ENDPOINT = team_endpoint(SEASON_ID, TEAM_ID)
 
 
 @responses.activate

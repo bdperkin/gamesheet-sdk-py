@@ -15,10 +15,10 @@ from gamesheet_sdk import (
     Session,
     delete_team,
 )
-from tests.helpers import SEASON_ID, TEST_BASE_URL
+from tests.helpers import SEASON_ID, TEAM_ID_TERTIARY, team_endpoint
 
-_TEAM_ID = "521623"
-_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}"
+_TEAM_ID = TEAM_ID_TERTIARY
+_ENDPOINT = team_endpoint(SEASON_ID, _TEAM_ID)
 
 
 @responses.activate

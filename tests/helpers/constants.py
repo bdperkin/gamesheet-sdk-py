@@ -22,6 +22,7 @@ COACH_ID_QUATERNARY = "1879939"  # Used in team roster delete tests
 SEASON_ID = "15020"
 TEAM_ID = "12345"
 TEAM_ID_SECONDARY = "523675"  # Used in team roster tests
+TEAM_ID_TERTIARY = "521623"  # Used in team delete/update tests
 DIVISION_ID = "701"
 ASSOCIATION_ID = "123"
 LEAGUE_ID = "456"
@@ -61,6 +62,10 @@ INVITATION_CODE = "RAPTORS2024"
 
 # Base URLs for test endpoints
 TEST_BASE_URL = "https://test.example"
+TEST_BFF_BASE_URL = "https://bff-dashboard-api-awy26srzoa-nn.a.run.app"
+
+# API endpoint paths
+BFF_ASSETS_UPLOAD_URL_PATH = "/dwg/assets/upload-url"
 
 # JSON:API content type (used in header assertions)
 JSONAPI_CONTENT_TYPE = "application/vnd.api+json"

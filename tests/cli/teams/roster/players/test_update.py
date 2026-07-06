@@ -12,6 +12,7 @@ from click.testing import CliRunner
 from gamesheet_sdk.cli.commands.teams_roster_players import (
     teams_roster_players_group,
 )
+from tests.fixtures.constants import TEST_ERROR_GENERIC
 from tests.helpers import PLAYER_ID, SEASON_ID, TEAM_ID
 
 
@@ -56,7 +57,7 @@ def test_teams_roster_players_update_error_handling() -> None:
         ),
         patch(
             "gamesheet_sdk.cli.commands.teams_roster_players._update_team_player_action",
-            side_effect=Exception("Test error"),
+            side_effect=Exception(TEST_ERROR_GENERIC),
         ),
     ):
         result = runner.invoke(

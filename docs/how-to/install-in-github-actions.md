@@ -49,7 +49,7 @@ jobs:
   dependency specification. The SDK reinstalls quickly on subsequent runs.
 - **`pull_request: types: [opened, reopened]`** scopes PR triggers to only when a PR is first opened or reopened. This prevents duplicate runs on every push to
   a PR branch (which would already fire via the `push:` trigger).
-- **`concurrency` with `cancel-in-progress: true`** ensures that if a new push arrives while a workflow is running, the older run is cancelled. This saves CI
+- **`concurrency` with `cancel-in-progress: true`** ensures that if a new push arrives while a workflow is running, the older run is canceled. This saves CI
   minutes and prevents stale runs from clogging the queue.
 
 ## Playwright browser installation (optional)

@@ -129,8 +129,8 @@ def test_get_referee_report_with_minimal_data(config: Config) -> None:
     assert not report.average_pim_per_game
     assert report.most_frequent_penalty is None
     assert not report.major_penalties_count
-    assert report.games == []
-    assert report.major_penalties == []
+    assert not report.games
+    assert not report.major_penalties
 
 
 @responses.activate

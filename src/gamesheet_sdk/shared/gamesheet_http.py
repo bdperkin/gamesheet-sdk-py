@@ -9,6 +9,7 @@ from typing import Any
 
 import requests
 
+from gamesheet_sdk import errors
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 
 
@@ -25,24 +26,30 @@ def handle_response(
     :type endpoint: str
     :param context_msg: Context message for error reporting (e.g., ``"GET associations"``).
     :type context_msg: str
-    :raises AuthenticationError: If response status is 401 (Unauthorized).
+    :raises AuthenticationError: If response status is 401 (Unauthorized) or 403 (Forbidden).
     :raises GameSheetError: If response status is 404 or any other >= 400.
     """
     if response.status_code == 401:
-        msg = (
-            f"Access token rejected (HTTP 401) for {context_msg}. "
-            "Use `gamesheet-sdk-py login` to authenticate."
-        )
+        msg = errors.ERROR_MSG_401_GENERIC.format(context=context_msg)
+        raise AuthenticationError(msg)
+    if response.status_code == 403:
+        msg = errors.ERROR_MSG_403_GENERIC.format(context=context_msg)
         raise AuthenticationError(msg)
     if response.status_code == 404:
-        msg = f"Resource not found (HTTP 404) for {endpoint}"
+        msg = errors.ERROR_MSG_404_RESOURCE.format(endpoint=endpoint)
         raise GameSheetError(msg)
     if response.status_code >= 400:
-        msg = f"{context_msg.upper()} {endpoint} returned HTTP {response.status_code}: {response.text}"
+        msg = errors.ERROR_MSG_GENERIC_HTTP.format(
+            context=context_msg.upper(),
+            endpoint=endpoint,
+            status_code=response.status_code,
+            text=response.text,
+        )
         raise GameSheetError(msg)
 
 
-def check_bff_response_status(data: dict[str, Any], endpoint: str) -> None:
+# pylint: disable-next=unused-argument
+def check_bff_response_status(data: dict[str, Any], endpoint: str) -> None:  # noqa: U100
     """Validate BFF API response status field.
 
     BFF API responses include a ``"status"`` field that should be ``"success"``.
@@ -55,7 +62,7 @@ def check_bff_response_status(data: dict[str, Any], endpoint: str) -> None:
     """
     status = data.get("status")
     if status != "success":
-        msg = f"{endpoint} returned non-success status: {status}"
+        msg = errors.ERROR_MSG_BFF_NON_SUCCESS.format(status=status, response=data)
         raise GameSheetError(msg)
 
 
@@ -78,18 +85,15 @@ def handle_season_scoped_response(
     :raises GameSheetError: If response status is 404 or any other >= 400.
     """
     if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
+        raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
     if response.status_code == 404:
-        _err_msg = (
-            f"Season '{season_id}' not found (HTTP 404). "
-            f"Make sure you're using a valid season ID. "
-            f"To get valid season IDs, run: gamesheet-sdk-py seasons list --league-id <LEAGUE_ID>",
-        )
-        raise GameSheetError(_err_msg)
+        msg = errors.ERROR_MSG_404_SEASON.format(season_id=season_id)
+        raise GameSheetError(msg)
     if response.status_code >= 400:
-        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
-        raise GameSheetError(_err_msg)
+        msg = errors.ERROR_MSG_GENERIC_HTTP.format(
+            context="GET",
+            endpoint=endpoint,
+            status_code=response.status_code,
+            text=repr(response.text[:200]),
+        )
+        raise GameSheetError(msg)

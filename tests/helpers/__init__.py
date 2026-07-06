@@ -5,8 +5,13 @@
 
 from __future__ import annotations
 
+from tests.helpers.cli import (
+    assert_no_session_error,
+    assert_output_contains_id,
+)
 from tests.helpers.constants import (
     ASSOCIATION_ID,
+    BFF_ASSETS_UPLOAD_URL_PATH,
     CLI_TEST_SEASON_ID,
     COACH_EXTERNAL_ID,
     COACH_EXTERNAL_ID_SECONDARY,
@@ -47,13 +52,23 @@ from tests.helpers.constants import (
     SEASON_ID,
     TEAM_ID,
     TEAM_ID_SECONDARY,
+    TEAM_ID_TERTIARY,
     TEST_AUTH_HEADER,
     TEST_BASE_URL,
+    TEST_BFF_BASE_URL,
     TEST_EMAIL_GENERIC,
     TEST_EMAIL_MINIMAL,
     TEST_EMAIL_REFEREE,
     TIMESTAMP_2024_01_01,
     TIMESTAMP_2024_09_01,
+)
+from tests.helpers.endpoints import (
+    coaches_endpoint,
+    players_endpoint,
+    referee_endpoint,
+    referees_endpoint,
+    team_endpoint,
+    teams_endpoint,
 )
 from tests.helpers.mocks import (
     setup_get_team_roster_mocks,
@@ -75,7 +90,16 @@ from tests.helpers.payloads import (
 
 __all__ = [
     "ASSOCIATION_ID",
+    "BFF_ASSETS_UPLOAD_URL_PATH",
     "CLI_TEST_SEASON_ID",
+    "assert_no_session_error",
+    "assert_output_contains_id",
+    "coaches_endpoint",
+    "players_endpoint",
+    "referee_endpoint",
+    "referees_endpoint",
+    "team_endpoint",
+    "teams_endpoint",
     "COACH_EXTERNAL_ID",
     "COACH_EXTERNAL_ID_SECONDARY",
     "COACH_EXTERNAL_ID_TERTIARY",
@@ -115,8 +139,10 @@ __all__ = [
     "SEASON_ID",
     "TEAM_ID",
     "TEAM_ID_SECONDARY",
+    "TEAM_ID_TERTIARY",
     "TEST_AUTH_HEADER",
     "TEST_BASE_URL",
+    "TEST_BFF_BASE_URL",
     "TEST_EMAIL_GENERIC",
     "TEST_EMAIL_MINIMAL",
     "TEST_EMAIL_REFEREE",
