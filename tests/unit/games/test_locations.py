@@ -11,7 +11,12 @@ import responses
 from gamesheet_sdk import Config, Session
 from gamesheet_sdk.constants import DEFAULT_BASE_URL
 from gamesheet_sdk.exceptions import GameSheetError
-from gamesheet_sdk.games import Location, get_location, list_locations, validate_location
+from gamesheet_sdk.games import (
+    Location,
+    get_location,
+    list_locations,
+    validate_location,
+)
 
 
 def test_location_full_name() -> None:
@@ -28,6 +33,7 @@ def test_location_full_name() -> None:
 
 
 # Lines 494-500: list_broadcasters()
+
 
 @responses.activate
 def test_list_locations() -> None:
@@ -59,6 +65,7 @@ def test_list_locations() -> None:
 
 # Lines 563-571: get_location()
 
+
 @responses.activate
 def test_get_location_found() -> None:
     """Test get_location with existing location."""
@@ -86,7 +93,6 @@ def test_get_location_found() -> None:
     assert location.id == "loc-123"
 
 
-
 @responses.activate
 def test_get_location_not_found() -> None:
     """Test get_location with non-existent location."""
@@ -104,6 +110,7 @@ def test_get_location_not_found() -> None:
 
 
 # Lines 588-604: validate_location()
+
 
 @responses.activate
 def test_validate_location_valid() -> None:
@@ -133,15 +140,13 @@ def test_validate_location_valid() -> None:
     assert result == "Arena A Ice 1"
 
 
-
 @responses.activate
 def test_validate_location_empty() -> None:
     """Test validate_location with empty string."""
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
         result = validate_location(session, "")
-    assert result == ""
-
+    assert not result
 
 
 @responses.activate
@@ -173,6 +178,7 @@ def test_validate_location_invalid() -> None:
 
 # Lines 614-616: validate_game_type()
 
+
 @responses.activate
 def test_get_location_empty_list() -> None:
     """Test get_location when locations list is empty (loop never enters)."""
@@ -189,7 +195,6 @@ def test_get_location_empty_list() -> None:
 
     with pytest.raises(GameSheetError, match=r"Location 'loc-1' not found"):
         get_location(session, "loc-1")
-
 
 
 @responses.activate

@@ -114,6 +114,7 @@ def test_create_scheduled_game() -> None:
 
 # Lines 751-755: get_scheduled_game()
 
+
 @responses.activate
 def test_get_scheduled_game() -> None:
     """Test get_scheduled_game function."""
@@ -154,6 +155,7 @@ def test_get_scheduled_game() -> None:
 
 
 # Lines 835-880: update_scheduled_game()
+
 
 @responses.activate
 def test_update_scheduled_game() -> None:
@@ -261,6 +263,7 @@ def test_update_scheduled_game() -> None:
 
 # Lines 898-900: delete_scheduled_game()
 
+
 @responses.activate
 def test_delete_scheduled_game() -> None:
     """Test delete_scheduled_game function."""
@@ -278,9 +281,9 @@ def test_delete_scheduled_game() -> None:
 
 # Lines 925-930: get_completed_game()
 
+
 def test_create_scheduled_game_empty_location_skips_validation() -> None:
     """Test that empty location skips validation in create_scheduled_game."""
-    from gamesheet_sdk.games import create_scheduled_game
 
     config = Config(base_url=DEFAULT_BASE_URL)
     session = Session(config)
@@ -340,10 +343,8 @@ def test_create_scheduled_game_empty_location_skips_validation() -> None:
         assert game.data.id == "game-1"
 
 
-
 def test_create_scheduled_game_empty_broadcaster_skips_validation() -> None:
     """Test that empty broadcaster skips validation in create_scheduled_game."""
-    from gamesheet_sdk.games import create_scheduled_game
 
     config = Config(base_url=DEFAULT_BASE_URL)
     session = Session(config)
@@ -404,10 +405,8 @@ def test_create_scheduled_game_empty_broadcaster_skips_validation() -> None:
         assert game.data.id == "game-2"
 
 
-
 def test_update_scheduled_game_empty_location_skips_validation() -> None:
     """Test that empty location skips validation in update_scheduled_game."""
-    from gamesheet_sdk.games import update_scheduled_game
 
     config = Config(base_url=DEFAULT_BASE_URL)
     session = Session(config)
@@ -469,10 +468,8 @@ def test_update_scheduled_game_empty_location_skips_validation() -> None:
         assert game.data.id == "game-3"
 
 
-
 def test_update_scheduled_game_empty_broadcaster_skips_validation() -> None:
     """Test that empty broadcaster skips validation in update_scheduled_game."""
-    from gamesheet_sdk.games import update_scheduled_game
 
     config = Config(base_url=DEFAULT_BASE_URL)
     session = Session(config)

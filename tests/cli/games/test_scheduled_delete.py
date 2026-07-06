@@ -40,7 +40,7 @@ def test_scheduled_delete_command(runner: CliRunner) -> None:
             ],
         )
 
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert "Successfully deleted scheduled game game-del-123" in result.output
         mock_delete.assert_called_once()
         args = mock_delete.call_args[0]

@@ -8,7 +8,7 @@ from __future__ import annotations
 import responses
 
 from gamesheet_sdk import Config, Session
-from gamesheet_sdk.constants import DEFAULT_BASE_URL, SCORESHEET_SERVICE_BASE_URL
+from gamesheet_sdk.constants import DEFAULT_BASE_URL
 from gamesheet_sdk.games import get_completed_game
 
 

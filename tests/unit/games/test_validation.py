@@ -19,7 +19,6 @@ def test_validate_game_type_valid() -> None:
     validate_game_type("regular_season")
 
 
-
 def test_validate_game_type_invalid() -> None:
     """Test validate_game_type with invalid game type."""
     with pytest.raises(GameSheetError, match=r"Invalid game type"):

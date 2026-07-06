@@ -80,7 +80,7 @@ def test_scheduled_update_command(runner: CliRunner) -> None:
             ],
         )
 
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert mock_run.call_count == 2  # get + update
         # Verify update call (second call)
         update_args = mock_run.call_args_list[1][0]

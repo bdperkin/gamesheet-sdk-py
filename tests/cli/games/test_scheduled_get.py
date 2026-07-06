@@ -5,11 +5,10 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.games import games_group
 from tests.helpers import ASSOCIATION_ID
 
 

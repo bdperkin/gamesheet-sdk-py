@@ -28,7 +28,6 @@ def test_timezone_name_tzlocal_with_key() -> None:
         assert result == "America/New_York"
 
 
-
 def test_timezone_name_tzlocal_without_key() -> None:
     """Test _get_local_timezone_name with tzlocal library (no .key attribute)."""
     from gamesheet_sdk.cli.commands.games import _get_local_timezone_name
@@ -37,7 +36,7 @@ def test_timezone_name_tzlocal_without_key() -> None:
     class MockTZ:
         """Mock timezone object without .key attribute."""
 
-        def __str__(self) -> str:
+        def __str__(self: str) -> str:
             return "America/Chicago"
 
     mock_tzlocal = MagicMock()
@@ -46,7 +45,6 @@ def test_timezone_name_tzlocal_without_key() -> None:
     with patch.dict(sys.modules, {"tzlocal": mock_tzlocal}):
         result = _get_local_timezone_name()
         assert result == "America/Chicago"
-
 
 
 def test_timezone_name_etc_localtime_symlink() -> None:
@@ -64,7 +62,6 @@ def test_timezone_name_etc_localtime_symlink() -> None:
         assert result == "America/Los_Angeles"
 
 
-
 def test_timezone_name_fallback_utc_import_error() -> None:
     """Test _get_local_timezone_name falls back to UTC when tzlocal import fails."""
     from gamesheet_sdk.cli.commands.games import _get_local_timezone_name
@@ -76,7 +73,6 @@ def test_timezone_name_fallback_utc_import_error() -> None:
     ):
         result = _get_local_timezone_name()
         assert result == "UTC"
-
 
 
 def test_timezone_name_fallback_utc_oserror() -> None:
@@ -92,7 +88,6 @@ def test_timezone_name_fallback_utc_oserror() -> None:
         assert result == "UTC"
 
 
-
 def test_timezone_offset_standard_time() -> None:
     """Test _get_local_timezone_offset during standard time."""
     from gamesheet_sdk.cli.commands.games import _get_local_timezone_offset
@@ -104,7 +99,6 @@ def test_timezone_offset_standard_time() -> None:
     ):
         result = _get_local_timezone_offset()
         assert result == -300  # -5 hours in minutes
-
 
 
 def test_timezone_offset_daylight_saving_time() -> None:
@@ -122,7 +116,6 @@ def test_timezone_offset_daylight_saving_time() -> None:
     ):
         result = _get_local_timezone_offset()
         assert result == -240  # -4 hours in minutes
-
 
 
 def test_scheduled_create_with_defaults(runner: CliRunner) -> None:
@@ -185,7 +178,7 @@ def test_scheduled_create_with_defaults(runner: CliRunner) -> None:
             ],
         )
 
-        assert result.exit_code == 0
+        assert not result.exit_code
         mock_tz_name.assert_called_once()
         mock_tz_offset.assert_called_once()
         # Verify run_action_or_exit was called with the create action
@@ -194,7 +187,6 @@ def test_scheduled_create_with_defaults(runner: CliRunner) -> None:
         args = mock_run.call_args[0]
         assert args[13] == "America/Toronto"  # time_zone_name (index 13)
         assert args[14] == -240  # time_zone_offset (index 14)
-
 
 
 def test_scheduled_create_with_explicit_timezone(runner: CliRunner) -> None:
@@ -259,7 +251,7 @@ def test_scheduled_create_with_explicit_timezone(runner: CliRunner) -> None:
             ],
         )
 
-        assert result.exit_code == 0
+        assert not result.exit_code
         # Verify defaults were NOT called since explicit values provided
         mock_tz_name.assert_not_called()
         mock_tz_offset.assert_not_called()
@@ -268,7 +260,6 @@ def test_scheduled_create_with_explicit_timezone(runner: CliRunner) -> None:
         args = mock_run.call_args[0]
         assert args[13] == "America/Vancouver"  # explicit time_zone_name (index 13)
         assert args[14] == -420  # explicit time_zone_offset (index 14)
-
 
 
 def test_timezone_name_etc_localtime_not_symlink() -> None:
@@ -283,7 +274,6 @@ def test_timezone_name_etc_localtime_not_symlink() -> None:
     ):
         result = _get_local_timezone_name()
         assert result == "UTC"
-
 
 
 def test_timezone_name_etc_localtime_no_zoneinfo() -> None:

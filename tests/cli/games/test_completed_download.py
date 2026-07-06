@@ -5,9 +5,8 @@
 
 from __future__ import annotations
 
-import sys
 import tempfile
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from click.testing import CliRunner
 
@@ -40,7 +39,6 @@ def test_build_scoresheet_filename_sanitize() -> None:
     assert filename == "2026-07-15-scoresheet-123-team_a_b-u15_aa-vs-team_c_d-u16_aaa-g-101.pdf"
 
 
-
 def test_build_scoresheet_filename_none_values() -> None:
     """Test _build_scoresheet_filename handles None values."""
     from gamesheet_sdk.cli.commands.games import _build_scoresheet_filename
@@ -59,7 +57,6 @@ def test_build_scoresheet_filename_none_values() -> None:
 
     # Verify None/empty values become "unknown"
     assert filename == "2026-07-20-scoresheet-456-unknown-unknown-vs-unknown-unknown-unknown.pdf"
-
 
 
 def test_build_scoresheet_filename_collapse_underscores() -> None:
@@ -81,7 +78,6 @@ def test_build_scoresheet_filename_collapse_underscores() -> None:
     # Verify multiple underscores are collapsed to single underscore
     assert "_" in filename
     assert "__" not in filename
-
 
 
 def test_completed_download_with_auto_filename(runner: CliRunner) -> None:
@@ -132,14 +128,13 @@ def test_completed_download_with_auto_filename(runner: CliRunner) -> None:
             ],
         )
 
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert mock_run.call_count == 2  # get + download
         # Verify auto-generated filename was used in download call
         download_args = mock_run.call_args_list[1][0]
         assert download_args[2] == "999"  # game_id
         assert download_args[3] == "2026-07-30-scoresheet-999-eagles-u18_aa-vs-hawks-u18_aaa-201.pdf"
         assert "Successfully downloaded scoresheet" in result.output
-
 
 
 def test_completed_download_with_explicit_filename(runner: CliRunner) -> None:
@@ -173,7 +168,7 @@ def test_completed_download_with_explicit_filename(runner: CliRunner) -> None:
             ],
         )
 
-        assert result.exit_code == 0
+        assert not result.exit_code
         assert mock_run.call_count == 1  # only download (no get_game call)
         # Verify explicit filename was used
         args = mock_run.call_args[0]

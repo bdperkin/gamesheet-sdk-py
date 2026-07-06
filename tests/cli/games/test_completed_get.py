@@ -50,7 +50,6 @@ def test_games_get(runner: CliRunner) -> None:
         assert mock_action.called
 
 
-
 def test_games_get_with_fields(runner: CliRunner) -> None:
     """The games completed get command should support --fields and JSON format."""
     with (
@@ -89,7 +88,6 @@ def test_games_get_with_fields(runner: CliRunner) -> None:
         )
         assert not result.exit_code
         assert result.output
-
 
 
 def test_games_get_empty_fields(runner: CliRunner) -> None:

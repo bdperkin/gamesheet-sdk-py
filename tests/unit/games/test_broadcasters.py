@@ -44,6 +44,7 @@ def test_list_broadcasters() -> None:
 
 # Lines 517-526: validate_broadcaster_key()
 
+
 @responses.activate
 def test_validate_broadcaster_key_valid() -> None:
     """Test validate_broadcaster_key with valid broadcaster."""
@@ -66,15 +67,13 @@ def test_validate_broadcaster_key_valid() -> None:
     assert result == "hockeyTV"  # Returns correct casing
 
 
-
 @responses.activate
 def test_validate_broadcaster_key_empty() -> None:
     """Test validate_broadcaster_key with empty string."""
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
         result = validate_broadcaster_key(session, "")
-    assert result == ""
-
+    assert not result
 
 
 @responses.activate
