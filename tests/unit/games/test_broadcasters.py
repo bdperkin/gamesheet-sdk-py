@@ -12,6 +12,7 @@ from gamesheet_sdk import Config, Session
 from gamesheet_sdk.constants import BFF_API_BASE_URL, DEFAULT_BASE_URL
 from gamesheet_sdk.exceptions import GameSheetError
 from gamesheet_sdk.games import list_broadcasters, validate_broadcaster_key
+from tests.fixtures.constants import TEST_BEARER_TOKEN
 
 
 @responses.activate
@@ -35,7 +36,7 @@ def test_list_broadcasters() -> None:
     )
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
-        session.set_bearer_token("test-token")
+        session.set_bearer_token(TEST_BEARER_TOKEN)
         broadcasters = list_broadcasters(session)
     assert len(broadcasters) == 2
     assert broadcasters[0].key == "hockeyTV"
@@ -61,7 +62,7 @@ def test_validate_broadcaster_key_valid() -> None:
     )
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
-        session.set_bearer_token("test-token")
+        session.set_bearer_token(TEST_BEARER_TOKEN)
         # Test case-insensitive match
         result = validate_broadcaster_key(session, "hockeytv")
     assert result == "hockeyTV"  # Returns correct casing
@@ -92,7 +93,7 @@ def test_validate_broadcaster_key_invalid() -> None:
     )
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
-        session.set_bearer_token("test-token")
+        session.set_bearer_token(TEST_BEARER_TOKEN)
         with pytest.raises(GameSheetError, match=r"Invalid broadcaster.*hockeyTV"):
             validate_broadcaster_key(session, "invalid-broadcaster")
 

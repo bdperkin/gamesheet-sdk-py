@@ -11,6 +11,7 @@ from click.exceptions import Exit
 import rich_click as click
 from rich_click import Context
 
+from gamesheet_sdk.cli import constants as cli_constants
 from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or_exit
 from gamesheet_sdk.cli.shared import (
@@ -21,6 +22,7 @@ from gamesheet_sdk.cli.shared import (
     render_list_command,
 )
 from gamesheet_sdk.config import Config
+from gamesheet_sdk.constants import DEFAULT_TIMEZONE
 from gamesheet_sdk.games import (
     Game,
     create_scheduled_game as _create_scheduled_game_action,
@@ -67,9 +69,9 @@ def _get_local_timezone_name() -> str:
                 if "zoneinfo/" in target:
                     return target.split("zoneinfo/", 1)[1]
     except (OSError, ValueError, IndexError) as exc:
-        _LOGGER.debug("Failed to detect timezone, falling back to UTC: %s", exc)
+        _LOGGER.debug("Failed to detect timezone, falling back to %s: %s", DEFAULT_TIMEZONE, exc)
     # Default fallback
-    return "UTC"
+    return DEFAULT_TIMEZONE
 
 
 def _get_local_timezone_offset() -> int:
@@ -215,13 +217,13 @@ def scheduled_list_command(
     "--scheduled-start-time",
     type=str,
     required=True,
-    help="Scheduled start time (ISO 8601 format, e.g., 2026-07-04T12:00:00Z).",
+    help=f"Scheduled start time. {cli_constants.ISO_8601_HELP_TEXT}",
 )
 @click.option(
     "--scheduled-end-time",
     type=str,
     required=True,
-    help="Scheduled end time (ISO 8601 format, e.g., 2026-07-04T13:15:00Z).",
+    help=f"Scheduled end time. {cli_constants.ISO_8601_HELP_TEXT}",
 )
 @click.option(
     "--home-team-id",
@@ -278,13 +280,13 @@ def scheduled_list_command(
     "--time-zone-name",
     type=str,
     default=None,
-    help="IANA time zone name (e.g., America/New_York). Defaults to system timezone.",
+    help=f"{cli_constants.IANA_TIMEZONE_HELP_TEXT}. Defaults to system timezone.",
 )
 @click.option(
     "--time-zone-offset",
     type=int,
     default=None,
-    help="Time zone offset in minutes (e.g., -240 for EDT). Defaults to system timezone offset.",
+    help=f"{cli_constants.TIMEZONE_OFFSET_HELP_TEXT}. Defaults to system timezone offset.",
 )
 @click.option(
     "--number",
@@ -421,12 +423,12 @@ def scheduled_create_command(
 @click.option(
     "--scheduled-start-time",
     type=str,
-    help="Scheduled start time (ISO 8601 format, e.g., 2026-07-04T12:00:00Z).",
+    help=f"Scheduled start time. {cli_constants.ISO_8601_HELP_TEXT}",
 )
 @click.option(
     "--scheduled-end-time",
     type=str,
-    help="Scheduled end time (ISO 8601 format, e.g., 2026-07-04T13:15:00Z).",
+    help=f"Scheduled end time. {cli_constants.ISO_8601_HELP_TEXT}",
 )
 @click.option(
     "--home-team-id",
@@ -474,12 +476,12 @@ def scheduled_create_command(
 @click.option(
     "--time-zone-name",
     type=str,
-    help="IANA time zone name (e.g., America/New_York).",
+    help=cli_constants.IANA_TIMEZONE_HELP_TEXT,
 )
 @click.option(
     "--time-zone-offset",
     type=int,
-    help="Time zone offset in minutes (e.g., -240 for EDT).",
+    help=cli_constants.TIMEZONE_OFFSET_HELP_TEXT,
 )
 @click.option(
     "--number",

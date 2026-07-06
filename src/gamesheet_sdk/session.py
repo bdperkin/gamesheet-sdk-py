@@ -31,6 +31,7 @@ from requests.cookies import RequestsCookieJar
 from urllib3.util.retry import Retry
 
 from gamesheet_sdk.config import Config
+from gamesheet_sdk.constants import HTTP_RETRY_STATUSES
 
 if TYPE_CHECKING:
     from http.cookiejar import Cookie
@@ -53,7 +54,7 @@ def _default_user_agent() -> str:
 
 _LOGGER = logging.getLogger(__name__)
 # Retry on transient server-side and gateway errors only.
-_DEFAULT_RETRY_STATUSES = frozenset({500, 502, 503, 504})
+_DEFAULT_RETRY_STATUSES = HTTP_RETRY_STATUSES
 # Idempotent methods are safe to retry. POST is excluded so we never
 # double-submit a mutation that happened to time out on the response.
 _DEFAULT_RETRY_METHODS = frozenset({"GET", "HEAD", "OPTIONS", "PUT", "DELETE"})

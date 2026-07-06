@@ -17,6 +17,15 @@ from gamesheet_sdk.games import (
     get_scheduled_game,
     update_scheduled_game,
 )
+from tests.fixtures.constants import (
+    TEST_BEARER_TOKEN,
+    TEST_LOCATION_NAME,
+    TEST_SCOREKEEPER_NAME,
+    TEST_SCOREKEEPER_PHONE,
+    TEST_SURFACE_NAME,
+    TEST_TIMEZONE_NAME,
+    TEST_TIMEZONE_OFFSET,
+)
 from tests.unit.games.conftest import add_mock_locations_response
 
 
@@ -49,11 +58,11 @@ def test_create_scheduled_game() -> None:
                     "scheduled_start_time": "2026-07-04T10:00:00-04:00",
                     "scheduled_end_time": "2026-07-04T12:00:00-04:00",
                     "number": "G1",
-                    "location": "Arena A Ice 1",
-                    "scorekeeper": {"name": "John", "phone": "555-1234"},
+                    "location": f"{TEST_LOCATION_NAME} {TEST_SURFACE_NAME}",
+                    "scorekeeper": {"name": TEST_SCOREKEEPER_NAME, "phone": TEST_SCOREKEEPER_PHONE},
                     "game_type": "regular_season",
-                    "time_zone_offset": -240,
-                    "time_zone_name": "America/New_York",
+                    "time_zone_offset": TEST_TIMEZONE_OFFSET,
+                    "time_zone_name": TEST_TIMEZONE_NAME,
                     "data": {
                         "broadcaster": "hockeyTV",
                         "home_label": "",
@@ -73,7 +82,7 @@ def test_create_scheduled_game() -> None:
     )
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
-        session.set_bearer_token("test-token")
+        session.set_bearer_token(TEST_BEARER_TOKEN)
         game = create_scheduled_game(
             session,
             season_id="123",
@@ -85,11 +94,11 @@ def test_create_scheduled_game() -> None:
             visitor_division_id="20",
             number="G1",
             location="arena a ice 1",
-            scorekeeper_name="John",
-            scorekeeper_phone="555-1234",
+            scorekeeper_name=TEST_SCOREKEEPER_NAME,
+            scorekeeper_phone=TEST_SCOREKEEPER_PHONE,
             game_type="regular_season",
-            time_zone_offset=-240,
-            time_zone_name="America/New_York",
+            time_zone_offset=TEST_TIMEZONE_OFFSET,
+            time_zone_name=TEST_TIMEZONE_NAME,
             broadcaster="hockeytv",
             home_label="",
             visitor_label="",
@@ -114,11 +123,11 @@ def test_get_scheduled_game() -> None:
                     "scheduled_start_time": "2026-07-04T10:00:00-04:00",
                     "scheduled_end_time": "2026-07-04T12:00:00-04:00",
                     "number": "G1",
-                    "location": "Arena A Ice 1",
-                    "scorekeeper": {"name": "John", "phone": "555-1234"},
+                    "location": f"{TEST_LOCATION_NAME} {TEST_SURFACE_NAME}",
+                    "scorekeeper": {"name": TEST_SCOREKEEPER_NAME, "phone": TEST_SCOREKEEPER_PHONE},
                     "game_type": "regular_season",
-                    "time_zone_offset": -240,
-                    "time_zone_name": "America/New_York",
+                    "time_zone_offset": TEST_TIMEZONE_OFFSET,
+                    "time_zone_name": TEST_TIMEZONE_NAME,
                     "data": {"broadcaster": "", "home_label": "", "visitor_label": ""},
                     "status": "scheduled",
                 },
@@ -134,7 +143,7 @@ def test_get_scheduled_game() -> None:
     )
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
-        session.set_bearer_token("test-token")
+        session.set_bearer_token(TEST_BEARER_TOKEN)
         game = get_scheduled_game(session, "123", "game-1")
     assert game.data.id == "game-1"
 
@@ -194,8 +203,8 @@ def test_update_scheduled_game() -> None:
                     "location": "Arena B Ice 2",
                     "scorekeeper": {"name": "Jane", "phone": "555-5678"},
                     "game_type": "playoff",
-                    "time_zone_offset": -240,
-                    "time_zone_name": "America/New_York",
+                    "time_zone_offset": TEST_TIMEZONE_OFFSET,
+                    "time_zone_name": TEST_TIMEZONE_NAME,
                     "data": {
                         "vendors": {},
                         "is_valid": False,
@@ -219,7 +228,7 @@ def test_update_scheduled_game() -> None:
     )
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
-        session.set_bearer_token("test-token")
+        session.set_bearer_token(TEST_BEARER_TOKEN)
         game = update_scheduled_game(
             session,
             season_id="123",
@@ -235,8 +244,8 @@ def test_update_scheduled_game() -> None:
             scorekeeper_name="Jane",
             scorekeeper_phone="555-5678",
             game_type="playoff",
-            time_zone_offset=-240,
-            time_zone_name="America/New_York",
+            time_zone_offset=TEST_TIMEZONE_OFFSET,
+            time_zone_name=TEST_TIMEZONE_NAME,
             broadcaster="flosports",
             home_label="Home",
             visitor_label="Away",
@@ -259,7 +268,7 @@ def test_delete_scheduled_game() -> None:
     )
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
-        session.set_bearer_token("test-token")
+        session.set_bearer_token(TEST_BEARER_TOKEN)
         delete_scheduled_game(session, "123", "game-1")
     # Should complete without error
 
@@ -287,7 +296,7 @@ def test_create_scheduled_game_empty_location_skips_validation() -> None:
                     "scheduled_start_time": "2026-07-15T19:00:00-04:00",
                     "scheduled_end_time": "2026-07-15T21:00:00-04:00",
                     "location": "",
-                    "scorekeeper": {"name": "John", "phone": "555-1234"},
+                    "scorekeeper": {"name": TEST_SCOREKEEPER_NAME, "phone": TEST_SCOREKEEPER_PHONE},
                     "game_type": "regular_season",
                     "time_zone_name": "UTC",
                     "time_zone_offset": 0,
@@ -314,8 +323,8 @@ def test_create_scheduled_game_empty_location_skips_validation() -> None:
             visitor_team_id="team-2",
             visitor_division_id="div-2",
             location="",  # Empty location - should skip validation
-            scorekeeper_name="John",
-            scorekeeper_phone="555-1234",
+            scorekeeper_name=TEST_SCOREKEEPER_NAME,
+            scorekeeper_phone=TEST_SCOREKEEPER_PHONE,
             game_type="regular_season",
             time_zone_name="UTC",
             time_zone_offset=0,
@@ -348,7 +357,7 @@ def test_create_scheduled_game_empty_broadcaster_skips_validation() -> None:
                 "attributes": {
                     "scheduled_start_time": "2026-07-20T14:00:00-07:00",
                     "scheduled_end_time": "2026-07-20T16:00:00-07:00",
-                    "location": "Arena A Ice 1",
+                    "location": f"{TEST_LOCATION_NAME} {TEST_SURFACE_NAME}",
                     "scorekeeper": {"name": "Jane", "phone": "555-5678"},
                     "game_type": "playoff",
                     "time_zone_name": "America/Vancouver",
@@ -375,7 +384,7 @@ def test_create_scheduled_game_empty_broadcaster_skips_validation() -> None:
             home_division_id="div-3",
             visitor_team_id="team-4",
             visitor_division_id="div-4",
-            location="Arena A Ice 1",
+            location=f"{TEST_LOCATION_NAME} {TEST_SURFACE_NAME}",
             scorekeeper_name="Jane",
             scorekeeper_phone="555-5678",
             game_type="playoff",

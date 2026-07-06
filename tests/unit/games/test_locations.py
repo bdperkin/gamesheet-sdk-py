@@ -17,6 +17,14 @@ from gamesheet_sdk.games import (
     list_locations,
     validate_location,
 )
+from tests.fixtures.constants import (
+    TEST_BEARER_TOKEN,
+    TEST_CITY,
+    TEST_COUNTRY,
+    TEST_LOCATION_NAME,
+    TEST_PROVINCE_STATE,
+    TEST_SURFACE_NAME,
+)
 from tests.unit.games.conftest import add_mock_locations_response
 
 
@@ -42,7 +50,7 @@ def test_list_locations() -> None:
     add_mock_locations_response()
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
-        session.set_bearer_token("test-token")
+        session.set_bearer_token(TEST_BEARER_TOKEN)
         locations = list_locations(session)
     assert len(locations) == 1
     assert locations[0].id == "loc-1"
@@ -61,11 +69,11 @@ def test_get_location_found() -> None:
             "data": [
                 {
                     "id": "loc-123",
-                    "location_name": "Arena A",
-                    "surface_name": "Ice 1",
-                    "city": "Toronto",
-                    "province_state": "ON",
-                    "country": "Canada",
+                    "location_name": TEST_LOCATION_NAME,
+                    "surface_name": TEST_SURFACE_NAME,
+                    "city": TEST_CITY,
+                    "province_state": TEST_PROVINCE_STATE,
+                    "country": TEST_COUNTRY,
                 },
             ],
         },
@@ -73,7 +81,7 @@ def test_get_location_found() -> None:
     )
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
-        session.set_bearer_token("test-token")
+        session.set_bearer_token(TEST_BEARER_TOKEN)
         location = get_location(session, "loc-123")
     assert location.id == "loc-123"
 
@@ -89,7 +97,7 @@ def test_get_location_not_found() -> None:
     )
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
-        session.set_bearer_token("test-token")
+        session.set_bearer_token(TEST_BEARER_TOKEN)
         with pytest.raises(GameSheetError, match=r"Location.*not found"):
             get_location(session, "loc-999")
 
@@ -107,11 +115,11 @@ def test_validate_location_valid() -> None:
             "data": [
                 {
                     "id": "loc-1",
-                    "location_name": "Arena A",
-                    "surface_name": "Ice 1",
-                    "city": "Toronto",
-                    "province_state": "ON",
-                    "country": "Canada",
+                    "location_name": TEST_LOCATION_NAME,
+                    "surface_name": TEST_SURFACE_NAME,
+                    "city": TEST_CITY,
+                    "province_state": TEST_PROVINCE_STATE,
+                    "country": TEST_COUNTRY,
                 },
             ],
         },
@@ -119,7 +127,7 @@ def test_validate_location_valid() -> None:
     )
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
-        session.set_bearer_token("test-token")
+        session.set_bearer_token(TEST_BEARER_TOKEN)
         # Test case-insensitive match
         result = validate_location(session, "arena a ice 1")
     assert result == "Arena A Ice 1"
@@ -144,11 +152,11 @@ def test_validate_location_invalid() -> None:
             "data": [
                 {
                     "id": "loc-1",
-                    "location_name": "Arena A",
-                    "surface_name": "Ice 1",
-                    "city": "Toronto",
-                    "province_state": "ON",
-                    "country": "Canada",
+                    "location_name": TEST_LOCATION_NAME,
+                    "surface_name": TEST_SURFACE_NAME,
+                    "city": TEST_CITY,
+                    "province_state": TEST_PROVINCE_STATE,
+                    "country": TEST_COUNTRY,
                 },
             ],
         },
@@ -156,7 +164,7 @@ def test_validate_location_invalid() -> None:
     )
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
-        session.set_bearer_token("test-token")
+        session.set_bearer_token(TEST_BEARER_TOKEN)
         with pytest.raises(GameSheetError, match=r"Invalid location.*Examples"):
             validate_location(session, "Invalid Location")
 

@@ -8,6 +8,13 @@ from __future__ import annotations
 import responses
 
 from gamesheet_sdk.constants import DEFAULT_BASE_URL
+from tests.fixtures.constants import (
+    TEST_CITY,
+    TEST_COUNTRY,
+    TEST_LOCATION_NAME,
+    TEST_PROVINCE_STATE,
+    TEST_SURFACE_NAME,
+)
 
 
 def add_mock_locations_response(location_id: str = "loc-1") -> None:
@@ -25,11 +32,11 @@ def add_mock_locations_response(location_id: str = "loc-1") -> None:
             "data": [
                 {
                     "id": location_id,
-                    "location_name": "Arena A",
-                    "surface_name": "Ice 1",
-                    "city": "Toronto",
-                    "province_state": "ON",
-                    "country": "Canada",
+                    "location_name": TEST_LOCATION_NAME,
+                    "surface_name": TEST_SURFACE_NAME,
+                    "city": TEST_CITY,
+                    "province_state": TEST_PROVINCE_STATE,
+                    "country": TEST_COUNTRY,
                 },
             ],
         },

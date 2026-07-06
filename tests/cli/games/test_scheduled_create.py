@@ -11,6 +11,16 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
+from tests.fixtures.constants import (
+    TEST_ACCESS_TOKEN,
+    TEST_LOCATION_NAME,
+    TEST_REFRESH_TOKEN,
+    TEST_SCOREKEEPER_NAME,
+    TEST_SCOREKEEPER_PHONE,
+    TEST_SURFACE_NAME,
+    TEST_TIMEZONE_NAME,
+    TEST_TIMEZONE_OFFSET,
+)
 
 
 def test_timezone_name_tzlocal_with_key() -> None:
@@ -133,12 +143,12 @@ def test_scheduled_create_with_defaults(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.commands.games.render_get_command"),
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
-            return_value="refresh-tok",
+            return_value=TEST_REFRESH_TOKEN,
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=TEST_ACCESS_TOKEN),
     ):
-        mock_tz_name.return_value = "America/Toronto"
-        mock_tz_offset.return_value = -240
+        mock_tz_name.return_value = TEST_TIMEZONE_NAME
+        mock_tz_offset.return_value = TEST_TIMEZONE_OFFSET
         mock_run.return_value = MagicMock(
             model_dump=lambda **_kw: {
                 "id": "game-123",
@@ -167,11 +177,11 @@ def test_scheduled_create_with_defaults(runner: CliRunner) -> None:
                 "--visitor-division-id",
                 "div-2",
                 "--location",
-                "Arena A Ice 1",
+                f"{TEST_LOCATION_NAME} {TEST_SURFACE_NAME}",
                 "--scorekeeper-name",
-                "John Doe",
+                TEST_SCOREKEEPER_NAME,
                 "--scorekeeper-phone",
-                "555-1234",
+                TEST_SCOREKEEPER_PHONE,
                 "--game-type",
                 "regular_season",
                 "--number",
@@ -186,8 +196,8 @@ def test_scheduled_create_with_defaults(runner: CliRunner) -> None:
         assert mock_run.call_count == 1
         # Verify timezone defaults were used (check args to run_action_or_exit)
         args = mock_run.call_args[0]
-        assert args[13] == "America/Toronto"  # time_zone_name (index 13)
-        assert args[14] == -240  # time_zone_offset (index 14)
+        assert args[13] == TEST_TIMEZONE_NAME  # time_zone_name (index 13)
+        assert args[14] == TEST_TIMEZONE_OFFSET  # time_zone_offset (index 14)
 
 
 def test_scheduled_create_with_explicit_timezone(runner: CliRunner) -> None:
@@ -204,9 +214,9 @@ def test_scheduled_create_with_explicit_timezone(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.commands.games.render_get_command"),
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
-            return_value="refresh-tok",
+            return_value=TEST_REFRESH_TOKEN,
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=TEST_ACCESS_TOKEN),
     ):
         mock_run.return_value = MagicMock(
             model_dump=lambda **_kw: {
@@ -317,11 +327,11 @@ def test_scheduled_create_with_optional_broadcaster_and_labels(runner: CliRunner
     with (
         patch("gamesheet_sdk.cli.commands.games.build_authenticated_session"),
         patch("gamesheet_sdk.cli.commands.games.run_action_or_exit") as mock_run,
-        patch("gamesheet_sdk.cli.commands.games._get_local_timezone_name", return_value="America/Toronto"),
-        patch("gamesheet_sdk.cli.commands.games._get_local_timezone_offset", return_value=-240),
+        patch("gamesheet_sdk.cli.commands.games._get_local_timezone_name", return_value=TEST_TIMEZONE_NAME),
+        patch("gamesheet_sdk.cli.commands.games._get_local_timezone_offset", return_value=TEST_TIMEZONE_OFFSET),
         patch("gamesheet_sdk.cli.commands.games.render_get_command"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh-tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=TEST_REFRESH_TOKEN),
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=TEST_ACCESS_TOKEN),
     ):
         mock_run.return_value = MagicMock(
             model_dump=lambda **_kw: {

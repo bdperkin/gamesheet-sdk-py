@@ -23,22 +23,26 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from gamesheet_sdk import errors
 from gamesheet_sdk.constants import (
+    API_LOCATIONS,
+    API_SEASONS_GAMES,
+    API_SEASONS_SCHEDULE,
+    API_SEASONS_SCHEDULE_GAME,
     BFF_API_BASE_URL,
+    BFF_BROADCASTERS,
+    BFF_GAMES_LIST,
+    BFF_STATUS_SUCCESS,
     DEFAULT_BASE_URL,
+    DEFAULT_GAMES_LIMIT,
+    DEFAULT_TIMEZONE,
     SCORESHEET_SERVICE_BASE_URL,
+    SCORESHEET_SERVICE_GAME,
+    VALID_GAME_TYPES,
 )
 from gamesheet_sdk.exceptions import GameSheetError
 from gamesheet_sdk.session import Session
 from gamesheet_sdk.shared import check_bff_response_status, handle_response
-
-_ENDPOINT = "/games-list/v1"
-_BROADCASTERS_ENDPOINT = "/get-broadcasters"
-
-# Valid game types
-VALID_GAME_TYPES: frozenset[str] = frozenset(
-    ["playoff", "exhibition", "tournament", "regular_season"],
-)
 
 
 class Broadcaster(BaseModel):
@@ -372,7 +376,7 @@ def _make_request(
     """Make a request to the BFF games-list endpoint."""
     params: dict[str, Any] = {
         "filter[seasons]": season_id,
-        "filter[limit]": "1000",  # Get all games
+        "filter[limit]": str(DEFAULT_GAMES_LIMIT),
         "filter[offset]": "0",
         "filter[sort]": "-start_time",
     }
@@ -383,7 +387,7 @@ def _make_request(
         params["filter[scheduled]"] = "true" if scheduled else "false"
     if brackets is not None:
         params["filter[brackets]"] = "true" if brackets else "false"
-    url = f"{BFF_API_BASE_URL}{_ENDPOINT}"
+    url = f"{BFF_API_BASE_URL}{BFF_GAMES_LIST}"
     response = session.get(url, params=params)
     handle_response(response, url, "GET games")
     body: dict[str, Any] = response.json()
@@ -491,7 +495,7 @@ def list_broadcasters(session: Session) -> list[Broadcaster]:
     :raises AuthenticationError: If the server returns 401 or 403.
     :raises GameSheetError: For any other non-2xx response.
     """
-    url = f"{BFF_API_BASE_URL}{_BROADCASTERS_ENDPOINT}"
+    url = f"{BFF_API_BASE_URL}{BFF_BROADCASTERS}"
     response = session.get(url)
     handle_response(response, url, "GET broadcasters")
     body: dict[str, Any] = response.json()
@@ -540,7 +544,7 @@ def list_locations(session: Session) -> list[Location]:
     :raises AuthenticationError: If the server returns 401 or 403.
     :raises GameSheetError: For any other non-2xx response.
     """
-    url = f"{DEFAULT_BASE_URL}/api/locations"
+    url = f"{DEFAULT_BASE_URL}{API_LOCATIONS}"
     response = session.get(url)
     handle_response(response, url, "GET locations")
     body: dict[str, Any] = response.json()
@@ -564,10 +568,7 @@ def get_location(session: Session, location_id: str) -> Location:
     for loc in locations:
         if loc.id == location_id:
             return loc
-    msg = (
-        f"Location '{location_id}' not found. "
-        f"Use 'gamesheet-sdk-py locations list' to see all valid locations."
-    )
+    msg = errors.ERROR_MSG_LOCATION_NOT_FOUND.format(location_id=location_id)
     raise GameSheetError(msg)
 
 
@@ -694,7 +695,7 @@ def create_scheduled_game(
     # Validate broadcaster if provided
     if broadcaster:
         broadcaster = validate_broadcaster_key(session, broadcaster)
-    url = f"{DEFAULT_BASE_URL}/api/seasons/{season_id}/schedule"
+    url = f"{DEFAULT_BASE_URL}{API_SEASONS_SCHEDULE.format(season_id=season_id)}"
     payload = {
         "data": {
             "attributes": {
@@ -748,7 +749,7 @@ def get_scheduled_game(session: Session, season_id: str, game_id: str) -> Schedu
     :raises AuthenticationError: If the server returns 401.
     :raises GameSheetError: For any other non-2xx response, including 404 if the game is not found.
     """
-    url = f"{DEFAULT_BASE_URL}/api/seasons/{season_id}/schedule/{game_id}"
+    url = f"{DEFAULT_BASE_URL}{API_SEASONS_SCHEDULE_GAME.format(season_id=season_id, game_id=game_id)}"
     response = session.get(url)
     handle_response(response, url, "GET scheduled game")
     body: dict[str, Any] = response.json()
@@ -839,7 +840,7 @@ def update_scheduled_game(
     # Validate broadcaster if provided
     if broadcaster:
         broadcaster = validate_broadcaster_key(session, broadcaster)
-    url = f"{DEFAULT_BASE_URL}/api/seasons/{season_id}/schedule/{game_id}"
+    url = f"{DEFAULT_BASE_URL}{API_SEASONS_SCHEDULE_GAME.format(season_id=season_id, game_id=game_id)}"
     payload = {
         "data": {
             "attributes": {
@@ -895,7 +896,7 @@ def delete_scheduled_game(session: Session, season_id: str, game_id: str) -> Non
     :raises AuthenticationError: If the server returns 401.
     :raises GameSheetError: For any other non-2xx response, including 404 if the game is not found.
     """
-    url = f"{DEFAULT_BASE_URL}/api/seasons/{season_id}/schedule/{game_id}"
+    url = f"{DEFAULT_BASE_URL}{API_SEASONS_SCHEDULE_GAME.format(season_id=season_id, game_id=game_id)}"
     response = session.delete(url)
     handle_response(response, url, "DELETE scheduled game")
 
@@ -922,7 +923,7 @@ def get_completed_game(
     :raises AuthenticationError: If the server returns 401.
     :raises GameSheetError: For any other non-2xx response, including 404 if the game is not found.
     """
-    url = f"{DEFAULT_BASE_URL}/api/seasons/{season_id}/games/{game_id}"
+    url = f"{DEFAULT_BASE_URL}{API_SEASONS_GAMES.format(season_id=season_id, game_id=game_id)}"
     params = {"include": "players,coaches,referees,teams,season,association,league"}
     response = session.get(url, params=params)
     handle_response(response, url, "GET completed game")
@@ -949,7 +950,7 @@ def download_completed_game_pdf(
     :raises AuthenticationError: If the server returns 401.
     :raises GameSheetError: For any other non-2xx response, including 404 if the game is not found.
     """
-    url = f"{SCORESHEET_SERVICE_BASE_URL}/service.scoresheets/v4/get-game/{game_id}"
+    url = f"{SCORESHEET_SERVICE_BASE_URL}{SCORESHEET_SERVICE_GAME.format(game_id=game_id)}"
     response = session.get(url)
     handle_response(response, url, "GET scoresheet PDF")
     Path(output_path).write_bytes(response.content)

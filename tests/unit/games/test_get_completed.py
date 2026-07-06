@@ -10,6 +10,7 @@ import responses
 from gamesheet_sdk import Config, Session
 from gamesheet_sdk.constants import DEFAULT_BASE_URL
 from gamesheet_sdk.games import get_completed_game
+from tests.fixtures.constants import TEST_BEARER_TOKEN
 
 
 @responses.activate
@@ -35,7 +36,7 @@ def test_get_completed_game() -> None:
     )
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
-        session.set_bearer_token("test-token")
+        session.set_bearer_token(TEST_BEARER_TOKEN)
         game = get_completed_game(session, "123", "game-1")
     assert game["data"]["id"] == "game-1"
     assert game["data"]["status"] == "completed"

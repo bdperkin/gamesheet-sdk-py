@@ -12,6 +12,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.games import Game, TeamInfo
+from tests.fixtures.constants import TEST_ACCESS_TOKEN, TEST_REFRESH_TOKEN
 
 
 def test_build_scoresheet_filename_sanitize() -> None:
@@ -87,9 +88,9 @@ def test_completed_download_with_auto_filename(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.commands.games.run_action_or_exit") as mock_run,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
-            return_value="refresh-tok",
+            return_value=TEST_REFRESH_TOKEN,
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=TEST_ACCESS_TOKEN),
     ):
         # First call: _get_game_action (for filename generation)
         # Second call: _download_completed_game_pdf_action
@@ -147,9 +148,9 @@ def test_completed_download_with_explicit_filename(runner: CliRunner) -> None:
         patch("gamesheet_sdk.cli.commands.games.run_action_or_exit") as mock_run,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
-            return_value="refresh-tok",
+            return_value=TEST_REFRESH_TOKEN,
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=TEST_ACCESS_TOKEN),
     ):
         mock_run.return_value = None  # download returns None
 
