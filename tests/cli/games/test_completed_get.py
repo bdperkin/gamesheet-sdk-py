@@ -1,7 +1,7 @@
 # Copyright (c) 2026 bdperkin
 # SPDX-License-Identifier: MIT
 
-"""Tests for games get command."""
+"""Tests for completed games get CLI command."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.config import Config
 from gamesheet_sdk.games import Game, TeamInfo
-from tests.helpers import ASSOCIATION_ID, SEASON_ID, TEAM_ID
+from tests.helpers import SEASON_ID, TEAM_ID
 
 
 def test_games_get(runner: CliRunner) -> None:
@@ -48,6 +48,7 @@ def test_games_get(runner: CliRunner) -> None:
         assert not result.exit_code
         assert result.output
         assert mock_action.called
+
 
 
 def test_games_get_with_fields(runner: CliRunner) -> None:
@@ -90,6 +91,7 @@ def test_games_get_with_fields(runner: CliRunner) -> None:
         assert result.output
 
 
+
 def test_games_get_empty_fields(runner: CliRunner) -> None:
     """The games completed get command should handle empty fields spec."""
     with (
@@ -121,41 +123,3 @@ def test_games_get_empty_fields(runner: CliRunner) -> None:
         )
         assert not result.exit_code
         assert result.output
-
-
-def test_games_scheduled_get_coverage() -> None:
-    """Ensure games scheduled get command body is covered."""
-    from unittest.mock import MagicMock
-
-    from gamesheet_sdk.cli.commands.games import games_group
-
-    runner = CliRunner()
-    with (
-        patch("gamesheet_sdk.cli.commands.games.build_authenticated_session"),
-        patch(
-            "gamesheet_sdk.cli.commands.games.run_action_or_exit",
-            return_value=MagicMock(
-                model_dump=lambda **__kw: {
-                    "id": 123,
-                    "status": "scheduled",
-                    "date": "2024-01-01",
-                },
-            ),
-        ),
-        patch("gamesheet_sdk.cli.commands.games.render_get_command"),
-    ):
-        result = runner.invoke(
-            games_group,
-            [
-                "--season-id",
-                "100",
-                "scheduled",
-                "get",
-                "--game-id",
-                ASSOCIATION_ID,
-                "-F",
-                "json",
-            ],
-            obj=MagicMock(),
-        )
-        assert not result.exit_code
