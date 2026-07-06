@@ -27,8 +27,14 @@ _COACHES_ENDPOINT = f"{_BASE}/api/seasons/{SEASON_ID}/coaches"
 def test_roster_players_list_json_format() -> None:
     """Test roster players list with JSON output."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="mock-access-token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="mock-refresh-token"),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_access_token",
+            return_value="mock-access-token",
+        ),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            return_value="mock-refresh-token",
+        ),
     ):
         responses.add(
             responses.GET,
@@ -46,8 +52,14 @@ def test_roster_players_list_json_format() -> None:
 def test_roster_coaches_list_json_format() -> None:
     """Test roster coaches list with JSON output."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="mock-access-token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="mock-refresh-token"),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_access_token",
+            return_value="mock-access-token",
+        ),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            return_value="mock-refresh-token",
+        ),
     ):
         responses.add(
             responses.GET,

@@ -28,8 +28,14 @@ def _bff_response(games: list[dict[str, object]]) -> dict[str, object]:
 def test_games_completed_list_json_format() -> None:
     """Test games completed list with JSON output."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="mock-access-token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="mock-refresh-token"),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_access_token",
+            return_value="mock-access-token",
+        ),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            return_value="mock-refresh-token",
+        ),
     ):
         responses.add(
             responses.GET,
@@ -47,8 +53,14 @@ def test_games_completed_list_json_format() -> None:
 def test_games_scheduled_list_json_format() -> None:
     """Test games scheduled list with JSON output."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="mock-access-token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="mock-refresh-token"),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_access_token",
+            return_value="mock-access-token",
+        ),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            return_value="mock-refresh-token",
+        ),
     ):
         responses.add(
             responses.GET,
@@ -66,8 +78,14 @@ def test_games_scheduled_list_json_format() -> None:
 def test_games_brackets_list_json_format() -> None:
     """Test games brackets list returns not implemented error."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="mock-access-token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="mock-refresh-token"),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_access_token",
+            return_value="mock-access-token",
+        ),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            return_value="mock-refresh-token",
+        ),
     ):
         # Brackets list is not implemented yet - should return exit code 1
         result = main(

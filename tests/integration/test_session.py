@@ -118,6 +118,27 @@ def test_corrupt_cookie_file_does_not_crash(
     sess.close()
 
 
+def test_browser_state_cookies_are_loaded(config: Config) -> None:
+    """Browser state cookies should be loaded from browser-state.json."""
+    config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
+    browser_state_data = {
+        "cookies": [
+            {
+                "name": "browser_cookie",
+                "value": "browser_value",
+                "domain": ".example.com",
+                "path": "/",
+                "secure": True,
+                "expires": 1234567890,
+            },
+        ],
+    }
+    config.browser_state_path.write_text(json.dumps(browser_state_data))
+    sess = Session(config)
+    assert sess.cookies.get("browser_cookie") == "browser_value"
+    sess.close()
+
+
 def test_corrupt_browser_state_file_does_not_crash(
     config: Config,
     caplog: pytest.LogCaptureFixture,
