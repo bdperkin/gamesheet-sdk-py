@@ -524,7 +524,8 @@ def validate_broadcaster_key(session: Session, broadcaster: str) -> str:
         if b.key.lower() == broadcaster_lower:
             return b.key
     valid_keys = [b.key for b in broadcasters]
-    msg = f"Invalid broadcaster '{broadcaster}'. Valid options (case-insensitive): {', '.join(valid_keys)}"
+    joined_valid_keys = ", ".join(valid_keys)
+    msg = f"Invalid broadcaster '{broadcaster}'. Valid options (case-insensitive): {joined_valid_keys}"
     raise GameSheetError(msg)
 
 
@@ -594,10 +595,11 @@ def validate_location(session: Session, location: str) -> str:
             return full_name
     # If not found, show a helpful error with examples (limited to first 5)
     examples = [loc.full_name() for loc in locations[:5]]
+    joined_examples = ", ".join(examples)
     msg = (
         f"Invalid location '{location}'. Location must match the format "
         f"'<location_name> <surface_name>' (case-insensitive). "
-        f"Examples: {', '.join(examples)}... "
+        f"Examples: {joined_examples}... "
         f"Use 'gamesheet-sdk-py locations list' to see all valid locations."
     )
     raise GameSheetError(msg)
@@ -610,8 +612,9 @@ def validate_game_type(game_type: str) -> None:
     :type game_type: str
     :raises GameSheetError: If the game type is not valid.
     """
+    sorted_game_types = ", ".join(sorted(VALID_GAME_TYPES))
     if game_type not in VALID_GAME_TYPES:
-        msg = f"Invalid game type '{game_type}'. Valid options: {', '.join(sorted(VALID_GAME_TYPES))}"
+        msg = f"Invalid game type '{game_type}'. Valid options: {sorted_game_types}"
         raise GameSheetError(msg)
 
 
