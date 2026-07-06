@@ -9,11 +9,9 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.games import (
-    brackets_group,
-    completed_group,
-    scheduled_group,
-)
+from gamesheet_sdk.cli.commands.games_brackets import brackets_group
+from gamesheet_sdk.cli.commands.games_completed import completed_group
+from gamesheet_sdk.cli.commands.games_scheduled import scheduled_group
 from tests.helpers import SEASON_ID
 
 

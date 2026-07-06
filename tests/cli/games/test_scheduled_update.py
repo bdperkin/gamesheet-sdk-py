@@ -16,7 +16,9 @@ def test_scheduled_update_command(runner: CliRunner) -> None:
     """Test scheduled game update command."""
     with (
         patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
-        patch("gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit") as mock_run,
+        patch(
+            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
+        ) as mock_run,
         patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",

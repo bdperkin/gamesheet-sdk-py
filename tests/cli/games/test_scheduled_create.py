@@ -133,7 +133,9 @@ def test_scheduled_create_with_defaults(runner: CliRunner) -> None:
     """Test scheduled game create command with default timezone values."""
     with (
         patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
-        patch("gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit") as mock_run,
+        patch(
+            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
+        ) as mock_run,
         patch(
             "gamesheet_sdk.cli.commands.games_scheduled._get_local_timezone_name",
         ) as mock_tz_name,
@@ -207,7 +209,9 @@ def test_scheduled_create_with_explicit_timezone(runner: CliRunner) -> None:
     """Test scheduled game create command with explicit timezone values."""
     with (
         patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
-        patch("gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit") as mock_run,
+        patch(
+            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
+        ) as mock_run,
         patch(
             "gamesheet_sdk.cli.commands.games_scheduled._get_local_timezone_name",
         ) as mock_tz_name,
@@ -334,7 +338,9 @@ def test_scheduled_create_with_optional_broadcaster_and_labels(
     """Test scheduled game create command with optional broadcaster and team labels."""
     with (
         patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
-        patch("gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit") as mock_run,
+        patch(
+            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
+        ) as mock_run,
         patch(
             "gamesheet_sdk.cli.commands.games_scheduled._get_local_timezone_name",
             return_value=TEST_TIMEZONE_NAME,
