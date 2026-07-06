@@ -13,7 +13,10 @@ from __future__ import annotations
 import subprocess  # noqa: S404 # nosec B404
 import sys
 
-from _constants import AUTOSUMMARY_DIR, PACKAGE_DIR
+from _constants import (  # type: ignore[import-not-found] # pylint: disable=import-error
+    AUTOSUMMARY_DIR,
+    PACKAGE_DIR,
+)
 from rich import print as rprint
 
 # Alias for backward compatibility
