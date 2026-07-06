@@ -3,8 +3,8 @@
 
 """Error message templates for the GameSheet SDK.
 
-This module centralizes all error message templates to ensure consistency
-across the codebase and make future changes (like i18n) easier.
+This module centralizes all error message templates to ensure consistency across the codebase and make future
+changes (like i18n) easier.
 """
 
 from __future__ import annotations
