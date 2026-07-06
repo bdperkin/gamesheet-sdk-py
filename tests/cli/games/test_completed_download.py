@@ -17,7 +17,7 @@ from tests.fixtures.constants import TEST_ACCESS_TOKEN, TEST_REFRESH_TOKEN
 
 def test_build_scoresheet_filename_sanitize() -> None:
     """Test _build_scoresheet_filename sanitizes team names and divisions properly."""
-    from gamesheet_sdk.cli.commands.games import _build_scoresheet_filename
+    from gamesheet_sdk.cli.commands.games_completed import _build_scoresheet_filename
 
     # Create a Game with special characters in names
     game = Game(
@@ -42,7 +42,7 @@ def test_build_scoresheet_filename_sanitize() -> None:
 
 def test_build_scoresheet_filename_none_values() -> None:
     """Test _build_scoresheet_filename handles None values."""
-    from gamesheet_sdk.cli.commands.games import _build_scoresheet_filename
+    from gamesheet_sdk.cli.commands.games_completed import _build_scoresheet_filename
 
     # Create a Game with None/empty values
     game = Game(
@@ -62,7 +62,7 @@ def test_build_scoresheet_filename_none_values() -> None:
 
 def test_build_scoresheet_filename_collapse_underscores() -> None:
     """Test _build_scoresheet_filename collapses multiple underscores."""
-    from gamesheet_sdk.cli.commands.games import _build_scoresheet_filename
+    from gamesheet_sdk.cli.commands.games_completed import _build_scoresheet_filename
 
     # Create game with names that will create multiple consecutive underscores
     game = Game(
@@ -84,8 +84,8 @@ def test_build_scoresheet_filename_collapse_underscores() -> None:
 def test_completed_download_with_auto_filename(runner: CliRunner) -> None:
     """Test completed game download with auto-generated filename."""
     with (
-        patch("gamesheet_sdk.cli.commands.games.build_authenticated_session"),
-        patch("gamesheet_sdk.cli.commands.games.run_action_or_exit") as mock_run,
+        patch("gamesheet_sdk.cli.commands.games_completed.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.games_completed.run_action_or_exit") as mock_run,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value=TEST_REFRESH_TOKEN,
@@ -147,8 +147,8 @@ def test_completed_download_with_explicit_filename(runner: CliRunner) -> None:
         output_path = f.name
 
     with (
-        patch("gamesheet_sdk.cli.commands.games.build_authenticated_session"),
-        patch("gamesheet_sdk.cli.commands.games.run_action_or_exit") as mock_run,
+        patch("gamesheet_sdk.cli.commands.games_completed.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.games_completed.run_action_or_exit") as mock_run,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value=TEST_REFRESH_TOKEN,

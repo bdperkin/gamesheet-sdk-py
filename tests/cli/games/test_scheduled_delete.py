@@ -16,7 +16,7 @@ def test_scheduled_delete_command(runner: CliRunner) -> None:
     """Test scheduled game delete command."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.games._delete_scheduled_game_action",
+            "gamesheet_sdk.cli.commands.games_scheduled._delete_scheduled_game_action",
         ) as mock_delete,
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",

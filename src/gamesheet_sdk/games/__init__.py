@@ -28,7 +28,11 @@ from gamesheet_sdk.games.completed import (
     get_completed_game,
 )
 from gamesheet_sdk.games.helpers import validate_game_type
-from gamesheet_sdk.games.locations import get_location, list_locations, validate_location
+from gamesheet_sdk.games.locations import (
+    get_location,
+    list_locations,
+    validate_location,
+)
 from gamesheet_sdk.games.models import (
     Broadcaster,
     Game,

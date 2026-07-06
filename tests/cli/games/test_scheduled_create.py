@@ -25,7 +25,7 @@ from tests.fixtures.constants import (
 
 def test_timezone_name_tzlocal_with_key() -> None:
     """Test _get_local_timezone_name with tzlocal library (has .key attribute)."""
-    from gamesheet_sdk.cli.commands.games import _get_local_timezone_name
+    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
 
     # Mock tzlocal module with a timezone that has .key attribute
     mock_tz = MagicMock()
@@ -40,7 +40,7 @@ def test_timezone_name_tzlocal_with_key() -> None:
 
 def test_timezone_name_tzlocal_without_key() -> None:
     """Test _get_local_timezone_name with tzlocal library (no .key attribute)."""
-    from gamesheet_sdk.cli.commands.games import _get_local_timezone_name
+    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
 
     # Mock tzlocal module with a timezone that lacks .key attribute but has __str__
     # pylint: disable-next=too-few-public-methods
@@ -60,7 +60,7 @@ def test_timezone_name_tzlocal_without_key() -> None:
 
 def test_timezone_name_etc_localtime_symlink() -> None:
     """Test _get_local_timezone_name reading /etc/localtime symlink."""
-    from gamesheet_sdk.cli.commands.games import _get_local_timezone_name
+    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
 
     # Remove tzlocal from sys.modules to trigger ImportError
     with (
@@ -75,7 +75,7 @@ def test_timezone_name_etc_localtime_symlink() -> None:
 
 def test_timezone_name_fallback_utc_import_error() -> None:
     """Test _get_local_timezone_name falls back to UTC when tzlocal import fails."""
-    from gamesheet_sdk.cli.commands.games import _get_local_timezone_name
+    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
 
     # Remove tzlocal to trigger ImportError, Windows to skip /etc/localtime
     with (
@@ -88,7 +88,7 @@ def test_timezone_name_fallback_utc_import_error() -> None:
 
 def test_timezone_name_fallback_utc_oserror() -> None:
     """Test _get_local_timezone_name falls back to UTC on OSError."""
-    from gamesheet_sdk.cli.commands.games import _get_local_timezone_name
+    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
 
     # Mock tzlocal to raise OSError
     mock_tzlocal = MagicMock()
@@ -101,7 +101,7 @@ def test_timezone_name_fallback_utc_oserror() -> None:
 
 def test_timezone_offset_standard_time() -> None:
     """Test _get_local_timezone_offset during standard time."""
-    from gamesheet_sdk.cli.commands.games import _get_local_timezone_offset
+    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_offset
 
     # Mock time module for EST (UTC-5, -18000 seconds)
     with (
@@ -114,7 +114,7 @@ def test_timezone_offset_standard_time() -> None:
 
 def test_timezone_offset_daylight_saving_time() -> None:
     """Test _get_local_timezone_offset during daylight saving time."""
-    from gamesheet_sdk.cli.commands.games import _get_local_timezone_offset
+    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_offset
 
     # Mock time module for EDT (UTC-4, -14400 seconds)
     mock_localtime = MagicMock()
@@ -132,15 +132,15 @@ def test_timezone_offset_daylight_saving_time() -> None:
 def test_scheduled_create_with_defaults(runner: CliRunner) -> None:
     """Test scheduled game create command with default timezone values."""
     with (
-        patch("gamesheet_sdk.cli.commands.games.build_authenticated_session"),
-        patch("gamesheet_sdk.cli.commands.games.run_action_or_exit") as mock_run,
+        patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit") as mock_run,
         patch(
-            "gamesheet_sdk.cli.commands.games._get_local_timezone_name",
+            "gamesheet_sdk.cli.commands.games_scheduled._get_local_timezone_name",
         ) as mock_tz_name,
         patch(
-            "gamesheet_sdk.cli.commands.games._get_local_timezone_offset",
+            "gamesheet_sdk.cli.commands.games_scheduled._get_local_timezone_offset",
         ) as mock_tz_offset,
-        patch("gamesheet_sdk.cli.commands.games.render_get_command"),
+        patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value=TEST_REFRESH_TOKEN,
@@ -206,15 +206,15 @@ def test_scheduled_create_with_defaults(runner: CliRunner) -> None:
 def test_scheduled_create_with_explicit_timezone(runner: CliRunner) -> None:
     """Test scheduled game create command with explicit timezone values."""
     with (
-        patch("gamesheet_sdk.cli.commands.games.build_authenticated_session"),
-        patch("gamesheet_sdk.cli.commands.games.run_action_or_exit") as mock_run,
+        patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit") as mock_run,
         patch(
-            "gamesheet_sdk.cli.commands.games._get_local_timezone_name",
+            "gamesheet_sdk.cli.commands.games_scheduled._get_local_timezone_name",
         ) as mock_tz_name,
         patch(
-            "gamesheet_sdk.cli.commands.games._get_local_timezone_offset",
+            "gamesheet_sdk.cli.commands.games_scheduled._get_local_timezone_offset",
         ) as mock_tz_offset,
-        patch("gamesheet_sdk.cli.commands.games.render_get_command"),
+        patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value=TEST_REFRESH_TOKEN,
@@ -281,7 +281,7 @@ def test_scheduled_create_with_explicit_timezone(runner: CliRunner) -> None:
 
 def test_timezone_name_etc_localtime_not_symlink() -> None:
     """Test _get_local_timezone_name when /etc/localtime is not a symlink."""
-    from gamesheet_sdk.cli.commands.games import _get_local_timezone_name
+    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
 
     # Remove tzlocal, /etc/localtime exists but is NOT a symlink
     with (
@@ -295,7 +295,7 @@ def test_timezone_name_etc_localtime_not_symlink() -> None:
 
 def test_timezone_name_etc_localtime_no_zoneinfo() -> None:
     """Test _get_local_timezone_name when symlink doesn't contain zoneinfo."""
-    from gamesheet_sdk.cli.commands.games import _get_local_timezone_name
+    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
 
     # Remove tzlocal, symlink doesn't contain "zoneinfo/"
     with (
@@ -333,17 +333,17 @@ def test_scheduled_create_with_optional_broadcaster_and_labels(
 ) -> None:
     """Test scheduled game create command with optional broadcaster and team labels."""
     with (
-        patch("gamesheet_sdk.cli.commands.games.build_authenticated_session"),
-        patch("gamesheet_sdk.cli.commands.games.run_action_or_exit") as mock_run,
+        patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit") as mock_run,
         patch(
-            "gamesheet_sdk.cli.commands.games._get_local_timezone_name",
+            "gamesheet_sdk.cli.commands.games_scheduled._get_local_timezone_name",
             return_value=TEST_TIMEZONE_NAME,
         ),
         patch(
-            "gamesheet_sdk.cli.commands.games._get_local_timezone_offset",
+            "gamesheet_sdk.cli.commands.games_scheduled._get_local_timezone_offset",
             return_value=TEST_TIMEZONE_OFFSET,
         ),
-        patch("gamesheet_sdk.cli.commands.games.render_get_command"),
+        patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
         patch(
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value=TEST_REFRESH_TOKEN,
