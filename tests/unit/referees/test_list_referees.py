@@ -18,12 +18,12 @@ from tests.helpers import (
     DEFAULT_PLAYER_LAST_NAME,
     JSONAPI_CONTENT_TYPE,
     SEASON_ID,
-    TEST_BASE_URL,
     TIMESTAMP_2024_09_01,
     jsonapi_payload,
+    referees_endpoint,
 )
 
-_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees"
+_ENDPOINT = referees_endpoint(SEASON_ID)
 
 
 @responses.activate

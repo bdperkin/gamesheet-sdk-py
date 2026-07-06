@@ -10,16 +10,13 @@ docs need regeneration.
 
 from __future__ import annotations
 
-from pathlib import Path
 import sys
 
+from _constants import AUTOSUMMARY_DIR, PACKAGE_DIR
 from rich import print as rprint
 
-# Paths
-DOCS_DIR = Path(__file__).parent
-PROJECT_ROOT = DOCS_DIR.parent
-SRC_DIR = PROJECT_ROOT / "src" / "gamesheet_sdk"
-AUTOSUMMARY_DIR = DOCS_DIR / "reference" / "_autosummary"
+# Alias for backward compatibility
+SRC_DIR = PACKAGE_DIR
 
 
 def get_newest_source_mtime() -> float:

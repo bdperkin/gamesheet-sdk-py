@@ -12,6 +12,11 @@ import rich_click as click
 from rich_click import Context
 
 from gamesheet_sdk.cli.constants import (
+    HELP_PLAYER_FIRST_NAME,
+    HELP_PLAYER_LAST_NAME,
+    HELP_UPDATED_EXTERNAL_ID,
+    HELP_UPDATED_FIRST_NAME,
+    HELP_UPDATED_LAST_NAME,
     PLAYER_DESIGNATION,
     PLAYER_POSITIONS,
     PLAYER_STATUS,
@@ -145,13 +150,13 @@ def teams_roster_players_get_command(
     "--first-name",
     type=str,
     required=True,
-    help="Player's first name.",
+    help=HELP_PLAYER_FIRST_NAME,
 )
 @click.option(
     "--last-name",
     type=str,
     required=True,
-    help="Player's last name.",
+    help=HELP_PLAYER_LAST_NAME,
 )
 @click.option(
     "--external-id",
@@ -357,17 +362,17 @@ def teams_roster_players_create_command(
 @click.option(
     "--first-name",
     type=str,
-    help="Updated first name.",
+    help=HELP_UPDATED_FIRST_NAME,
 )
 @click.option(
     "--last-name",
     type=str,
-    help="Updated last name.",
+    help=HELP_UPDATED_LAST_NAME,
 )
 @click.option(
     "--external-id",
     type=str,
-    help="Updated external identifier.",
+    help=HELP_UPDATED_EXTERNAL_ID,
 )
 @click.option(
     "--biography",

@@ -21,13 +21,15 @@ from gamesheet_sdk import (
     create_team,
 )
 from tests.helpers import (
+    BFF_ASSETS_UPLOAD_URL_PATH,
     DEFAULT_TEAM_NAME,
     PROTOTEAM_ID,
     SEASON_ID,
+    TEST_BFF_BASE_URL,
 )
 
 _BFF_BASE = BFF_API_BASE_URL
-_UPLOAD_URL_ENDPOINT = f"{_BFF_BASE}/dwg/assets/upload-url"
+_UPLOAD_URL_ENDPOINT = f"{TEST_BFF_BASE_URL}{BFF_ASSETS_UPLOAD_URL_PATH}"
 _CREATE_ENDPOINT = f"{_BFF_BASE}/dwg/seasons/{SEASON_ID}/teams"
 
 

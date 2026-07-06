@@ -60,5 +60,26 @@ TIMEZONE_OFFSET_HELP_TEXT = f"Time zone offset in minutes (e.g., {TIMEZONE_OFFSE
 
 # Common CLI help snippets
 HELP_USE_LOCATIONS_LIST = "Use 'gamesheet-sdk-py locations list' to see all valid locations."
-HELP_USE_SEASONS_LIST = "To get valid season IDs, run: gamesheet-sdk-py seasons list --league-id <LEAGUE_ID>"
+# Re-export from shared.constants to avoid circular imports (used in errors.py)
+# pylint: disable-next=unused-import,wrong-import-position
+from gamesheet_sdk.shared.constants import HELP_USE_SEASONS_LIST  # noqa: E402, F401
+
 HELP_USE_BROADCASTERS_LIST = "Use 'gamesheet-sdk-py games broadcasters list' to see valid options."
+
+# Resource ID help text for Click options
+HELP_SEASON_ID_FOR_TEAM = "Season ID containing the team."
+HELP_SEASON_ID_FOR_REFEREE = "Season ID containing the referee."
+HELP_SEASON_ID_FOR_DIVISION = "Season ID containing the division."
+
+# Update operation help text for Click options
+HELP_UPDATED_EXTERNAL_ID = "Updated external identifier."
+HELP_UPDATED_FIRST_NAME = "Updated first name."
+HELP_UPDATED_LAST_NAME = "Updated last name."
+
+# Create operation help text for Click options (person names)
+HELP_COACH_FIRST_NAME = "Coach's first name."
+HELP_COACH_LAST_NAME = "Coach's last name."
+HELP_PLAYER_FIRST_NAME = "Player's first name."
+HELP_PLAYER_LAST_NAME = "Player's last name."
+HELP_REFEREE_FIRST_NAME = "Referee's first name."
+HELP_REFEREE_LAST_NAME = "Referee's last name."

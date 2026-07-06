@@ -13,6 +13,7 @@ from click.testing import CliRunner
 from gamesheet_sdk.cli import cli
 from tests.fixtures.constants import (
     TEST_ACCESS_TOKEN,
+    TEST_ERROR_PERMISSION_DENIED,
     TEST_LOCATION_NAME,
     TEST_REFRESH_TOKEN,
     TEST_SCOREKEEPER_NAME,
@@ -92,7 +93,7 @@ def test_timezone_name_fallback_utc_oserror() -> None:
 
     # Mock tzlocal to raise OSError
     mock_tzlocal = MagicMock()
-    mock_tzlocal.get_localzone.side_effect = OSError("Permission denied")
+    mock_tzlocal.get_localzone.side_effect = OSError(TEST_ERROR_PERMISSION_DENIED)
 
     with patch.dict(sys.modules, {"tzlocal": mock_tzlocal}):
         result = _get_local_timezone_name()

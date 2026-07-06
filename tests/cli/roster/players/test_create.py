@@ -12,6 +12,7 @@ from click.testing import CliRunner
 from gamesheet_sdk.cli.commands.roster_players import (
     players_group,
 )
+from tests.fixtures.constants import TEST_ERROR_GENERIC
 from tests.helpers import (
     PLAYER_FIRST_NAME,
     PLAYER_ID,
@@ -57,7 +58,7 @@ def test_roster_players_create_error_handling() -> None:
         patch("gamesheet_sdk.cli.commands.roster_players.build_authenticated_session"),
         patch(
             "gamesheet_sdk.cli.commands.roster_players._create_player_action",
-            side_effect=Exception("Test error"),
+            side_effect=Exception(TEST_ERROR_GENERIC),
         ),
     ):
         result = runner.invoke(

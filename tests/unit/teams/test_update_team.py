@@ -21,12 +21,20 @@ from gamesheet_sdk import (
     Session,
     update_team,
 )
-from tests.helpers import SEASON_ID, TEST_BASE_URL
+from tests.fixtures.constants import TEST_ERROR_PATTERN_AT_LEAST_ONE_FIELD
+from tests.helpers import (
+    BFF_ASSETS_UPLOAD_URL_PATH,
+    SEASON_ID,
+    TEAM_ID_TERTIARY,
+    TEST_BASE_URL,
+    TEST_BFF_BASE_URL,
+    team_endpoint,
+)
 
-_TEAM_ID = "521623"
+_TEAM_ID = TEAM_ID_TERTIARY
 _BFF_BASE = BFF_API_BASE_URL
-_UPLOAD_URL_ENDPOINT = f"{_BFF_BASE}/dwg/assets/upload-url"
-_GET_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams/{_TEAM_ID}"
+_UPLOAD_URL_ENDPOINT = f"{TEST_BFF_BASE_URL}{BFF_ASSETS_UPLOAD_URL_PATH}"
+_GET_ENDPOINT = team_endpoint(SEASON_ID, _TEAM_ID)
 _UPDATE_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams-v2/{_TEAM_ID}"
 
 
@@ -358,7 +366,7 @@ def test_update_team_no_fields_raises_value_error(config: Config) -> None:
     """Test that calling update_team with no fields raises ValueError."""
     with Session(config) as session:
         session.set_bearer_token("abc")
-        with pytest.raises(ValueError, match="At least one field must be provided"):
+        with pytest.raises(ValueError, match=TEST_ERROR_PATTERN_AT_LEAST_ONE_FIELD):
             update_team(session, SEASON_ID, _TEAM_ID)
 
 

@@ -9,6 +9,7 @@ from __future__ import annotations
 from contextlib import suppress
 from typing import Any
 
+from gamesheet_sdk import errors
 from gamesheet_sdk.exceptions import GameSheetError
 from gamesheet_sdk.roster.helpers import get_team_for_roster_update, update_team_roster
 from gamesheet_sdk.roster.models import Player, parse_player
@@ -632,11 +633,9 @@ def update_player(
             remove_photo,
         )
     ):
-        msg = "At least one field must be provided for update"
-        raise ValueError(msg)
+        raise ValueError(errors.ERROR_MSG_AT_LEAST_ONE_FIELD)
     if photo_path and remove_photo:
-        msg = "Cannot both upload a photo and remove it"
-        raise ValueError(msg)
+        raise ValueError(errors.ERROR_MSG_CANNOT_UPLOAD_AND_REMOVE_PHOTO)
     # Handle photo upload/removal
     photo_url: str | None = None
     if photo_path:
@@ -780,11 +779,9 @@ def update_team_player(
             remove_photo,
         )
     ):
-        msg = "At least one field must be provided for update"
-        raise ValueError(msg)
+        raise ValueError(errors.ERROR_MSG_AT_LEAST_ONE_FIELD)
     if photo_path and remove_photo:
-        msg = "Cannot both upload a photo and remove it"
-        raise ValueError(msg)
+        raise ValueError(errors.ERROR_MSG_CANNOT_UPLOAD_AND_REMOVE_PHOTO)
     # Handle photo upload/removal
     photo_url: str | None = None
     if photo_path:
@@ -1112,7 +1109,7 @@ def get_player_penalty_report(
     body: dict[str, Any] = response.json()
     if body.get("status") != "success":
         status = body.get("status")
-        msg = f"Penalty report API returned status: {status}"
+        msg = errors.ERROR_MSG_PENALTY_REPORT_API_STATUS.format(status=status)
         raise GameSheetError(msg)
     data: dict[str, Any] = body["data"]
     return data

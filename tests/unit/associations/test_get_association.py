@@ -10,6 +10,7 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.associations import get_association
+from tests.fixtures.constants import TEST_ERROR_PATTERN_404_RESOURCE
 from tests.helpers import (
     DEFAULT_ASSOCIATION_NAME,
     JSONAPI_CONTENT_TYPE,
@@ -109,7 +110,7 @@ def test_get_association_404_raises_gamesheet_error_with_helpful_message(
         session.set_bearer_token("abc")
         with pytest.raises(
             GameSheetError,
-            match=r"Resource not found \(HTTP 404\)",
+            match=TEST_ERROR_PATTERN_404_RESOURCE,
         ):
             get_association(session, _association_id)
 

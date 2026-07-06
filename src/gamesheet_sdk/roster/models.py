@@ -11,6 +11,13 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from gamesheet_sdk.shared import parse_jsonapi_resource
+from gamesheet_sdk.shared.constants import (
+    FIELD_DESC_COACH_FIRST_NAME,
+    FIELD_DESC_COACH_LAST_NAME,
+    FIELD_DESC_PARENT_SEASON_ID,
+    FIELD_DESC_PLAYER_FIRST_NAME,
+    FIELD_DESC_PLAYER_LAST_NAME,
+)
 
 
 class Player(BaseModel):
@@ -48,10 +55,13 @@ class Player(BaseModel):
     """
 
     id: str = Field(description="Player identifier (string in JSON:API).")
-    season_id: str = Field(description="Parent season identifier.")
+    season_id: str = Field(description=FIELD_DESC_PARENT_SEASON_ID)
     external_id: str | None = Field(default=None, description="External identifier.")
-    first_name: str | None = Field(default=None, description="Player's first name.")
-    last_name: str | None = Field(default=None, description="Player's last name.")
+    first_name: str | None = Field(
+        default=None,
+        description=FIELD_DESC_PLAYER_FIRST_NAME,
+    )
+    last_name: str | None = Field(default=None, description=FIELD_DESC_PLAYER_LAST_NAME)
     birthdate: str | None = Field(default=None, description="Player's birthdate.")
     photo_url: str | None = Field(default=None, description="URL to player photo.")
     biography: str | None = Field(default=None, description="Player biography.")
@@ -124,10 +134,13 @@ class Coach(BaseModel):
     """
 
     id: str = Field(description="Coach identifier (string in JSON:API).")
-    season_id: str = Field(description="Parent season identifier.")
+    season_id: str = Field(description=FIELD_DESC_PARENT_SEASON_ID)
     external_id: str | None = Field(default=None, description="External identifier.")
-    first_name: str | None = Field(default=None, description="Coach's first name.")
-    last_name: str | None = Field(default=None, description="Coach's last name.")
+    first_name: str | None = Field(
+        default=None,
+        description=FIELD_DESC_COACH_FIRST_NAME,
+    )
+    last_name: str | None = Field(default=None, description=FIELD_DESC_COACH_LAST_NAME)
     position: str | None = Field(
         default=None,
         description="Coach's position (team roster only).",

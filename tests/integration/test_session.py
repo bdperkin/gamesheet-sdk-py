@@ -13,6 +13,7 @@ import pytest
 import responses
 
 from gamesheet_sdk import DEFAULT_BASE_URL, Config, Session
+from tests.fixtures.constants import TEST_ERROR_DISK_FULL, TEST_ERROR_PERMISSION_DENIED
 
 
 def test_default_user_agent_is_version_stamped(config: Config) -> None:
@@ -169,8 +170,7 @@ def test_unreadable_browser_state_file_does_not_crash(
     def selective_read_text(self: Path, *args: Any, **kwargs: Any) -> str:
         # Raise OSError only for browser_state_path
         if self == config.browser_state_path:
-            msg = "Permission denied"
-            raise OSError(msg)
+            raise OSError(TEST_ERROR_PERMISSION_DENIED)
         # For all other paths, use the original method
         return original_read_text(self, *args, **kwargs)
 
@@ -180,7 +180,7 @@ def test_unreadable_browser_state_file_does_not_crash(
     ):
         sess = Session(config)
     assert "Failed to load browser state cookies" in caplog.text
-    assert "Permission denied" in caplog.text
+    assert TEST_ERROR_PERMISSION_DENIED in caplog.text
     sess.close()
 
 
@@ -265,12 +265,12 @@ def test_close_handles_save_oserror_gracefully(
     sess.cookies.set("test", "value", domain="test.example")
     # Mock the save method to raise OSError
     with (
-        patch.object(sess, "save", side_effect=OSError("Disk full")),
+        patch.object(sess, "save", side_effect=OSError(TEST_ERROR_DISK_FULL)),
         caplog.at_level("WARNING"),
     ):
         sess.close()
     assert "Failed to save session cookies" in caplog.text
-    assert "Disk full" in caplog.text
+    assert TEST_ERROR_DISK_FULL in caplog.text
 
 
 @responses.activate

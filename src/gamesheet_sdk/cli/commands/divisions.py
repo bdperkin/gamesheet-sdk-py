@@ -10,6 +10,10 @@ import rich_click as click
 from rich_click import Context
 
 from gamesheet_sdk.auth.session import AuthenticatedSession
+from gamesheet_sdk.cli.constants import (
+    HELP_SEASON_ID_FOR_DIVISION,
+    HELP_SEASON_ID_FOR_TEAM,
+)
 from gamesheet_sdk.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.cli.helpers import (
     build_authenticated_session,
@@ -212,7 +216,7 @@ def divisions_create_command(
     type=str,
     envvar="GAMESHEET_SEASON_ID",
     required=True,
-    help="Season ID containing the division.",
+    help=HELP_SEASON_ID_FOR_DIVISION,
 )
 @click.option(
     "--division-id",
@@ -352,7 +356,7 @@ def divisions_teams_list_command(
     type=str,
     envvar="GAMESHEET_SEASON_ID",
     required=True,
-    help="Season ID containing the team.",
+    help=HELP_SEASON_ID_FOR_TEAM,
 )
 @click.option(
     "--team-id",
@@ -465,7 +469,7 @@ def divisions_teams_create_command(
     type=str,
     envvar="GAMESHEET_SEASON_ID",
     required=True,
-    help="Season ID containing the team.",
+    help=HELP_SEASON_ID_FOR_TEAM,
 )
 @click.option(
     "--team-id",
@@ -535,7 +539,7 @@ def divisions_teams_update_command(
     type=str,
     envvar="GAMESHEET_SEASON_ID",
     required=True,
-    help="Season ID containing the team.",
+    help=HELP_SEASON_ID_FOR_TEAM,
 )
 @click.option(
     "--team-id",
@@ -571,7 +575,7 @@ def divisions_teams_delete_command(
     type=str,
     envvar="GAMESHEET_SEASON_ID",
     required=True,
-    help="Season ID containing the division.",
+    help=HELP_SEASON_ID_FOR_DIVISION,
 )
 @click.option(
     "--division-id",

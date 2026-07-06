@@ -12,9 +12,10 @@ from tests.helpers import (
     TEST_BASE_URL,
     TIMESTAMP_2024_09_01,
     jsonapi_payload,
+    referees_endpoint,
 )
 
-_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees"
+_ENDPOINT = referees_endpoint(SEASON_ID)
 
 
 def referee_response_data(referee_id: str) -> dict[str, Any]:

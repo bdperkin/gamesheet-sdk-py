@@ -62,6 +62,7 @@ API_SEASONS_GAMES: Final[str] = "/api/seasons/{season_id}/games/{game_id}"
 # BFF API Endpoints
 BFF_GAMES_LIST: Final[str] = "/games-list/v1"
 BFF_BROADCASTERS: Final[str] = "/get-broadcasters"
+BFF_ASSETS_UPLOAD_URL: Final[str] = "/dwg/assets/upload-url"
 
 # Scoresheet Service Endpoints
 SCORESHEET_SERVICE_GAME: Final[str] = "/service.scoresheets/v4/get-game/{game_id}"

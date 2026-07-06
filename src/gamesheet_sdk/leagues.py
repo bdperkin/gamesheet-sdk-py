@@ -41,6 +41,7 @@ from gamesheet_sdk.shared import (
     handle_response,
     parse_jsonapi_resource,
 )
+from gamesheet_sdk.shared.constants import FIELD_DESC_PARENT_ASSOCIATION_ID
 
 _ENDPOINT_TEMPLATE = "/api/associations/{association_id}/leagues"
 
@@ -59,7 +60,7 @@ class League(BaseModel):
     """
 
     id: str = Field(description="League identifier (string in JSON:API).")
-    association_id: str = Field(description="Parent association identifier.")
+    association_id: str = Field(description=FIELD_DESC_PARENT_ASSOCIATION_ID)
     title: str = Field(description="Display name of the league.")
     created_at: datetime = Field(description="When the league was created.")
     updated_at: datetime = Field(description="Last time the league was updated.")

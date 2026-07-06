@@ -1240,6 +1240,22 @@ recursive = true
 
 ## ## deptry - Dependency analyzer
 [tool.deptry]
+exclude = [
+  ".coverage",
+  ".local",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".tox",
+  ".venv",
+  "coverage.xml",
+  "dist",
+  "docs",
+  "test_core_coverage.py",
+  "tests/cli/test_core_coverage.py",
+]
+extend_exclude = [
+  "tests",
+]
 known_first_party = [
   "gamesheet_sdk",
 ]
@@ -1266,6 +1282,7 @@ optional_dependencies_dev_groups = [
   "isort",
   "mdformat",
   "mypy",
+  "psr",
   "pydocstyle",
   "pylint",
   "pymarkdown",
@@ -1273,7 +1290,6 @@ optional_dependencies_dev_groups = [
   "pyrefly",
   "pyright",
   "pyroma",
-  "psr",
   "pytest",
   "pyupgrade",
   "radon",
@@ -1415,7 +1431,6 @@ plugins = [
 [tool.pyrefly]
 python_version = "3.11"
 project-includes = [
-  "docs",
   "scripts",
   "src",
   "tests",

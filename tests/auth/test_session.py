@@ -10,6 +10,7 @@ import responses
 
 from gamesheet_sdk import AuthenticatedSession, Config
 from gamesheet_sdk.auth.constants import REFRESH_URL
+from tests.fixtures.constants import TEST_ERROR_DISK_FULL
 
 
 # ---------- AuthenticatedSession -----------------------------------------
@@ -133,8 +134,7 @@ def test_authenticated_session_handles_on_refresh_oserror(
     )
 
     def failing_callback(_tokens: dict[str, str]) -> None:
-        msg = "Disk full"
-        raise OSError(msg)
+        raise OSError(TEST_ERROR_DISK_FULL)
 
     with (
         caplog.at_level("WARNING"),
@@ -149,7 +149,7 @@ def test_authenticated_session_handles_on_refresh_oserror(
     # Refresh still succeeded, request was retried despite callback failure
     assert resp.status_code == 200
     assert "on_refresh callback failed to persist" in caplog.text
-    assert "Disk full" in caplog.text
+    assert TEST_ERROR_DISK_FULL in caplog.text
 
 
 @responses.activate

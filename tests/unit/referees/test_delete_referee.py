@@ -15,9 +15,10 @@ from tests.helpers import (
     SEASON_ID,
     TEST_AUTH_HEADER,
     TEST_BASE_URL,
+    referees_endpoint,
 )
 
-_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees"
+_ENDPOINT = referees_endpoint(SEASON_ID)
 
 
 @responses.activate

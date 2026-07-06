@@ -15,6 +15,8 @@ from gamesheet_sdk.cli import cli
 from tests.helpers import (
     DEFAULT_ASSOCIATION_NAME,
     TIMESTAMP_2024_01_01,
+    assert_no_session_error,
+    assert_output_contains_id,
 )
 
 
@@ -102,7 +104,7 @@ def test_associations_list_yaml_output(runner: CliRunner) -> None:
         ]
         result = runner.invoke(cli, ["associations", "list", "--format", "yaml"])
         assert not result.exit_code
-        assert "id:" in result.output or "id :" in result.output
+        assert_output_contains_id(result)
         assert DEFAULT_ASSOCIATION_NAME in result.output
 
 
@@ -200,7 +202,7 @@ def test_associations_list_with_no_saved_tokens(runner: CliRunner) -> None:
     ):
         result = runner.invoke(cli, ["associations", "list"])
         assert result.exit_code == 1
-        assert "No saved session" in result.output or "login" in result.output.lower()
+        assert_no_session_error(result)
 
 
 def test_associations_list_with_authentication_error(runner: CliRunner) -> None:

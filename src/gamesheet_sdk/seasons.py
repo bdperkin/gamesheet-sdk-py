@@ -19,10 +19,15 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from gamesheet_sdk import errors
 from gamesheet_sdk.constants import BFF_API_BASE_URL
 from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.session import Session
 from gamesheet_sdk.shared import JSONAPI_HEADERS
+from gamesheet_sdk.shared.constants import (
+    FIELD_DESC_PARENT_ASSOCIATION_ID,
+    FIELD_DESC_PARENT_LEAGUE_ID,
+)
 
 _ENDPOINT = "/api/seasons"
 
@@ -35,7 +40,7 @@ class Season(BaseModel):
     """
 
     id: str = Field(description="Season identifier (string in JSON:API).")
-    league_id: str = Field(description="Parent league identifier.")
+    league_id: str = Field(description=FIELD_DESC_PARENT_LEAGUE_ID)
     title: str = Field(description="Display name of the season.")
     created_at: datetime = Field(description="When the season was created.")
     updated_at: datetime = Field(description="Last time the season was updated.")
@@ -49,8 +54,8 @@ class SeasonDetail(BaseModel):
     """
 
     id: str = Field(description="Season identifier (string in JSON:API).")
-    association_id: str = Field(description="Parent association identifier.")
-    league_id: str = Field(description="Parent league identifier.")
+    association_id: str = Field(description=FIELD_DESC_PARENT_ASSOCIATION_ID)
+    league_id: str = Field(description=FIELD_DESC_PARENT_LEAGUE_ID)
     title: str = Field(description="Display name of the season.")
     external_id: str = Field(description="External UUID identifier for the season.")
     start_date: str = Field(description="Season start date (ISO format).")
@@ -156,25 +161,21 @@ def _list_seasons_bff(
     url = f"{BFF_API_BASE_URL}/leagues/{league_id}/seasons"
     response = session.get(url, params=params)
     if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
+        raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
     if response.status_code == 404:
-        _err_msg = (
-            f"League '{league_id}' not found (HTTP 404). "
-            f"Make sure you're using a valid league ID. "
-            f"To get valid league IDs, run: gamesheet-sdk-py leagues list",
-        )
+        _err_msg = errors.ERROR_MSG_404_LEAGUE.format(league_id=league_id)
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-        _err_msg = (f"GET {url} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        _err_msg = errors.ERROR_MSG_HTTP_GET.format(
+            endpoint=url,
+            status_code=response.status_code,
+            text=repr(response.text[:200]),
+        )
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
     if body.get("status") != "success":
         status = body.get("status")
-        _err_msg = (f"BFF API returned non-success status: {status}",)
+        _err_msg = errors.ERROR_MSG_BFF_NON_SUCCESS_SIMPLE.format(status=status)
         raise GameSheetError(_err_msg)
     data = body.get("data", [])
     if isinstance(data, dict):
@@ -237,13 +238,13 @@ def list_seasons(
         headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
+        raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
     if response.status_code >= 400:
-        _err_msg = (f"GET {_ENDPOINT} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        _err_msg = errors.ERROR_MSG_HTTP_GET.format(
+            endpoint=_ENDPOINT,
+            status_code=response.status_code,
+            text=repr(response.text[:200]),
+        )
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
     # Parse all seasons and filter to only those belonging to the requested league
@@ -272,20 +273,16 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
         headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
-        _err_msg = (
-            "Access token rejected (HTTP 401). Likely expired; re-run "
-            "`gamesheet-sdk-py login` to refresh and try again.",
-        )
-        raise AuthenticationError(_err_msg)
+        raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
     if response.status_code == 404:
-        _err_msg = (
-            f"Season '{season_id}' not found (HTTP 404). "
-            f"Make sure you're using a valid season ID, not a league ID. "
-            f"To get valid season IDs, run: gamesheet-sdk-py seasons list --league-id <LEAGUE_ID>",
-        )
+        _err_msg = errors.ERROR_MSG_404_SEASON.format(season_id=season_id)
         raise GameSheetError(_err_msg)
     if response.status_code >= 400:
-        _err_msg = (f"GET {endpoint} returned HTTP {response.status_code}: {response.text[:200]!r}",)
+        _err_msg = errors.ERROR_MSG_HTTP_GET.format(
+            endpoint=endpoint,
+            status_code=response.status_code,
+            text=repr(response.text[:200]),
+        )
         raise GameSheetError(_err_msg)
     body: dict[str, Any] = response.json()
     return _parse_detail(body["data"])

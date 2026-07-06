@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+from typing import Any
 
 import pytest
 import responses
@@ -21,6 +22,30 @@ from gamesheet_sdk.auth.tokens import (
     refresh_access_token,
     save_tokens,
 )
+
+
+def _get_origin_from_state(state: dict[str, Any], origin_url: str) -> dict[str, Any]:
+    """Extract origin data from Playwright browser state for a given URL.
+
+    :param state: Playwright browser state dictionary.
+    :type state: dict[str, Any]
+    :param origin_url: The origin URL to search for.
+    :type origin_url: str
+    :returns: The origin dictionary containing localStorage and other data.
+    :rtype: dict[str, Any]
+    """
+    return next(o for o in state["origins"] if o["origin"] == origin_url)
+
+
+def _get_localstorage_as_dict(origin: dict[str, Any]) -> dict[str, str]:
+    """Convert Playwright localStorage array to a name-to-value dictionary.
+
+    :param origin: Origin dictionary from Playwright browser state.
+    :type origin: dict[str, Any]
+    :returns: Dictionary mapping localStorage item names to their values.
+    :rtype: dict[str, str]
+    """
+    return {kv["name"]: kv["value"] for kv in origin["localStorage"]}
 
 
 # ---------- load_access_token ----------------------------------------------
@@ -80,8 +105,8 @@ def test_save_tokens_creates_state_file(config: Config) -> None:
     save_tokens(config, access="new-access", refresh="new-refresh", roles="new-roles")
     assert config.browser_state_path.exists()
     state = json.loads(config.browser_state_path.read_text())
-    origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
-    by_name = {kv["name"]: kv["value"] for kv in origin["localStorage"]}
+    origin = _get_origin_from_state(state, config.base_url)
+    by_name = _get_localstorage_as_dict(origin)
     assert by_name["accessToken"] == "new-access"
     assert by_name["refreshToken"] == "new-refresh"
     assert by_name["rolesToken"] == "new-roles"
@@ -109,8 +134,8 @@ def test_save_tokens_updates_existing_state(config: Config) -> None:
     # Cookies preserved
     assert state["cookies"][0]["name"] == "preserve"
     # localStorage values updated, unrelated entries kept
-    origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
-    by_name = {kv["name"]: kv["value"] for kv in origin["localStorage"]}
+    origin = _get_origin_from_state(state, config.base_url)
+    by_name = _get_localstorage_as_dict(origin)
     assert by_name["accessToken"] == "ACCESS-NEW"
     assert by_name["refreshToken"] == "REFRESH-NEW"
     assert by_name["unrelated"] == "kept"
@@ -122,8 +147,8 @@ def test_save_tokens_recovers_from_corrupt_state(config: Config) -> None:
     config.browser_state_path.write_text("{ corrupt")
     save_tokens(config, access="A", refresh="R")
     state = json.loads(config.browser_state_path.read_text())
-    origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
-    by_name = {kv["name"]: kv["value"] for kv in origin["localStorage"]}
+    origin = _get_origin_from_state(state, config.base_url)
+    by_name = _get_localstorage_as_dict(origin)
     assert by_name == {"accessToken": "A", "refreshToken": "R"}
 
 
@@ -205,8 +230,8 @@ def test_save_tokens_omits_refresh_when_not_provided(config: Config) -> None:
     """save_tokens with only access token should not write refreshToken."""
     save_tokens(config, access="ACCESS-ONLY")
     state = json.loads(config.browser_state_path.read_text())
-    origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
-    by_name = {kv["name"]: kv["value"] for kv in origin["localStorage"]}
+    origin = _get_origin_from_state(state, config.base_url)
+    by_name = _get_localstorage_as_dict(origin)
     assert "accessToken" in by_name
     assert "refreshToken" not in by_name
     assert "rolesToken" not in by_name
@@ -216,8 +241,8 @@ def test_save_tokens_includes_roles_when_provided(config: Config) -> None:
     """save_tokens with roles should write rolesToken."""
     save_tokens(config, access="A", roles="ROLES")
     state = json.loads(config.browser_state_path.read_text())
-    origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
-    by_name = {kv["name"]: kv["value"] for kv in origin["localStorage"]}
+    origin = _get_origin_from_state(state, config.base_url)
+    by_name = _get_localstorage_as_dict(origin)
     assert by_name["rolesToken"] == "ROLES"
 
 
@@ -249,9 +274,9 @@ def test_save_tokens_with_multiple_origins_finds_correct_one(config: Config) -> 
     # Should still have all three origins
     assert len(state["origins"]) == 3
     # The correct origin should be updated
-    target_origin = next(o for o in state["origins"] if o["origin"] == config.base_url)
-    by_name = {kv["name"]: kv["value"] for kv in target_origin["localStorage"]}
+    target_origin = _get_origin_from_state(state, config.base_url)
+    by_name = _get_localstorage_as_dict(target_origin)
     assert by_name["accessToken"] == "NEW"
     # Other origins should be unchanged
-    other1 = next(o for o in state["origins"] if o["origin"] == "https://other1.example")
+    other1 = _get_origin_from_state(state, "https://other1.example")
     assert other1["localStorage"][0]["value"] == "v1"

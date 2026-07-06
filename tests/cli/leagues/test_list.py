@@ -15,6 +15,8 @@ from gamesheet_sdk.leagues import League
 from tests.helpers import (
     DEFAULT_LEAGUE_NAME,
     TIMESTAMP_2024_01_01,
+    assert_no_session_error,
+    assert_output_contains_id,
 )
 
 
@@ -93,7 +95,7 @@ def test_leagues_list_yaml_output(runner: CliRunner) -> None:
             ["leagues", "list", "--association-id", "38", "--format", "yaml"],
         )
         assert not result.exit_code
-        assert "id:" in result.output or "id :" in result.output
+        assert_output_contains_id(result)
         assert DEFAULT_LEAGUE_NAME in result.output
 
 
@@ -264,7 +266,7 @@ def test_leagues_list_with_no_saved_tokens(runner: CliRunner) -> None:
     ):
         result = runner.invoke(cli, ["leagues", "list", "--association-id", "38"])
         assert result.exit_code == 1
-        assert "No saved session" in result.output or "login" in result.output.lower()
+        assert_no_session_error(result)
 
 
 def test_leagues_list_with_env_var(runner: CliRunner) -> None:

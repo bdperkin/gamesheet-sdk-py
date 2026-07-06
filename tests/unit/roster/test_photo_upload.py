@@ -9,6 +9,8 @@ import pytest
 import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
+from tests.fixtures.constants import TEST_FAKE_IMAGE_CONTENT
+from tests.helpers import BFF_ASSETS_UPLOAD_URL_PATH, TEST_BFF_BASE_URL
 
 
 def test_upload_photo_file_not_found(config: Config) -> None:
@@ -54,12 +56,12 @@ def test_upload_photo_auth_error(config: Config) -> None:
         suffix=".jpg",
         delete=False,
     ) as temp_file:
-        temp_file.write("fake image content")
+        temp_file.write(TEST_FAKE_IMAGE_CONTENT)
         temp_path = temp_file.name
     # Mock upload URL request with 401
     responses.add(
         responses.POST,
-        "https://bff-dashboard-api-awy26srzoa-nn.a.run.app/dwg/assets/upload-url",
+        f"{TEST_BFF_BASE_URL}{BFF_ASSETS_UPLOAD_URL_PATH}",
         json={"error": "unauthorized"},
         status=401,
     )
@@ -82,12 +84,12 @@ def test_upload_photo_server_error(config: Config) -> None:
         suffix=".jpg",
         delete=False,
     ) as temp_file:
-        temp_file.write("fake image content")
+        temp_file.write(TEST_FAKE_IMAGE_CONTENT)
         temp_path = temp_file.name
     # Mock upload URL request with 500
     responses.add(
         responses.POST,
-        "https://bff-dashboard-api-awy26srzoa-nn.a.run.app/dwg/assets/upload-url",
+        f"{TEST_BFF_BASE_URL}{BFF_ASSETS_UPLOAD_URL_PATH}",
         json={"error": "server error"},
         status=500,
     )
@@ -110,12 +112,12 @@ def test_upload_photo_failed_status(config: Config) -> None:
         suffix=".jpg",
         delete=False,
     ) as temp_file:
-        temp_file.write("fake image content")
+        temp_file.write(TEST_FAKE_IMAGE_CONTENT)
         temp_path = temp_file.name
     # Mock upload URL request with failure status
     responses.add(
         responses.POST,
-        "https://bff-dashboard-api-awy26srzoa-nn.a.run.app/dwg/assets/upload-url",
+        f"{TEST_BFF_BASE_URL}{BFF_ASSETS_UPLOAD_URL_PATH}",
         json={"status": "failed", "error": "could not generate URL"},
         status=200,
     )

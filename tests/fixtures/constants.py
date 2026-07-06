@@ -31,3 +31,16 @@ TEST_COUNTRY = "Canada"
 # Test timezone data
 TEST_TIMEZONE_NAME = "America/Toronto"
 TEST_TIMEZONE_OFFSET = -240  # EDT offset in minutes
+
+# Test error messages
+TEST_ERROR_DISK_FULL = "Disk full"
+TEST_ERROR_PERMISSION_DENIED = "Permission denied"
+TEST_ERROR_GENERIC = "Test error"
+TEST_ERROR_VALIDATION = "Test validation error"
+
+# Test error message regex patterns (for pytest.raises match=)
+TEST_ERROR_PATTERN_404_RESOURCE = r"Resource not found \(HTTP 404\)"
+TEST_ERROR_PATTERN_AT_LEAST_ONE_FIELD = "At least one field must be provided"
+
+# Test file content
+TEST_FAKE_IMAGE_CONTENT = "fake image content"

@@ -12,6 +12,7 @@ from click.exceptions import Exit
 import rich_click as click
 from rich_click import Context
 
+from gamesheet_sdk import errors
 from gamesheet_sdk.auth.session import AuthenticatedSession
 from gamesheet_sdk.auth.tokens import load_access_token, load_refresh_token, save_tokens
 from gamesheet_sdk.config import Config
@@ -119,7 +120,7 @@ def run_team_update(
     # Validate that at least one field is provided for update
     if all(v is None or v is False for v in (title, division_id, external_id, logo_path, remove_logo)):
         click.secho(
-            "Error: At least one field must be provided for update. Use --title, --division-id, "
+            f"Error: {errors.ERROR_MSG_CLI_AT_LEAST_ONE_FIELD_UPDATE}. Use --title, --division-id, "
             "--external-id, --logo-path, or --remove-logo.",
             fg="red",
             err=True,

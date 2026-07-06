@@ -10,6 +10,9 @@ from typing import Any
 
 import responses
 
+from tests.fixtures.constants import TEST_FAKE_IMAGE_CONTENT
+from tests.helpers.constants import BFF_ASSETS_UPLOAD_URL_PATH, TEST_BFF_BASE_URL
+
 
 def setup_photo_upload_mocks(
     *,
@@ -33,12 +36,12 @@ def setup_photo_upload_mocks(
         suffix=".jpg",
         delete=False,
     ) as temp_file:
-        temp_file.write("fake image content")
+        temp_file.write(TEST_FAKE_IMAGE_CONTENT)
         temp_path = temp_file.name
     # Mock upload URL request
     responses.add(
         responses.POST,
-        "https://bff-dashboard-api-awy26srzoa-nn.a.run.app/dwg/assets/upload-url",
+        f"{TEST_BFF_BASE_URL}{BFF_ASSETS_UPLOAD_URL_PATH}",
         json={
             "status": "success",
             "data": {

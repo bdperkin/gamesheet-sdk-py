@@ -10,6 +10,7 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.commands.roster_players import players_group
+from tests.fixtures.constants import TEST_ERROR_VALIDATION
 from tests.helpers import PLAYER_ID, SEASON_ID
 
 
@@ -50,8 +51,7 @@ def test_roster_players_update_valueerror_handling() -> None:
     runner = CliRunner()
 
     def raise_value_error(*_args: Any, **_kwargs: Any) -> None:
-        msg = "Test validation error"
-        raise ValueError(msg)
+        raise ValueError(TEST_ERROR_VALIDATION)
 
     with (
         patch("gamesheet_sdk.cli.commands.roster_players.build_authenticated_session"),

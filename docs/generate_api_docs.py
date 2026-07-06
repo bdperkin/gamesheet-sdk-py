@@ -10,18 +10,14 @@ automodule directives. It runs automatically during the docs build process.
 
 from __future__ import annotations
 
-from pathlib import Path
 import subprocess  # noqa: S404 # nosec B404
 import sys
 
+from _constants import AUTOSUMMARY_DIR, PACKAGE_DIR
 from rich import print as rprint
 
-# Paths relative to this script's location
-DOCS_DIR = Path(__file__).parent
-PROJECT_ROOT = DOCS_DIR.parent
-SRC_DIR = PROJECT_ROOT / "src"
-PACKAGE_DIR = SRC_DIR / "gamesheet_sdk"
-OUTPUT_DIR = DOCS_DIR / "reference" / "_autosummary"
+# Alias for backward compatibility
+OUTPUT_DIR = AUTOSUMMARY_DIR
 
 
 def main() -> int:

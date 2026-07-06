@@ -19,6 +19,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from gamesheet_sdk import BrowserSession, Config
+from tests.fixtures.constants import TEST_ERROR_DISK_FULL
 
 
 # ---------- construction is lazy / side-effect-free ----------------------
@@ -258,13 +259,13 @@ def test_close_handles_save_oserror_gracefully(
 ) -> None:
     """Test that close() logs warning but continues when save() raises OSError."""
     fake_context = MagicMock()
-    fake_context.storage_state.side_effect = OSError("Disk full")
+    fake_context.storage_state.side_effect = OSError(TEST_ERROR_DISK_FULL)
     bs = BrowserSession(config)
     bs._context = fake_context
     with caplog.at_level("WARNING"):
         bs.close()
     assert "Failed to save browser storage state" in caplog.text
-    assert "Disk full" in caplog.text
+    assert TEST_ERROR_DISK_FULL in caplog.text
     assert bs._closed
 
 

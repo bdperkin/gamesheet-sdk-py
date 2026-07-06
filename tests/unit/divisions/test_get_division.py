@@ -10,6 +10,7 @@ import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.divisions import get_division
+from tests.fixtures.constants import TEST_ERROR_PATTERN_404_RESOURCE
 from tests.helpers import (
     DEFAULT_DIVISION_NAME,
     JSONAPI_CONTENT_TYPE,
@@ -114,7 +115,7 @@ def test_get_division_404_raises_gamesheet_error_with_helpful_message(
         session.set_bearer_token("abc")
         with pytest.raises(
             GameSheetError,
-            match=r"Resource not found \(HTTP 404\)",
+            match=TEST_ERROR_PATTERN_404_RESOURCE,
         ):
             get_division(session, _division_id, include_team_count=False)
 
