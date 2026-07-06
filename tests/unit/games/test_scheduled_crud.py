@@ -17,29 +17,14 @@ from gamesheet_sdk.games import (
     get_scheduled_game,
     update_scheduled_game,
 )
+from tests.unit.games.conftest import add_mock_locations_response
 
 
 @responses.activate
 def test_create_scheduled_game() -> None:
     """Test create_scheduled_game function."""
     # Mock locations for validation
-    responses.add(
-        responses.GET,
-        f"{DEFAULT_BASE_URL}/api/locations",
-        json={
-            "data": [
-                {
-                    "id": "loc-1",
-                    "location_name": "Arena A",
-                    "surface_name": "Ice 1",
-                    "city": "Toronto",
-                    "province_state": "ON",
-                    "country": "Canada",
-                },
-            ],
-        },
-        status=200,
-    )
+    add_mock_locations_response()
     # Mock broadcasters for validation
     responses.add(
         responses.GET,

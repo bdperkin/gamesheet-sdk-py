@@ -17,6 +17,7 @@ from gamesheet_sdk.games import (
     list_locations,
     validate_location,
 )
+from tests.unit.games.conftest import add_mock_locations_response
 
 
 def test_location_full_name() -> None:
@@ -38,23 +39,7 @@ def test_location_full_name() -> None:
 @responses.activate
 def test_list_locations() -> None:
     """Test list_locations function."""
-    responses.add(
-        responses.GET,
-        f"{DEFAULT_BASE_URL}/api/locations",
-        json={
-            "data": [
-                {
-                    "id": "loc-1",
-                    "location_name": "Arena A",
-                    "surface_name": "Ice 1",
-                    "city": "Toronto",
-                    "province_state": "ON",
-                    "country": "Canada",
-                },
-            ],
-        },
-        status=200,
-    )
+    add_mock_locations_response()
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
         session.set_bearer_token("test-token")

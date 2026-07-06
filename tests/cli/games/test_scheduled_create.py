@@ -33,6 +33,7 @@ def test_timezone_name_tzlocal_without_key() -> None:
     from gamesheet_sdk.cli.commands.games import _get_local_timezone_name
 
     # Mock tzlocal module with a timezone that lacks .key attribute but has __str__
+    # pylint: disable-next=too-few-public-methods
     class MockTZ:
         """Mock timezone object without .key attribute."""
 
@@ -306,7 +307,7 @@ def test_scheduled_create_missing_required_fields(runner: CliRunner) -> None:
     )
 
     # Should fail with non-zero exit code
-    assert result.exit_code != 0
+    assert result.exit_code
     # Error message should indicate missing options
     assert "Missing option" in result.output or "Error" in result.output
 
