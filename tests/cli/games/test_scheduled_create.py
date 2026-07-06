@@ -36,7 +36,7 @@ def test_timezone_name_tzlocal_without_key() -> None:
     class MockTZ:
         """Mock timezone object without .key attribute."""
 
-        def __str__(self: str) -> str:
+        def __str__(self) -> str:
             return "America/Chicago"
 
     mock_tzlocal = MagicMock()
@@ -289,3 +289,94 @@ def test_timezone_name_etc_localtime_no_zoneinfo() -> None:
     ):
         result = _get_local_timezone_name()
         assert result == "UTC"
+
+
+def test_scheduled_create_missing_required_fields(runner: CliRunner) -> None:
+    """Test scheduled game create command fails with missing required fields."""
+    result = runner.invoke(
+        cli,
+        [
+            "games",
+            "--season-id",
+            "season-456",
+            "scheduled",
+            "create",
+            # Missing all required fields
+        ],
+    )
+
+    # Should fail with non-zero exit code
+    assert result.exit_code != 0
+    # Error message should indicate missing options
+    assert "Missing option" in result.output or "Error" in result.output
+
+
+def test_scheduled_create_with_optional_broadcaster_and_labels(runner: CliRunner) -> None:
+    """Test scheduled game create command with optional broadcaster and team labels."""
+    with (
+        patch("gamesheet_sdk.cli.commands.games.build_authenticated_session"),
+        patch("gamesheet_sdk.cli.commands.games.run_action_or_exit") as mock_run,
+        patch("gamesheet_sdk.cli.commands.games._get_local_timezone_name", return_value="America/Toronto"),
+        patch("gamesheet_sdk.cli.commands.games._get_local_timezone_offset", return_value=-240),
+        patch("gamesheet_sdk.cli.commands.games.render_get_command"),
+        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh-tok"),
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+    ):
+        mock_run.return_value = MagicMock(
+            model_dump=lambda **_kw: {
+                "id": "game-555",
+                "status": "scheduled",
+            },
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "games",
+                "--season-id",
+                "season-999",
+                "scheduled",
+                "create",
+                "--scheduled-start-time",
+                "2026-08-01T18:00:00-04:00",
+                "--scheduled-end-time",
+                "2026-08-01T20:00:00-04:00",
+                "--home-team-id",
+                "team-10",
+                "--home-division-id",
+                "div-10",
+                "--visitor-team-id",
+                "team-20",
+                "--visitor-division-id",
+                "div-20",
+                "--location",
+                "Main Arena Ice 1",
+                "--scorekeeper-name",
+                "Alice Johnson",
+                "--scorekeeper-phone",
+                "555-9999",
+                "--game-type",
+                "exhibition",
+                "--number",
+                "500",
+                "--broadcaster",
+                "livebarn",
+                "--home-label",
+                "Home Stars",
+                "--visitor-label",
+                "Away Comets",
+            ],
+        )
+
+        assert not result.exit_code
+        # Verify run_action_or_exit was called
+        assert mock_run.call_count == 1
+        args = mock_run.call_args[0]
+        # Check broadcaster and labels were passed
+        # Args after session & action: season_id, start, end, home_team, home_div, visitor_team,
+        # visitor_div, location, sk_name, sk_phone, game_type, tz_name, tz_offset, number,
+        # broadcaster, home_label, visitor_label
+        # Indices: 2=season, 3=start, ..., 15=number, 16=broadcaster, 17=home_label, 18=visitor_label
+        assert args[16] == "livebarn"  # broadcaster
+        assert args[17] == "Home Stars"  # home_label
+        assert args[18] == "Away Comets"  # visitor_label
