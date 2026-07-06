@@ -1,0 +1,63 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
+"""Broadcaster operations for games."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from gamesheet_sdk.constants import BFF_API_BASE_URL, BFF_BROADCASTERS
+from gamesheet_sdk.exceptions import GameSheetError
+from gamesheet_sdk.games.models import Broadcaster
+from gamesheet_sdk.session import Session
+from gamesheet_sdk.shared import check_bff_response_status, handle_response
+
+
+def list_broadcasters(session: Session) -> list[Broadcaster]:
+    """Return the list of valid broadcasters.
+
+    Fetches the current list of broadcaster services from the BFF API. The returned broadcaster keys can be
+    used when creating or updating scheduled games.
+
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :returns: A list of :class:`Broadcaster` objects.
+    :rtype: list[Broadcaster]
+    :raises AuthenticationError: If the server returns 401 or 403.
+    :raises GameSheetError: For any other non-2xx response.
+    """
+    url = f"{BFF_API_BASE_URL}{BFF_BROADCASTERS}"
+    response = session.get(url)
+    handle_response(response, url, "GET broadcasters")
+    body: dict[str, Any] = response.json()
+    check_bff_response_status(body, url)
+    broadcasters_data = body.get("data", [])
+    return [Broadcaster(**b) for b in broadcasters_data]
+
+
+def validate_broadcaster_key(session: Session, broadcaster: str) -> str:
+    """Validate a broadcaster key and return the correctly-cased version.
+
+    Fetches the list of valid broadcasters and performs a case-insensitive match. Returns the broadcaster key
+    with the correct casing as stored in the API.
+
+    :param session: An authenticated :class:`Session`.
+    :type session: Session
+    :param broadcaster: The broadcaster key to validate (case-insensitive).
+    :type broadcaster: str
+    :returns: The correctly-cased broadcaster key.
+    :rtype: str
+    :raises GameSheetError: If the broadcaster key is not valid.
+    """
+    if not broadcaster:
+        return broadcaster
+    broadcasters = list_broadcasters(session)
+    broadcaster_lower = broadcaster.lower()
+    for b in broadcasters:
+        if b.key.lower() == broadcaster_lower:
+            return b.key
+    valid_keys = [b.key for b in broadcasters]
+    joined_valid_keys = ", ".join(valid_keys)
+    msg = f"Invalid broadcaster '{broadcaster}'. Valid options (case-insensitive): {joined_valid_keys}"
+    raise GameSheetError(msg)

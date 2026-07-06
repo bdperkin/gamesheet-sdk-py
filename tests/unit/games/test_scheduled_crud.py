@@ -288,7 +288,7 @@ def test_create_scheduled_game_empty_location_skips_validation() -> None:
     session = Session(config)
 
     with (
-        patch("gamesheet_sdk.games.validate_location") as mock_validate_loc,
+        patch("gamesheet_sdk.games.locations.validate_location") as mock_validate_loc,
         patch.object(session, "post") as mock_post,
     ):
         # Mock a minimal successful response
@@ -351,8 +351,8 @@ def test_create_scheduled_game_empty_broadcaster_skips_validation() -> None:
     session = Session(config)
 
     with (
-        patch("gamesheet_sdk.games.validate_location", return_value="Arena A Ice 1"),
-        patch("gamesheet_sdk.games.validate_broadcaster_key") as mock_validate_bc,
+        patch("gamesheet_sdk.games.locations.validate_location", return_value="Arena A Ice 1"),
+        patch("gamesheet_sdk.games.broadcasters.validate_broadcaster_key") as mock_validate_bc,
         patch.object(session, "post") as mock_post,
     ):
         # Mock a minimal successful response
@@ -412,7 +412,7 @@ def test_update_scheduled_game_empty_location_skips_validation() -> None:
     session = Session(config)
 
     with (
-        patch("gamesheet_sdk.games.validate_location") as mock_validate_loc,
+        patch("gamesheet_sdk.games.locations.validate_location") as mock_validate_loc,
         patch.object(session, "patch") as mock_patch,
     ):
         # Mock a minimal successful response
@@ -474,8 +474,8 @@ def test_update_scheduled_game_empty_broadcaster_skips_validation() -> None:
     session = Session(config)
 
     with (
-        patch("gamesheet_sdk.games.validate_location", return_value="Arena B Rink 2"),
-        patch("gamesheet_sdk.games.validate_broadcaster_key") as mock_validate_bc,
+        patch("gamesheet_sdk.games.locations.validate_location", return_value="Arena B Rink 2"),
+        patch("gamesheet_sdk.games.broadcasters.validate_broadcaster_key") as mock_validate_bc,
         patch.object(session, "patch") as mock_patch,
     ):
         # Mock a minimal successful response
