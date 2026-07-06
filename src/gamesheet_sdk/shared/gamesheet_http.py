@@ -48,7 +48,8 @@ def handle_response(
         raise GameSheetError(msg)
 
 
-def check_bff_response_status(data: dict[str, Any], endpoint: str) -> None:
+# pylint: disable-next=unused-argument
+def check_bff_response_status(data: dict[str, Any], endpoint: str) -> None:  # noqa: U100
     """Validate BFF API response status field.
 
     BFF API responses include a ``"status"`` field that should be ``"success"``.

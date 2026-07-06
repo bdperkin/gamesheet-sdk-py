@@ -90,9 +90,7 @@ DEFAULT_GAMES_LIMIT: Final[int] = 1000
 HTTP_RETRY_STATUSES: Final[frozenset[int]] = frozenset({500, 502, 503, 504})
 
 # Filename Patterns
-SCORESHEET_FILENAME_PATTERN: Final[str] = (
-    "{date}-scoresheet-{id}-{visitor}-vs-{home}-{game_number}.pdf"
-)
+SCORESHEET_FILENAME_PATTERN: Final[str] = "{date}-scoresheet-{id}-{visitor}-vs-{home}-{game_number}.pdf"
 
 # Regex Patterns for Filename Sanitization
 FILENAME_SANITIZE_PATTERN: Final[str] = r"[^\w\-]"

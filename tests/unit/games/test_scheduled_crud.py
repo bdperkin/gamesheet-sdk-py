@@ -59,7 +59,10 @@ def test_create_scheduled_game() -> None:
                     "scheduled_end_time": "2026-07-04T12:00:00-04:00",
                     "number": "G1",
                     "location": f"{TEST_LOCATION_NAME} {TEST_SURFACE_NAME}",
-                    "scorekeeper": {"name": TEST_SCOREKEEPER_NAME, "phone": TEST_SCOREKEEPER_PHONE},
+                    "scorekeeper": {
+                        "name": TEST_SCOREKEEPER_NAME,
+                        "phone": TEST_SCOREKEEPER_PHONE,
+                    },
                     "game_type": "regular_season",
                     "time_zone_offset": TEST_TIMEZONE_OFFSET,
                     "time_zone_name": TEST_TIMEZONE_NAME,
@@ -124,7 +127,10 @@ def test_get_scheduled_game() -> None:
                     "scheduled_end_time": "2026-07-04T12:00:00-04:00",
                     "number": "G1",
                     "location": f"{TEST_LOCATION_NAME} {TEST_SURFACE_NAME}",
-                    "scorekeeper": {"name": TEST_SCOREKEEPER_NAME, "phone": TEST_SCOREKEEPER_PHONE},
+                    "scorekeeper": {
+                        "name": TEST_SCOREKEEPER_NAME,
+                        "phone": TEST_SCOREKEEPER_PHONE,
+                    },
                     "game_type": "regular_season",
                     "time_zone_offset": TEST_TIMEZONE_OFFSET,
                     "time_zone_name": TEST_TIMEZONE_NAME,
@@ -278,7 +284,6 @@ def test_delete_scheduled_game() -> None:
 
 def test_create_scheduled_game_empty_location_skips_validation() -> None:
     """Test that empty location skips validation in create_scheduled_game."""
-
     config = Config(base_url=DEFAULT_BASE_URL)
     session = Session(config)
 
@@ -296,7 +301,10 @@ def test_create_scheduled_game_empty_location_skips_validation() -> None:
                     "scheduled_start_time": "2026-07-15T19:00:00-04:00",
                     "scheduled_end_time": "2026-07-15T21:00:00-04:00",
                     "location": "",
-                    "scorekeeper": {"name": TEST_SCOREKEEPER_NAME, "phone": TEST_SCOREKEEPER_PHONE},
+                    "scorekeeper": {
+                        "name": TEST_SCOREKEEPER_NAME,
+                        "phone": TEST_SCOREKEEPER_PHONE,
+                    },
                     "game_type": "regular_season",
                     "time_zone_name": "UTC",
                     "time_zone_offset": 0,
@@ -339,7 +347,6 @@ def test_create_scheduled_game_empty_location_skips_validation() -> None:
 
 def test_create_scheduled_game_empty_broadcaster_skips_validation() -> None:
     """Test that empty broadcaster skips validation in create_scheduled_game."""
-
     config = Config(base_url=DEFAULT_BASE_URL)
     session = Session(config)
 
@@ -401,7 +408,6 @@ def test_create_scheduled_game_empty_broadcaster_skips_validation() -> None:
 
 def test_update_scheduled_game_empty_location_skips_validation() -> None:
     """Test that empty location skips validation in update_scheduled_game."""
-
     config = Config(base_url=DEFAULT_BASE_URL)
     session = Session(config)
 
@@ -464,7 +470,6 @@ def test_update_scheduled_game_empty_location_skips_validation() -> None:
 
 def test_update_scheduled_game_empty_broadcaster_skips_validation() -> None:
     """Test that empty broadcaster skips validation in update_scheduled_game."""
-
     config = Config(base_url=DEFAULT_BASE_URL)
     session = Session(config)
 

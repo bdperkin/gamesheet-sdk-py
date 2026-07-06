@@ -60,9 +60,5 @@ TIMEZONE_OFFSET_HELP_TEXT = f"Time zone offset in minutes (e.g., {TIMEZONE_OFFSE
 
 # Common CLI help snippets
 HELP_USE_LOCATIONS_LIST = "Use 'gamesheet-sdk-py locations list' to see all valid locations."
-HELP_USE_SEASONS_LIST = (
-    "To get valid season IDs, run: gamesheet-sdk-py seasons list --league-id <LEAGUE_ID>"
-)
-HELP_USE_BROADCASTERS_LIST = (
-    "Use 'gamesheet-sdk-py games broadcasters list' to see valid options."
-)
+HELP_USE_SEASONS_LIST = "To get valid season IDs, run: gamesheet-sdk-py seasons list --league-id <LEAGUE_ID>"
+HELP_USE_BROADCASTERS_LIST = "Use 'gamesheet-sdk-py games broadcasters list' to see valid options."

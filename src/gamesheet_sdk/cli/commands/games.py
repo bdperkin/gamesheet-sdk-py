@@ -69,7 +69,11 @@ def _get_local_timezone_name() -> str:
                 if "zoneinfo/" in target:
                     return target.split("zoneinfo/", 1)[1]
     except (OSError, ValueError, IndexError) as exc:
-        _LOGGER.debug("Failed to detect timezone, falling back to %s: %s", DEFAULT_TIMEZONE, exc)
+        _LOGGER.debug(
+            "Failed to detect timezone, falling back to %s: %s",
+            DEFAULT_TIMEZONE,
+            exc,
+        )
     # Default fallback
     return DEFAULT_TIMEZONE
 

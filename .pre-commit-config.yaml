@@ -124,7 +124,7 @@ repos:
       - id: mixed-line-ending # mixed line ending
       - id: name-tests-test # python tests naming
         args: ["--pytest-test-first"]
-        exclude: ^tests/(helpers|cli/roster_helpers\.py)
+        exclude: ^tests/(cli/roster_helpers\.py|fixtures/constants\.py|helpers)
       - id: no-commit-to-branch # don't commit to branch
       - id: trailing-whitespace # trim trailing whitespace
 
@@ -346,7 +346,7 @@ repos:
         args: ["--reports", "y"]
         additional_dependencies:
           - gamesheet-sdk-py[pylint]
-          - pylint-pydantic  # REMOVE ME
+          - pylint-pydantic # REMOVE ME
 
   - repo: https://github.com/facebook/pyrefly-pre-commit
     rev: 1.1.1
@@ -354,7 +354,7 @@ repos:
       - id: pyrefly-check # pyrefly check
         additional_dependencies:
           - gamesheet-sdk-py[pyrefly]
-          - tzlocal  # REMOVE ME
+          - tzlocal # REMOVE ME
 
   # ------------------------------------------------------------------------------
   ### Security, Metrics & Complexity
@@ -387,7 +387,7 @@ repos:
       - id: pyright # pyright
         additional_dependencies:
           - gamesheet-sdk-py[pyright]
-          - tzlocal  # REMOVE ME
+          - tzlocal # REMOVE ME
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v2.1.0
@@ -396,7 +396,7 @@ repos:
         args: ["--strict"]
         additional_dependencies:
           - gamesheet-sdk-py[mypy]
-          - tzlocal  # REMOVE ME
+          - tzlocal # REMOVE ME
 
   # ------------------------------------------------------------------------------
   ## Out-of-the-box Pre-Commit Hook Updates

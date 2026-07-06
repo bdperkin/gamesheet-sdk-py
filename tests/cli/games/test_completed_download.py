@@ -90,7 +90,10 @@ def test_completed_download_with_auto_filename(runner: CliRunner) -> None:
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value=TEST_REFRESH_TOKEN,
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=TEST_ACCESS_TOKEN),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_access_token",
+            return_value=TEST_ACCESS_TOKEN,
+        ),
     ):
         # First call: _get_game_action (for filename generation)
         # Second call: _download_completed_game_pdf_action
@@ -150,7 +153,10 @@ def test_completed_download_with_explicit_filename(runner: CliRunner) -> None:
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value=TEST_REFRESH_TOKEN,
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=TEST_ACCESS_TOKEN),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_access_token",
+            return_value=TEST_ACCESS_TOKEN,
+        ),
     ):
         mock_run.return_value = None  # download returns None
 

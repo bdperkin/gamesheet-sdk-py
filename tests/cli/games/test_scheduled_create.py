@@ -145,7 +145,10 @@ def test_scheduled_create_with_defaults(runner: CliRunner) -> None:
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value=TEST_REFRESH_TOKEN,
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=TEST_ACCESS_TOKEN),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_access_token",
+            return_value=TEST_ACCESS_TOKEN,
+        ),
     ):
         mock_tz_name.return_value = TEST_TIMEZONE_NAME
         mock_tz_offset.return_value = TEST_TIMEZONE_OFFSET
@@ -216,7 +219,10 @@ def test_scheduled_create_with_explicit_timezone(runner: CliRunner) -> None:
             "gamesheet_sdk.cli.helpers.load_refresh_token",
             return_value=TEST_REFRESH_TOKEN,
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=TEST_ACCESS_TOKEN),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_access_token",
+            return_value=TEST_ACCESS_TOKEN,
+        ),
     ):
         mock_run.return_value = MagicMock(
             model_dump=lambda **_kw: {
@@ -322,16 +328,30 @@ def test_scheduled_create_missing_required_fields(runner: CliRunner) -> None:
     assert "Missing option" in result.output or "Error" in result.output
 
 
-def test_scheduled_create_with_optional_broadcaster_and_labels(runner: CliRunner) -> None:
+def test_scheduled_create_with_optional_broadcaster_and_labels(
+    runner: CliRunner,
+) -> None:
     """Test scheduled game create command with optional broadcaster and team labels."""
     with (
         patch("gamesheet_sdk.cli.commands.games.build_authenticated_session"),
         patch("gamesheet_sdk.cli.commands.games.run_action_or_exit") as mock_run,
-        patch("gamesheet_sdk.cli.commands.games._get_local_timezone_name", return_value=TEST_TIMEZONE_NAME),
-        patch("gamesheet_sdk.cli.commands.games._get_local_timezone_offset", return_value=TEST_TIMEZONE_OFFSET),
+        patch(
+            "gamesheet_sdk.cli.commands.games._get_local_timezone_name",
+            return_value=TEST_TIMEZONE_NAME,
+        ),
+        patch(
+            "gamesheet_sdk.cli.commands.games._get_local_timezone_offset",
+            return_value=TEST_TIMEZONE_OFFSET,
+        ),
         patch("gamesheet_sdk.cli.commands.games.render_get_command"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=TEST_REFRESH_TOKEN),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=TEST_ACCESS_TOKEN),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            return_value=TEST_REFRESH_TOKEN,
+        ),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_access_token",
+            return_value=TEST_ACCESS_TOKEN,
+        ),
     ):
         mock_run.return_value = MagicMock(
             model_dump=lambda **_kw: {
