@@ -393,11 +393,11 @@ per-file-ignores = [
   "docs/*:INP001",
   "scripts/*:ANN101,INP001,SF01,T201",
   "src/gamesheet_sdk/*:ANN101",
-  "tests/auth/*:DOC,S101,S106",
-  "tests/cli/*:DOC,S101,S106,SF01",
-  "tests/helpers/*:DOC,S101",
-  "tests/integration/*:DOC,S101,SF01",
-  "tests/unit/*:DOC,S101",
+  "tests/auth/*:ANN101,DOC,S101,S106",
+  "tests/cli/*:ANN101,DOC,S101,S106,SF01",
+  "tests/helpers/*:ANN101,DOC,S101",
+  "tests/integration/*:ANN101,DOC,S101,SF01",
+  "tests/unit/*:ANN101,DOC,S101",
 ]
 # Maximum allowed line length for the entirety of this run. (Default: 79).
 max-line-length = 110
