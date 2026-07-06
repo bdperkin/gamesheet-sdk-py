@@ -5,8 +5,7 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-import tempfile
+from unittest.mock import patch
 
 import responses
 
@@ -22,55 +21,41 @@ from tests.helpers import (
 _BASE = DEFAULT_BASE_URL
 _PLAYERS_ENDPOINT = f"{_BASE}/api/seasons/{SEASON_ID}/players"
 _COACHES_ENDPOINT = f"{_BASE}/api/seasons/{SEASON_ID}/coaches"
-_TOKEN_DIR = Path(tempfile.gettempdir()) / ".gamesheet"
-_ACCESS_TOKEN_PATH = _TOKEN_DIR / "access_token"
-_REFRESH_TOKEN_PATH = _TOKEN_DIR / "refresh_token"
-
-
-def _mock_tokens() -> None:
-    """Create mock access and refresh token files."""
-    _TOKEN_DIR.mkdir(parents=True, exist_ok=True)
-    _ACCESS_TOKEN_PATH.write_text("mock-access-token")
-    _REFRESH_TOKEN_PATH.write_text("mock-refresh-token")
-
-
-def _cleanup_tokens() -> None:
-    """Remove mock token files."""
-    if _ACCESS_TOKEN_PATH.exists():
-        _ACCESS_TOKEN_PATH.unlink()
-    if _REFRESH_TOKEN_PATH.exists():
-        _REFRESH_TOKEN_PATH.unlink()
 
 
 @responses.activate
 def test_roster_players_list_json_format() -> None:
     """Test roster players list with JSON output."""
-    _mock_tokens()
-    responses.add(
-        responses.GET,
-        _PLAYERS_ENDPOINT,
-        json=jsonapi_payload([]),
-        status=200,
-    )
-    result = main(
-        ["roster", "--season-id", SEASON_ID, "players", "list", "-F", "json"],
-    )
-    assert not result
-    _cleanup_tokens()
+    with (
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="mock-access-token"),
+        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="mock-refresh-token"),
+    ):
+        responses.add(
+            responses.GET,
+            _PLAYERS_ENDPOINT,
+            json=jsonapi_payload([]),
+            status=200,
+        )
+        result = main(
+            ["roster", "--season-id", SEASON_ID, "players", "list", "-F", "json"],
+        )
+        assert not result
 
 
 @responses.activate
 def test_roster_coaches_list_json_format() -> None:
     """Test roster coaches list with JSON output."""
-    _mock_tokens()
-    responses.add(
-        responses.GET,
-        _COACHES_ENDPOINT,
-        json=jsonapi_payload([]),
-        status=200,
-    )
-    result = main(
-        ["roster", "--season-id", SEASON_ID, "coaches", "list", "-F", "json"],
-    )
-    assert not result
-    _cleanup_tokens()
+    with (
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="mock-access-token"),
+        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="mock-refresh-token"),
+    ):
+        responses.add(
+            responses.GET,
+            _COACHES_ENDPOINT,
+            json=jsonapi_payload([]),
+            status=200,
+        )
+        result = main(
+            ["roster", "--season-id", SEASON_ID, "coaches", "list", "-F", "json"],
+        )
+        assert not result
