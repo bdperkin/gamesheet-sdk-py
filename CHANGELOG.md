@@ -2,6 +2,23 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.2 (2026-07-07)
+
+### Bug Fixes
+
+- **deps**: Restore pytest dependency for mypy and pylint ([#140](https://github.com/bdperkin/gamesheet-sdk-py/pull/140),
+  [`3325d9f`](https://github.com/bdperkin/gamesheet-sdk-py/commit/3325d9f81e48c19b2ec331b70e9cffb3ee323466))
+
+### Build System
+
+- **deps**: Bump the actions group across 1 directory with 7 updates ([#136](https://github.com/bdperkin/gamesheet-sdk-py/pull/136),
+  [`cd9a772`](https://github.com/bdperkin/gamesheet-sdk-py/commit/cd9a77210421ffd804fab81adc63089e8a7338ad))
+
+### Refactoring
+
+- **deps**: Clean up optional-dependencies and pre-commit hooks ([#140](https://github.com/bdperkin/gamesheet-sdk-py/pull/140),
+  [`3325d9f`](https://github.com/bdperkin/gamesheet-sdk-py/commit/3325d9f81e48c19b2ec331b70e9cffb3ee323466))
+
 ## v0.2.1 (2026-07-07)
 
 ### Bug Fixes
