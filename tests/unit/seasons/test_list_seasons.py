@@ -585,7 +585,7 @@ def test_list_seasons_bff_api_empty_results(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = list_seasons(session, _LEAGUE_ID, status="archived")
-    assert result == []
+    assert not result
 
 
 @responses.activate

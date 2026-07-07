@@ -192,7 +192,7 @@ def test_list_completed_handles_empty_data(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid")
         result = list_completed(session, SEASON_ID)
-    assert result == []
+    assert not result
 
 
 @responses.activate
