@@ -5,10 +5,7 @@
 
 from __future__ import annotations
 
-from tests.helpers.cli import (
-    assert_no_session_error,
-    assert_output_contains_id,
-)
+from tests.helpers.cli import assert_no_session_error, assert_output_contains_id
 from tests.helpers.constants import (
     ASSOCIATION_ID,
     BFF_ASSETS_UPLOAD_URL_PATH,

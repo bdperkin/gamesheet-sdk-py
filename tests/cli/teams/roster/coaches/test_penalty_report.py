@@ -10,14 +10,8 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.teams_roster_coaches import (
-    teams_roster_coaches_group,
-)
-from tests.helpers import (
-    COACH_ID_TERTIARY,
-    SEASON_ID,
-    TEAM_ID_SECONDARY,
-)
+from gamesheet_sdk.cli.commands.teams_roster_coaches import teams_roster_coaches_group
+from tests.helpers import COACH_ID_TERTIARY, SEASON_ID, TEAM_ID_SECONDARY
 
 
 def test_teams_roster_coaches_penalty_report_coverage(

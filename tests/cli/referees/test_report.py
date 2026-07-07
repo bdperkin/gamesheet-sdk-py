@@ -11,10 +11,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.referees import RefereeReport
-from tests.helpers import (
-    REFEREE_EXTERNAL_ID_TERTIARY,
-    SEASON_ID,
-)
+from tests.helpers import REFEREE_EXTERNAL_ID_TERTIARY, SEASON_ID
 
 
 def test_referees_report_with_all_fields(runner: CliRunner) -> None:

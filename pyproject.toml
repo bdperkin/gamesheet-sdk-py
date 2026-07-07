@@ -264,7 +264,7 @@ optional-dependencies.vulture = [
 optional-dependencies.yamllint = [
   "yamllint",
 ]
-urls.Documentation = "https://github.com/bdperkin/gamesheet-sdk-py#readme"
+urls.Documentation = "https://bdperkin.github.io/gamesheet-sdk-py/"
 urls.Homepage = "https://github.com/bdperkin/gamesheet-sdk-py"
 urls.Issues = "https://github.com/bdperkin/gamesheet-sdk-py/issues"
 urls.Repository = "https://github.com/bdperkin/gamesheet-sdk-py"
@@ -283,7 +283,6 @@ build.targets.sdist.include = [
   "LICENSE",
   "pyproject.toml",
   "README.md",
-  "scripts",
   "src",
   "tests",
 ]
@@ -294,14 +293,19 @@ description = "Modern, all-in-one Python project manager and build tool that han
 max_line_length = 110
 recursive = true
 ignore = "E203"
+# exclude = ""
 aggressive = 1
 check = true
 description = "Automatically formats Python code to conform to the PEP 8 style guide by fixing layout issues."
 exit_code = true
+extend_exclude = "docs/_build,.local,.pytest_cache,.venv"
+hang_closing = false
 
 ## ## black - Uncompromising code formatter
 [tool.black]
+# exclude = ""
 fast = true
+extend_exclude = "docs/_build,.local,.pytest_cache,.venv"
 line_length = 110
 target_version = [
   "py311",
@@ -324,6 +328,13 @@ force_sort_within_sections = true
 ensure_newline_before_comments = true
 combine_as_imports = true
 combine_star = true
+# skip = []
+extend_skip = [
+  ".local",
+  ".pytest_cache",
+  ".venv",
+  "docs/_build",
+]
 
 ## ## flake8 - Modular Python linter wrapper
 [tool.flake8]
@@ -343,14 +354,10 @@ count = false
 # exclude = []
 # Comma-separated list of files or directories to add to the list of excluded ones.
 extend-exclude = [
-  ".coverage",
-  "coverage.xml",
-  "dist/",
-  ".local/",
-  ".mypy_cache/",
-  ".pytest_cache/",
-  ".tox/",
-  ".venv/",
+  "docs/_build",
+  ".local",
+  ".pytest_cache",
+  ".venv",
 ]
 # Only check for filenames matching the patterns in this comma-separated list. (Default: *.py,*.pyi).
 filename = [
@@ -380,7 +387,6 @@ extend-ignore = [
 # ``--ignore`` and ``--select`` options.
 per-file-ignores = [
   "docs/*:INP001",
-  "scripts/*:ANN101,INP001,SF01,T201",
   "src/gamesheet_sdk/*:ANN101",
   "tests/auth/*:ANN101,DOC,S101,S106",
   "tests/cli/*:ANN101,DOC,S101,S106,SF01",
@@ -756,14 +762,10 @@ main.fail-under = 10
 # from-stdin =
 # Files or directories to be skipped. They should be base names, not paths.
 main.ignore = [
-  ".coverage",
   ".local",
-  ".mypy_cache",
   ".pytest_cache",
-  ".tox",
   ".venv",
-  "coverage.xml",
-  "dist",
+  "docs/_build",
 ]
 # Add files or directories matching the regular expressions patterns to the ignore-list. The regex matches against
 # paths and can be in Posix or Windows format. Because '\\' represents the directory delimiter on Windows systems, it
@@ -1163,7 +1165,6 @@ miscellaneous.notes = [
 ]
 "messages control".per-file-ignores = [
   "docs/**:invalid-name",
-  "scripts/**:import-outside-toplevel,protected-access",
   "src/gamesheet_sdk/**:import-outside-toplevel",
   "tests/**:import-outside-toplevel,protected-access",
 ]
@@ -1192,7 +1193,7 @@ parameter_documentation.default-docstring-type = "default"
 [tool.codespell]
 builtin = "code,en-GB_to_en-US,informal,names,rare,usage"
 ignore-words = "custom-dictionary.txt"
-skip = "./docs/_build,./htmlcov"
+skip = "./docs/_build,./.local,./.pytest_cache,./.venv"
 
 ## ## docformatter - Docstring formatter
 [tool.docformatter]
@@ -1200,19 +1201,22 @@ recursive = true
 black = true
 wrap-summaries = 110
 wrap-descriptions = 110
+tab-width = 1
+make-summary-multi-line = false
+close-quotes-on-newline = false
+pre-summary-newline = false
+pre-summary-space = false
+force-wrap = false
 exclude = [
-  ".coverage",
-  "coverage.xml",
-  "dist",
+  "docs/_build",
   ".local",
-  ".mypy_cache",
   ".pytest_cache",
   "test_core_coverage.py",
-  "tests/cli/test_core_coverage.py",
-  ".tox",
   ".venv",
 ]
+blank = false
 description = "Automatically reformats Python docstrings to follow PEP 257 description and spacing conventions."
+style = "sphinx"
 
 ## ## interrogate - Docstring coverage checker
 [tool.interrogate]
@@ -1221,29 +1225,28 @@ ignore-init-method = true
 ignore-magic = true
 ignore-semiprivate = true
 ignore-nested-functions = true
-exclude = []
+# exclude = []
+extend-exclude = [
+  ".local",
+  ".pytest_cache",
+  ".venv",
+  "docs/_build",
+]
 check = true
 description = "Measures and flags the percentage of your code (modules, classes, methods) that lacks documentation."
 diff = true
 recursive = true
+style = "sphinx"
 
 ## ## deptry - Dependency analyzer
 [tool.deptry]
-exclude = [
-  ".coverage",
-  ".local",
-  ".mypy_cache",
-  ".pytest_cache",
-  ".tox",
-  ".venv",
-  "coverage.xml",
-  "dist",
-  "docs",
-  "test_core_coverage.py",
-  "tests/cli/test_core_coverage.py",
-]
+# exclude = []
 extend_exclude = [
-  "tests",
+  ".local",
+  ".pytest_cache",
+  ".venv",
+  "docs",
+  "docs/_build",
 ]
 known_first_party = [
   "gamesheet_sdk",
@@ -1296,14 +1299,10 @@ optional_dependencies_dev_groups = [
 ## ## vulture - Dead code finder
 [tool.vulture]
 exclude = [
-  ".coverage",
   ".local",
-  ".mypy_cache",
   ".pytest_cache",
-  ".tox",
   ".venv",
-  "coverage.xml",
-  "dist",
+  "docs/_build",
 ]
 ignore_names = [
   "_*",
@@ -1380,6 +1379,9 @@ check = true
 description = "An automated formatter for `pyproject.toml` files to keep dependencies and tables consistent."
 diff = true
 recursive = true
+column-width = 120
+indent = 2
+table-format = "short"
 
 ## # -------------------------------------------------------------------------------------------------------------------
 ## # Security, Metrics & Complexity
@@ -1387,14 +1389,10 @@ recursive = true
 ## ## bandit - Security vulnerability scanner
 [tool.bandit]
 exclude_dirs = [
-  ".coverage",
   ".local",
-  ".mypy_cache",
   ".pytest_cache",
-  ".tox",
   ".venv",
-  "coverage.xml",
-  "dist",
+  "docs/_build",
 ]
 skips = [
   "B101",
@@ -1415,12 +1413,12 @@ strict = true
 plugins = [
   "pydantic.mypy",
 ]
+exclude-gitignore = true
 
 ## ## pyrefly - Code health and quality reviewer
 [tool.pyrefly]
 python_version = "3.11"
 project-includes = [
-  "scripts",
   "src",
   "tests",
 ]
@@ -1444,22 +1442,11 @@ useLibraryCodeForTypes = true
 # Directories or files to include for type checking.
 include = [
   "docs",
-  "scripts",
   "src",
   "tests",
 ]
 # Directories or files to exclude from type checking.
-exclude = [
-  "**/__pycache__",
-  ".coverage",
-  ".local",
-  ".mypy_cache",
-  ".pytest_cache",
-  ".tox",
-  ".venv",
-  "coverage.xml",
-  "dist",
-]
+# exclude = []
 # Ignore errors inside specific files.
 ignore = []
 extraPaths = [
@@ -1472,6 +1459,12 @@ reportMissingTypeStubs = "warning"
 reportUnknownMemberType = false
 executionEnvironments = [
   { root = "tests", reportArgumentType = false, reportCallIssue = false },
+]
+extendExclude = [
+  "docs/_build",
+  ".local",
+  ".pytest_cache",
+  ".venv",
 ]
 
 [tool.coverage]
@@ -1550,14 +1543,11 @@ recursive = true
 black = true
 wrap-summaries = 110
 wrap-descriptions = 110
-exclude = [
-  ".coverage",
-  "coverage.xml",
-  "dist",
+# exclude = []
+extend-exclude = [
+  "docs/_build",
   ".local",
-  ".mypy_cache",
   ".pytest_cache",
-  ".tox",
   ".venv",
 ]
 description = "Check docstrings in existing Python files for correct format."
@@ -1610,13 +1600,9 @@ stack-trace = false
 [tool.mdformat]
 end_of_line = "lf"
 exclude = [
-  ".coverage",
-  "coverage.xml",
-  "dist/**",
+  "docs/_build/**",
   ".local/**",
-  ".mypy_cache/**",
   ".pytest_cache/**",
-  ".tox/**",
   ".venv/**",
 ]
 number = true

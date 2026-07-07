@@ -11,11 +11,7 @@ from unittest.mock import patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
-from tests.helpers import (
-    ASSOCIATION_ID,
-    DEFAULT_TEAM_NAME,
-    SEASON_ID,
-)
+from tests.helpers import ASSOCIATION_ID, DEFAULT_TEAM_NAME, SEASON_ID
 
 
 def test_teams_create_basic(runner: CliRunner) -> None:

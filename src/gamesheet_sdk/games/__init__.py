@@ -19,10 +19,7 @@ For scheduled game mutations (create/update/delete), the JSON:API-style
 from __future__ import annotations
 
 from gamesheet_sdk.games.brackets import get_game, list_brackets, list_completed
-from gamesheet_sdk.games.broadcasters import (
-    list_broadcasters,
-    validate_broadcaster_key,
-)
+from gamesheet_sdk.games.broadcasters import list_broadcasters, validate_broadcaster_key
 from gamesheet_sdk.games.completed import (
     download_completed_game_pdf,
     get_completed_game,

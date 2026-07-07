@@ -12,10 +12,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.divisions import Division
-from tests.helpers import (
-    DEFAULT_DIVISION_NAME,
-    SEASON_ID,
-)
+from tests.helpers import DEFAULT_DIVISION_NAME, SEASON_ID
 
 
 def test_divisions_get(runner: CliRunner) -> None:

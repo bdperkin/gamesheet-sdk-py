@@ -11,11 +11,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.teams import Team
-from tests.helpers import (
-    ASSOCIATION_ID,
-    DEFAULT_TEAM_NAME,
-    SEASON_ID,
-)
+from tests.helpers import ASSOCIATION_ID, DEFAULT_TEAM_NAME, SEASON_ID
 
 # Mock team used in tests
 _MOCK_TEAM = Team(

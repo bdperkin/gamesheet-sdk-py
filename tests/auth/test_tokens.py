@@ -11,11 +11,7 @@ from typing import Any
 import pytest
 import responses
 
-from gamesheet_sdk import (
-    AuthenticationError,
-    Config,
-    GameSheetError,
-)
+from gamesheet_sdk import AuthenticationError, Config, GameSheetError
 from gamesheet_sdk.auth.constants import REFRESH_URL
 from gamesheet_sdk.auth.tokens import (
     load_access_token,

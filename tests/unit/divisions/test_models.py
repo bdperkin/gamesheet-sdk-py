@@ -9,10 +9,7 @@ from datetime import datetime, timezone
 
 from gamesheet_sdk.divisions import Division
 from gamesheet_sdk.teams import Team
-from tests.helpers import (
-    DIVISION_ID,
-    SEASON_ID,
-)
+from tests.helpers import DIVISION_ID, SEASON_ID
 
 
 def test_division_model_ignores_unknown_attributes() -> None:

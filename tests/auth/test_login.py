@@ -11,11 +11,7 @@ from unittest.mock import MagicMock
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 import pytest
 
-from gamesheet_sdk import (
-    AuthenticationError,
-    Config,
-    login,
-)
+from gamesheet_sdk import AuthenticationError, Config, login
 from gamesheet_sdk.auth.constants import LOGIN_PATH, POST_LOGIN_PATH
 from tests.auth.conftest import _FIREBASE_URL, _TOKEN_URL, _make_response
 from tests.helpers import TEST_EMAIL_MINIMAL

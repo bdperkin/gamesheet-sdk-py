@@ -9,16 +9,9 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.roster_coaches import (
-    coaches_group,
-)
+from gamesheet_sdk.cli.commands.roster_coaches import coaches_group
 from tests.fixtures.constants import TEST_ERROR_GENERIC
-from tests.helpers import (
-    COACH_FIRST_NAME,
-    COACH_ID_PRIMARY,
-    COACH_LAST_NAME,
-    SEASON_ID,
-)
+from tests.helpers import COACH_FIRST_NAME, COACH_ID_PRIMARY, COACH_LAST_NAME, SEASON_ID
 
 
 def test_roster_coaches_create_coverage() -> None:

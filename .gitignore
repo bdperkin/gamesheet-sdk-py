@@ -104,9 +104,3 @@ _autosummary/
 *.patch
 .local/
 secrets.toml
-# Test/
-
-# ---- Spider output files ----
-season-*-spider.json
-season-*-spider_artifacts/
-spider-results/

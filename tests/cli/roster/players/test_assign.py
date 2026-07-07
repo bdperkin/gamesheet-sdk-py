@@ -9,9 +9,7 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.roster_players import (
-    players_group,
-)
+from gamesheet_sdk.cli.commands.roster_players import players_group
 from tests.fixtures.constants import TEST_ERROR_GENERIC
 from tests.helpers import PLAYER_ID, SEASON_ID, TEAM_ID
 

@@ -12,11 +12,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.roster import Player
-from tests.helpers import (
-    CLI_TEST_SEASON_ID,
-    DEFAULT_PLAYER_LAST_NAME,
-    SEASON_ID,
-)
+from tests.helpers import CLI_TEST_SEASON_ID, DEFAULT_PLAYER_LAST_NAME, SEASON_ID
 
 
 def test_players_get(runner: CliRunner) -> None:

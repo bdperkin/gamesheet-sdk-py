@@ -9,10 +9,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from gamesheet_sdk.roster import (
-    get_coach_penalty_report,
-    get_player_penalty_report,
-)
+from gamesheet_sdk.roster import get_coach_penalty_report, get_player_penalty_report
 from tests.helpers import (
     COACH_EXTERNAL_ID_TERTIARY,
     COACH_ID_TERTIARY,

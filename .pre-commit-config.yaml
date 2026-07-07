@@ -124,7 +124,7 @@ repos:
       - id: mixed-line-ending # mixed line ending
       - id: name-tests-test # python tests naming
         args: ["--pytest-test-first"]
-        exclude: ^tests/(cli/roster_helpers\.py|fixtures/constants\.py|helpers)
+        exclude: ^tests/(cli|fixtures|helpers)/(cli|constants|endpoints|mocks|payloads|roster_helpers)\.py$
       - id: no-commit-to-branch # don't commit to branch
       - id: trailing-whitespace # trim trailing whitespace
 
