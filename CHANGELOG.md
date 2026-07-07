@@ -2,6 +2,85 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.1 (2026-07-07)
+
+### Bug Fixes
+
+- Resolve code quality issues and implement games/locations commands ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+- **auth**: Auto-refresh tokens on 403 Forbidden responses ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+- **docs**: Resolve pylint and mypy errors in build scripts ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+- **tests**: Import groups from correct modules in test_list_coverage ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+- **tests**: Mock both access and refresh tokens in integration tests ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+- **tests**: Remove invalid self type annotation in MockTZ ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+- **tests**: Use mock.patch instead of temp files for token mocking ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+### Code Style
+
+- Auto-fixes from pre-commit.ci ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+- **tests**: Add bandit nosec comments to test tokens ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+- **tests**: Apply pre-commit formatting fixes ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+### Continuous Integration
+
+- **release**: Add workflow_dispatch trigger for manual runs ([#139](https://github.com/bdperkin/gamesheet-sdk-py/pull/139),
+  [`96969c3`](https://github.com/bdperkin/gamesheet-sdk-py/commit/96969c3b081a98eb25b97ace0193342cc8c9f1c2))
+
+### Documentation
+
+- **errors**: Reflow docstring for better formatting ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+### Features
+
+- Implement games scheduled/completed commands and extract string constants ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+### Refactoring
+
+- Consolidate duplicate string literals into constants ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+- Extract string constants to centralized modules ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+- **cli**: Split games commands into focused modules ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+- **games**: Split games.py into focused package modules ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+- **tests**: Extract duplicate location mock into shared helper ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+- **tests**: Reorganize games tests by type and action ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+### Testing
+
+- **games**: Add tests for scheduled create edge cases ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
+- **session**: Add coverage for browser state cookie loading ([#137](https://github.com/bdperkin/gamesheet-sdk-py/pull/137),
+  [`f2387d5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f2387d53f307681588694c3da74322f51e2a3795))
+
 ## v0.2.0 (2026-07-01)
 
 ### Features
