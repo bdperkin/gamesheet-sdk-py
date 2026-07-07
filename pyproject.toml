@@ -182,7 +182,7 @@ optional-dependencies.mdformat = [
   "mdformat-pyproject",
 ]
 optional-dependencies.mypy = [
-  "gamesheet-sdk-py[type-stubs]",
+  "gamesheet-sdk-py[pytest,type-stubs]",
   "mypy",
 ]
 optional-dependencies.psr = [
@@ -194,6 +194,7 @@ optional-dependencies.pydocstyle = [
   "pydocstyle",
 ]
 optional-dependencies.pylint = [
+  "gamesheet-sdk-py[pytest]",
   "pylint-per-file-ignores",
   "pylint-pydantic",
 ]
