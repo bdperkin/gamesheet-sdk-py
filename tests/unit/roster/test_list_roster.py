@@ -168,7 +168,7 @@ def test_list_players_handles_empty_data(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid")
         result = list_players(session, SEASON_ID)
-    assert result == []
+    assert not result
 
 
 @responses.activate
@@ -183,7 +183,7 @@ def test_list_coaches_handles_empty_data(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid")
         result = list_coaches(session, SEASON_ID)
-    assert result == []
+    assert not result
 
 
 @responses.activate

@@ -71,9 +71,8 @@ optional-dependencies.add-trailing-comma = [
 optional-dependencies.all = [
   """\
   gamesheet-sdk-py[absolufy-imports,add-trailing-comma,autoflake,autopep8,bandit,black,blacken-docs,blocklint,codespell\
-  ,deptry,dev,docconvert,docformatter,docs,editorconfig-checker,flake8,interrogate,isort,mdformat,mypy,psr,pydocstyle,p\
-  ylint,pymarkdown,pyproject-fmt,pyrefly,pyright,pyroma,pyupgrade,radon,refurb,sphinx-lint,ssort,tox-ini-fmt,unimport,v\
-  alidate-pyproject,vulture,yamllint]\
+  ,deptry,dev,docconvert,docformatter,docs,editorconfig-checker,flake8,interrogate,mdformat,mypy,psr,pymarkdown,pyproje\
+  ct-fmt,pyrefly,pyright,pyroma,pytest,sphinx-lint,ssort,tox-ini-fmt,unimport,validate-pyproject,vulture,yamllint]\
   """,
 ]
 optional-dependencies.autoflake = [
@@ -99,8 +98,6 @@ optional-dependencies.codespell = [
 ]
 optional-dependencies.deptry = [
   "deptry",
-  "gamesheet-sdk-py[pytest]",
-  "gamesheet-sdk-py[type-stubs]",
 ]
 optional-dependencies.dev = [
   "pre-commit",
@@ -128,7 +125,6 @@ optional-dependencies.editorconfig-checker = [
 optional-dependencies.flake8 = [
   "flake8-pyproject",
   "gamesheet-sdk-py[flake8-plugins]",
-  "gamesheet-sdk-py[pylint]",
 ]
 optional-dependencies.flake8-plugins = [
   "eradicate",
@@ -167,17 +163,12 @@ optional-dependencies.flake8-plugins = [
   "flake8-type-checking",
   "flake8-unused-arguments",
   "flynt",
-  "isort",
+  "gamesheet-sdk-py[isort,pydocstyle,pylint,pyupgrade,radon,refurb]",
   "mccabe",
   "pep8-naming",
   "pycodestyle",
   "pydoclint",
-  "pydocstyle",
   "pyflakes",
-  "pylint",
-  "pyupgrade",
-  "radon",
-  "refurb",
   "tryceratops",
 ]
 optional-dependencies.interrogate = [
@@ -191,8 +182,7 @@ optional-dependencies.mdformat = [
   "mdformat-pyproject",
 ]
 optional-dependencies.mypy = [
-  "gamesheet-sdk-py[pytest]",
-  "gamesheet-sdk-py[type-stubs]",
+  "gamesheet-sdk-py[pytest,type-stubs]",
   "mypy",
 ]
 optional-dependencies.psr = [
@@ -240,7 +230,6 @@ optional-dependencies.radon = [
   "radon",
 ]
 optional-dependencies.refurb = [
-  "pydantic",
   "refurb",
 ]
 optional-dependencies.sphinx-lint = [

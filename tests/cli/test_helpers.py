@@ -96,7 +96,7 @@ def test_should_color_with_no_color_env() -> None:
     handler.stream = Mock()
     handler.stream.isatty.return_value = True
     with patch.dict(os.environ, {"NO_COLOR": "1"}):
-        assert _should_color(handler) is False
+        assert not _should_color(handler)
 
 
 def test_should_color_with_tty() -> None:
@@ -107,7 +107,7 @@ def test_should_color_with_tty() -> None:
     with patch.dict(os.environ, {}, clear=True):
         # Remove NO_COLOR if it exists
         os.environ.pop("NO_COLOR", None)
-        assert _should_color(handler) is True
+        assert _should_color(handler)
 
 
 def test_should_color_with_non_tty() -> None:
@@ -117,13 +117,13 @@ def test_should_color_with_non_tty() -> None:
     handler.stream.isatty.return_value = False
     with patch.dict(os.environ, {}, clear=True):
         os.environ.pop("NO_COLOR", None)
-        assert _should_color(handler) is False
+        assert not _should_color(handler)
 
 
 def test_should_color_with_no_stream() -> None:
     """_should_color should return False when handler has no stream."""
     handler = Mock(spec=[])  # No stream attribute
-    assert _should_color(handler) is False
+    assert not _should_color(handler)
 
 
 def test_configure_logging_verbose_0() -> None:
