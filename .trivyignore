@@ -38,3 +38,41 @@ CVE-2026-54370
 # libattr1 (extended attributes) vulnerabilities - no fixed version available
 # File attribute libraries not used by this Python SDK
 CVE-2026-54371
+
+# libglib2.0-0t64 vulnerabilities - no fixed version available
+# GLib is a system library dependency; these vulnerabilities are not exploitable
+# via the Python SDK/CLI which doesn't directly interact with GLib internals
+CVE-2026-58016  # CRITICAL: integer underflow in g_dbus_node_info_new_for_xml
+CVE-2026-58015  # HIGH: path traversal in gdbusauthmechanismsha1.c
+CVE-2026-58014  # HIGH: off-by-one error in g_key_file_get_locale_string_list
+CVE-2026-58013  # HIGH: buffer over-read in g_io_channel_read_line_backend
+CVE-2026-58012  # HIGH: buffer over-read in g_regex_replace()
+CVE-2026-58011  # HIGH: out-of-bounds read in g_date_time_get_ymd
+CVE-2026-58010  # HIGH: buffer over-read in gvs_tuple_is_normal()
+
+# gzip vulnerabilities - no fixed version available
+# This project doesn't decompress untrusted archives via gzip
+CVE-2026-41992  # HIGH: global buffer overflow in LZH decompression
+CVE-2026-41991  # MEDIUM: arbitrary file overwrite in gzexe utility
+
+# util-linux family vulnerabilities - no fixed version available
+# Core system utilities (mount, login, blkid, etc.) not directly used by Python SDK
+CVE-2026-13595  # MEDIUM: heap use-after-free in libblkid nested partition probing
+# Affects: bsdutils, libblkid1, liblastlog2-2, libmount1, libsmartcols1, libuuid1, login, mount, util-linux
+
+# p11-kit (PKCS#11 toolkit) vulnerabilities - no fixed version available
+# Crypto token interface not used by this Python SDK
+CVE-2026-13757  # MEDIUM: stack exhaustion via unbounded recursion in RPC parsing
+
+# llvm vulnerabilities - no fixed version available
+# LLVM is a dependency of the container base image, not used by Python code
+CVE-2026-13574  # LOW: DoS via heap buffer overflow in Bitcode File Handler
+CVE-2026-13573  # LOW: DoS via stack buffer overflow in StringMap::insert
+
+# NSS (Network Security Services) vulnerabilities - no fixed version available
+# NSS is used by system networking, not directly by the Python SDK
+CVE-2026-12318  # LOW: incorrect boundary conditions in NSS Libraries component
+
+# libxml2 vulnerabilities - no fixed version available (continued)
+# Additional libxml2 CVE beyond the one already listed above
+CVE-2026-11979  # LOW: arbitrary code execution in xmlcatalog utility
