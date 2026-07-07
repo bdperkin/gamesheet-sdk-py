@@ -13,11 +13,7 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.commands.divisions import divisions_group
-from tests.helpers import (
-    DEFAULT_DIVISION_NAME,
-    DIVISION_ID,
-    SEASON_ID,
-)
+from tests.helpers import DEFAULT_DIVISION_NAME, DIVISION_ID, SEASON_ID
 
 
 def test_divisions_list_coverage() -> None:

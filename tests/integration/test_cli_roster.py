@@ -13,10 +13,7 @@ from gamesheet_sdk import DEFAULT_BASE_URL
 from gamesheet_sdk.cli import main
 
 # Explicit import for coverage tracking of dynamically-loaded Click commands
-from tests.helpers import (
-    SEASON_ID,
-    jsonapi_payload,
-)
+from tests.helpers import SEASON_ID, jsonapi_payload
 
 _BASE = DEFAULT_BASE_URL
 _PLAYERS_ENDPOINT = f"{_BASE}/api/seasons/{SEASON_ID}/players"

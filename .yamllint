@@ -10,7 +10,9 @@ extends: default
 # ------------------------------------------------------------------------------
 # Ignore specific directories and files from being linted (e.g., virtual envs)[cite: 2]
 ignore: |
-  /.tox/
+  /_build/
+  /.local/
+  /.pytest_cache/
   /.venv/
 
 # ------------------------------------------------------------------------------

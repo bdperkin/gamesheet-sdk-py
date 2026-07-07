@@ -1,13 +1,10 @@
 {
   "Exclude": [
-    "_build",
-    "_autosummary",
-    "_templates",
-    "docs/README\\.md",
-    "docs/how-to/cut-a-release\\.md",
-    "\\.tox",
-    "\\.venv",
-    "\\.mypy_cache",
-    "\\.pytest_cache"
+    "docs/_build",
+    "docs/_templates/custom-class-template\\.rst",
+    "docs/_templates/custom-module-template\\.rst",
+    "\\.local",
+    "\\.pytest_cache",
+    "\\.venv"
   ]
 }

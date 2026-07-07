@@ -12,9 +12,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.associations import Association
 from gamesheet_sdk.cli import cli
-from tests.helpers import (
-    DEFAULT_ASSOCIATION_NAME,
-)
+from tests.helpers import DEFAULT_ASSOCIATION_NAME
 
 
 def test_associations_get(runner: CliRunner) -> None:

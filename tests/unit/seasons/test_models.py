@@ -8,10 +8,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from gamesheet_sdk.seasons import Season, SeasonDetail
-from tests.helpers import (
-    CLI_TEST_SEASON_ID,
-    SEASON_ID,
-)
+from tests.helpers import CLI_TEST_SEASON_ID, SEASON_ID
 
 
 def test_season_model_ignores_unknown_attributes() -> None:

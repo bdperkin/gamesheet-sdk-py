@@ -8,9 +8,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from gamesheet_sdk.referees import Referee
-from tests.helpers import (
-    SEASON_ID,
-)
+from tests.helpers import SEASON_ID
 
 
 def test_referee_model_ignores_unknown_attributes() -> None:

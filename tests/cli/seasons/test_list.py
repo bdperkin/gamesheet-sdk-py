@@ -12,10 +12,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.seasons import Season
-from tests.helpers import (
-    CLI_TEST_SEASON_ID,
-    TIMESTAMP_2024_01_01,
-)
+from tests.helpers import CLI_TEST_SEASON_ID, TIMESTAMP_2024_01_01
 
 
 def test_seasons_list_alias_works(runner: CliRunner) -> None:

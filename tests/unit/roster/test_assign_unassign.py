@@ -8,12 +8,7 @@ from __future__ import annotations
 import pytest
 import responses
 
-from gamesheet_sdk import (
-    AuthenticationError,
-    Config,
-    GameSheetError,
-    Session,
-)
+from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
 from gamesheet_sdk.roster import (
     assign_coach,
     assign_player,

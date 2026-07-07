@@ -11,10 +11,7 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 
 from gamesheet_sdk.cli.main import cli
-from tests.helpers import (
-    PLAYER_ID_SECONDARY,
-    SEASON_ID,
-)
+from tests.helpers import PLAYER_ID_SECONDARY, SEASON_ID
 
 
 def test_players_penalty_report_requires_player_id() -> None:

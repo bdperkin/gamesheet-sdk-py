@@ -12,9 +12,7 @@ from click.testing import CliRunner
 
 from gamesheet_sdk.cli import cli
 from gamesheet_sdk.leagues import League
-from tests.helpers import (
-    DEFAULT_LEAGUE_NAME,
-)
+from tests.helpers import DEFAULT_LEAGUE_NAME
 
 
 def test_leagues_get(runner: CliRunner) -> None:
