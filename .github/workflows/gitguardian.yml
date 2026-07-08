@@ -1,4 +1,54 @@
 ---
+# ╔══════════════════════════════════════════════════════════════════════════════════════════╗
+# ║ GitHub Actions Workflow                                                                  ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Name      │ GitGuardian Secret Scanner                                                   ║
+# ║ Category  │ Security - Secret Detection / Credential Scanning                            ║
+# ║ Purpose   │ Scan commits for hardcoded secrets, API keys, credentials, tokens, and       ║
+# ║           │ other sensitive data to prevent accidental credential exposure               ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Action    │ GitGuardian/ggshield-action (ggshield CLI wrapper)                           ║
+# ║ Trigger   │ push: branches=[main] (paths-ignore: CHANGELOG.md, pyproject.toml)          ║
+# ║           │ pull_request: branches=[main] (paths-ignore: CHANGELOG.md, pyproject.toml)  ║
+# ║ Runs on   │ ubuntu-latest                                                                ║
+# ║ Scope     │ Full commit history (fetch-depth: 0) to scan all commits in PR diff         ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Permissions                                                                              ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • contents: read         │ Checkout repository with full history                         ║
+# ║ • security-events: write │ Upload SARIF results to GitHub Security tab                   ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Key Features                                                                             ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • Scans all commits in PR diff using GitGuardian's secret detection engine               ║
+# ║ • Detects 350+ types of secrets (AWS keys, GitHub tokens, DB credentials, etc.)          ║
+# ║ • --show-secrets flag reveals matched secrets in output for review                       ║
+# ║ • --exit-zero prevents build failures (reports findings without blocking)                ║
+# ║ • --all-policies applies all GitGuardian detection policies                              ║
+# ║ • Skips dependabot PRs and external forks (conditional if check)                         ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Environment Variables                                                                    ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • GITGUARDIAN_API_KEY        │ API key for GitGuardian service (secret)                  ║
+# ║ • GITHUB_PUSH_BEFORE_SHA     │ Commit SHA before push (for diff context)                 ║
+# ║ • GITHUB_PUSH_BASE_SHA       │ Base SHA for push events                                  ║
+# ║ • GITHUB_PULL_BASE_SHA       │ Base SHA for pull request events                          ║
+# ║ • GITHUB_DEFAULT_BRANCH      │ Default branch name (main)                                ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Output Artifacts                                                                         ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • .gitguardian.yaml          │ Scan results config/report (uploaded as artifact)         ║
+# ║ • Artifact retention         │ 30 days                                                   ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Notes                                                                                    ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • Requires GITGUARDIAN_API_KEY secret configured in repository settings                  ║
+# ║ • Full history fetch required to scan all commits in PR (fetch-depth: 0)                 ║
+# ║ • exit-zero mode reports findings without failing workflow                               ║
+# ║ • Skips external fork PRs and dependabot (security: fork PRs can't access secrets)       ║
+# ║ • Complements CodeQL's clear-text-logging checks                                         ║
+# ╚══════════════════════════════════════════════════════════════════════════════════════════╝
+
 name: GitGuardian Secret Scanner
 
 on:
@@ -37,7 +87,10 @@ jobs:
 
       - name: Run GitGuardian ggshield scan
         uses: GitGuardian/ggshield-action@da20be06cafe5e8633dc24744efe1efe8d30f06b # v1.52.2
-        if: (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]') || github.event_name == 'push'
+        if: |
+          (github.event.pull_request.head.repo.full_name == github.repository &&
+           github.actor != 'dependabot[bot]') ||
+          github.event_name == 'push'
         env:
           GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
           GITHUB_PUSH_BEFORE_SHA: ${{ github.event.before }}

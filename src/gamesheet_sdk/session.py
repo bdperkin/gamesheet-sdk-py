@@ -70,8 +70,6 @@ class Session:
             resp.raise_for_status()
     The context-manager form persists cookies on exit. If you do not use
     ``with``, call :meth:`Session.close` explicitly to save state.
-    :param config: Optional configuration object
-    :type config: Config | None
     """
 
     # -- internals --------------------------------------------------------
@@ -155,6 +153,16 @@ class Session:
             self._http.cookies.set(**cookie_dict)
 
     def __init__(self, config: Config | None = None) -> None:
+        """Initialize an HTTP session configured for GameSheet WebUI access.
+
+        Constructs a :class:`requests.Session` with automatic retry logic, a version-stamped User-Agent, and
+        restores any previously-saved cookies from disk. The session is ready for immediate use after
+        construction.
+
+        :param config: Optional configuration object. If ``None``, a default
+            :class:`~gamesheet_sdk.config.Config` is created.
+        :type config: Config | None
+        """
         self.config = config or Config()
         self._http = self._build_http_session()
         self._load_cookies()
@@ -324,9 +332,9 @@ class Session:
 
     def __exit__(
         self,
-        __exc_type: type[BaseException] | None,
-        __exc_val: BaseException | None,
-        __exc_tb: TracebackType | None,
+        _exc_type: type[BaseException] | None,
+        _exc_val: BaseException | None,
+        _exc_tb: TracebackType | None,
     ) -> None:
         """Exit the context manager, persisting cookies and closing the session.
 

@@ -1,9 +1,29 @@
-# Python cache and build artifacts
+# ==============================================================================
+# .dockerignore — Docker build context exclusions
+# ==============================================================================
+# Prevents unnecessary files from being sent to the Docker daemon during build.
+# This speeds up builds and reduces the risk of accidentally including secrets.
+#
+# Pattern syntax:
+#   - Standard glob patterns (*, **, ?, [...])
+#   - Lines starting with # are comments
+#   - Lines starting with ! negate the pattern (include the file)
+#   - Patterns ending with / match directories
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Python: Byte-compiled / cached files
+# ------------------------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+*.pyo
 .Python
+
+# ------------------------------------------------------------------------------
+# Python: Distribution / packaging
+# ------------------------------------------------------------------------------
 build/
 develop-eggs/
 dist/
@@ -16,74 +36,156 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
+# ------------------------------------------------------------------------------
 # Virtual environments
+# ------------------------------------------------------------------------------
 .venv/
 venv/
 ENV/
 env/
+.env
+.envrc
 
-# Testing
+# ------------------------------------------------------------------------------
+# Testing and coverage
+# ------------------------------------------------------------------------------
 .pytest_cache/
 .coverage
 .coverage.*
+coverage.xml
 htmlcov/
 .tox/
+.nox/
 .hypothesis/
+nosetests.xml
+test-results/
 tests/cassettes/
+.cache/
 
-# Type checking
+# ------------------------------------------------------------------------------
+# Type checking and linting
+# ------------------------------------------------------------------------------
 .mypy_cache/
 .pytype/
 .pyre/
 .ruff_cache/
+.pyright/
+.dmypy.json
+dmypy.json
 
-# IDEs
+# ------------------------------------------------------------------------------
+# IDEs and editors
+# ------------------------------------------------------------------------------
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
 
-# Git
+# ------------------------------------------------------------------------------
+# Git and version control
+# ------------------------------------------------------------------------------
 .git/
 .gitignore
 .gitattributes
+.gitmodules
 
+# ------------------------------------------------------------------------------
 # CI/CD
+# ------------------------------------------------------------------------------
 .github/
 
+# ------------------------------------------------------------------------------
 # Documentation
+# ------------------------------------------------------------------------------
 docs/_build/
 docs/_autosummary/
 docs/reference/_autosummary/
+_autosummary/
 *.md
 !README.md
+!LICENSE
 
+# ------------------------------------------------------------------------------
+# Configuration files (not needed in container)
+# ------------------------------------------------------------------------------
 # Pre-commit
 .pre-commit-config.yaml
 
 # Claude Code
 .claude/
 
-# Makefile
+# Build tools
 Makefile
-
-# Tox
 tox.ini
 
 # Editor configs
 .editorconfig
+.editorconfig-checker.json
 
-# Other configs
+# Linting and formatting configs
 .codecov.yml
+.yamllint
+.trivyignore
+.docconvert.json
+
+# Other development configs
 .readthedocs.yml
 renovate.json
-.yamllint.yml
 
-# Docker itself
+# ------------------------------------------------------------------------------
+# Docker (don't include Docker files in Docker build context)
+# ------------------------------------------------------------------------------
 Dockerfile
+Dockerfile.*
 .dockerignore
+docker-compose.yml
+docker-compose.*.yml
+
+# ------------------------------------------------------------------------------
+# Local development files
+# ------------------------------------------------------------------------------
+.local/
+*.log
+*.patch
+secrets.toml
+*.bak
+*.tmp
+
+# ------------------------------------------------------------------------------
+# OS-specific files
+# ------------------------------------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.directory
+
+# ------------------------------------------------------------------------------
+# Security and secrets (extra precaution)
+# ------------------------------------------------------------------------------
+*.pem
+*.key
+*.p12
+*.pfx
+.env.local
+.env.*.local

@@ -1,13 +1,47 @@
 ---
-# Dependency Review Action
-#
-# This Action will scan dependency manifest files that change as part of a Pull Request,
-# surfacing known-vulnerable versions of the packages declared or updated in the PR.
-# Once installed, if the workflow run is marked as required, PRs introducing known-vulnerable
-# packages will be blocked from merging.
-#
-# Source repository: https://github.com/actions/dependency-review-action
-# Public documentation: https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-dependency-review#dependency-review-enforcement
+# ╔══════════════════════════════════════════════════════════════════════════════════════════╗
+# ║ GitHub Actions Workflow                                                                  ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Name      │ Dependency Review                                                            ║
+# ║ Category  │ Security - Supply Chain / Dependency Vulnerability Detection                 ║
+# ║ Purpose   │ Scan dependency manifest changes in pull requests to surface known-          ║
+# ║           │ vulnerable package versions and block PRs introducing risky dependencies     ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Source    │ GitHub-supplied workflow (actions/dependency-review-action)                  ║
+# ║ Docs      │ https://docs.github.com/en/code-security/supply-chain-security/              ║
+# ║           │ understanding-your-software-supply-chain/about-dependency-review             ║
+# ║ Trigger   │ pull_request: branches=[main] (paths-ignore: CHANGELOG.md, pyproject.toml)  ║
+# ║           │ push: branches-ignore=["**"] (effectively disabled for push events)          ║
+# ║ Runs on   │ ubuntu-latest                                                                ║
+# ║ Scope     │ Python dependencies declared in pyproject.toml and lock files                ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Permissions                                                                              ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • contents: read       │ Checkout repository                                             ║
+# ║ • pull-requests: write │ Post summary comments on PRs (comment-summary-in-pr: always)    ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Key Features                                                                             ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • Runs ONLY on pull requests (supply-chain gate before merge)                            ║
+# ║ • Detects newly introduced vulnerable dependencies in PR diff                            ║
+# ║ • Posts summary comment in PR with findings (comment-summary-in-pr: always)              ║
+# ║ • When marked as required check, blocks merging of PRs with vulnerable dependencies      ║
+# ║ • Can fail on specific severity levels (fail-on-severity: moderate/high/critical)        ║
+# ║ • Can deny specific licenses (deny-licenses option)                                      ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Output Artifacts                                                                         ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • PR comment with vulnerability summary (always posted)                                  ║
+# ║ • Workflow check status (pass/fail based on findings)                                    ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Notes                                                                                    ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • GitHub-supplied workflow kept on original trigger pattern (PR-only)                    ║
+# ║ • push trigger is explicitly disabled (branches-ignore: ["**"])                          ║
+# ║ • Complements pip-audit (this checks manifest changes, pip-audit scans installed pkgs)   ║
+# ║ • Optional configurations (fail-on-severity, deny-licenses) are commented out            ║
+# ╚══════════════════════════════════════════════════════════════════════════════════════════╝
+
 name: "Dependency review"
 
 on:
@@ -46,7 +80,8 @@ jobs:
           persist-credentials: false
       - name: "Dependency Review"
         uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
-        # Commonly enabled options, see https://github.com/actions/dependency-review-action#configuration-options for all available options.
+        # Commonly enabled options, see
+        # https://github.com/actions/dependency-review-action#configuration-options for all available options.
         with:
           comment-summary-in-pr: always
           #   fail-on-severity: moderate

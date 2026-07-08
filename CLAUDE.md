@@ -27,26 +27,47 @@ The package is alpha. Structure under `src/gamesheet_sdk/`:
   - `core.py` — `ResourceGroup` class, `confirm_destructive` decorator, utility functions
   - `helpers.py` — shared command helpers
   - `main.py` — main CLI entry point (`cli` group and `main()` function)
-  - `commands/` — individual command modules (associations, completion, divisions, games, ipad_keys, leagues, login, referees, roster, season, seasons, teams)
+  - `constants.py` — CLI-specific constants
+  - `commands/` — individual command modules (associations, completion, divisions, games, games_brackets, games_completed, games_scheduled, ipad_keys, leagues,
+    locations, login, referees, roster, roster_coaches, roster_players, seasons, teams, teams_roster, teams_roster_coaches, teams_roster_players)
+  - `shared/` — shared CLI utilities
+    - `decorators.py` — CLI decorators for common patterns
+    - `rendering.py` — output rendering helpers
 - `config.py` — `pydantic-settings` `Config` (resolves `GAMESHEET_*` env vars; CLI args > env > defaults)
-- `divisions.py` — `Division` model + `list_divisions()`, `list_division_teams()`
+- `constants.py` — global constants (URLs, base URLs)
+- `errors.py` — error classes
 - `exceptions.py` — `GameSheetError`, `AuthenticationError`
 - `output.py` — `render()` for JSON / YAML / CSV / TSV / 13 tabulate formats + `write_output()`
-- `referees.py` — `Referee` model + `list_referees()`
 - `session.py` — base `requests.Session` subclass
-- `teams.py` — `Team` model + `list_teams()`
+- `shared/` — shared utilities package
+  - `constants.py` — shared constants
+  - `gamesheet_http.py` — HTTP helpers for GameSheet API
+  - `image_upload.py` — image upload helpers
+  - `jsonapi.py` — JSON:API response parsing
 
 Domain modules (each provides pydantic models + action functions, plus a corresponding command module under `cli/commands/`):
 
 - `associations.py` — `Association` model + `list_associations()`
-- `divisions.py` — `Division` model + `list_divisions()`, `list_division_teams()`
-- `games.py` — `Game` model + `list_scheduled()`, `list_completed()`, `list_brackets()`
+- `divisions.py` — `Division` model + `list_divisions()`, `list_division_teams()`, `create_division()`, `update_division()`, `delete_division()`
+- `games/` — games package
+  - `models.py` — `Game`, `TeamInfo` models
+  - `scheduled.py` — `list_scheduled()` for scheduled games
+  - `completed.py` — `list_completed()` for completed games
+  - `brackets.py` — `list_brackets()` for bracket games
+  - `broadcasters.py` — broadcaster management
+  - `locations.py` — location management
+  - `helpers.py` — shared game helpers
 - `ipad_keys.py` — `IPadKey` model + `list_ipad_keys()`
 - `leagues.py` — `League` model + `list_leagues()`
-- `referees.py` — `Referee` model + `list_referees()`
-- `roster.py` — `Player` and `Coach` models + `list_players()`, `list_coaches()`
+- `referees.py` — `Referee`, `RefereeReport` models + `list_referees()`, `get_referee()`, `create_referee()`, `update_referee()`, `delete_referee()`,
+  `get_referee_report()`
+- `roster/` — roster management package
+  - `models.py` — `Player`, `Coach` models
+  - `players.py` — player roster operations
+  - `coaches.py` — coach roster operations
+  - `helpers.py` — shared roster helpers
 - `seasons.py` — `Season` and `SeasonDetail` models + `list_seasons()`, `get_season()`
-- `teams.py` — `Team` model + `list_teams()`
+- `teams.py` — `Team` model + `list_teams()`, `create_team()`, `update_team()`, `delete_team()`
 
 Future domain modules attach the same way: a thin action function in a domain module, a pydantic model, and a corresponding command module in `cli/commands/`.
 
@@ -71,7 +92,7 @@ pre-commit install
 pytest
 
 # Single test
-pytest tests/test_smoke.py::test_version_is_string
+pytest tests/test_init_coverage.py::test_version_is_string
 
 # With coverage (config in pyproject under [tool.coverage])
 pytest --cov
@@ -106,7 +127,7 @@ make clean-all     # + .tox, $(VENV), docs build dirs
 
 ### Tox
 
-Tox now ships ~45 envs — one per linter / formatter / type checker / doc builder — instead of the prior monolithic `lint` / `type` / `security` / `files-check`
+Tox now ships ~60 envs — one per linter / formatter / type checker / doc builder — instead of the prior monolithic `lint` / `type` / `security` / `files-check`
 aggregates. Use **labels** for grouped runs:
 
 ```bash
@@ -163,6 +184,15 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
   slowdown alert. `coverage.xml` and JUnit XML are uploaded to Codecov by `.github/workflows/codecov.yml` (per-PR matrix) and `comprehensive-tests.yml`
   (nightly, multi-OS).
 
+  Test structure under `tests/`:
+
+  - `auth/` — authentication tests
+  - `cli/` — CLI command tests (associations, divisions, games, ipad_keys, leagues, locations, referees, roster, seasons, teams with their nested subcommands)
+  - `fixtures/` — shared test fixtures
+  - `helpers/` — test helper modules (cli.py, constants.py, endpoints.py, mocks.py, payloads.py)
+  - `integration/` — integration tests (browser, cli_games, cli_roster, config, output, session, smoke)
+  - `unit/` — unit tests by domain (associations, divisions, games, ipad_keys, leagues, referees, roster, seasons, teams, gamesheet_http)
+
 - **Dependency updates.** `pre-commit.ci` configuration lives inline in `.pre-commit-config.yaml` under the top-level `ci:` key (the only path that service
   reads). It pins `python_version: "3.11"`, runs `autoupdate_schedule: weekly`, and auto-fixes formatting on PRs (`autofix_prs: true`). Three hooks are listed
   in `ci.skip` — they still run in GitHub Actions where there is no 250 MiB tier limit and `python -m venv` works:
@@ -181,15 +211,17 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
   `code_quality_linters_-_static_analysis.yml`, `code_style_-_formatting_-automated_fixers-.yml`, `code_cleaners_-_dead_code_detectors.yml`,
   `configuration_file_linters_-_formatters.yml`, `documentation_-_docstring_tools.yml`, `documentation_-_markdown_tools.yml`,
   `security-_metrics_-_complexity.yml`, and `comprehensive-tests.yml` (nightly, multi-OS; also uploads to Codecov). Plus the GitHub-supplied `codeql.yml`,
-  `dependency-review.yml`, and `release.yml`. Each tool runs as its own matrixed job (py3.11–3.14) installing the `tox-workdir` plugin and invoking the matching
-  tox env. Job display names are the bare tool name (e.g. `mypy (py3.11)`, `pytest (py3.12)`) so the Checks UI stays scannable.
+  `dependency-review.yml`, security scanning workflows (`gitguardian.yml`, `semgrep.yml`, `security-trivy.yml`, `osv-scanner.yml`, `workflow-linter.yml`), and
+  `release.yml`. Each tool runs as its own matrixed job (py3.11–3.14) installing the `tox-workdir` plugin and invoking the matching tox env. Job display names
+  are the bare tool name (e.g. `mypy (py3.11)`, `pytest (py3.12)`) so the Checks UI stays scannable.
 
-  **Trigger layout (uniform across every per-category workflow):** `push:` fires on every branch (no `branches:` filter), so feature-branch work gets CI before
-  a PR exists. `pull_request:` is scoped to `types: [opened, reopened]` — the default would also include `synchronize` (every push to a PR branch), which would
-  duplicate every run. With this scoping each push fires exactly once. As a safety net, `concurrency.group` is
-  `${{ github.workflow }}-${{ github.head_ref || github.ref_name }}` so any unintended overlap collapses via `cancel-in-progress: true`. The exceptions are
-  `codeql.yml`/`dependency-review.yml`/`release.yml` (kept on their original GitHub-supplied triggers) and the `codecov.yml` workflow (still
-  `push: branches: [main]` + `pull_request: branches: [main]` for now).
+  **Trigger layout (uniform across most workflows):** `push:` is scoped to `branches: [main]` — CI runs on main branch pushes and when PRs are opened/updated
+  against main. `pull_request:` uses either `types: [opened, reopened, synchronize]` (default behavior, runs on every PR push) or `branches: [main]` depending
+  on the workflow. Both `push` and `pull_request` include `paths-ignore: ["CHANGELOG.md", "pyproject.toml"]` to skip workflows when only version/changelog files
+  change (those are updated by automated release commits). All workflows use
+  `concurrency.group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}` with `cancel-in-progress: true` to collapse overlapping runs — only the
+  latest run continues. The exceptions are `codeql.yml`/`dependency-review.yml` (kept on their original GitHub-supplied triggers), `release.yml` (only
+  `push: branches: [main]`), and `comprehensive-tests.yml` (nightly `schedule` trigger plus manual `workflow_dispatch`).
 
 - **Python 3.11–3.14.** Use modern syntax (`from __future__ import annotations`, `X | None`, etc.) as the `cli` and `auth` packages already do.
 
@@ -218,18 +250,32 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
 - **Complexity gate.** A `xenon` pre-commit hook enforces `--max-absolute=A --max-modules=A --max-average=B` against `src/` on every commit
   (`pass_filenames: false`, runs the whole package as one analysis). Translation: **every block (function / method / class) must stay at cyclomatic-complexity
   grade A (cc \<= 5)**; every module must average grade A; the project as a whole must average grade B or better. As of the gate landing the project average is
-  2.43 with zero blocks above A. `tox -e metrics` runs `radon cc -s -a` + `radon mi -s` to report the actual numbers — useful before pushing a function that's
-  growing conditionals. When you find yourself adding a fourth `if` / `except` / `for` / `and` / `or` to a block, extract a helper instead — see how
-  `auth/login.py:login` is decomposed into `_resolve_email` + `_resolve_password` + `_wait_for_login_form` + `_attach_response_capture` + `_submit_login_form` +
-  `_await_auth_outcome` for the pattern. **CodeQL data-flow gotcha worth preserving:** don't return a sensitive value (password, token, secret) bundled in the
-  same tuple / list / dict as a non-sensitive sibling that downstream code logs. CodeQL's taint analyzer treats both elements as tainted, which fires
-  `py/clear-text-logging-sensitive-data` on perfectly innocent `email` log calls. Keep credential resolvers split (one helper per secret).
+  2.43 with zero blocks above A. `tox -e radon-cc` (or `make metrics`) runs `radon cc -s -a` + `radon mi -s` to report the actual numbers — useful before
+  pushing a function that's growing conditionals. When you find yourself adding a fourth `if` / `except` / `for` / `and` / `or` to a block, extract a helper
+  instead — see how `auth/login.py:login` is decomposed into `_resolve_email` + `_resolve_password` + `_wait_for_login_form` + `_attach_response_capture` +
+  `_submit_login_form` + `_await_auth_outcome` for the pattern. **CodeQL data-flow gotcha worth preserving:** don't return a sensitive value (password, token,
+  secret) bundled in the same tuple / list / dict as a non-sensitive sibling that downstream code logs. CodeQL's taint analyzer treats both elements as tainted,
+  which fires `py/clear-text-logging-sensitive-data` on perfectly innocent `email` log calls. Keep credential resolvers split (one helper per secret).
 
 - **Documentation.** Sphinx (Furo theme, MyST-Parser for markdown sources) lives under `docs/`. `conf.py` enables autodoc + autosummary (API), `sphinx-click`
   (CLI rendered live from the `gamesheet_sdk.cli:cli` group exported from the `cli` package — so it always tracks the shipped click tree, including nested
   resource groups), intersphinx (cross-refs to stdlib/requests/pydantic/click), autosectionlabel, napoleon, todo, copybutton, sphinx-design. Output formats:
   HTML, EPUB, man, LaTeX/PDF. Strict-mode build (`-n -W`) runs two-pass to satisfy autosummary's stub-then-toctree ordering. Built, link-checked, and deployed
   to GitHub Pages by `.github/workflows/docs.yml`; `_build/` and `_autosummary/` are gitignored.
+
+  Documentation structure under `docs/`:
+
+  - `conf.py` — Sphinx configuration
+  - `index.md` — documentation homepage
+  - `tutorials/` — learning-oriented guides (Diátaxis)
+  - `how-to/` — task-oriented guides (development-setup, release-process)
+  - `reference/` — information-oriented reference (API, CLI, configuration)
+  - `explanation/` — understanding-oriented explanations (architecture, design decisions, Diátaxis primer)
+  - `security/` — security policies and guidelines
+  - `_static/` — static assets (CSS, images)
+  - `_templates/` — custom Sphinx templates
+  - `generate_api_docs.py` — script to generate API documentation
+  - `check_api_freshness.py` — script to check if API docs are up-to-date
 
 - **Documentation organization — Diátaxis.** Every doc page belongs to exactly one of four quadrants under `docs/`: `tutorials/` (learning-oriented), `how-to/`
   (task-oriented), `reference/` (information-oriented), or `explanation/` (understanding-oriented). When adding a page, pick the quadrant by asking _what is the
@@ -250,6 +296,11 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
   - **Destructive verbs** (`delete`/`rm`/`remove`) — wrap with `@confirm_destructive("<target>")` (from `cli/core.py`) so the command gains `--force/-f` and a
     `[y/N]` prompt.
 
+  **CLI shared utilities** in `cli/shared/`:
+
+  - `decorators.py` — common decorators for CLI commands
+  - `rendering.py` — output rendering and formatting helpers
+
   **Tab-completion.** `gamesheet-sdk-py completion {bash,zsh,fish}` prints a sourceable script (uses click's built-in `shell_completion` via the
   `_GAMESHEET_SDK_PY_COMPLETE` env var; no third-party dep). `ResourceGroup.shell_complete` (in `cli/core.py`) overrides click's default to also enumerate
   aliases (`ls`, `rm`, …) so tab-completion stays in sync with the verb table. **Gotcha worth preserving:** `ResourceGroup.parse_args` gates its
@@ -257,3 +308,21 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
   `gamesheet-sdk-py associations <TAB>` returns nothing. A regression test (`test_completion_does_not_descend_into_default_subcommand`) pins this.
 
   The Sphinx CLI reference is regenerated from the click tree by `sphinx-click` on every docs build, so it always tracks shipping behavior.
+
+- **Build system.** Uses `hatchling` as the build backend (PEP 517/518/621 compliant). Package metadata lives in `pyproject.toml` under `[project]`. Build
+  configuration under `[tool.hatch]` controls wheel/sdist targets. The package ships with `src/gamesheet_sdk/py.typed` for PEP 561 type hint distribution.
+
+- **Docker support.** A `Dockerfile` is provided for containerized deployments. The image is published to GitHub Container Registry (ghcr.io) during the release
+  workflow. Local Docker commands are available via Makefile: `make docker-build`, `make docker-run`, `make docker-push`, `make docker-clean`.
+
+- **Security scanning.** The project uses multiple security tools in CI:
+
+  - **bandit** — Python code security scanner (via pre-commit and dedicated workflow)
+  - **GitGuardian** — secret scanning in commits
+  - **Semgrep** — SAST (static application security testing)
+  - **Trivy** — container vulnerability scanning with `.trivyignore` for suppressed CVEs
+  - **OSV-Scanner** — dependency vulnerability scanning
+  - **CodeQL** — semantic code analysis
+  - **pip-audit** — Python dependency vulnerability scanning
+
+  The `.trivyignore` file contains suppressed container base image CVEs that cannot be fixed (documented in commit messages).

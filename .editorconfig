@@ -1,3 +1,13 @@
+# ==============================================================================
+# EditorConfig — Consistent coding styles across editors and IDEs
+# ==============================================================================
+# This file defines baseline formatting rules that most editors understand
+# natively or via plugins. See https://editorconfig.org for details.
+#
+# Supported editors: VS Code, IntelliJ IDEA, PyCharm, Sublime Text, Vim,
+# Emacs, Atom, and many others.
+# ==============================================================================
+
 # Top-most EditorConfig file. Tells plugins not to look in parent directories.
 root = true
 
@@ -16,18 +26,70 @@ trim_trailing_whitespace = true        # Remove trailing whitespace before savin
 # Format-Specific Overrides
 # ==============================================================================
 
-# Data Formats (Prefer 2-space indentation)
+# ------------------------------------------------------------------------------
+# Python Files
+# ------------------------------------------------------------------------------
+# Uses project standard of 4 spaces (PEP 8 compatible)
+# Note: Line length (110) is enforced by black/flake8/pylint, not EditorConfig
+[*.py]
+indent_size              = 4
+max_line_length          = 110         # Informational only; enforced by linters
+
+# ------------------------------------------------------------------------------
+# Data & Configuration Formats
+# ------------------------------------------------------------------------------
+# Standard practice: 2-space indentation for YAML, JSON, TOML
 [*.{yml,yaml,json,toml}]
 indent_size              = 2
 
-# Documentation Formats (Ignore indentation)
+# ------------------------------------------------------------------------------
+# Documentation Formats
+# ------------------------------------------------------------------------------
+# Markdown: Don't enforce indentation (allows flexibility for nested lists)
 [*.md]
 indent_size              = unset
+trim_trailing_whitespace = false       # Markdown uses trailing spaces for line breaks
 
-# Configuration Files
+# reStructuredText: Match Sphinx default (3 spaces for consistency)
+[*.rst]
+indent_size              = 3
+
+# ------------------------------------------------------------------------------
+# Configuration Files (Specific overrides)
+# ------------------------------------------------------------------------------
 [.yamllint]
 indent_size              = 2
 
-# Build Automations (Makefiles strictly require physical tabs)
+[.editorconfig-checker.json]
+indent_size              = 2
+
+[.docconvert.json]
+indent_size              = 2
+
+# ------------------------------------------------------------------------------
+# Build Automation Files
+# ------------------------------------------------------------------------------
+# Makefiles strictly require physical tabs (not spaces)
 [Makefile]
 indent_style             = tab         # Tabs are syntactically required by Make
+indent_size              = 4           # Tab width display hint
+
+[*.mk]
+indent_style             = tab
+indent_size              = 4
+
+# ------------------------------------------------------------------------------
+# Shell Scripts
+# ------------------------------------------------------------------------------
+[*.{sh,bash,zsh}]
+indent_size              = 2
+end_of_line              = lf          # Unix scripts must use LF line endings
+
+# ------------------------------------------------------------------------------
+# Docker Files
+# ------------------------------------------------------------------------------
+[Dockerfile*]
+indent_size              = 2
+
+[.dockerignore]
+indent_size              = 2

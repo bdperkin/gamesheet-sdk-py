@@ -1,4 +1,22 @@
 ---
+# ==============================================================================
+# CI - Build and Install Sanity Check
+# ==============================================================================
+# Purpose: Quick sanity check that the package builds and installs correctly
+#          across all supported Python versions. This is a fast smoke test
+#          that catches basic packaging/dependency issues early.
+#
+# Triggers:
+#   - push to main branch (skip if only CHANGELOG/version changes)
+#   - pull_request (opened, reopened, synchronize)
+#   - Concurrency: Cancels previous runs for the same branch
+#
+# Jobs: 1 job × 4 Python versions = 4 total runs
+#   - sanity: pip install + basic import test via tox
+#
+# Each job runs: tox -e py3XX (installs package and runs --version check)
+# ==============================================================================
+
 name: CI
 
 on:
@@ -27,19 +45,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        python-version:
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: pyproject.toml
+
       - name: Install tox
         run: pip install tox-workdir
+
       - name: Run tests via tox
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}

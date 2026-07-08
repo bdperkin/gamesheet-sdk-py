@@ -1,6 +1,14 @@
 {
+  "//": "==============================================================================",
+  "// ": "docconvert Configuration",
+  "//  ": "==============================================================================",
+  "//   ": "Converts docstrings between different formats (e.g., Google \u2192 reStructuredText).",
+  "//    ": "Used via tox and CI workflows, not in pre-commit hooks.",
+  "//     ": "See: https://github.com/cbillingham/docconvert",
+  "//      ": "==============================================================================",
   "accepted_shebangs": [
-    "python"
+    "python",
+    "python3"
   ],
   "input_style": "guess",
   "output": {
@@ -16,5 +24,19 @@
     "use_optional": false,
     "use_types": true
   },
-  "output_style": "rest"
+  "output_style": "rest",
+  "// accepted_shebangs": "Python shebang variants to recognize",
+  "// input_style": "Auto-detect docstring format (google, numpy, rest, epytext)",
+  "// output.convert_epytext_markup": "Convert epytext markup to reStructuredText",
+  "// output.first_line": "Place summary on first line of docstring",
+  "// output.max_line_length": "Maximum line length (matches black/flake8: 110)",
+  "// output.realign": "Realign docstring content to match indentation",
+  "// output.remove_type_back_ticks": "Remove backticks from type annotations",
+  "// output.replace_quotes": "Use triple double-quotes for docstrings",
+  "// output.separate_keywords": "Add blank line between docstring sections",
+  "// output.standard_indent": "Standard indentation (4 spaces, PEP 8)",
+  "// output.tab_length": "Tab width for alignment calculations",
+  "// output.use_optional": "Use Optional[] for optional parameters",
+  "// output.use_types": "Include type information in docstrings",
+  "// output_style": "Target docstring format (rest = reStructuredText/Sphinx)"
 }

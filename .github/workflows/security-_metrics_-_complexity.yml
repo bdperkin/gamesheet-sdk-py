@@ -1,4 +1,31 @@
 ---
+# ==============================================================================
+# Security, Metrics & Complexity
+# ==============================================================================
+# Purpose: Scans code for security vulnerabilities and measures code complexity
+# and maintainability metrics. Enforces complexity gates and tracks code health.
+#
+# Triggers:
+#   - push to main branch (skip if only CHANGELOG/version changes)
+#   - pull_request (opened, reopened, synchronize)
+#   - Concurrency: Cancels previous runs for the same branch
+#
+# Jobs: 5 tools across Python 3.11-3.14 (20 total runs)
+#   - bandit: Security linter scanning for common Python security issues
+#   - xenon: Complexity gate (max cc <= 5 per block, enforced in pre-commit)
+#   - radon (4 analyzers):
+#     - cc: Cyclomatic complexity analysis
+#     - raw: Raw metrics (LOC, LLOC, SLOC, comments, blanks)
+#     - mi: Maintainability index calculation
+#     - hal: Halstead complexity metrics
+#
+# Special Notes:
+#   - xenon enforces --max-absolute=A --max-modules=A --max-average=B
+#   - Project average complexity: 2.43 (all blocks at grade A)
+#   - Extract helper functions when approaching 4+ conditionals in a block
+#
+# Each job runs: tox -e [tool]
+# ==============================================================================
 name: Security, Metrics & Complexity
 
 on:

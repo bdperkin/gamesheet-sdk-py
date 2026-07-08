@@ -1,4 +1,58 @@
 ---
+# ╔══════════════════════════════════════════════════════════════════════════════════════════╗
+# ║ GitHub Actions Workflow                                                                  ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Name      │ Security - Trivy Vulnerability Scanning                                      ║
+# ║ Category  │ Security - Container & Dependency Vulnerability Scanning                     ║
+# ║ Purpose   │ Run Trivy vulnerability scanner for filesystem dependencies, configuration   ║
+# ║           │ files, and Python packages; includes pip-audit for Python-specific CVEs     ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Action    │ aquasecurity/trivy-action (multi-mode scanner)                               ║
+# ║ Trigger   │ push: branches-ignore=["**"] (effectively disabled for push events)          ║
+# ║           │ pull_request: types=[opened, reopened]                                       ║
+# ║           │ schedule: weekly on Mondays at 9:00 AM UTC                                   ║
+# ║ Runs on   │ ubuntu-latest                                                                ║
+# ║ Jobs      │ trivy-fs (filesystem scan), trivy-config (config files),                     ║
+# ║           │ pip-audit (Python dependency vulnerabilities across py3.11-3.14)             ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Permissions                                                                              ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • contents: read         │ Checkout repository                                           ║
+# ║ • security-events: write │ Upload SARIF results to GitHub Security tab (trivy jobs)      ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Key Features                                                                             ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • trivy-fs job:                                                                          ║
+# ║   - Scans filesystem for vulnerabilities in dependencies (pyproject.toml, lock files)    ║
+# ║   - Severity: CRITICAL, HIGH, MEDIUM (SARIF report uploaded to Security tab)             ║
+# ║   - Second pass fails workflow on CRITICAL/HIGH findings (exit-code: 1)                  ║
+# ║   - Uses .trivyignore for suppressed container base image CVEs                           ║
+# ║ • trivy-config job:                                                                      ║
+# ║   - Scans configuration files (YAML, Dockerfile, etc.) for misconfigurations             ║
+# ║   - Reports findings without failing build (exit-code: 0)                                ║
+# ║ • pip-audit job:                                                                         ║
+# ║   - Matrix across Python 3.11, 3.12, 3.13, 3.14                                          ║
+# ║   - Installs package with all extras ([all]) for full dependency tree                    ║
+# ║   - Runs pip-audit --desc --skip-editable                                                ║
+# ║   - continue-on-error: true (reports findings without failing workflow)                  ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Output Artifacts                                                                         ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • trivy-fs-results.sarif     │ Filesystem scan SARIF (category: trivy-fs)                ║
+# ║ • trivy-config-results.sarif │ Config scan SARIF (category: trivy-config)                ║
+# ║ • GitHub Security tab        │ Uploaded SARIF findings from both Trivy jobs              ║
+# ║ • pip-audit console output   │ Vulnerability descriptions for each Python version        ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Notes                                                                                    ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • .trivyignore file suppresses unfixable container base image CVEs (documented in        ║
+# ║   commit messages; see CLAUDE.md security section)                                       ║
+# ║ • trivy-fs double-scan pattern: SARIF upload (all severities) + fail-on-critical/high    ║
+# ║ • pip-audit complements Trivy (Python-specific OSV/CVE database)                         ║
+# ║ • pip-audit runs continue-on-error to avoid blocking on advisory-only findings           ║
+# ║ • Weekly scheduled scan ensures fresh CVE database lookups                               ║
+# ╚══════════════════════════════════════════════════════════════════════════════════════════╝
+
 name: Security - Trivy Vulnerability Scanning
 
 on:
@@ -91,7 +145,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        python-version:
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0

@@ -1,4 +1,26 @@
 ---
+# ==============================================================================
+# Tests - Full Pytest Suite
+# ==============================================================================
+# Purpose: Runs the complete pytest test suite (unit + integration tests)
+#          across all supported Python versions. Includes VCR cassette replay
+#          for HTTP tests and pytest-playwright for browser tests.
+#
+# Triggers:
+#   - push to main branch (skip if only CHANGELOG/version changes)
+#   - pull_request (opened, reopened, synchronize)
+#   - Concurrency: Cancels previous runs for the same branch
+#
+# Jobs: 1 job × 4 Python versions = 4 total runs
+#   - pytest: Full test suite with --block-network enabled
+#
+# Test markers:
+#   - @pytest.mark.vcr: Replays HTTP from tests/cassettes/
+#   - @pytest.mark.browser: Headless Chromium via pytest-playwright
+#
+# Each job runs: tox -e pytest (pytest --cov with 100% coverage target)
+# ==============================================================================
+
 name: Run all tests
 
 on:
@@ -36,13 +58,16 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: pyproject.toml
+
       - name: Install tox
         run: pip install tox-workdir
+
       - name: Run pytest via tox
         run: tox -e pytest

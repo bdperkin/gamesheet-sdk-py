@@ -47,15 +47,6 @@ class AuthenticatedSession(Session):
         ) as s:
             for assoc in list_associations(s):
                 print(assoc.name)
-
-    :param config: Optional configuration object
-    :type config: Config | None
-    :param access_token: Current access token to use as bearer
-    :type access_token: str
-    :param refresh_token: Refresh token for automatic renewal
-    :type refresh_token: str
-    :param on_refresh: Optional callback invoked with new token dict after successful refresh
-    :type on_refresh: OnRefreshCallback | None
     """
 
     def __init__(
@@ -66,6 +57,24 @@ class AuthenticatedSession(Session):
         refresh_token: str,
         on_refresh: OnRefreshCallback | None = None,
     ) -> None:
+        """Initialize an authenticated session with token auto-refresh on 401/403.
+
+        Constructs a :class:`~gamesheet_sdk.session.Session` with the given configuration, stores the refresh
+        token for automatic renewal, and attaches the access token as the bearer. Optionally registers a
+        callback to persist updated tokens after a successful refresh.
+
+        :param config: Optional configuration object. If ``None``, a default
+            :class:`~gamesheet_sdk.config.Config` is created.
+        :type config: Config | None
+        :param access_token: Current access token to use as the bearer in the ``Authorization`` header.
+        :type access_token: str
+        :param refresh_token: Refresh token used to renew the access token on 401/403 responses.
+        :type refresh_token: str
+        :param on_refresh: Optional callback invoked with a ``{"access": ..., "refresh": ...}`` dict after a
+            successful token refresh. Use this to persist the new tokens to disk (e.g. via
+            :func:`~gamesheet_sdk.auth.tokens.save_tokens`).
+        :type on_refresh: OnRefreshCallback | None
+        """
         super().__init__(config)
         self._refresh_token = refresh_token
         self._on_refresh = on_refresh

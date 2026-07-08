@@ -1,4 +1,26 @@
 ---
+# ==============================================================================
+# Documentation & Markdown Tools
+# ==============================================================================
+# Purpose: Lints and formats Markdown files for consistent style, valid syntax,
+# and proper structure. Ensures documentation adheres to CommonMark/GFM standards.
+#
+# Triggers:
+#   - push to main branch (skip if only CHANGELOG/version changes)
+#   - pull_request (opened, reopened, synchronize)
+#   - Concurrency: Cancels previous runs for the same branch
+#
+# Jobs: 2 tools (pymarkdown: 4 Python versions; mdformat: single version)
+#   - pymarkdown: Lints Markdown files for style and syntax violations
+#   - mdformat: Auto-formats Markdown files (GFM plugin enabled)
+#
+# Tools run in check mode in CI. To apply fixes locally:
+#   - make fix (runs mdformat in write mode)
+#   - tox -e mdformat (formats in place)
+#   - pre-commit run --all-files (auto-fixes Markdown files)
+#
+# Each job runs: tox -e [tool]
+# ==============================================================================
 name: Documentation & Markdown Tools
 
 on:

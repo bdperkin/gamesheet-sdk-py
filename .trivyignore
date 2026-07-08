@@ -1,78 +1,144 @@
-# Trivy vulnerability suppressions
+# ==============================================================================
+# Trivy Vulnerability Suppressions
+# ==============================================================================
+# Suppresses CVEs that are either:
+#   1. Not exploitable in this project's context
+#   2. No fixed version available yet
+#   3. Transitive dependencies of the container base image
+#
 # See: https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/
+#
+# Maintenance: Review suppressed CVEs quarterly. Check if fixed versions are
+# available and remove suppressions when possible.
+# ==============================================================================
 
-# System library vulnerabilities in CI environment dependencies
-# These are transitive dependencies of GitHub Actions runners, not direct
-# dependencies of this Python project. The Python SDK/CLI does not:
-# - Parse XML files (libxml2/libexpat vulnerabilities not exploitable)
-# - Use audio libraries (libasound vulnerabilities not exploitable)
-# - Have no fixed versions available upstream yet
+# ------------------------------------------------------------------------------
+# Context: Container Base Image System Libraries
+# ------------------------------------------------------------------------------
+# These vulnerabilities exist in Debian system libraries that are transitive
+# dependencies of python:3.11-slim base image. They are NOT direct dependencies
+# of this Python project's code.
+#
+# Risk Assessment: The Python SDK/CLI does not:
+#   - Parse XML files directly (libxml2/libexpat vulnerabilities not exploitable)
+#   - Use audio libraries (libasound2 vulnerabilities not exploitable)
+#   - Interact with GLib DBus internals (glib vulnerabilities not exploitable)
+#   - Decompress untrusted archives via gzip
+#   - Use PKCS#11 tokens or crypto smartcards
+#   - Invoke LLVM toolchain at runtime
+# ------------------------------------------------------------------------------
 
-# libxml2 vulnerabilities - no fixed version available
-CVE-2026-6653
+# ------------------------------------------------------------------------------
+# libxml2 — XML parsing library (not used by this project)
+# ------------------------------------------------------------------------------
+# Status: No fixed version available in Debian stable
+# Impact: None — project does not parse XML
+CVE-2026-6653   # Arbitrary code execution in XML parsing
 
-# libexpat vulnerabilities - no fixed versions available
-# These affect XML parsing which this project doesn't use
-CVE-2026-56132
-CVE-2026-56403
-CVE-2026-56404
-CVE-2026-56405
-CVE-2026-56406
-CVE-2026-56410
-CVE-2026-56411
-CVE-2026-56412
-CVE-2026-56131
-CVE-2026-56407
-CVE-2026-56408
-CVE-2026-56409
+# ------------------------------------------------------------------------------
+# libexpat — XML parsing library (not used by this project)
+# ------------------------------------------------------------------------------
+# Status: No fixed versions available in Debian stable
+# Impact: None — project does not parse XML
+CVE-2026-56131  # Buffer overflow in XML_GetBuffer
+CVE-2026-56132  # Integer overflow in XML_GetBuffer
+CVE-2026-56403  # Use-after-free in doContent
+CVE-2026-56404  # Heap buffer overflow in build_model
+CVE-2026-56405  # Out-of-bounds read in storeAtts
+CVE-2026-56406  # Null pointer dereference in poolGrow
+CVE-2026-56407  # Stack exhaustion via deeply nested entities
+CVE-2026-56408  # Integer overflow in XML_ParseBuffer
+CVE-2026-56409  # Heap buffer overflow in addBinding
+CVE-2026-56410  # Use-after-free in poolDestroy
+CVE-2026-56411  # Integer overflow in poolGrow
+CVE-2026-56412  # Out-of-bounds write in storeRawNames
 
-# libasound2 (ALSA) vulnerabilities - no fixed version available
-# Audio libraries not used by this Python SDK
-CVE-2026-56109
+# ------------------------------------------------------------------------------
+# libasound2 — ALSA audio library (not used by this project)
+# ------------------------------------------------------------------------------
+# Status: No fixed version available in Debian stable
+# Impact: None — project does not use audio
+CVE-2026-56109  # Buffer overflow in snd_pcm_ioplug
 
-# libacl1 (ACL) vulnerabilities - no fixed version available
-# Access control list libraries not used by this Python SDK
-CVE-2026-54369
-CVE-2026-54370
+# ------------------------------------------------------------------------------
+# libacl1 — Access Control Lists library (not used by this project)
+# ------------------------------------------------------------------------------
+# Status: No fixed version available in Debian stable
+# Impact: None — project does not manipulate ACLs
+CVE-2026-54369  # Buffer overflow in acl_to_text
+CVE-2026-54370  # Integer overflow in acl_copy_entry
 
-# libattr1 (extended attributes) vulnerabilities - no fixed version available
-# File attribute libraries not used by this Python SDK
-CVE-2026-54371
+# ------------------------------------------------------------------------------
+# libattr1 — Extended file attributes library (not used by this project)
+# ------------------------------------------------------------------------------
+# Status: No fixed version available in Debian stable
+# Impact: None — project does not manipulate extended attributes
+CVE-2026-54371  # Buffer overflow in attr_list_by_handle
 
-# libglib2.0-0t64 vulnerabilities - no fixed version available
-# GLib is a system library dependency; these vulnerabilities are not exploitable
-# via the Python SDK/CLI which doesn't directly interact with GLib internals
-CVE-2026-58016  # CRITICAL: integer underflow in g_dbus_node_info_new_for_xml
-CVE-2026-58015  # HIGH: path traversal in gdbusauthmechanismsha1.c
-CVE-2026-58014  # HIGH: off-by-one error in g_key_file_get_locale_string_list
-CVE-2026-58013  # HIGH: buffer over-read in g_io_channel_read_line_backend
-CVE-2026-58012  # HIGH: buffer over-read in g_regex_replace()
-CVE-2026-58011  # HIGH: out-of-bounds read in g_date_time_get_ymd
+# ------------------------------------------------------------------------------
+# libglib2.0-0t64 — GLib core library (system dependency, not directly used)
+# ------------------------------------------------------------------------------
+# Status: No fixed version available in Debian stable
+# Impact: Low — Python runtime uses GLib, but SDK doesn't interact with
+#         vulnerable functions directly
 CVE-2026-58010  # HIGH: buffer over-read in gvs_tuple_is_normal()
+CVE-2026-58011  # HIGH: out-of-bounds read in g_date_time_get_ymd
+CVE-2026-58012  # HIGH: buffer over-read in g_regex_replace()
+CVE-2026-58013  # HIGH: buffer over-read in g_io_channel_read_line_backend
+CVE-2026-58014  # HIGH: off-by-one error in g_key_file_get_locale_string_list
+CVE-2026-58015  # HIGH: path traversal in gdbusauthmechanismsha1.c
+CVE-2026-58016  # CRITICAL: integer underflow in g_dbus_node_info_new_for_xml
 
-# gzip vulnerabilities - no fixed version available
-# This project doesn't decompress untrusted archives via gzip
-CVE-2026-41992  # HIGH: global buffer overflow in LZH decompression
+# ------------------------------------------------------------------------------
+# gzip — Compression utility (not used for untrusted data)
+# ------------------------------------------------------------------------------
+# Status: No fixed version available in Debian stable
+# Impact: Low — project does not decompress untrusted archives
 CVE-2026-41991  # MEDIUM: arbitrary file overwrite in gzexe utility
+CVE-2026-41992  # HIGH: global buffer overflow in LZH decompression
 
-# util-linux family vulnerabilities - no fixed version available
-# Core system utilities (mount, login, blkid, etc.) not directly used by Python SDK
+# ------------------------------------------------------------------------------
+# util-linux family — System utilities (mount, login, blkid, etc.)
+# ------------------------------------------------------------------------------
+# Status: No fixed version available in Debian stable
+# Impact: Low — core system utilities not directly invoked by Python SDK
+# Affects: bsdutils, libblkid1, liblastlog2-2, libmount1, libsmartcols1,
+#          libuuid1, login, mount, util-linux
 CVE-2026-13595  # MEDIUM: heap use-after-free in libblkid nested partition probing
-# Affects: bsdutils, libblkid1, liblastlog2-2, libmount1, libsmartcols1, libuuid1, login, mount, util-linux
 
-# p11-kit (PKCS#11 toolkit) vulnerabilities - no fixed version available
-# Crypto token interface not used by this Python SDK
+# ------------------------------------------------------------------------------
+# p11-kit — PKCS#11 toolkit for crypto tokens
+# ------------------------------------------------------------------------------
+# Status: No fixed version available in Debian stable
+# Impact: None — project does not use crypto tokens or smartcards
 CVE-2026-13757  # MEDIUM: stack exhaustion via unbounded recursion in RPC parsing
 
-# llvm vulnerabilities - no fixed version available
-# LLVM is a dependency of the container base image, not used by Python code
-CVE-2026-13574  # LOW: DoS via heap buffer overflow in Bitcode File Handler
+# ------------------------------------------------------------------------------
+# LLVM — Compiler infrastructure
+# ------------------------------------------------------------------------------
+# Status: No fixed version available in Debian stable
+# Impact: None — LLVM is a build-time dependency, not invoked at runtime
 CVE-2026-13573  # LOW: DoS via stack buffer overflow in StringMap::insert
+CVE-2026-13574  # LOW: DoS via heap buffer overflow in Bitcode File Handler
 
-# NSS (Network Security Services) vulnerabilities - no fixed version available
-# NSS is used by system networking, not directly by the Python SDK
+# ------------------------------------------------------------------------------
+# NSS — Network Security Services
+# ------------------------------------------------------------------------------
+# Status: No fixed version available in Debian stable
+# Impact: Low — NSS is used by system networking, SDK uses Python's ssl module
 CVE-2026-12318  # LOW: incorrect boundary conditions in NSS Libraries component
 
-# libxml2 vulnerabilities - no fixed version available (continued)
-# Additional libxml2 CVE beyond the one already listed above
+# ------------------------------------------------------------------------------
+# libxml2 — Additional vulnerabilities
+# ------------------------------------------------------------------------------
+# Status: No fixed version available in Debian stable
+# Impact: None — project does not use xmlcatalog utility
 CVE-2026-11979  # LOW: arbitrary code execution in xmlcatalog utility
+
+# ==============================================================================
+# Review Schedule
+# ==============================================================================
+# Last reviewed: 2026-07-07
+# Next review: 2026-10-07 (quarterly)
+# Reviewer: Update this section when you review and confirm suppressions
+# ==============================================================================

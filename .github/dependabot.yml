@@ -1,32 +1,104 @@
+# ==============================================================================
+# Dependabot Configuration
+# ==============================================================================
+# Automated dependency updates for Python packages (via pip/pyproject.toml)
+# and GitHub Actions versions across all workflow files.
+#
+# Dependabot opens grouped PRs on a weekly schedule (aligns with pre-commit.ci
+# weekly updates). Grouping reduces PR noise: 2 PRs/week max instead of one
+# per dependency update. Security updates still arrive within 7 days.
+#
+# Reference: https://docs.github.com/en/code-security/dependabot
+# ==============================================================================
+
 version: 2
+
 updates:
-  # Python dependencies (pyproject.toml — main + optional-deps)
-  # Daily schedule for security-critical dependency updates
+  # ----------------------------------------------------------------------------
+  # Python Dependencies (pyproject.toml)
+  # ----------------------------------------------------------------------------
+  # Scans [project.dependencies] and all [project.optional-dependencies.*]
+  # groups. Creates two PRs per week (one for runtime, one for dev deps):
+  #   - runtime-dependencies: [project.dependencies] (production deps)
+  #   - development-dependencies: all [project.optional-dependencies.*] groups
+  #
+  # Schedule: Weekly on Mondays (aligns with pre-commit.ci autoupdate schedule)
+  # ----------------------------------------------------------------------------
   - package-ecosystem: pip
     directory: /
     schedule:
-      interval: daily
-    open-pull-requests-limit: 10
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
     labels:
       - dependencies
       - python
+    commit-message:
+      prefix: "chore(deps)"
+      include: scope
     groups:
       runtime-dependencies:
         dependency-type: production
+        update-types:
+          - minor
+          - patch
       development-dependencies:
         dependency-type: development
+        update-types:
+          - minor
+          - patch
 
-  # GitHub Actions versions in .github/workflows/*.yml
-  # Daily schedule for security-critical action updates
+  # ----------------------------------------------------------------------------
+  # GitHub Actions (workflow files)
+  # ----------------------------------------------------------------------------
+  # Scans all .github/workflows/*.yml files for `uses:` action references.
+  # Creates one grouped PR per week containing all GitHub Actions updates.
+  #
+  # Current workflow count: 22 workflows using ~25 unique actions.
+  #
+  # Schedule: Weekly on Mondays (same as Python deps for consistency)
+  # ----------------------------------------------------------------------------
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: daily
-    open-pull-requests-limit: 10
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
     labels:
       - dependencies
       - github-actions
+    commit-message:
+      prefix: "chore(deps)"
+      include: scope
     groups:
       actions:
         patterns:
           - "*"
+        update-types:
+          - minor
+          - patch
+
+# ==============================================================================
+# Update Strategy Summary
+# ==============================================================================
+# Weekly PRs (Mondays at 09:00 UTC):
+#   - 1 PR for Python runtime dependencies (production)
+#   - 1 PR for Python development dependencies (all optional-dependencies.*)
+#   - 1 PR for all GitHub Actions updates (grouped)
+#
+# Total: ~3 PRs/week max (vs ~14 PRs/week with daily + no grouping)
+#
+# Alignment:
+#   - pre-commit.ci: weekly (Mondays)
+#   - Dependabot: weekly (Mondays)
+#   - Consistent, predictable update cadence
+#
+# Security:
+#   - Critical vulnerabilities still arrive within 7 days
+#   - GitHub Security Advisories trigger immediate alerts separately
+#   - Weekly cadence is industry-standard for non-critical updates
+# ==============================================================================

@@ -10,13 +10,14 @@ SHELL          := /bin/bash
 MAKEFLAGS      += --no-print-directory
 
 # --- Python interpreter detection --------------------------------------------
-# Probe /usr/bin for python3 + python3.1X binaries and pick the highest
-# version-sorted name. Override on the command line: `make PYTHON=python3.12`.
+# Probe /usr/bin for python3.11-3.14 binaries and pick the highest version.
+# Override on the command line: `make PYTHON=python3.12 install`
+# Only searches for Python 3.11-3.14 (project's supported versions).
 
-DETECTED_PYTHON := $(shell basename -a /usr/bin/python3{,.1[0-9]} 2>/dev/null \
-				| grep -E '^python3(\.[0-9]+)?$$' \
-				| sort -V \
-				| tail -n1)
+DETECTED_PYTHON := $(shell basename -a /usr/bin/python3.1[1-4] 2>/dev/null \
+					| grep -E '^python3\.1[1-4]$$' \
+					| sort -V \
+					| tail -n1)
 PYTHON         ?= $(or $(DETECTED_PYTHON),python3)
 
 # --- Standard paths ----------------------------------------------------------
@@ -54,7 +55,7 @@ help: ## Show this help message
 	@printf "$(BOLD)Usage:$(RESET) make $(CYAN)<target>$(RESET) [VAR=value ...]\n\n"
 	@printf "$(BOLD)Variables:$(RESET)\n"
 	@printf "  $(CYAN)%-20s$(RESET) %s (current: $(GREEN)%s$(RESET))\n" \
-		"PYTHON"  "Python interpreter (auto-detected; override to pick a 3.11+ version)" "$(PYTHON)"
+		"PYTHON"  "Python interpreter (auto-detected 3.11-3.14; override to pick version)" "$(PYTHON)"
 	@printf "  $(CYAN)%-20s$(RESET) %s (current: $(GREEN)%s$(RESET))\n" \
 		"VENV"    "Virtualenv directory" "$(VENV)"
 	@printf "  $(CYAN)%-20s$(RESET) %s (current: $(GREEN)%s$(RESET))\n" \
@@ -66,9 +67,9 @@ help: ## Show this help message
 			}' $(MAKEFILE_LIST)
 	@printf "\n$(BOLD)Pattern rules:$(RESET)\n"
 	@printf "  $(CYAN)%-20s$(RESET) %s\n" \
-		"venv-<extra>" "Create venv + install a single extra (e.g. venv-dev, venv-docs)"
+		"venv-<extra>" "Create venv + install a single extra (e.g., venv-dev, venv-docs)"
 	@printf "  $(CYAN)%-20s$(RESET) %s\n" \
-		"tox-<env>"    "Run any tox env (e.g. tox-py312, tox-lint, tox-fix)"
+		"tox-<env>"    "Run any tox env (e.g., tox-py312, tox-mypy, tox-radon-cc)"
 	@printf "\n$(BOLD)Examples:$(RESET)\n"
 	@printf "  $(YELLOW)make install$(RESET)            $(GREEN)# editable + dev extras + Playwright Chromium$(RESET)\n"
 	@printf "  $(YELLOW)make venv-dev$(RESET)           $(GREEN)# fresh $(VENV) with [dev]$(RESET)\n"
@@ -85,6 +86,11 @@ install: ## Editable install with [dev] extras + Playwright Chromium
 	pip install -e ".[dev]"
 	python -m playwright install chromium
 
+.PHONY: install-all
+install-all: ## Editable install with [all] extras + Playwright Chromium
+	pip install -e ".[all]"
+	python -m playwright install chromium
+
 # =============================================================================
 # Cleaning
 # -----------------------------------------------------------------------------
@@ -93,7 +99,7 @@ install: ## Editable install with [dev] extras + Playwright Chromium
 clean: ## Remove caches and build artifacts (preserves Git state)
 	@printf "$(CYAN)→$(RESET) clean: __pycache__ .pytest_cache .mypy_cache .ruff_cache .coverage dist coverage.xml\n"
 	@find . -type d -name '__pycache__' -prune -exec rm -rf {} +
-	@rm -rf .pytest_cache .mypy_cache .ruff_cache .coverage dist coverage.xml
+	@rm -rf .pytest_cache .mypy_cache .ruff_cache .pyright .coverage dist coverage.xml
 
 .PHONY: clean-all
 clean-all: clean ## clean + remove .tox, $(VENV), and docs build dirs
@@ -161,20 +167,27 @@ type: ## Run mypy --strict against src/ (PEP 561 typed package — strict requir
 
 .PHONY: fix
 fix: _check-tox ## Apply formatters in place (isort, black, mdformat)
-	tox -e fix
+	@printf "$(CYAN)→$(RESET) applying formatters (isort, black, mdformat)\n"
+	tox -e isort -- .
+	tox -e black -- .
+	tox -e mdformat -- .
+	@printf "$(GREEN)✓$(RESET) formatting complete\n"
 
 # =============================================================================
 # Complexity / metrics
 # -----------------------------------------------------------------------------
 # Xenon enforces the project-wide cyclomatic-complexity ceiling via pre-commit
-# (--max-absolute=A --max-modules=A --max-average=B). `tox -e metrics` reports
+# (--max-absolute=A --max-modules=A --max-average=B). `make metrics` reports
 # the actual radon numbers — useful before pushing a function that's growing
 # conditionals.
 # =============================================================================
 
 .PHONY: metrics
-metrics: _check-tox ## Radon + Xenon complexity gates (tox -e metrics)
-	tox -e metrics
+metrics: _check-tox ## Radon + Xenon complexity gates (radon cc + mi)
+	@printf "$(CYAN)→$(RESET) running radon complexity analysis\n"
+	tox -e radon-cc -- --show-complexity --average .
+	@printf "\n$(CYAN)→$(RESET) running radon maintainability index\n"
+	tox -e radon-mi -- --show .
 
 # =============================================================================
 # Documentation (Sphinx + Furo theme)
@@ -211,6 +224,18 @@ docs-check: ## Check if API docs are up-to-date with source
 .PHONY: docs-linkcheck
 docs-linkcheck: _check-tox ## Check external links in docs
 	tox -e docs-linkcheck
+
+.PHONY: docs-epub
+docs-epub: _check-tox ## Build EPUB documentation
+	tox -e docs-epub
+
+.PHONY: docs-man
+docs-man: _check-tox ## Build man-page documentation
+	tox -e docs-man
+
+.PHONY: docs-doctest
+docs-doctest: _check-tox ## Run doctest examples embedded in documentation
+	tox -e docs-doctest
 
 # =============================================================================
 # Docker (local container management)
@@ -253,13 +278,13 @@ docker-clean: ## Remove local Docker images
 # Tox pattern rule
 # -----------------------------------------------------------------------------
 # Escape hatch for any tox env not given a dedicated target above:
-#   make tox-py312     →  tox -e py312
-#   make tox-lint      →  tox -e lint
-#   make tox-security  →  tox -e security
+#   make tox-py312        →  tox -e py312
+#   make tox-mypy         →  tox -e mypy
+#   make tox-radon-cc     →  tox -e radon-cc
 # =============================================================================
 
 .PHONY: tox-%
-tox-%: _check-tox ## Run any tox env (e.g., tox-py312, tox-lint, tox-fix)
+tox-%: _check-tox ## Run any tox env (e.g., tox-py312, tox-mypy, tox-radon-cc)
 	tox -e $*
 
 .PHONY: _check-tox
