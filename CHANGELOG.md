@@ -2,6 +2,55 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.3 (2026-07-08)
+
+### Bug Fixes
+
+- **docs**: Configure XeLaTeX for PDF generation with Unicode support ([#144](https://github.com/bdperkin/gamesheet-sdk-py/pull/144),
+  [`b8bf3c5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/b8bf3c535f3d4d107de3a5e2fe2f40baeedc931a))
+
+### Chores
+
+- **security**: Suppress 23 unfixable container base image CVEs ([#141](https://github.com/bdperkin/gamesheet-sdk-py/pull/141),
+  [`70ffc0a`](https://github.com/bdperkin/gamesheet-sdk-py/commit/70ffc0aa58d43b9b2f93128812d1f1a98f0bbbaf))
+
+### Code Style
+
+- Apply automated formatting to PDF configuration files ([#144](https://github.com/bdperkin/gamesheet-sdk-py/pull/144),
+  [`b8bf3c5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/b8bf3c535f3d4d107de3a5e2fe2f40baeedc931a))
+
+- Auto-fixes from pre-commit.ci ([#144](https://github.com/bdperkin/gamesheet-sdk-py/pull/144),
+  [`b8bf3c5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/b8bf3c535f3d4d107de3a5e2fe2f40baeedc931a))
+
+### Continuous Integration
+
+- **docs**: Install texlive-xetex package for PDF build ([#144](https://github.com/bdperkin/gamesheet-sdk-py/pull/144),
+  [`b8bf3c5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/b8bf3c535f3d4d107de3a5e2fe2f40baeedc931a))
+
+- **docs**: Install xindy package for PDF index generation ([#144](https://github.com/bdperkin/gamesheet-sdk-py/pull/144),
+  [`b8bf3c5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/b8bf3c535f3d4d107de3a5e2fe2f40baeedc931a))
+
+### Documentation
+
+- Achieve 100% documentation coverage across all metrics ([#144](https://github.com/bdperkin/gamesheet-sdk-py/pull/144),
+  [`b8bf3c5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/b8bf3c535f3d4d107de3a5e2fe2f40baeedc931a))
+
+- Comprehensive documentation and configuration updates ([#144](https://github.com/bdperkin/gamesheet-sdk-py/pull/144),
+  [`b8bf3c5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/b8bf3c535f3d4d107de3a5e2fe2f40baeedc931a))
+
+- Fix Dependency Review badge showing as failing ([#144](https://github.com/bdperkin/gamesheet-sdk-py/pull/144),
+  [`b8bf3c5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/b8bf3c535f3d4d107de3a5e2fe2f40baeedc931a))
+
+### Refactoring
+
+- Remove spider scripts and clean up test dependencies ([#142](https://github.com/bdperkin/gamesheet-sdk-py/pull/142),
+  [`0c029e6`](https://github.com/bdperkin/gamesheet-sdk-py/commit/0c029e6d1a886b9b05e6b26c3979e59733c2e7d3))
+
+### Testing
+
+- Fix Windows compatibility in timezone tests ([#144](https://github.com/bdperkin/gamesheet-sdk-py/pull/144),
+  [`b8bf3c5`](https://github.com/bdperkin/gamesheet-sdk-py/commit/b8bf3c535f3d4d107de3a5e2fe2f40baeedc931a))
+
 ## v0.2.2 (2026-07-07)
 
 ### Bug Fixes
