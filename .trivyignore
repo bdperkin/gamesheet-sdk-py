@@ -135,10 +135,41 @@ CVE-2026-12318  # LOW: incorrect boundary conditions in NSS Libraries component
 # Impact: None — project does not use xmlcatalog utility
 CVE-2026-11979  # LOW: arbitrary code execution in xmlcatalog utility
 
+# ------------------------------------------------------------------------------
+# X11 / Xvfb / libxfont2 — X Window System libraries
+# ------------------------------------------------------------------------------
+# Status: No fixed version available in Debian stable
+# Impact: Low — Xvfb is used by Playwright for headless browser automation only
+#         The SDK does not directly process X11 protocol or font files from
+#         untrusted sources. Browser rendering happens inside Chromium's sandbox.
+# Context: These libraries are required for headless Chromium via Playwright
+CVE-2026-55999  # glamor Font Atlas Heap Buffer Overflow
+CVE-2026-56000  # GLX contextTags Use-After-Free in CommonMakeCurrent()
+CVE-2026-56001  # BitmapScaleBitmaps Integer Overflow Heap Buffer Overflow
+CVE-2026-56002  # PCF Font Parsing Heap Buffer Overflow
+CVE-2026-56003  # computeProps Property Buffer Heap Buffer Overflow
+
+# ------------------------------------------------------------------------------
+# FreeType — Font rendering library
+# ------------------------------------------------------------------------------
+# Status: No fixed version available in Debian stable
+# Impact: Low — FreeType is used by Xvfb/Chromium for font rendering
+#         The SDK does not directly parse font files from untrusted sources
+CVE-2026-50811  # Out-of-bounds read vulnerability in FreeType 2.14.3+
+
+# ------------------------------------------------------------------------------
+# Perl — Perl language runtime
+# ------------------------------------------------------------------------------
+# Status: No fixed version available in Debian stable
+# Impact: None — Perl is a build/system dependency, not invoked by Python SDK
+#         The HTTP::Tiny credential forwarding issue doesn't affect Python code
+CVE-2026-7017   # HTTP::Tiny forwards credential headers to redirects
+
 # ==============================================================================
 # Review Schedule
 # ==============================================================================
-# Last reviewed: 2026-07-07
-# Next review: 2026-10-07 (quarterly)
-# Reviewer: Update this section when you review and confirm suppressions
+# Last reviewed: 2026-07-08
+# Next review: 2026-10-08 (quarterly)
+# Reviewer: Added 9 new CVEs for X11/Xvfb/FreeType/Perl - all container base
+#           image dependencies with no fixed versions available in Debian stable
 # ==============================================================================
