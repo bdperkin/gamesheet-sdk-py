@@ -63,11 +63,16 @@ def test_timezone_name_etc_localtime_symlink() -> None:
     """Test _get_local_timezone_name reading /etc/localtime symlink."""
     from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
 
+    # Create a mock Path object that supports is_symlink
+    mock_path = MagicMock()
+    mock_path.is_symlink.return_value = True
+
     # Remove tzlocal from sys.modules to trigger ImportError
+    # Patch pathlib.Path at the point where it's imported in the function
     with (
         patch.dict(sys.modules, {"tzlocal": None}),
         patch("os.name", "posix"),
-        patch("pathlib.Path.is_symlink", return_value=True),
+        patch("pathlib.Path", return_value=mock_path),
         patch("os.readlink", return_value="/usr/share/zoneinfo/America/Los_Angeles"),
     ):
         result = _get_local_timezone_name()
@@ -288,11 +293,15 @@ def test_timezone_name_etc_localtime_not_symlink() -> None:
     """Test _get_local_timezone_name when /etc/localtime is not a symlink."""
     from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
 
+    # Create a mock Path object that is NOT a symlink
+    mock_path = MagicMock()
+    mock_path.is_symlink.return_value = False
+
     # Remove tzlocal, /etc/localtime exists but is NOT a symlink
     with (
         patch.dict(sys.modules, {"tzlocal": None}),
         patch("os.name", "posix"),
-        patch("pathlib.Path.is_symlink", return_value=False),
+        patch("pathlib.Path", return_value=mock_path),
     ):
         result = _get_local_timezone_name()
         assert result == "UTC"
@@ -302,11 +311,15 @@ def test_timezone_name_etc_localtime_no_zoneinfo() -> None:
     """Test _get_local_timezone_name when symlink doesn't contain zoneinfo."""
     from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
 
+    # Create a mock Path object that is a symlink
+    mock_path = MagicMock()
+    mock_path.is_symlink.return_value = True
+
     # Remove tzlocal, symlink doesn't contain "zoneinfo/"
     with (
         patch.dict(sys.modules, {"tzlocal": None}),
         patch("os.name", "posix"),
-        patch("pathlib.Path.is_symlink", return_value=True),
+        patch("pathlib.Path", return_value=mock_path),
         patch("os.readlink", return_value="/some/other/path"),
     ):
         result = _get_local_timezone_name()
