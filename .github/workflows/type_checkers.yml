@@ -1,4 +1,26 @@
 ---
+# ==============================================================================
+# Type Checkers - Static Type Analysis
+# ==============================================================================
+# Purpose: Runs mypy (--strict) and pyright type checkers to catch type errors
+#          before runtime. Both tools analyze type hints across the codebase.
+#
+# Triggers:
+#   - push to main branch (skip if only CHANGELOG/version changes)
+#   - pull_request (opened, reopened, synchronize)
+#   - Concurrency: Cancels previous runs for the same branch
+#
+# Jobs: 2 tools × 4 Python versions = 8 total runs
+#   - mypy: Industry-standard type checker (--strict mode enforced)
+#   - pyright: Fast Microsoft type checker (TypeScript-based)
+#
+# Configuration:
+#   - mypy: [tool.mypy] in pyproject.toml (strict = true)
+#   - pyright: [tool.pyright] in pyproject.toml
+#
+# Each job runs: tox -e [tool]-py3XX
+# ==============================================================================
+
 name: Type Checkers
 
 on:
@@ -21,54 +43,52 @@ permissions:
   contents: read
 
 jobs:
-  pyright:
-    name: pyright (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: pyproject.toml
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run pyright via tox
-        run: tox -e pyright
-
   mypy:
     name: mypy (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: pyproject.toml
+
       - name: Install tox
         run: pip install tox-workdir
+
       - name: Run mypy via tox
-        run: tox -e mypy
+        run: tox -e mypy-py${{ matrix.python-version }}
+
+  pyright:
+    name: pyright (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install tox
+        run: pip install tox-workdir
+
+      - name: Run pyright via tox
+        run: tox -e pyright-py${{ matrix.python-version }}

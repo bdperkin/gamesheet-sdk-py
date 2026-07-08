@@ -1,4 +1,52 @@
 ---
+# ╔══════════════════════════════════════════════════════════════════════════════════════════╗
+# ║ GitHub Actions Workflow                                                                  ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Name      │ Python Dependency Vulnerability Scanner                                      ║
+# ║ Category  │ Security - Dependency Vulnerability Detection (OSV Database)                 ║
+# ║ Purpose   │ Scan Python dependencies against the OSV (Open Source Vulnerabilities)       ║
+# ║           │ database using pip-audit to detect known CVEs and security advisories       ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Tool      │ pip-audit (Python-specific vulnerability scanner, PyPA OSV database)         ║
+# ║ Trigger   │ push: branches=[main] (paths-ignore: CHANGELOG.md, pyproject.toml)          ║
+# ║           │ pull_request: branches=[main] (paths-ignore: CHANGELOG.md, pyproject.toml)  ║
+# ║           │ schedule: daily at 2:00 AM UTC                                               ║
+# ║ Runs on   │ ubuntu-latest                                                                ║
+# ║ Python    │ 3.11 (single version for consistent daily scans)                             ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Permissions                                                                              ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • contents: read         │ Checkout repository with full history                         ║
+# ║ • security-events: write │ Upload SARIF results to GitHub Security tab                   ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Key Features                                                                             ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • Installs package with all extras ([all]) to scan full dependency tree                  ║
+# ║ • Runs pip-audit against OSV database (PyPA's Open Source Vulnerabilities DB)            ║
+# ║ • Generates JSON output (audit.json) with structured vulnerability data                  ║
+# ║ • Parses JSON to determine scan outcome: clean / vulnerabilities_found / failed          ║
+# ║ • Displays human-readable vulnerability descriptions with --desc flag                    ║
+# ║ • Fails workflow if vulnerabilities detected (exit 1 on scan_status=vulnerabilities_found) ║
+# ║ • Daily scheduled scan ensures fresh CVE lookups                                         ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Output Artifacts                                                                         ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • audit.json        │ JSON-format pip-audit scan results                                 ║
+# ║ • Artifact name     │ pip-audit-results                                                  ║
+# ║ • Retention         │ 30 days                                                            ║
+# ║ • Upload condition  │ if: always() (uploads even on scan failure)                        ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Notes                                                                                    ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • Despite workflow name "OSV Scanner", this uses pip-audit (Python-specific OSV client)  ║
+# ║ • pip-audit queries PyPA's OSV database (https://osv.dev) for Python CVEs                ║
+# ║ • Full history fetch required for comprehensive scanning (fetch-depth: 0)                ║
+# ║ • Initial pip-audit run uses continue-on-error to capture JSON output                    ║
+# ║ • Workflow fails explicitly in final step if vulnerabilities found                       ║
+# ║ • Complements Trivy's pip-audit job (this runs daily + on every push/PR)                 ║
+# ║ • Future: pip-audit native SARIF support coming (currently uses JSON parsing)            ║
+# ╚══════════════════════════════════════════════════════════════════════════════════════════╝
+
 name: Python Dependency Vulnerability Scanner
 
 on:

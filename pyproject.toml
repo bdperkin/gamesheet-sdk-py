@@ -1,6 +1,12 @@
 # ======================================================================================================================
 # Project Build & Tooling Configuration (PEP 518 / PEP 621)
 # ======================================================================================================================
+# This file configures the project metadata, dependencies, and 37 development tools.
+#
+# NOTE: Some [tool.*] sections include a non-standard `description` field. These are not part of the official
+# tool specifications but are included as inline documentation for maintainability. Tools ignore unknown fields,
+# so these description fields are harmless and aid in understanding each tool's purpose.
+# ======================================================================================================================
 # ----------------------------------------------------------------------------------------------------------------------
 # Build System Back-end Settings
 # ----------------------------------------------------------------------------------------------------------------------
@@ -1466,6 +1472,50 @@ extendExclude = [
   ".pytest_cache",
   ".venv",
 ]
+
+## ## pytest - Testing framework
+# Test discovery, markers, and default options for pytest test runner.
+# Custom markers must be registered here when using --strict-markers.
+[tool.pytest]
+# Minimum Python version for tests
+ini_options.minversion = "7.0"
+# Test discovery patterns
+ini_options.testpaths = [
+  "tests",
+]
+ini_options.python_files = [
+  "test_*.py",
+]
+ini_options.python_classes = [
+  "Test*",
+]
+ini_options.python_functions = [
+  "test_*",
+]
+# Command-line options applied by default
+ini_options.addopts = [
+  "--strict-markers", # Raise error for unregistered markers
+  "--strict-config",  # Raise error for invalid config
+  "--tb=short",       # Shorter traceback format
+  "-ra",              # Show all test summary info except passed
+  "--block-network",  # Block network access (from pytest-recording)
+]
+# Custom markers (must be registered to use --strict-markers)
+ini_options.markers = [
+  "allowed_hosts: List of regex patterns for hosts where connections are allowed",
+  "block_network: Block all network access except VCR recording",
+  "browser: Requires headless Chromium via pytest-playwright (slow tests)",
+  "default_cassette: Override the default VCR cassette name",
+  "vcr: Uses VCR.py to replay HTTP interactions from cassettes",
+]
+# Warnings
+ini_options.filterwarnings = [
+  "error",                                         # Turn warnings into errors
+  "ignore::DeprecationWarning:pytest_recording.*",
+  "ignore::DeprecationWarning:urllib3.*",
+]
+# Console output
+ini_options.console_output_style = "progress"
 
 [tool.coverage]
 run.branch = true

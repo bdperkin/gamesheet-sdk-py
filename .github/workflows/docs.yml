@@ -1,4 +1,66 @@
 ---
+# Documentation Build and Deployment Pipeline
+#
+# Purpose:
+#   Generates and validates documentation in multiple output formats (HTML, EPUB, man, PDF)
+#   and deploys the HTML build to GitHub Pages when merged to main. Runs 9 parallel jobs
+#   spanning build validation, quality checks, and deployment.
+#
+# Triggers:
+#   - push: Runs on push to main branch (after PR merge)
+#   - pull_request: Runs on opened, reopened, synchronize (all PR activity)
+#   - Ignores changes to CHANGELOG.md and pyproject.toml (managed by release workflow)
+#
+# Concurrency:
+#   - Scoped to workflow + branch name
+#   - Cancels in-progress runs ONLY for non-main branches (preserves deployment sequence)
+#
+# Permissions:
+#   - contents: read (default for all jobs except deploy)
+#   - pages: write (deploy job only, to publish to GitHub Pages)
+#   - id-token: write (deploy job only, to verify deployment target)
+#
+# Jobs:
+#   1. docs: HTML documentation build (Sphinx + Furo theme, two-pass strict mode)
+#   2. docs-epub: EPUB documentation build (e-reader distribution format)
+#   3. docs-man: man-page documentation build (CLI manual-page generation)
+#   4. docs-pdf: PDF documentation build (requires LaTeX toolchain)
+#   5. docs-lint: Python documentation issues check (sphinx-lint, etc.)
+#   6. docs-linkcheck: Broken external link check (validates HTTP references)
+#   7. docs-doctest: Embedded doctest examples tests (validates code examples)
+#   8. docs-build: Build HTML for GitHub Pages (uploads two artifacts: regular + Pages)
+#   9. docs-deploy: Deploy to GitHub Pages (only on push to main after docs-build succeeds)
+#
+# Architecture:
+#   - Every job runs on Python 3.11 (single-version documentation build)
+#   - Full git history (fetch-depth: 0) required for version detection
+#   - Each job invokes a matching tox env (docs, docs-epub, docs-man, docs-pdf, docs-lint,
+#     docs-linkcheck, docs-doctest) to isolate dependencies and guarantee reproducibility
+#   - docs-pdf installs LaTeX packages via apt (latexmk, texlive-latex-{recommended,extra})
+#   - docs-build uploads both a regular artifact (for PR review/debug, 14-day retention) and
+#     a Pages artifact (input to the deploy job, only created on main push)
+#   - docs-deploy is gated on push to main AND needs docs-build success
+#
+# Outputs:
+#   - Rendered documentation in HTML, EPUB, man, PDF formats
+#   - GitHub Pages deployment at configured URL (accessible via environment page_url)
+#   - html-docs artifact (uploaded on all runs for PR review / debug)
+#   - Pages artifact (uploaded only on main push, consumed by deploy job)
+#
+# Related Workflows:
+#   - comprehensive-tests.yml (nightly multi-OS test suite, also includes doc builds)
+#   - release.yml (version bumping, triggers doc rebuild on main via push event)
+#
+# Configuration Files:
+#   - docs/conf.py (Sphinx configuration)
+#   - pyproject.toml ([tool.sphinx], [optional-dependencies.docs])
+#   - tox.ini (docs, docs-epub, docs-man, docs-pdf, docs-lint, docs-linkcheck, docs-doctest)
+#
+# Maintenance Notes:
+#   - PDF build requires LaTeX packages; if apt install fails, build will skip gracefully
+#   - Pages deployment uses the official actions/deploy-pages action (v5.0.0)
+#   - All jobs run in parallel except docs-deploy (gated by docs-build dependency)
+#   - If adding a new doc format, create a matching tox env and add a parallel job here
 name: Docs
 
 on:

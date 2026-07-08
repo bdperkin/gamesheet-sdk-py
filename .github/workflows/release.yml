@@ -1,4 +1,108 @@
 ---
+# Automated Version Bumping, Release, and PyPI Publication
+#
+# Purpose:
+#   Fully automates version bumping, CHANGELOG generation, PyPI publication, container builds,
+#   and GitHub Release creation using python-semantic-release (PSR). Analyzes Conventional Commits
+#   since last release, determines next version, updates pyproject.toml and CHANGELOG.md, creates
+#   a tag, builds sdist+wheel, publishes to TestPyPI then PyPI, builds/publishes a container to
+#   GitHub Container Registry, and creates a GitHub Release with changelog notes.
+#
+# Triggers:
+#   - push: ONLY on push to main branch (different from other workflows that run on all branches)
+#   - pull_request: Explicitly disabled via branches-ignore: ["**"] (only runs on main push)
+#   - workflow_dispatch: Allows manual trigger for ad-hoc releases
+#
+# Concurrency:
+#   - Scoped to workflow + branch name
+#   - Never cancels in-progress runs (cancel-in-progress: false) to preserve release sequence
+#
+# Permissions:
+#   - contents: read (default for most jobs)
+#   - contents: write (version job: creates commits/tags; github-release job: creates release)
+#   - id-token: write (publish-test-pypi, publish-pypi, build-container: trusted publishing)
+#   - packages: write (build-container: push to GitHub Container Registry)
+#   - security-events: write (build-container: upload Trivy SARIF results)
+#
+# Jobs (6-step pipeline):
+#   1. version: Analyzes commits, bumps version, updates CHANGELOG, creates tag (PSR)
+#   2. build: Builds sdist+wheel, verifies version matches tag, uploads dist/ artifact
+#   3. publish-test-pypi: Publishes to TestPyPI (validation step before prod)
+#   4. publish-pypi: Publishes to PyPI (production release)
+#   5. build-container: Builds multi-arch container, scans with Trivy, publishes to ghcr.io
+#   6. github-release: Creates GitHub Release with changelog notes and dist/ attachments
+#
+# Version Job:
+#   - Skips on release commits (if: !startsWith(..., 'chore(release):')) to avoid loops
+#   - Uses RELEASE_TOKEN (PAT with bypass-branch-protection) or GITHUB_TOKEN fallback
+#   - Runs semantic-release version --changelog to analyze, bump, commit, tag
+#   - Outputs: released (true/false), version (X.Y.Z), tag (vX.Y.Z)
+#   - Version is stored in pyproject.toml:project.version (managed by PSR via version_toml)
+#   - CHANGELOG.md is updated with new entries (managed by PSR)
+#   - Creates commit: "chore(release): X.Y.Z" and tag "vX.Y.Z"
+#   - Pushes commit and tag to main (triggers GitHub workflows again, but skipped by if filter)
+#
+# Build Job:
+#   - Runs ONLY if version.outputs.released == 'true' (gates all downstream jobs)
+#   - Checks out the exact tag created by version job (ref: needs.version.outputs.tag)
+#   - Builds sdist+wheel with python -m build (uses hatchling backend)
+#   - Verifies built version matches tag version (parses wheel filename, fails on mismatch)
+#   - Uploads dist/ artifact (30-day retention, consumed by publish + github-release jobs)
+#
+# Publish Jobs:
+#   - publish-test-pypi: Publishes to test.pypi.org (environment: testpypi, trusted publishing)
+#   - publish-pypi: Publishes to pypi.org (environment: pypi, trusted publishing, needs test-pypi)
+#   - Both use PyPA's gh-action-pypi-publish with id-token write (no password/token required)
+#
+# Container Job:
+#   - Builds multi-arch container (linux/amd64, linux/arm64) with Docker Buildx
+#   - Tags: latest (main only), semver (X.Y.Z, X.Y, X), branch-sha (traceability)
+#   - Publishes to ghcr.io/bdperkin/gamesheet-sdk-py
+#   - Runs Trivy vulnerability scanner, uploads SARIF to GitHub Security
+#   - Generates SBOM (SPDX JSON), uploads as artifact (90-day retention)
+#   - Uses GitHub Container Registry (ghcr.io) with GITHUB_TOKEN (no separate PAT)
+#
+# GitHub Release Job:
+#   - Checks out main branch (not tag) to access latest CHANGELOG.md
+#   - Extracts changelog section for this version (supports both "## vX.Y.Z" and "## [X.Y.Z]")
+#   - Creates GitHub Release with extracted notes or falls back to --generate-notes
+#   - Attaches dist/ artifacts (sdist + wheel) to the release
+#   - If release already exists, uploads assets with --clobber (idempotent retry logic)
+#
+# Versioning Strategy:
+#   - Pre-1.0.0: Only patch bumps (commit_parser_options.minor_tags = []) for alpha stability
+#   - Post-1.0.0: Standard semver (feat: → minor, fix: → patch, BREAKING CHANGE: → major)
+#   - Version source: pyproject.toml:project.version (single source of truth)
+#   - Conventional Commits format enforced by conventional-pre-commit hook (all commits)
+#
+# Outputs:
+#   - pyproject.toml (version bumped)
+#   - CHANGELOG.md (new entries added)
+#   - Git tag: vX.Y.Z (pushed to main)
+#   - PyPI package: https://pypi.org/project/gamesheet-sdk-py/X.Y.Z
+#   - TestPyPI package: https://test.pypi.org/project/gamesheet-sdk-py/X.Y.Z
+#   - Container image: ghcr.io/bdperkin/gamesheet-sdk-py:X.Y.Z (and :latest, :X.Y, :X)
+#   - GitHub Release: https://github.com/bdperkin/gamesheet-sdk-py/releases/tag/vX.Y.Z
+#   - SBOM artifact (uploaded to GitHub Actions, 90-day retention)
+#
+# Related Workflows:
+#   - docs.yml (triggered by main push after release commit, rebuilds docs with new version)
+#   - codecov.yml (triggered by main push after release commit, uploads coverage for new version)
+#
+# Configuration Files:
+#   - pyproject.toml ([tool.semantic_release], [project.version], [build-system])
+#   - CHANGELOG.md (managed by PSR, extracted by github-release job)
+#   - Dockerfile (container build context)
+#   - .trivyignore (suppressed container base image CVEs)
+#
+# Maintenance Notes:
+#   - RELEASE_TOKEN (PAT) is optional; falls back to GITHUB_TOKEN if not configured
+#   - RELEASE_TOKEN must have bypass-branch-protection permissions to push to protected main
+#   - Trusted publishing is configured on PyPI/TestPyPI (no manual token setup required)
+#   - Container tags follow OCI best practices (semver + latest + traceability)
+#   - SBOM generation uses Anchore sbom-action (SPDX JSON format)
+#   - Trivy scans use .trivyignore to suppress unfixable base image CVEs (documented in commits)
+#   - Keep semantic-release config in sync with CLAUDE.md's versioning strategy docs
 name: Version and Release
 
 on:

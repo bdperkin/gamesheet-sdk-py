@@ -1,4 +1,33 @@
 ---
+# ==============================================================================
+# pre-commit
+# ==============================================================================
+# Purpose: Runs the full pre-commit hook suite in CI to validate code quality,
+# formatting, linting, type checking, and security across all files. Mirrors
+# the local pre-commit environment to catch any issues before merge.
+#
+# Triggers:
+#   - push to main branch (skip if only CHANGELOG/version changes)
+#   - pull_request (opened, reopened, synchronize)
+#   - Concurrency: Cancels previous runs for the same branch
+#
+# Jobs: 1 job running pre-commit across all configured hooks
+#   - Runs: pre-commit run --all-files
+#   - Python versions: 3.11, 3.12, 3.13, 3.14 (all available)
+#   - Executes all hooks from .pre-commit-config.yaml except:
+#     - no-commit-to-branch (skipped via SKIP env var — already validated locally)
+#
+# Special Notes:
+#   - no-commit-to-branch is skipped in CI because GitHub Actions checks out
+#     main by name on push events, so HEAD is on main and the hook would always
+#     fail. The guard already ran locally on pre-commit/pre-push.
+#   - Three hooks are skipped on pre-commit.ci but run here:
+#     - pyright (dependencies exceed 250 MiB tier limit on pre-commit.ci)
+#     - flake8 (flake8-plugins pulls fastapi, flake8-django, etc., exceeding limit)
+#     - pyroma (requires python -m venv, which fails on pre-commit.ci's Python build)
+#
+# This workflow ensures all quality gates pass before code reaches main.
+# ==============================================================================
 name: pre-commit
 
 on:

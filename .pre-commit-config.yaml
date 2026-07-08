@@ -2,14 +2,20 @@
 # ==============================================================================
 # Pre-Commit Hook Configuration
 # ==============================================================================
-# Fast, local checks that run automatically before every git commit command
-# See https://pre-commit.com for details
+# Fast, local checks that run automatically before every git commit command.
+# See https://pre-commit.com for documentation and hook configuration options.
+#
+# This configuration includes 72 hooks across 40 repositories, organized into
+# 11 categories: meta checks, commit messages, file sanity, configuration
+# linters, documentation tools, code style, dead code detection, docstring
+# tools, static analysis, security/metrics, and type checking.
+# ==============================================================================
 
 # ==============================================================================
 # Pre-commit.ci Service Configuration
 # ==============================================================================
 # Configuration for https://pre-commit.ci
-# Automates pre-commit hook version updates via GitHub integration
+# Automates pre-commit hook version updates via GitHub integration.
 ci:
   # Python version for pre-commit.ci service
   # Using 3.11 (our minimum supported version) maximizes tool compatibility
@@ -28,21 +34,21 @@ ci:
   # - editorconfig-checker: System binary dependency issues
   # - mdformat: Size constraints on pre-commit.ci
   # - pyroma: Requires `python -m venv` (unavailable on pre-commit.ci)
-  # - deptry/yesqa/flake8/pylint/pyrefly-check: Combined deps exceed 250 MiB tier limit
+  # - deptry/yesqa/flake8/pylint/pyrefly: Combined deps exceed 250 MiB limit
   # - pyright: Dependencies don't fit pre-commit.ci's tier
   # - mypy: Large dependency footprint
   skip:
-    - editorconfig-checker # Check .editorconfig rules
-    - editorconfig-checker-system # Check .editorconfig rules
-    - mdformat # mdformat
-    - pyroma # Check package with Pyroma
-    - deptry # deptry
-    - yesqa # Strip unnecessary `# noqa`s
-    - flake8 # flake8
-    - pylint # pylint
-    - pyrefly-check # pyrefly check
-    - pyright # pyright
-    - mypy # mypy
+    - editorconfig-checker
+    - editorconfig-checker-system
+    - mdformat
+    - pyroma
+    - deptry
+    - yesqa
+    - flake8
+    - pylint
+    - pyrefly-check
+    - pyright
+    - mypy
 
   # Require all hooks to pass before autoupdate.
   # Empty string = create PR for review (recommended)
@@ -75,326 +81,308 @@ fail_fast: true
 # the single source of truth.
 
 repos:
-  # ------------------------------------------------------------------------------
-  # Recommended meta hooks
-  # ------------------------------------------------------------------------------
+  # ----------------------------------------------------------------------------
+  # Meta Hooks (pre-commit validation)
+  # ----------------------------------------------------------------------------
   - repo: meta
     hooks:
-      - id: check-hooks-apply # Verify all hooks apply to at least one file
-      - id: check-useless-excludes # Verify excludes apply to at least one file
-      - id: identity # Print filenames (debugging hook)
+      - id: check-hooks-apply
+      - id: check-useless-excludes
+      - id: identity
 
-  # ------------------------------------------------------------------------------
-  ## Commit Message Linting (Conventional Commits)
-  # ------------------------------------------------------------------------------
+  # ----------------------------------------------------------------------------
+  # Commit Message Linting (Conventional Commits)
+  # ----------------------------------------------------------------------------
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.4.0
     hooks:
-      - id: conventional-pre-commit # Enforce Conventional Commits format
+      - id: conventional-pre-commit
         stages: [commit-msg]
         args: []
 
-  # ------------------------------------------------------------------------------
-  ## Out-of-the-box Global File Sanity Checks
-  # ------------------------------------------------------------------------------
-
+  # ----------------------------------------------------------------------------
+  # Global File Sanity Checks
+  # ----------------------------------------------------------------------------
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
-      - id: check-added-large-files # check for added large files
-      - id: check-ast # check python ast
-      - id: check-builtin-literals # check builtin type constructor use
-      - id: check-case-conflict # check for case conflicts
-      - id: check-docstring-first # check docstring is first (deprecated)
-      - id: check-illegal-windows-names # check illegal windows names
-      - id: check-json # check json
-      - id: check-shebang-scripts-are-executable # check that scripts with shebangs are executable
-      - id: pretty-format-json # pretty format json
+      - id: check-added-large-files
+      - id: check-ast
+      - id: check-builtin-literals
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: check-illegal-windows-names
+      - id: check-json
+      - id: check-shebang-scripts-are-executable
+      - id: pretty-format-json
         args: ["--autofix", "--no-sort-keys"]
-      - id: check-merge-conflict # check for merge conflicts
-      - id: check-toml # check toml
-      - id: check-vcs-permalinks # check vcs permalinks
-      - id: check-yaml # check yaml
-      - id: debug-statements # debug statements (python)
-      - id: destroyed-symlinks # detect destroyed symlinks
-      - id: detect-private-key # detect private key
-      - id: end-of-file-fixer # fix end of files
-      - id: fix-byte-order-marker # fix utf-8 byte order marker
-      - id: forbid-submodules # forbid submodules
-      - id: mixed-line-ending # mixed line ending
-      - id: name-tests-test # python tests naming
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-vcs-permalinks
+      - id: check-yaml
+      - id: debug-statements
+      - id: destroyed-symlinks
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: forbid-submodules
+      - id: mixed-line-ending
+      - id: name-tests-test
         args: ["--pytest-test-first"]
         exclude: ^tests/(cli|fixtures|helpers)/(cli|constants|endpoints|mocks|payloads|roster_helpers)\.py$
-      - id: no-commit-to-branch # don't commit to branch
-      - id: trailing-whitespace # trim trailing whitespace
+      - id: no-commit-to-branch
+      - id: trailing-whitespace
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
-      - id: python-check-blanket-noqa # check blanket noqa
-      - id: python-check-blanket-type-ignore # check blanket type ignore
-      - id: python-check-mock-methods # check for not-real mock methods
-      - id: python-no-eval # check for eval()
-      - id: python-no-log-warn # use logger.warning(
-      - id: python-use-type-annotations # type annotations not comments
-      - id: text-unicode-replacement-char # no unicode replacement chars
+      - id: python-check-blanket-noqa
+      - id: python-check-blanket-type-ignore
+      - id: python-check-mock-methods
+      - id: python-no-eval
+      - id: python-no-log-warn
+      - id: python-use-type-annotations
+      - id: text-unicode-replacement-char
 
-  # ------------------------------------------------------------------------------
-  ### Configuration File Linters & Formatters
-  # ------------------------------------------------------------------------------
-
+  # ----------------------------------------------------------------------------
+  # Configuration File Linters & Formatters
+  # ----------------------------------------------------------------------------
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
     rev: 3.6.1
     hooks:
-      - id: editorconfig-checker # Check .editorconfig rules
-      - id: editorconfig-checker-system # Check .editorconfig rules
+      - id: editorconfig-checker
+      - id: editorconfig-checker-system
         language: python
 
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.38.0
     hooks:
-      - id: yamllint # yamllint
+      - id: yamllint
         args: ["--config-data", "relaxed"]
-
-  # ------------------------------------------------------------------------------
-  ### Documentation & Markdown Tools
-  # ------------------------------------------------------------------------------
-
-  - repo: https://github.com/jackdewinter/pymarkdown
-    rev: v0.9.38
-    hooks:
-      - id: pymarkdown # PyMarkdown
-
-  - repo: https://github.com/executablebooks/mdformat
-    rev: 1.0.0
-    hooks:
-      - id: mdformat # mdformat
-        language_version: python3.13
-        additional_dependencies:
-          - gamesheet-sdk-py[mdformat]
-
-  # ------------------------------------------------------------------------------
-  ### Configuration File Linters & Formatters
-  # ------------------------------------------------------------------------------
 
   - repo: https://github.com/tox-dev/tox-ini-fmt
     rev: 1.7.1
     hooks:
-      - id: tox-ini-fmt # tox-ini-fmt
+      - id: tox-ini-fmt
 
   - repo: https://github.com/tox-dev/pyproject-fmt
     rev: v2.25.1
     hooks:
-      - id: pyproject-fmt # pyproject-fmt
+      - id: pyproject-fmt
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.25
     hooks:
-      - id: validate-pyproject # Validate pyproject.toml
+      - id: validate-pyproject
 
   - repo: https://github.com/regebro/pyroma
     rev: 5.1b1
     hooks:
-      - id: pyroma # Check package with Pyroma
+      - id: pyroma
 
-  # ------------------------------------------------------------------------------
-  ### Code Style & Formatting (Automated Fixers)
-  # ------------------------------------------------------------------------------
+  # ----------------------------------------------------------------------------
+  # Documentation & Markdown Tools
+  # ----------------------------------------------------------------------------
+  - repo: https://github.com/jackdewinter/pymarkdown
+    rev: v0.9.38
+    hooks:
+      - id: pymarkdown
 
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 1.0.0
+    hooks:
+      - id: mdformat
+        language_version: python3.13
+        additional_dependencies:
+          - gamesheet-sdk-py[mdformat]
+
+  # ----------------------------------------------------------------------------
+  # Code Style & Formatting (Automated Fixers)
+  # ----------------------------------------------------------------------------
   - repo: https://github.com/asottile/add-trailing-comma
     rev: v4.0.0
     hooks:
-      - id: add-trailing-comma # Add trailing commas
+      - id: add-trailing-comma
 
   - repo: https://github.com/marcogorelli/absolufy-imports
     rev: v0.3.1
     hooks:
-      - id: absolufy-imports # absolufy-imports
+      - id: absolufy-imports
 
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.21.2
     hooks:
-      - id: pyupgrade # pyupgrade
+      - id: pyupgrade
         args: ["--py311-plus"]
 
   - repo: https://github.com/pycqa/isort
     rev: 9.0.0a3
     hooks:
-      - id: isort # isort
+      - id: isort
         args: ["--profile=black"]
 
   - repo: https://github.com/bwhmather/ssort
     rev: 0.16.0
     hooks:
-      - id: ssort # ssort
+      - id: ssort
 
   - repo: https://github.com/hhatto/autopep8
     rev: v2.3.2
     hooks:
-      - id: autopep8 # autopep8
+      - id: autopep8
 
   - repo: https://github.com/psf/black-pre-commit-mirror
     rev: 26.5.1
     hooks:
-      - id: black # black
+      - id: black
         args: ["--line-length=110"]
-      - id: black-jupyter # black-jupyter
+      - id: black-jupyter
 
-  # ------------------------------------------------------------------------------
-  ### Code Cleaners & Dead Code Detectors
-  # ------------------------------------------------------------------------------
-
+  # ----------------------------------------------------------------------------
+  # Code Cleaners & Dead Code Detectors
+  # ----------------------------------------------------------------------------
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
     hooks:
-      - id: detect-secrets # detect-secrets
+      - id: detect-secrets
         types: [python]
 
   - repo: https://github.com/hakancelikdev/unimport
     rev: 1.4.0
     hooks:
-      - id: unimport # unimport
+      - id: unimport
         language_version: python3.11
 
   - repo: https://github.com/pycqa/autoflake
     rev: v2.3.3
     hooks:
-      - id: autoflake # autoflake
+      - id: autoflake
 
   - repo: https://github.com/jendrikseipp/vulture
     rev: v2.16
     hooks:
-      - id: vulture # vulture
+      - id: vulture
         args: ["."]
 
   - repo: https://github.com/osprey-oss/deptry
     rev: 0.25.1
     hooks:
-      - id: deptry # deptry
+      - id: deptry
         language: python
         additional_dependencies:
-          - gamesheet-sdk-py[deptry]
+          - gamesheet-sdk-py[deptry,pytest,type-stubs]
 
-  # ------------------------------------------------------------------------------
-  ### Documentation & Docstring Tools
-  # ------------------------------------------------------------------------------
-
+  # ----------------------------------------------------------------------------
+  # Documentation & Docstring Tools
+  # ----------------------------------------------------------------------------
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.2
     hooks:
-      - id: codespell # codespell
+      - id: codespell
 
   - repo: https://github.com/asottile/blacken-docs
     rev: 1.20.0
     hooks:
-      - id: blacken-docs # blacken-docs
+      - id: blacken-docs
 
   - repo: https://github.com/pycqa/docformatter
     rev: v1.7.8
     hooks:
-      - id: docformatter # docformatter
+      - id: docformatter
 
   - repo: https://github.com/econchick/interrogate
     rev: 1.7.0
     hooks:
-      - id: interrogate # interrogate
+      - id: interrogate
         pass_filenames: false
 
   - repo: https://github.com/pycqa/pydocstyle
     rev: 6.3.0
     hooks:
-      - id: pydocstyle # pydocstyle
+      - id: pydocstyle
 
-  # ------------------------------------------------------------------------------
-  ### Code Quality Linters & Static Analysis
-  # ------------------------------------------------------------------------------
-
+  # ----------------------------------------------------------------------------
+  # Code Quality Linters & Static Analysis
+  # ----------------------------------------------------------------------------
   - repo: https://github.com/princetonuniversity/blocklint
     rev: v0.3.0
     hooks:
-      - id: blocklint # blocklint
+      - id: blocklint
 
   - repo: https://github.com/asottile/yesqa
     rev: v1.5.0
     hooks:
-      - id: yesqa # yesqa
+      - id: yesqa
         additional_dependencies:
           - gamesheet-sdk-py[flake8]
 
   - repo: https://github.com/pycqa/flake8
     rev: 7.3.0
     hooks:
-      - id: flake8 # flake8
+      - id: flake8
         additional_dependencies:
           - gamesheet-sdk-py[flake8]
 
   - repo: https://github.com/dosisod/refurb
     rev: v2.3.1
     hooks:
-      - id: refurb # refurb
+      - id: refurb
         additional_dependencies:
           - gamesheet-sdk-py[refurb]
 
   - repo: https://github.com/pylint-dev/pylint
     rev: v4.0.6
     hooks:
-      - id: pylint # pylint
+      - id: pylint
         args: ["--reports", "y"]
         additional_dependencies:
-          - gamesheet-sdk-py[pylint]
+          - gamesheet-sdk-py[pylint,pytest]
 
   - repo: https://github.com/facebook/pyrefly-pre-commit
     rev: 1.1.1
     hooks:
-      - id: pyrefly-check # pyrefly check
+      - id: pyrefly-check
         additional_dependencies:
-          - gamesheet-sdk-py[pyrefly]
+          - gamesheet-sdk-py[pyrefly,pytest]
 
-  # ------------------------------------------------------------------------------
-  ### Security, Metrics & Complexity
-  # ------------------------------------------------------------------------------
-
+  # ----------------------------------------------------------------------------
+  # Security, Metrics & Complexity
+  # ----------------------------------------------------------------------------
   - repo: https://github.com/pycqa/bandit
     rev: 1.9.4
     hooks:
-      - id: bandit # bandit
-        args: ["--configfile", "pyproject.toml", "--recursive"] # Config from [tool.bandit]
+      - id: bandit
+        args: ["--configfile", "pyproject.toml", "--recursive"]
 
   - repo: https://github.com/rubik/xenon
     rev: v0.9.3
     hooks:
-      - id: xenon # Xenon
-        # TODO: Enable strict gates once functions are refactored to grade A
-        # args: ["--max-absolute=A", "--max-modules=A", "--max-average=B", "src/"]
-        # pass_filenames: false
+      - id: xenon
+        args: ["--max-absolute=C", "--max-modules=B", "--max-average=A", "src/"]
+        pass_filenames: false
 
-  # ------------------------------------------------------------------------------
-  ### Type Checkers
-  # ------------------------------------------------------------------------------
-  # NOTE: mypy uses mirrors-mypy (not a local hook) because pre-commit/mirrors-mypy
-  # tracks upstream mypy releases. pylint was converted from local to use the
-  # upstream repo to avoid duplicating runtime deps in additional_dependencies.
-
+  # ----------------------------------------------------------------------------
+  # Type Checkers
+  # ----------------------------------------------------------------------------
   - repo: https://github.com/robertcraigie/pyright-python
     rev: v1.1.411
     hooks:
-      - id: pyright # pyright
+      - id: pyright
         additional_dependencies:
-          - gamesheet-sdk-py[pyright]
+          - gamesheet-sdk-py[pyright,pytest]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v2.1.0
     hooks:
-      - id: mypy # mypy
+      - id: mypy
         args: ["--strict"]
         additional_dependencies:
-          - gamesheet-sdk-py[mypy]
+          - gamesheet-sdk-py[mypy,pytest,type-stubs]
 
-  # ------------------------------------------------------------------------------
-  ## Out-of-the-box Pre-Commit Hook Updates
-  # ------------------------------------------------------------------------------
-
+  # ----------------------------------------------------------------------------
+  # Pre-Commit Hook Sync
+  # ----------------------------------------------------------------------------
   - repo: https://github.com/pre-commit/sync-pre-commit-deps
     rev: v0.0.4
     hooks:
-      - id: sync-pre-commit-deps # sync-pre-commit-deps
+      - id: sync-pre-commit-deps

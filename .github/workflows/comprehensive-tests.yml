@@ -1,4 +1,74 @@
 ---
+# Comprehensive Multi-OS Test Suite with Codecov Upload
+#
+# Purpose:
+#   Runs the full pytest test suite across all supported operating systems (Ubuntu, macOS, Windows)
+#   and all supported Python versions (3.11-3.14) on a nightly schedule. Uploads coverage to Codecov
+#   with nightly, OS, and per-Python-version flags for cross-platform coverage tracking.
+#
+# Triggers:
+#   - schedule: Runs daily at 2:00 AM UTC (nightly builds)
+#   - workflow_dispatch: Allows manual trigger for ad-hoc comprehensive testing
+#   - push: Explicitly disabled via branches-ignore: ["**"] (only runs on schedule/manual)
+#   - pull_request: Explicitly disabled via branches-ignore: ["**"] (only runs on schedule/manual)
+#
+# Concurrency:
+#   - Scoped to workflow + branch name
+#   - Cancels in-progress runs unconditionally (always true)
+#
+# Permissions:
+#   - contents: read (required to checkout repository)
+#
+# Matrix Strategy:
+#   - Operating systems: ubuntu-latest, macos-latest, windows-latest
+#   - Python versions: 3.11, 3.12, 3.13, 3.14
+#   - Total jobs: 12 (3 OS × 4 Python versions)
+#   - fail-fast: false (continue running all jobs even if one fails)
+#   - Each job uploads coverage THREE times with different flags:
+#     1. nightly (aggregate flag for all nightly builds)
+#     2. ${matrix.os} (per-OS flag, e.g., ubuntu-latest, macos-latest, windows-latest)
+#     3. py${PYTHON_VERSION} (per-Python-version flag, e.g., py3-11, py3-12, computed dynamically)
+#
+# Architecture:
+#   - Minimal install ([pytest] extras only, no full [all] to keep CI fast)
+#   - Caches .pytest_cache and .mypy_cache for faster runs
+#   - Runs full pytest suite with coverage: pytest -v --cov --cov-report=xml --cov-report=term
+#   - Uploads coverage.xml THREE times (once per flag) because Codecov requires one flag per upload
+#     to populate the nightly aggregate view, the per-OS breakdown, and the per-Python-version view
+#   - Uploads only on success (if: success()) to avoid polluting Codecov with failed-run artifacts
+#   - Computes per-Python-version flag dynamically via shell script (py3-11, py3-12, etc.)
+#   - Retry logic: On first failure, waits 60s and re-runs failed jobs via reRunWorkflowFailedJobs API
+#
+# Codecov Flags:
+#   - nightly: Aggregate coverage for all nightly builds (cross-platform baseline)
+#   - ubuntu-latest, macos-latest, windows-latest: Per-OS coverage (platform-specific trends)
+#   - py3-11, py3-12, py3-13, py3-14: Per-version coverage (Python release trends)
+#
+# Retry Strategy:
+#   - The retry-on-failure job runs ONLY if comprehensive-test fails
+#   - On first attempt (github.run_attempt == 1), waits 60s and triggers automatic retry
+#   - On second attempt (retry also failed), outputs should_create_issue: true for alerting
+#   - Uses actions/github-script to invoke reRunWorkflowFailedJobs API
+#
+# Outputs:
+#   - coverage.xml (uploaded to Codecov with nightly, OS, and Python-version flags)
+#   - Codecov trends for cross-platform coverage (visible in Codecov dashboard)
+#   - should_create_issue output from retry-on-failure job (can be consumed by issue-creation job)
+#
+# Related Workflows:
+#   - codecov.yml (per-PR test suite with Codecov uploads, Ubuntu-only)
+#   - tests.yml (CI matrix without Codecov uploads, runs tool-per-job)
+#
+# Configuration Files:
+#   - pyproject.toml ([tool.coverage.run], [tool.coverage.report], [tool.pytest.ini_options])
+#   - .codecov.yml (coverage targets, flaky-test alert thresholds, patch/project gates)
+#
+# Maintenance Notes:
+#   - Nightly schedule avoids overloading CI on every PR (comprehensive matrix is expensive)
+#   - Codecov uploads use verbose: false (less noisy than codecov.yml's verbose: true)
+#   - The py-flag computation uses shell expansion to convert "3.11" -> "py3-11" (tr '.' '-')
+#   - Keep the matrix in sync with codecov.yml's Python version matrix
+#   - Retry logic adds resilience against flaky external dependencies (network, package mirrors)
 name: Comprehensive Testing
 
 on:

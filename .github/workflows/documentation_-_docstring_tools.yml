@@ -1,4 +1,27 @@
 ---
+# ==============================================================================
+# Documentation & Docstring Tools
+# ==============================================================================
+# Purpose: Validates docstring quality, spelling, and documentation formatting
+# across code and embedded code blocks. Enforces documentation completeness
+# standards and checks for common spelling/grammar issues.
+#
+# Triggers:
+#   - push to main branch (skip if only CHANGELOG/version changes)
+#   - pull_request (opened, reopened, synchronize)
+#   - Concurrency: Cancels previous runs for the same branch
+#
+# Jobs: 7 tools × 4 Python versions = 28 total runs
+#   - codespell: Spell checker for code, comments, and documentation
+#   - blacken-docs: Formats Python code blocks in documentation (reST, Markdown)
+#   - docformatter: Formats docstrings to PEP 257 standard
+#   - interrogate: Checks docstring coverage percentage
+#   - pydocstyle: Enforces PEP 257 docstring conventions
+#   - sphinx-lint: Lints Sphinx documentation source files
+#   - docconvert: Converts docstring styles (available in CI, not pre-commit)
+#
+# Each job runs: tox -e [tool]
+# ==============================================================================
 name: Documentation & Docstring Tools
 
 on:

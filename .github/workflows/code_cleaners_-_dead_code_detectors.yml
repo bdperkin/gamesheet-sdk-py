@@ -1,4 +1,27 @@
 ---
+# ==============================================================================
+# Code Cleaners & Dead Code Detectors
+# ==============================================================================
+# Purpose: Identifies unused code, unreferenced imports, and unnecessary
+# dependencies to keep the codebase lean and maintainable. Helps prevent
+# accumulation of technical debt from abandoned refactors.
+#
+# Triggers:
+#   - push to main branch (skip if only CHANGELOG/version changes)
+#   - pull_request (opened, reopened, synchronize)
+#   - Concurrency: Cancels previous runs for the same branch
+#
+# Jobs: 4 tools × 3-4 Python versions = 15 total runs
+#   - unimport: Detects unused imports and variables (py3.11-3.13 only)
+#   - autoflake: Removes unused imports, variables, and unnecessary pass statements
+#   - vulture: Finds unused code including functions, classes, variables, and attributes
+#   - deptry: Identifies unused, missing, and transitive dependencies in project metadata
+#
+# These tools run in check mode (non-destructive) in CI. To apply fixes locally,
+# use the 'fix' tox environment or make target which runs autoflake in write mode.
+#
+# Each job runs: tox -e [tool]
+# ==============================================================================
 name: Code Cleaners & Dead Code Detectors
 
 on:

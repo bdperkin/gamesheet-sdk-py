@@ -1,4 +1,55 @@
 ---
+# ╔══════════════════════════════════════════════════════════════════════════════════════════╗
+# ║ GitHub Actions Workflow                                                                  ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Name      │ Workflow Security Linter (zizmor)                                            ║
+# ║ Category  │ Security - GitHub Actions Workflow Security Auditing                         ║
+# ║ Purpose   │ Audit GitHub Actions workflow YAML files for security vulnerabilities,       ║
+# ║           │ misconfigurations, and risky patterns using zizmor security linter           ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Tool      │ zizmor (GitHub Actions workflow security auditor, installed via pipx)        ║
+# ║ Trigger   │ push: branches=[main], paths=[".github/workflows/**"]                        ║
+# ║           │ pull_request: branches=[main], paths=[".github/workflows/**"]                ║
+# ║ Runs on   │ ubuntu-latest                                                                ║
+# ║ Python    │ 3.11                                                                         ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Permissions                                                                              ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • contents: read         │ Checkout repository                                           ║
+# ║ • security-events: write │ Upload SARIF results to GitHub Security tab                   ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Key Features                                                                             ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • Audits all workflow YAML files in .github/workflows/ for security issues:              ║
+# ║   - Script injection vulnerabilities (untrusted input in run: blocks)                    ║
+# ║   - Excessive permissions (overly broad GITHUB_TOKEN scopes)                             ║
+# ║   - Unpinned action versions (should use SHA256 pins, not floating tags)                 ║
+# ║   - Dangerous workflow patterns (e.g., pull_request_target with code checkout)           ║
+# ║   - Secret exposure risks                                                                ║
+# ║ • Three-pass scan strategy:                                                              ║
+# ║   1. SARIF generation (--pedantic, all findings) uploaded to GitHub Security             ║
+# ║   2. Human-readable output (--pedantic, all findings) in logs (continue-on-error)        ║
+# ║   3. HIGH-severity gate (FAILS workflow if high-severity issues found)                   ║
+# ║ • --pedantic flag enables stricter checks beyond default rule set                        ║
+# ║ • --min-severity high ensures workflow only fails on critical issues                     ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Output Artifacts                                                                         ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • zizmor-results.sarif │ SARIF-format audit results (all findings)                       ║
+# ║ • GitHub Security tab  │ Uploaded SARIF findings (category: zizmor)                      ║
+# ║ • Artifact retention   │ 30 days (zizmor-results artifact)                               ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Notes                                                                                    ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • zizmor installed via pipx for isolated tool environment                                ║
+# ║ • Triggers only on workflow file changes (paths filter: .github/workflows/**)            ║
+# ║ • Three-step scan: (1) SARIF for Security tab, (2) logs for visibility,                  ║
+# ║   (3) fail on HIGH severity (allows MEDIUM/LOW/INFORMATIONAL without blocking)           ║
+# ║ • SARIF upload runs if: always() to report findings even on scan failures                ║
+# ║ • Complements actionlint (zizmor focuses on security, actionlint on syntax/correctness)  ║
+# ║ • Exit code behavior: 0=no issues, 13+=HIGH severity found (fails step 3)                ║
+# ╚══════════════════════════════════════════════════════════════════════════════════════════╝
+
 name: Workflow Security Linter (zizmor)
 
 on:

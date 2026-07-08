@@ -1,4 +1,32 @@
 ---
+# ==============================================================================
+# Code Style & Formatting (Automated Fixers)
+# ==============================================================================
+# Purpose: Enforces consistent code style, formatting, and modern Python syntax
+# across the codebase. All tools in this workflow can automatically fix issues,
+# ensuring uniform appearance and reducing style bikeshedding.
+#
+# Triggers:
+#   - push to main branch (skip if only CHANGELOG/version changes)
+#   - pull_request (opened, reopened, synchronize)
+#   - Concurrency: Cancels previous runs for the same branch
+#
+# Jobs: 8 tools × 4 Python versions = 32 total runs
+#   - add-trailing-comma: Enforces trailing commas in multi-line collections
+#   - absolufy-imports: Converts relative imports to absolute (src/ layout)
+#   - pyupgrade: Modernizes syntax for Python 3.11+ (--py311-plus)
+#   - isort: Sorts and organizes imports (profile = "black" for compatibility)
+#   - ssort: Sorts class members and top-level definitions intelligently
+#   - autopep8: Automatically fixes PEP 8 style violations
+#   - black: Opinionated formatter (line-length 88, the uncompromising code formatter)
+#
+# Tools run in check mode in CI. To apply fixes locally, use:
+#   - make fix (runs isort, black, mdformat in write mode)
+#   - tox -e fix (runs all formatters with --check removed)
+#   - pre-commit run --all-files (auto-fixes then stages changes)
+#
+# Each job runs: tox -e [tool]
+# ==============================================================================
 name: Code Style & Formatting (Automated Fixers)
 
 on:

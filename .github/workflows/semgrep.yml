@@ -1,4 +1,53 @@
 ---
+# ╔══════════════════════════════════════════════════════════════════════════════════════════╗
+# ║ GitHub Actions Workflow                                                                  ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Name      │ Semgrep SAST                                                                 ║
+# ║ Category  │ Security - Static Application Security Testing (SAST)                        ║
+# ║ Purpose   │ Run Semgrep security-focused static analysis to detect vulnerabilities,      ║
+# ║           │ insecure patterns, hardcoded secrets, and code smells in Python/Dockerfile   ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Action    │ semgrep/semgrep Docker image (OSS version) run as container                  ║
+# ║ Trigger   │ push: branches=[main] (paths-ignore: CHANGELOG.md, pyproject.toml)          ║
+# ║           │ pull_request: branches=[main] (paths-ignore: CHANGELOG.md, pyproject.toml)  ║
+# ║ Runs on   │ ubuntu-latest (in semgrep/semgrep:1.101.0 Docker container)                 ║
+# ║ Scope     │ Python source code, Dockerfiles, and security-sensitive patterns             ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Permissions                                                                              ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • contents: read         │ Checkout repository with full history                         ║
+# ║ • security-events: write │ Upload SARIF results to GitHub Security tab                   ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Key Features                                                                             ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • Runs Semgrep OSS engine with multiple security-focused rule packs:                     ║
+# ║   - p/security-audit   │ General security vulnerabilities                                ║
+# ║   - p/secrets          │ Hardcoded secrets and credentials                               ║
+# ║   - p/python           │ Python-specific security and best practices                     ║
+# ║   - p/dockerfile       │ Dockerfile security misconfigurations                           ║
+# ║ • Generates SARIF output uploaded to GitHub Security tab                                 ║
+# ║ • Full commit history for accurate analysis (fetch-depth: 0)                             ║
+# ║ • --verbose flag for detailed scan logging                                               ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Environment Variables                                                                    ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • SEMGREP_APP_TOKEN │ Optional token for Semgrep Cloud integration (secret)              ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Output Artifacts                                                                         ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • semgrep-results.sarif │ SARIF-format scan results                                      ║
+# ║ • GitHub Security tab   │ Uploaded SARIF findings (category: semgrep)                    ║
+# ║ • Artifact retention    │ 30 days (semgrep-sarif artifact)                               ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Notes                                                                                    ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • Runs in Docker container for isolated, reproducible scans                              ║
+# ║ • Full history fetch required for accurate incremental analysis (fetch-depth: 0)         ║
+# ║ • SARIF upload runs with if: always() to report findings even on scan failures           ║
+# ║ • Complements CodeQL (Semgrep faster, CodeQL more thorough semantic analysis)            ║
+# ║ • SEMGREP_APP_TOKEN optional (enables cloud features but not required for OSS)           ║
+# ╚══════════════════════════════════════════════════════════════════════════════════════════╝
+
 name: Semgrep SAST
 
 on:

@@ -1,36 +1,101 @@
 # ==============================================================================
 # YAML Lint Configuration
 # ==============================================================================
+# Enforces consistent YAML formatting across the project.
+# Used by yamllint (https://yamllint.readthedocs.io/) in pre-commit hooks
+# and CI workflows.
+#
+# This configuration is tuned for GitHub Actions workflows and CI/CD files,
+# which often have long lines and don't require document-start markers.
+# ==============================================================================
 
-# Inherit the base ruleset from the default yamllint configuration[cite: 2]
+# Inherit the base ruleset from the default yamllint configuration
 extends: default
 
 # ------------------------------------------------------------------------------
 # Global Ignored Paths
 # ------------------------------------------------------------------------------
-# Ignore specific directories and files from being linted (e.g., virtual envs)[cite: 2]
+# Directories and patterns to exclude from linting
 ignore: |
   /_build/
   /.local/
   /.pytest_cache/
   /.venv/
+  /node_modules/
 
 # ------------------------------------------------------------------------------
 # Rule Customizations & Overrides
 # ------------------------------------------------------------------------------
 rules:
-  # Line Length: Set a generous limit for long configuration lines or strings[cite: 2]
+  # ----------------------------------------------------------------------------
+  # Line Length
+  # ----------------------------------------------------------------------------
+  # Allow longer lines for GitHub Actions workflows and complex configurations
+  # Default is 80, but CI workflows often have long URLs, paths, and commands
   line-length:
-    max: 240 # Allow up to 240 characters per line before triggering an issue[cite: 2]
-    level: warning # Treat violations as a warning rather than a hard failure[cite: 2]
+    max: 240 # Allow up to 240 characters per line
+    level: warning # Treat violations as warnings, not hard failures
 
-  # Indentation: Enforce strict and consistent spacing standards[cite: 2]
+  # ----------------------------------------------------------------------------
+  # Indentation
+  # ----------------------------------------------------------------------------
+  # Enforce strict and consistent 2-space indentation throughout
   indentation:
-    spaces: 2 # Standardize on 2 spaces for nested blocks[cite: 2]
-    indent-sequences: true # Enforce correct indentation for sequence/list items (-)[cite: 2]
+    spaces: 2 # Standardize on 2 spaces for nested blocks
+    indent-sequences: true # Enforce correct indentation for list items (-)
+    check-multi-line-strings: false # Don't enforce indentation in multi-line strings
 
-  # Document Start: Disable the mandate for '---' at the top of every file[cite: 2]
+  # ----------------------------------------------------------------------------
+  # Document Start
+  # ----------------------------------------------------------------------------
+  # Disable the requirement for '---' at the top of every YAML file
+  # GitHub Actions workflows don't use document-start markers
   document-start: disable
 
-  # Truthy: Disable strict enforcement of boolean values (allows yes/no, true/false)[cite: 2]
-  truthy: disable
+  # ----------------------------------------------------------------------------
+  # Document End
+  # ----------------------------------------------------------------------------
+  # Disable the requirement for '...' at the end of YAML files
+  document-end: disable
+
+  # ----------------------------------------------------------------------------
+  # Truthy Values
+  # ----------------------------------------------------------------------------
+  # Allow flexible boolean representations (yes/no, true/false, on/off)
+  # GitHub Actions uses 'true'/'false', while some tools prefer 'yes'/'no'
+  truthy:
+    allowed-values: ["true", "false", "yes", "no", "on", "off"]
+    check-keys: false # Don't check key names for truthy values
+
+  # ----------------------------------------------------------------------------
+  # Comments
+  # ----------------------------------------------------------------------------
+  # Allow inline comments without requiring a space before them
+  comments:
+    min-spaces-from-content: 1 # Require at least 1 space before inline comment
+
+  # ----------------------------------------------------------------------------
+  # Empty Lines
+  # ----------------------------------------------------------------------------
+  # Allow reasonable flexibility with blank lines
+  empty-lines:
+    max: 2 # Allow up to 2 consecutive blank lines
+
+  # ----------------------------------------------------------------------------
+  # Brackets and Braces
+  # ----------------------------------------------------------------------------
+  # Enforce spacing inside brackets and braces for readability
+  brackets:
+    min-spaces-inside: 0
+    max-spaces-inside: 0
+
+  braces:
+    min-spaces-inside: 0
+    max-spaces-inside: 0
+
+  # ----------------------------------------------------------------------------
+  # Quoted Strings
+  # ----------------------------------------------------------------------------
+  # Don't enforce quoting style (allow both single and double quotes)
+  # Different contexts call for different styles
+  quoted-strings: disable

@@ -6,58 +6,78 @@
 # - Non-root user for runtime security
 # - Health check using CLI --version command
 # - Slim Python base for reduced attack surface
-# - Latest pip/setuptools/wheel to address CVE-2026-24049 and CVE-2026-23949
+# - Playwright Chromium for headless browser automation
+# - Latest pip/setuptools/wheel to address known CVEs
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
 # Stage 1: Builder
 # ------------------------------------------------------------------------------
+# Purpose: Build the wheel distribution in an isolated environment
+# This stage includes build tools that aren't needed at runtime
 FROM python:3.11-slim AS builder
 
-# Set working directory
+# Set working directory for build
 WORKDIR /build
 
-# Install build dependencies
+# Install build dependencies (git needed for setuptools-scm if used)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         build-essential \
         git \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy project files
+# Copy project files needed for build
+# Note: .dockerignore controls what gets excluded
 COPY pyproject.toml README.md LICENSE ./
 COPY src/ src/
 
 # Upgrade pip, setuptools, and wheel to latest versions (security fix)
+# This addresses CVE-2026-24049 and CVE-2026-23949
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
-# Build wheel distribution
+# Build wheel distribution (no editable installs in containers)
 RUN pip install --no-cache-dir build && \
     python -m build --wheel
 
 # ------------------------------------------------------------------------------
 # Stage 2: Runtime
 # ------------------------------------------------------------------------------
+# Purpose: Minimal runtime environment with only what's needed to run the CLI
+# Size-optimized by excluding build tools and dev dependencies
 FROM python:3.11-slim
 
-# Metadata labels
+# ------------------------------------------------------------------------------
+# Metadata (OCI image spec labels)
+# ------------------------------------------------------------------------------
 LABEL org.opencontainers.image.title="gamesheet-sdk-py"
 LABEL org.opencontainers.image.description="Unofficial Python SDK and CLI for the GameSheet Inc. platform"
 LABEL org.opencontainers.image.url="https://github.com/bdperkin/gamesheet-sdk-py"
 LABEL org.opencontainers.image.source="https://github.com/bdperkin/gamesheet-sdk-py"
+LABEL org.opencontainers.image.documentation="https://bdperkin.github.io/gamesheet-sdk-py/"
 LABEL org.opencontainers.image.vendor="bdperkin"
 LABEL org.opencontainers.image.licenses="MIT"
 
-# Set environment variables
+# ------------------------------------------------------------------------------
+# Environment configuration
+# ------------------------------------------------------------------------------
+# PYTHONUNBUFFERED: Force stdout/stderr to be unbuffered (better for logs)
+# PYTHONDONTWRITEBYTECODE: Don't create .pyc files (not needed in container)
+# PIP_NO_CACHE_DIR: Don't cache pip downloads (saves space)
+# PIP_DISABLE_PIP_VERSION_CHECK: Skip pip version check (offline-friendly)
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Install runtime dependencies for Playwright (Chromium)
+# ------------------------------------------------------------------------------
+# Runtime dependencies installation
+# ------------------------------------------------------------------------------
+# Install system libraries required for Playwright Chromium to run headless
+# This list is based on Playwright's official Chromium dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        # Chromium dependencies
+        # Core Chromium dependencies
         libnss3 \
         libnspr4 \
         libatk1.0-0 \
@@ -75,37 +95,58 @@ RUN apt-get update && \
         libcairo2 \
         libasound2 \
         libatspi2.0-0 \
-        # Additional utilities
+        # Certificate trust store for HTTPS
         ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user
+# ------------------------------------------------------------------------------
+# Non-root user setup (security hardening)
+# ------------------------------------------------------------------------------
+# Run the application as a non-root user to limit potential attack surface
+# UID 1000 is a common convention for the first non-system user
 RUN useradd --create-home --shell /bin/bash --uid 1000 gamesheet
 
-# Set working directory
+# Set working directory (owned by root, but readable by all)
 WORKDIR /app
 
-# Copy wheel from builder stage
+# ------------------------------------------------------------------------------
+# Package installation
+# ------------------------------------------------------------------------------
+# Copy the wheel built in the builder stage
 COPY --from=builder /build/dist/*.whl /tmp/
 
-# Upgrade pip, setuptools, and wheel in runtime stage (security fix)
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
-
-# Install the package and Playwright browsers as root (required for system-wide install)
-RUN pip install --no-cache-dir /tmp/*.whl && \
+# Upgrade pip/setuptools/wheel in runtime stage (security fix)
+# Install package and Playwright Chromium browser binary
+# Must run as root for system-wide Playwright installation
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir /tmp/*.whl && \
     rm -f /tmp/*.whl && \
+    # Install Chromium browser binary (headless mode)
     python -m playwright install chromium && \
+    # Install Chromium system dependencies
     python -m playwright install-deps chromium
 
-# Switch to non-root user
+# ------------------------------------------------------------------------------
+# Switch to non-root user for runtime
+# ------------------------------------------------------------------------------
+# From this point on, all operations run as the 'gamesheet' user
 USER gamesheet
 
-# Health check using CLI --version command
+# ------------------------------------------------------------------------------
+# Health check
+# ------------------------------------------------------------------------------
+# Verify the CLI is functional by running --version
+# Interval: check every 30 seconds
+# Timeout: allow 3 seconds for command to complete
+# Start-period: wait 5 seconds before first check
+# Retries: mark unhealthy after 3 consecutive failures
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD gamesheet-sdk-py --version || exit 1
 
-# Set entry point to the CLI
+# ------------------------------------------------------------------------------
+# Entry point and default command
+# ------------------------------------------------------------------------------
+# ENTRYPOINT: Always run the gamesheet-sdk-py CLI
+# CMD: Default to --help (can be overridden at docker run time)
 ENTRYPOINT ["gamesheet-sdk-py"]
-
-# Default command shows help
 CMD ["--help"]

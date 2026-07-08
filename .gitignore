@@ -1,10 +1,29 @@
-# ---- Byte-compiled / cached ----
+# ==============================================================================
+# .gitignore — Git version control exclusions
+# ==============================================================================
+# Prevents build artifacts, caches, secrets, and local files from being tracked.
+# Organized by category for maintainability.
+#
+# Pattern syntax:
+#   - # starts a comment
+#   - ! negates a pattern (include the file)
+#   - / at the end matches directories only
+#   - * matches any string except /
+#   - ** matches any string including /
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Python: Byte-compiled / cached files
+# ------------------------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+*.pyo
 
-# ---- Distribution / packaging ----
+# ------------------------------------------------------------------------------
+# Python: Distribution / packaging
+# ------------------------------------------------------------------------------
 .Python
 build/
 develop-eggs/
@@ -19,43 +38,66 @@ sdist/
 var/
 wheels/
 share/python-wheels/
+pip-wheel-metadata/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
 
-# ---- PyInstaller ----
+# ------------------------------------------------------------------------------
+# Python: PyInstaller
+# ------------------------------------------------------------------------------
 *.manifest
 *.spec
 
-# ---- Installer logs ----
+# ------------------------------------------------------------------------------
+# Python: Installer logs
+# ------------------------------------------------------------------------------
 pip-log.txt
 pip-delete-this-directory.txt
 
-# ---- Unit test / coverage ----
+# ------------------------------------------------------------------------------
+# Testing and coverage
+# ------------------------------------------------------------------------------
+# pytest
+.pytest_cache/
+.hypothesis/
 htmlcov/
-.tox/
-.nox/
+.cache/
+
+# Coverage reports
 .coverage
 .coverage.*
-.cache/
-nosetests.xml
 coverage.xml
 *.cover
 *.py,cover
-.hypothesis/
-.pytest_cache/
 cover/
 
-# ---- Type checkers / linters ----
+# Test results
+nosetests.xml
+test-results/
+
+# Tox
+.tox/
+.nox/
+
+# VCR cassettes (keep these in git for replay testing)
+# tests/cassettes/  # Intentionally tracked
+
+# ------------------------------------------------------------------------------
+# Type checkers and linters
+# ------------------------------------------------------------------------------
 .mypy_cache/
 .dmypy.json
 dmypy.json
 .pyre/
 .pytype/
 .ruff_cache/
+.pyright/
 
-# ---- Virtual environments ----
+# ------------------------------------------------------------------------------
+# Virtual environments
+# ------------------------------------------------------------------------------
 .env
 .envrc
 .venv/
@@ -66,41 +108,108 @@ ENV/
 env.bak/
 venv.bak/
 
-# ---- Tooling: Poetry / Pipenv / pdm / Hatch ----
+# ------------------------------------------------------------------------------
+# Build tools and package managers
+# ------------------------------------------------------------------------------
+# Poetry
 poetry.lock
+
+# Pipenv
 Pipfile.lock
+
+# PDM
 .pdm.toml
 .pdm-python/
 .pdm-build/
+
+# Hatch
 .hatch/
 
-# ---- Jupyter ----
+# ------------------------------------------------------------------------------
+# Jupyter Notebook
+# ------------------------------------------------------------------------------
 .ipynb_checkpoints
 profile_default/
 ipython_config.py
 
-# ---- Playwright (browser binaries handled separately) ----
+# ------------------------------------------------------------------------------
+# Playwright (browser automation)
+# ------------------------------------------------------------------------------
+# Browser binaries are installed via `playwright install`
 .playwright/
 playwright-report/
-test-results/
 
-# ---- IDE / editor ----
+# ------------------------------------------------------------------------------
+# IDEs and editors
+# ------------------------------------------------------------------------------
+# JetBrains (PyCharm, IntelliJ IDEA)
 .idea/
+
+# VS Code
 .vscode/
+
+# Vim / Neovim
 *.swp
 *.swo
 *~
-.DS_Store/
 
-# ---- Sphinx documentation ----
+# Eclipse
+.project
+.pydevproject
+.settings/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ------------------------------------------------------------------------------
+# OS-specific files
+# ------------------------------------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+.directory
+
+# ------------------------------------------------------------------------------
+# Documentation builds (Sphinx)
+# ------------------------------------------------------------------------------
 docs/_build/
+docs/_autosummary/
+docs/reference/_autosummary/
 _autosummary/
 
-# ---- Claude Code session data ----
+# ------------------------------------------------------------------------------
+# Claude Code session data
+# ------------------------------------------------------------------------------
 .claude/
 
-# ---- Local scratch ----
+# ------------------------------------------------------------------------------
+# Local development and scratch files
+# ------------------------------------------------------------------------------
+.local/
 *.log
 *.patch
-.local/
 secrets.toml
+*.bak
+*.tmp
+*.swp
+
+# ------------------------------------------------------------------------------
+# Security and secrets
+# ------------------------------------------------------------------------------
+# Ensure no secrets are committed
+*.pem
+*.key
+*.p12
+*.pfx
+.env.local
+.env.*.local

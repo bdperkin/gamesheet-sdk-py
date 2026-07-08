@@ -1,4 +1,64 @@
 ---
+# Test Suite with Codecov Coverage Upload
+#
+# Purpose:
+#   Runs the pytest test suite across Python 3.11-3.14 on every PR and main push,
+#   uploading coverage.xml and JUnit test results to Codecov for coverage tracking,
+#   Test Analytics (flaky-test detection), and per-Python-version trend analysis.
+#
+# Triggers:
+#   - push: Runs on push to main branch (after PR merge)
+#   - pull_request: Runs on all PR activity targeting main
+#   - Ignores changes to CHANGELOG.md and pyproject.toml (managed by release workflow)
+#
+# Concurrency:
+#   - Scoped to workflow + branch name
+#   - Cancels in-progress runs unconditionally (always true)
+#
+# Permissions:
+#   - contents: read (default, required to checkout repository)
+#
+# Matrix Strategy:
+#   - Python versions: 3.11, 3.12, 3.13, 3.14 (each runs as separate job)
+#   - Each version uploads coverage THREE times with different flags:
+#     1. unittests (aggregate flag across all Python versions)
+#     2. py3-XX (per-Python-version flag, e.g., py3-11, py3-12)
+#     3. JUnit XML (test_results report type for Test Analytics)
+#
+# Architecture:
+#   - Minimal install ([pytest] extras only, no full [all] to keep CI fast)
+#   - Caches .pytest_cache, .mypy_cache, .ruff_cache for faster runs
+#   - Runs pytest with --cov --cov-report=xml --cov-report=term --junitxml=junit-py${PYTHON_VERSION}.xml
+#   - Uploads coverage.xml twice (once with unittests flag, once with py3-XX flag) because
+#     Codecov requires one flag per upload to populate both the aggregate view and the
+#     per-version breakdown
+#   - Uploads JUnit XML separately for Codecov Test Analytics (flaky-test detection,
+#     test performance tracking)
+#   - Sets override_commit to pull_request.head.sha on PR events so Codecov's commit page
+#     shows coverage attributed to the PR head SHA (not the synthesized merge commit)
+#
+# Codecov Flags:
+#   - unittests: Aggregate coverage across all Python versions (project-wide baseline)
+#   - py3-11, py3-12, py3-13, py3-14: Per-version coverage (trend analysis per Python release)
+#
+# Outputs:
+#   - coverage.xml (uploaded to Codecov with unittests and py3-XX flags)
+#   - junit-py${PYTHON_VERSION}.xml (uploaded to Codecov Test Analytics)
+#   - Codecov comment on PRs with coverage diff and trend charts
+#
+# Related Workflows:
+#   - comprehensive-tests.yml (nightly multi-OS test suite, also uploads to Codecov)
+#   - tests.yml (CI matrix without Codecov uploads, runs tool-per-job)
+#
+# Configuration Files:
+#   - pyproject.toml ([tool.coverage.run], [tool.coverage.report], [tool.pytest.ini_options])
+#   - .codecov.yml (coverage targets, flaky-test alert thresholds, patch/project gates)
+#
+# Maintenance Notes:
+#   - Codecov uploads use fail_ci_if_error: false to avoid blocking CI on Codecov API issues
+#   - verbose: true logs upload details for debugging Codecov flag/commit attribution issues
+#   - The matrix.py-flag field is computed from matrix.python-version (e.g., "3.11" -> "py3-11")
+#   - Keep the matrix in sync with comprehensive-tests.yml's Python version matrix
 name: Tests with Codecov
 
 on:
