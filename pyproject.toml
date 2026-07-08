@@ -1214,7 +1214,8 @@ pre-summary-newline = false
 pre-summary-space = false
 force-wrap = false
 exclude = [
-  "docs/_build",
+  "conf.py",
+  "_build",
   ".local",
   ".pytest_cache",
   "test_core_coverage.py",

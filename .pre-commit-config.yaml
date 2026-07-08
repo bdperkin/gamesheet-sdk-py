@@ -293,6 +293,7 @@ repos:
     rev: v1.7.8
     hooks:
       - id: docformatter
+        exclude: ^docs/conf\.py$
 
   - repo: https://github.com/econchick/interrogate
     rev: 1.7.0
