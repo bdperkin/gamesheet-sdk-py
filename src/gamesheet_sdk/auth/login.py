@@ -126,6 +126,15 @@ def _attach_response_capture(page: Any) -> dict[str, Response | None]:
     captured: dict[str, Response | None] = {"firebase": None, "token": None}  # noqa: S105 # nosec B105
 
     def on_response(response: Response) -> None:
+        """Capture Firebase Auth and token exchange responses as they arrive.
+
+        Populates the ``captured`` dict with the first Firebase signInWithPassword response and the first
+        GameSheet token exchange response encountered. Subsequent responses of the same type are ignored.
+        Side effect: mutates the enclosing ``captured`` dict.
+
+        :param response: A Playwright Response object intercepted by the page listener.
+        :type response: Response
+        """
         if _is_firebase_signin(response.url) and captured["firebase"] is None:
             captured["firebase"] = response
         elif response.url.endswith(TOKEN_EXCHANGE_PATH) and captured["token"] is None:

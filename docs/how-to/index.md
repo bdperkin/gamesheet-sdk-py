@@ -21,8 +21,11 @@ When adding a how-to guide to this section:
 ```{toctree}
 :maxdepth: 1
 
+development-setup
 install-in-github-actions
+configure-release-token
 cut-a-release
+release-process
 ```
 
 ## Planned guides

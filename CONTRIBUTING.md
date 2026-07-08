@@ -1,0 +1,587 @@
+# Contributing to gamesheet-sdk-py
+
+Thank you for your interest in contributing to gamesheet-sdk-py! We welcome contributions from the community and are grateful for your time and effort.
+
+This document provides guidelines and information to help you contribute effectively. Whether you are fixing a bug, adding a feature, improving documentation,
+or enhancing tests, your contributions help make this project better for everyone.
+
+## Table of Contents
+
+01. [Code of Conduct](#code-of-conduct)
+02. [Getting Started](#getting-started)
+03. [Development Setup](#development-setup)
+04. [Development Workflow](#development-workflow)
+05. [Code Style Guidelines](#code-style-guidelines)
+06. [Testing Requirements](#testing-requirements)
+07. [Documentation Requirements](#documentation-requirements)
+08. [Commit Message Conventions](#commit-message-conventions)
+09. [Pull Request Process](#pull-request-process)
+10. [Complexity Requirements](#complexity-requirements)
+11. [Common Tasks](#common-tasks)
+12. [Getting Help](#getting-help)
+
+## Code of Conduct
+
+We are committed to providing a welcoming and inclusive environment for all contributors. By participating in this project, you agree to abide by our commitment
+to respectful and professional conduct.
+
+## Getting Started
+
+Before you begin:
+
+1. Make sure you have read the [README.md](README.md) to understand the project's purpose and scope
+2. Check the [issues](https://github.com/bdperkin/gamesheet-sdk-py/issues) to see if your bug or feature has already been reported or is being worked on
+3. For major changes, open an issue first to discuss your proposed approach
+4. Review the [documentation](https://bdperkin.github.io/gamesheet-sdk-py/) to understand the project's architecture
+
+## Development Setup
+
+### Prerequisites
+
+- **Python 3.11+** (3.11, 3.12, 3.13, or 3.14)
+- **Git** for version control
+- **make** (optional, but recommended for convenience)
+
+### Initial Setup
+
+1. Fork the repository on GitHub
+2. Clone your fork locally:
+
+```bash
+git clone https://github.com/YOUR-USERNAME/gamesheet-sdk-py.git
+cd gamesheet-sdk-py
+```
+
+1. Install the package in editable mode with all development dependencies:
+
+```bash
+# Option 1: Install everything (recommended for contributors)
+pip install -e ".[all]"
+
+# Option 2: Leaner install (just tests + docs)
+pip install -e ".[dev,pytest,docs]"
+
+# Option 3: Use the Makefile shortcut
+make install
+```
+
+1. Install Playwright browser binaries (required for headless-browser code paths):
+
+```bash
+python -m playwright install chromium
+```
+
+1. Set up pre-commit hooks:
+
+```bash
+pre-commit install
+```
+
+This will automatically run code quality checks before each commit.
+
+### Verifying Your Setup
+
+Run the test suite to ensure everything is working:
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage report
+pytest --cov
+
+# Or use the Makefile
+make test
+```
+
+## Development Workflow
+
+### Creating a Feature Branch
+
+Always create a new branch for your work:
+
+```bash
+git checkout -b feature/your-feature-name
+# or
+git checkout -b fix/your-bug-fix-name
+```
+
+### Making Changes
+
+1. Make your changes in the appropriate files under `src/gamesheet_sdk/` or `tests/`
+2. Add or update tests to cover your changes
+3. Update documentation as needed
+4. Run the quality checks:
+
+```bash
+# Run pre-commit hooks on all files
+pre-commit run --all-files
+
+# Or use the Makefile
+make lint
+```
+
+1. Run tests to ensure nothing broke:
+
+```bash
+pytest --cov
+# or
+make test-cov
+```
+
+### Project Structure
+
+The project uses a `src/` layout with the following structure:
+
+- `src/gamesheet_sdk/` - Main package code
+  - `auth/` - Authentication package (login, sessions, tokens)
+  - `cli/` - Command-line interface package
+    - `commands/` - Individual CLI command modules
+    - `shared/` - Shared CLI utilities
+  - `games/` - Games domain package
+  - `roster/` - Roster management package
+  - `shared/` - Shared utilities package
+  - Domain modules (associations.py, divisions.py, leagues.py, seasons.py, teams.py, etc.)
+- `tests/` - Test suite
+  - `auth/` - Authentication tests
+  - `cli/` - CLI command tests
+  - `fixtures/` - Shared test fixtures
+  - `helpers/` - Test helper modules
+  - `integration/` - Integration tests
+  - `unit/` - Unit tests by domain
+- `docs/` - Sphinx documentation (follows Diátaxis framework)
+
+## Code Style Guidelines
+
+### Line Length
+
+- Maximum line length: **110 characters**
+- Configured in Black, flake8, isort, autopep8, and other formatters
+
+#### Python Version
+
+- Use modern Python 3.11+ syntax
+- Include `from __future__ import annotations` at the top of files
+- Use `X | None` instead of `Optional[X]`
+- Use `X | Y` instead of `Union[X, Y]`
+
+#### Formatters (Auto-fix)
+
+The project uses multiple formatters that run automatically via pre-commit hooks:
+
+- `black` - line length: 88 with --line-length 110 override
+- `isort` - profile: black, line length: 110
+- `pyupgrade` - --py311-plus
+- `autopep8` - max line length: 110
+- `ssort` - statement sorting
+- `add-trailing-comma` - adds trailing commas
+- `absolufy-imports` - converts relative imports to absolute
+
+Apply all formatters with:
+
+```bash
+make fix
+```
+
+#### Linters
+
+The project uses comprehensive linting:
+
+- **flake8** with ~50 plugins
+- **pylint** with multiple extensions
+- **refurb** for modernization suggestions
+- **pyrefly** for architectural health
+- **blocklint** for inclusive language
+
+#### Type Checking
+
+All code must pass strict type checking:
+
+```bash
+# mypy (strict mode)
+mypy src
+
+# pyright
+tox -e pyright
+
+# Or use the Makefile
+make type
+```
+
+**Requirements:**
+
+- All functions, methods, and variables must have type annotations
+- No `Any` types without justification
+- Pass `mypy --strict` with zero errors
+- The project ships with `py.typed` (PEP 561)
+
+## Testing Requirements
+
+### Coverage Requirement
+
+**100% test coverage is required** for all code.
+
+- **Local enforcement**: `[tool.coverage.report] fail_under = 100` in pyproject.toml
+- **Codecov enforcement**: Project coverage target 100% (0% drop tolerated), patch coverage 100% on newly-introduced lines
+
+### Test Categories
+
+Tests use pytest markers (declared in `[tool.pytest.ini_options].markers`):
+
+- `@pytest.mark.vcr` - Replays HTTP from cassettes (sensitive data scrubbed)
+- `@pytest.mark.browser` - Requires headless Chromium (slow tests)
+
+### Network Isolation
+
+Tests are configured with `--block-network` (via `pytest-recording`):
+
+- Any test that opens a socket without a VCR cassette will fail
+- Use `@pytest.mark.vcr` for HTTP-based tests
+- Use `@pytest.mark.browser` for Playwright tests
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov
+
+# Run only fast tests (skip browser tests)
+pytest -m "not browser"
+
+# Run specific test file
+pytest tests/test_init_coverage.py
+
+# Run specific test
+pytest tests/test_init_coverage.py::test_version_is_string
+
+# Use Makefile shortcuts
+make test        # full suite
+make test-fast   # skip browser tests
+make test-cov    # with coverage
+```
+
+### Writing Tests
+
+- Place tests in the appropriate directory under `tests/`
+- Follow the existing test structure and naming conventions
+- Use fixtures from `tests/fixtures/` and `tests/conftest.py`
+- Mock external dependencies
+- Use VCR cassettes for HTTP interactions (scrub sensitive data in `tests/conftest.py`)
+- Ensure all code paths are covered (branches, exceptions, edge cases)
+
+## Documentation Requirements
+
+### Docstring Coverage
+
+**100% docstring coverage is required** for all public APIs.
+
+Enforced via `interrogate` with `fail-under = 100`:
+
+```bash
+# Check docstring coverage
+tox -e interrogate
+```
+
+### Docstring Style
+
+- **Style**: Sphinx (configured in `[tool.interrogate] style = "sphinx"`)
+- **Format**: PEP 257 compliant, enforced by `docformatter`
+- **Length**: Wrap at 110 characters
+
+Example:
+
+```python
+def example_function(arg1: str, arg2: int) -> bool:
+    """
+    Short one-line summary of what the function does.
+
+    Longer description if needed, explaining the purpose, behavior, and any important details.
+
+    :param arg1: Description of arg1
+    :param arg2: Description of arg2
+    :return: Description of return value
+    :raises ValueError: When and why this exception is raised
+    """
+    pass
+```
+
+### Documentation Files
+
+The project uses [Diátaxis](https://diataxis.fr/) for documentation organization under `docs/`:
+
+- **tutorials/** - Learning-oriented guides
+- **how-to/** - Task-oriented guides
+- **reference/** - Information-oriented reference (API, CLI, configuration)
+- **explanation/** - Understanding-oriented explanations
+
+When adding documentation:
+
+1. Choose the appropriate quadrant based on reader's need
+2. Follow Sphinx/MyST-Parser syntax
+3. Ensure links work (`make docs-linkcheck`)
+4. Preview locally (`make docs-serve`)
+
+### API Documentation
+
+API docs are auto-generated from docstrings using Sphinx autodoc/autosummary. After adding or modifying public APIs, regenerate docs:
+
+```bash
+make docs
+```
+
+## Commit Message Conventions
+
+**All commits must follow [Conventional Commits](https://www.conventionalcommits.org/) format.**
+
+This is enforced by the `conventional-pre-commit` hook.
+
+### Format
+
+```text
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Types
+
+- `feat:` - A new feature (triggers patch bump until 1.0.0, then minor)
+- `fix:` - A bug fix (triggers patch bump)
+- `docs:` - Documentation-only changes
+- `style:` - Code style changes (formatting, missing semicolons, etc.)
+- `refactor:` - Code refactoring (neither fixes a bug nor adds a feature)
+- `perf:` - Performance improvements (triggers patch bump)
+- `test:` - Adding or updating tests
+- `build:` - Build system or external dependency changes
+- `ci:` - CI configuration changes
+- `chore:` - Other changes that don't modify src or test files
+- `revert:` - Reverts a previous commit
+
+### Scopes (Optional but Encouraged)
+
+Examples: `auth`, `cli`, `api`, `docs`, `tests`, `deps`, `config`
+
+### Breaking Changes
+
+For breaking changes (triggers major bump after 1.0.0):
+
+- Add `!` after type/scope: `feat!: breaking change description`
+- Or include `BREAKING CHANGE:` in the commit body/footer
+
+### Examples
+
+```bash
+# Feature commit
+feat(cli): add seasons list command with JSON output
+
+# Bug fix commit
+fix(auth): handle expired tokens in session refresh flow
+
+# Documentation commit
+docs(api): update authentication examples in README
+
+# Breaking change commit (after 1.0.0)
+feat(api)!: change list_seasons return type to iterator
+
+BREAKING CHANGE: list_seasons now returns an iterator instead of a list.
+Update your code to convert to list if needed: list(list_seasons(...))
+```
+
+### Commit Message Tips
+
+- Use imperative mood ("add feature" not "added feature")
+- Keep the first line under 72 characters
+- Provide context in the body for non-trivial changes
+- Reference issues: `Closes #123` or `Fixes #456`
+
+## Pull Request Process
+
+### Before Opening a PR
+
+1. Ensure all tests pass: `pytest --cov`
+2. Ensure 100% test coverage: `pytest --cov` (coverage report will show any gaps)
+3. Run quality gates: `pre-commit run --all-files`
+4. Check complexity: `make metrics` (all blocks must be grade A)
+5. Ensure type checking passes: `make type`
+6. Update documentation if needed
+7. Ensure all commits follow Conventional Commits format
+
+### Opening a PR
+
+1. Push your branch to your fork:
+
+```bash
+git push origin feature/your-feature-name
+```
+
+1. Open a PR on GitHub from your fork to the main repository
+2. Fill out the PR template (if available) with:
+   - **Description**: What does this PR do and why?
+   - **Testing**: How was this tested?
+   - **Related Issues**: Reference any related issues
+   - **Breaking Changes**: Note any breaking changes
+
+### PR Title
+
+PR titles should also follow Conventional Commits format:
+
+```text
+feat(cli): add support for division management commands
+fix(auth): prevent token refresh race condition
+docs: add CONTRIBUTING.md with comprehensive guidelines
+```
+
+### PR Review Process
+
+1. Automated CI checks will run:
+
+   - Build and install sanity check
+   - Test suite (Python 3.11-3.14 matrix)
+   - Pre-commit hooks
+   - Type checkers (mypy, pyright)
+   - Linters (flake8, pylint, refurb, pyrefly)
+   - Security scans (bandit, CodeQL, Semgrep, Trivy, OSV-Scanner)
+   - Documentation build
+   - Codecov upload and coverage enforcement
+
+2. A maintainer will review your code
+
+3. Address any feedback by pushing additional commits to your branch
+
+4. Once approved and CI passes, a maintainer will merge your PR
+
+### After Your PR is Merged
+
+1. Delete your feature branch (GitHub offers a button for this)
+2. Update your local repository:
+
+```bash
+git checkout main
+git pull upstream main
+```
+
+1. The automated release workflow will handle versioning and changelog generation based on your Conventional Commits
+
+## Complexity Requirements
+
+**All code blocks (functions, methods, classes) must maintain cyclomatic complexity grade A (cc ≤ 5).**
+
+This is enforced by a `xenon` pre-commit hook:
+
+```bash
+xenon --max-absolute=A --max-modules=A --max-average=B src/
+```
+
+### Checking Complexity
+
+```bash
+# Check complexity metrics
+make metrics
+
+# Or use tox
+tox -e radon-cc
+```
+
+### Reducing Complexity
+
+When adding a fourth `if` / `except` / `for` / `and` / `or` to a block:
+
+1. **Extract a helper function** - Break complex logic into smaller, well-named functions
+2. **Use guard clauses** - Return early to reduce nesting
+3. **Simplify conditions** - Use boolean algebra to simplify compound conditions
+4. **Use dict/mapping** - Replace long if-elif chains with dictionary lookups
+
+Example pattern from `auth/login.py`:
+
+```python
+# Instead of one large function with high complexity:
+def login(config, email, password):
+    # ... many lines of complex logic ...
+    pass
+
+
+# Break into smaller focused functions:
+def login(config, email, password):
+    email = _resolve_email(config, email)
+    password = _resolve_password(config, password)
+    _wait_for_login_form(page)
+    _attach_response_capture(page)
+    _submit_login_form(page, email, password)
+    return _await_auth_outcome(page)
+```
+
+## Common Tasks
+
+### Adding a New CLI Command
+
+1. Create or modify a command module under `src/gamesheet_sdk/cli/commands/`
+2. Use `ResourceGroup` for resource-oriented commands (create, get, list, update, delete)
+3. Add command to appropriate group or create new group
+4. Register in `src/gamesheet_sdk/cli/main.py`
+5. Add tests under `tests/cli/`
+6. The CLI reference docs will auto-update via `sphinx-click`
+
+### Adding a New Domain Module
+
+1. Create pydantic models in a new module under `src/gamesheet_sdk/`
+2. Implement action functions (e.g., `list_items()`, `get_item()`, `create_item()`)
+3. Create corresponding CLI command module under `src/gamesheet_sdk/cli/commands/`
+4. Add comprehensive tests under `tests/unit/` and `tests/cli/`
+5. Update documentation
+
+### Adding a New Dependency
+
+1. Add to `[project] dependencies` in `pyproject.toml` for runtime dependencies
+2. Or add to `optional-dependencies.<group>` for dev/test dependencies
+3. Update the `[all]` extra if needed
+4. Run `pip install -e ".[all]"` to install
+5. Consider adding type stubs to `optional-dependencies.type-stubs` if available
+
+### Running Specific Tox Environments
+
+The project has ~60 tox environments for isolated tool runs:
+
+```bash
+# List all environments
+tox -l
+
+# Run pytest across Python versions
+tox -m tests
+
+# Run documentation tasks
+tox -m docs
+
+# Run pre-commit in isolated venv
+tox -m pre-commit
+
+# Run specific tool
+tox -e mypy
+tox -e pylint
+tox -e flake8
+tox -e bandit
+```
+
+## Getting Help
+
+- **Documentation**: <https://bdperkin.github.io/gamesheet-sdk-py/>
+- **Issues**: <https://github.com/bdperkin/gamesheet-sdk-py/issues>
+- **Discussions**: Open an issue for questions or feature proposals
+- **CLAUDE.md**: See the [CLAUDE.md](CLAUDE.md) file for detailed project architecture and conventions
+- **Makefile**: Run `make help` for a list of available make targets
+
+### Project Maintainers
+
+The project maintainers are listed in the [CODEOWNERS](https://github.com/bdperkin/gamesheet-sdk-py/blob/main/.github/CODEOWNERS) file (if available) or can be
+found in the commit history.
+
+## Recognition
+
+All contributors will be recognized in the project's commit history and on GitHub's contributors page. Significant contributions may be highlighted in release
+notes.
+
+Thank you for contributing to gamesheet-sdk-py!

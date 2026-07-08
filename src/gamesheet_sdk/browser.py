@@ -47,12 +47,20 @@ class BrowserSession:
         with BrowserSession(Config()) as bs:
             page = bs.goto("/login")
             page.fill("input[name='email']", "...")
-
-    :param config: Optional configuration object
-    :type config: Config | None
     """
 
     def __init__(self, config: Config | None = None) -> None:
+        """Initialize a browser session without starting Playwright.
+
+        Stores the configuration and sets up internal state for lazy browser initialization. Playwright and
+        Chromium are only launched when :attr:`context` or :meth:`goto` is first accessed. This makes
+        construction cheap and allows sessions that never reach for the browser (e.g. configuration-only runs)
+        to avoid the startup overhead.
+
+        :param config: Optional configuration object. If ``None``, a default
+            :class:`~gamesheet_sdk.config.Config` is created.
+        :type config: Config | None
+        """
         self.config = config or Config()
         self._playwright: Playwright | None = None
         self._browser: Browser | None = None
@@ -235,9 +243,9 @@ class BrowserSession:
 
     def __exit__(
         self,
-        __exc_type: type[BaseException] | None,
-        __exc_val: BaseException | None,
-        __exc_tb: TracebackType | None,
+        _exc_type: type[BaseException] | None,
+        _exc_val: BaseException | None,
+        _exc_tb: TracebackType | None,
     ) -> None:
         """Exit the context manager and close the session.
 

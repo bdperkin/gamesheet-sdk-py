@@ -83,13 +83,17 @@ ______________________________________________________________________
 ## Features
 
 - **Authentication** — Browser-driven login flow with persistent session storage
-- **Resource-oriented CLI** — `associations`, `leagues`, `seasons`, `ipad-keys` commands with intuitive aliases
-- **Python API** — `list_associations()`, `list_leagues()`, `list_seasons()`, `get_season()`, `list_ipad_keys()`
+- **Resource-oriented CLI** — Intuitive verb-noun command structure with aliases (`ls`, `rm`, `get`, etc.)
+- **Comprehensive resource coverage** — Manage associations, leagues, seasons, divisions, teams, games, referees, rosters (players & coaches), locations, and
+  broadcasters
+- **Python API** — Fully typed Python SDK with pydantic models for all resources
 - **Multiple output formats** — JSON, YAML, CSV, TSV, or 13 tabulate table formats
 - **Shell completion** — Tab completion for bash, zsh, fish
 - **Typed (PEP 561)** — Ships `py.typed` marker, passes `mypy --strict`
+- **100% test coverage** — Comprehensive test suite with VCR cassettes and browser automation tests
 - **Automated releases** — [Conventional Commits](https://www.conventionalcommits.org/) +
   [python-semantic-release](https://python-semantic-release.readthedocs.io/)
+- **Docker support** — Pre-built container images with Playwright bundled
 
 ______________________________________________________________________
 
@@ -113,6 +117,8 @@ python -m playwright install chromium
 
 ### Via Docker
 
+Pre-built images include Playwright (Chromium) for seamless browser automation.
+
 ```bash
 # Pull the latest image from GitHub Container Registry
 docker pull ghcr.io/bdperkin/gamesheet-sdk-py:latest
@@ -120,14 +126,24 @@ docker pull ghcr.io/bdperkin/gamesheet-sdk-py:latest
 # Run the CLI
 docker run --rm ghcr.io/bdperkin/gamesheet-sdk-py:latest --help
 
-# Run with persistent session storage
-docker run --rm -v ~/.gamesheet:/home/gamesheet/.gamesheet ghcr.io/bdperkin/gamesheet-sdk-py:latest associations list
+# Run with persistent session storage (recommended for multi-command workflows)
+docker run --rm -v ~/.gamesheet:/home/gamesheet/.gamesheet \
+  ghcr.io/bdperkin/gamesheet-sdk-py:latest associations list
+
+# Example: login and list associations
+docker run -it --rm -v ~/.gamesheet:/home/gamesheet/.gamesheet \
+  -e GAMESHEET_USERNAME=you@example.com \
+  -e GAMESHEET_PASSWORD=secret \
+  ghcr.io/bdperkin/gamesheet-sdk-py:latest login
+
+docker run --rm -v ~/.gamesheet:/home/gamesheet/.gamesheet \
+  ghcr.io/bdperkin/gamesheet-sdk-py:latest associations list --format json
 ```
 
-Available Docker tags:
+**Available Docker tags:**
 
 - `latest` — most recent release from main branch
-- `<version>` — specific version (e.g., `0.1.8`, `0.1`, `0`)
+- `<version>` — specific version (e.g., `0.2.2`, `0.2`, `0`)
 - `<branch>-<sha>` — specific commit for traceability
 
 ### From Source
@@ -147,6 +163,29 @@ See [Development Setup](docs/how-to/development-setup.md) for detailed instructi
 
 ______________________________________________________________________
 
+## Available Resources
+
+The CLI and Python API provide comprehensive coverage of GameSheet resources:
+
+| Resource         | CLI Command                                            | Description                             |
+| ---------------- | ------------------------------------------------------ | --------------------------------------- |
+| **Associations** | `associations`                                         | Top-level organizational units          |
+| **Leagues**      | `leagues`                                              | Leagues within associations             |
+| **Seasons**      | `seasons`                                              | Seasons within leagues                  |
+| **Divisions**    | `divisions`                                            | Divisions within seasons                |
+| **Teams**        | `teams`                                                | Teams within divisions                  |
+| **Games**        | `games scheduled`, `games completed`, `games brackets` | Scheduled, completed, and bracket games |
+| **Referees**     | `referees`                                             | Referee management and reports          |
+| **Roster**       | `roster players`, `roster coaches`                     | Season-level roster management          |
+| **Team Roster**  | `teams roster players`, `teams roster coaches`         | Team-level roster management            |
+| **Locations**    | `locations`                                            | Game locations and venues               |
+| **iPad Keys**    | `ipad-keys`                                            | iPad scoring access keys                |
+
+Each resource supports intuitive verbs: `list` (or `ls`), `get` (or `show`/`view`), `create` (or `add`/`new`), `update` (or `set`/`edit`), `delete` (or
+`rm`/`remove`) where applicable. Most resources default to `list` when invoked without a verb (e.g., `gamesheet-sdk-py associations` runs `list`).
+
+______________________________________________________________________
+
 ## Quick Start
 
 ### CLI
@@ -157,6 +196,7 @@ gamesheet-sdk-py login --email you@example.com
 
 # List associations
 gamesheet-sdk-py associations list --format json
+# Shorthand: gamesheet-sdk-py associations (default=list)
 
 # List leagues in an association
 gamesheet-sdk-py leagues list 38 --format json
@@ -169,6 +209,31 @@ gamesheet-sdk-py seasons get --season-id 15020 --format json
 
 # Get iPad/Scoring keys
 gamesheet-sdk-py ipad-keys get 15020 --format json
+
+# Manage divisions
+gamesheet-sdk-py divisions list --season-id 15020 --format json
+gamesheet-sdk-py divisions create --season-id 15020 --name "Bantam A" --format json
+
+# Manage teams
+gamesheet-sdk-py teams list --division-id 123 --format json
+gamesheet-sdk-py teams create --division-id 123 --name "Hawks" --format json
+
+# List games (scheduled, completed, brackets)
+gamesheet-sdk-py games scheduled --season-id 15020 --format json
+gamesheet-sdk-py games completed --season-id 15020 --format json
+gamesheet-sdk-py games brackets --season-id 15020 --format json
+
+# Manage referees
+gamesheet-sdk-py referees list --season-id 15020 --format json
+gamesheet-sdk-py referees get --referee-id 456 --format json
+
+# Manage roster (players and coaches)
+gamesheet-sdk-py roster players list --season-id 15020 --format json
+gamesheet-sdk-py roster coaches list --season-id 15020 --format json
+
+# Tab completion setup
+gamesheet-sdk-py completion bash > ~/.gamesheet-sdk-completion.bash
+source ~/.gamesheet-sdk-completion.bash
 ```
 
 See the [CLI Reference](docs/reference/cli.md) for complete usage.
@@ -181,14 +246,17 @@ from gamesheet_sdk import (
     Config,
     get_season,
     list_associations,
+    list_divisions,
     list_ipad_keys,
     list_leagues,
     list_seasons,
+    list_teams,
     load_access_token,
     load_refresh_token,
     save_tokens,
 )
 
+# Configure and authenticate
 config = Config()
 access = load_access_token(config)
 refresh = load_refresh_token(config)
@@ -211,7 +279,7 @@ with AuthenticatedSession(
             for season in list_seasons(session, league.id):
                 print(f"    Season: {season.title}")
 
-                # Get detailed info
+                # Get detailed season info
                 detail = get_season(session, season.id)
                 print(f"      Sport: {detail.sport}")
 
@@ -219,7 +287,19 @@ with AuthenticatedSession(
                 keys = list_ipad_keys(session, season.id)
                 for key in keys:
                     print(f"        Key: {key.value}")
+
+                # List divisions
+                divisions = list_divisions(session, season.id)
+                for division in divisions:
+                    print(f"      Division: {division.name}")
+
+                    # List teams in division
+                    teams = list_teams(session, division.id)
+                    for team in teams:
+                        print(f"        Team: {team.name}")
 ```
+
+All functions return fully typed pydantic models with comprehensive field validation.
 
 ______________________________________________________________________
 
@@ -254,10 +334,14 @@ ______________________________________________________________________
 
 **Status:** Alpha — Active development, breaking changes possible before 1.0.0
 
+- **Current version:** 0.2.2
+- **Python support:** 3.11, 3.12, 3.13, 3.14
 - **Version strategy:** Patch-only bumps until 1.0.0 (see [Release Process](docs/how-to/release-process.md))
-- **Test coverage:** 100% (enforced via Codecov)
-- **Type checking:** `mypy --strict` passes
-- **Complexity:** All blocks at cyclomatic complexity grade A (cc ≤ 5)
+- **Test coverage:** 100% (enforced locally and via Codecov)
+- **Type checking:** `mypy --strict` and `pyright` pass on all source code
+- **Code quality:** All blocks maintain cyclomatic complexity grade A (cc ≤ 5)
+- **CI/CD:** Comprehensive test matrix across Python versions, multi-OS testing (nightly), security scanning (Bandit, Semgrep, Trivy, GitGuardian, OSV-Scanner,
+  CodeQL), and automated PyPI releases
 
 ______________________________________________________________________
 
@@ -272,13 +356,21 @@ Contributions are welcome! Before opening a PR:
 5. Maintain 100% test coverage
 6. Keep complexity at grade A (run `make metrics`)
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines. We follow the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md).
 
 ______________________________________________________________________
 
 ## Security
 
-To report a vulnerability, see [SECURITY.md](SECURITY.md). Please use the private reporting channel — do not open public issues for security reports.
+Security is a top priority. This project employs multiple layers of automated security scanning:
+
+- **Static analysis:** Bandit (Python), Semgrep (SAST), CodeQL (semantic analysis)
+- **Dependency scanning:** OSV-Scanner, pip-audit
+- **Container scanning:** Trivy (with CVE suppression documented in `.trivyignore`)
+- **Secret detection:** GitGuardian
+- **Code quality:** Pre-commit hooks enforce security best practices
+
+**Reporting vulnerabilities:** See [SECURITY.md](SECURITY.md). Please use the private reporting channel — do not open public issues for security reports.
 
 ______________________________________________________________________
 
@@ -288,11 +380,23 @@ Distributed under the [MIT License](LICENSE). © 2026 bdperkin.
 
 ______________________________________________________________________
 
+## Support
+
+Need help? See [SUPPORT.md](SUPPORT.md) for:
+
+- Common issues and solutions
+- How to ask questions (GitHub Discussions)
+- How to report bugs (GitHub Issues)
+- Response time expectations
+
+______________________________________________________________________
+
 ## Links
 
 - **PyPI:** <https://pypi.org/project/gamesheet-sdk-py/>
 - **Documentation:** <https://bdperkin.github.io/gamesheet-sdk-py/>
 - **Source:** <https://github.com/bdperkin/gamesheet-sdk-py>
 - **Issues:** <https://github.com/bdperkin/gamesheet-sdk-py/issues>
+- **Discussions:** <https://github.com/bdperkin/gamesheet-sdk-py/discussions>
 - **Changelog:** [CHANGELOG.md](CHANGELOG.md)
 - **Releases:** <https://github.com/bdperkin/gamesheet-sdk-py/releases>

@@ -19,6 +19,7 @@ When adding an explanation to this section:
 ```{toctree}
 :maxdepth: 1
 
+architecture
 why-webui-automation
 branch-protection
 diataxis
