@@ -153,12 +153,14 @@ latex_elements = {
     # Override Sphinx's default font settings with Latin Modern
     "fontpkg": (
         r"""\usepackage{fontspec}"""
-        r"""\defaultfontfeatures{Ligatures=TeX}"""
+                                                  
         r"""\setmainfont{Latin Modern Roman}"""
         r"""\setsansfont{Latin Modern Sans} """
         r"""\setmonofont{Latin Modern Mono}"""
+
     ),
-    "preamble": r"""
+    "preamble":\
+                r"""
 \usepackage{newunicodechar}
 
 % --- Status & Emojis ---
