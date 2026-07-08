@@ -115,7 +115,9 @@ repos:
       - id: check-json
       - id: check-shebang-scripts-are-executable
       - id: pretty-format-json
-        args: ["--autofix", "--no-sort-keys"]
+        args:
+          - "--autofix"
+          - "--no-sort-keys"
       - id: check-merge-conflict
       - id: check-toml
       - id: check-vcs-permalinks
@@ -158,7 +160,9 @@ repos:
     rev: v1.38.0
     hooks:
       - id: yamllint
-        args: ["--config-data", "relaxed"]
+        args:
+          - "--config-data"
+          - "relaxed"
 
   - repo: https://github.com/tox-dev/tox-ini-fmt
     rev: 1.7.1
@@ -289,7 +293,6 @@ repos:
     rev: v1.7.8
     hooks:
       - id: docformatter
-        exclude: ^docs/conf.py$
 
   - repo: https://github.com/econchick/interrogate
     rev: 1.7.0
@@ -335,7 +338,9 @@ repos:
     rev: v4.0.6
     hooks:
       - id: pylint
-        args: ["--reports", "y"]
+        args:
+          - "--reports"
+          - "y"
         additional_dependencies:
           - gamesheet-sdk-py[pylint,pytest]
 
@@ -353,13 +358,20 @@ repos:
     rev: 1.9.4
     hooks:
       - id: bandit
-        args: ["--configfile", "pyproject.toml", "--recursive"]
+        args:
+          - "--configfile"
+          - "pyproject.toml"
+          - "--recursive"
 
   - repo: https://github.com/rubik/xenon
     rev: v0.9.3
     hooks:
       - id: xenon
-        args: ["--max-absolute=C", "--max-modules=B", "--max-average=A", "src/"]
+        args:
+          - "--max-absolute=C"
+          - "--max-modules=B"
+          - "--max-average=A"
+          - "src/"
         pass_filenames: false
 
   # ----------------------------------------------------------------------------

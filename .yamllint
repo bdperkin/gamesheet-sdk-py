@@ -33,8 +33,9 @@ rules:
   # Allow longer lines for GitHub Actions workflows and complex configurations
   # Default is 80, but CI workflows often have long URLs, paths, and commands
   line-length:
-    max: 240 # Allow up to 240 characters per line
-    level: warning # Treat violations as warnings, not hard failures
+    allow-non-breakable-inline-mappings: true # allow non-breakable words in inline mappings
+    allow-non-breakable-words: true # allow non breakable words (without spaces inside) to overflow the limit
+    max: 110 # Allow up to 110 characters per line
 
   # ----------------------------------------------------------------------------
   # Indentation
@@ -64,7 +65,13 @@ rules:
   # Allow flexible boolean representations (yes/no, true/false, on/off)
   # GitHub Actions uses 'true'/'false', while some tools prefer 'yes'/'no'
   truthy:
-    allowed-values: ["true", "false", "yes", "no", "on", "off"]
+    allowed-values:
+      - "true"
+      - "false"
+      - "yes"
+      - "no"
+      - "on"
+      - "off"
     check-keys: false # Don't check key names for truthy values
 
   # ----------------------------------------------------------------------------

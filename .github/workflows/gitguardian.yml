@@ -87,7 +87,10 @@ jobs:
 
       - name: Run GitGuardian ggshield scan
         uses: GitGuardian/ggshield-action@da20be06cafe5e8633dc24744efe1efe8d30f06b # v1.52.2
-        if: (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]') || github.event_name == 'push'
+        if: |
+          (github.event.pull_request.head.repo.full_name == github.repository &&
+           github.actor != 'dependabot[bot]') ||
+          github.event_name == 'push'
         env:
           GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
           GITHUB_PUSH_BEFORE_SHA: ${{ github.event.before }}

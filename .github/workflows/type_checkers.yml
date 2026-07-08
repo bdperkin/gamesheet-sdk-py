@@ -18,7 +18,7 @@
 #   - mypy: [tool.mypy] in pyproject.toml (strict = true)
 #   - pyright: [tool.pyright] in pyproject.toml
 #
-# Each job runs: tox -e [tool]-py3XX
+# Each job runs: tox -e [tool]
 # ==============================================================================
 
 name: Type Checkers
@@ -49,7 +49,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        python-version:
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -66,7 +70,7 @@ jobs:
         run: pip install tox-workdir
 
       - name: Run mypy via tox
-        run: tox -e mypy-py${{ matrix.python-version }}
+        run: tox -e mypy
 
   pyright:
     name: pyright (py${{ matrix.python-version }})
@@ -74,7 +78,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        python-version:
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -91,4 +99,4 @@ jobs:
         run: pip install tox-workdir
 
       - name: Run pyright via tox
-        run: tox -e pyright-py${{ matrix.python-version }}
+        run: tox -e pyright

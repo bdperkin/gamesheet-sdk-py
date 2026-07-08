@@ -152,23 +152,45 @@ latex_documents = [
 latex_elements = {
     # Override Sphinx's default font settings with Latin Modern
     "fontpkg": (
-        r"""\usepackage{fontspec} \defaultfontfeatures{Ligatures=TeX} """
-        r"""\setmainfont{Latin Modern Roman} \setsansfont{Latin Modern Sans} """
+        r"""\usepackage{fontspec}"""
+        r"""\defaultfontfeatures{Ligatures=TeX}"""
+        r"""\setmainfont{Latin Modern Roman}"""
+        r"""\setsansfont{Latin Modern Sans} """
         r"""\setmonofont{Latin Modern Mono}"""
     ),
     "preamble": r"""
 \usepackage{newunicodechar}
-% Define Unicode characters (simple text replacements)
+
+% --- Status & Emojis ---
+\newunicodechar{🎉}{[CELEBRATE]}  % U+1F389 Party Popper
 \newunicodechar{✅}{[OK]}
 \newunicodechar{✓}{[OK]}
 \newunicodechar{✗}{[X]}
+\newunicodechar{❌}{[X]}
 \newunicodechar{⚠}{[!]}
+\newunicodechar{ℹ}{[INFO]}
+\newunicodechar{💡}{[TIP]}
+\newunicodechar{📝}{[NOTE]}
+\newunicodechar{🚀}{[LAUNCH]}
+
+% --- Arrows & Directions ---
 \newunicodechar{→}{->}
 \newunicodechar{←}{<-}
 \newunicodechar{↑}{^}
 \newunicodechar{↓}{v}
 \newunicodechar{▼}{v}
-% Box-drawing characters (for architecture diagrams)
+\newunicodechar{▲}{^}
+\newunicodechar{▶}{>}
+\newunicodechar{◀}{<}
+
+% --- Typography & Bullets ---
+\newunicodechar{•}{*}
+\newunicodechar{°}{\textdegree}
+\newunicodechar{…}{...}
+\newunicodechar{–}{--}  % En-dash
+\newunicodechar{—}{---} % Em-dash
+
+% --- Box-drawing characters (for architecture diagrams) ---
 \newunicodechar{┌}{+}
 \newunicodechar{┐}{+}
 \newunicodechar{└}{+}
@@ -179,7 +201,7 @@ latex_elements = {
 \newunicodechar{┤}{+}
 \newunicodechar{┬}{+}
 \newunicodechar{┴}{+}
-\newunicodechar{•}{*}
+\newunicodechar{┼}{+}
 """,
     "papersize": "letterpaper",
     "pointsize": "10pt",

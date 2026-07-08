@@ -398,7 +398,8 @@ jobs:
           # Read CHANGELOG.md and extract the section for this version
           if [ -f CHANGELOG.md ]; then
             # Try both formats: ## v0.1.5 and ## [0.1.5]
-            CHANGELOG_CONTENT=$(awk "/^## (v${VERSION}|\[${VERSION}\])/,/^## (v|\\[)/" CHANGELOG.md | sed '$d' | tail -n +2)
+            CHANGELOG_CONTENT=$(awk "/^## (v${VERSION}|\[${VERSION}\])/,/^## (v|\\[)/" CHANGELOG.md | \
+              sed '$d' | tail -n +2)
 
             if [ -n "$CHANGELOG_CONTENT" ]; then
               echo "Found changelog content for version $VERSION"
