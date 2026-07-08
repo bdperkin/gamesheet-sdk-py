@@ -137,7 +137,7 @@ man_pages = [
     ),
 ]
 # -- LaTeX / PDF output -----------------------------------------------------
-latex_engine = "pdflatex"
+latex_engine = "xelatex"  # Use XeLaTeX for better Unicode support
 latex_documents = [
     (
         master_doc,
@@ -147,6 +147,45 @@ latex_documents = [
         "manual",
     ),
 ]
+# LaTeX preamble for Unicode support and better formatting
+# fmt: off
+latex_elements = {
+    # Override Sphinx's default font settings with Latin Modern
+    "fontpkg": (
+        r"""\usepackage{fontspec} \defaultfontfeatures{Ligatures=TeX} """
+        r"""\setmainfont{Latin Modern Roman} \setsansfont{Latin Modern Sans} """
+        r"""\setmonofont{Latin Modern Mono}"""
+    ),
+    "preamble": r"""
+\usepackage{newunicodechar}
+% Define Unicode characters (simple text replacements)
+\newunicodechar{✅}{[OK]}
+\newunicodechar{✓}{[OK]}
+\newunicodechar{✗}{[X]}
+\newunicodechar{⚠}{[!]}
+\newunicodechar{→}{->}
+\newunicodechar{←}{<-}
+\newunicodechar{↑}{^}
+\newunicodechar{↓}{v}
+\newunicodechar{▼}{v}
+% Box-drawing characters (for architecture diagrams)
+\newunicodechar{┌}{+}
+\newunicodechar{┐}{+}
+\newunicodechar{└}{+}
+\newunicodechar{┘}{+}
+\newunicodechar{─}{-}
+\newunicodechar{│}{|}
+\newunicodechar{├}{+}
+\newunicodechar{┤}{+}
+\newunicodechar{┬}{+}
+\newunicodechar{┴}{+}
+\newunicodechar{•}{*}
+""",
+    "papersize": "letterpaper",
+    "pointsize": "10pt",
+    "figure_align": "htbp",
+}
+# fmt: on
 # -- Link-check options -----------------------------------------------------
 linkcheck_retries = 2
 linkcheck_timeout = 15
