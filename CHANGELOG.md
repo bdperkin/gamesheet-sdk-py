@@ -2,6 +2,21 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.4 (2026-07-10)
+
+### Bug Fixes
+
+- **ci**: Configure Trivy to use .trivyignore in release workflow ([#147](https://github.com/bdperkin/gamesheet-sdk-py/pull/147),
+  [`f59aa8c`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f59aa8c2981cc44520e1f7138507025a59f37dc4))
+
+### Chores
+
+- **deps)(deps**: Bump the actions group across 1 directory with 4 updates ([#145](https://github.com/bdperkin/gamesheet-sdk-py/pull/145),
+  [`931b22c`](https://github.com/bdperkin/gamesheet-sdk-py/commit/931b22c84fef39fe1205bba02e9763139cb5c4a5))
+
+- **security**: Suppress 9 unfixable container base image CVEs ([#146](https://github.com/bdperkin/gamesheet-sdk-py/pull/146),
+  [`0cea6f2`](https://github.com/bdperkin/gamesheet-sdk-py/commit/0cea6f246573c7024147f865d333ee349664dfee))
+
 ## v0.2.3 (2026-07-08)
 
 ### Bug Fixes
