@@ -165,12 +165,12 @@ repos:
           - "relaxed"
 
   - repo: https://github.com/tox-dev/tox-ini-fmt
-    rev: 1.7.1
+    rev: 1.7.2
     hooks:
       - id: tox-ini-fmt
 
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.25.1
+    rev: v2.25.2
     hooks:
       - id: pyproject-fmt
 
@@ -188,7 +188,7 @@ repos:
   # Documentation & Markdown Tools
   # ----------------------------------------------------------------------------
   - repo: https://github.com/jackdewinter/pymarkdown
-    rev: v0.9.38
+    rev: v0.9.39
     hooks:
       - id: pymarkdown
 
@@ -220,7 +220,7 @@ repos:
         args: ["--py311-plus"]
 
   - repo: https://github.com/pycqa/isort
-    rev: 9.0.0a3
+    rev: 9.0.0b1
     hooks:
       - id: isort
         args: ["--profile=black"]
@@ -346,7 +346,7 @@ repos:
           - gamesheet-sdk-py[pylint,pytest]
 
   - repo: https://github.com/facebook/pyrefly-pre-commit
-    rev: 1.1.1
+    rev: 1.2.0.dev2
     hooks:
       - id: pyrefly-check
         additional_dependencies:
@@ -386,7 +386,7 @@ repos:
           - gamesheet-sdk-py[pyright,pytest]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.1.0
+    rev: v2.3.0
     hooks:
       - id: mypy
         args: ["--strict"]
