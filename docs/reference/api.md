@@ -137,6 +137,7 @@ CLI framework, resource groups, and command implementations.
     _autosummary/gamesheet_sdk.cli.helpers
     _autosummary/gamesheet_sdk.cli.main
     _autosummary/gamesheet_sdk.cli.shared
+    _autosummary/gamesheet_sdk.cli.shared.datetime_helpers
     _autosummary/gamesheet_sdk.cli.shared.decorators
     _autosummary/gamesheet_sdk.cli.shared.rendering
     _autosummary/gamesheet_sdk.cli.commands

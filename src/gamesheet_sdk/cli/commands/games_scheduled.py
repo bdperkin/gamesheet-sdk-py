@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-import logging
-
 import rich_click as click
 from rich_click import Context
 
@@ -16,12 +14,17 @@ from gamesheet_sdk.cli.helpers import build_authenticated_session, run_action_or
 from gamesheet_sdk.cli.shared import (
     common_output_options,
     get_fields_option,
+    get_local_timezone_name,
+    get_local_timezone_offset,
     list_columns_option,
     render_get_command,
     render_list_command,
+    resolve_create_times,
+    resolve_datetime_input,
+    resolve_update_times,
+    validate_no_input_conflict,
 )
 from gamesheet_sdk.config import Config
-from gamesheet_sdk.constants import DEFAULT_TIMEZONE
 from gamesheet_sdk.games import (
     create_scheduled_game as _create_scheduled_game_action,
     delete_scheduled_game as _delete_scheduled_game_action,
@@ -29,67 +32,6 @@ from gamesheet_sdk.games import (
     list_scheduled as _list_scheduled_action,
     update_scheduled_game as _update_scheduled_game_action,
 )
-
-_LOGGER = logging.getLogger(__name__)
-
-
-def _get_local_timezone_name() -> str:
-    """Get the local system timezone name (IANA format).
-
-    Returns the timezone name like 'America/New_York', 'UTC', etc. Falls back to 'UTC' if unable to determine.
-
-    :returns: IANA timezone name
-    :rtype: str
-    """
-    try:
-        # Try to get timezone using tzlocal library if available
-        try:
-            import tzlocal
-
-            tz = tzlocal.get_localzone()
-        except (ImportError, AttributeError):
-            pass
-        else:
-            return str(tz.key) if hasattr(tz, "key") else str(tz)
-        # Fallback: try to read /etc/localtime symlink on Unix systems
-        import os
-        from pathlib import Path
-
-        if os.name != "nt":  # Unix-like systems
-            localtime = Path("/etc/localtime")
-            if localtime.is_symlink():
-                target = os.readlink(localtime)
-                # Extract timezone name from path like /usr/share/zoneinfo/America/New_York
-                if "zoneinfo/" in target:
-                    return target.split("zoneinfo/", 1)[1]
-    except (OSError, ValueError, IndexError) as exc:
-        _LOGGER.debug(
-            "Failed to detect timezone, falling back to %s: %s",
-            DEFAULT_TIMEZONE,
-            exc,
-        )
-    # Default fallback
-    return DEFAULT_TIMEZONE
-
-
-def _get_local_timezone_offset() -> int:
-    """Get the local timezone offset in minutes from UTC.
-
-    Returns the offset as a signed integer (negative for west of UTC, positive for east). For example, EDT
-    (UTC-4) returns -240, IST (UTC+5:30) returns 330.
-
-    :returns: Timezone offset in minutes
-    :rtype: int
-    """
-    import time
-
-    # Get the current UTC offset in seconds, then convert to minutes
-    # time.timezone is offset for standard time, time.altzone for DST
-    if time.daylight and time.localtime().tm_isdst:
-        offset_seconds = -time.altzone
-    else:
-        offset_seconds = -time.timezone
-    return offset_seconds // 60
 
 
 @click.group(
@@ -181,16 +123,54 @@ def scheduled_list_command(
 
 @scheduled_group.command("create")
 @click.option(
-    "--scheduled-start-time",
+    "--start-datetime",
     type=str,
-    required=True,
-    help=f"Scheduled start time. {cli_constants.ISO_8601_HELP_TEXT}",
+    default=None,
+    help=(
+        f"Start date and time. {cli_constants.FLEXIBLE_DATETIME_HELP} "
+        "Mutually exclusive with --start-date/--start-time."
+    ),
 )
 @click.option(
-    "--scheduled-end-time",
+    "--end-datetime",
     type=str,
-    required=True,
-    help=f"Scheduled end time. {cli_constants.ISO_8601_HELP_TEXT}",
+    default=None,
+    help=(
+        f"End date and time. {cli_constants.FLEXIBLE_DATETIME_HELP} "
+        "Mutually exclusive with --end-date/--end-time."
+    ),
+)
+@click.option(
+    "--start-date",
+    type=str,
+    default=None,
+    help=f"Start {cli_constants.SPLIT_DATE_HELP} Use with --start-time.",
+)
+@click.option(
+    "--start-time",
+    "start_time_str",
+    type=str,
+    default=None,
+    help=f"Start {cli_constants.SPLIT_TIME_HELP} Use with --start-date.",
+)
+@click.option(
+    "--end-date",
+    type=str,
+    default=None,
+    help=f"End {cli_constants.SPLIT_DATE_HELP} Use with --end-time.",
+)
+@click.option(
+    "--end-time",
+    "end_time_str",
+    type=str,
+    default=None,
+    help=f"End {cli_constants.SPLIT_TIME_HELP} Use with --end-date.",
+)
+@click.option(
+    "--duration",
+    type=int,
+    default=None,
+    help=cli_constants.DURATION_HELP,
 )
 @click.option(
     "--home-team-id",
@@ -281,11 +261,16 @@ def scheduled_list_command(
 )
 @common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments
+# pylint: disable-next=too-many-locals,too-many-positional-arguments
 def scheduled_create_command(
     ctx: Context,
-    scheduled_start_time: str,
-    scheduled_end_time: str,
+    start_datetime: str | None,
+    end_datetime: str | None,
+    start_date: str | None,
+    start_time_str: str | None,
+    end_date: str | None,
+    end_time_str: str | None,
+    duration: int | None,
     home_team_id: str,
     home_division_id: str,
     visitor_team_id: str,
@@ -305,14 +290,28 @@ def scheduled_create_command(
 ) -> None:
     """Create a new scheduled game.
 
-    Requires authentication (run 'gamesheet-sdk-py login' first). If time zone options are not
-    specified, they default to the local system timezone.
+    Requires authentication (run 'gamesheet-sdk-py login' first). Provide any two of
+    ``--start-datetime`` (or ``--start-date`` + ``--start-time``), ``--end-datetime``
+    (or ``--end-date`` + ``--end-time``), and ``--duration`` to automatically calculate
+    the third. If time zone options are not specified, they default to the local system
+    timezone.
+
     :param ctx: Click context object containing config
     :type ctx: Context
-    :param scheduled_start_time: Scheduled start time (ISO 8601 format)
-    :type scheduled_start_time: str
-    :param scheduled_end_time: Scheduled end time (ISO 8601 format)
-    :type scheduled_end_time: str
+    :param start_datetime: Start date and time (flexible format)
+    :type start_datetime: str | None
+    :param end_datetime: End date and time (flexible format)
+    :type end_datetime: str | None
+    :param start_date: Start date component
+    :type start_date: str | None
+    :param start_time_str: Start time component
+    :type start_time_str: str | None
+    :param end_date: End date component
+    :type end_date: str | None
+    :param end_time_str: End time component
+    :type end_time_str: str | None
+    :param duration: Game duration in minutes
+    :type duration: int | None
     :param home_team_id: Home team identifier
     :type home_team_id: str
     :param home_division_id: Home team division identifier
@@ -346,16 +345,32 @@ def scheduled_create_command(
     :param output_path: Optional output file path
     :type output_path: str | None
     """
+    validate_no_input_conflict(start_datetime, start_date, start_time_str, "start")
+    validate_no_input_conflict(end_datetime, end_date, end_time_str, "end")
+
+    start_raw = resolve_datetime_input(
+        start_datetime,
+        start_date,
+        start_time_str,
+        "start",
+    )
+    end_raw = resolve_datetime_input(end_datetime, end_date, end_time_str, "end")
+
+    scheduled_start_time, scheduled_end_time = resolve_create_times(
+        start_raw,
+        end_raw,
+        duration,
+    )
+
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
     session = build_authenticated_session(config)
 
-    # Use system timezone if not specified
     if time_zone_name is None:
-        time_zone_name = _get_local_timezone_name()
+        time_zone_name = get_local_timezone_name()
     if time_zone_offset is None:
-        time_zone_offset = _get_local_timezone_offset()
+        time_zone_offset = get_local_timezone_offset()
     game = run_action_or_exit(
         session,
         _create_scheduled_game_action,
@@ -388,14 +403,54 @@ def scheduled_create_command(
     help="Game ID to update.",
 )
 @click.option(
-    "--scheduled-start-time",
+    "--start-datetime",
     type=str,
-    help=f"Scheduled start time. {cli_constants.ISO_8601_HELP_TEXT}",
+    default=None,
+    help=(
+        f"Start date and time. {cli_constants.FLEXIBLE_DATETIME_HELP} "
+        "Mutually exclusive with --start-date/--start-time."
+    ),
 )
 @click.option(
-    "--scheduled-end-time",
+    "--end-datetime",
     type=str,
-    help=f"Scheduled end time. {cli_constants.ISO_8601_HELP_TEXT}",
+    default=None,
+    help=(
+        f"End date and time. {cli_constants.FLEXIBLE_DATETIME_HELP} "
+        "Mutually exclusive with --end-date/--end-time."
+    ),
+)
+@click.option(
+    "--start-date",
+    type=str,
+    default=None,
+    help=f"Start {cli_constants.SPLIT_DATE_HELP} Use with --start-time.",
+)
+@click.option(
+    "--start-time",
+    "start_time_str",
+    type=str,
+    default=None,
+    help=f"Start {cli_constants.SPLIT_TIME_HELP} Use with --start-date.",
+)
+@click.option(
+    "--end-date",
+    type=str,
+    default=None,
+    help=f"End {cli_constants.SPLIT_DATE_HELP} Use with --end-time.",
+)
+@click.option(
+    "--end-time",
+    "end_time_str",
+    type=str,
+    default=None,
+    help=f"End {cli_constants.SPLIT_TIME_HELP} Use with --end-date.",
+)
+@click.option(
+    "--duration",
+    type=int,
+    default=None,
+    help=cli_constants.DURATION_HELP,
 )
 @click.option(
     "--home-team-id",
@@ -472,12 +527,17 @@ def scheduled_create_command(
 )
 @common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments
-def scheduled_update_command(  # noqa: R701
+# pylint: disable-next=too-many-locals,too-many-positional-arguments
+def scheduled_update_command(
     ctx: Context,
     game_id: str,
-    scheduled_start_time: str | None,
-    scheduled_end_time: str | None,
+    start_datetime: str | None,
+    end_datetime: str | None,
+    start_date: str | None,
+    start_time_str: str | None,
+    end_date: str | None,
+    end_time_str: str | None,
+    duration: int | None,
     home_team_id: str | None,
     home_division_id: str | None,
     visitor_team_id: str | None,
@@ -498,15 +558,29 @@ def scheduled_update_command(  # noqa: R701
     """Update a scheduled game.
 
     Requires authentication (run 'gamesheet-sdk-py login' first). Only specified fields are updated;
-    unspecified fields retain their current values.
+    unspecified fields retain their current values. You may provide any combination of
+    ``--start-datetime`` (or ``--start-date`` + ``--start-time``), ``--end-datetime``
+    (or ``--end-date`` + ``--end-time``), and ``--duration`` to automatically calculate
+    missing time fields.
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param game_id: Game identifier
     :type game_id: str
-    :param scheduled_start_time: Scheduled start time
-    :type scheduled_start_time: str | None
-    :param scheduled_end_time: Scheduled end time
-    :type scheduled_end_time: str | None
+    :param start_datetime: Start date and time (flexible format)
+    :type start_datetime: str | None
+    :param end_datetime: End date and time (flexible format)
+    :type end_datetime: str | None
+    :param start_date: Start date component
+    :type start_date: str | None
+    :param start_time_str: Start time component
+    :type start_time_str: str | None
+    :param end_date: End date component
+    :type end_date: str | None
+    :param end_time_str: End time component
+    :type end_time_str: str | None
+    :param duration: Game duration in minutes
+    :type duration: int | None
     :param home_team_id: Home team identifier
     :type home_team_id: str | None
     :param home_division_id: Home team division identifier
@@ -540,6 +614,17 @@ def scheduled_update_command(  # noqa: R701
     :param output_path: Optional output file path
     :type output_path: str | None
     """
+    validate_no_input_conflict(start_datetime, start_date, start_time_str, "start")
+    validate_no_input_conflict(end_datetime, end_date, end_time_str, "end")
+
+    start_raw = resolve_datetime_input(
+        start_datetime,
+        start_date,
+        start_time_str,
+        "start",
+    )
+    end_raw = resolve_datetime_input(end_datetime, end_date, end_time_str, "end")
+
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
@@ -552,13 +637,22 @@ def scheduled_update_command(  # noqa: R701
     )
     attrs = current_game.data.attributes
     rels = current_game.data.relationships
+
+    scheduled_start_time, scheduled_end_time = resolve_update_times(
+        start_raw,
+        end_raw,
+        duration,
+        attrs.scheduled_start_time,
+        attrs.scheduled_end_time,
+    )
+
     updated_game = run_action_or_exit(
         session,
         _update_scheduled_game_action,
         season_id,
         game_id,
-        scheduled_start_time or attrs.scheduled_start_time,
-        scheduled_end_time or attrs.scheduled_end_time,
+        scheduled_start_time,
+        scheduled_end_time,
         home_team_id or rels.home_team.data.id,
         home_division_id or rels.home_division.data.id,
         visitor_team_id or rels.visitor_team.data.id,
@@ -570,7 +664,7 @@ def scheduled_update_command(  # noqa: R701
         time_zone_name or attrs.time_zone_name,
         time_zone_offset if time_zone_offset is not None else -240,
         number or attrs.number,
-        attrs.status,  # Status is not editable via CLI - always use current value
+        attrs.status,
         broadcaster if broadcaster is not None else attrs.data.broadcaster,
         home_label if home_label is not None else attrs.data.home_label,
         visitor_label if visitor_label is not None else attrs.data.visitor_label,

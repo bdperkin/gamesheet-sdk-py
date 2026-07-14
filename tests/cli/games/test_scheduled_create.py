@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-import sys
 from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
@@ -13,7 +12,6 @@ from click.testing import CliRunner
 from gamesheet_sdk.cli import cli
 from tests.fixtures.constants import (
     TEST_ACCESS_TOKEN,
-    TEST_ERROR_PERMISSION_DENIED,
     TEST_LOCATION_NAME,
     TEST_REFRESH_TOKEN,
     TEST_SCOREKEEPER_NAME,
@@ -23,148 +21,32 @@ from tests.fixtures.constants import (
     TEST_TIMEZONE_OFFSET,
 )
 
-
-def test_timezone_name_tzlocal_with_key() -> None:
-    """Test _get_local_timezone_name with tzlocal library (has .key attribute)."""
-    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
-
-    # Mock tzlocal module with a timezone that has .key attribute
-    mock_tz = MagicMock()
-    mock_tz.key = "America/New_York"
-    mock_tzlocal = MagicMock()
-    mock_tzlocal.get_localzone.return_value = mock_tz
-
-    with patch.dict(sys.modules, {"tzlocal": mock_tzlocal}):
-        result = _get_local_timezone_name()
-        assert result == "America/New_York"
-
-
-def test_timezone_name_tzlocal_without_key() -> None:
-    """Test _get_local_timezone_name with tzlocal library (no .key attribute)."""
-    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
-
-    # Mock tzlocal module with a timezone that lacks .key attribute but has __str__
-    # pylint: disable-next=too-few-public-methods
-    class MockTZ:
-        """Mock timezone object without .key attribute."""
-
-        def __str__(self) -> str:
-            return "America/Chicago"
-
-    mock_tzlocal = MagicMock()
-    mock_tzlocal.get_localzone.return_value = MockTZ()
-
-    with patch.dict(sys.modules, {"tzlocal": mock_tzlocal}):
-        result = _get_local_timezone_name()
-        assert result == "America/Chicago"
-
-
-def test_timezone_name_etc_localtime_symlink() -> None:
-    """Test _get_local_timezone_name reading /etc/localtime symlink."""
-    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
-
-    # Create a mock Path object that supports is_symlink
-    mock_path = MagicMock()
-    mock_path.is_symlink.return_value = True
-
-    # Remove tzlocal from sys.modules to trigger ImportError
-    # Patch pathlib.Path at the point where it's imported in the function
-    with (
-        patch.dict(sys.modules, {"tzlocal": None}),
-        patch("os.name", "posix"),
-        patch("pathlib.Path", return_value=mock_path),
-        patch("os.readlink", return_value="/usr/share/zoneinfo/America/Los_Angeles"),
-    ):
-        result = _get_local_timezone_name()
-        assert result == "America/Los_Angeles"
-
-
-def test_timezone_name_fallback_utc_import_error() -> None:
-    """Test _get_local_timezone_name falls back to UTC when tzlocal import fails."""
-    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
-
-    # Remove tzlocal to trigger ImportError, Windows to skip /etc/localtime
-    with (
-        patch.dict(sys.modules, {"tzlocal": None}),
-        patch("os.name", "nt"),
-    ):
-        result = _get_local_timezone_name()
-        assert result == "UTC"
-
-
-def test_timezone_name_fallback_utc_oserror() -> None:
-    """Test _get_local_timezone_name falls back to UTC on OSError."""
-    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
-
-    # Mock tzlocal to raise OSError
-    mock_tzlocal = MagicMock()
-    mock_tzlocal.get_localzone.side_effect = OSError(TEST_ERROR_PERMISSION_DENIED)
-
-    with patch.dict(sys.modules, {"tzlocal": mock_tzlocal}):
-        result = _get_local_timezone_name()
-        assert result == "UTC"
-
-
-def test_timezone_offset_standard_time() -> None:
-    """Test _get_local_timezone_offset during standard time."""
-    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_offset
-
-    # Mock time module for EST (UTC-5, -18000 seconds)
-    with (
-        patch("time.daylight", 0),  # No DST
-        patch("time.timezone", 18000),  # UTC-5 in seconds
-    ):
-        result = _get_local_timezone_offset()
-        assert result == -300  # -5 hours in minutes
-
-
-def test_timezone_offset_daylight_saving_time() -> None:
-    """Test _get_local_timezone_offset during daylight saving time."""
-    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_offset
-
-    # Mock time module for EDT (UTC-4, -14400 seconds)
-    mock_localtime = MagicMock()
-    mock_localtime.tm_isdst = 1  # DST active
-
-    with (
-        patch("time.daylight", 1),  # DST supported
-        patch("time.localtime", return_value=mock_localtime),
-        patch("time.altzone", 14400),  # UTC-4 in seconds
-    ):
-        result = _get_local_timezone_offset()
-        assert result == -240  # -4 hours in minutes
+_CREATE_MOCKS = (
+    "gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session",
+    "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
+    "gamesheet_sdk.cli.commands.games_scheduled.get_local_timezone_name",
+    "gamesheet_sdk.cli.commands.games_scheduled.get_local_timezone_offset",
+    "gamesheet_sdk.cli.commands.games_scheduled.render_get_command",
+    "gamesheet_sdk.cli.helpers.load_refresh_token",
+    "gamesheet_sdk.cli.helpers.load_access_token",
+)
 
 
 def test_scheduled_create_with_defaults(runner: CliRunner) -> None:
     """Test scheduled game create command with default timezone values."""
     with (
-        patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
-        patch(
-            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
-        ) as mock_run,
-        patch(
-            "gamesheet_sdk.cli.commands.games_scheduled._get_local_timezone_name",
-        ) as mock_tz_name,
-        patch(
-            "gamesheet_sdk.cli.commands.games_scheduled._get_local_timezone_offset",
-        ) as mock_tz_offset,
-        patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
-        patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
-            return_value=TEST_REFRESH_TOKEN,
-        ),
-        patch(
-            "gamesheet_sdk.cli.helpers.load_access_token",
-            return_value=TEST_ACCESS_TOKEN,
-        ),
+        patch(_CREATE_MOCKS[0]),
+        patch(_CREATE_MOCKS[1]) as mock_run,
+        patch(_CREATE_MOCKS[2]) as mock_tz_name,
+        patch(_CREATE_MOCKS[3]) as mock_tz_offset,
+        patch(_CREATE_MOCKS[4]),
+        patch(_CREATE_MOCKS[5], return_value=TEST_REFRESH_TOKEN),
+        patch(_CREATE_MOCKS[6], return_value=TEST_ACCESS_TOKEN),
     ):
         mock_tz_name.return_value = TEST_TIMEZONE_NAME
         mock_tz_offset.return_value = TEST_TIMEZONE_OFFSET
         mock_run.return_value = MagicMock(
-            model_dump=lambda **_kw: {
-                "id": "game-123",
-                "status": "scheduled",
-            },
+            model_dump=lambda **_kw: {"id": "game-123", "status": "scheduled"},
         )
 
         result = runner.invoke(
@@ -175,9 +57,9 @@ def test_scheduled_create_with_defaults(runner: CliRunner) -> None:
                 "season-456",
                 "scheduled",
                 "create",
-                "--scheduled-start-time",
+                "--start-datetime",
                 "2026-07-15T19:00:00-04:00",
-                "--scheduled-end-time",
+                "--end-datetime",
                 "2026-07-15T21:00:00-04:00",
                 "--home-team-id",
                 "team-1",
@@ -200,45 +82,28 @@ def test_scheduled_create_with_defaults(runner: CliRunner) -> None:
             ],
         )
 
-        assert not result.exit_code
+        assert not result.exit_code, result.output
         mock_tz_name.assert_called_once()
         mock_tz_offset.assert_called_once()
-        # Verify run_action_or_exit was called with the create action
         assert mock_run.call_count == 1
-        # Verify timezone defaults were used (check args to run_action_or_exit)
         args = mock_run.call_args[0]
-        assert args[13] == TEST_TIMEZONE_NAME  # time_zone_name (index 13)
-        assert args[14] == TEST_TIMEZONE_OFFSET  # time_zone_offset (index 14)
+        assert args[13] == TEST_TIMEZONE_NAME
+        assert args[14] == TEST_TIMEZONE_OFFSET
 
 
 def test_scheduled_create_with_explicit_timezone(runner: CliRunner) -> None:
     """Test scheduled game create command with explicit timezone values."""
     with (
-        patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
-        patch(
-            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
-        ) as mock_run,
-        patch(
-            "gamesheet_sdk.cli.commands.games_scheduled._get_local_timezone_name",
-        ) as mock_tz_name,
-        patch(
-            "gamesheet_sdk.cli.commands.games_scheduled._get_local_timezone_offset",
-        ) as mock_tz_offset,
-        patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
-        patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
-            return_value=TEST_REFRESH_TOKEN,
-        ),
-        patch(
-            "gamesheet_sdk.cli.helpers.load_access_token",
-            return_value=TEST_ACCESS_TOKEN,
-        ),
+        patch(_CREATE_MOCKS[0]),
+        patch(_CREATE_MOCKS[1]) as mock_run,
+        patch(_CREATE_MOCKS[2]) as mock_tz_name,
+        patch(_CREATE_MOCKS[3]) as mock_tz_offset,
+        patch(_CREATE_MOCKS[4]),
+        patch(_CREATE_MOCKS[5], return_value=TEST_REFRESH_TOKEN),
+        patch(_CREATE_MOCKS[6], return_value=TEST_ACCESS_TOKEN),
     ):
         mock_run.return_value = MagicMock(
-            model_dump=lambda **_kw: {
-                "id": "game-789",
-                "status": "scheduled",
-            },
+            model_dump=lambda **_kw: {"id": "game-789", "status": "scheduled"},
         )
 
         result = runner.invoke(
@@ -249,9 +114,9 @@ def test_scheduled_create_with_explicit_timezone(runner: CliRunner) -> None:
                 "season-789",
                 "scheduled",
                 "create",
-                "--scheduled-start-time",
+                "--start-datetime",
                 "2026-07-20T14:00:00-07:00",
-                "--scheduled-end-time",
+                "--end-datetime",
                 "2026-07-20T16:00:00-07:00",
                 "--home-team-id",
                 "team-3",
@@ -278,52 +143,13 @@ def test_scheduled_create_with_explicit_timezone(runner: CliRunner) -> None:
             ],
         )
 
-        assert not result.exit_code
-        # Verify defaults were NOT called since explicit values provided
+        assert not result.exit_code, result.output
         mock_tz_name.assert_not_called()
         mock_tz_offset.assert_not_called()
-        # Verify run_action_or_exit was called
         assert mock_run.call_count == 1
         args = mock_run.call_args[0]
-        assert args[13] == "America/Vancouver"  # explicit time_zone_name (index 13)
-        assert args[14] == -420  # explicit time_zone_offset (index 14)
-
-
-def test_timezone_name_etc_localtime_not_symlink() -> None:
-    """Test _get_local_timezone_name when /etc/localtime is not a symlink."""
-    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
-
-    # Create a mock Path object that is NOT a symlink
-    mock_path = MagicMock()
-    mock_path.is_symlink.return_value = False
-
-    # Remove tzlocal, /etc/localtime exists but is NOT a symlink
-    with (
-        patch.dict(sys.modules, {"tzlocal": None}),
-        patch("os.name", "posix"),
-        patch("pathlib.Path", return_value=mock_path),
-    ):
-        result = _get_local_timezone_name()
-        assert result == "UTC"
-
-
-def test_timezone_name_etc_localtime_no_zoneinfo() -> None:
-    """Test _get_local_timezone_name when symlink doesn't contain zoneinfo."""
-    from gamesheet_sdk.cli.commands.games_scheduled import _get_local_timezone_name
-
-    # Create a mock Path object that is a symlink
-    mock_path = MagicMock()
-    mock_path.is_symlink.return_value = True
-
-    # Remove tzlocal, symlink doesn't contain "zoneinfo/"
-    with (
-        patch.dict(sys.modules, {"tzlocal": None}),
-        patch("os.name", "posix"),
-        patch("pathlib.Path", return_value=mock_path),
-        patch("os.readlink", return_value="/some/other/path"),
-    ):
-        result = _get_local_timezone_name()
-        assert result == "UTC"
+        assert args[13] == "America/Vancouver"
+        assert args[14] == -420
 
 
 def test_scheduled_create_missing_required_fields(runner: CliRunner) -> None:
@@ -336,13 +162,10 @@ def test_scheduled_create_missing_required_fields(runner: CliRunner) -> None:
             "season-456",
             "scheduled",
             "create",
-            # Missing all required fields
         ],
     )
 
-    # Should fail with non-zero exit code
     assert result.exit_code
-    # Error message should indicate missing options
     assert "Missing option" in result.output or "Error" in result.output
 
 
@@ -351,33 +174,16 @@ def test_scheduled_create_with_optional_broadcaster_and_labels(
 ) -> None:
     """Test scheduled game create command with optional broadcaster and team labels."""
     with (
-        patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
-        patch(
-            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
-        ) as mock_run,
-        patch(
-            "gamesheet_sdk.cli.commands.games_scheduled._get_local_timezone_name",
-            return_value=TEST_TIMEZONE_NAME,
-        ),
-        patch(
-            "gamesheet_sdk.cli.commands.games_scheduled._get_local_timezone_offset",
-            return_value=TEST_TIMEZONE_OFFSET,
-        ),
-        patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
-        patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
-            return_value=TEST_REFRESH_TOKEN,
-        ),
-        patch(
-            "gamesheet_sdk.cli.helpers.load_access_token",
-            return_value=TEST_ACCESS_TOKEN,
-        ),
+        patch(_CREATE_MOCKS[0]),
+        patch(_CREATE_MOCKS[1]) as mock_run,
+        patch(_CREATE_MOCKS[2], return_value=TEST_TIMEZONE_NAME),
+        patch(_CREATE_MOCKS[3], return_value=TEST_TIMEZONE_OFFSET),
+        patch(_CREATE_MOCKS[4]),
+        patch(_CREATE_MOCKS[5], return_value=TEST_REFRESH_TOKEN),
+        patch(_CREATE_MOCKS[6], return_value=TEST_ACCESS_TOKEN),
     ):
         mock_run.return_value = MagicMock(
-            model_dump=lambda **_kw: {
-                "id": "game-555",
-                "status": "scheduled",
-            },
+            model_dump=lambda **_kw: {"id": "game-555", "status": "scheduled"},
         )
 
         result = runner.invoke(
@@ -388,9 +194,9 @@ def test_scheduled_create_with_optional_broadcaster_and_labels(
                 "season-999",
                 "scheduled",
                 "create",
-                "--scheduled-start-time",
+                "--start-datetime",
                 "2026-08-01T18:00:00-04:00",
-                "--scheduled-end-time",
+                "--end-datetime",
                 "2026-08-01T20:00:00-04:00",
                 "--home-team-id",
                 "team-10",
@@ -419,15 +225,318 @@ def test_scheduled_create_with_optional_broadcaster_and_labels(
             ],
         )
 
-        assert not result.exit_code
-        # Verify run_action_or_exit was called
+        assert not result.exit_code, result.output
         assert mock_run.call_count == 1
         args = mock_run.call_args[0]
-        # Check broadcaster and labels were passed
-        # Args after session & action: season_id, start, end, home_team, home_div, visitor_team,
-        # visitor_div, location, sk_name, sk_phone, game_type, tz_name, tz_offset, number,
-        # broadcaster, home_label, visitor_label
-        # Indices: 2=season, 3=start, ..., 15=number, 16=broadcaster, 17=home_label, 18=visitor_label
-        assert args[16] == "livebarn"  # broadcaster
-        assert args[17] == "Home Stars"  # home_label
-        assert args[18] == "Away Comets"  # visitor_label
+        assert args[16] == "livebarn"
+        assert args[17] == "Home Stars"
+        assert args[18] == "Away Comets"
+
+
+def test_create_with_split_date_time(runner: CliRunner) -> None:
+    """Test create command with split --start-date + --start-time and --end-date + --end-time."""
+    with (
+        patch(_CREATE_MOCKS[0]),
+        patch(_CREATE_MOCKS[1]) as mock_run,
+        patch(_CREATE_MOCKS[2], return_value=TEST_TIMEZONE_NAME),
+        patch(_CREATE_MOCKS[3], return_value=TEST_TIMEZONE_OFFSET),
+        patch(_CREATE_MOCKS[4]),
+        patch(_CREATE_MOCKS[5], return_value=TEST_REFRESH_TOKEN),
+        patch(_CREATE_MOCKS[6], return_value=TEST_ACCESS_TOKEN),
+        patch(
+            "gamesheet_sdk.cli.shared.datetime_helpers.get_local_timezone_offset",
+            return_value=-240,
+        ),
+    ):
+        mock_run.return_value = MagicMock(
+            model_dump=lambda **_kw: {"id": "game-split", "status": "scheduled"},
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "games",
+                "--season-id",
+                "season-split",
+                "scheduled",
+                "create",
+                "--start-date",
+                "2026-07-15",
+                "--start-time",
+                "19:00",
+                "--end-date",
+                "2026-07-15",
+                "--end-time",
+                "21:00",
+                "--home-team-id",
+                "team-1",
+                "--home-division-id",
+                "div-1",
+                "--visitor-team-id",
+                "team-2",
+                "--visitor-division-id",
+                "div-2",
+                "--game-type",
+                "regular_season",
+                "--number",
+                "301",
+            ],
+        )
+
+        assert not result.exit_code, result.output
+        assert mock_run.call_count == 1
+        args = mock_run.call_args[0]
+        assert args[3].endswith("Z")
+        assert args[4].endswith("Z")
+
+
+def test_create_with_start_and_duration(runner: CliRunner) -> None:
+    """Test create command with --start-datetime + --duration computes end."""
+    with (
+        patch(_CREATE_MOCKS[0]),
+        patch(_CREATE_MOCKS[1]) as mock_run,
+        patch(_CREATE_MOCKS[2], return_value=TEST_TIMEZONE_NAME),
+        patch(_CREATE_MOCKS[3], return_value=TEST_TIMEZONE_OFFSET),
+        patch(_CREATE_MOCKS[4]),
+        patch(_CREATE_MOCKS[5], return_value=TEST_REFRESH_TOKEN),
+        patch(_CREATE_MOCKS[6], return_value=TEST_ACCESS_TOKEN),
+    ):
+        mock_run.return_value = MagicMock(
+            model_dump=lambda **_kw: {"id": "game-dur", "status": "scheduled"},
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "games",
+                "--season-id",
+                "season-dur",
+                "scheduled",
+                "create",
+                "--start-datetime",
+                "2026-07-15T23:00:00Z",
+                "--duration",
+                "120",
+                "--home-team-id",
+                "team-1",
+                "--home-division-id",
+                "div-1",
+                "--visitor-team-id",
+                "team-2",
+                "--visitor-division-id",
+                "div-2",
+                "--game-type",
+                "regular_season",
+                "--number",
+                "401",
+            ],
+        )
+
+        assert not result.exit_code, result.output
+        assert mock_run.call_count == 1
+        args = mock_run.call_args[0]
+        assert args[3] == "2026-07-15T23:00:00Z"
+        assert args[4] == "2026-07-16T01:00:00Z"
+
+
+def test_create_with_end_and_duration(runner: CliRunner) -> None:
+    """Test create command with --end-datetime + --duration computes start."""
+    with (
+        patch(_CREATE_MOCKS[0]),
+        patch(_CREATE_MOCKS[1]) as mock_run,
+        patch(_CREATE_MOCKS[2], return_value=TEST_TIMEZONE_NAME),
+        patch(_CREATE_MOCKS[3], return_value=TEST_TIMEZONE_OFFSET),
+        patch(_CREATE_MOCKS[4]),
+        patch(_CREATE_MOCKS[5], return_value=TEST_REFRESH_TOKEN),
+        patch(_CREATE_MOCKS[6], return_value=TEST_ACCESS_TOKEN),
+    ):
+        mock_run.return_value = MagicMock(
+            model_dump=lambda **_kw: {"id": "game-end-dur", "status": "scheduled"},
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "games",
+                "--season-id",
+                "season-end-dur",
+                "scheduled",
+                "create",
+                "--end-datetime",
+                "2026-07-16T01:00:00Z",
+                "--duration",
+                "120",
+                "--home-team-id",
+                "team-1",
+                "--home-division-id",
+                "div-1",
+                "--visitor-team-id",
+                "team-2",
+                "--visitor-division-id",
+                "div-2",
+                "--game-type",
+                "regular_season",
+                "--number",
+                "501",
+            ],
+        )
+
+        assert not result.exit_code, result.output
+        assert mock_run.call_count == 1
+        args = mock_run.call_args[0]
+        assert args[3] == "2026-07-04T23:00:00Z" or args[3].endswith("Z")
+        assert args[4] == "2026-07-16T01:00:00Z"
+
+
+def test_create_conflict_start_options_raises(runner: CliRunner) -> None:
+    """Test error when --start-datetime and --start-date both provided."""
+    result = runner.invoke(
+        cli,
+        [
+            "games",
+            "--season-id",
+            "season-456",
+            "scheduled",
+            "create",
+            "--start-datetime",
+            "2026-07-15T19:00:00Z",
+            "--start-date",
+            "2026-07-15",
+            "--end-datetime",
+            "2026-07-15T21:00:00Z",
+            "--home-team-id",
+            "team-1",
+            "--home-division-id",
+            "div-1",
+            "--visitor-team-id",
+            "team-2",
+            "--visitor-division-id",
+            "div-2",
+            "--game-type",
+            "regular_season",
+            "--number",
+            "601",
+        ],
+    )
+
+    assert result.exit_code
+    assert "Cannot combine" in result.output
+
+
+def test_create_conflict_end_options_raises(runner: CliRunner) -> None:
+    """Test error when --end-datetime and --end-date both provided."""
+    result = runner.invoke(
+        cli,
+        [
+            "games",
+            "--season-id",
+            "season-456",
+            "scheduled",
+            "create",
+            "--start-datetime",
+            "2026-07-15T19:00:00Z",
+            "--end-datetime",
+            "2026-07-15T21:00:00Z",
+            "--end-date",
+            "2026-07-15",
+            "--home-team-id",
+            "team-1",
+            "--home-division-id",
+            "div-1",
+            "--visitor-team-id",
+            "team-2",
+            "--visitor-division-id",
+            "div-2",
+            "--game-type",
+            "regular_season",
+            "--number",
+            "701",
+        ],
+    )
+
+    assert result.exit_code
+    assert "Cannot combine" in result.output
+
+
+def test_create_insufficient_options_raises(runner: CliRunner) -> None:
+    """Test error when only one of start/end/duration provided."""
+    result = runner.invoke(
+        cli,
+        [
+            "games",
+            "--season-id",
+            "season-456",
+            "scheduled",
+            "create",
+            "--start-datetime",
+            "2026-07-15T19:00:00Z",
+            "--home-team-id",
+            "team-1",
+            "--home-division-id",
+            "div-1",
+            "--visitor-team-id",
+            "team-2",
+            "--visitor-division-id",
+            "div-2",
+            "--game-type",
+            "regular_season",
+            "--number",
+            "801",
+        ],
+    )
+
+    assert result.exit_code
+    assert "At least 2" in result.output
+
+
+def test_create_natural_language_date(runner: CliRunner) -> None:
+    """Test create command with natural language date input."""
+    with (
+        patch(_CREATE_MOCKS[0]),
+        patch(_CREATE_MOCKS[1]) as mock_run,
+        patch(_CREATE_MOCKS[2], return_value=TEST_TIMEZONE_NAME),
+        patch(_CREATE_MOCKS[3], return_value=TEST_TIMEZONE_OFFSET),
+        patch(_CREATE_MOCKS[4]),
+        patch(_CREATE_MOCKS[5], return_value=TEST_REFRESH_TOKEN),
+        patch(_CREATE_MOCKS[6], return_value=TEST_ACCESS_TOKEN),
+        patch(
+            "gamesheet_sdk.cli.shared.datetime_helpers.get_local_timezone_offset",
+            return_value=-240,
+        ),
+    ):
+        mock_run.return_value = MagicMock(
+            model_dump=lambda **_kw: {"id": "game-nat", "status": "scheduled"},
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "games",
+                "--season-id",
+                "season-nat",
+                "scheduled",
+                "create",
+                "--start-datetime",
+                "July 15 2026 7:00pm",
+                "--duration",
+                "120",
+                "--home-team-id",
+                "team-1",
+                "--home-division-id",
+                "div-1",
+                "--visitor-team-id",
+                "team-2",
+                "--visitor-division-id",
+                "div-2",
+                "--game-type",
+                "regular_season",
+                "--number",
+                "901",
+            ],
+        )
+
+        assert not result.exit_code, result.output
+        assert mock_run.call_count == 1
+        args = mock_run.call_args[0]
+        assert args[3].endswith("Z")
+        assert args[4].endswith("Z")
