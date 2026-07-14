@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.5 (2026-07-14)
+
+### Chores
+
+- **deps**: Update pre-commit hooks ([#148](https://github.com/bdperkin/gamesheet-sdk-py/pull/148),
+  [`6b7565a`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6b7565a1df1a4d42de026cd5b5cc9735b5cd3ba3))
+
+### Features
+
+- **cli**: Add flexible date/time input for scheduled games ([#149](https://github.com/bdperkin/gamesheet-sdk-py/pull/149),
+  [`dc5244e`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dc5244ec3e947b7a919f2921ed12a8bb570fb0e0))
+
 ## v0.2.4 (2026-07-10)
 
 ### Bug Fixes
