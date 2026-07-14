@@ -70,8 +70,8 @@
 #   - If release already exists, uploads assets with --clobber (idempotent retry logic)
 #
 # Versioning Strategy:
-#   - Pre-1.0.0: Only patch bumps (commit_parser_options.minor_tags = []) for alpha stability
-#   - Post-1.0.0: Standard semver (feat: → minor, fix: → patch, BREAKING CHANGE: → major)
+#   - Standard semver: feat: → minor, fix:/perf: → patch
+#   - major_on_zero = false: breaking changes produce minor bumps while on 0.x (no auto-1.0.0)
 #   - Version source: pyproject.toml:project.version (single source of truth)
 #   - Conventional Commits format enforced by conventional-pre-commit hook (all commits)
 #
