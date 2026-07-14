@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.0 (2026-07-14)
+
+### Chores
+
+- **deps**: Clean up redundant dependencies and fix deptry mappings ([#150](https://github.com/bdperkin/gamesheet-sdk-py/pull/150),
+  [`7ae768f`](https://github.com/bdperkin/gamesheet-sdk-py/commit/7ae768fe900c4f8ec1ddc1b1175040cb1650e705))
+
+### Features
+
+- **release**: Enable standard semver versioning with minor bumps ([#151](https://github.com/bdperkin/gamesheet-sdk-py/pull/151),
+  [`29ee35b`](https://github.com/bdperkin/gamesheet-sdk-py/commit/29ee35b5695809103723969a662ab5bfcf7ecc85))
+
 ## v0.2.5 (2026-07-14)
 
 ### Chores
