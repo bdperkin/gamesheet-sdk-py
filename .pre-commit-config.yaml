@@ -275,6 +275,7 @@ repos:
         language: python
         additional_dependencies:
           - gamesheet-sdk-py[deptry,pytest,type-stubs]
+          - python-dateutil
 
   # ----------------------------------------------------------------------------
   # Documentation & Docstring Tools
@@ -344,6 +345,7 @@ repos:
           - "y"
         additional_dependencies:
           - gamesheet-sdk-py[pylint,pytest]
+          - python-dateutil
 
   - repo: https://github.com/facebook/pyrefly-pre-commit
     rev: 1.2.0.dev2
@@ -351,6 +353,7 @@ repos:
       - id: pyrefly-check
         additional_dependencies:
           - gamesheet-sdk-py[pyrefly,pytest]
+          - python-dateutil
 
   # ----------------------------------------------------------------------------
   # Security, Metrics & Complexity
@@ -392,6 +395,8 @@ repos:
         args: ["--strict"]
         additional_dependencies:
           - gamesheet-sdk-py[mypy,pytest,type-stubs]
+          - python-dateutil
+          - types-python-dateutil
 
   # ----------------------------------------------------------------------------
   # Pre-Commit Hook Sync

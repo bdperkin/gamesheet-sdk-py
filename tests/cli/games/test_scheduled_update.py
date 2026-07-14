@@ -12,8 +12,46 @@ from click.testing import CliRunner
 from gamesheet_sdk.cli import cli
 
 
+def _mock_current_game() -> MagicMock:
+    """Create a mock for the current game state (returned by get)."""
+    return MagicMock(
+        data=MagicMock(
+            id="game-update",
+            attributes=MagicMock(
+                scheduled_start_time="2026-07-15T23:00:00Z",
+                scheduled_end_time="2026-07-16T01:00:00Z",
+                location="Old Arena",
+                scorekeeper=MagicMock(name="Old Name", phone="555-0000"),
+                game_type="regular_season",
+                time_zone_name="America/Toronto",
+                time_zone_offset=-240,
+                number="100",
+                status="scheduled",
+                data=MagicMock(
+                    broadcaster="",
+                    home_label="HOME",
+                    visitor_label="AWAY",
+                ),
+            ),
+            relationships=MagicMock(
+                home_team=MagicMock(data=MagicMock(id="team-old-1")),
+                home_division=MagicMock(data=MagicMock(id="div-old-1")),
+                visitor_team=MagicMock(data=MagicMock(id="team-old-2")),
+                visitor_division=MagicMock(data=MagicMock(id="div-old-2")),
+            ),
+        ),
+    )
+
+
+def _mock_updated_game() -> MagicMock:
+    """Create a mock for the updated game result."""
+    return MagicMock(
+        model_dump=lambda **_kw: {"id": "game-update", "status": "scheduled"},
+    )
+
+
 def test_scheduled_update_command(runner: CliRunner) -> None:
-    """Test scheduled game update command."""
+    """Test scheduled game update command with new start time."""
     with (
         patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
         patch(
@@ -26,44 +64,7 @@ def test_scheduled_update_command(runner: CliRunner) -> None:
         ),
         patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
     ):
-        # Mock returns: first call is get (current state), second is update
-        mock_run.side_effect = [
-            # First call: get current game
-            MagicMock(
-                data=MagicMock(
-                    id="game-update",
-                    attributes=MagicMock(
-                        scheduled_start_time="2026-07-15T19:00:00-04:00",
-                        scheduled_end_time="2026-07-15T21:00:00-04:00",
-                        location="Old Arena",
-                        scorekeeper=MagicMock(name="Old Name", phone="555-0000"),
-                        game_type="regular_season",
-                        time_zone_name="America/Toronto",
-                        time_zone_offset=-240,
-                        number="100",
-                        status="scheduled",
-                        data=MagicMock(
-                            broadcaster="",
-                            home_label="HOME",
-                            visitor_label="AWAY",
-                        ),
-                    ),
-                    relationships=MagicMock(
-                        home_team=MagicMock(data=MagicMock(id="team-old-1")),
-                        home_division=MagicMock(data=MagicMock(id="div-old-1")),
-                        visitor_team=MagicMock(data=MagicMock(id="team-old-2")),
-                        visitor_division=MagicMock(data=MagicMock(id="div-old-2")),
-                    ),
-                ),
-            ),
-            # Second call: update result
-            MagicMock(
-                model_dump=lambda **_kw: {
-                    "id": "game-update",
-                    "status": "scheduled",
-                },
-            ),
-        ]
+        mock_run.side_effect = [_mock_current_game(), _mock_updated_game()]
 
         result = runner.invoke(
             cli,
@@ -75,18 +76,199 @@ def test_scheduled_update_command(runner: CliRunner) -> None:
                 "update",
                 "--game-id",
                 "game-update",
-                "--scheduled-start-time",
-                "2026-07-16T20:00:00-04:00",
+                "--start-datetime",
+                "2026-07-15T22:00:00Z",
                 "--location",
                 "New Arena",
             ],
         )
 
-        assert not result.exit_code
-        assert mock_run.call_count == 2  # get + update
-        # Verify update call (second call)
+        assert not result.exit_code, result.output
+        assert mock_run.call_count == 2
         update_args = mock_run.call_args_list[1][0]
-        assert update_args[2] == "season-update"  # season_id (index 2)
-        assert update_args[3] == "game-update"  # game_id (index 3)
-        assert update_args[4] == "2026-07-16T20:00:00-04:00"  # New start time (index 4)
-        assert update_args[10] == "New Arena"  # New location (index 10)
+        assert update_args[2] == "season-update"
+        assert update_args[3] == "game-update"
+        assert update_args[4] == "2026-07-15T22:00:00Z"
+        assert update_args[10] == "New Arena"
+
+
+def test_update_with_duration_only(runner: CliRunner) -> None:
+    """Test update with --duration only recomputes end from current start."""
+    with (
+        patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
+        ) as mock_run,
+        patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            return_value="refresh-tok",
+        ),
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+    ):
+        mock_run.side_effect = [_mock_current_game(), _mock_updated_game()]
+
+        result = runner.invoke(
+            cli,
+            [
+                "games",
+                "--season-id",
+                "season-update",
+                "scheduled",
+                "update",
+                "--game-id",
+                "game-update",
+                "--duration",
+                "90",
+            ],
+        )
+
+        assert not result.exit_code, result.output
+        assert mock_run.call_count == 2
+        update_args = mock_run.call_args_list[1][0]
+        assert update_args[4] == "2026-07-15T23:00:00Z"
+        assert update_args[5] == "2026-07-16T00:30:00Z"
+
+
+def test_update_with_split_start_inputs(runner: CliRunner) -> None:
+    """Test update with --start-date + --start-time split inputs."""
+    with (
+        patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
+        ) as mock_run,
+        patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            return_value="refresh-tok",
+        ),
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.cli.shared.datetime_helpers.get_local_timezone_offset",
+            return_value=-240,
+        ),
+    ):
+        mock_run.side_effect = [_mock_current_game(), _mock_updated_game()]
+
+        result = runner.invoke(
+            cli,
+            [
+                "games",
+                "--season-id",
+                "season-update",
+                "scheduled",
+                "update",
+                "--game-id",
+                "game-update",
+                "--start-date",
+                "2026-07-15",
+                "--start-time",
+                "18:00",
+            ],
+        )
+
+        assert not result.exit_code, result.output
+        assert mock_run.call_count == 2
+        update_args = mock_run.call_args_list[1][0]
+        assert update_args[4].endswith("Z")
+
+
+def test_update_conflict_options_raises(runner: CliRunner) -> None:
+    """Test error when --start-datetime and --start-date both provided."""
+    result = runner.invoke(
+        cli,
+        [
+            "games",
+            "--season-id",
+            "season-update",
+            "scheduled",
+            "update",
+            "--game-id",
+            "game-update",
+            "--start-datetime",
+            "2026-07-15T19:00:00Z",
+            "--start-date",
+            "2026-07-15",
+        ],
+    )
+
+    assert result.exit_code
+    assert "Cannot combine" in result.output
+
+
+def test_update_no_time_changes(runner: CliRunner) -> None:
+    """Test update with only non-time fields preserves current times."""
+    with (
+        patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
+        ) as mock_run,
+        patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            return_value="refresh-tok",
+        ),
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+    ):
+        mock_run.side_effect = [_mock_current_game(), _mock_updated_game()]
+
+        result = runner.invoke(
+            cli,
+            [
+                "games",
+                "--season-id",
+                "season-update",
+                "scheduled",
+                "update",
+                "--game-id",
+                "game-update",
+                "--location",
+                "New Arena",
+            ],
+        )
+
+        assert not result.exit_code, result.output
+        assert mock_run.call_count == 2
+        update_args = mock_run.call_args_list[1][0]
+        assert update_args[4] == "2026-07-15T23:00:00Z"
+        assert update_args[5] == "2026-07-16T01:00:00Z"
+
+
+def test_update_end_and_duration(runner: CliRunner) -> None:
+    """Test update with --end-datetime + --duration computes new start."""
+    with (
+        patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
+        ) as mock_run,
+        patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
+        patch(
+            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            return_value="refresh-tok",
+        ),
+        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+    ):
+        mock_run.side_effect = [_mock_current_game(), _mock_updated_game()]
+
+        result = runner.invoke(
+            cli,
+            [
+                "games",
+                "--season-id",
+                "season-update",
+                "scheduled",
+                "update",
+                "--game-id",
+                "game-update",
+                "--end-datetime",
+                "2026-07-16T02:00:00Z",
+                "--duration",
+                "120",
+            ],
+        )
+
+        assert not result.exit_code, result.output
+        assert mock_run.call_count == 2
+        update_args = mock_run.call_args_list[1][0]
+        assert update_args[4] == "2026-07-16T00:00:00Z"
+        assert update_args[5] == "2026-07-16T02:00:00Z"

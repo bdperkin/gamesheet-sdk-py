@@ -31,6 +31,7 @@ The package is alpha. Structure under `src/gamesheet_sdk/`:
   - `commands/` — individual command modules (associations, completion, divisions, games, games_brackets, games_completed, games_scheduled, ipad_keys, leagues,
     locations, login, referees, roster, roster_coaches, roster_players, seasons, teams, teams_roster, teams_roster_coaches, teams_roster_players)
   - `shared/` — shared CLI utilities
+    - `datetime_helpers.py` — flexible datetime parsing, timezone detection, and start/end/duration resolution helpers
     - `decorators.py` — CLI decorators for common patterns
     - `rendering.py` — output rendering helpers
 - `config.py` — `pydantic-settings` `Config` (resolves `GAMESHEET_*` env vars; CLI args > env > defaults)
@@ -298,8 +299,20 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
 
   **CLI shared utilities** in `cli/shared/`:
 
+  - `datetime_helpers.py` — flexible datetime parsing (via `python-dateutil`), timezone detection (`get_local_timezone_name`, `get_local_timezone_offset`), and
+    start/end/duration resolution (`resolve_create_times`, `resolve_update_times`). Used by `games scheduled create` and `games scheduled update` to accept
+    flexible date/time input and auto-calculate the missing value from any two of start, end, and duration.
   - `decorators.py` — common decorators for CLI commands
   - `rendering.py` — output rendering and formatting helpers
+
+  **Flexible date/time input.** The `games scheduled create` and `games scheduled update` commands accept flexible date/time input via `--start-datetime`,
+  `--end-datetime`, split `--start-date`/`--start-time`, split `--end-date`/`--end-time`, and `--duration` (minutes). Any non-ambiguous date/time string
+  accepted by `dateutil.parser.parse` works (ISO 8601, natural language like `"July 4 2026 7pm"`, etc.). If no timezone is specified, the system's local
+  timezone is assumed. Any timezone info is stripped and the face-value time is sent to the API in ISO 8601 format with a trailing `Z` (e.g.
+  `2026-07-04T12:00:00Z`) — GameSheet displays times as-is without timezone conversion. For `create`, exactly 2 of 3 (start, end, duration) are required and the
+  missing value is calculated; if all 3 are given they must be consistent. For `update`, partial inputs are allowed — a single new value updates that field
+  while preserving the other; two or more trigger recalculation. Mixing `--start-datetime` with `--start-date`/`--start-time` (or the end equivalents) raises a
+  validation error.
 
   **Tab-completion.** `gamesheet-sdk-py completion {bash,zsh,fish}` prints a sourceable script (uses click's built-in `shell_completion` via the
   `_GAMESHEET_SDK_PY_COMPLETE` env var; no third-party dep). `ResourceGroup.shell_complete` (in `cli/core.py`) overrides click's default to also enumerate

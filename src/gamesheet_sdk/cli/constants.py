@@ -50,6 +50,16 @@ HELP_DESTRUCTIVE_OPERATION = (
 ISO_8601_FORMAT_EXAMPLE = "2026-07-04T12:00:00Z"
 ISO_8601_HELP_TEXT = f"ISO 8601 format, e.g., {ISO_8601_FORMAT_EXAMPLE}"
 
+# Flexible datetime help text
+FLEXIBLE_DATETIME_HELP = (
+    "Flexible date/time format (e.g., '2026-07-04 7:00pm', "
+    "'July 4 2026 19:00', '2026-07-04T19:00:00-04:00'). "
+    "If no timezone is specified, the system timezone is used."
+)
+DURATION_HELP = "Game duration in positive minutes."
+SPLIT_DATE_HELP = "Date component (e.g., '2026-07-04', 'July 4 2026')."
+SPLIT_TIME_HELP = "Time component (e.g., '7:00pm', '19:00')."
+
 # IANA timezone examples
 IANA_TIMEZONE_EXAMPLE = "America/New_York"
 IANA_TIMEZONE_HELP_TEXT = f"IANA time zone name (e.g., {IANA_TIMEZONE_EXAMPLE})"
