@@ -79,7 +79,7 @@ optional-dependencies.all = [
   """\
   gamesheet-sdk-py[absolufy-imports,add-trailing-comma,autoflake,autopep8,bandit,black,blacken-docs,blocklint,codespell\
   ,deptry,dev,docconvert,docformatter,docs,editorconfig-checker,flake8,interrogate,mdformat,mypy,psr,pymarkdown,pyproje\
-  ct-fmt,pyrefly,pyright,pyroma,pytest,sphinx-lint,ssort,tox-ini-fmt,unimport,validate-pyproject,vulture,yamllint]\
+  ct-fmt,pyrefly,pyright,pyroma,sphinx-lint,ssort,tox-ini-fmt,unimport,validate-pyproject,vulture,yamllint]\
   """,
 ]
 optional-dependencies.autoflake = [
@@ -119,7 +119,6 @@ optional-dependencies.docformatter = [
 optional-dependencies.docs = [
   "furo",
   "myst-parser[linkify]",
-  "sphinx",
   "sphinx-autobuild",
   "sphinx-click",
   "sphinx-copybutton",
@@ -171,11 +170,8 @@ optional-dependencies.flake8-plugins = [
   "flake8-unused-arguments",
   "flynt",
   "gamesheet-sdk-py[isort,pydocstyle,pylint,pyupgrade,radon,refurb]",
-  "mccabe",
   "pep8-naming",
-  "pycodestyle",
   "pydoclint",
-  "pyflakes",
   "tryceratops",
 ]
 optional-dependencies.interrogate = [
@@ -224,7 +220,6 @@ optional-dependencies.pyroma = [
   "virtualenv",
 ]
 optional-dependencies.pytest = [
-  "pytest",
   "pytest-cov",
   "pytest-playwright",
   "pytest-recording",
@@ -251,11 +246,14 @@ optional-dependencies.tox-ini-fmt = [
 optional-dependencies.type-stubs = [
   "types-certifi",
   "types-click",
+  "types-docutils",
   "types-greenlet",
   "types-pygments",
   "types-python-dateutil",
+  "types-pytz",
   "types-pyyaml",
   "types-requests",
+  "types-six",
   "types-tabulate",
   "types-tzlocal",
   "types-urllib3",
@@ -1313,17 +1311,14 @@ package_module_name_map.flynt = "flynt"
 package_module_name_map.furo = "furo"
 package_module_name_map.interrogate = "interrogate"
 package_module_name_map.isort = "isort"
-package_module_name_map.mccabe = "mccabe"
 package_module_name_map.mdformat-gfm = "mdformat_gfm"
 package_module_name_map.mdformat-pyproject = "mdformat_pyproject"
 package_module_name_map.mypy = "mypy"
 package_module_name_map.myst-parser = "myst_parser"
 package_module_name_map.pep8-naming = "pep8_naming"
 package_module_name_map.pre-commit = "pre_commit"
-package_module_name_map.pycodestyle = "pycodestyle"
 package_module_name_map.pydoclint = "pydoclint"
 package_module_name_map.pydocstyle = "pydocstyle"
-package_module_name_map.pyflakes = "pyflakes"
 package_module_name_map.pylint-per-file-ignores = "pylint_per_file_ignores"
 package_module_name_map.pylint-pydantic = "pylint_pydantic"
 package_module_name_map.pymarkdownlnt = "pymarkdownlnt"
@@ -1331,11 +1326,16 @@ package_module_name_map.pyproject-fmt = "pyproject_fmt"
 package_module_name_map.pyrefly = "pyrefly"
 package_module_name_map.pyright = "pyright"
 package_module_name_map.pyroma = "pyroma"
+package_module_name_map.pytest-cov = "pytest_cov"
+package_module_name_map.pytest-playwright = "pytest_playwright"
+package_module_name_map.pytest-recording = "pytest_recording"
+package_module_name_map.python-dateutil = "dateutil"
 package_module_name_map.python-semantic-release = "python_semantic_release"
 package_module_name_map.pyupgrade = "pyupgrade"
+package_module_name_map.PyYAML = "yaml"
 package_module_name_map.radon = "radon"
 package_module_name_map.refurb = "refurb"
-package_module_name_map.sphinx = "sphinx"
+package_module_name_map.responses = "responses"
 package_module_name_map.sphinx-autobuild = "sphinx_autobuild"
 package_module_name_map.sphinx-click = "sphinx_click"
 package_module_name_map.sphinx-copybutton = "sphinx_copybutton"
@@ -1508,12 +1508,12 @@ recursive = true
 
 ## ## mypy - Industry-standard static type checker
 [tool.mypy]
+exclude_gitignore = true
 python_version = "3.11"
 strict = true
 plugins = [
   "pydantic.mypy",
 ]
-exclude-gitignore = true
 
 ## ## pyrefly - Code health and quality reviewer
 [tool.pyrefly]
