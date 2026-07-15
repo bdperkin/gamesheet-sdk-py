@@ -3,6 +3,7 @@
 
 """Authentication flows and token management for GameSheet."""
 
+from gamesheet_sdk.common.auth.flow import LoginFlow
 from gamesheet_sdk.common.auth.login import login
 from gamesheet_sdk.common.auth.session import AuthenticatedSession, OnRefreshCallback
 from gamesheet_sdk.common.auth.tokens import (
@@ -14,6 +15,7 @@ from gamesheet_sdk.common.auth.tokens import (
 
 __all__ = [
     "AuthenticatedSession",
+    "LoginFlow",
     "OnRefreshCallback",
     "load_access_token",
     "load_refresh_token",
