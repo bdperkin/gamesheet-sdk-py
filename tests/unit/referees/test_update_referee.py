@@ -11,7 +11,7 @@ import pytest
 import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
-from gamesheet_sdk.referees import update_referee
+from gamesheet_sdk.admin.referees import update_referee
 from tests.helpers import (
     REFEREE_EXTERNAL_ID_SECONDARY,
     TEST_AUTH_HEADER,

@@ -10,20 +10,20 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
+from gamesheet_sdk.admin.cli.main import cli
 from tests.helpers import SEASON_ID
 
 
 def test_ipad_keys_get_alias_show_works(runner: CliRunner) -> None:
     """The ipad-keys show alias should work the same as get."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
         patch(
-            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+            "gamesheet_sdk.admin.cli.commands.ipad_keys._list_ipad_keys_action",
         ) as mock_action,
     ):
-        from gamesheet_sdk.ipad_keys import IPadKey
+        from gamesheet_sdk.admin.ipad_keys import IPadKey
 
         mock_action.return_value = [
             IPadKey(
@@ -44,13 +44,13 @@ def test_ipad_keys_get_alias_show_works(runner: CliRunner) -> None:
 def test_ipad_keys_get_alias_view_works(runner: CliRunner) -> None:
     """The ipad-keys view alias should work the same as get."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
         patch(
-            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+            "gamesheet_sdk.admin.cli.commands.ipad_keys._list_ipad_keys_action",
         ) as mock_action,
     ):
-        from gamesheet_sdk.ipad_keys import IPadKey
+        from gamesheet_sdk.admin.ipad_keys import IPadKey
 
         mock_action.return_value = [
             IPadKey(
@@ -79,13 +79,13 @@ def test_ipad_keys_default_command_is_get(runner: CliRunner) -> None:
 def test_ipad_keys_get_json_output(runner: CliRunner) -> None:
     """Ipad-keys get should support JSON output."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
         patch(
-            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+            "gamesheet_sdk.admin.cli.commands.ipad_keys._list_ipad_keys_action",
         ) as mock_action,
     ):
-        from gamesheet_sdk.ipad_keys import IPadKey
+        from gamesheet_sdk.admin.ipad_keys import IPadKey
 
         mock_action.return_value = [
             IPadKey(
@@ -114,13 +114,13 @@ def test_ipad_keys_get_json_output(runner: CliRunner) -> None:
 def test_ipad_keys_get_yaml_output(runner: CliRunner) -> None:
     """Ipad-keys get should support YAML output."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
         patch(
-            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+            "gamesheet_sdk.admin.cli.commands.ipad_keys._list_ipad_keys_action",
         ) as mock_action,
     ):
-        from gamesheet_sdk.ipad_keys import IPadKey
+        from gamesheet_sdk.admin.ipad_keys import IPadKey
 
         mock_action.return_value = [
             IPadKey(
@@ -145,13 +145,13 @@ def test_ipad_keys_get_yaml_output(runner: CliRunner) -> None:
 def test_ipad_keys_get_columns_filter(runner: CliRunner) -> None:
     """Ipad-keys get should support column filtering."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
         patch(
-            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+            "gamesheet_sdk.admin.cli.commands.ipad_keys._list_ipad_keys_action",
         ) as mock_action,
     ):
-        from gamesheet_sdk.ipad_keys import IPadKey
+        from gamesheet_sdk.admin.ipad_keys import IPadKey
 
         mock_action.return_value = [
             IPadKey(
@@ -178,13 +178,13 @@ def test_ipad_keys_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
     """Ipad-keys get should write to file when -o is specified."""
     output_file = tmp_path / "output.json"
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
         patch(
-            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+            "gamesheet_sdk.admin.cli.commands.ipad_keys._list_ipad_keys_action",
         ) as mock_action,
     ):
-        from gamesheet_sdk.ipad_keys import IPadKey
+        from gamesheet_sdk.admin.ipad_keys import IPadKey
 
         mock_action.return_value = [
             IPadKey(
@@ -222,13 +222,13 @@ def test_ipad_keys_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
 def test_ipad_keys_get_table_format(runner: CliRunner) -> None:
     """Ipad-keys get should output table format by default."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
         patch(
-            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+            "gamesheet_sdk.admin.cli.commands.ipad_keys._list_ipad_keys_action",
         ) as mock_action,
     ):
-        from gamesheet_sdk.ipad_keys import IPadKey
+        from gamesheet_sdk.admin.ipad_keys import IPadKey
 
         mock_action.return_value = [
             IPadKey(
@@ -250,13 +250,13 @@ def test_ipad_keys_get_table_format(runner: CliRunner) -> None:
 def test_ipad_keys_get_grid_format(runner: CliRunner) -> None:
     """Ipad-keys get should support grid table format."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
         patch(
-            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+            "gamesheet_sdk.admin.cli.commands.ipad_keys._list_ipad_keys_action",
         ) as mock_action,
     ):
-        from gamesheet_sdk.ipad_keys import IPadKey
+        from gamesheet_sdk.admin.ipad_keys import IPadKey
 
         mock_action.return_value = [
             IPadKey(
@@ -281,8 +281,8 @@ def test_ipad_keys_get_grid_format(runner: CliRunner) -> None:
 def test_ipad_keys_get_with_no_saved_tokens(runner: CliRunner) -> None:
     """Ipad-keys get should exit with error when no tokens are saved."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=None),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=None),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value=None),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value=None),
     ):
         result = runner.invoke(cli, ["ipad-keys", "get", "--season-id", SEASON_ID])
         assert result.exit_code == 1
@@ -292,13 +292,13 @@ def test_ipad_keys_get_with_no_saved_tokens(runner: CliRunner) -> None:
 def test_ipad_keys_get_with_env_var(runner: CliRunner) -> None:
     """The season ID can be provided via GAMESHEET_SEASON_ID environment variable."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
         patch(
-            "gamesheet_sdk.cli.commands.ipad_keys._list_ipad_keys_action",
+            "gamesheet_sdk.admin.cli.commands.ipad_keys._list_ipad_keys_action",
         ) as mock_action,
     ):
-        from gamesheet_sdk.ipad_keys import IPadKey
+        from gamesheet_sdk.admin.ipad_keys import IPadKey
 
         mock_action.return_value = [
             IPadKey(

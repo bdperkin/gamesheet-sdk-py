@@ -4,7 +4,7 @@
 """Smoke tests for gamesheet_sdk."""
 
 from gamesheet_sdk import __version__
-from gamesheet_sdk.cli import main
+from gamesheet_sdk.admin.cli import main
 
 
 def test_version_is_string() -> None:

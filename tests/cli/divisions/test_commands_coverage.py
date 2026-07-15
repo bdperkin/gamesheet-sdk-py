@@ -12,7 +12,7 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.divisions import divisions_group
+from gamesheet_sdk.admin.cli.commands.divisions import divisions_group
 from tests.helpers import DEFAULT_DIVISION_NAME, DIVISION_ID, SEASON_ID
 
 
@@ -20,12 +20,12 @@ def test_divisions_list_coverage() -> None:
     """Ensure divisions list command body is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.divisions.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.commands.divisions.run_action_or_exit",
             return_value=[],
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
+        patch("gamesheet_sdk.admin.cli.commands.divisions.render_list_command"),
     ):
         result = runner.invoke(
             divisions_group,
@@ -39,12 +39,12 @@ def test_divisions_teams_coverage() -> None:
     """Ensure divisions teams list command body is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.divisions.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.commands.divisions.run_action_or_exit",
             return_value=[],
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
+        patch("gamesheet_sdk.admin.cli.commands.divisions.render_list_command"),
     ):
         result = runner.invoke(
             divisions_group,
@@ -70,17 +70,17 @@ def test_divisions_create_coverage() -> None:
         return action(session, *args)
 
     with (
-        patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.divisions.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.divisions._create_division_action",
+            "gamesheet_sdk.admin.cli.commands.divisions._create_division_action",
             return_value=mock_division,
         ),
         patch(
-            "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.commands.divisions.run_action_or_exit",
             side_effect=mock_run_action,
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
-        patch("gamesheet_sdk.cli.commands.divisions.click.secho") as mock_secho,
+        patch("gamesheet_sdk.admin.cli.commands.divisions.render_list_command"),
+        patch("gamesheet_sdk.admin.cli.commands.divisions.click.secho") as mock_secho,
     ):
         result = runner.invoke(
             divisions_group,
@@ -118,17 +118,17 @@ def test_divisions_create_with_output_file_coverage() -> None:
         return action(session, *args)
 
     with (
-        patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.divisions.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.divisions._create_division_action",
+            "gamesheet_sdk.admin.cli.commands.divisions._create_division_action",
             return_value=mock_division,
         ),
         patch(
-            "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.commands.divisions.run_action_or_exit",
             side_effect=mock_run_action,
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
-        patch("gamesheet_sdk.cli.commands.divisions.click.secho") as mock_secho,
+        patch("gamesheet_sdk.admin.cli.commands.divisions.render_list_command"),
+        patch("gamesheet_sdk.admin.cli.commands.divisions.click.secho") as mock_secho,
         tempfile.TemporaryDirectory() as tmpdir,
     ):
         output_file = Path(tmpdir, "out.json")
@@ -167,17 +167,17 @@ def test_divisions_update_coverage() -> None:
         return action(session, *args)
 
     with (
-        patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.divisions.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.divisions._update_division_action",
+            "gamesheet_sdk.admin.cli.commands.divisions._update_division_action",
             return_value=mock_division,
         ),
         patch(
-            "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.commands.divisions.run_action_or_exit",
             side_effect=mock_run_action,
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
-        patch("gamesheet_sdk.cli.commands.divisions.click.secho") as mock_secho,
+        patch("gamesheet_sdk.admin.cli.commands.divisions.render_list_command"),
+        patch("gamesheet_sdk.admin.cli.commands.divisions.click.secho") as mock_secho,
     ):
         result = runner.invoke(
             divisions_group,
@@ -205,7 +205,7 @@ def test_divisions_update_coverage() -> None:
 def test_divisions_update_with_no_fields_exits_with_error() -> None:
     """Ensure divisions update without fields shows error."""
     runner = CliRunner()
-    with patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"):
+    with patch("gamesheet_sdk.admin.cli.commands.divisions.build_authenticated_session"):
         result = runner.invoke(
             divisions_group,
             [
@@ -238,17 +238,17 @@ def test_divisions_update_with_output_file_coverage() -> None:
         return action(session, *args)
 
     with (
-        patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.divisions.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.divisions._update_division_action",
+            "gamesheet_sdk.admin.cli.commands.divisions._update_division_action",
             return_value=mock_division,
         ),
         patch(
-            "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.commands.divisions.run_action_or_exit",
             side_effect=mock_run_action,
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
-        patch("gamesheet_sdk.cli.commands.divisions.click.secho") as mock_secho,
+        patch("gamesheet_sdk.admin.cli.commands.divisions.render_list_command"),
+        patch("gamesheet_sdk.admin.cli.commands.divisions.click.secho") as mock_secho,
         tempfile.TemporaryDirectory() as tmpdir,
     ):
         output_file = Path(tmpdir, "out.json")
@@ -278,9 +278,9 @@ def test_divisions_delete_coverage() -> None:
     """Ensure divisions delete command body is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
-        patch("gamesheet_sdk.cli.commands.divisions.run_action_or_exit"),
-        patch("gamesheet_sdk.cli.commands.divisions.click.secho") as mock_secho,
+        patch("gamesheet_sdk.admin.cli.commands.divisions.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.divisions.run_action_or_exit"),
+        patch("gamesheet_sdk.admin.cli.commands.divisions.click.secho") as mock_secho,
     ):
         result = runner.invoke(
             divisions_group,
@@ -305,7 +305,7 @@ def test_divisions_delete_coverage() -> None:
 def test_divisions_delete_requires_confirmation_without_force() -> None:
     """Ensure divisions delete prompts for confirmation without --force."""
     runner = CliRunner()
-    with patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"):
+    with patch("gamesheet_sdk.admin.cli.commands.divisions.build_authenticated_session"):
         # User declines confirmation (input='n')
         result = runner.invoke(
             divisions_group,

@@ -10,8 +10,8 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
-from gamesheet_sdk.roster import Coach
+from gamesheet_sdk.admin.cli.main import cli
+from gamesheet_sdk.admin.roster import Coach
 from tests.helpers import SEASON_ID
 
 
@@ -19,10 +19,10 @@ def test_coaches_get(runner: CliRunner) -> None:
     """The coaches get command should retrieve a single coach."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.roster_coaches._get_coach_action",
+            "gamesheet_sdk.admin.cli.commands.roster_coaches._get_coach_action",
         ) as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Coach(
             id="601",
@@ -45,10 +45,10 @@ def test_coaches_get_with_fields(runner: CliRunner) -> None:
     """The coaches get command should support --fields and JSON format."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.roster_coaches._get_coach_action",
+            "gamesheet_sdk.admin.cli.commands.roster_coaches._get_coach_action",
         ) as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Coach(
             id="601",
@@ -82,10 +82,10 @@ def test_coaches_get_empty_fields(runner: CliRunner) -> None:
     """The coaches get command should handle empty fields spec."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.roster_coaches._get_coach_action",
+            "gamesheet_sdk.admin.cli.commands.roster_coaches._get_coach_action",
         ) as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Coach(
             id="601",

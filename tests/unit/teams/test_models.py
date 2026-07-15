@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from gamesheet_sdk.teams import Team
+from gamesheet_sdk.admin.teams import Team
 from tests.helpers import SEASON_ID
 
 

@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
+from gamesheet_sdk.admin.cli.main import cli
 from tests.helpers import SEASON_ID
 
 
@@ -17,13 +17,16 @@ def test_referees_delete_with_force(runner: CliRunner) -> None:
     """The referees delete command should work with --force flag."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.referees._delete_referee_action",
+            "gamesheet_sdk.admin.cli.commands.referees._delete_referee_action",
         ) as mock_delete,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_delete.return_value = None
         result = runner.invoke(
@@ -50,13 +53,16 @@ def test_referees_delete_alias_rm(runner: CliRunner) -> None:
     """The 'rm' alias should invoke the delete command."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.referees._delete_referee_action",
+            "gamesheet_sdk.admin.cli.commands.referees._delete_referee_action",
         ) as mock_delete,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_delete.return_value = None
         result = runner.invoke(
@@ -79,13 +85,16 @@ def test_referees_delete_alias_remove(runner: CliRunner) -> None:
     """The 'remove' alias should invoke the delete command."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.referees._delete_referee_action",
+            "gamesheet_sdk.admin.cli.commands.referees._delete_referee_action",
         ) as mock_delete,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_delete.return_value = None
         result = runner.invoke(
@@ -124,13 +133,16 @@ def test_referees_delete_without_force_prompts_confirmation(runner: CliRunner) -
     """Calling 'referees delete' without --force should prompt for confirmation."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.referees._delete_referee_action",
+            "gamesheet_sdk.admin.cli.commands.referees._delete_referee_action",
         ) as mock_delete,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_delete.return_value = None
         # User answers 'n' to confirmation

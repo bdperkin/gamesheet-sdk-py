@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from gamesheet_sdk.leagues import League
+from gamesheet_sdk.admin.leagues import League
 
 
 def test_league_model_ignores_unknown_attributes() -> None:

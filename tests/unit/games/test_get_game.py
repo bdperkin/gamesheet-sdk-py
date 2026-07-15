@@ -15,7 +15,7 @@ from gamesheet_sdk import (
     GameSheetError,
     Session,
 )
-from gamesheet_sdk.games import get_game
+from gamesheet_sdk.admin.games import get_game
 from tests.helpers import SEASON_ID
 
 _BFF_BASE = BFF_API_BASE_URL

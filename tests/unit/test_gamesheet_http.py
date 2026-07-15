@@ -9,8 +9,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from gamesheet_sdk.exceptions import AuthenticationError, GameSheetError
-from gamesheet_sdk.shared.gamesheet_http import handle_response
+from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.common.shared.gamesheet_http import handle_response
 
 
 def test_handle_response_passes_on_200() -> None:
@@ -29,7 +29,7 @@ def test_handle_response_raises_on_401() -> None:
         AuthenticationError,
         match=(
             r"Access token rejected \(HTTP 401\) for GET test\. "
-            r"Use `gamesheet-sdk-py login` to authenticate\."
+            r"Use `gamesheet-admin login` to authenticate\."
         ),
     ):
         handle_response(response, "/api/test", "GET test")
@@ -44,7 +44,7 @@ def test_handle_response_raises_on_403() -> None:
         match=(
             r"Access forbidden \(HTTP 403\) for GET test\. "
             r"Your session cookies may have expired\. "
-            r"Use `gamesheet-sdk-py login` to re-authenticate\."
+            r"Use `gamesheet-admin login` to re-authenticate\."
         ),
     ):
         handle_response(response, "/api/test", "GET test")

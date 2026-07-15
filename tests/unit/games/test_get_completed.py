@@ -8,8 +8,8 @@ from __future__ import annotations
 import responses
 
 from gamesheet_sdk import Config, Session
-from gamesheet_sdk.constants import DEFAULT_BASE_URL
-from gamesheet_sdk.games import get_completed_game
+from gamesheet_sdk.admin.games import get_completed_game
+from gamesheet_sdk.common.constants import DEFAULT_BASE_URL
 from tests.fixtures.constants import TEST_BEARER_TOKEN
 
 

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from gamesheet_sdk.seasons import Season, SeasonDetail
+from gamesheet_sdk.admin.seasons import Season, SeasonDetail
 from tests.helpers import CLI_TEST_SEASON_ID, SEASON_ID
 
 

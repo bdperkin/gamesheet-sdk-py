@@ -65,22 +65,22 @@ machine, not per project.
 
 ## Step 4 — Verify the CLI works
 
-The package installs a console script named `gamesheet-sdk-py`. Ask it for its version:
+The package installs two console scripts: `gamesheet-admin` (admin dashboard) and `gamesheet-teams` (teams dashboard). Try the admin CLI first:
 
 ```console
-(.venv) $ gamesheet-sdk-py --version
-gamesheet-sdk-py 0.0.1
+(.venv) $ gamesheet-admin --version
+gamesheet-admin 0.0.1
 ```
 
 Then ask for its help text:
 
 ```console
-(.venv) $ gamesheet-sdk-py --help
-Usage: gamesheet-sdk-py [OPTIONS] COMMAND [ARGS]...
+(.venv) $ gamesheet-admin --help
+Usage: gamesheet-admin [OPTIONS] COMMAND [ARGS]...
 
   Unofficial SDK for the GameSheet Inc. platform.
 
-  Root command group for the ``gamesheet-sdk-py`` CLI. Automates the GameSheet
+  Root command group for the GameSheet admin CLI. Automates the GameSheet
   WebUI via headless browser or direct HTTP where a public API is absent.
 
 Options:
@@ -124,7 +124,7 @@ session tokens for future use.
 Try authenticating now (you will need a GameSheet account):
 
 ```console
-(.venv) $ gamesheet-sdk-py login --email your.email@example.com
+(.venv) $ gamesheet-admin login --email your.email@example.com
 Password: [your input is hidden]
 Login successful! Tokens saved.
 ```
@@ -145,7 +145,7 @@ here when you are ready to authenticate.
 Once authenticated, you can query GameSheet resources. Try listing the associations on your account:
 
 ```console
-(.venv) $ gamesheet-sdk-py associations list
+(.venv) $ gamesheet-admin associations list
 ID      Name
 ------  -------------------------
 12345   Example Hockey Association
@@ -155,13 +155,13 @@ ID      Name
 You can also use the shorter alias `ls` instead of `list`:
 
 ```console
-(.venv) $ gamesheet-sdk-py associations ls
+(.venv) $ gamesheet-admin associations ls
 ```
 
 The CLI supports multiple output formats. Try JSON:
 
 ```console
-(.venv) $ gamesheet-sdk-py associations list --output json
+(.venv) $ gamesheet-admin associations list --output json
 [
   {
     "id": 12345,
@@ -177,7 +177,7 @@ The CLI supports multiple output formats. Try JSON:
 Or YAML:
 
 ```console
-(.venv) $ gamesheet-sdk-py associations list --output yaml
+(.venv) $ gamesheet-admin associations list --output yaml
 - id: 12345
   name: Example Hockey Association
 - id: 67890
@@ -187,8 +187,8 @@ Or YAML:
 Each resource (associations, leagues, seasons, etc.) follows the same pattern. Use `--help` on any command to see its options:
 
 ```console
-(.venv) $ gamesheet-sdk-py leagues --help
-(.venv) $ gamesheet-sdk-py seasons list --help
+(.venv) $ gamesheet-admin leagues --help
+(.venv) $ gamesheet-admin seasons list --help
 ```
 
 ## You're done

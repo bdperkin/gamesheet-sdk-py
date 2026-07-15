@@ -9,9 +9,9 @@ import pytest
 import responses
 
 from gamesheet_sdk import Config, Session
-from gamesheet_sdk.constants import BFF_API_BASE_URL, DEFAULT_BASE_URL
-from gamesheet_sdk.exceptions import GameSheetError
-from gamesheet_sdk.games import list_broadcasters, validate_broadcaster_key
+from gamesheet_sdk.admin.games import list_broadcasters, validate_broadcaster_key
+from gamesheet_sdk.common.constants import BFF_API_BASE_URL, DEFAULT_BASE_URL
+from gamesheet_sdk.common.exceptions import GameSheetError
 from tests.fixtures.constants import TEST_BEARER_TOKEN
 
 

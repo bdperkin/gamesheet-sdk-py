@@ -10,8 +10,8 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.associations import Association
-from gamesheet_sdk.cli import cli
+from gamesheet_sdk.admin.associations import Association
+from gamesheet_sdk.admin.cli.main import cli
 from tests.helpers import DEFAULT_ASSOCIATION_NAME
 
 
@@ -19,10 +19,10 @@ def test_associations_get(runner: CliRunner) -> None:
     """The associations get command should retrieve a single association."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.associations._get_association_action",
+            "gamesheet_sdk.admin.cli.commands.associations._get_association_action",
         ) as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Association(
             id="101",
@@ -41,10 +41,10 @@ def test_associations_get_with_fields(runner: CliRunner) -> None:
     """The associations get command should support --fields option."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.associations._get_association_action",
+            "gamesheet_sdk.admin.cli.commands.associations._get_association_action",
         ) as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Association(
             id="101",
@@ -65,10 +65,10 @@ def test_associations_get_json_format(runner: CliRunner) -> None:
     """The associations get command should support JSON output format."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.associations._get_association_action",
+            "gamesheet_sdk.admin.cli.commands.associations._get_association_action",
         ) as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Association(
             id="101",
@@ -89,10 +89,10 @@ def test_associations_get_empty_fields(runner: CliRunner) -> None:
     """The associations get command should handle empty fields spec."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.associations._get_association_action",
+            "gamesheet_sdk.admin.cli.commands.associations._get_association_action",
         ) as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Association(
             id="101",

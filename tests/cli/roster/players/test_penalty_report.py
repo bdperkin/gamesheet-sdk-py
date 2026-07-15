@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.main import cli
+from gamesheet_sdk.admin.cli.main import cli
 from tests.helpers import PLAYER_ID_SECONDARY, SEASON_ID
 
 
@@ -45,11 +45,11 @@ def test_players_penalty_report_success(mock_session: MagicMock) -> None:
     }
     with (
         patch(
-            "gamesheet_sdk.cli.commands.roster_players.build_authenticated_session",
+            "gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session",
             return_value=mock_session,
         ),
         patch(
-            "gamesheet_sdk.roster.get_player_penalty_report",
+            "gamesheet_sdk.admin.roster.get_player_penalty_report",
             return_value=mock_report,
         ) as mock_get_report,
     ):
@@ -82,11 +82,11 @@ def test_players_penalty_report_uses_env_var(mock_session: MagicMock) -> None:
     mock_report: dict[str, Any] = {"player_games": [], "player_penalties": []}
     with (
         patch(
-            "gamesheet_sdk.cli.commands.roster_players.build_authenticated_session",
+            "gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session",
             return_value=mock_session,
         ),
         patch(
-            "gamesheet_sdk.roster.get_player_penalty_report",
+            "gamesheet_sdk.admin.roster.get_player_penalty_report",
             return_value=mock_report,
         ) as mock_get_report,
     ):
@@ -117,11 +117,11 @@ def test_players_penalty_report_json_format(mock_session: MagicMock) -> None:
     mock_report: dict[str, Any] = {"player_games": [], "player_penalties": []}
     with (
         patch(
-            "gamesheet_sdk.cli.commands.roster_players.build_authenticated_session",
+            "gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session",
             return_value=mock_session,
         ),
         patch(
-            "gamesheet_sdk.roster.get_player_penalty_report",
+            "gamesheet_sdk.admin.roster.get_player_penalty_report",
             return_value=mock_report,
         ),
     ):
@@ -151,11 +151,11 @@ def test_players_penalty_report_yaml_format(mock_session: MagicMock) -> None:
     mock_report: dict[str, Any] = {"player_games": [], "player_penalties": []}
     with (
         patch(
-            "gamesheet_sdk.cli.commands.roster_players.build_authenticated_session",
+            "gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session",
             return_value=mock_session,
         ),
         patch(
-            "gamesheet_sdk.roster.get_player_penalty_report",
+            "gamesheet_sdk.admin.roster.get_player_penalty_report",
             return_value=mock_report,
         ),
     ):

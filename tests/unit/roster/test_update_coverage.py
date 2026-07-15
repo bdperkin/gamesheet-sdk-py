@@ -8,7 +8,7 @@ from __future__ import annotations
 import responses
 
 from gamesheet_sdk import Config, Session
-from gamesheet_sdk.roster import update_coach, update_player
+from gamesheet_sdk.admin.roster import update_coach, update_player
 from tests.helpers import (
     COACH_ID_SECONDARY,
     PLAYER_ID,

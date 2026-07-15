@@ -10,19 +10,22 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
+from gamesheet_sdk.admin.cli.main import cli
 from tests.helpers import ASSOCIATION_ID, DEFAULT_TEAM_NAME, SEASON_ID
 
 
 def test_teams_create_basic(runner: CliRunner) -> None:
     """The teams create command should work with required arguments."""
     with (
-        patch("gamesheet_sdk.teams.create_team") as mock_create,
+        patch("gamesheet_sdk.admin.teams.create_team") as mock_create,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_create.return_value = {
             "prototeam": {"id": "proto-id", "title": DEFAULT_TEAM_NAME},
@@ -49,12 +52,15 @@ def test_teams_create_basic(runner: CliRunner) -> None:
 def test_teams_create_with_external_id(runner: CliRunner) -> None:
     """The teams create command should accept external-id."""
     with (
-        patch("gamesheet_sdk.teams.create_team") as mock_create,
+        patch("gamesheet_sdk.admin.teams.create_team") as mock_create,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_create.return_value = {
             "prototeam": {"id": "proto-id"},
@@ -82,12 +88,15 @@ def test_teams_create_with_external_id(runner: CliRunner) -> None:
 def test_teams_create_json_output(runner: CliRunner) -> None:
     """The teams create command should support JSON output."""
     with (
-        patch("gamesheet_sdk.teams.create_team") as mock_create,
+        patch("gamesheet_sdk.admin.teams.create_team") as mock_create,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_create.return_value = {
             "prototeam": {"id": "proto-id", "title": DEFAULT_TEAM_NAME},
@@ -116,12 +125,15 @@ def test_teams_create_json_output(runner: CliRunner) -> None:
 def test_teams_create_alias_add_works(runner: CliRunner) -> None:
     """The 'add' alias should invoke the create command."""
     with (
-        patch("gamesheet_sdk.teams.create_team") as mock_create,
+        patch("gamesheet_sdk.admin.teams.create_team") as mock_create,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_create.return_value = {
             "prototeam": {"id": "proto-id"},
@@ -148,12 +160,15 @@ def test_teams_create_alias_add_works(runner: CliRunner) -> None:
 def test_teams_create_alias_new_works(runner: CliRunner) -> None:
     """The 'new' alias should invoke the create command."""
     with (
-        patch("gamesheet_sdk.teams.create_team") as mock_create,
+        patch("gamesheet_sdk.admin.teams.create_team") as mock_create,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_create.return_value = {
             "prototeam": {"id": "proto-id"},
@@ -181,12 +196,15 @@ def test_teams_create_with_output_file(runner: CliRunner, tmp_path: Any) -> None
     """The teams create command should support --output flag."""
     output_file = tmp_path / "team.json"
     with (
-        patch("gamesheet_sdk.teams.create_team") as mock_create,
+        patch("gamesheet_sdk.admin.teams.create_team") as mock_create,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_create.return_value = {
             "prototeam": {"id": "proto-id", "title": DEFAULT_TEAM_NAME},
@@ -224,8 +242,8 @@ def test_teams_create_missing_required_args(runner: CliRunner) -> None:
 def test_teams_create_with_no_saved_tokens(runner: CliRunner) -> None:
     """Calling 'teams create' with no saved tokens should fail gracefully."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=None),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=None),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value=None),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value=None),
     ):
         result = runner.invoke(
             cli,

@@ -9,7 +9,7 @@ from unittest.mock import MagicMock
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.teams import teams_group
+from gamesheet_sdk.admin.cli.commands.teams import teams_group
 
 
 def test_teams_roster_group_context_setup() -> None:

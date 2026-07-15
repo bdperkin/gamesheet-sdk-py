@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import responses
 
-from gamesheet_sdk.constants import DEFAULT_BASE_URL
+from gamesheet_sdk.common.constants import DEFAULT_BASE_URL
 from tests.fixtures.constants import (
     TEST_CITY,
     TEST_COUNTRY,

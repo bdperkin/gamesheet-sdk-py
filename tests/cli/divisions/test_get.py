@@ -10,8 +10,8 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
-from gamesheet_sdk.divisions import Division
+from gamesheet_sdk.admin.cli.main import cli
+from gamesheet_sdk.admin.divisions import Division
 from tests.helpers import DEFAULT_DIVISION_NAME, SEASON_ID
 
 
@@ -19,10 +19,10 @@ def test_divisions_get(runner: CliRunner) -> None:
     """The divisions get command should retrieve a single division."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.divisions._get_division_action",
+            "gamesheet_sdk.admin.cli.commands.divisions._get_division_action",
         ) as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Division(
             id="301",
@@ -41,10 +41,10 @@ def test_divisions_get_with_fields(runner: CliRunner) -> None:
     """The divisions get command should support --fields and JSON format."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.divisions._get_division_action",
+            "gamesheet_sdk.admin.cli.commands.divisions._get_division_action",
         ) as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Division(
             id="301",
@@ -74,10 +74,10 @@ def test_divisions_get_empty_fields(runner: CliRunner) -> None:
     """The divisions get command should handle empty fields spec."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.divisions._get_division_action",
+            "gamesheet_sdk.admin.cli.commands.divisions._get_division_action",
         ) as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Division(
             id="301",

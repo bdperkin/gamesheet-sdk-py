@@ -10,20 +10,23 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
-from gamesheet_sdk.referees import Referee
+from gamesheet_sdk.admin.cli.main import cli
+from gamesheet_sdk.admin.referees import Referee
 from tests.helpers import SEASON_ID, TEST_EMAIL_REFEREE
 
 
 def test_referees_get_with_all_fields(runner: CliRunner) -> None:
     """The referees get command should retrieve a single referee."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._get_referee_action") as mock_get,
+        patch("gamesheet_sdk.admin.cli.commands.referees._get_referee_action") as mock_get,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_get.return_value = Referee(
             id="1146197",
@@ -55,12 +58,15 @@ def test_referees_get_with_all_fields(runner: CliRunner) -> None:
 def test_referees_get_alias_show(runner: CliRunner) -> None:
     """The 'show' alias should invoke the get command."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._get_referee_action") as mock_get,
+        patch("gamesheet_sdk.admin.cli.commands.referees._get_referee_action") as mock_get,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_get.return_value = Referee(
             id="1146198",
@@ -88,12 +94,15 @@ def test_referees_get_alias_show(runner: CliRunner) -> None:
 def test_referees_get_alias_view(runner: CliRunner) -> None:
     """The 'view' alias should invoke the get command."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._get_referee_action") as mock_get,
+        patch("gamesheet_sdk.admin.cli.commands.referees._get_referee_action") as mock_get,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_get.return_value = Referee(
             id="1146199",
@@ -136,12 +145,15 @@ def test_referees_get_missing_referee_id_shows_error(runner: CliRunner) -> None:
 def test_referees_get_json_output(runner: CliRunner) -> None:
     """The referees get command should support JSON output."""
     with (
-        patch("gamesheet_sdk.cli.commands.referees._get_referee_action") as mock_get,
+        patch("gamesheet_sdk.admin.cli.commands.referees._get_referee_action") as mock_get,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_get.return_value = Referee(
             id="1146200",

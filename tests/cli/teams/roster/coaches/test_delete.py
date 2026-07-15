@@ -7,7 +7,9 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from gamesheet_sdk.cli.commands.teams_roster_coaches import teams_roster_coaches_group
+from gamesheet_sdk.admin.cli.commands.teams_roster_coaches import (
+    teams_roster_coaches_group,
+)
 from tests.cli.teams.roster.conftest import run_roster_delete_test
 from tests.helpers import COACH_ID_QUATERNARY, SEASON_ID, TEAM_ID_SECONDARY
 
@@ -21,7 +23,7 @@ def test_teams_roster_coaches_delete_coverage(
         group=teams_roster_coaches_group,
         resource_type="coach",
         resource_id=COACH_ID_QUATERNARY,
-        action_path="gamesheet_sdk.cli.commands.teams_roster_coaches._delete_team_coach_action",
+        action_path="gamesheet_sdk.admin.cli.commands.teams_roster_coaches._delete_team_coach_action",
         # pylint: disable=duplicate-code
         season_id=SEASON_ID,
         team_id=TEAM_ID_SECONDARY,
@@ -49,7 +51,7 @@ def test_teams_roster_coaches_delete_error_handling(
         group=teams_roster_coaches_group,
         resource_type="coach",
         resource_id=COACH_ID_QUATERNARY,
-        action_path="gamesheet_sdk.cli.commands.teams_roster_coaches._delete_team_coach_action",
+        action_path="gamesheet_sdk.admin.cli.commands.teams_roster_coaches._delete_team_coach_action",
         season_id=SEASON_ID,
         team_id=TEAM_ID_SECONDARY,
         session=mock_session,
@@ -71,7 +73,7 @@ def test_teams_roster_coaches_delete_requires_confirmation(
         group=teams_roster_coaches_group,
         resource_type="coach",
         resource_id=COACH_ID_QUATERNARY,
-        action_path="gamesheet_sdk.cli.commands.teams_roster_coaches._delete_team_coach_action",
+        action_path="gamesheet_sdk.admin.cli.commands.teams_roster_coaches._delete_team_coach_action",
         season_id=SEASON_ID,
         team_id=TEAM_ID_SECONDARY,
         session=mock_session,

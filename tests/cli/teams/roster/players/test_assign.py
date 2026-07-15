@@ -9,7 +9,9 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.teams_roster_players import teams_roster_players_group
+from gamesheet_sdk.admin.cli.commands.teams_roster_players import (
+    teams_roster_players_group,
+)
 from tests.fixtures.constants import TEST_ERROR_GENERIC
 from tests.helpers import PLAYER_ID, SEASON_ID, TEAM_ID
 
@@ -21,13 +23,13 @@ def test_teams_roster_players_assign_coverage() -> None:
     mock_player.id = PLAYER_ID
     with (
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster_players.build_authenticated_session",
+            "gamesheet_sdk.admin.cli.commands.teams_roster_players.build_authenticated_session",
         ),
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster_players._assign_team_player_action",
+            "gamesheet_sdk.admin.cli.commands.teams_roster_players._assign_team_player_action",
             return_value=mock_player,
         ),
-        patch("gamesheet_sdk.cli.shared.render_get_command"),
+        patch("gamesheet_sdk.admin.cli.shared.render_get_command"),
     ):
         result = runner.invoke(
             teams_roster_players_group,
@@ -49,10 +51,10 @@ def test_teams_roster_players_assign_error_handling() -> None:
     runner = CliRunner()
     with (
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster_players.build_authenticated_session",
+            "gamesheet_sdk.admin.cli.commands.teams_roster_players.build_authenticated_session",
         ),
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster_players._assign_team_player_action",
+            "gamesheet_sdk.admin.cli.commands.teams_roster_players._assign_team_player_action",
             side_effect=Exception(TEST_ERROR_GENERIC),
         ),
     ):
@@ -76,10 +78,10 @@ def test_teams_roster_players_unassign_coverage() -> None:
     runner = CliRunner()
     with (
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster_players.build_authenticated_session",
+            "gamesheet_sdk.admin.cli.commands.teams_roster_players.build_authenticated_session",
         ),
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster_players._unassign_team_player_action",
+            "gamesheet_sdk.admin.cli.commands.teams_roster_players._unassign_team_player_action",
         ),
     ):
         result = runner.invoke(
@@ -100,10 +102,10 @@ def test_teams_roster_players_unassign_error_handling() -> None:
     runner = CliRunner()
     with (
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster_players.build_authenticated_session",
+            "gamesheet_sdk.admin.cli.commands.teams_roster_players.build_authenticated_session",
         ),
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster_players._unassign_team_player_action",
+            "gamesheet_sdk.admin.cli.commands.teams_roster_players._unassign_team_player_action",
             side_effect=Exception(TEST_ERROR_GENERIC),
         ),
     ):

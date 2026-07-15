@@ -9,8 +9,8 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
-from gamesheet_sdk.referees import RefereeReport
+from gamesheet_sdk.admin.cli.main import cli
+from gamesheet_sdk.admin.referees import RefereeReport
 from tests.helpers import REFEREE_EXTERNAL_ID_TERTIARY, SEASON_ID
 
 
@@ -18,13 +18,16 @@ def test_referees_report_with_all_fields(runner: CliRunner) -> None:
     """The referees report command should retrieve a comprehensive report."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.referees._get_referee_report_action",
+            "gamesheet_sdk.admin.cli.commands.referees._get_referee_report_action",
         ) as mock_report,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_report.return_value = RefereeReport(
             external_id=REFEREE_EXTERNAL_ID_TERTIARY,
@@ -80,13 +83,16 @@ def test_referees_report_json_output(runner: CliRunner) -> None:
     """The referees report command should support JSON output."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.referees._get_referee_report_action",
+            "gamesheet_sdk.admin.cli.commands.referees._get_referee_report_action",
         ) as mock_report,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_report.return_value = RefereeReport(
             external_id="TEST-EXTERNAL-ID",

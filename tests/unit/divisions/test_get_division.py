@@ -9,7 +9,7 @@ import pytest
 import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
-from gamesheet_sdk.divisions import get_division
+from gamesheet_sdk.admin.divisions import get_division
 from tests.fixtures.constants import TEST_ERROR_PATTERN_404_RESOURCE
 from tests.helpers import (
     DEFAULT_DIVISION_NAME,

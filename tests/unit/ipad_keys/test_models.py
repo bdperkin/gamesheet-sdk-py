@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from gamesheet_sdk.ipad_keys import IPadKey
+from gamesheet_sdk.admin.ipad_keys import IPadKey
 
 
 def test_ipad_key_model_ignores_unknown_attributes() -> None:

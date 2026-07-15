@@ -9,7 +9,7 @@ import pytest
 import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
-from gamesheet_sdk.referees import get_referee_report
+from gamesheet_sdk.admin.referees import get_referee_report
 from tests.helpers import (
     DEFAULT_PLAYER_LAST_NAME,
     REFEREE_EXTERNAL_ID_TERTIARY,

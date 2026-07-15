@@ -10,13 +10,13 @@ from unittest.mock import patch
 import responses
 
 from gamesheet_sdk import Config, Session
-from gamesheet_sdk.constants import BFF_API_BASE_URL, DEFAULT_BASE_URL
-from gamesheet_sdk.games import (
+from gamesheet_sdk.admin.games import (
     create_scheduled_game,
     delete_scheduled_game,
     get_scheduled_game,
     update_scheduled_game,
 )
+from gamesheet_sdk.common.constants import BFF_API_BASE_URL, DEFAULT_BASE_URL
 from tests.fixtures.constants import (
     TEST_BEARER_TOKEN,
     TEST_LOCATION_NAME,
@@ -288,7 +288,7 @@ def test_create_scheduled_game_empty_location_skips_validation() -> None:
     session = Session(config)
 
     with (
-        patch("gamesheet_sdk.games.locations.validate_location") as mock_validate_loc,
+        patch("gamesheet_sdk.admin.games.locations.validate_location") as mock_validate_loc,
         patch.object(session, "post") as mock_post,
     ):
         # Mock a minimal successful response
@@ -352,11 +352,11 @@ def test_create_scheduled_game_empty_broadcaster_skips_validation() -> None:
 
     with (
         patch(
-            "gamesheet_sdk.games.locations.validate_location",
+            "gamesheet_sdk.admin.games.locations.validate_location",
             return_value="Arena A Ice 1",
         ),
         patch(
-            "gamesheet_sdk.games.broadcasters.validate_broadcaster_key",
+            "gamesheet_sdk.admin.games.broadcasters.validate_broadcaster_key",
         ) as mock_validate_bc,
         patch.object(session, "post") as mock_post,
     ):
@@ -417,7 +417,7 @@ def test_update_scheduled_game_empty_location_skips_validation() -> None:
     session = Session(config)
 
     with (
-        patch("gamesheet_sdk.games.locations.validate_location") as mock_validate_loc,
+        patch("gamesheet_sdk.admin.games.locations.validate_location") as mock_validate_loc,
         patch.object(session, "patch") as mock_patch,
     ):
         # Mock a minimal successful response
@@ -480,11 +480,11 @@ def test_update_scheduled_game_empty_broadcaster_skips_validation() -> None:
 
     with (
         patch(
-            "gamesheet_sdk.games.locations.validate_location",
+            "gamesheet_sdk.admin.games.locations.validate_location",
             return_value="Arena B Rink 2",
         ),
         patch(
-            "gamesheet_sdk.games.broadcasters.validate_broadcaster_key",
+            "gamesheet_sdk.admin.games.broadcasters.validate_broadcaster_key",
         ) as mock_validate_bc,
         patch.object(session, "patch") as mock_patch,
     ):

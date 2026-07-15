@@ -274,7 +274,8 @@ urls.Documentation = "https://bdperkin.github.io/gamesheet-sdk-py/"
 urls.Homepage = "https://github.com/bdperkin/gamesheet-sdk-py"
 urls.Issues = "https://github.com/bdperkin/gamesheet-sdk-py/issues"
 urls.Repository = "https://github.com/bdperkin/gamesheet-sdk-py"
-scripts.gamesheet-sdk-py = "gamesheet_sdk.cli:main"
+scripts.gamesheet-admin = "gamesheet_sdk.admin.cli:main"
+scripts.gamesheet-teams = "gamesheet_sdk.teams.cli:main"
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Tool Configurations
@@ -393,12 +394,13 @@ extend-ignore = [
 # ``--ignore`` and ``--select`` options.
 per-file-ignores = [
   "docs/*:INP001",
-  "src/gamesheet_sdk/*:ANN101",
-  "tests/auth/*:ANN101,DOC,S101,S106",
-  "tests/cli/*:ANN101,DOC,S101,S106,SF01",
-  "tests/helpers/*:ANN101,DOC,S101",
-  "tests/integration/*:ANN101,DOC,S101,SF01",
-  "tests/unit/*:ANN101,DOC,S101",
+  "tests/admin/*:DOC,S101",
+  "tests/cli/*:DOC,S101,S106,SF01",
+  "tests/common/*:DOC,S101,S106",
+  "tests/helpers/*:DOC,S101",
+  "tests/integration/*:DOC,S101,SF01",
+  "tests/teams/*:DOC,S101",
+  "tests/unit/*:DOC,S101",
 ]
 # Maximum allowed line length for the entirety of this run. (Default: 79).
 max-line-length = 110
@@ -708,7 +710,7 @@ only-attrs-with-ClassVar-are-treated-as-class-attrs = false
 require-inline-class-var-docs = true
 # If True, "star arguments" (such as *args, **kwargs, **props, etc.) in the function signature should be documented in
 # the docstring. If False, they should not appear in the docstring.
-should-document-star-arguments = false
+should-document-star-arguments = true
 # If True, docstrings may omit the leading * when documenting *args/**kwargs, and pydoclint will still match them
 # against the function signature.
 omit-stars-when-documenting-varargs = true
@@ -940,16 +942,16 @@ format.indent-string = "    "
 format.max-line-length = 110
 # Maximum number of lines in a module.
 format.max-module-lines = 1000
-design.max-args = 27
-design.max-attributes = 7
+design.max-args = 22
+design.max-attributes = 5
 design.max-bool-expr = 5
-design.max-branches = 13
-design.max-locals = 30
-design.max-parents = 7
-design.max-positional-arguments = 9
-design.max-public-methods = 20
-design.max-returns = 6
-design.max-statements = 50
+design.max-branches = 7
+design.max-locals = 27
+design.max-parents = 5
+design.max-positional-arguments = 18
+design.max-public-methods = 5
+design.max-returns = 5
+design.max-statements = 34
 design.min-public-methods = 2
 # Regular expression matching correct variable names. Overrides variable-naming-style. If left empty, variable names
 # will be checked with the set naming style.

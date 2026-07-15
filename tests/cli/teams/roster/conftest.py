@@ -64,8 +64,8 @@ def run_roster_delete_test(
         Tuple of (exit_code, output, mock_action)
     """
     # Derive build_session_path from action_path module
-    # e.g., "gamesheet_sdk.cli.commands.teams_roster_players._delete..."
-    #    -> "gamesheet_sdk.cli.commands.teams_roster_players.build_authenticated_session"
+    # e.g., "gamesheet_sdk.admin.cli.commands.teams_roster_players._delete..."
+    #    -> "gamesheet_sdk.admin.cli.commands.teams_roster_players.build_authenticated_session"
     module_path = action_path.rsplit(".", 1)[0]
     build_session_path = f"{module_path}.build_authenticated_session"
 

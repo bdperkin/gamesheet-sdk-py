@@ -12,7 +12,7 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.divisions import divisions_group
+from gamesheet_sdk.admin.cli.commands.divisions import divisions_group
 from tests.helpers import ASSOCIATION_ID, SEASON_ID
 
 
@@ -20,14 +20,14 @@ def test_divisions_teams_get_coverage() -> None:
     """Ensure divisions teams get command body is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.divisions.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.divisions.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.divisions.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.commands.divisions.run_action_or_exit",
             return_value=MagicMock(
                 model_dump=lambda **__kw: {"id": "1", "title": "Team 1"},
             ),
         ),
-        patch("gamesheet_sdk.cli.commands.divisions.render_list_command"),
+        patch("gamesheet_sdk.admin.cli.commands.divisions.render_list_command"),
     ):
         # Test JSON format
         result = runner.invoke(
@@ -61,20 +61,20 @@ def test_divisions_teams_create_coverage() -> None:
         return func
 
     with (
-        patch("gamesheet_sdk.cli.helpers.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.helpers.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.teams.create_team",
+            "gamesheet_sdk.admin.teams.create_team",
             return_value={
                 "prototeam": {"title": "New Team"},
                 "seasonTeam": {"id": "999"},
             },
         ),
         patch(
-            "gamesheet_sdk.cli.helpers.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.helpers.run_action_or_exit",
             side_effect=run_action_side_effect,
         ),
-        patch("gamesheet_sdk.cli.shared.render_get_command"),
-        patch("gamesheet_sdk.cli.helpers.click.secho"),
+        patch("gamesheet_sdk.admin.cli.shared.render_get_command"),
+        patch("gamesheet_sdk.admin.cli.helpers.click.secho"),
     ):
         # Test JSON format
         result = runner.invoke(
@@ -150,18 +150,18 @@ def test_divisions_teams_update_coverage() -> None:
         return func
 
     with (
-        patch("gamesheet_sdk.cli.helpers.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.helpers.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.teams.update_team",
+            "gamesheet_sdk.admin.teams.update_team",
             return_value=MagicMock(
                 model_dump=lambda **__kw: {"id": "1", "title": "Updated Team"},
             ),
         ),
         patch(
-            "gamesheet_sdk.cli.helpers.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.helpers.run_action_or_exit",
             side_effect=run_action_side_effect,
         ),
-        patch("gamesheet_sdk.cli.shared.render_list_command"),
+        patch("gamesheet_sdk.admin.cli.shared.render_list_command"),
     ):
         result = runner.invoke(
             divisions_group,
@@ -185,7 +185,7 @@ def test_divisions_teams_update_coverage() -> None:
 def test_divisions_teams_delete_coverage() -> None:
     """Ensure divisions teams delete command body is covered."""
     runner = CliRunner()
-    with patch("gamesheet_sdk.cli.commands.divisions.run_team_delete"):
+    with patch("gamesheet_sdk.admin.cli.commands.divisions.run_team_delete"):
         result = runner.invoke(
             divisions_group,
             ["teams", "delete", "--season-id", "100", "--team-id", "1", "--force"],
@@ -199,10 +199,13 @@ def test_divisions_teams_update_with_no_fields_shows_error() -> None:
     runner = CliRunner()
     with (
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         result = runner.invoke(
             divisions_group,

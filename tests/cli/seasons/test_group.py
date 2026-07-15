@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
+from gamesheet_sdk.admin.cli.main import cli
 
 
 def test_seasons_group_has_help_option(runner: CliRunner) -> None:

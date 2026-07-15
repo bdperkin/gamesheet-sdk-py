@@ -12,7 +12,8 @@ from __future__ import annotations
 
 import sys
 
-from _constants import (  # type: ignore[import-not-found] # pylint: disable=import-error
+# pylint: disable-next=import-error
+from _constants import (  # type: ignore[import-not-found]
     AUTOSUMMARY_DIR,
     PACKAGE_DIR,
 )

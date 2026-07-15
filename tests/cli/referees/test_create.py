@@ -10,8 +10,8 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
-from gamesheet_sdk.referees import Referee
+from gamesheet_sdk.admin.cli.main import cli
+from gamesheet_sdk.admin.referees import Referee
 from tests.helpers import (
     DEFAULT_PLAYER_LAST_NAME,
     REFEREE_EXTERNAL_ID_PRIMARY,
@@ -24,13 +24,16 @@ def test_referees_create_with_all_fields(runner: CliRunner) -> None:
     """The referees create command should accept all fields."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.referees._create_referee_action",
+            "gamesheet_sdk.admin.cli.commands.referees._create_referee_action",
         ) as mock_create,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_create.return_value = Referee(
             id="1146197",
@@ -72,13 +75,16 @@ def test_referees_create_required_fields_only(runner: CliRunner) -> None:
     """The referees create command should work with only required fields."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.referees._create_referee_action",
+            "gamesheet_sdk.admin.cli.commands.referees._create_referee_action",
         ) as mock_create,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_create.return_value = Referee(
             id="1146198",
@@ -115,13 +121,16 @@ def test_referees_create_alias_add(runner: CliRunner) -> None:
     """The 'add' alias should invoke the create command."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.referees._create_referee_action",
+            "gamesheet_sdk.admin.cli.commands.referees._create_referee_action",
         ) as mock_create,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_create.return_value = Referee(
             id="1146199",
@@ -152,13 +161,16 @@ def test_referees_create_alias_new(runner: CliRunner) -> None:
     """The 'new' alias should invoke the create command."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.referees._create_referee_action",
+            "gamesheet_sdk.admin.cli.commands.referees._create_referee_action",
         ) as mock_create,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_create.return_value = Referee(
             id="1146200",
@@ -223,13 +235,16 @@ def test_referees_create_json_output(runner: CliRunner) -> None:
     """The referees create command should support JSON output."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.referees._create_referee_action",
+            "gamesheet_sdk.admin.cli.commands.referees._create_referee_action",
         ) as mock_create,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_create.return_value = Referee(
             id="1146201",

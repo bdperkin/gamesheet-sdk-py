@@ -11,7 +11,7 @@ import tempfile
 from pydantic import BaseModel
 import rich_click as click
 
-from gamesheet_sdk.cli.shared import (
+from gamesheet_sdk.admin.cli.shared import (
     common_output_options,
     get_fields_option,
     list_columns_option,

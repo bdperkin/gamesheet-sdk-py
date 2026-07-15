@@ -9,7 +9,7 @@ import pytest
 import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
-from gamesheet_sdk.referees import delete_referee
+from gamesheet_sdk.admin.referees import delete_referee
 from tests.helpers import (
     JSONAPI_CONTENT_TYPE,
     SEASON_ID,

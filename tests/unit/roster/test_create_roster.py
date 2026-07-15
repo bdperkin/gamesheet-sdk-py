@@ -9,7 +9,7 @@ import pytest
 import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
-from gamesheet_sdk.roster import (
+from gamesheet_sdk.admin.roster import (
     create_coach,
     create_player,
     create_team_coach,

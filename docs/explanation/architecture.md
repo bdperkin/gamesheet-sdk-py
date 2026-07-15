@@ -5,37 +5,45 @@ them.
 
 ## System Design
 
-The SDK is organized into three primary layers:
+The SDK is organized into three pillars:
 
 ```text
-┌─────────────────────────────────────────────────┐
-│           CLI Layer (User Interface)            │
-│  • Command-line interface (Click framework)     │
-│  • Output formatting (JSON, YAML, tables)       │
-│  • Interactive prompts and confirmations        │
-└─────────────────────────────────────────────────┘
-                      ▼
-┌─────────────────────────────────────────────────┐
-│        Domain Layer (Business Logic)            │
-│  • Domain modules (associations, leagues, etc.) │
-│  • Pydantic models for data validation          │
-│  • Action functions (list, get, create, etc.)   │
-└─────────────────────────────────────────────────┘
-                      ▼
-┌─────────────────────────────────────────────────┐
-│      Infrastructure Layer (HTTP/Browser)        │
-│  • Session (HTTP via requests)                  │
-│  • BrowserSession (headless Chromium)           │
-│  • AuthenticatedSession (auto-refresh)          │
-│  • Token management and storage                 │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        gamesheet_sdk (top-level)                           │
+│                  Re-exports for backward compatibility                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+         │                      │                      │
+         ▼                      ▼                      ▼
+┌─────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐
+│     common/     │  │       admin/        │  │       teams/        │
+│  Shared infra   │  │  Admin dashboard    │  │  Teams dashboard    │
+│                 │  │                     │  │                     │
+│ • auth/         │  │ • associations.py   │  │ • cli/ (stub)       │
+│ • cli/core      │  │ • divisions.py      │  │   - login (NYI)     │
+│ • browser.py    │  │ • leagues.py        │  │   - completion      │
+│ • config.py     │  │ • seasons.py        │  │                     │
+│ • session.py    │  │ • teams.py          │  │ (domain modules     │
+│ • output.py     │  │ • referees.py       │  │  forthcoming)       │
+│ • errors.py     │  │ • ipad_keys.py      │  │                     │
+│ • exceptions.py │  │ • games/            │  │                     │
+│ • constants.py  │  │ • roster/           │  │                     │
+│ • shared/       │  │ • cli/ (full)       │  │                     │
+└─────────────────┘  └─────────────────────┘  └─────────────────────┘
 ```
+
+Each pillar has a clear responsibility:
+
+- **`common/`** — Infrastructure shared by both dashboards: authentication, HTTP sessions, browser automation, configuration, output formatting, error messages.
+- **`admin/`** — Domain modules and CLI for the admin dashboard (`gamesheet-admin`). Contains all resource models and action functions.
+- **`teams/`** — CLI and domain modules for the teams dashboard (`gamesheet-teams`). Currently a stub with login not yet implemented.
+
+Dependencies flow inward: `admin/` and `teams/` depend on `common/`, but never on each other.
 
 ## Component Relationships
 
 ### Core Components
 
-#### 1. Configuration (`config.py`)
+#### 1. Configuration (`common/config.py`)
 
 Central configuration object that resolves settings from multiple sources:
 
@@ -57,55 +65,55 @@ Config(
 
 #### 2. Session Layer
 
-**Base Session** (`session.py`):
+**Base Session** (`common/session.py`):
 
 - Wraps `requests.Session` with GameSheet-specific defaults
 - Automatic retries on transient failures
 - Cookie persistence across process invocations
 - User-Agent header management
 
-**Authenticated Session** (`auth/session.py`):
+**Authenticated Session** (`common/auth/session.py`):
 
 - Extends base session with token auto-refresh
 - Intercepts HTTP 401/403 responses
 - Refreshes access token using refresh token
 - Invokes callback to persist new tokens
 
-**Browser Session** (`browser.py`):
+**Browser Session** (`common/browser.py`):
 
 - Playwright-based headless Chromium automation
 - Used when HTTP requests are insufficient (JavaScript rendering, anti-bot measures)
 - Lazy initialization (only starts browser when needed)
 - Storage state persistence (cookies + localStorage)
 
-#### 3. Authentication (`auth/`)
+#### 3. Authentication (`common/auth/`)
 
-**Login Flow** (`auth/login.py`):
+**Login Flow** (`common/auth/login.py`):
 
 1. Opens GameSheet login page in headless browser
 2. Captures Firebase Authentication response
 3. Extracts `idToken` (access token) and `refreshToken`
 4. Saves tokens to `~/.gamesheet/access_token` and `~/.gamesheet/refresh_token`
 
-**Token Management** (`auth/tokens.py`):
+**Token Management** (`common/auth/tokens.py`):
 
 - `load_access_token()` — Read from disk
 - `load_refresh_token()` — Read from disk
 - `save_tokens()` — Write both to disk
 - `refresh_access_token()` — Exchange refresh token for new access token
 
-**Storage** (`auth/storage.py`):
+**Storage** (`common/auth/storage.py`):
 
 - File I/O for token files
 - Directory creation with safe permissions
 - Path resolution
 
-#### 4. Domain Modules
+#### 4. Domain Modules (`admin/`)
 
 Each domain module follows a consistent pattern:
 
 ```python
-# Example: src/gamesheet_sdk/associations.py
+# Example: src/gamesheet_sdk/admin/associations.py
 
 
 # 1. Pydantic model for data validation
@@ -121,7 +129,7 @@ def list_associations(config: Config | None = None) -> list[Association]:
     # Implementation using Session or BrowserSession
 ```
 
-**Current Domain Modules**:
+**Current Domain Modules** (all under `admin/`):
 
 - `associations.py` — Sports associations
 - `leagues.py` — Leagues within associations
@@ -133,26 +141,39 @@ def list_associations(config: Config | None = None) -> list[Association]:
 - `roster/` — Player and coach roster management
 - `ipad_keys.py` — iPad/Scoring access keys
 
-#### 5. CLI Layer (`cli/`)
+#### 5. CLI Layer
 
-**Structure**:
+The CLI is split into two entry points with shared infrastructure:
 
-- `main.py` — Root CLI group and main() entry point
-- `core.py` — ResourceGroup class, decorators, utilities
+**Common CLI** (`common/cli/`):
+
+- `core.py` — `ResourceGroup` class, `confirm_destructive` decorator, logging setup, exit code resolution
+- `constants.py` — Shared constants (`SHELL_TYPES`)
+
+**Admin CLI** (`admin/cli/`):
+
+- `main.py` — Root CLI group (`gamesheet-admin`) and `main()` entry point
+- `constants.py` — Admin-specific constants (format choices, column specs)
+- `helpers.py` — Session building, action helpers
 - `commands/` — Individual command modules
 - `shared/` — Shared decorators and rendering utilities
+
+**Teams CLI** (`teams/cli/`):
+
+- `main.py` — Root CLI group (`gamesheet-teams`) and `main()` entry point
+- `commands/` — Login (stub) and completion commands
 
 **Resource-Oriented Design**:
 
 ```text
-gamesheet-sdk-py <resource> <verb> [options]
-                 └─────┬────┘ └─┬──┘
-                    Noun      Verb
+gamesheet-admin <resource> <verb> [options]
+               └─────┬────┘ └─┬──┘
+                  Noun      Verb
 
 Examples:
-  gamesheet-sdk-py associations list
-  gamesheet-sdk-py teams get --team-id 123
-  gamesheet-sdk-py referees create --first-name John --last-name Doe
+  gamesheet-admin associations list
+  gamesheet-admin teams get --team-id 123
+  gamesheet-admin referees create --first-name John --last-name Doe
 ```
 
 **Canonical Verbs and Aliases**:
@@ -234,7 +255,7 @@ Success: process response
 User Command (e.g., login)
     │
     ▼
-auth/login.py
+common/auth/login.py
     │
     ▼
 BrowserSession.goto("/login")
@@ -278,6 +299,16 @@ Browser closes
 - Workflows requiring full page rendering
 
 **Trade-off**: Complexity (two session types) vs. reliability (can handle any GameSheet workflow).
+
+### Why Three Pillars?
+
+The admin and teams dashboards are separate GameSheet products with different URLs, different authentication flows, and potentially different data models (admin
+uses integer IDs, teams may use UUIDs). Splitting the codebase into `common/`, `admin/`, and `teams/` ensures:
+
+- No cross-contamination of dashboard-specific logic
+- Shared infrastructure is maintained once
+- Each CLI can evolve independently
+- The `gamesheet-admin` and `gamesheet-teams` entry points are distinct user experiences
 
 ### Why Pydantic Models?
 
@@ -334,13 +365,13 @@ Browser closes
 
 ## Extension Points
 
-### Adding a New Domain Module
+### Adding a New Admin Domain Module
 
-1. Create `src/gamesheet_sdk/<resource>.py`
+1. Create `src/gamesheet_sdk/admin/<resource>.py`
 2. Define Pydantic model(s)
 3. Implement action functions (`list_<resource>`, `get_<resource>`, etc.)
-4. Create `src/gamesheet_sdk/cli/commands/<resource>.py`
-5. Register CLI group in `cli/main.py`
+4. Create `src/gamesheet_sdk/admin/cli/commands/<resource>.py`
+5. Register CLI group in `admin/cli/main.py`
 6. Add tests under `tests/unit/<resource>/` and `tests/cli/<resource>/`
 
 ### Adding a New CLI Verb
@@ -352,12 +383,20 @@ If the standard CRUD verbs (`create`, `get`, `list`, `update`, `delete`) are ins
 3. Add corresponding domain function
 4. Add tests
 
+### Adding Teams Domain Modules
+
+The teams pillar follows the same pattern as admin. When the teams authentication flow is implemented:
+
+1. Create domain modules under `src/gamesheet_sdk/teams/`
+2. Create CLI commands under `src/gamesheet_sdk/teams/cli/commands/`
+3. Register commands in `teams/cli/main.py`
+
 ### Adding a New Output Format
 
-The CLI supports 15 output formats (see `src/gamesheet_sdk/output.py`). To add a new one:
+The SDK supports 15 output formats (see `src/gamesheet_sdk/common/output.py`). To add a new one:
 
 1. Add formatter to `render()` function
-2. Update `FORMAT_CHOICES` in `cli/constants.py`
+2. Update `FORMAT_CHOICES` in `admin/cli/constants.py`
 3. Update `--format` option help text
 4. Add integration test
 
@@ -375,6 +414,8 @@ tests/
 │   ├── associations/
 │   ├── leagues/
 │   └── ...
+├── admin/cli/              # Admin CLI entry point tests
+├── teams/cli/              # Teams CLI entry point tests
 ├── integration/            # Multi-component tests
 │   ├── browser/
 │   ├── cli_games/
@@ -468,10 +509,11 @@ The SDK uses `logging` with care to avoid logging sensitive values:
 
 ### Planned Features
 
+- **Teams dashboard support**: Full domain modules and CLI commands for the teams dashboard
+- **Auth strategy pattern**: `LoginFlow` ABC to support different authentication flows per dashboard
+- **ID abstraction**: Admin uses integers, teams may use UUIDs
 - **Async support**: `async`/`await` variants of domain functions for concurrent operations
 - **Caching layer**: In-memory cache for frequently-accessed resources (leagues, associations)
-- **Offline mode**: Read-only operations from cached data when network is unavailable
-- **Batch operations**: Multi-resource create/update/delete in a single transaction
 
 ### API Stability
 

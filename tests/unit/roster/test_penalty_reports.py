@@ -9,7 +9,10 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from gamesheet_sdk.roster import get_coach_penalty_report, get_player_penalty_report
+from gamesheet_sdk.admin.roster import (
+    get_coach_penalty_report,
+    get_player_penalty_report,
+)
 from tests.helpers import (
     COACH_EXTERNAL_ID_TERTIARY,
     COACH_ID_TERTIARY,
@@ -106,7 +109,7 @@ def test_get_player_penalty_report_success(mock_session: MagicMock) -> None:
 
 def test_get_coach_penalty_report_api_error(mock_session: MagicMock) -> None:
     """Test coach penalty report when API returns error status."""
-    from gamesheet_sdk.exceptions import GameSheetError
+    from gamesheet_sdk.common.exceptions import GameSheetError
 
     mock_coach_response = MagicMock()
     mock_coach_response.status_code = 200
@@ -138,7 +141,7 @@ def test_get_coach_penalty_report_api_error(mock_session: MagicMock) -> None:
 
 def test_get_player_penalty_report_api_error(mock_session: MagicMock) -> None:
     """Test player penalty report when API returns error status."""
-    from gamesheet_sdk.exceptions import GameSheetError
+    from gamesheet_sdk.common.exceptions import GameSheetError
 
     mock_player_response = MagicMock()
     mock_player_response.status_code = 200

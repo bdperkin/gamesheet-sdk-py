@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import pytest
 
-from gamesheet_sdk.cli import main
+from gamesheet_sdk.admin.cli import main
 
 
 def test_cli_help_renders_with_rich_click() -> None:
@@ -54,8 +54,8 @@ def test_option_groups_configured() -> None:
     import rich_click as click
 
     # Verify option groups exist
-    assert "gamesheet-sdk-py" in click.rich_click.OPTION_GROUPS
-    option_groups = click.rich_click.OPTION_GROUPS["gamesheet-sdk-py"]
+    assert "gamesheet-admin" in click.rich_click.OPTION_GROUPS
+    option_groups = click.rich_click.OPTION_GROUPS["gamesheet-admin"]
     assert any(g.get("name") == "Configuration Options" for g in option_groups)
     assert any(g.get("name") == "General Options" for g in option_groups)
 
@@ -65,8 +65,8 @@ def test_command_groups_configured() -> None:
     import rich_click as click
 
     # Verify command groups exist
-    assert "gamesheet-sdk-py" in click.rich_click.COMMAND_GROUPS
-    command_groups = click.rich_click.COMMAND_GROUPS["gamesheet-sdk-py"]
+    assert "gamesheet-admin" in click.rich_click.COMMAND_GROUPS
+    command_groups = click.rich_click.COMMAND_GROUPS["gamesheet-admin"]
     assert any(g.get("name") == "Authentication" for g in command_groups)
     assert any(g.get("name") == "Resource Management" for g in command_groups)
 
@@ -108,6 +108,6 @@ def test_resource_group_uses_rich_formatting() -> None:
     # Verify that ResourceGroup extends RichGroup
     from rich_click import RichGroup
 
-    from gamesheet_sdk.cli.core import ResourceGroup
+    from gamesheet_sdk.common.cli.core import ResourceGroup
 
     assert issubclass(ResourceGroup, RichGroup)

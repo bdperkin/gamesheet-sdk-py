@@ -66,7 +66,7 @@ def run_roster_delete_test(
         resource_type=resource_type,
         resource_id=resource_id,
         action_path=action_path,
-        build_session_path="gamesheet_sdk.cli.commands.roster.build_authenticated_session",
+        build_session_path="gamesheet_sdk.admin.cli.commands.roster.build_authenticated_session",
         context_obj={
             "config": config,
             "season_id": season_id,

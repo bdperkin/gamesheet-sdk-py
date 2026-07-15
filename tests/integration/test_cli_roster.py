@@ -10,7 +10,7 @@ from unittest.mock import patch
 import responses
 
 from gamesheet_sdk import DEFAULT_BASE_URL
-from gamesheet_sdk.cli import main
+from gamesheet_sdk.admin.cli import main
 
 # Explicit import for coverage tracking of dynamically-loaded Click commands
 from tests.helpers import SEASON_ID, jsonapi_payload
@@ -25,11 +25,11 @@ def test_roster_players_list_json_format() -> None:
     """Test roster players list with JSON output."""
     with (
         patch(
-            "gamesheet_sdk.cli.helpers.load_access_token",
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
             return_value="mock-access-token",
         ),
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="mock-refresh-token",
         ),
     ):
@@ -50,11 +50,11 @@ def test_roster_coaches_list_json_format() -> None:
     """Test roster coaches list with JSON output."""
     with (
         patch(
-            "gamesheet_sdk.cli.helpers.load_access_token",
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
             return_value="mock-access-token",
         ),
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="mock-refresh-token",
         ),
     ):

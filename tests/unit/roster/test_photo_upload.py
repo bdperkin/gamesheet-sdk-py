@@ -15,7 +15,7 @@ from tests.helpers import BFF_ASSETS_UPLOAD_URL_PATH, TEST_BFF_BASE_URL
 
 def test_upload_photo_file_not_found(config: Config) -> None:
     """Test photo upload with non-existent file."""
-    from gamesheet_sdk.roster.players import _upload_photo
+    from gamesheet_sdk.admin.roster.players import _upload_photo
 
     with Session(config) as session:
         session.set_bearer_token("valid-token")
@@ -27,7 +27,7 @@ def test_upload_photo_invalid_mime_type(config: Config) -> None:
     """Test photo upload with invalid file type."""
     import tempfile
 
-    from gamesheet_sdk.roster.players import _upload_photo
+    from gamesheet_sdk.admin.roster.players import _upload_photo
 
     # Create a temporary non-image file
     with tempfile.NamedTemporaryFile(
@@ -48,7 +48,7 @@ def test_upload_photo_auth_error(config: Config) -> None:
     """Test photo upload with 401 authentication error."""
     import tempfile
 
-    from gamesheet_sdk.roster.players import _upload_photo
+    from gamesheet_sdk.admin.roster.players import _upload_photo
 
     # Create a temporary image file
     with tempfile.NamedTemporaryFile(
@@ -76,7 +76,7 @@ def test_upload_photo_server_error(config: Config) -> None:
     """Test photo upload with server error."""
     import tempfile
 
-    from gamesheet_sdk.roster.players import _upload_photo
+    from gamesheet_sdk.admin.roster.players import _upload_photo
 
     # Create a temporary image file
     with tempfile.NamedTemporaryFile(
@@ -104,7 +104,7 @@ def test_upload_photo_failed_status(config: Config) -> None:
     """Test photo upload with failed status in response."""
     import tempfile
 
-    from gamesheet_sdk.roster.players import _upload_photo
+    from gamesheet_sdk.admin.roster.players import _upload_photo
 
     # Create a temporary image file
     with tempfile.NamedTemporaryFile(
@@ -130,7 +130,7 @@ def test_upload_photo_failed_status(config: Config) -> None:
 @responses.activate
 def test_upload_photo_upload_failed(config: Config) -> None:
     """Test photo upload when actual upload fails."""
-    from gamesheet_sdk.roster.players import _upload_photo
+    from gamesheet_sdk.admin.roster.players import _upload_photo
     from tests.helpers import setup_photo_upload_mocks
 
     temp_path = setup_photo_upload_mocks(
@@ -146,7 +146,7 @@ def test_upload_photo_upload_failed(config: Config) -> None:
 @responses.activate
 def test_upload_photo_upload_not_successful(config: Config) -> None:
     """Test photo upload when upload result is not successful."""
-    from gamesheet_sdk.roster.players import _upload_photo
+    from gamesheet_sdk.admin.roster.players import _upload_photo
     from tests.helpers import setup_photo_upload_mocks
 
     temp_path = setup_photo_upload_mocks(

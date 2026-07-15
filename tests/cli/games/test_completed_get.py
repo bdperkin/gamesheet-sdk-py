@@ -9,8 +9,8 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.config import Config
-from gamesheet_sdk.games import Game, TeamInfo
+from gamesheet_sdk.admin.games import Game, TeamInfo
+from gamesheet_sdk.common.config import Config
 from tests.helpers import SEASON_ID, TEAM_ID
 
 
@@ -18,10 +18,10 @@ def test_games_get(runner: CliRunner) -> None:
     """The games completed get command should retrieve a single game."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.games_completed._get_completed_game_action",
+            "gamesheet_sdk.admin.cli.commands.games_completed._get_completed_game_action",
         ) as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Game(
             id=12345,
@@ -34,7 +34,9 @@ def test_games_get(runner: CliRunner) -> None:
             visitor_score=3,
             home_score=2,
         )
-        from gamesheet_sdk.cli.commands.games_completed import completed_get_command
+        from gamesheet_sdk.admin.cli.commands.games_completed import (
+            completed_get_command,
+        )
 
         # Use a real Config object to avoid Mock serialization issues
         config = Config(base_url="https://test.example")
@@ -54,10 +56,10 @@ def test_games_get_with_fields(runner: CliRunner) -> None:
     """The games completed get command should support --fields and JSON format."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.games_completed._get_completed_game_action",
+            "gamesheet_sdk.admin.cli.commands.games_completed._get_completed_game_action",
         ) as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Game(
             id=12345,
@@ -70,7 +72,9 @@ def test_games_get_with_fields(runner: CliRunner) -> None:
             visitor_score=3,
             home_score=2,
         )
-        from gamesheet_sdk.cli.commands.games_completed import completed_get_command
+        from gamesheet_sdk.admin.cli.commands.games_completed import (
+            completed_get_command,
+        )
 
         config = Config(base_url="https://test.example")
         ctx_obj = {"config": config, "season_id": SEASON_ID}
@@ -94,10 +98,10 @@ def test_games_get_empty_fields(runner: CliRunner) -> None:
     """The games completed get command should handle empty fields spec."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.games_completed._get_completed_game_action",
+            "gamesheet_sdk.admin.cli.commands.games_completed._get_completed_game_action",
         ) as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Game(
             id=12345,
@@ -110,7 +114,9 @@ def test_games_get_empty_fields(runner: CliRunner) -> None:
             visitor_score=3,
             home_score=2,
         )
-        from gamesheet_sdk.cli.commands.games_completed import completed_get_command
+        from gamesheet_sdk.admin.cli.commands.games_completed import (
+            completed_get_command,
+        )
 
         config = Config(base_url="https://test.example")
         ctx_obj = {"config": config, "season_id": SEASON_ID}

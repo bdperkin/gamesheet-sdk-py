@@ -7,8 +7,8 @@ from __future__ import annotations
 
 import pytest
 
-from gamesheet_sdk.exceptions import GameSheetError
-from gamesheet_sdk.games import validate_game_type
+from gamesheet_sdk.admin.games import validate_game_type
+from gamesheet_sdk.common.exceptions import GameSheetError
 
 
 def test_validate_game_type_valid() -> None:

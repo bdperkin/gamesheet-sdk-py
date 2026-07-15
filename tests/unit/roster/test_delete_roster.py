@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from gamesheet_sdk.roster import (
+from gamesheet_sdk.admin.roster import (
     delete_coach,
     delete_player,
     delete_team_coach,
@@ -44,8 +44,8 @@ def test_delete_team_coach_success(mock_session: MagicMock) -> None:
     from unittest.mock import patch
 
     with (
-        patch("gamesheet_sdk.roster.coaches.unassign_coach") as mock_unassign,
-        patch("gamesheet_sdk.roster.coaches.delete_coach") as mock_delete,
+        patch("gamesheet_sdk.admin.roster.coaches.unassign_coach") as mock_unassign,
+        patch("gamesheet_sdk.admin.roster.coaches.delete_coach") as mock_delete,
     ):
         delete_team_coach(
             mock_session,
@@ -70,14 +70,14 @@ def test_delete_team_coach_not_on_roster(mock_session: MagicMock) -> None:
     """Test team coach deletion when coach is not on team roster."""
     from unittest.mock import patch
 
-    from gamesheet_sdk.exceptions import GameSheetError
+    from gamesheet_sdk.common.exceptions import GameSheetError
 
     with (
         patch(
-            "gamesheet_sdk.roster.coaches.unassign_coach",
+            "gamesheet_sdk.admin.roster.coaches.unassign_coach",
             side_effect=GameSheetError("Coach not found on team"),
         ),
-        patch("gamesheet_sdk.roster.coaches.delete_coach") as mock_delete,
+        patch("gamesheet_sdk.admin.roster.coaches.delete_coach") as mock_delete,
     ):
         # Should still delete even if unassign fails
         delete_team_coach(
@@ -98,8 +98,8 @@ def test_delete_team_player_success(mock_session: MagicMock) -> None:
     from unittest.mock import patch
 
     with (
-        patch("gamesheet_sdk.roster.players.unassign_player") as mock_unassign,
-        patch("gamesheet_sdk.roster.players.delete_player") as mock_delete,
+        patch("gamesheet_sdk.admin.roster.players.unassign_player") as mock_unassign,
+        patch("gamesheet_sdk.admin.roster.players.delete_player") as mock_delete,
     ):
         delete_team_player(
             mock_session,
@@ -124,14 +124,14 @@ def test_delete_team_player_not_on_roster(mock_session: MagicMock) -> None:
     """Test team player deletion when player is not on team roster."""
     from unittest.mock import patch
 
-    from gamesheet_sdk.exceptions import GameSheetError
+    from gamesheet_sdk.common.exceptions import GameSheetError
 
     with (
         patch(
-            "gamesheet_sdk.roster.players.unassign_player",
+            "gamesheet_sdk.admin.roster.players.unassign_player",
             side_effect=GameSheetError("Player not found on team"),
         ),
-        patch("gamesheet_sdk.roster.players.delete_player") as mock_delete,
+        patch("gamesheet_sdk.admin.roster.players.delete_player") as mock_delete,
     ):
         # Should still delete even if unassign fails
         delete_team_player(

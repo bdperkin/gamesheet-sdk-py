@@ -10,8 +10,8 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.associations import Association
-from gamesheet_sdk.cli import cli
+from gamesheet_sdk.admin.associations import Association
+from gamesheet_sdk.admin.cli.main import cli
 from tests.helpers import (
     DEFAULT_ASSOCIATION_NAME,
     TIMESTAMP_2024_01_01,
@@ -24,13 +24,16 @@ def test_associations_list_alias_works(runner: CliRunner) -> None:
     """The 'ls' alias should invoke the list command."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+            "gamesheet_sdk.admin.cli.commands.associations._list_associations_action",
         ) as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = []
         result = runner.invoke(cli, ["associations", "ls"])
@@ -42,13 +45,16 @@ def test_associations_bare_invocation_runs_list(runner: CliRunner) -> None:
     """Bare 'associations' should implicitly run 'list'."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+            "gamesheet_sdk.admin.cli.commands.associations._list_associations_action",
         ) as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = []
         result = runner.invoke(cli, ["associations"])
@@ -60,13 +66,16 @@ def test_associations_list_json_output(runner: CliRunner) -> None:
     """The list command should support JSON output."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+            "gamesheet_sdk.admin.cli.commands.associations._list_associations_action",
         ) as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = [
             Association(
@@ -86,13 +95,16 @@ def test_associations_list_yaml_output(runner: CliRunner) -> None:
     """The list command should support YAML output."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+            "gamesheet_sdk.admin.cli.commands.associations._list_associations_action",
         ) as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = [
             Association(
@@ -112,13 +124,16 @@ def test_associations_list_columns_filter(runner: CliRunner) -> None:
     """The --columns option should filter output columns."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+            "gamesheet_sdk.admin.cli.commands.associations._list_associations_action",
         ) as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = [
             Association(
@@ -140,13 +155,16 @@ def test_associations_list_output_to_file(runner: CliRunner, tmp_path: Any) -> N
     output_file = tmp_path / "output.json"
     with (
         patch(
-            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+            "gamesheet_sdk.admin.cli.commands.associations._list_associations_action",
         ) as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = [
             Association(
@@ -170,13 +188,16 @@ def test_associations_list_csv_output(runner: CliRunner) -> None:
     """The list command should support CSV output."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+            "gamesheet_sdk.admin.cli.commands.associations._list_associations_action",
         ) as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = [
             Association(
@@ -197,8 +218,8 @@ def test_associations_list_csv_output(runner: CliRunner) -> None:
 def test_associations_list_with_no_saved_tokens(runner: CliRunner) -> None:
     """Associations list should exit with error when no tokens are saved."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=None),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=None),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value=None),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value=None),
     ):
         result = runner.invoke(cli, ["associations", "list"])
         assert result.exit_code == 1
@@ -207,13 +228,13 @@ def test_associations_list_with_no_saved_tokens(runner: CliRunner) -> None:
 
 def test_associations_list_with_authentication_error(runner: CliRunner) -> None:
     """Associations list should handle AuthenticationError gracefully."""
-    from gamesheet_sdk.exceptions import AuthenticationError
+    from gamesheet_sdk.common.exceptions import AuthenticationError
 
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
         patch(
-            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+            "gamesheet_sdk.admin.cli.commands.associations._list_associations_action",
             side_effect=AuthenticationError("Token expired"),
         ),
     ):
@@ -224,13 +245,13 @@ def test_associations_list_with_authentication_error(runner: CliRunner) -> None:
 
 def test_associations_list_with_gamesheet_error(runner: CliRunner) -> None:
     """Associations list should handle GameSheetError gracefully."""
-    from gamesheet_sdk.exceptions import GameSheetError
+    from gamesheet_sdk.common.exceptions import GameSheetError
 
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
         patch(
-            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+            "gamesheet_sdk.admin.cli.commands.associations._list_associations_action",
             side_effect=GameSheetError("API error"),
         ),
     ):

@@ -9,13 +9,13 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
+from gamesheet_sdk.admin.cli.main import cli
 from tests.helpers import ASSOCIATION_ID, SEASON_ID
 
 
 def test_teams_delete_basic(runner: CliRunner) -> None:
     """The teams delete command should delete a team."""
-    with patch("gamesheet_sdk.cli.commands.teams.run_team_delete") as mock_delete:
+    with patch("gamesheet_sdk.admin.cli.commands.teams.run_team_delete") as mock_delete:
         result = runner.invoke(
             cli,
             [
@@ -34,7 +34,7 @@ def test_teams_delete_basic(runner: CliRunner) -> None:
 
 def test_teams_delete_alias_rm(runner: CliRunner) -> None:
     """The 'rm' alias should invoke the delete command."""
-    with patch("gamesheet_sdk.cli.commands.teams.run_team_delete") as mock_delete:
+    with patch("gamesheet_sdk.admin.cli.commands.teams.run_team_delete") as mock_delete:
         result = runner.invoke(
             cli,
             [
@@ -53,7 +53,7 @@ def test_teams_delete_alias_rm(runner: CliRunner) -> None:
 
 def test_teams_delete_alias_remove(runner: CliRunner) -> None:
     """The 'remove' alias should invoke the delete command."""
-    with patch("gamesheet_sdk.cli.commands.teams.run_team_delete") as mock_delete:
+    with patch("gamesheet_sdk.admin.cli.commands.teams.run_team_delete") as mock_delete:
         result = runner.invoke(
             cli,
             [
@@ -80,8 +80,8 @@ def test_teams_delete_missing_team_id(runner: CliRunner) -> None:
 def test_teams_delete_with_no_saved_tokens(runner: CliRunner) -> None:
     """Calling 'teams delete' with no saved tokens should fail gracefully."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=None),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=None),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value=None),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value=None),
     ):
         result = runner.invoke(
             cli,
@@ -103,11 +103,14 @@ def test_teams_delete_helper_executes_action(runner: CliRunner) -> None:
     """Test that run_team_delete helper executes the delete action."""
     with (
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
-        patch("gamesheet_sdk.teams.delete_team") as mock_action,
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
+        patch("gamesheet_sdk.admin.teams.delete_team") as mock_action,
     ):
         result = runner.invoke(
             cli,

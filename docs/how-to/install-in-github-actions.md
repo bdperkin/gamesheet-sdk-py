@@ -37,7 +37,7 @@ jobs:
         run: pip install gamesheet-sdk-py
 
       - name: Verify CLI
-        run: gamesheet-sdk-py --version
+        run: gamesheet-admin --version
 
       - name: Verify Python import
         run: python -c "from gamesheet_sdk import __version__; print(__version__)"
@@ -105,7 +105,7 @@ jobs:
         run: pip install gamesheet-sdk-py
 
       - name: Verify CLI
-        run: gamesheet-sdk-py --version
+        run: gamesheet-admin --version
 
       - name: Verify Python import
         run: python -c "from gamesheet_sdk import __version__; print(__version__)"

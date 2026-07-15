@@ -12,7 +12,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 import rich_click as click
 
-from gamesheet_sdk.cli.shared.datetime_helpers import (
+from gamesheet_sdk.admin.cli.shared.datetime_helpers import (
     _format_utc_iso,
     get_local_timezone_name,
     get_local_timezone_offset,
@@ -51,7 +51,7 @@ def test_timezone_name_tzlocal_without_key() -> None:
     class MockTZ:
         """Mock timezone object without .key attribute."""
 
-        def __str__(self) -> str:
+        def __str__(self: MockTZ) -> str:
             return "America/Chicago"
 
     mock_tzlocal = MagicMock()

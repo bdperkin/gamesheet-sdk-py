@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
+from gamesheet_sdk.admin.cli.main import cli
 
 
 def test_cli_help_shows_usage(runner: CliRunner) -> None:
@@ -46,10 +46,10 @@ def test_cli_with_base_url_override(runner: CliRunner) -> None:
     """CLI should accept --base-url override."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+            "gamesheet_sdk.admin.cli.commands.associations._list_associations_action",
         ) as mock_list,
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
     ):
         mock_list.return_value = []
         result = runner.invoke(
@@ -65,10 +65,10 @@ def test_cli_with_no_headless_flag(runner: CliRunner) -> None:
     """CLI should accept --no-headless flag."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.associations._list_associations_action",
+            "gamesheet_sdk.admin.cli.commands.associations._list_associations_action",
         ) as mock_list,
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
     ):
         mock_list.return_value = []
         result = runner.invoke(cli, ["--no-headless", "associations", "list"])

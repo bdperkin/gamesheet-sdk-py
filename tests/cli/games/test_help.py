@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import pytest
 
-from gamesheet_sdk.cli import main
+from gamesheet_sdk.admin.cli import main
 from tests.helpers import TEAM_ID
 
 _DUMMY_SEASON = TEAM_ID

@@ -10,7 +10,7 @@ from unittest.mock import patch
 from click.exceptions import Abort, Exit, UsageError
 import rich_click as click
 
-from gamesheet_sdk.cli.core import (
+from gamesheet_sdk.common.cli.core import (
     ResourceGroup,
     _configure_logging,
     parse_columns_spec,
@@ -258,8 +258,8 @@ def test_configure_logging_with_color() -> None:
     old_no_color = os.environ.pop("NO_COLOR", None)
     try:
         with (
-            patch("gamesheet_sdk.cli.core.logging.basicConfig") as mock_basic,
-            patch("gamesheet_sdk.cli.core.sys.stderr") as mock_stderr,
+            patch("gamesheet_sdk.common.cli.core.logging.basicConfig") as mock_basic,
+            patch("gamesheet_sdk.common.cli.core.sys.stderr") as mock_stderr,
         ):
             # Mock stderr to appear as a TTY
             mock_stderr.isatty.return_value = True
