@@ -1,16 +1,20 @@
 # Copyright (c) 2026 bdperkin
 # SPDX-License-Identifier: MIT
 
-"""Login command for the GameSheet teams dashboard (stub).
+"""Login command for the GameSheet teams dashboard.
 
-The teams authentication flow has not been reverse-engineered yet. This command is a placeholder so the CLI
-surface is consistent between ``gamesheet-admin`` and ``gamesheet-teams``.
+Authenticates via HTTP-only Firebase REST + teams API token exchange (no headless browser required) and
+persists session tokens to disk.
 """
 
 from __future__ import annotations
 
 from click.exceptions import Exit
 import rich_click as click
+from rich_click import Context
+
+from gamesheet_sdk.common.config import Config
+from gamesheet_sdk.teams.login import TeamsLoginFlow
 
 
 @click.command("login")
@@ -30,31 +34,39 @@ import rich_click as click
 @click.option(
     "--timeout",
     "-t",
-    type=int,
-    default=30000,
-    help="Page-load timeout in milliseconds.",
+    type=float,
+    default=15.0,
+    help="HTTP request timeout in seconds.",
 )
+@click.pass_context
 def login_command(
-    # pylint: disable-next=unused-argument
-    email: str | None,  # noqa: U100
-    # pylint: disable-next=unused-argument
-    password: str | None,  # noqa: U100
-    # pylint: disable-next=unused-argument
-    timeout: int,  # noqa: U100
+    ctx: Context,
+    email: str | None,
+    password: str | None,
+    timeout: float,
 ) -> None:
     """Authenticate with the GameSheet teams dashboard and save session tokens.
 
-    .. warning::
+    Sends credentials to Firebase Auth, exchanges the ID token for application tokens via the teams API
+    gateway, and saves the result to disk so subsequent commands can authenticate automatically.
 
-        This command is not yet implemented. The teams authentication flow
-        is pending discovery and will be added in a future release.
-
+    :param ctx: Click context carrying the :class:`~gamesheet_sdk.common.config.Config` instance.
+    :type ctx: Context
     :param email: Email address for login, or ``None`` to use the environment variable.
     :type email: str | None
     :param password: Password for login, or ``None`` to prompt interactively.
     :type password: str | None
-    :param timeout: Page-load timeout in milliseconds.
-    :type timeout: int
+    :param timeout: HTTP request timeout in seconds.
+    :type timeout: float
     """
-    click.secho("Teams login is not yet implemented.", fg="yellow", err=True)
-    raise Exit(1)
+    config: Config = ctx.obj
+    try:
+        TeamsLoginFlow(config).authenticate(
+            email=email,
+            password=password,
+            timeout=timeout,
+        )
+    except Exception as exc:
+        click.secho(f"Login failed: {exc}", fg="red", err=True)
+        raise Exit(1) from exc
+    click.secho("Login successful! Tokens saved.", fg="green")

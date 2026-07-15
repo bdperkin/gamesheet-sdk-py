@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from unittest.mock import MagicMock, patch
+
 from click.testing import CliRunner
 
 from gamesheet_sdk import __version__
@@ -12,6 +14,7 @@ from gamesheet_sdk.teams.cli import main
 from gamesheet_sdk.teams.cli.commands.completion import completion_command
 from gamesheet_sdk.teams.cli.commands.login import login_command
 from gamesheet_sdk.teams.cli.main import cli
+from tests.helpers import TEST_EMAIL_GENERIC
 
 
 def test_teams_cli_help(runner: CliRunner) -> None:
@@ -33,11 +36,84 @@ def test_teams_cli_exits_zero_on_no_args() -> None:
     assert not main([])
 
 
-def test_teams_login_not_implemented(runner: CliRunner) -> None:
-    """Login exits with 'not yet implemented' message."""
-    result = runner.invoke(cli, ["login"])
+def test_teams_login_success(runner: CliRunner) -> None:
+    """Login succeeds and prints success message."""
+    with patch(
+        "gamesheet_sdk.teams.cli.commands.login.TeamsLoginFlow",
+    ) as mock_flow_cls:
+        mock_flow_cls.return_value.authenticate.return_value = {
+            "access": "a",
+            "refresh": "r",
+        }
+        result = runner.invoke(
+            cli,
+            ["login", "--email", TEST_EMAIL_GENERIC, "--password", "secret"],
+        )
+    assert not result.exit_code
+    assert "Login successful" in result.output
+    assert "Tokens saved" in result.output
+
+
+def test_teams_login_failure(runner: CliRunner) -> None:
+    """Login failure prints error and exits 1."""
+    with patch(
+        "gamesheet_sdk.teams.cli.commands.login.TeamsLoginFlow",
+    ) as mock_flow_cls:
+        mock_flow_cls.return_value.authenticate.side_effect = Exception(
+            "Invalid credentials",
+        )
+        result = runner.invoke(
+            cli,
+            ["login", "--email", TEST_EMAIL_GENERIC, "--password", "wrong"],
+        )
     assert result.exit_code == 1
-    assert "not yet implemented" in result.output.lower()
+    assert "Login failed" in result.output
+    assert "Invalid credentials" in result.output
+
+
+def test_teams_login_passes_credentials(runner: CliRunner) -> None:
+    """Login passes email, password, and timeout to TeamsLoginFlow."""
+    with patch(
+        "gamesheet_sdk.teams.cli.commands.login.TeamsLoginFlow",
+    ) as mock_flow_cls:
+        mock_flow_cls.return_value.authenticate.return_value = {
+            "access": "a",
+            "refresh": "r",
+        }
+        result = runner.invoke(
+            cli,
+            [
+                "login",
+                "--email",
+                TEST_EMAIL_GENERIC,
+                "--password",
+                "secret",
+                "--timeout",
+                "30.0",
+            ],
+        )
+    assert not result.exit_code
+    mock_flow_cls.return_value.authenticate.assert_called_once_with(
+        email=TEST_EMAIL_GENERIC,
+        password="secret",  # pragma: allowlist secret
+        timeout=30.0,
+    )
+
+
+def test_teams_login_no_credentials(runner: CliRunner) -> None:
+    """Login with no args passes None for email and password."""
+    with patch(
+        "gamesheet_sdk.teams.cli.commands.login.TeamsLoginFlow",
+    ) as mock_flow_cls:
+        mock_flow_cls.return_value.authenticate.return_value = {
+            "access": "a",
+            "refresh": "r",
+        }
+        result = runner.invoke(cli, ["login"])
+    assert not result.exit_code
+    call_kwargs = mock_flow_cls.return_value.authenticate.call_args.kwargs
+    assert call_kwargs["email"] is None
+    assert call_kwargs["password"] is None
 
 
 def test_teams_login_help(runner: CliRunner) -> None:
@@ -48,10 +124,18 @@ def test_teams_login_help(runner: CliRunner) -> None:
 
 
 def test_teams_login_without_parent_context(runner: CliRunner) -> None:
-    """Login invoked directly still shows not-implemented message."""
-    result = runner.invoke(login_command, [])
-    assert result.exit_code == 1
-    assert "not yet implemented" in result.output.lower()
+    """Login invoked directly with obj works."""
+    mock_config = MagicMock()
+    with patch(
+        "gamesheet_sdk.teams.cli.commands.login.TeamsLoginFlow",
+    ) as mock_flow_cls:
+        mock_flow_cls.return_value.authenticate.return_value = {
+            "access": "a",
+            "refresh": "r",
+        }
+        result = runner.invoke(login_command, [], obj=mock_config)
+    assert not result.exit_code
+    assert "Login successful" in result.output
 
 
 def test_teams_completion_bash(runner: CliRunner) -> None:
@@ -94,16 +178,21 @@ def test_teams_default_base_url(runner: CliRunner) -> None:
 
 
 def test_teams_cli_with_no_headless_flag(runner: CliRunner) -> None:
-    """CLI should accept --no-headless flag and set browser_headless=False."""
-    result = runner.invoke(cli, ["--no-headless", "login"])
-    assert result.exit_code == 1
-    assert "not yet implemented" in result.output.lower()
+    """CLI should accept --no-headless flag and still run login."""
+    with patch(
+        "gamesheet_sdk.teams.cli.commands.login.TeamsLoginFlow",
+    ) as mock_flow_cls:
+        mock_flow_cls.return_value.authenticate.return_value = {
+            "access": "a",
+            "refresh": "r",
+        }
+        result = runner.invoke(cli, ["--no-headless", "login"])
+    assert not result.exit_code
+    assert "Login successful" in result.output
 
 
 def test_teams_main_handles_keyboard_interrupt() -> None:
     """Main() should catch KeyboardInterrupt and return a clean exit code."""
-    from unittest.mock import patch
-
     from gamesheet_sdk.teams.cli.main import main as teams_main
 
     with patch.object(cli, "main", side_effect=KeyboardInterrupt):
@@ -114,7 +203,6 @@ def test_teams_main_handles_keyboard_interrupt() -> None:
 def test_teams_cli_main_module() -> None:
     """Running the module as __main__ should invoke sys.exit(main())."""
     import runpy
-    from unittest.mock import patch
     import warnings
 
     import pytest

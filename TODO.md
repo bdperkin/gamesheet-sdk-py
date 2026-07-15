@@ -29,16 +29,20 @@ ______________________________________________________________________
 - [x] Refactor current admin login (`common/auth/login.py`) as a concrete `LoginFlow` implementation — `AdminLoginFlow` class wraps existing `login()` +
   `BrowserSession`, reads tokens from saved state via `load_access_token()`/`load_refresh_token()`. Exported from `common.auth`. 4 tests in
   `tests/common/auth/test_login.py`. Committed `dee6213`.
-- [ ] Implement teams login as a second concrete `LoginFlow` — HTTP-only: Firebase REST `signInWithPassword` → `GET /api/auth/tokens` (no Playwright needed)
-- [ ] Add teams-specific auth constants: Firebase API key, teams API gateway URL, teams auth endpoint paths
+- [x] Implement teams login as a second concrete `LoginFlow` — `TeamsLoginFlow` in `teams/login.py`: HTTP-only Firebase REST `signInWithPassword` →
+  `GET /api/auth/tokens`. Extracted shared credential resolution (`common/auth/credentials.py`) and Firebase error parsing (`common/auth/firebase.py`) to
+  de-duplicate admin/teams code. Teams constants in `teams/shared/constants.py`. 10 tests in `tests/teams/test_login.py`, 8 in
+  `tests/common/auth/test_credentials.py`, 6 in `tests/common/auth/test_firebase.py`. Committed `c5f54c3`.
+- [x] Add teams-specific auth constants — `TEAMS_API_GATEWAY`, `FIREBASE_API_KEY`, `TEAMS_TOKEN_EXCHANGE_PATH`, `TEAMS_REFRESH_PATH` in
+  `teams/shared/constants.py`. Committed `c5f54c3`.
 - [ ] Wire `gamesheet-teams login` command to the teams login strategy (replace current stub)
 - [ ] Implement teams token refresh via `POST /api/auth/refresh` with Bearer refresh token header
-- [ ] Tests for the new abstraction + teams login flow
 - [ ] Verify 100% coverage still holds
 
 ## Phase 3: Teams constants and shared utilities
 
-- [ ] Add teams API gateway URL and endpoint paths to `teams/shared/constants.py`
+- [x] Add teams API gateway URL and endpoint paths to `teams/shared/constants.py` — auth-related constants added in Phase 2 (`c5f54c3`). Domain endpoint paths
+  to be added as Phase 4 modules are implemented.
 - [ ] Implement teams `AuthenticatedSession` — Bearer token auth with auto-refresh on 401 (simpler than admin's cookie-based session)
 - [ ] Evaluate whether `common/shared/gamesheet_http.py` and `common/shared/jsonapi.py` apply to teams API (teams uses plain JSON, not JSON:API — likely needs
   own HTTP helpers or a simpler shared helper)
