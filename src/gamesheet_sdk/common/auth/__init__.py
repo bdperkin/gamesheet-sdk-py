@@ -3,6 +3,8 @@
 
 """Authentication flows and token management for GameSheet."""
 
+from gamesheet_sdk.common.auth.credentials import resolve_email, resolve_password
+from gamesheet_sdk.common.auth.firebase import extract_firebase_error
 from gamesheet_sdk.common.auth.flow import LoginFlow
 from gamesheet_sdk.common.auth.login import AdminLoginFlow, login
 from gamesheet_sdk.common.auth.session import AuthenticatedSession, OnRefreshCallback
@@ -18,9 +20,12 @@ __all__ = [
     "AuthenticatedSession",
     "LoginFlow",
     "OnRefreshCallback",
+    "extract_firebase_error",
     "load_access_token",
     "load_refresh_token",
     "login",
     "refresh_access_token",
+    "resolve_email",
+    "resolve_password",
     "save_tokens",
 ]

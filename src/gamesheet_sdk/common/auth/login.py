@@ -22,6 +22,8 @@ from gamesheet_sdk.common.auth.constants import (
     POST_LOGIN_PATH,
     TOKEN_EXCHANGE_PATH,
 )
+from gamesheet_sdk.common.auth.credentials import resolve_email, resolve_password
+from gamesheet_sdk.common.auth.firebase import extract_firebase_error
 from gamesheet_sdk.common.auth.tokens import load_access_token, load_refresh_token
 from gamesheet_sdk.common.browser import BrowserSession
 from gamesheet_sdk.common.config import Config
@@ -33,7 +35,8 @@ _LOGGER = logging.getLogger(__name__)
 def _resolve_email(cfg: Config, email: str | None) -> str:
     """Resolve the login email from explicit argument, environment variable, or config.
 
-    Falls through: explicit ``email`` argument → ``GAMESHEET_USERNAME`` env var → ``Config.username``.
+    Delegates to :func:`~gamesheet_sdk.common.auth.credentials.resolve_email`.
+
     :param cfg: Configuration object containing username from env/defaults.
     :type cfg: Config
     :param email: Explicit email address, or None to fall back to config.
@@ -42,21 +45,13 @@ def _resolve_email(cfg: Config, email: str | None) -> str:
     :rtype: str
     :raises AuthenticationError: If no email is available from any source.
     """
-    if email is None:
-        email = cfg.username
-    if not email:
-        _err_msg = "Login requires an email. Pass it explicitly or set GAMESHEET_USERNAME."
-        raise AuthenticationError(_err_msg)
-    return email
+    return resolve_email(cfg, email)
 
 
 def _resolve_password(cfg: Config, password: str | None) -> str:
     """Resolve the login password from explicit argument, environment variable, or config.
 
-    Falls through: explicit ``password`` argument → ``GAMESHEET_PASSWORD`` env var → ``Config.password``.
-    Kept separate from :func:`_resolve_email` so the secret never flows through a shared return value with the
-    non-sensitive email — that pairing was enough to trip CodeQL's data-flow analyzer into flagging downstream
-    ``email`` logging as clear-text password logging.
+    Delegates to :func:`~gamesheet_sdk.common.auth.credentials.resolve_password`.
 
     :param cfg: Configuration object containing password from env/defaults.
     :type cfg: Config
@@ -66,12 +61,7 @@ def _resolve_password(cfg: Config, password: str | None) -> str:
     :rtype: str
     :raises AuthenticationError: If no password is available from any source.
     """
-    if password is None and cfg.password is not None:
-        password = cfg.password.get_secret_value()
-    if not password:
-        _err_msg = "Login requires a password. Pass it explicitly or set GAMESHEET_PASSWORD."
-        raise AuthenticationError(_err_msg)
-    return password
+    return resolve_password(cfg, password)
 
 
 def _wait_for_login_form(page: Any, cfg: Config) -> bool:
@@ -165,8 +155,8 @@ def _submit_login_form(page: Any, email: str, password: str) -> None:
 def _firebase_error_message(response: Response) -> str:
     """Extract a readable error from a Firebase Auth failure response.
 
-    Firebase returns ``{"error": {"code": N, "message": "CODE_NAME", ...}}``; the message is a stable
-    identifier like ``EMAIL_NOT_FOUND`` that we surface verbatim so callers can react programmatically.
+    Parses the Playwright response JSON and delegates to
+    :func:`~gamesheet_sdk.common.auth.firebase.extract_firebase_error`.
 
     :param response: Playwright Response object from Firebase Auth endpoint.
     :type response: Response
@@ -177,12 +167,7 @@ def _firebase_error_message(response: Response) -> str:
         body: dict[str, Any] = response.json()
     except (ValueError, KeyError):
         return f"HTTP {response.status}"
-    err = body.get("error")
-    if isinstance(err, dict):
-        message = err.get("message")
-        if isinstance(message, str):
-            return message
-    return f"HTTP {response.status}"
+    return extract_firebase_error(body, response.status)
 
 
 def _raise_for_firebase_error(response: Response) -> None:

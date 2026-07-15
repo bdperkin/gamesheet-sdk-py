@@ -386,6 +386,8 @@ hang-closing = false
 # Comma-separated list of error codes to add to the list of ignored ones. For example, ``--extend-ignore=E4,E51,W234``.
 extend-ignore = [
   "E203",
+  "S101",
+  "S106",
   "U101",
   "W503",
 ]
@@ -394,13 +396,13 @@ extend-ignore = [
 # ``--ignore`` and ``--select`` options.
 per-file-ignores = [
   "docs/*:INP001",
-  "tests/admin/*:DOC,S101",
-  "tests/cli/*:DOC,S101,S106,SF01",
-  "tests/common/*:DOC,S101,S106",
-  "tests/helpers/*:DOC,S101",
-  "tests/integration/*:DOC,S101,SF01",
-  "tests/teams/*:DOC,S101",
-  "tests/unit/*:DOC,S101",
+  "tests/admin/*:DOC",
+  "tests/cli/*:DOC,SF01",
+  "tests/common/*:DOC",
+  "tests/helpers/*:DOC",
+  "tests/integration/*:DOC,SF01",
+  "tests/teams/*:DOC",
+  "tests/unit/*:DOC",
 ]
 # Maximum allowed line length for the entirety of this run. (Default: 79).
 max-line-length = 110
@@ -1427,6 +1429,7 @@ ignore_names = [
   "extensions",
   "FILE_*",
   "FILENAME_*",
+  "FIREBASE_*",
   "form_*",
   "has_*",
   "HELP_*",
@@ -1448,6 +1451,7 @@ ignore_names = [
   "side_effect",
   "source_*",
   "STYLE_*",
+  "TEAMS_*",
   "templates_*",
   "TEST_*",
   "todo_*",
