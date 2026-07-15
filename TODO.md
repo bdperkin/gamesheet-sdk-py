@@ -35,7 +35,8 @@ ______________________________________________________________________
   `tests/common/auth/test_credentials.py`, 6 in `tests/common/auth/test_firebase.py`. Committed `c5f54c3`.
 - [x] Add teams-specific auth constants — `TEAMS_API_GATEWAY`, `FIREBASE_API_KEY`, `TEAMS_TOKEN_EXCHANGE_PATH`, `TEAMS_REFRESH_PATH` in
   `teams/shared/constants.py`. Committed `c5f54c3`.
-- [ ] Wire `gamesheet-teams login` command to the teams login strategy (replace current stub)
+- [x] Wire `gamesheet-teams login` command to the teams login strategy (replace current stub) — replaced stub with working `TeamsLoginFlow`-backed
+  implementation, 7 tests in `tests/teams/cli/test_main.py`. Committed `83970ac`.
 - [ ] Implement teams token refresh via `POST /api/auth/refresh` with Bearer refresh token header
 - [ ] Verify 100% coverage still holds
 
@@ -89,7 +90,6 @@ For each resource, repeat this pattern: pydantic model(s), action functions, CLI
 
 ## Phase 6: Cleanup and docs
 
-- [ ] Delete `watch_20260715-134537` from repo root
 - [ ] Update `CLAUDE.md` structure docs once teams modules exist
 - [ ] Decide `gamesheet_sdk.teams` public re-exports in `teams/__init__.py`
 - [ ] Update `docs/reference/api.md` with new teams module autodoc entries

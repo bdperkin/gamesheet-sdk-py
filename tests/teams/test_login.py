@@ -11,7 +11,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from gamesheet_sdk import AuthenticationError, Config
-from gamesheet_sdk.teams.login import TeamsLoginFlow
+from gamesheet_sdk.common.exceptions import GameSheetError
+from gamesheet_sdk.teams.login import TeamsLoginFlow, refresh_access_token
 from tests.helpers import TEST_EMAIL_MINIMAL
 
 if TYPE_CHECKING:
@@ -225,3 +226,58 @@ def test_teams_login_flow_token_exchange_failure(config: Config) -> None:
         flow = TeamsLoginFlow(config)
         with pytest.raises(AuthenticationError, match="token exchange failed"):
             flow.authenticate(email=TEST_EMAIL_MINIMAL, password="x")
+
+
+# ---------- refresh_access_token ------------------------------------------
+
+
+def test_teams_refresh_happy_path() -> None:
+    """Test that refresh_access_token returns new tokens and sends correct headers."""
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.json.return_value = {"access": "A2", "refresh": "R2"}
+
+    with patch(
+        "gamesheet_sdk.teams.login.requests.post",
+        return_value=mock_resp,
+    ) as mock_post:
+        tokens = refresh_access_token("old-refresh")
+
+    assert tokens == {"access": "A2", "refresh": "R2"}
+    call_kwargs = mock_post.call_args
+    sent_headers = call_kwargs.kwargs.get("headers") or call_kwargs[1].get("headers")
+    assert sent_headers["Authorization"] == "Bearer old-refresh"
+    assert sent_headers["Content-Type"] == "application/json"
+    sent_body = call_kwargs.kwargs.get("json") or call_kwargs[1].get("json")
+    assert sent_body == {}
+
+
+def test_teams_refresh_401_rejected() -> None:
+    """Test that refresh_access_token raises AuthenticationError on 401."""
+    mock_resp = MagicMock()
+    mock_resp.status_code = 401
+
+    with (
+        patch(
+            "gamesheet_sdk.teams.login.requests.post",
+            return_value=mock_resp,
+        ),
+        pytest.raises(AuthenticationError, match="Refresh token rejected"),
+    ):
+        refresh_access_token("expired-refresh")
+
+
+def test_teams_refresh_other_http_error() -> None:
+    """Test that refresh_access_token raises GameSheetError on non-401 failures."""
+    mock_resp = MagicMock()
+    mock_resp.status_code = 500
+    mock_resp.text = "Internal Server Error"
+
+    with (
+        patch(
+            "gamesheet_sdk.teams.login.requests.post",
+            return_value=mock_resp,
+        ),
+        pytest.raises(GameSheetError, match="HTTP 500"),
+    ):
+        refresh_access_token("some-refresh")

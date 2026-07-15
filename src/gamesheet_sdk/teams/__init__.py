@@ -3,6 +3,6 @@
 
 """Teams dashboard SDK for GameSheet."""
 
-from gamesheet_sdk.teams.login import TeamsLoginFlow
+from gamesheet_sdk.teams.login import TeamsLoginFlow, refresh_access_token
 
-__all__ = ["TeamsLoginFlow"]
+__all__ = ["TeamsLoginFlow", "refresh_access_token"]
