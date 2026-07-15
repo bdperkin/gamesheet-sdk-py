@@ -4,10 +4,11 @@
 # Production-optimized container with security best practices:
 # - Multi-stage build to minimize final image size
 # - Non-root user for runtime security
-# - Health check using CLI --version command
+# - Health check using both CLI --version commands
 # - Slim Python base for reduced attack surface
 # - Playwright Chromium for headless browser automation
 # - Latest pip/setuptools/wheel to address known CVEs
+# - Ships both CLIs: gamesheet-admin and gamesheet-teams
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
@@ -135,18 +136,18 @@ USER gamesheet
 # ------------------------------------------------------------------------------
 # Health check
 # ------------------------------------------------------------------------------
-# Verify the CLI is functional by running --version
+# Verify both CLIs are functional by running --version
 # Interval: check every 30 seconds
 # Timeout: allow 3 seconds for command to complete
 # Start-period: wait 5 seconds before first check
 # Retries: mark unhealthy after 3 consecutive failures
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD gamesheet-sdk-py --version || exit 1
+    CMD gamesheet-admin --version && gamesheet-teams --version || exit 1
 
 # ------------------------------------------------------------------------------
-# Entry point and default command
+# Default command
 # ------------------------------------------------------------------------------
-# ENTRYPOINT: Always run the gamesheet-sdk-py CLI
-# CMD: Default to --help (can be overridden at docker run time)
-ENTRYPOINT ["gamesheet-sdk-py"]
-CMD ["--help"]
+# No ENTRYPOINT — users choose which CLI to run:
+#   docker run <image> gamesheet-admin --help
+#   docker run <image> gamesheet-teams --help
+CMD ["sh", "-c", "echo 'Usage: docker run <image> <command> [args]' && echo '' && echo 'Available commands:' && echo '  gamesheet-admin   Admin dashboard CLI' && echo '  gamesheet-teams   Teams dashboard CLI' && echo '' && echo 'Example: docker run <image> gamesheet-admin --help'"]

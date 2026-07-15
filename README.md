@@ -123,21 +123,24 @@ Pre-built images include Playwright (Chromium) for seamless browser automation.
 # Pull the latest image from GitHub Container Registry
 docker pull ghcr.io/bdperkin/gamesheet-sdk-py:latest
 
-# Run the CLI
-docker run --rm ghcr.io/bdperkin/gamesheet-sdk-py:latest --help
+# Show available CLIs
+docker run --rm ghcr.io/bdperkin/gamesheet-sdk-py:latest
+
+# Run the admin CLI
+docker run --rm ghcr.io/bdperkin/gamesheet-sdk-py:latest gamesheet-admin --help
 
 # Run with persistent session storage (recommended for multi-command workflows)
 docker run --rm -v ~/.gamesheet:/home/gamesheet/.gamesheet \
-  ghcr.io/bdperkin/gamesheet-sdk-py:latest associations list
+  ghcr.io/bdperkin/gamesheet-sdk-py:latest gamesheet-admin associations list
 
 # Example: login and list associations
 docker run -it --rm -v ~/.gamesheet:/home/gamesheet/.gamesheet \
   -e GAMESHEET_USERNAME=you@example.com \
   -e GAMESHEET_PASSWORD=secret \
-  ghcr.io/bdperkin/gamesheet-sdk-py:latest login
+  ghcr.io/bdperkin/gamesheet-sdk-py:latest gamesheet-admin login
 
 docker run --rm -v ~/.gamesheet:/home/gamesheet/.gamesheet \
-  ghcr.io/bdperkin/gamesheet-sdk-py:latest associations list --format json
+  ghcr.io/bdperkin/gamesheet-sdk-py:latest gamesheet-admin associations list --format json
 ```
 
 **Available Docker tags:**
@@ -182,7 +185,7 @@ The CLI and Python API provide comprehensive coverage of GameSheet resources:
 | **iPad Keys**    | `ipad-keys`                                            | iPad scoring access keys                |
 
 Each resource supports intuitive verbs: `list` (or `ls`), `get` (or `show`/`view`), `create` (or `add`/`new`), `update` (or `set`/`edit`), `delete` (or
-`rm`/`remove`) where applicable. Most resources default to `list` when invoked without a verb (e.g., `gamesheet-sdk-py associations` runs `list`).
+`rm`/`remove`) where applicable. Most resources default to `list` when invoked without a verb (e.g., `gamesheet-admin associations` runs `list`).
 
 ______________________________________________________________________
 
@@ -192,48 +195,48 @@ ______________________________________________________________________
 
 ```bash
 # Authenticate (credentials can also come from env vars)
-gamesheet-sdk-py login --email you@example.com
+gamesheet-admin login --email you@example.com
 
 # List associations
-gamesheet-sdk-py associations list --format json
-# Shorthand: gamesheet-sdk-py associations (default=list)
+gamesheet-admin associations list --format json
+# Shorthand: gamesheet-admin associations (default=list)
 
 # List leagues in an association
-gamesheet-sdk-py leagues list 38 --format json
+gamesheet-admin leagues list 38 --format json
 
 # List seasons in a league
-gamesheet-sdk-py seasons list 1148580 --format json
+gamesheet-admin seasons list 1148580 --format json
 
 # Get season details
-gamesheet-sdk-py seasons get --season-id 15020 --format json
+gamesheet-admin seasons get --season-id 15020 --format json
 
 # Get iPad/Scoring keys
-gamesheet-sdk-py ipad-keys get 15020 --format json
+gamesheet-admin ipad-keys get 15020 --format json
 
 # Manage divisions
-gamesheet-sdk-py divisions list --season-id 15020 --format json
-gamesheet-sdk-py divisions create --season-id 15020 --name "Bantam A" --format json
+gamesheet-admin divisions list --season-id 15020 --format json
+gamesheet-admin divisions create --season-id 15020 --name "Bantam A" --format json
 
 # Manage teams
-gamesheet-sdk-py teams list --division-id 123 --format json
-gamesheet-sdk-py teams create --division-id 123 --name "Hawks" --format json
+gamesheet-admin teams list --division-id 123 --format json
+gamesheet-admin teams create --division-id 123 --name "Hawks" --format json
 
 # List games (scheduled, completed, brackets)
-gamesheet-sdk-py games scheduled --season-id 15020 --format json
-gamesheet-sdk-py games completed --season-id 15020 --format json
-gamesheet-sdk-py games brackets --season-id 15020 --format json
+gamesheet-admin games scheduled --season-id 15020 --format json
+gamesheet-admin games completed --season-id 15020 --format json
+gamesheet-admin games brackets --season-id 15020 --format json
 
 # Manage referees
-gamesheet-sdk-py referees list --season-id 15020 --format json
-gamesheet-sdk-py referees get --referee-id 456 --format json
+gamesheet-admin referees list --season-id 15020 --format json
+gamesheet-admin referees get --referee-id 456 --format json
 
 # Manage roster (players and coaches)
-gamesheet-sdk-py roster players list --season-id 15020 --format json
-gamesheet-sdk-py roster coaches list --season-id 15020 --format json
+gamesheet-admin roster players list --season-id 15020 --format json
+gamesheet-admin roster coaches list --season-id 15020 --format json
 
 # Tab completion setup
-gamesheet-sdk-py completion bash > ~/.gamesheet-sdk-completion.bash
-source ~/.gamesheet-sdk-completion.bash
+gamesheet-admin completion bash > ~/.gamesheet-admin-completion.bash
+source ~/.gamesheet-admin-completion.bash
 ```
 
 See the [CLI Reference](docs/reference/cli.md) for complete usage.
@@ -312,7 +315,7 @@ export GAMESHEET_USERNAME=you@example.com
 export GAMESHEET_PASSWORD=secret
 export GAMESHEET_TIMEOUT=60
 
-gamesheet-sdk-py login
+gamesheet-admin login
 ```
 
 ______________________________________________________________________

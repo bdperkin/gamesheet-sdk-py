@@ -16,14 +16,14 @@ Before opening an issue, please check our comprehensive documentation:
 
 ### Authentication Problems
 
-**Issue**: `gamesheet-sdk-py login` fails or returns HTTP 401/403 errors.
+**Issue**: `gamesheet-admin login` fails or returns HTTP 401/403 errors.
 
 **Solutions**:
 
 1. Ensure you have valid GameSheet credentials
-2. Re-run `gamesheet-sdk-py login` to refresh your session
+2. Re-run `gamesheet-admin login` to refresh your session
 3. Check that cookies and tokens are being saved to `~/.gamesheet/`
-4. Try `gamesheet-sdk-py --no-headless login` to see the browser flow
+4. Try `gamesheet-admin --no-headless login` to see the browser flow
 5. Clear old session data: `rm -rf ~/.gamesheet/` and log in again
 
 See [Authentication Workflow Tutorial](https://bdperkin.github.io/gamesheet-sdk-py/tutorials/authentication-workflow.html) for details.
@@ -86,7 +86,7 @@ For bug reports, security vulnerabilities, and confirmed issues:
 1. Search existing issues to avoid duplicates
 2. Check the [documentation](https://bdperkin.github.io/gamesheet-sdk-py/)
 3. Provide a minimal reproducible example
-4. Include version info: `gamesheet-sdk-py --version` or `python -c "import gamesheet_sdk; print(gamesheet_sdk.__version__)"`
+4. Include version info: `gamesheet-admin --version` or `python -c "import gamesheet_sdk; print(gamesheet_sdk.__version__)"`
 5. Include Python version: `python --version`
 6. Include OS and platform information
 
