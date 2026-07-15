@@ -6,13 +6,14 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 import pytest
 
 from gamesheet_sdk import AuthenticationError, Config, login
 from gamesheet_sdk.common.auth.constants import LOGIN_PATH, POST_LOGIN_PATH
+from gamesheet_sdk.common.auth.login import AdminLoginFlow
 from tests.common.auth.conftest import _FIREBASE_URL, _TOKEN_URL, _make_response
 from tests.helpers import TEST_EMAIL_MINIMAL
 
@@ -393,6 +394,117 @@ def test_firebase_error_message_with_non_string_message(
     with pytest.raises(AuthenticationError) as exc_info:
         login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x")
     assert "HTTP 403" in str(exc_info.value)
+
+
+# ---------- AdminLoginFlow -------------------------------------------------
+
+
+def test_admin_login_flow_happy_path(config: Config) -> None:
+    """Test that AdminLoginFlow.authenticate returns access and refresh tokens."""
+    with (
+        patch(
+            "gamesheet_sdk.common.auth.login.BrowserSession",
+        ) as mock_browser_cls,
+        patch("gamesheet_sdk.common.auth.login.login") as mock_login,
+        patch(
+            "gamesheet_sdk.common.auth.login.load_access_token",
+            return_value="access-tok",
+        ),
+        patch(
+            "gamesheet_sdk.common.auth.login.load_refresh_token",
+            return_value="refresh-tok",
+        ),
+    ):
+        mock_browser = MagicMock()
+        mock_browser_cls.return_value.__enter__.return_value = mock_browser
+        mock_browser_cls.return_value.__exit__.return_value = None
+
+        flow = AdminLoginFlow(config)
+        tokens = flow.authenticate(
+            email=TEST_EMAIL_MINIMAL,
+            password="x",
+            timeout=5.0,
+        )
+
+    assert tokens == {"access": "access-tok", "refresh": "refresh-tok"}
+    mock_login.assert_called_once_with(
+        mock_browser,
+        email=TEST_EMAIL_MINIMAL,
+        password="x",
+        timeout=5.0,
+    )
+
+
+def test_admin_login_flow_propagates_auth_error(config: Config) -> None:
+    """Test that AdminLoginFlow.authenticate propagates AuthenticationError from login."""
+    with (
+        patch(
+            "gamesheet_sdk.common.auth.login.BrowserSession",
+        ) as mock_browser_cls,
+        patch(
+            "gamesheet_sdk.common.auth.login.login",
+            side_effect=AuthenticationError("bad creds"),
+        ),
+    ):
+        mock_browser = MagicMock()
+        mock_browser_cls.return_value.__enter__.return_value = mock_browser
+        mock_browser_cls.return_value.__exit__.return_value = None
+
+        flow = AdminLoginFlow(config)
+        with pytest.raises(AuthenticationError, match="bad creds"):
+            flow.authenticate(email=TEST_EMAIL_MINIMAL, password="x")
+
+
+def test_admin_login_flow_raises_when_tokens_missing(config: Config) -> None:
+    """Test that AdminLoginFlow raises when tokens are not found after login."""
+    with (
+        patch(
+            "gamesheet_sdk.common.auth.login.BrowserSession",
+        ) as mock_browser_cls,
+        patch("gamesheet_sdk.common.auth.login.login"),
+        patch(
+            "gamesheet_sdk.common.auth.login.load_access_token",
+            return_value=None,
+        ),
+        patch(
+            "gamesheet_sdk.common.auth.login.load_refresh_token",
+            return_value="refresh-tok",
+        ),
+    ):
+        mock_browser = MagicMock()
+        mock_browser_cls.return_value.__enter__.return_value = mock_browser
+        mock_browser_cls.return_value.__exit__.return_value = None
+
+        flow = AdminLoginFlow(config)
+        with pytest.raises(AuthenticationError, match="tokens were not found"):
+            flow.authenticate()
+
+
+def test_admin_login_flow_raises_when_refresh_token_missing(
+    config: Config,
+) -> None:
+    """Test that AdminLoginFlow raises when only the refresh token is missing."""
+    with (
+        patch(
+            "gamesheet_sdk.common.auth.login.BrowserSession",
+        ) as mock_browser_cls,
+        patch("gamesheet_sdk.common.auth.login.login"),
+        patch(
+            "gamesheet_sdk.common.auth.login.load_access_token",
+            return_value="access-tok",
+        ),
+        patch(
+            "gamesheet_sdk.common.auth.login.load_refresh_token",
+            return_value=None,
+        ),
+    ):
+        mock_browser = MagicMock()
+        mock_browser_cls.return_value.__enter__.return_value = mock_browser
+        mock_browser_cls.return_value.__exit__.return_value = None
+
+        flow = AdminLoginFlow(config)
+        with pytest.raises(AuthenticationError, match="tokens were not found"):
+            flow.authenticate()
 
 
 # ---------- _origin_entry_for with multiple origins (line 367->366) ---------

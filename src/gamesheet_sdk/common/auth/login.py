@@ -22,6 +22,7 @@ from gamesheet_sdk.common.auth.constants import (
     POST_LOGIN_PATH,
     TOKEN_EXCHANGE_PATH,
 )
+from gamesheet_sdk.common.auth.tokens import load_access_token, load_refresh_token
 from gamesheet_sdk.common.browser import BrowserSession
 from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.common.exceptions import AuthenticationError
@@ -368,3 +369,70 @@ def login(
     )
     if post_login_path is not None:
         _settle_post_login(session, post_login_path)
+
+
+# pylint: disable-next=too-few-public-methods
+class AdminLoginFlow:
+    """Browser-based :class:`~gamesheet_sdk.common.auth.flow.LoginFlow` for the admin dashboard.
+
+    Wraps the headless-browser :func:`login` flow in a class that conforms to the
+    :class:`~gamesheet_sdk.common.auth.flow.LoginFlow` protocol.  After the browser
+    session closes (persisting localStorage to disk), the access and refresh tokens
+    are read back and returned so callers can use them without touching the state
+    file directly.
+
+    **Example:**
+
+    .. code-block:: python
+
+        from gamesheet_sdk.common.auth.login import AdminLoginFlow
+        from gamesheet_sdk.common.config import Config
+
+        config = Config()
+        flow = AdminLoginFlow(config)
+        tokens = flow.authenticate(email="user@example.com")
+        print(tokens["access"])
+    """
+
+    def __init__(self: AdminLoginFlow, config: Config) -> None:
+        """Store the configuration for later browser-session creation.
+
+        :param config: SDK configuration (credentials, URLs, storage paths).
+        :type config: Config
+        """
+        self._config = config
+
+    def authenticate(
+        self: AdminLoginFlow,
+        email: str | None = None,
+        password: str | None = None,
+        *,
+        timeout: float | None = None,
+    ) -> dict[str, str]:
+        """Run the browser-based admin login and return tokens.
+
+        Opens a :class:`~gamesheet_sdk.common.browser.BrowserSession`, drives the
+        Firebase login form via :func:`login`, and reads the persisted tokens from
+        the saved browser state file.
+
+        :param email: Login email, or ``None`` to resolve from config/env.
+        :type email: str | None
+        :param password: Login password, or ``None`` to resolve from config/env.
+        :type password: str | None
+        :param timeout: Auth round-trip timeout in seconds, or ``None`` for the
+            default.
+        :type timeout: float | None
+        :returns: Token bundle with ``"access"`` and ``"refresh"`` keys.
+        :rtype: dict[str, str]
+        :raises ~gamesheet_sdk.common.exceptions.AuthenticationError:
+            If credentials are missing, the auth backend rejects them, or
+            tokens are not found in the saved state after login.
+        """
+        with BrowserSession(self._config) as session:
+            login(session, email=email, password=password, timeout=timeout)
+        access = load_access_token(self._config)
+        refresh = load_refresh_token(self._config)
+        if access is None or refresh is None:
+            _err_msg = "Login completed but tokens were not found in saved state."
+            raise AuthenticationError(_err_msg)
+        return {"access": access, "refresh": refresh}

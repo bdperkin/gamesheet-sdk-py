@@ -24,7 +24,8 @@ ______________________________________________________________________
 
 ## Phase 2: Auth abstraction (`common/auth/`)
 
-- [ ] Define `LoginFlow` base class or protocol in `common/auth/` — interface: `authenticate(email, password) -> tokens`
+- [x] Define `LoginFlow` protocol in `common/auth/flow.py` — `@runtime_checkable` Protocol with `authenticate(email, password, *, timeout) -> dict[str, str]`.
+  Exported from `common.auth`. Tests in `tests/common/auth/test_flow.py` (5 tests, 100% coverage). Committed `1363119`.
 - [ ] Refactor current admin login (`common/auth/login.py`) as a concrete `LoginFlow` implementation
 - [ ] Implement teams login as a second concrete `LoginFlow` — HTTP-only: Firebase REST `signInWithPassword` → `GET /api/auth/tokens` (no Playwright needed)
 - [ ] Add teams-specific auth constants: Firebase API key, teams API gateway URL, teams auth endpoint paths
