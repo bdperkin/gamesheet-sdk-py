@@ -161,7 +161,7 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   based on Conventional Commits. **No manual tagging required** — simply merge to `main` and PSR handles everything:
 
   1. Analyzes commits since last release
-  2. Determines next version (standard semver: `feat:` → minor, `fix:`/`perf:` → patch; `major_on_zero = false` prevents breaking changes from bumping to 1.0.0)
+  2. Determines next version (currently patch-only: `feat:`/`fix:`/`perf:` → patch; `major_on_zero = false` prevents breaking changes from bumping to 1.0.0)
   3. Updates `CHANGELOG.md` with new entries
   4. Bumps version in `pyproject.toml` (`[project] version`)
   5. Creates commit: `chore(release): X.Y.Z`
