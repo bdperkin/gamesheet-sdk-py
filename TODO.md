@@ -49,9 +49,12 @@ ______________________________________________________________________
 - [x] Implement teams `AuthenticatedSession` — `TeamsAuthenticatedSession` in `teams/session.py` subclasses `BaseAuthenticatedSession` (extracted to
   `common/auth/session.py` to de-duplicate admin/teams session code). Each pillar implements `_do_refresh()` only. 8 tests in `tests/teams/test_session.py`.
   Committed `2d3b97f`.
-- [ ] Evaluate whether `common/shared/gamesheet_http.py` and `common/shared/jsonapi.py` apply to teams API (teams uses plain JSON, not JSON:API — likely needs
-  own HTTP helpers or a simpler shared helper)
-- [ ] Move anything confirmed admin-only out of `common/` into `admin/shared/` (candidates: `jsonapi.py` since teams doesn't use JSON:API)
+- [x] Evaluate whether `common/shared/gamesheet_http.py` and `common/shared/jsonapi.py` apply to teams API — `jsonapi.py` is entirely admin-only (teams uses
+  plain REST/JSON, not JSON:API). `gamesheet_http.py` has a useful pattern (`handle_response`) but is coupled to admin-specific error messages; teams will get
+  its own HTTP helper in Phase 4. `check_bff_response_status` and `handle_season_scoped_response` are admin-only.
+- [x] Move anything confirmed admin-only out of `common/` into `admin/shared/` — moved `jsonapi.py` from `common/shared/` to `admin/shared/`, updated all 5
+  admin domain module imports (`associations`, `divisions`, `leagues`, `teams`, `roster/models`). Updated `admin/shared/__init__.py` exports and removed jsonapi
+  from `common/shared/__init__.py`. Committed `cbcf42d`.
 
 ## Phase 4: Teams domain modules
 

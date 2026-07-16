@@ -16,6 +16,8 @@ TEAMS_TOKEN_EXCHANGE_PATH : str
     Endpoint path for exchanging a Firebase ID token for app tokens.
 TEAMS_REFRESH_PATH : str
     Endpoint path for refreshing an expired access token.
+TEAMS_LOOKUPS_PATH : str
+    Endpoint path for fetching public lookup data (no auth required).
 
 Examples
 --------
@@ -39,3 +41,4 @@ TEAMS_API_GATEWAY: Final[str] = "https://api.teams.gamesheet.app"
 FIREBASE_API_KEY: Final[str] = "AIzaSyCk5pKBFxvCMuwPchzXgvvz4XmmscJTvs8"
 TEAMS_TOKEN_EXCHANGE_PATH: Final[str] = "/api/auth/tokens"
 TEAMS_REFRESH_PATH: Final[str] = "/api/auth/refresh"
+TEAMS_LOOKUPS_PATH: Final[str] = "/api/lookups"

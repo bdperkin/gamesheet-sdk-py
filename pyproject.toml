@@ -1468,6 +1468,7 @@ ignore_decorators = [
   "@ipad_keys_group.command",
   "@leagues_group.command",
   "@locations_group.command",
+  "@lookups_group.command",
   "@players_group.command",
   "@pytest.fixture",
   "@referees_group.command",

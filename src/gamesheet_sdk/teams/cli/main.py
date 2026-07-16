@@ -24,6 +24,7 @@ from gamesheet_sdk.common.cli.core import _configure_logging, resolve_exit
 from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.teams.cli.commands.completion import completion_command
 from gamesheet_sdk.teams.cli.commands.login import login_command
+from gamesheet_sdk.teams.cli.commands.lookups import lookups_group
 
 _TEAMS_DEFAULT_BASE_URL = "https://teams.gamesheet.app"
 
@@ -80,6 +81,7 @@ def cli(
 
 cli.add_command(login_command)
 cli.add_command(completion_command)
+cli.add_command(lookups_group)
 
 
 def main(argv: list[str] | None = None) -> int:
