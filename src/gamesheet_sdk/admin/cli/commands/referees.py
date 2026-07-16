@@ -83,7 +83,8 @@ def referees_get_command(
 ) -> None:
     """Get a single referee by ID.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
@@ -127,7 +128,8 @@ def referees_report_command(
     """Get a comprehensive referee report with statistics and games.
 
     Retrieves career statistics, games officiated, and penalty details. Requires authentication (run
-    'gamesheet-admin login' first).
+    'gamesheet-admin login' first).\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
@@ -196,7 +198,8 @@ def referees_create_command(
 ) -> None:
     """Create a new referee in the specified season.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
@@ -282,7 +285,8 @@ def referees_update_command(
     """Update an existing referee in the specified season.
 
     At least one field must be provided to update. Requires authentication (run 'gamesheet-admin login'
-    first).
+    first).\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
@@ -348,7 +352,8 @@ def referees_delete_command(
 ) -> None:
     """Delete a referee.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
@@ -382,7 +387,8 @@ def referees_list_command(
 ) -> None:
     """List all referees in the specified season.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier

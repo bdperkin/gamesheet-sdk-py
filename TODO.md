@@ -40,7 +40,7 @@ ______________________________________________________________________
 - [x] Implement teams token refresh via `POST /api/auth/refresh` with Bearer refresh token header — `refresh_access_token()` in `teams/login.py`: standalone
   HTTP POST mirroring admin pattern, returns `{"access", "refresh"}` (no roles). Exported from `teams/__init__.py`. 3 tests in `tests/teams/test_login.py`.
   Committed `5c08ee1`.
-- [x] Verify 100% coverage still holds — 1013 tests pass, 100.00% coverage confirmed after `5c08ee1`.
+- [x] Verify 100% coverage still holds — 1013 tests pass, 100.00% coverage confirmed after `5c08ee1`. Now 1046 tests after Phase 4a Lookups + CLI harmonization.
 
 ## Phase 3: Teams constants and shared utilities
 
@@ -64,7 +64,10 @@ SDK implementation priority based on discovery:
 
 For each resource, repeat this pattern: pydantic model(s), action functions, CLI command module, register in `teams/cli/main.py`, tests, verify 100% coverage.
 
-- [ ] **Lookups** — Public endpoint (`GET /api/lookups`, no auth), 15 enum categories (sports, positions, game_types, etc.)
+- [x] **Lookups** — Public endpoint (`GET /api/lookups`, no auth), 15 enum categories (sports, positions, game_types, etc.). Domain module (`teams/lookups.py`)
+  with `LookupValue` model and `list_lookups()` action. CLI commands: `list` (default, summary or filtered by `--category`) and `get` (`--category` required).
+  Aliases: `ls` for list, `show`/`view` for get. Committed `0957ac6` (domain + list), then added `get` subcommand, vulture `ignore_decorators` fix for
+  `@lookups_group.command`, and refurb FURB184 fix (chained assignment).
 - [ ] **Teams** — Get team, list members, team settings (`/api/teams/{id}/*`)
 - [ ] **Seasons** — List by team (`GET /api/seasons/team/{id}`), scoring access keys
 - [ ] **Roster — Players** — CRUD (`/api/roster/players/*`), 23 positions, player statuses/duties
@@ -72,6 +75,22 @@ For each resource, repeat this pattern: pydantic model(s), action functions, CLI
 - [ ] **Games** — CRUD (`/api/schedule-game/*`), game status, 5 game types
 - [ ] **Divisions** — List by season, by team+season (`/api/divisions/*`)
 - [ ] **Leagues** — List by association (`GET /api/leagues/association/{id}`)
+
+### CLI help harmonization (cross-cutting, applies to both CLIs)
+
+- [x] **Unified rich-click configuration** — Extracted shared rich-click defaults (11 settings: `TEXT_MARKUP`, `SHOW_ARGUMENTS`, `GROUP_ARGUMENTS_OPTIONS`,
+  `STYLE_ERRORS_SUGGESTION`, `ERRORS_SUGGESTION`, `ERRORS_EPILOGUE`, `MAX_WIDTH`, `OPTIONS_TABLE_COLUMN_TYPES`, `OPTIONS_TABLE_HELP_SECTIONS`) into
+  `common/cli/rich_config.py:apply_rich_click_defaults()`. Both CLIs call it at module level, eliminating pylint R0801 duplicate-code.
+- [x] **Consistent option/command grouping** — Both CLIs use: "Configuration Options" (`--base-url`, `--no-headless`), "General Options" (`-v`, `-V/--version`,
+  `-h/--help`), "Authentication" (`login`), "Utilities" (`completion`), "Resources" (resource commands). Admin resources ordered: associations, leagues,
+  seasons, ipad-keys, locations, games, divisions, teams, roster, referees.
+- [x] **Sphinx directive leak fix** — Added `\f` (form feed) to all click command docstrings (86 insertions across 25 files) so `:param`/`:type`/`.. rubric::`
+  directives are hidden from `--help` output while remaining visible to Sphinx autodoc. Uses `\f` escape sequence (not raw 0x0C byte) because docformatter
+  strips raw form feed bytes. Added `D301` to pydocstyle `add-ignore` since `\f` is Click's standard truncation mechanism, not a literal backslash.
+- [x] **Removed "GameSheet" from resource descriptions** — `associations.py` and `leagues.py` group descriptions no longer redundantly include "GameSheet".
+- [x] **`context_settings` on teams lookups** — Added `context_settings={"help_option_names": ["-h", "--help"]}` to `lookups_group` decorator.
+- [x] **Tests** — Updated `test_command_groups_configured` for new group names. Added 3 teams rich-click config tests
+  (`test_teams_rich_click_configuration_applied`, `test_teams_option_groups_configured`, `test_teams_command_groups_configured`). 1046 tests, 100% coverage.
 
 ### Phase 4b — Teams-unique features
 

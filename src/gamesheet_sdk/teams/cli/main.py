@@ -21,10 +21,37 @@ from rich_click import Context
 
 from gamesheet_sdk import __version__
 from gamesheet_sdk.common.cli.core import _configure_logging, resolve_exit
+from gamesheet_sdk.common.cli.rich_config import apply_rich_click_defaults
 from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.teams.cli.commands.completion import completion_command
 from gamesheet_sdk.teams.cli.commands.login import login_command
 from gamesheet_sdk.teams.cli.commands.lookups import lookups_group
+
+apply_rich_click_defaults()
+click.rich_click.OPTION_GROUPS["gamesheet-teams"] = [
+    {
+        "name": "Configuration Options",
+        "options": ["--base-url", "--no-headless"],
+    },
+    {
+        "name": "General Options",
+        "options": ["--verbose", "-V/--version", "--help"],
+    },
+]
+click.rich_click.COMMAND_GROUPS["gamesheet-teams"] = [
+    {
+        "name": "Authentication",
+        "commands": ["login"],
+    },
+    {
+        "name": "Utilities",
+        "commands": ["completion"],
+    },
+    {
+        "name": "Resources",
+        "commands": ["lookups"],
+    },
+]
 
 _TEAMS_DEFAULT_BASE_URL = "https://teams.gamesheet.app"
 
@@ -59,6 +86,8 @@ def cli(
     verbose: int,
 ) -> None:
     """Unofficial CLI for the GameSheet teams dashboard.
+
+    Provides authentication, resource management, and utility commands.\f
 
     :param ctx: Click context used to store the resolved :class:`~gamesheet_sdk.common.config.Config`.
     :type ctx: Context

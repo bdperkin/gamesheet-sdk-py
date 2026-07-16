@@ -59,7 +59,7 @@ from gamesheet_sdk.common.config import Config
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def associations_group() -> None:
-    """Manage GameSheet associations.
+    """Manage associations.
 
     Invoking ``associations`` with no sub-command runs ``list`` by default.
     """
@@ -88,7 +88,7 @@ def associations_get_command(
     The association ID can be provided via --association-id or the GAMESHEET_ASSOCIATION_ID environment
     variable. Requires a saved session from `gamesheet-admin login` -- the bearer token is read out of the
     browser storage state on disk and attached to the HTTP request. No browser is launched. The output
-    displays association metadata as key-value pairs, with each field on its own row.
+    displays association metadata as key-value pairs, with each field on its own row.\f
 
     :param ctx: Click context object containing config
     :type ctx: Context
@@ -142,7 +142,7 @@ def associations_list_command(
         Save associations to a YAML file:
     .. code-block:: bash
 
-        $ gamesheet-admin associations list --format yaml --output assocs.yaml
+        $ gamesheet-admin associations list --format yaml --output assocs.yaml\f
 
     :param ctx: Click context object containing config
     :type ctx: Context

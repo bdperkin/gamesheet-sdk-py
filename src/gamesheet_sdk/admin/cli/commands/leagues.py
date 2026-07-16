@@ -60,7 +60,7 @@ from gamesheet_sdk.common.config import Config
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def leagues_group() -> None:
-    """Manage GameSheet leagues within an association.
+    """Manage leagues within an association.
 
     A league represents a subdivision of an association, typically organized by division, age group, or skill
     level. Invoking 'leagues' with no sub-command runs 'list' by default.
@@ -97,7 +97,7 @@ def leagues_get_command(
 
     The league and association IDs can be provided via command-line options or environment variables
     (GAMESHEET_LEAGUE_ID, GAMESHEET_ASSOCIATION_ID). Requires a saved session from `gamesheet-admin login`.
-    The output displays league metadata as key-value pairs, with each field on its own row.
+    The output displays league metadata as key-value pairs, with each field on its own row.\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param association_id: The association identifier
@@ -171,7 +171,7 @@ def leagues_list_command(
 
     .. code-block:: bash
 
-        $ gamesheet-admin leagues list
+        $ gamesheet-admin leagues list\f
 
     :param ctx: Click context object containing config
     :type ctx: Context

@@ -38,7 +38,7 @@ def brackets_list_command(
 ) -> None:
     """List all bracket games in the specified season.
 
-    NOT YET IMPLEMENTED - Bracket games support is planned for a future release.
+    NOT YET IMPLEMENTED - Bracket games support is planned for a future release.\f
 
     :param output_format: Output format (ignored - command not implemented).
     :type output_format: str

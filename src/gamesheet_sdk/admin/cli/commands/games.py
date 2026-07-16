@@ -39,7 +39,7 @@ def games_group(ctx: Context, season_id: str) -> None:
     """Manage games (scheduled, completed, brackets) within a season.
 
     Invoking ``games`` with no sub-command runs ``scheduled`` by default. The --season-id option is required
-    and applies to all sub-commands.
+    and applies to all sub-commands.\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier

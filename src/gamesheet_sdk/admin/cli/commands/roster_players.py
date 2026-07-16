@@ -86,7 +86,8 @@ def players_get_command(
 
     The player ID can be provided via --player-id or the GAMESHEET_PLAYER_ID environment variable. The season
     ID is inherited from the parent roster command. Requires a saved session from `gamesheet-admin login`. The
-    output displays player metadata as key-value pairs, with each field on its own row.
+    output displays player metadata as key-value pairs, with each field on its own row.\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param player_id: The player identifier
@@ -118,7 +119,8 @@ def players_list_command(
 ) -> None:
     """List all players in the specified season.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param output_format: Output format for rendering
@@ -265,7 +267,8 @@ def players_create_command(
 ) -> None:
     """Create a new player in the season.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param first_name: Player's first name
@@ -462,7 +465,8 @@ def players_update_command(
     """Update an existing player.
 
     Requires authentication (run 'gamesheet-admin login' first). At least one field must be provided for
-    update.
+    update.\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param player_id: The player identifier to update
@@ -551,7 +555,8 @@ def players_delete_command(ctx: Context, player_id: str) -> None:
     """Delete a player from the season.
 
     Requires authentication (run 'gamesheet-admin login' first). This operation is destructive and cannot be
-    undone. Use --force to skip confirmation prompt.
+    undone. Use --force to skip confirmation prompt.\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param player_id: The player identifier to delete
@@ -590,7 +595,7 @@ def players_penalty_report_command(
 ) -> None:
     """Get penalty report for a player.
 
-    Retrieves penalty statistics, incidents, and infraction history for the specified player.
+    Retrieves penalty statistics, incidents, and infraction history for the specified player.\f
 
     :param ctx: Click context object containing config
     :type ctx: Context
@@ -677,7 +682,7 @@ def players_assign_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Assign an existing player to a team's roster.
+    """Assign an existing player to a team's roster.\f.
 
     :param ctx: Click context object containing config
     :type ctx: Context
@@ -736,7 +741,7 @@ def players_assign_command(
 )
 @click.pass_context
 def players_unassign_command(ctx: Context, player_id: str, team_id: str) -> None:
-    """Unassign a player from a team's roster.
+    """Unassign a player from a team's roster.\f.
 
     :param ctx: Click context object containing config
     :type ctx: Context

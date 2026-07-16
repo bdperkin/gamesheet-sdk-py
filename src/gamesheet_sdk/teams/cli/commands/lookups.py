@@ -29,6 +29,7 @@ from gamesheet_sdk.teams.lookups import LookupValue, list_lookups
     cls=ResourceGroup,
     default="list",
     aliases={"get": ("show", "view"), "list": ("ls",)},
+    context_settings={"help_option_names": ["-h", "--help"]},
 )
 def lookups_group() -> None:
     """View public lookup/enumeration data from the teams API."""
@@ -102,7 +103,7 @@ def get_command(
 ) -> None:
     """Get values for a specific lookup category.
 
-    Fetches all lookup data and renders the values for the given category.
+    Fetches all lookup data and renders the values for the given category.\f
 
     :param ctx: Click context carrying the :class:`~gamesheet_sdk.common.config.Config` instance.
     :type ctx: Context
@@ -159,7 +160,7 @@ def list_command(
     """List lookup categories or values within a category.
 
     Without ``--category``, shows a summary of all available categories and their value counts.  With
-    ``--category``, shows every value in that category.
+    ``--category``, shows every value in that category.\f
 
     :param ctx: Click context carrying the :class:`~gamesheet_sdk.common.config.Config` instance.
     :type ctx: Context

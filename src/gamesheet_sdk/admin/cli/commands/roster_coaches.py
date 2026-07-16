@@ -84,7 +84,8 @@ def coaches_get_command(
 
     The coach ID can be provided via --coach-id or the GAMESHEET_COACH_ID environment variable. The season ID
     is inherited from the parent roster command. Requires a saved session from `gamesheet-admin login`. The
-    output displays coach metadata as key-value pairs, with each field on its own row.
+    output displays coach metadata as key-value pairs, with each field on its own row.\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param coach_id: The coach identifier
@@ -116,7 +117,8 @@ def coaches_list_command(
 ) -> None:
     """List all coaches in the specified season.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param output_format: Output format for rendering
@@ -177,7 +179,8 @@ def coaches_create_command(
 ) -> None:
     """Create a new coach in the season.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param first_name: Optional updated first name
@@ -261,7 +264,8 @@ def coaches_update_command(
     """Update an existing coach.
 
     Requires authentication (run 'gamesheet-admin login' first). At least one field must be provided for
-    update.
+    update.\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param coach_id: The coach identifier
@@ -316,7 +320,8 @@ def coaches_delete_command(ctx: Context, coach_id: str) -> None:
     """Delete a coach from the season.
 
     Requires authentication (run 'gamesheet-admin login' first). This operation is destructive and cannot be
-    undone. Use --force to skip confirmation prompt.
+    undone. Use --force to skip confirmation prompt.\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param coach_id: The coach identifier to delete
@@ -354,7 +359,7 @@ def coaches_penalty_report_command(
 ) -> None:
     """Get penalty report for a coach.
 
-    Retrieves penalty statistics, incidents, and infraction history for the specified coach.
+    Retrieves penalty statistics, incidents, and infraction history for the specified coach.\f
 
     :param ctx: Click context object containing config
     :type ctx: Context
@@ -416,7 +421,7 @@ def coaches_assign_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Assign an existing coach to a team's roster.
+    """Assign an existing coach to a team's roster.\f.
 
     :param ctx: Click context object containing config
     :type ctx: Context
@@ -466,7 +471,7 @@ def coaches_assign_command(
 )
 @click.pass_context
 def coaches_unassign_command(ctx: Context, coach_id: str, team_id: str) -> None:
-    """Unassign a coach from a team's roster.
+    """Unassign a coach from a team's roster.\f.
 
     :param ctx: Click context object containing config
     :type ctx: Context

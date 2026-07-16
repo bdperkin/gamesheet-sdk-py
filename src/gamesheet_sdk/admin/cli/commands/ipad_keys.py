@@ -114,7 +114,7 @@ def ipad_keys_get_command(
 
     .. code-block:: bash
 
-        $ gamesheet-admin ipad-keys
+        $ gamesheet-admin ipad-keys\f
 
     :param ctx: Click context object containing config
     :type ctx: Context

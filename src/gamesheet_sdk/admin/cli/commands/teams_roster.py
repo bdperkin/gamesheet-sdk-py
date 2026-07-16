@@ -43,7 +43,8 @@ def teams_roster_group(ctx: Context, season_id: str, team_id: str) -> None:
     """Manage roster (players and coaches) for a specific team.
 
     Invoking ``roster`` with no sub-command runs ``players`` by default. The --season-id and --team-id options
-    are required and apply to all sub-commands.
+    are required and apply to all sub-commands.\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier

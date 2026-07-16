@@ -68,7 +68,8 @@ def test_command_groups_configured() -> None:
     assert "gamesheet-admin" in click.rich_click.COMMAND_GROUPS
     command_groups = click.rich_click.COMMAND_GROUPS["gamesheet-admin"]
     assert any(g.get("name") == "Authentication" for g in command_groups)
-    assert any(g.get("name") == "Resource Management" for g in command_groups)
+    assert any(g.get("name") == "Utilities" for g in command_groups)
+    assert any(g.get("name") == "Resources" for g in command_groups)
 
 
 def test_login_command_help() -> None:

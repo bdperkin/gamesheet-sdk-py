@@ -46,7 +46,7 @@ def login_command(
 
     Opens a headless browser, navigates to the admin login page, submits credentials, and extracts
     authentication tokens. Tokens are saved to disk so subsequent commands can authenticate without launching
-    a browser.
+    a browser.\f
 
     :param ctx: Click context carrying the :class:`~gamesheet_sdk.common.config.Config` instance.
     :type ctx: Context

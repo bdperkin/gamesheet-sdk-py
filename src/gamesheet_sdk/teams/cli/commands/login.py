@@ -48,7 +48,7 @@ def login_command(
     """Authenticate with the GameSheet teams dashboard and save session tokens.
 
     Sends credentials to Firebase Auth, exchanges the ID token for application tokens via the teams API
-    gateway, and saves the result to disk so subsequent commands can authenticate automatically.
+    gateway, and saves the result to disk so subsequent commands can authenticate automatically.\f
 
     :param ctx: Click context carrying the :class:`~gamesheet_sdk.common.config.Config` instance.
     :type ctx: Context

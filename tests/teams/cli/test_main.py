@@ -180,6 +180,37 @@ def test_teams_default_base_url(runner: CliRunner) -> None:
     assert "teams.gamesheet.app" in result.output
 
 
+def test_teams_rich_click_configuration_applied() -> None:
+    """Rich-click configuration settings are applied for the teams CLI."""
+    import rich_click as click
+
+    assert click.rich_click.TEXT_MARKUP == "rich"
+    assert click.rich_click.SHOW_ARGUMENTS is True
+    assert click.rich_click.GROUP_ARGUMENTS_OPTIONS
+    assert click.rich_click.MAX_WIDTH == 100
+
+
+def test_teams_option_groups_configured() -> None:
+    """Option groups are configured for the teams CLI."""
+    import rich_click as click
+
+    assert "gamesheet-teams" in click.rich_click.OPTION_GROUPS
+    option_groups = click.rich_click.OPTION_GROUPS["gamesheet-teams"]
+    assert any(g.get("name") == "Configuration Options" for g in option_groups)
+    assert any(g.get("name") == "General Options" for g in option_groups)
+
+
+def test_teams_command_groups_configured() -> None:
+    """Command groups are configured for the teams CLI."""
+    import rich_click as click
+
+    assert "gamesheet-teams" in click.rich_click.COMMAND_GROUPS
+    command_groups = click.rich_click.COMMAND_GROUPS["gamesheet-teams"]
+    assert any(g.get("name") == "Authentication" for g in command_groups)
+    assert any(g.get("name") == "Utilities" for g in command_groups)
+    assert any(g.get("name") == "Resources" for g in command_groups)
+
+
 def test_teams_cli_with_no_headless_flag(runner: CliRunner) -> None:
     """CLI should accept --no-headless flag and still run login."""
     with patch(

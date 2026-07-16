@@ -1837,7 +1837,7 @@ recursive = true
 
 ## ## pydocstyle - Docstring compliance linter
 [tool.pydocstyle]
-add-ignore = "D107"
+add-ignore = "D107,D301"
 
 ## # -------------------------------------------------------------------------------------------------------------------
 ## # Code Quality Linters & Static Analysis

@@ -67,7 +67,7 @@ def completed_get_command(
 ) -> None:
     """Get detailed information about a completed game.
 
-    Returns full game details including rosters, goals, shots, penalties, and statistics.
+    Returns full game details including rosters, goals, shots, penalties, and statistics.\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param game_id: The game identifier
@@ -99,7 +99,7 @@ def completed_list_command(
 ) -> None:
     """List all completed games in the specified season.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param output_format: Output format for rendering
@@ -122,7 +122,7 @@ def _build_scoresheet_filename(game: Game) -> str:
     """Build a descriptive filename for a scoresheet PDF from game data.
 
     Format: {date}-scoresheet-{id}-{visitor}-vs-{home}-{game_number}.pdf
-    All text is converted to lowercase and spaces/special chars are replaced with underscores.
+    All text is converted to lowercase and spaces/special chars are replaced with underscores.\f
 
     :param game: The game object with details
     :type game: Game
@@ -180,7 +180,7 @@ def completed_download_command(
 
     Requires authentication (run 'gamesheet-admin login' first). If --output-path is not specified,
     the filename is automatically generated from game details in the format:
-    {date}-scoresheet-{id}-{visitor}-vs-{home}-{game_number}.pdf
+    {date}-scoresheet-{id}-{visitor}-vs-{home}-{game_number}.pdf\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param game_id: The game identifier

@@ -109,7 +109,8 @@ def seasons_list_command(
     on disk and attached to the HTTP request. No browser is launched.
 
     Optional filters can be applied to narrow the results:
-    --starts-after, --ends-before, --status, --stats-year, and --title.
+    --starts-after, --ends-before, --status, --stats-year, and --title.\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param league_id: The league identifier
@@ -172,7 +173,8 @@ def seasons_get_command(
     saved session from `gamesheet-admin login` -- the bearer token is read out of the browser storage state on
     disk and attached to the HTTP request. No browser is launched. The output displays season metadata as key-
     value pairs, with each field on its own row. Complex nested fields (like settings, flagging_criteria) are
-    displayed as JSON.
+    displayed as JSON.\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier

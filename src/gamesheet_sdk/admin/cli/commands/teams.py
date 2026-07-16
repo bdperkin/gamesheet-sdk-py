@@ -83,7 +83,8 @@ def teams_get_command(
 
     The team and season IDs can be provided via command-line options or environment variables
     (GAMESHEET_TEAM_ID, GAMESHEET_SEASON_ID). Requires a saved session from `gamesheet-admin login`. The
-    output displays team metadata as key-value pairs, with each field on its own row.
+    output displays team metadata as key-value pairs, with each field on its own row.\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
@@ -124,7 +125,8 @@ def teams_list_command(
 ) -> None:
     """List all teams in the specified season.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
@@ -177,7 +179,8 @@ def teams_create_command(
 ) -> None:
     """Create a new team in the specified season.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
@@ -241,7 +244,8 @@ def teams_update_command(
     """Update an existing team.
 
     Requires authentication (run 'gamesheet-admin login' first). At least one field must be provided for
-    update.
+    update.\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
@@ -301,7 +305,8 @@ def teams_delete_command(
 ) -> None:
     """Delete a team.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
+
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier

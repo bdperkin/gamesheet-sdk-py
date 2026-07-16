@@ -55,7 +55,7 @@ def locations_list_command(
     Returns the list of locations/venues from the GameSheet API. Each location includes the venue name,
     surface/rink name, and geographic information.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param output_format: Output format for rendering
@@ -93,7 +93,7 @@ def locations_get_command(
     Retrieve detailed information about a specific location using its UUID. The location ID can be found using
     the 'list' command.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param location_id: The location UUID

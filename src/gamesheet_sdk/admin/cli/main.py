@@ -34,64 +34,45 @@ from gamesheet_sdk.admin.cli.commands.seasons import seasons_group
 from gamesheet_sdk.admin.cli.commands.teams import teams_group
 from gamesheet_sdk.admin.cli.commands.teams_roster import register_teams_roster_group
 from gamesheet_sdk.common.cli.core import _configure_logging, resolve_exit
+from gamesheet_sdk.common.cli.rich_config import apply_rich_click_defaults
 from gamesheet_sdk.common.config import Config
 
-click.rich_click.TEXT_MARKUP = "rich"
-click.rich_click.SHOW_ARGUMENTS = True
-click.rich_click.GROUP_ARGUMENTS_OPTIONS = True
-click.rich_click.STYLE_ERRORS_SUGGESTION = "magenta italic"
-click.rich_click.ERRORS_SUGGESTION = "Try running the '--help' flag for more information."
-click.rich_click.ERRORS_EPILOGUE = ""
-click.rich_click.MAX_WIDTH = 100
-click.rich_click.OPTIONS_TABLE_COLUMN_TYPES = [
-    "required",
-    "opt_short",
-    "opt_long",
-    "metavar",
-    "help",
+apply_rich_click_defaults()
+click.rich_click.OPTION_GROUPS["gamesheet-admin"] = [
+    {
+        "name": "Configuration Options",
+        "options": ["--base-url", "--no-headless"],
+    },
+    {
+        "name": "General Options",
+        "options": ["--verbose", "-V/--version", "--help"],
+    },
 ]
-click.rich_click.OPTIONS_TABLE_HELP_SECTIONS = [
-    "help",
-    "deprecated",
-    "envvar",
-    "default",
-    "required",
+click.rich_click.COMMAND_GROUPS["gamesheet-admin"] = [
+    {
+        "name": "Authentication",
+        "commands": ["login"],
+    },
+    {
+        "name": "Utilities",
+        "commands": ["completion"],
+    },
+    {
+        "name": "Resources",
+        "commands": [
+            "associations",
+            "leagues",
+            "seasons",
+            "ipad-keys",
+            "locations",
+            "games",
+            "divisions",
+            "teams",
+            "roster",
+            "referees",
+        ],
+    },
 ]
-click.rich_click.OPTION_GROUPS = {
-    "gamesheet-admin": [
-        {
-            "name": "Configuration Options",
-            "options": ["--base-url", "--no-headless"],
-        },
-        {
-            "name": "General Options",
-            "options": ["--verbose", "-V/--version", "--help"],
-        },
-    ],
-}
-click.rich_click.COMMAND_GROUPS = {
-    "gamesheet-admin": [
-        {
-            "name": "Authentication",
-            "commands": ["login", "completion"],
-        },
-        {
-            "name": "Resource Management",
-            "commands": [
-                "associations",
-                "leagues",
-                "seasons",
-                "divisions",
-                "teams",
-                "referees",
-                "ipad-keys",
-                "games",
-                "locations",
-                "roster",
-            ],
-        },
-    ],
-}
 
 
 @click.group(
@@ -124,6 +105,8 @@ def cli(
     verbose: int,
 ) -> None:
     """Unofficial CLI for the GameSheet admin dashboard.
+
+    Provides authentication, resource management, and utility commands.\f
 
     :param ctx: Click context used to store the resolved :class:`~gamesheet_sdk.common.config.Config`.
     :type ctx: Context

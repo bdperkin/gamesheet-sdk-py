@@ -22,7 +22,7 @@ def completion_command(shell: str) -> None:
 
     Source the output to enable tab-completion::
 
-        eval "$(gamesheet-admin completion bash)"
+        eval "$(gamesheet-admin completion bash)"\f
 
     :param shell: Target shell (bash, zsh, or fish).
     :type shell: str

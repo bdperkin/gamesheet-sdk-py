@@ -73,7 +73,7 @@ def scheduled_get_command(
 ) -> None:
     """Get detailed information about a scheduled game.
 
-    Uses the JSON:API /api/seasons/{id}/schedule/{game_id} endpoint for richer structured data.
+    Uses the JSON:API /api/seasons/{id}/schedule/{game_id} endpoint for richer structured data.\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param game_id: The game identifier
@@ -105,7 +105,7 @@ def scheduled_list_command(
 ) -> None:
     """List all scheduled games in the specified season.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param output_format: Output format for rendering
@@ -297,7 +297,7 @@ def scheduled_create_command(
     ``--start-datetime`` (or ``--start-date`` + ``--start-time``), ``--end-datetime``
     (or ``--end-date`` + ``--end-time``), and ``--duration`` to automatically calculate
     the third. If time zone options are not specified, they default to the local system
-    timezone.
+    timezone.\f
 
     :param ctx: Click context object containing config
     :type ctx: Context
@@ -564,7 +564,7 @@ def scheduled_update_command(
     unspecified fields retain their current values. You may provide any combination of
     ``--start-datetime`` (or ``--start-date`` + ``--start-time``), ``--end-datetime``
     (or ``--end-date`` + ``--end-time``), and ``--duration`` to automatically calculate
-    missing time fields.
+    missing time fields.\f
 
     :param ctx: Click context object containing config
     :type ctx: Context
@@ -691,7 +691,7 @@ def scheduled_delete_command(
     """Delete a scheduled game.
 
     Requires authentication (run 'gamesheet-admin login' first). This operation is destructive and requires
-    confirmation unless --force is specified.
+    confirmation unless --force is specified.\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param game_id: Game identifier

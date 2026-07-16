@@ -85,7 +85,7 @@ def divisions_get_command(
 
     The division ID can be provided via --division-id or the GAMESHEET_DIVISION_ID environment variable.
     Requires a saved session from `gamesheet-admin login`. The output displays division metadata as key-value
-    pairs, with each field on its own row.
+    pairs, with each field on its own row.\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param division_id: The division identifier
@@ -123,7 +123,7 @@ def divisions_list_command(
 ) -> None:
     """List all divisions in the specified season.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
@@ -177,7 +177,7 @@ def divisions_create_command(
 ) -> None:
     """Create a new division in the specified season.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
@@ -250,7 +250,7 @@ def divisions_update_command(
     """Update an existing division.
 
     At least one of --title or --external-id must be provided. Requires authentication (run 'gamesheet-admin
-    login' first).
+    login' first).\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
@@ -332,7 +332,7 @@ def divisions_teams_list_command(
 ) -> None:
     """List all teams in the specified division.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param division_id: The division identifier
@@ -376,7 +376,7 @@ def divisions_teams_get_command(
 ) -> None:
     """Get detailed information about a specific team.
 
-    Delegates to teams get functionality.
+    Delegates to teams get functionality.\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
@@ -432,7 +432,7 @@ def divisions_teams_create_command(
 ) -> None:
     """Create a new team in the specified division.
 
-    Delegates to teams create functionality.
+    Delegates to teams create functionality.\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
@@ -496,7 +496,7 @@ def divisions_teams_update_command(
 ) -> None:
     """Update an existing team.
 
-    Delegates to teams update functionality.
+    Delegates to teams update functionality.\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
@@ -557,7 +557,7 @@ def divisions_teams_delete_command(
 ) -> None:
     """Delete a team.
 
-    Delegates to teams delete functionality.
+    Delegates to teams delete functionality.\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
@@ -591,7 +591,7 @@ def divisions_delete_command(
 ) -> None:
     """Delete a division.
 
-    Requires authentication (run 'gamesheet-admin login' first).
+    Requires authentication (run 'gamesheet-admin login' first).\f
     :param ctx: Click context object containing config
     :type ctx: Context
     :param season_id: The season identifier
