@@ -7,7 +7,11 @@ from gamesheet_sdk.common.auth.credentials import resolve_email, resolve_passwor
 from gamesheet_sdk.common.auth.firebase import extract_firebase_error
 from gamesheet_sdk.common.auth.flow import LoginFlow
 from gamesheet_sdk.common.auth.login import AdminLoginFlow, login
-from gamesheet_sdk.common.auth.session import AuthenticatedSession, OnRefreshCallback
+from gamesheet_sdk.common.auth.session import (
+    AuthenticatedSession,
+    BaseAuthenticatedSession,
+    OnRefreshCallback,
+)
 from gamesheet_sdk.common.auth.tokens import (
     load_access_token,
     load_refresh_token,
@@ -18,6 +22,7 @@ from gamesheet_sdk.common.auth.tokens import (
 __all__ = [
     "AdminLoginFlow",
     "AuthenticatedSession",
+    "BaseAuthenticatedSession",
     "LoginFlow",
     "OnRefreshCallback",
     "extract_firebase_error",

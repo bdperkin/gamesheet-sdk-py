@@ -1,29 +1,35 @@
 # Copyright (c) 2026 bdperkin
 # SPDX-License-Identifier: MIT
 
-"""Tests for AuthenticatedSession auto-refresh behavior."""
+"""Tests for TeamsAuthenticatedSession auto-refresh behavior."""
 
 from __future__ import annotations
 
 import pytest
 import responses
 
-from gamesheet_sdk import AuthenticatedSession, Config
-from gamesheet_sdk.common.auth.constants import REFRESH_URL
+from gamesheet_sdk import Config
+from gamesheet_sdk.teams.session import TeamsAuthenticatedSession
+from gamesheet_sdk.teams.shared.constants import TEAMS_API_GATEWAY, TEAMS_REFRESH_PATH
 from tests.fixtures.constants import TEST_ERROR_DISK_FULL
 
+TEAMS_REFRESH_URL = f"{TEAMS_API_GATEWAY}{TEAMS_REFRESH_PATH}"
 
-# ---------- AuthenticatedSession -----------------------------------------
+
 @responses.activate
-def test_authenticated_session_passthrough_when_200(config: Config) -> None:
-    """Test that AuthenticatedSession passes through successful 200 responses."""
+def test_teams_session_passthrough_when_200(config: Config) -> None:
+    """Test that TeamsAuthenticatedSession passes through successful 200 responses."""
     responses.add(
         responses.GET,
         "https://test.example/x",
         json={"ok": True},
         status=200,
     )
-    with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
+    with TeamsAuthenticatedSession(
+        config,
+        access_token="A1",
+        refresh_token="R1",
+    ) as session:
         resp = session.get("/x")
     assert resp.status_code == 200
     sent = responses.calls[0].request
@@ -31,14 +37,13 @@ def test_authenticated_session_passthrough_when_200(config: Config) -> None:
 
 
 @responses.activate
-def test_authenticated_session_refreshes_and_retries_on_401(config: Config) -> None:
-    """Test that AuthenticatedSession refreshes token and retries on 401."""
-    # 1st: 401, refresh, 2nd: 200 with the new bearer.
+def test_teams_session_refreshes_and_retries_on_401(config: Config) -> None:
+    """Test that TeamsAuthenticatedSession refreshes token and retries on 401."""
     responses.add(responses.GET, "https://test.example/x", json={"err": 1}, status=401)
     responses.add(
         responses.POST,
-        REFRESH_URL,
-        json={"access": "A2", "refresh": "R2", "roles": "Rol2"},
+        TEAMS_REFRESH_URL,
+        json={"access": "A2", "refresh": "R2"},
         status=200,
     )
     responses.add(
@@ -48,7 +53,7 @@ def test_authenticated_session_refreshes_and_retries_on_401(config: Config) -> N
         status=200,
     )
     persisted: list[dict[str, str]] = []
-    with AuthenticatedSession(
+    with TeamsAuthenticatedSession(
         config,
         access_token="A1",
         refresh_token="R1",
@@ -57,64 +62,68 @@ def test_authenticated_session_refreshes_and_retries_on_401(config: Config) -> N
         resp = session.get("/x")
     assert resp.status_code == 200
     assert resp.json() == {"ok": True}
-    assert persisted == [{"access": "A2", "refresh": "R2", "roles": "Rol2"}]
-    # Three calls: original GET, refresh, retried GET.
+    assert persisted == [{"access": "A2", "refresh": "R2"}]
     assert len(responses.calls) == 3
     assert responses.calls[0].request.headers["Authorization"] == "Bearer A1"
-    assert responses.calls[1].request.url == REFRESH_URL
+    assert responses.calls[1].request.url == TEAMS_REFRESH_URL
     assert responses.calls[1].request.headers["Authorization"] == "Bearer R1"
     assert responses.calls[2].request.headers["Authorization"] == "Bearer A2"
 
 
 @responses.activate
-def test_authenticated_session_propagates_401_when_refresh_fails(
-    config: Config,
-) -> None:
+def test_teams_session_propagates_401_when_refresh_fails(config: Config) -> None:
     """Test that 401 is propagated when token refresh fails."""
     responses.add(responses.GET, "https://test.example/x", json={"err": 1}, status=401)
-    responses.add(responses.POST, REFRESH_URL, status=401, json={"errors": [{}]})
-    with AuthenticatedSession(
+    responses.add(responses.POST, TEAMS_REFRESH_URL, status=401, json={"errors": [{}]})
+    with TeamsAuthenticatedSession(
         config,
         access_token="A1",
         refresh_token="DEAD",
     ) as session:
         resp = session.get("/x")
-    # Original 401 surfaces to the caller; no further retries.
     assert resp.status_code == 401
     assert len(responses.calls) == 2
 
 
 @responses.activate
-def test_authenticated_session_does_not_retry_when_refresh_returns_500(
+def test_teams_session_does_not_retry_when_refresh_returns_500(
     config: Config,
 ) -> None:
     """Test that request is not retried when refresh returns 500."""
     responses.add(responses.GET, "https://test.example/x", status=401)
-    responses.add(responses.POST, REFRESH_URL, status=500, body="boom")
-    with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
+    responses.add(responses.POST, TEAMS_REFRESH_URL, status=500, body="boom")
+    with TeamsAuthenticatedSession(
+        config,
+        access_token="A1",
+        refresh_token="R1",
+    ) as session:
         resp = session.get("/x")
-    assert resp.status_code == 401  # original surfaces
-    assert len(responses.calls) == 2  # no retry of /x
+    assert resp.status_code == 401
+    assert len(responses.calls) == 2
 
 
 @responses.activate
-def test_authenticated_session_post_also_triggers_refresh(config: Config) -> None:
+def test_teams_session_post_also_triggers_refresh(config: Config) -> None:
     """Test that POST requests also trigger refresh on 401."""
     responses.add(responses.POST, "https://test.example/mutate", status=401)
     responses.add(
         responses.POST,
-        REFRESH_URL,
-        json={"access": "A2", "refresh": "R2", "roles": "Rol2"},
+        TEAMS_REFRESH_URL,
+        json={"access": "A2", "refresh": "R2"},
         status=200,
     )
     responses.add(responses.POST, "https://test.example/mutate", status=201)
-    with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
+    with TeamsAuthenticatedSession(
+        config,
+        access_token="A1",
+        refresh_token="R1",
+    ) as session:
         resp = session.post("/mutate")
     assert resp.status_code == 201
 
 
 @responses.activate
-def test_authenticated_session_handles_on_refresh_oserror(
+def test_teams_session_handles_on_refresh_oserror(
     config: Config,
     caplog: pytest.LogCaptureFixture,
 ) -> None:
@@ -122,8 +131,8 @@ def test_authenticated_session_handles_on_refresh_oserror(
     responses.add(responses.GET, "https://test.example/x", json={"err": 1}, status=401)
     responses.add(
         responses.POST,
-        REFRESH_URL,
-        json={"access": "A2", "refresh": "R2", "roles": "Rol2"},
+        TEAMS_REFRESH_URL,
+        json={"access": "A2", "refresh": "R2"},
         status=200,
     )
     responses.add(
@@ -138,7 +147,7 @@ def test_authenticated_session_handles_on_refresh_oserror(
 
     with (
         caplog.at_level("WARNING"),
-        AuthenticatedSession(
+        TeamsAuthenticatedSession(
             # pylint: disable=duplicate-code
             config,
             access_token="A1",
@@ -147,27 +156,20 @@ def test_authenticated_session_handles_on_refresh_oserror(
         ) as session,
     ):
         resp = session.get("/x")
-    # Refresh still succeeded, request was retried despite callback failure
     assert resp.status_code == 200
     assert "on_refresh callback failed to persist" in caplog.text
     assert TEST_ERROR_DISK_FULL in caplog.text
 
 
 @responses.activate
-def test_authenticated_session_refreshes_and_retries_on_403(config: Config) -> None:
-    """Test that AuthenticatedSession refreshes token and retries on 403.
-
-    Some GameSheet API endpoints (e.g., SCORESHEET_SERVICE_BASE_URL) return 403 Forbidden instead of 401
-    Unauthorized when tokens are expired. The session should treat both status codes identically and attempt
-    token refresh.
-    """
-    # 1st: 403, refresh, 2nd: 200 with the new bearer.
+def test_teams_session_refreshes_and_retries_on_403(config: Config) -> None:
+    """Test that TeamsAuthenticatedSession refreshes token and retries on 403."""
     responses.add(responses.GET, "https://test.example/y", json={"err": 1}, status=403)
     responses.add(
         responses.POST,
         # pylint: enable=duplicate-code
-        REFRESH_URL,
-        json={"access": "A2", "refresh": "R2", "roles": "Rol2"},
+        TEAMS_REFRESH_URL,
+        json={"access": "A2", "refresh": "R2"},
         status=200,
     )
     responses.add(
@@ -177,7 +179,7 @@ def test_authenticated_session_refreshes_and_retries_on_403(config: Config) -> N
         status=200,
     )
     persisted: list[dict[str, str]] = []
-    with AuthenticatedSession(
+    with TeamsAuthenticatedSession(
         config,
         access_token="A1",
         refresh_token="R1",
@@ -186,31 +188,24 @@ def test_authenticated_session_refreshes_and_retries_on_403(config: Config) -> N
         resp = session.get("/y")
     assert resp.status_code == 200
     assert resp.json() == {"ok": True}
-    assert persisted == [{"access": "A2", "refresh": "R2", "roles": "Rol2"}]
-    # Three calls: original GET, refresh, retried GET.
+    assert persisted == [{"access": "A2", "refresh": "R2"}]
     assert len(responses.calls) == 3
     assert responses.calls[0].request.headers["Authorization"] == "Bearer A1"
-    assert responses.calls[1].request.url == REFRESH_URL
+    assert responses.calls[1].request.url == TEAMS_REFRESH_URL
     assert responses.calls[1].request.headers["Authorization"] == "Bearer R1"
     assert responses.calls[2].request.headers["Authorization"] == "Bearer A2"
 
 
 @responses.activate
-def test_authenticated_session_propagates_403_when_refresh_fails(
-    config: Config,
-) -> None:
+def test_teams_session_propagates_403_when_refresh_fails(config: Config) -> None:
     """Test that 403 is propagated when token refresh fails."""
     responses.add(responses.GET, "https://test.example/z", json={"err": 1}, status=403)
-    responses.add(responses.POST, REFRESH_URL, status=401, json={"errors": [{}]})
-    with AuthenticatedSession(
+    responses.add(responses.POST, TEAMS_REFRESH_URL, status=401, json={"errors": [{}]})
+    with TeamsAuthenticatedSession(
         config,
         access_token="A1",
         refresh_token="DEAD",
     ) as session:
         resp = session.get("/z")
-    # Original 403 surfaces to the caller; no further retries.
     assert resp.status_code == 403
     assert len(responses.calls) == 2
-
-
-# ---------- token response capture (line 131) -------------------------------

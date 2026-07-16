@@ -566,7 +566,6 @@ def divisions_teams_delete_command(
     :type team_id: str
     """
     run_team_delete(ctx, season_id, team_id)
-    # pylint: enable=duplicate-code
 
 
 @divisions_group.command("delete")
@@ -600,6 +599,7 @@ def divisions_delete_command(
     :param division_id: The division identifier to delete
     :type division_id: str
     """
+    # pylint: enable=duplicate-code
     config: Config = ctx.obj
     session = build_authenticated_session(config)
     run_action_or_exit(session, _delete_division_action, season_id, division_id)

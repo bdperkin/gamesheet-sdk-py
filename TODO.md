@@ -37,8 +37,10 @@ ______________________________________________________________________
   `teams/shared/constants.py`. Committed `c5f54c3`.
 - [x] Wire `gamesheet-teams login` command to the teams login strategy (replace current stub) — replaced stub with working `TeamsLoginFlow`-backed
   implementation, 7 tests in `tests/teams/cli/test_main.py`. Committed `83970ac`.
-- [ ] Implement teams token refresh via `POST /api/auth/refresh` with Bearer refresh token header
-- [ ] Verify 100% coverage still holds
+- [x] Implement teams token refresh via `POST /api/auth/refresh` with Bearer refresh token header — `refresh_access_token()` in `teams/login.py`: standalone
+  HTTP POST mirroring admin pattern, returns `{"access", "refresh"}` (no roles). Exported from `teams/__init__.py`. 3 tests in `tests/teams/test_login.py`.
+  Committed `5c08ee1`.
+- [x] Verify 100% coverage still holds — 1013 tests pass, 100.00% coverage confirmed after `5c08ee1`.
 
 ## Phase 3: Teams constants and shared utilities
 

@@ -309,5 +309,5 @@ def teams_delete_command(
     :param team_id: The team identifier to delete
     :type team_id: str
     """
-    run_team_delete(ctx, season_id, team_id)
     # pylint: enable=duplicate-code
+    run_team_delete(ctx, season_id, team_id)
