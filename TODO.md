@@ -46,7 +46,9 @@ ______________________________________________________________________
 
 - [x] Add teams API gateway URL and endpoint paths to `teams/shared/constants.py` — auth-related constants added in Phase 2 (`c5f54c3`). Domain endpoint paths
   to be added as Phase 4 modules are implemented.
-- [ ] Implement teams `AuthenticatedSession` — Bearer token auth with auto-refresh on 401 (simpler than admin's cookie-based session)
+- [x] Implement teams `AuthenticatedSession` — `TeamsAuthenticatedSession` in `teams/session.py` subclasses `BaseAuthenticatedSession` (extracted to
+  `common/auth/session.py` to de-duplicate admin/teams session code). Each pillar implements `_do_refresh()` only. 8 tests in `tests/teams/test_session.py`.
+  Committed `2d3b97f`.
 - [ ] Evaluate whether `common/shared/gamesheet_http.py` and `common/shared/jsonapi.py` apply to teams API (teams uses plain JSON, not JSON:API — likely needs
   own HTTP helpers or a simpler shared helper)
 - [ ] Move anything confirmed admin-only out of `common/` into `admin/shared/` (candidates: `jsonapi.py` since teams doesn't use JSON:API)

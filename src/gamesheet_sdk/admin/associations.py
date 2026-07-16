@@ -40,12 +40,9 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from gamesheet_sdk.admin.shared import parse_jsonapi_resource
 from gamesheet_sdk.common.session import Session
-from gamesheet_sdk.common.shared import (
-    JSONAPI_HEADERS,
-    handle_response,
-    parse_jsonapi_resource,
-)
+from gamesheet_sdk.common.shared import JSONAPI_HEADERS, handle_response
 
 _ENDPOINT = "/api/associations"
 

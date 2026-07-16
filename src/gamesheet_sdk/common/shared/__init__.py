@@ -11,17 +11,11 @@ from gamesheet_sdk.common.shared.gamesheet_http import (
     handle_response,
 )
 from gamesheet_sdk.common.shared.image_upload import upload_image
-from gamesheet_sdk.common.shared.jsonapi import (
-    extract_relationship_id,
-    parse_jsonapi_resource,
-)
 
 __all__ = [
     "JSONAPI_CONTENT_TYPE",
     "JSONAPI_HEADERS",
     "check_bff_response_status",
-    "extract_relationship_id",
     "handle_response",
-    "parse_jsonapi_resource",
     "upload_image",
 ]

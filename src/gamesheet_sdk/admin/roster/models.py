@@ -10,7 +10,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from gamesheet_sdk.common.shared import parse_jsonapi_resource
+from gamesheet_sdk.admin.shared import parse_jsonapi_resource
 from gamesheet_sdk.common.shared.constants import (
     FIELD_DESC_COACH_FIRST_NAME,
     FIELD_DESC_COACH_LAST_NAME,

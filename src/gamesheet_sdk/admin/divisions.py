@@ -18,17 +18,14 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from gamesheet_sdk.admin.teams import Team
-from gamesheet_sdk.common.session import Session
-from gamesheet_sdk.common.shared import (
-    JSONAPI_HEADERS,
-    handle_response,
-    parse_jsonapi_resource,
-)
-from gamesheet_sdk.common.shared.jsonapi import (
+from gamesheet_sdk.admin.shared import (
     build_invitation_code_lookup,
     get_invitation_code_from_relationship,
+    parse_jsonapi_resource,
 )
+from gamesheet_sdk.admin.teams import Team
+from gamesheet_sdk.common.session import Session
+from gamesheet_sdk.common.shared import JSONAPI_HEADERS, handle_response
 
 _ENDPOINT = "/api/divisions"
 

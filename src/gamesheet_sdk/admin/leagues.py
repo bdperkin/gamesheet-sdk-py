@@ -35,12 +35,9 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from gamesheet_sdk.admin.shared import parse_jsonapi_resource
 from gamesheet_sdk.common.session import Session
-from gamesheet_sdk.common.shared import (
-    JSONAPI_HEADERS,
-    handle_response,
-    parse_jsonapi_resource,
-)
+from gamesheet_sdk.common.shared import JSONAPI_HEADERS, handle_response
 from gamesheet_sdk.common.shared.constants import FIELD_DESC_PARENT_ASSOCIATION_ID
 
 _ENDPOINT_TEMPLATE = "/api/associations/{association_id}/leagues"

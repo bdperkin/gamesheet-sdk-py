@@ -18,6 +18,10 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from gamesheet_sdk.admin.shared import (
+    build_invitation_code_lookup,
+    get_invitation_code_from_relationship,
+)
 from gamesheet_sdk.common import errors
 from gamesheet_sdk.common.constants import BFF_API_BASE_URL
 from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
@@ -25,10 +29,6 @@ from gamesheet_sdk.common.session import Session
 from gamesheet_sdk.common.shared import JSONAPI_CONTENT_TYPE, JSONAPI_HEADERS
 from gamesheet_sdk.common.shared.constants import FIELD_DESC_PARENT_SEASON_ID
 from gamesheet_sdk.common.shared.gamesheet_http import handle_season_scoped_response
-from gamesheet_sdk.common.shared.jsonapi import (
-    build_invitation_code_lookup,
-    get_invitation_code_from_relationship,
-)
 
 
 class Team(BaseModel):
