@@ -130,8 +130,15 @@ epub_basename = project
 man_pages = [
     (
         "cli",
-        "gamesheet-sdk-py",
-        "Unofficial CLI for the GameSheet Inc. platform",
+        "gamesheet-admin",
+        "Unofficial CLI for the GameSheet admin dashboard",
+        [author],
+        1,
+    ),
+    (
+        "cli",
+        "gamesheet-teams",
+        "Unofficial CLI for the GameSheet teams dashboard",
         [author],
         1,
     ),

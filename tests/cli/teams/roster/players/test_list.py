@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands import teams_roster_players_group
+from gamesheet_sdk.admin.cli.commands import teams_roster_players_group
 from tests.helpers import SEASON_ID, TEAM_ID
 
 
@@ -18,13 +18,13 @@ def test_teams_roster_players_list_coverage() -> None:
     runner = CliRunner()
     with (
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster_players.build_authenticated_session",
+            "gamesheet_sdk.admin.cli.commands.teams_roster_players.build_authenticated_session",
         ),
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster_players.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.commands.teams_roster_players.run_action_or_exit",
             return_value=[],
         ),
-        patch("gamesheet_sdk.cli.commands.teams_roster_players.render_list_command"),
+        patch("gamesheet_sdk.admin.cli.commands.teams_roster_players.render_list_command"),
     ):
         result = runner.invoke(
             teams_roster_players_group,

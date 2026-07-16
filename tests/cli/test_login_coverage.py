@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.login import login_command
+from gamesheet_sdk.admin.cli.commands.login import login_command
 from tests.helpers import TEST_EMAIL_GENERIC
 
 
@@ -19,8 +19,8 @@ def test_login_command_success() -> None:
     mock_config = MagicMock()
 
     with (
-        patch("gamesheet_sdk.cli.commands.login.BrowserSession") as mock_browser_cls,
-        patch("gamesheet_sdk.cli.commands.login._login_action") as mock_login,
+        patch("gamesheet_sdk.admin.cli.commands.login.BrowserSession") as mock_browser_cls,
+        patch("gamesheet_sdk.admin.cli.commands.login._login_action") as mock_login,
     ):
         # Setup mocks
         mock_browser = MagicMock()
@@ -53,8 +53,8 @@ def test_login_command_with_custom_timeout() -> None:
     mock_config = MagicMock()
 
     with (
-        patch("gamesheet_sdk.cli.commands.login.BrowserSession") as mock_browser_cls,
-        patch("gamesheet_sdk.cli.commands.login._login_action") as mock_login,
+        patch("gamesheet_sdk.admin.cli.commands.login.BrowserSession") as mock_browser_cls,
+        patch("gamesheet_sdk.admin.cli.commands.login._login_action") as mock_login,
     ):
         mock_browser = MagicMock()
         mock_browser_cls.return_value.__enter__.return_value = mock_browser
@@ -88,8 +88,8 @@ def test_login_command_failure() -> None:
     mock_config = MagicMock()
 
     with (
-        patch("gamesheet_sdk.cli.commands.login.BrowserSession") as mock_browser_cls,
-        patch("gamesheet_sdk.cli.commands.login._login_action") as mock_login,
+        patch("gamesheet_sdk.admin.cli.commands.login.BrowserSession") as mock_browser_cls,
+        patch("gamesheet_sdk.admin.cli.commands.login._login_action") as mock_login,
     ):
         mock_browser = MagicMock()
         mock_browser_cls.return_value.__enter__.return_value = mock_browser
@@ -116,8 +116,8 @@ def test_login_command_with_email_only() -> None:
     mock_config = MagicMock()
 
     with (
-        patch("gamesheet_sdk.cli.commands.login.BrowserSession") as mock_browser_cls,
-        patch("gamesheet_sdk.cli.commands.login._login_action") as mock_login,
+        patch("gamesheet_sdk.admin.cli.commands.login.BrowserSession") as mock_browser_cls,
+        patch("gamesheet_sdk.admin.cli.commands.login._login_action") as mock_login,
     ):
         mock_browser = MagicMock()
         mock_browser_cls.return_value.__enter__.return_value = mock_browser
@@ -143,8 +143,8 @@ def test_login_command_with_no_credentials() -> None:
     mock_config = MagicMock()
 
     with (
-        patch("gamesheet_sdk.cli.commands.login.BrowserSession") as mock_browser_cls,
-        patch("gamesheet_sdk.cli.commands.login._login_action") as mock_login,
+        patch("gamesheet_sdk.admin.cli.commands.login.BrowserSession") as mock_browser_cls,
+        patch("gamesheet_sdk.admin.cli.commands.login._login_action") as mock_login,
     ):
         mock_browser = MagicMock()
         mock_browser_cls.return_value.__enter__.return_value = mock_browser

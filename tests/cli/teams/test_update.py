@@ -9,8 +9,8 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
-from gamesheet_sdk.teams import Team
+from gamesheet_sdk.admin.cli.main import cli
+from gamesheet_sdk.admin.teams import Team
 from tests.helpers import ASSOCIATION_ID, DEFAULT_TEAM_NAME, SEASON_ID
 
 # Mock team used in tests
@@ -31,12 +31,15 @@ _MOCK_TEAM = Team(
 def test_teams_update_basic(runner: CliRunner) -> None:
     """The teams update command should work with required arguments."""
     with (
-        patch("gamesheet_sdk.teams.update_team") as mock_update,
+        patch("gamesheet_sdk.admin.teams.update_team") as mock_update,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_update.return_value = _MOCK_TEAM
         result = runner.invoke(
@@ -59,12 +62,15 @@ def test_teams_update_basic(runner: CliRunner) -> None:
 def test_teams_update_multiple_fields(runner: CliRunner) -> None:
     """The teams update command should accept multiple fields."""
     with (
-        patch("gamesheet_sdk.teams.update_team") as mock_update,
+        patch("gamesheet_sdk.admin.teams.update_team") as mock_update,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_update.return_value = _MOCK_TEAM
         result = runner.invoke(
@@ -90,12 +96,15 @@ def test_teams_update_multiple_fields(runner: CliRunner) -> None:
 def test_teams_update_remove_logo(runner: CliRunner) -> None:
     """The teams update command should support --remove-logo."""
     with (
-        patch("gamesheet_sdk.teams.update_team") as mock_update,
+        patch("gamesheet_sdk.admin.teams.update_team") as mock_update,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_update.return_value = _MOCK_TEAM
         result = runner.invoke(
@@ -116,12 +125,15 @@ def test_teams_update_remove_logo(runner: CliRunner) -> None:
 def test_teams_update_json_output(runner: CliRunner) -> None:
     """The teams update command should support JSON output."""
     with (
-        patch("gamesheet_sdk.teams.update_team") as mock_update,
+        patch("gamesheet_sdk.admin.teams.update_team") as mock_update,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_update.return_value = _MOCK_TEAM
         result = runner.invoke(
@@ -146,12 +158,15 @@ def test_teams_update_json_output(runner: CliRunner) -> None:
 def test_teams_update_alias_set_works(runner: CliRunner) -> None:
     """The 'set' alias should invoke the update command."""
     with (
-        patch("gamesheet_sdk.teams.update_team") as mock_update,
+        patch("gamesheet_sdk.admin.teams.update_team") as mock_update,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_update.return_value = _MOCK_TEAM
         result = runner.invoke(
@@ -174,12 +189,15 @@ def test_teams_update_alias_set_works(runner: CliRunner) -> None:
 def test_teams_update_alias_edit_works(runner: CliRunner) -> None:
     """The 'edit' alias should invoke the update command."""
     with (
-        patch("gamesheet_sdk.teams.update_team") as mock_update,
+        patch("gamesheet_sdk.admin.teams.update_team") as mock_update,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_update.return_value = _MOCK_TEAM
         result = runner.invoke(
@@ -212,8 +230,8 @@ def test_teams_update_missing_team_id(runner: CliRunner) -> None:
 def test_teams_update_with_no_saved_tokens(runner: CliRunner) -> None:
     """Calling 'teams update' with no saved tokens should fail gracefully."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=None),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=None),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value=None),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value=None),
     ):
         result = runner.invoke(
             cli,
@@ -236,10 +254,13 @@ def test_teams_update_with_no_fields_shows_error(runner: CliRunner) -> None:
     """Calling 'teams update' with no update fields should show a helpful error."""
     with (
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         result = runner.invoke(
             cli,

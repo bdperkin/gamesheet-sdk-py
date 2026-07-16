@@ -10,17 +10,17 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
-from gamesheet_sdk.leagues import League
+from gamesheet_sdk.admin.cli.main import cli
+from gamesheet_sdk.admin.leagues import League
 from tests.helpers import DEFAULT_LEAGUE_NAME
 
 
 def test_leagues_get(runner: CliRunner) -> None:
     """The leagues get command should retrieve a single league."""
     with (
-        patch("gamesheet_sdk.cli.commands.leagues._get_league_action") as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.commands.leagues._get_league_action") as mock_action,
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = League(
             id="201",
@@ -41,9 +41,9 @@ def test_leagues_get(runner: CliRunner) -> None:
 def test_leagues_get_with_fields(runner: CliRunner) -> None:
     """The leagues get command should support --fields and JSON format."""
     with (
-        patch("gamesheet_sdk.cli.commands.leagues._get_league_action") as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.commands.leagues._get_league_action") as mock_action,
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = League(
             id="201",
@@ -74,9 +74,9 @@ def test_leagues_get_with_fields(runner: CliRunner) -> None:
 def test_leagues_get_empty_fields(runner: CliRunner) -> None:
     """The leagues get command should handle empty fields spec."""
     with (
-        patch("gamesheet_sdk.cli.commands.leagues._get_league_action") as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.commands.leagues._get_league_action") as mock_action,
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = League(
             id="201",

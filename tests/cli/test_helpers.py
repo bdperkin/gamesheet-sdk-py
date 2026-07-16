@@ -11,8 +11,12 @@ from unittest.mock import Mock, patch
 from click.testing import CliRunner
 import rich_click as click
 
-from gamesheet_sdk.cli import ResourceGroup, confirm_destructive
-from gamesheet_sdk.cli.core import _configure_logging, _should_color
+from gamesheet_sdk.common.cli.core import (
+    ResourceGroup,
+    _configure_logging,
+    _should_color,
+    confirm_destructive,
+)
 
 
 # Tests for ResourceGroup edge cases and helper functions
@@ -128,7 +132,7 @@ def test_should_color_with_no_stream() -> None:
 
 def test_configure_logging_verbose_0() -> None:
     """_configure_logging with verbose=0 should set WARNING level."""
-    with patch("gamesheet_sdk.cli.core.logging.basicConfig") as mock_basic:
+    with patch("gamesheet_sdk.common.cli.core.logging.basicConfig") as mock_basic:
         _configure_logging(0)
         # Should be called with WARNING level
         call_args = mock_basic.call_args
@@ -140,7 +144,7 @@ def test_configure_logging_verbose_0() -> None:
 
 def test_configure_logging_verbose_1() -> None:
     """_configure_logging with verbose=1 should set INFO level."""
-    with patch("gamesheet_sdk.cli.core.logging.basicConfig") as mock_basic:
+    with patch("gamesheet_sdk.common.cli.core.logging.basicConfig") as mock_basic:
         _configure_logging(1)
         call_args = mock_basic.call_args
         assert call_args is not None
@@ -151,7 +155,7 @@ def test_configure_logging_verbose_1() -> None:
 
 def test_configure_logging_verbose_2() -> None:
     """_configure_logging with verbose=2 should set DEBUG level."""
-    with patch("gamesheet_sdk.cli.core.logging.basicConfig") as mock_basic:
+    with patch("gamesheet_sdk.common.cli.core.logging.basicConfig") as mock_basic:
         _configure_logging(2)
         call_args = mock_basic.call_args
         assert call_args is not None

@@ -47,10 +47,10 @@ config = Config(timeout=60)  # Uses 60, not 45
 # Use env vars
 export GAMESHEET_USERNAME=you@example.com
 export GAMESHEET_PASSWORD=secret
-gamesheet-sdk-py login
+gamesheet-admin login
 
 # Override with flags
-gamesheet-sdk-py --base-url https://custom.gamesheet.app login --email you@example.com
+gamesheet-admin --base-url https://custom.gamesheet.app login --email you@example.com
 ```
 
 ## Session Storage

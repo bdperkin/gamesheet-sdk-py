@@ -9,7 +9,9 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.teams_roster_coaches import teams_roster_coaches_group
+from gamesheet_sdk.admin.cli.commands.teams_roster_coaches import (
+    teams_roster_coaches_group,
+)
 from tests.fixtures.constants import TEST_ERROR_GENERIC
 from tests.helpers import COACH_ID_SECONDARY, SEASON_ID, TEAM_ID
 
@@ -21,13 +23,13 @@ def test_teams_roster_coaches_update_coverage() -> None:
     mock_coach.id = COACH_ID_SECONDARY
     with (
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster_coaches.build_authenticated_session",
+            "gamesheet_sdk.admin.cli.commands.teams_roster_coaches.build_authenticated_session",
         ),
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster_coaches._update_team_coach_action",
+            "gamesheet_sdk.admin.cli.commands.teams_roster_coaches._update_team_coach_action",
             return_value=mock_coach,
         ),
-        patch("gamesheet_sdk.cli.commands.teams_roster_coaches.render_get_command"),
+        patch("gamesheet_sdk.admin.cli.commands.teams_roster_coaches.render_get_command"),
     ):
         result = runner.invoke(
             teams_roster_coaches_group,
@@ -51,10 +53,10 @@ def test_teams_roster_coaches_update_error_handling() -> None:
     runner = CliRunner()
     with (
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster_coaches.build_authenticated_session",
+            "gamesheet_sdk.admin.cli.commands.teams_roster_coaches.build_authenticated_session",
         ),
         patch(
-            "gamesheet_sdk.cli.commands.teams_roster_coaches._update_team_coach_action",
+            "gamesheet_sdk.admin.cli.commands.teams_roster_coaches._update_team_coach_action",
             side_effect=Exception(TEST_ERROR_GENERIC),
         ),
     ):

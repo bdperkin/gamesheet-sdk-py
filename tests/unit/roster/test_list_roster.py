@@ -16,7 +16,7 @@ from gamesheet_sdk import (
     list_coaches,
     list_players,
 )
-from gamesheet_sdk.roster import list_team_coaches, list_team_players
+from gamesheet_sdk.admin.roster import list_team_coaches, list_team_players
 from tests.helpers import (
     COACH_FIRST_NAME,
     COACH_ID_PRIMARY,

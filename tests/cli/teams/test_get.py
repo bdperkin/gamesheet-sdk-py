@@ -10,17 +10,17 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
-from gamesheet_sdk.teams import Team
+from gamesheet_sdk.admin.cli.main import cli
+from gamesheet_sdk.admin.teams import Team
 from tests.helpers import DEFAULT_TEAM_NAME, SEASON_ID
 
 
 def test_teams_get(runner: CliRunner) -> None:
     """The teams get command should retrieve a single team."""
     with (
-        patch("gamesheet_sdk.cli.commands.teams._get_team_action") as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.commands.teams._get_team_action") as mock_action,
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Team(
             id="401",
@@ -42,9 +42,9 @@ def test_teams_get(runner: CliRunner) -> None:
 def test_teams_get_with_fields(runner: CliRunner) -> None:
     """The teams get command should support --fields and JSON format."""
     with (
-        patch("gamesheet_sdk.cli.commands.teams._get_team_action") as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.commands.teams._get_team_action") as mock_action,
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Team(
             id="401",
@@ -76,9 +76,9 @@ def test_teams_get_with_fields(runner: CliRunner) -> None:
 def test_teams_get_empty_fields(runner: CliRunner) -> None:
     """The teams get command should handle empty fields spec."""
     with (
-        patch("gamesheet_sdk.cli.commands.teams._get_team_action") as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.commands.teams._get_team_action") as mock_action,
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Team(
             id="401",

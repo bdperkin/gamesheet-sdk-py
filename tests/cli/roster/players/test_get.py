@@ -10,8 +10,8 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
-from gamesheet_sdk.roster import Player
+from gamesheet_sdk.admin.cli.main import cli
+from gamesheet_sdk.admin.roster import Player
 from tests.helpers import CLI_TEST_SEASON_ID, DEFAULT_PLAYER_LAST_NAME, SEASON_ID
 
 
@@ -19,10 +19,10 @@ def test_players_get(runner: CliRunner) -> None:
     """The players get command should retrieve a single player."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.roster_players._get_player_action",
+            "gamesheet_sdk.admin.cli.commands.roster_players._get_player_action",
         ) as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Player(
             id=CLI_TEST_SEASON_ID,
@@ -53,10 +53,10 @@ def test_players_get_with_fields(runner: CliRunner) -> None:
     """The players get command should support --fields and JSON format."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.roster_players._get_player_action",
+            "gamesheet_sdk.admin.cli.commands.roster_players._get_player_action",
         ) as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Player(
             id=CLI_TEST_SEASON_ID,
@@ -90,10 +90,10 @@ def test_players_get_empty_fields(runner: CliRunner) -> None:
     """The players get command should handle empty fields spec."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.roster_players._get_player_action",
+            "gamesheet_sdk.admin.cli.commands.roster_players._get_player_action",
         ) as mock_action,
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value="tok"),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="tok"),
     ):
         mock_action.return_value = Player(
             id=CLI_TEST_SEASON_ID,

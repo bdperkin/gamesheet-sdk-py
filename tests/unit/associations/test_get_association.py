@@ -9,7 +9,7 @@ import pytest
 import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
-from gamesheet_sdk.associations import get_association
+from gamesheet_sdk.admin.associations import get_association
 from tests.fixtures.constants import TEST_ERROR_PATTERN_404_RESOURCE
 from tests.helpers import (
     DEFAULT_ASSOCIATION_NAME,

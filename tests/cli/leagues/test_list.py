@@ -10,8 +10,8 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
-from gamesheet_sdk.leagues import League
+from gamesheet_sdk.admin.cli.main import cli
+from gamesheet_sdk.admin.leagues import League
 from tests.helpers import (
     DEFAULT_LEAGUE_NAME,
     TIMESTAMP_2024_01_01,
@@ -23,12 +23,15 @@ from tests.helpers import (
 def test_leagues_list_alias_works(runner: CliRunner) -> None:
     """The 'ls' alias should invoke the list command."""
     with (
-        patch("gamesheet_sdk.cli.commands.leagues._list_leagues_action") as mock_list,
+        patch("gamesheet_sdk.admin.cli.commands.leagues._list_leagues_action") as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = []
         result = runner.invoke(cli, ["leagues", "ls", "--association-id", "38"])
@@ -46,12 +49,15 @@ def test_leagues_missing_association_id_shows_error(runner: CliRunner) -> None:
 def test_leagues_list_json_output(runner: CliRunner) -> None:
     """The leagues list command should support JSON output."""
     with (
-        patch("gamesheet_sdk.cli.commands.leagues._list_leagues_action") as mock_list,
+        patch("gamesheet_sdk.admin.cli.commands.leagues._list_leagues_action") as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = [
             League(
@@ -74,12 +80,15 @@ def test_leagues_list_json_output(runner: CliRunner) -> None:
 def test_leagues_list_yaml_output(runner: CliRunner) -> None:
     """The leagues list command should support YAML output."""
     with (
-        patch("gamesheet_sdk.cli.commands.leagues._list_leagues_action") as mock_list,
+        patch("gamesheet_sdk.admin.cli.commands.leagues._list_leagues_action") as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = [
             League(
@@ -102,12 +111,15 @@ def test_leagues_list_yaml_output(runner: CliRunner) -> None:
 def test_leagues_list_columns_filter(runner: CliRunner) -> None:
     """The --columns option should filter output columns for leagues."""
     with (
-        patch("gamesheet_sdk.cli.commands.leagues._list_leagues_action") as mock_list,
+        patch("gamesheet_sdk.admin.cli.commands.leagues._list_leagues_action") as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = [
             League(
@@ -131,12 +143,15 @@ def test_leagues_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
     """The --output option should write to a file for leagues."""
     output_file = tmp_path / "leagues.json"
     with (
-        patch("gamesheet_sdk.cli.commands.leagues._list_leagues_action") as mock_list,
+        patch("gamesheet_sdk.admin.cli.commands.leagues._list_leagues_action") as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = [
             League(
@@ -169,12 +184,15 @@ def test_leagues_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
 def test_leagues_list_csv_output(runner: CliRunner) -> None:
     """The leagues list command should support CSV output."""
     with (
-        patch("gamesheet_sdk.cli.commands.leagues._list_leagues_action") as mock_list,
+        patch("gamesheet_sdk.admin.cli.commands.leagues._list_leagues_action") as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = [
             League(
@@ -206,12 +224,15 @@ def test_leagues_bare_invocation_runs_list(runner: CliRunner) -> None:
 def test_leagues_list_grid_format(runner: CliRunner) -> None:
     """The leagues list command should support grid format."""
     with (
-        patch("gamesheet_sdk.cli.commands.leagues._list_leagues_action") as mock_list,
+        patch("gamesheet_sdk.admin.cli.commands.leagues._list_leagues_action") as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = [
             League(
@@ -234,12 +255,15 @@ def test_leagues_list_grid_format(runner: CliRunner) -> None:
 def test_leagues_list_simple_format(runner: CliRunner) -> None:
     """The leagues list command should support simple format."""
     with (
-        patch("gamesheet_sdk.cli.commands.leagues._list_leagues_action") as mock_list,
+        patch("gamesheet_sdk.admin.cli.commands.leagues._list_leagues_action") as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = [
             League(
@@ -261,8 +285,8 @@ def test_leagues_list_simple_format(runner: CliRunner) -> None:
 def test_leagues_list_with_no_saved_tokens(runner: CliRunner) -> None:
     """Leagues list should exit with error when no tokens are saved."""
     with (
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value=None),
-        patch("gamesheet_sdk.cli.helpers.load_refresh_token", return_value=None),
+        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value=None),
+        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value=None),
     ):
         result = runner.invoke(cli, ["leagues", "list", "--association-id", "38"])
         assert result.exit_code == 1
@@ -272,12 +296,15 @@ def test_leagues_list_with_no_saved_tokens(runner: CliRunner) -> None:
 def test_leagues_list_with_env_var(runner: CliRunner) -> None:
     """The association ID can be provided via GAMESHEET_ASSOCIATION_ID environment variable."""
     with (
-        patch("gamesheet_sdk.cli.commands.leagues._list_leagues_action") as mock_list,
+        patch("gamesheet_sdk.admin.cli.commands.leagues._list_leagues_action") as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = []
         result = runner.invoke(

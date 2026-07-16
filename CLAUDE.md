@@ -13,64 +13,60 @@ is implemented by **automating the GameSheet WebUI** via a combination of:
 Because behavior depends on a third-party UI, expect breakage on vendor changes. When adding or fixing a workflow, prefer the lightest mechanism that works
 (HTTP > HTML parse > headless browser) — headless automation is the slowest and most fragile path.
 
-The package is alpha. Structure under `src/gamesheet_sdk/`:
+The package is alpha. It uses a **three-pillar layout** under `src/gamesheet_sdk/`:
 
 - `__init__.py` — public re-exports + `__version__`
-- `auth/` — authentication package
-  - `login.py` — `login()` flow (browser-driven or HTTP fallback)
-  - `session.py` — `AuthenticatedSession` HTTP layer with auto-refresh on 401
-  - `storage.py` — token file I/O and directory management
-  - `tokens.py` — token persistence (`load_access_token`, `load_refresh_token`, `save_tokens`, `refresh_access_token`)
-  - `constants.py` — auth-related constants (URLs, storage paths)
-- `browser.py` — `BrowserSession` Playwright wrapper
-- `cli/` — command-line interface package
-  - `core.py` — `ResourceGroup` class, `confirm_destructive` decorator, utility functions
-  - `helpers.py` — shared command helpers
-  - `main.py` — main CLI entry point (`cli` group and `main()` function)
-  - `constants.py` — CLI-specific constants
-  - `commands/` — individual command modules (associations, completion, divisions, games, games_brackets, games_completed, games_scheduled, ipad_keys, leagues,
-    locations, login, referees, roster, roster_coaches, roster_players, seasons, teams, teams_roster, teams_roster_coaches, teams_roster_players)
-  - `shared/` — shared CLI utilities
-    - `datetime_helpers.py` — flexible datetime parsing, timezone detection, and start/end/duration resolution helpers
-    - `decorators.py` — CLI decorators for common patterns
-    - `rendering.py` — output rendering helpers
-- `config.py` — `pydantic-settings` `Config` (resolves `GAMESHEET_*` env vars; CLI args > env > defaults)
-- `constants.py` — global constants (URLs, base URLs)
-- `errors.py` — error classes
-- `exceptions.py` — `GameSheetError`, `AuthenticationError`
-- `output.py` — `render()` for JSON / YAML / CSV / TSV / 13 tabulate formats + `write_output()`
-- `session.py` — base `requests.Session` subclass
-- `shared/` — shared utilities package
-  - `constants.py` — shared constants
-  - `gamesheet_http.py` — HTTP helpers for GameSheet API
-  - `image_upload.py` — image upload helpers
-  - `jsonapi.py` — JSON:API response parsing
+- `common/` — shared infrastructure used by both CLIs
+  - `auth/` — authentication package
+    - `login.py` — `login()` flow (browser-driven or HTTP fallback)
+    - `session.py` — `AuthenticatedSession` HTTP layer with auto-refresh on 401
+    - `storage.py` — token file I/O and directory management
+    - `tokens.py` — token persistence (`load_access_token`, `load_refresh_token`, `save_tokens`, `refresh_access_token`)
+    - `constants.py` — auth-related constants (URLs, storage paths)
+  - `browser.py` — `BrowserSession` Playwright wrapper
+  - `cli/` — shared CLI machinery
+    - `core.py` — `ResourceGroup` class, `confirm_destructive` decorator, utility functions
+    - `constants.py` — shared CLI constants
+  - `config.py` — `pydantic-settings` `Config` (resolves `GAMESHEET_*` env vars; CLI args > env > defaults)
+  - `constants.py` — global constants (URLs, base URLs)
+  - `errors.py` — error classes
+  - `exceptions.py` — `GameSheetError`, `AuthenticationError`
+  - `output.py` — `render()` for JSON / YAML / CSV / TSV / 13 tabulate formats + `write_output()`
+  - `session.py` — base `requests.Session` subclass
+  - `shared/` — shared utilities package
+    - `constants.py` — shared constants
+    - `gamesheet_http.py` — HTTP helpers for GameSheet API
+    - `image_upload.py` — image upload helpers
+    - `jsonapi.py` — JSON:API response parsing
+- `admin/` — admin dashboard (`gamesheet-admin` CLI)
+  - `cli/` — admin CLI package
+    - `main.py` — admin CLI entry point (`cli` group and `main()` function)
+    - `helpers.py` — admin command helpers
+    - `constants.py` — admin CLI constants
+    - `commands/` — individual command modules (associations, completion, divisions, games, games_brackets, games_completed, games_scheduled, ipad_keys,
+      leagues, locations, login, referees, roster, roster_coaches, roster_players, seasons, teams, teams_roster, teams_roster_coaches, teams_roster_players)
+    - `shared/` — admin CLI utilities
+      - `datetime_helpers.py` — flexible datetime parsing, timezone detection, and start/end/duration resolution helpers
+      - `decorators.py` — CLI decorators for common patterns
+      - `rendering.py` — output rendering helpers
+  - Domain modules (each provides pydantic models + action functions):
+    - `associations.py` — `Association` model + `list_associations()`
+    - `divisions.py` — `Division` model + `list_divisions()`, `list_division_teams()`, `create_division()`, `update_division()`, `delete_division()`
+    - `games/` — games package (`models.py`, `scheduled.py`, `completed.py`, `brackets.py`, `broadcasters.py`, `locations.py`, `helpers.py`)
+    - `ipad_keys.py` — `IPadKey` model + `list_ipad_keys()`
+    - `leagues.py` — `League` model + `list_leagues()`
+    - `referees.py` — `Referee`, `RefereeReport` models + CRUD + `get_referee_report()`
+    - `roster/` — roster management (`models.py`, `players.py`, `coaches.py`, `helpers.py`)
+    - `seasons.py` — `Season` and `SeasonDetail` models + `list_seasons()`, `get_season()`
+    - `teams.py` — `Team` model + `list_teams()`, `create_team()`, `update_team()`, `delete_team()`
+- `teams/` — teams dashboard (`gamesheet-teams` CLI)
+  - `cli/` — teams CLI package
+    - `main.py` — teams CLI entry point (`cli` group and `main()` function)
+    - `commands/` — command modules (completion, login stub)
+  - `shared/` — teams-specific utilities (currently empty)
 
-Domain modules (each provides pydantic models + action functions, plus a corresponding command module under `cli/commands/`):
-
-- `associations.py` — `Association` model + `list_associations()`
-- `divisions.py` — `Division` model + `list_divisions()`, `list_division_teams()`, `create_division()`, `update_division()`, `delete_division()`
-- `games/` — games package
-  - `models.py` — `Game`, `TeamInfo` models
-  - `scheduled.py` — `list_scheduled()` for scheduled games
-  - `completed.py` — `list_completed()` for completed games
-  - `brackets.py` — `list_brackets()` for bracket games
-  - `broadcasters.py` — broadcaster management
-  - `locations.py` — location management
-  - `helpers.py` — shared game helpers
-- `ipad_keys.py` — `IPadKey` model + `list_ipad_keys()`
-- `leagues.py` — `League` model + `list_leagues()`
-- `referees.py` — `Referee`, `RefereeReport` models + `list_referees()`, `get_referee()`, `create_referee()`, `update_referee()`, `delete_referee()`,
-  `get_referee_report()`
-- `roster/` — roster management package
-  - `models.py` — `Player`, `Coach` models
-  - `players.py` — player roster operations
-  - `coaches.py` — coach roster operations
-  - `helpers.py` — shared roster helpers
-- `seasons.py` — `Season` and `SeasonDetail` models + `list_seasons()`, `get_season()`
-- `teams.py` — `Team` model + `list_teams()`, `create_team()`, `update_team()`, `delete_team()`
-
-Future domain modules attach the same way: a thin action function in a domain module, a pydantic model, and a corresponding command module in `cli/commands/`.
+Future domain modules attach the same way: a thin action function in a domain module, a pydantic model, and a corresponding command module in the pillar's
+`cli/commands/`.
 
 ## Common commands
 
@@ -151,8 +147,8 @@ tox -e py314 -- -k test_name   # pass args to pytest after --
 Every `pyproject.toml` `optional-dependencies.*` group has a matching tox env that installs only that extra plus the project, so each env runs in an isolated
 venv with the minimum surface area.
 
-The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_sdk.cli:main`, where `cli` is now a package with the `main()` function in
-`cli/main.py`).
+The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.admin.cli:main`) and `gamesheet-teams` (entry point:
+`gamesheet_sdk.teams.cli:main`).
 
 ## Architecture notes
 
@@ -187,7 +183,9 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
 
   Test structure under `tests/`:
 
-  - `auth/` — authentication tests
+  - `admin/` — admin CLI entry-point tests
+  - `common/` — shared infrastructure tests (auth, cli)
+  - `teams/` — teams CLI entry-point tests
   - `cli/` — CLI command tests (associations, divisions, games, ipad_keys, leagues, locations, referees, roster, seasons, teams with their nested subcommands)
   - `fixtures/` — shared test fixtures
   - `helpers/` — test helper modules (cli.py, constants.py, endpoints.py, mocks.py, payloads.py)
@@ -259,10 +257,10 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
   which fires `py/clear-text-logging-sensitive-data` on perfectly innocent `email` log calls. Keep credential resolvers split (one helper per secret).
 
 - **Documentation.** Sphinx (Furo theme, MyST-Parser for markdown sources) lives under `docs/`. `conf.py` enables autodoc + autosummary (API), `sphinx-click`
-  (CLI rendered live from the `gamesheet_sdk.cli:cli` group exported from the `cli` package — so it always tracks the shipped click tree, including nested
-  resource groups), intersphinx (cross-refs to stdlib/requests/pydantic/click), autosectionlabel, napoleon, todo, copybutton, sphinx-design. Output formats:
-  HTML, EPUB, man, LaTeX/PDF. Strict-mode build (`-n -W`) runs two-pass to satisfy autosummary's stub-then-toctree ordering. Built, link-checked, and deployed
-  to GitHub Pages by `.github/workflows/docs.yml`; `_build/` and `_autosummary/` are gitignored.
+  (CLI rendered live from both `gamesheet_sdk.admin.cli.main:cli` and `gamesheet_sdk.teams.cli.main:cli` — so it always tracks the shipped click trees,
+  including nested resource groups), intersphinx (cross-refs to stdlib/requests/pydantic/click), autosectionlabel, napoleon, todo, copybutton, sphinx-design.
+  Output formats: HTML, EPUB, man, LaTeX/PDF. Strict-mode build (`-n -W`) runs two-pass to satisfy autosummary's stub-then-toctree ordering. Built,
+  link-checked, and deployed to GitHub Pages by `.github/workflows/docs.yml`; `_build/` and `_autosummary/` are gitignored.
 
   Documentation structure under `docs/`:
 
@@ -283,21 +281,24 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
   reader's need?_, not _what is the topic?_ — a topic may have a page in more than one quadrant (e.g. an "auth" how-to _and_ an "auth" reference page). The
   `docs/explanation/diataxis.md` page is the in-tree primer; the canonical source is [diataxis.fr](https://diataxis.fr/).
 
-- **CLI framework.** `src/gamesheet_sdk/cli/` is a package containing the CLI implementation. `cli/main.py` defines the root click group (`cli`) with a thin
-  `main(argv) -> int` wrapper for the `gamesheet-sdk-py` entry point. The root group's callback builds a `Config` (with `--base-url` / `--no-headless` / `-v`
-  overrides applied) and stows it in `ctx.obj`, so any subcommand pulls it via `@click.pass_context`. `cli/core.py` provides the `ResourceGroup` class and
-  decorators. Individual command modules live under `cli/commands/`. The CLI uses a **resource-oriented (noun-first) layout**: each resource (e.g.
-  `associations`) gets a nested `ResourceGroup` whose canonical verbs are `create`, `get`, `list`, `update`, `delete` with the aliases `add/new`, `show/view`,
-  `ls`, `set/edit`, `rm/remove`. `login` stays at the root as a global operation. New CLI surface attaches like:
+- **CLI framework.** The package ships two CLIs, each with its own `cli/main.py` defining a root click group (`cli`) with a thin `main(argv) -> int` wrapper.
+  `gamesheet-admin` (entry point: `gamesheet_sdk.admin.cli:main`) handles admin dashboard operations; `gamesheet-teams` (entry point:
+  `gamesheet_sdk.teams.cli:main`) handles teams dashboard operations (currently stub). Each root group's callback builds a `Config` (with `--base-url` /
+  `--no-headless` / `-v` overrides applied) and stows it in `ctx.obj`, so any subcommand pulls it via `@click.pass_context`. Shared CLI machinery lives in
+  `common/cli/core.py` (`ResourceGroup` class and decorators). Individual command modules live under each pillar's `cli/commands/`. The admin CLI uses a
+  **resource-oriented (noun-first) layout**: each resource (e.g. `associations`) gets a nested `ResourceGroup` whose canonical verbs are `create`, `get`,
+  `list`, `update`, `delete` with the aliases `add/new`, `show/view`, `ls`, `set/edit`, `rm/remove`. `login` stays at the root as a global operation. New CLI
+  surface attaches like:
 
   - **New verb on an existing resource** — add a `@<resource>_group.command("verb")` in the appropriate `cli/commands/<resource>.py` module; aliases come from
     the group's `aliases=` table so no extra wiring.
   - **New resource** — create `cli/commands/<resource>.py` with `@cli.group("resource", cls=ResourceGroup, default="list", aliases={...})` for the group, then
-    attach verbs to it. Import and register the group in `cli/main.py`. `default="list"` makes a bare `gamesheet-sdk-py <resource>` implicitly run `list`.
-  - **Destructive verbs** (`delete`/`rm`/`remove`) — wrap with `@confirm_destructive("<target>")` (from `cli/core.py`) so the command gains `--force/-f` and a
-    `[y/N]` prompt.
+    attach verbs to it. Import and register the group in the pillar's `cli/main.py`. `default="list"` makes a bare `gamesheet-admin <resource>` implicitly run
+    `list`.
+  - **Destructive verbs** (`delete`/`rm`/`remove`) — wrap with `@confirm_destructive("<target>")` (from `common/cli/core.py`) so the command gains `--force/-f`
+    and a `[y/N]` prompt.
 
-  **CLI shared utilities** in `cli/shared/`:
+  **CLI shared utilities** in `admin/cli/shared/`:
 
   - `datetime_helpers.py` — flexible datetime parsing (via `python-dateutil`), timezone detection (`get_local_timezone_name`, `get_local_timezone_offset`), and
     start/end/duration resolution (`resolve_create_times`, `resolve_update_times`). Used by `games scheduled create` and `games scheduled update` to accept
@@ -314,19 +315,22 @@ The CLI installed by the package is `gamesheet-sdk-py` (entry point: `gamesheet_
   while preserving the other; two or more trigger recalculation. Mixing `--start-datetime` with `--start-date`/`--start-time` (or the end equivalents) raises a
   validation error.
 
-  **Tab-completion.** `gamesheet-sdk-py completion {bash,zsh,fish}` prints a sourceable script (uses click's built-in `shell_completion` via the
-  `_GAMESHEET_SDK_PY_COMPLETE` env var; no third-party dep). `ResourceGroup.shell_complete` (in `cli/core.py`) overrides click's default to also enumerate
-  aliases (`ls`, `rm`, …) so tab-completion stays in sync with the verb table. **Gotcha worth preserving:** `ResourceGroup.parse_args` gates its
-  default-subcommand injection on `not ctx.resilient_parsing` — without that guard, click's completion walker descends silently into the leaf command and
-  `gamesheet-sdk-py associations <TAB>` returns nothing. A regression test (`test_completion_does_not_descend_into_default_subcommand`) pins this.
+  **Tab-completion.** `gamesheet-admin completion {bash,zsh,fish}` (and `gamesheet-teams completion {bash,zsh,fish}`) prints a sourceable script (uses click's
+  built-in `shell_completion` via the `_GAMESHEET_ADMIN_COMPLETE` / `_GAMESHEET_TEAMS_COMPLETE` env var; no third-party dep). `ResourceGroup.shell_complete` (in
+  `common/cli/core.py`) overrides click's default to also enumerate aliases (`ls`, `rm`, …) so tab-completion stays in sync with the verb table. **Gotcha worth
+  preserving:** `ResourceGroup.parse_args` gates its default-subcommand injection on `not ctx.resilient_parsing` — without that guard, click's completion walker
+  descends silently into the leaf command and `gamesheet-admin associations <TAB>` returns nothing. A regression test
+  (`test_completion_does_not_descend_into_default_subcommand`) pins this.
 
   The Sphinx CLI reference is regenerated from the click tree by `sphinx-click` on every docs build, so it always tracks shipping behavior.
 
 - **Build system.** Uses `hatchling` as the build backend (PEP 517/518/621 compliant). Package metadata lives in `pyproject.toml` under `[project]`. Build
   configuration under `[tool.hatch]` controls wheel/sdist targets. The package ships with `src/gamesheet_sdk/py.typed` for PEP 561 type hint distribution.
 
-- **Docker support.** A `Dockerfile` is provided for containerized deployments. The image is published to GitHub Container Registry (ghcr.io) during the release
-  workflow. Local Docker commands are available via Makefile: `make docker-build`, `make docker-run`, `make docker-push`, `make docker-clean`.
+- **Docker support.** A `Dockerfile` is provided for containerized deployments. The image ships both `gamesheet-admin` and `gamesheet-teams` CLIs; there is no
+  fixed `ENTRYPOINT`, so users specify which CLI to run: `docker run <image> gamesheet-admin --help`. The image is published to GitHub Container Registry
+  (ghcr.io) during the release workflow. Local Docker commands are available via Makefile: `make docker-build`, `make docker-run`, `make docker-push`,
+  `make docker-clean`.
 
 - **Security scanning.** The project uses multiple security tools in CI:
 

@@ -244,9 +244,9 @@ def test_user_agent_falls_back_when_package_not_found() -> None:
     """Test that user agent falls back to '0+unknown' when package metadata is missing."""
     from unittest.mock import patch
 
-    from gamesheet_sdk.session import _default_user_agent
+    from gamesheet_sdk.common.session import _default_user_agent
 
-    with patch("gamesheet_sdk.session._resolved_version") as mock_version:
+    with patch("gamesheet_sdk.common.session._resolved_version") as mock_version:
         from importlib.metadata import PackageNotFoundError
 
         mock_version.side_effect = PackageNotFoundError("gamesheet-sdk-py")

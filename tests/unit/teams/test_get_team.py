@@ -9,7 +9,7 @@ import pytest
 import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
-from gamesheet_sdk.teams import get_team
+from gamesheet_sdk.admin.teams import get_team
 from tests.helpers import (
     DEFAULT_TEAM_NAME,
     JSONAPI_CONTENT_TYPE,

@@ -9,7 +9,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from gamesheet_sdk.session import Session
+from gamesheet_sdk.common.session import Session
 
 
 @pytest.fixture

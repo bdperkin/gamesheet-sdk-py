@@ -9,7 +9,7 @@ import pytest
 import responses
 
 from gamesheet_sdk import Config, Session
-from gamesheet_sdk.roster import update_player, update_team_player
+from gamesheet_sdk.admin.roster import update_player, update_team_player
 from tests.fixtures.constants import TEST_ERROR_PATTERN_AT_LEAST_ONE_FIELD
 from tests.helpers import (
     PLAYER_ID,

@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli.commands.roster_coaches import coaches_group
+from gamesheet_sdk.admin.cli.commands.roster_coaches import coaches_group
 from tests.fixtures.constants import TEST_ERROR_VALIDATION
 from tests.helpers import COACH_ID_SECONDARY, SEASON_ID
 
@@ -20,12 +20,12 @@ def test_roster_coaches_update_coverage() -> None:
     mock_coach = MagicMock()
     mock_coach.id = COACH_ID_SECONDARY
     with (
-        patch("gamesheet_sdk.cli.commands.roster_coaches.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.roster_coaches.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.roster_coaches._update_coach_action",
+            "gamesheet_sdk.admin.cli.commands.roster_coaches._update_coach_action",
             return_value=mock_coach,
         ),
-        patch("gamesheet_sdk.cli.commands.roster_coaches.render_get_command"),
+        patch("gamesheet_sdk.admin.cli.commands.roster_coaches.render_get_command"),
     ):
         result = runner.invoke(
             coaches_group,
@@ -54,9 +54,9 @@ def test_roster_coaches_update_valueerror_handling() -> None:
         raise ValueError(TEST_ERROR_VALIDATION)
 
     with (
-        patch("gamesheet_sdk.cli.commands.roster_coaches.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.roster_coaches.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.roster_coaches._update_coach_action",
+            "gamesheet_sdk.admin.cli.commands.roster_coaches._update_coach_action",
             side_effect=raise_value_error,
         ),
     ):

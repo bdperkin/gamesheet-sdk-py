@@ -11,7 +11,7 @@ import responses
 
 # Explicit import for coverage tracking of dynamically-loaded Click commands
 from gamesheet_sdk import BFF_API_BASE_URL
-from gamesheet_sdk.cli import main
+from gamesheet_sdk.admin.cli import main
 from tests.helpers import SEASON_ID
 
 _BFF_BASE = BFF_API_BASE_URL
@@ -29,11 +29,11 @@ def test_games_completed_list_json_format() -> None:
     """Test games completed list with JSON output."""
     with (
         patch(
-            "gamesheet_sdk.cli.helpers.load_access_token",
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
             return_value="mock-access-token",
         ),
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="mock-refresh-token",
         ),
     ):
@@ -54,11 +54,11 @@ def test_games_scheduled_list_json_format() -> None:
     """Test games scheduled list with JSON output."""
     with (
         patch(
-            "gamesheet_sdk.cli.helpers.load_access_token",
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
             return_value="mock-access-token",
         ),
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="mock-refresh-token",
         ),
     ):
@@ -79,11 +79,11 @@ def test_games_brackets_list_json_format() -> None:
     """Test games brackets list returns not implemented error."""
     with (
         patch(
-            "gamesheet_sdk.cli.helpers.load_access_token",
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
             return_value="mock-access-token",
         ),
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="mock-refresh-token",
         ),
     ):

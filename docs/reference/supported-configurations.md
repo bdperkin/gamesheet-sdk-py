@@ -44,18 +44,18 @@ For caching the install across CI runs, see {doc}`../how-to/install-in-github-ac
 
 These are required and installed automatically by `pip install gamesheet-sdk-py`:
 
-| Package             | Purpose                                              |
-| ------------------- | ---------------------------------------------------- |
-| `click`             | Subcommand framework for the `gamesheet-sdk-py` CLI. |
-| `colorlog`          | ANSI-coloured log levels in the CLI (TTY-only).      |
-| `playwright`        | Headless-browser automation for the heavy code path. |
-| `pydantic`          | Data validation for SDK models.                      |
-| `pydantic-settings` | Env-driven resolution of `Config`.                   |
-| `pyyaml`            | YAML output for CLI workflows.                       |
-| `requests`          | HTTP client for the lightweight code path.           |
-| `rich`              | Syntax-highlighted JSON / YAML output to a TTY.      |
-| `tabulate`          | Human-readable table formats for CLI output.         |
-| `urllib3`           | HTTP connection pooling and request retries.         |
+| Package             | Purpose                                                                    |
+| ------------------- | -------------------------------------------------------------------------- |
+| `click`             | Subcommand framework for the `gamesheet-admin` and `gamesheet-teams` CLIs. |
+| `colorlog`          | ANSI-coloured log levels in the CLI (TTY-only).                            |
+| `playwright`        | Headless-browser automation for the heavy code path.                       |
+| `pydantic`          | Data validation for SDK models.                                            |
+| `pydantic-settings` | Env-driven resolution of `Config`.                                         |
+| `pyyaml`            | YAML output for CLI workflows.                                             |
+| `requests`          | HTTP client for the lightweight code path.                                 |
+| `rich`              | Syntax-highlighted JSON / YAML output to a TTY.                            |
+| `tabulate`          | Human-readable table formats for CLI output.                               |
+| `urllib3`           | HTTP connection pooling and request retries.                               |
 
 If you change `[project.dependencies]` in `pyproject.toml`, update this table in the same commit.
 

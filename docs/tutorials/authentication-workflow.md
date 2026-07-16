@@ -17,7 +17,7 @@ That is the complete list.
 The `login` command opens a headless browser, navigates to the GameSheet login page, submits your credentials, and saves the authentication tokens to disk.
 
 ```console
-(.venv) $ gamesheet-sdk-py login
+(.venv) $ gamesheet-admin login
 Email: your-email@example.com
 Password:
 ```
@@ -27,7 +27,7 @@ Type your email address and press Enter. Then type your password and press Enter
 ```{note}
 The login flow runs in a headless Chromium browser, so you won't see a window. If you want to watch what's happening, add `--no-headless`:
 
-    $ gamesheet-sdk-py --no-headless login
+    $ gamesheet-admin --no-headless login
 ```
 
 ## Step 2 — Wait for the login to complete
@@ -64,7 +64,7 @@ All three are plain text files. You can inspect them with `cat`, but do not shar
 Now that you're logged in, try listing your associations. This command reads the saved access token and makes an authenticated API request:
 
 ```console
-(.venv) $ gamesheet-sdk-py associations list
+(.venv) $ gamesheet-admin associations list
 ID      TITLE                    CREATED AT
 12345   Springfield Youth Hockey 2024-01-15 08:23:45
 67890   Tournament Series 2024   2024-03-22 14:12:03
@@ -104,7 +104,7 @@ If you're running the SDK in a script or CI environment, you can skip the intera
 ```console
 (.venv) $ export GAMESHEET_USERNAME=your-email@example.com
 (.venv) $ export GAMESHEET_PASSWORD=your-password
-(.venv) $ gamesheet-sdk-py login
+(.venv) $ gamesheet-admin login
 Login successful. Tokens saved to /home/you/.config/gamesheet-sdk-py/
 ```
 

@@ -9,7 +9,7 @@ import pytest
 import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
-from gamesheet_sdk.roster import get_player
+from gamesheet_sdk.admin.roster import get_player
 from tests.helpers import (
     CLI_TEST_SEASON_ID,
     DEFAULT_PLAYER_FIRST_NAME,

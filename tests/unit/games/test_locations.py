@@ -9,14 +9,14 @@ import pytest
 import responses
 
 from gamesheet_sdk import Config, Session
-from gamesheet_sdk.constants import DEFAULT_BASE_URL
-from gamesheet_sdk.exceptions import GameSheetError
-from gamesheet_sdk.games import (
+from gamesheet_sdk.admin.games import (
     Location,
     get_location,
     list_locations,
     validate_location,
 )
+from gamesheet_sdk.common.constants import DEFAULT_BASE_URL
+from gamesheet_sdk.common.exceptions import GameSheetError
 from tests.fixtures.constants import (
     TEST_BEARER_TOKEN,
     TEST_CITY,

@@ -46,7 +46,7 @@ The `load_access_token()` function reads the saved token from disk (the one you 
 token = load_access_token()
 ```
 
-This will raise an `AuthenticationError` if the token file doesn't exist. If that happens, run `gamesheet-sdk-py login` first.
+This will raise an `AuthenticationError` if the token file doesn't exist. If that happens, run `gamesheet-admin login` first.
 
 ## Step 4 — Create an authenticated session
 
@@ -97,7 +97,7 @@ Springfield Youth Hockey (ID: 12345)
 Tournament Series 2024 (ID: 67890)
 ```
 
-If it prints your associations, the script is working. If you see `AuthenticationError`, run `gamesheet-sdk-py login` to refresh your tokens.
+If it prints your associations, the script is working. If you see `AuthenticationError`, run `gamesheet-admin login` to refresh your tokens.
 
 ## Step 7 — Fetch leagues for each association
 
@@ -222,7 +222,7 @@ try:
 
 except AuthenticationError as e:
     print(f"Authentication failed: {e}")
-    print("Run 'gamesheet-sdk-py login' to refresh your tokens.")
+    print("Run 'gamesheet-admin login' to refresh your tokens.")
 
 except GameSheetError as e:
     print(f"API error: {e}")

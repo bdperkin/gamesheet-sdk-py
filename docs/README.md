@@ -60,10 +60,11 @@ This is automatically run by `make docs-lint` and in CI.
 
 ### CLI documentation
 
-CLI documentation uses `sphinx-click` to automatically render the click command tree from `gamesheet_sdk.cli:cli`. The rendered documentation always matches the
-shipped binary because it's generated live from the actual click group.
+CLI documentation uses `sphinx-click` to automatically render the click command trees from `gamesheet_sdk.admin.cli.main:cli` and
+`gamesheet_sdk.teams.cli.main:cli`. The rendered documentation always matches the shipped binaries because it's generated live from the actual click groups.
 
-See `docs/reference/cli.md` which uses an `eval-rst` directive with the `click` domain to automatically generate CLI documentation from the code.
+See `docs/reference/cli.md` which uses `eval-rst` directives with the `click` domain to automatically generate CLI documentation for both `gamesheet-admin` and
+`gamesheet-teams` from the code.
 
 ### Custom templates
 

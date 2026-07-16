@@ -9,21 +9,24 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
-from gamesheet_sdk.games import Location
+from gamesheet_sdk.admin.cli.main import cli
+from gamesheet_sdk.admin.games import Location
 
 
 def test_locations_list_basic(runner: CliRunner) -> None:
     """The locations list command should retrieve all locations."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.locations._list_locations_action",
+            "gamesheet_sdk.admin.cli.commands.locations._list_locations_action",
         ) as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = [
             Location(
@@ -44,13 +47,16 @@ def test_locations_list_json_output(runner: CliRunner) -> None:
     """The locations list command should support JSON output."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.locations._list_locations_action",
+            "gamesheet_sdk.admin.cli.commands.locations._list_locations_action",
         ) as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = [
             Location(
@@ -72,13 +78,16 @@ def test_locations_list_alias_ls(runner: CliRunner) -> None:
     """The 'ls' alias should invoke the list command."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.locations._list_locations_action",
+            "gamesheet_sdk.admin.cli.commands.locations._list_locations_action",
         ) as mock_list,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_list.return_value = []
         result = runner.invoke(cli, ["locations", "ls"])

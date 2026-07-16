@@ -15,7 +15,7 @@ import pytest
 import yaml
 
 from gamesheet_sdk import render
-from gamesheet_sdk.output import (
+from gamesheet_sdk.common.output import (
     ALL_FORMATS,
     DATA_FORMATS,
     DEFAULT_FORMAT,
@@ -149,7 +149,7 @@ def test_write_output_to_stdout_non_tty_does_not_invoke_rich(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     """Test that non-TTY output doesn't use rich formatting."""
-    with patch("gamesheet_sdk.output.Console") as mock_console:
+    with patch("gamesheet_sdk.common.output.Console") as mock_console:
         write_output('{"x": 1}', None, fmt="json")
     mock_console.assert_not_called()
     assert '{"x": 1}' in capsys.readouterr().out
@@ -161,8 +161,8 @@ def test_write_output_json_to_tty_uses_rich_syntax(
     """Test that JSON output to TTY uses rich syntax highlighting."""
     monkeypatch.setattr(sys.stdout, "isatty", lambda: True, raising=False)
     with (
-        patch("gamesheet_sdk.output.Console") as mock_console,
-        patch("gamesheet_sdk.output.Syntax") as mock_syntax,
+        patch("gamesheet_sdk.common.output.Console") as mock_console,
+        patch("gamesheet_sdk.common.output.Syntax") as mock_syntax,
     ):
         write_output('{"x": 1}', None, fmt="json")
     mock_console.assert_called_once_with()
@@ -179,8 +179,8 @@ def test_write_output_yaml_to_tty_uses_rich_syntax(
     """Test that YAML output to TTY uses rich syntax highlighting."""
     monkeypatch.setattr(sys.stdout, "isatty", lambda: True, raising=False)
     with (
-        patch("gamesheet_sdk.output.Console") as mock_console,
-        patch("gamesheet_sdk.output.Syntax") as mock_syntax,
+        patch("gamesheet_sdk.common.output.Console") as mock_console,
+        patch("gamesheet_sdk.common.output.Syntax") as mock_syntax,
     ):
         write_output("a: 1\n", None, fmt="yaml")
     mock_console.assert_called_once_with()
@@ -194,7 +194,7 @@ def test_write_output_tabulate_to_tty_does_not_use_rich(
 ) -> None:
     """Tabulate formats are already nicely shaped; no syntax highlighting."""
     monkeypatch.setattr(sys.stdout, "isatty", lambda: True, raising=False)
-    with patch("gamesheet_sdk.output.Console") as mock_console:
+    with patch("gamesheet_sdk.common.output.Console") as mock_console:
         write_output("simple table text", None, fmt="simple")
     mock_console.assert_not_called()
     assert "simple table text" in capsys.readouterr().out
@@ -207,7 +207,7 @@ def test_write_output_to_file_skips_rich_even_on_tty(
     """When a path is given, we never engage rich even if stdout is a TTY."""
     monkeypatch.setattr(sys.stdout, "isatty", lambda: True, raising=False)
     out = tmp_path / "out.json"
-    with patch("gamesheet_sdk.output.Console") as mock_console:
+    with patch("gamesheet_sdk.common.output.Console") as mock_console:
         write_output('{"x": 1}', out, fmt="json")
     mock_console.assert_not_called()
     assert out.read_text() == '{"x": 1}\n'

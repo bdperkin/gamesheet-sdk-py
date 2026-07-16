@@ -9,20 +9,23 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
+from gamesheet_sdk.admin.cli.main import cli
 
 
 def test_scheduled_delete_command(runner: CliRunner) -> None:
     """Test scheduled game delete command."""
     with (
         patch(
-            "gamesheet_sdk.cli.commands.games_scheduled._delete_scheduled_game_action",
+            "gamesheet_sdk.admin.cli.commands.games_scheduled._delete_scheduled_game_action",
         ) as mock_delete,
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_delete.return_value = None
 

@@ -25,7 +25,7 @@ from tests.fixtures.constants import TEST_ERROR_DISK_FULL
 # ---------- construction is lazy / side-effect-free ----------------------
 def test_construction_does_not_start_playwright(config: Config) -> None:
     """Just building a BrowserSession should not touch Playwright."""
-    with patch("gamesheet_sdk.browser.sync_playwright") as mocked:
+    with patch("gamesheet_sdk.common.browser.sync_playwright") as mocked:
         BrowserSession(config)
     mocked.assert_not_called()
 
@@ -155,7 +155,7 @@ def _mock_playwright_chain() -> tuple[MagicMock, MagicMock, MagicMock, MagicMock
 def test_start_launches_chromium_headless_by_default(config: Config) -> None:
     """Test that accessing context launches Chromium in headless mode by default."""
     pw_factory, pw_runtime, browser, context = _mock_playwright_chain()
-    with patch("gamesheet_sdk.browser.sync_playwright", pw_factory):
+    with patch("gamesheet_sdk.common.browser.sync_playwright", pw_factory):
         bs = BrowserSession(config)
         _ = bs.context  # triggers _start
     pw_factory.assert_called_once_with()
@@ -168,7 +168,7 @@ def test_start_passes_headless_false_when_configured(config: Config) -> None:
     """Test that browser_headless=False launches Chromium in headed mode."""
     config.browser_headless = False
     pw_factory, pw_runtime, _, _ = _mock_playwright_chain()
-    with patch("gamesheet_sdk.browser.sync_playwright", pw_factory):
+    with patch("gamesheet_sdk.common.browser.sync_playwright", pw_factory):
         bs = BrowserSession(config)
         _ = bs.context
     pw_runtime.chromium.launch.assert_called_once_with(headless=False)
@@ -181,7 +181,7 @@ def test_start_restores_storage_state_when_file_exists(config: Config) -> None:
     config.browser_state_path.parent.mkdir(parents=True, exist_ok=True)
     config.browser_state_path.write_text(json.dumps(state))
     pw_factory, _, browser, _ = _mock_playwright_chain()
-    with patch("gamesheet_sdk.browser.sync_playwright", pw_factory):
+    with patch("gamesheet_sdk.common.browser.sync_playwright", pw_factory):
         bs = BrowserSession(config)
         _ = bs.context
     browser.new_context.assert_called_once_with(storage_state=state)
@@ -191,7 +191,7 @@ def test_start_restores_storage_state_when_file_exists(config: Config) -> None:
 def test_close_tears_down_in_order(config: Config) -> None:
     """Test that close() tears down browser context, browser, and Playwright in order."""
     pw_factory, pw_runtime, browser, context = _mock_playwright_chain()
-    with patch("gamesheet_sdk.browser.sync_playwright", pw_factory):
+    with patch("gamesheet_sdk.common.browser.sync_playwright", pw_factory):
         bs = BrowserSession(config)
         _ = bs.context  # trigger _start
         bs.close()
@@ -208,7 +208,7 @@ def test_context_manager_saves_on_exit(config: Config) -> None:
     pw_factory, _, _, context = _mock_playwright_chain()
     context.storage_state.return_value = fake_state
     with (
-        patch("gamesheet_sdk.browser.sync_playwright", pw_factory),
+        patch("gamesheet_sdk.common.browser.sync_playwright", pw_factory),
         BrowserSession(config) as bs,
     ):
         _ = bs.context  # force start
@@ -221,7 +221,7 @@ def test_goto_resolves_url_and_returns_page(config: Config) -> None:
     pw_factory, _, _, context = _mock_playwright_chain()
     page = MagicMock(name="page")
     context.new_page.return_value = page
-    with patch("gamesheet_sdk.browser.sync_playwright", pw_factory):
+    with patch("gamesheet_sdk.common.browser.sync_playwright", pw_factory):
         bs = BrowserSession(config)
         returned = bs.goto("/login", wait_until="domcontentloaded")
         bs.close()
@@ -272,7 +272,7 @@ def test_close_handles_save_oserror_gracefully(
 def test_context_returns_same_context_on_subsequent_calls(config: Config) -> None:
     """Test that accessing context property multiple times returns the same context without re-starting."""
     pw_factory, _, _, context = _mock_playwright_chain()
-    with patch("gamesheet_sdk.browser.sync_playwright", pw_factory):
+    with patch("gamesheet_sdk.common.browser.sync_playwright", pw_factory):
         bs = BrowserSession(config)
         ctx1 = bs.context  # first access triggers _start
         ctx2 = bs.context  # second access should return existing context

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from gamesheet_sdk.referees import Referee
+from gamesheet_sdk.admin.referees import Referee
 from tests.helpers import SEASON_ID
 
 

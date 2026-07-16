@@ -1,28 +1,44 @@
 # Command-line Interface
 
-The package installs a `gamesheet-sdk-py` console script whose entry point is {func}`gamesheet_sdk.cli.main`. The subcommand tree below is rendered live from
-the click group {data}`gamesheet_sdk.cli.cli` by `sphinx-click`, so the options always match the shipped binary.
+The package installs two console scripts:
+
+- **`gamesheet-admin`** — CLI for the GameSheet admin dashboard (entry point: {func}`gamesheet_sdk.admin.cli.main.main`)
+- **`gamesheet-teams`** — CLI for the GameSheet teams dashboard (entry point: {func}`gamesheet_sdk.teams.cli.main.main`)
+
+Both CLIs share common infrastructure (authentication, configuration, output formatting) from {mod}`gamesheet_sdk.common`.
 
 ## Rich Help Output
 
-The CLI uses [rich-click](https://github.com/ewels/rich-click) to provide beautifully formatted help output with:
+Both CLIs use [rich-click](https://github.com/ewels/rich-click) to provide beautifully formatted help output with:
 
 - **Grouped options** — Configuration and general options are organized into separate sections for clarity
 - **Grouped commands** — Commands are categorized (Authentication, Resource Management) for easier navigation
 - **Rich formatting** — Tables, borders, and color-coded sections enhance readability
 - **Consistent styling** — All help pages follow the same visual design for a polished experience
 
-The rich-click integration requires minimal customization and works seamlessly with the existing Click-based CLI infrastructure.
+## Admin CLI
+
+The admin CLI provides full resource management for the GameSheet admin dashboard.
 
 ```{eval-rst}
-.. click:: gamesheet_sdk.cli:cli
-    :prog: gamesheet-sdk-py
+.. click:: gamesheet_sdk.admin.cli.main:cli
+    :prog: gamesheet-admin
+    :nested: full
+```
+
+## Teams CLI
+
+The teams CLI targets the GameSheet teams dashboard. Login is not yet implemented.
+
+```{eval-rst}
+.. click:: gamesheet_sdk.teams.cli.main:cli
+    :prog: gamesheet-teams
     :nested: full
 ```
 
 ## Usage Examples
 
-The CLI follows a resource-oriented (noun-first) command structure. Every resource group supports canonical verbs (`create`, `get`, `list`, `update`, `delete`)
+Both CLIs follow a resource-oriented (noun-first) command structure. Every resource group supports canonical verbs (`create`, `get`, `list`, `update`, `delete`)
 with short aliases (`add`/`new`, `show`/`view`, `ls`, `set`/`edit`, `rm`/`remove`).
 
 ### Basic authentication
@@ -30,7 +46,7 @@ with short aliases (`add`/`new`, `show`/`view`, `ls`, `set`/`edit`, `rm`/`remove
 Authenticate with GameSheet and save session tokens:
 
 ```console
-$ gamesheet-sdk-py login --email user@example.com
+$ gamesheet-admin login --email user@example.com
 Password: [hidden input]
 Login successful! Tokens saved.
 ```
@@ -40,7 +56,7 @@ Login successful! Tokens saved.
 List all associations on your account:
 
 ```console
-$ gamesheet-sdk-py associations list
+$ gamesheet-admin associations list
 ID      TITLE                    CREATED AT
 12345   Springfield Youth Hockey 2024-01-15 08:23:45
 ```
@@ -48,13 +64,13 @@ ID      TITLE                    CREATED AT
 Use the `ls` alias for brevity:
 
 ```console
-$ gamesheet-sdk-py associations ls
+$ gamesheet-admin associations ls
 ```
 
 List leagues within an association:
 
 ```console
-$ gamesheet-sdk-py leagues list --association-id 12345
+$ gamesheet-admin leagues list --association-id 12345
 ```
 
 ### Output formats
@@ -62,9 +78,9 @@ $ gamesheet-sdk-py leagues list --association-id 12345
 Change output format using `--format`:
 
 ```console
-$ gamesheet-sdk-py associations list --format json
-$ gamesheet-sdk-py leagues ls --association-id 12345 --format yaml
-$ gamesheet-sdk-py seasons list --league-id 111 --format csv > seasons.csv
+$ gamesheet-admin associations list --format json
+$ gamesheet-admin leagues ls --association-id 12345 --format yaml
+$ gamesheet-admin seasons list --league-id 111 --format csv > seasons.csv
 ```
 
 Supported formats: `json`, `yaml`, `csv`, `tsv`, plus thirteen `tabulate` table formats (see `--help` for the full list).
@@ -74,9 +90,9 @@ Supported formats: `json`, `yaml`, `csv`, `tsv`, plus thirteen `tabulate` table 
 Enable info-level logging with `-v`, debug-level with `-vv`:
 
 ```console
-$ gamesheet-sdk-py -v associations list
-INFO:gamesheet_sdk.session:GET https://gamesheet.app/api/associations
-INFO:gamesheet_sdk.session:Response: 200 OK
+$ gamesheet-admin -v associations list
+INFO:gamesheet_sdk.common.session:GET https://gamesheet.app/api/associations
+INFO:gamesheet_sdk.common.session:Response: 200 OK
 ```
 
 The verbosity flag is a global option and must precede the resource name.
@@ -86,7 +102,7 @@ The verbosity flag is a global option and must precede the resource name.
 Show the browser window during headless operations (useful for debugging):
 
 ```console
-$ gamesheet-sdk-py --no-headless login --email user@example.com
+$ gamesheet-admin --no-headless login --email user@example.com
 ```
 
 ### Shell completion
@@ -94,16 +110,16 @@ $ gamesheet-sdk-py --no-headless login --email user@example.com
 Generate a completion script for your shell:
 
 ```console
-$ gamesheet-sdk-py completion bash > ~/.bash_completion.d/gamesheet-sdk-py
-$ gamesheet-sdk-py completion zsh > ~/.zsh/completion/_gamesheet-sdk-py
-$ gamesheet-sdk-py completion fish > ~/.config/fish/completions/gamesheet-sdk-py.fish
+$ gamesheet-admin completion bash > ~/.bash_completion.d/gamesheet-admin
+$ gamesheet-admin completion zsh > ~/.zsh/completion/_gamesheet-admin
+$ gamesheet-admin completion fish > ~/.config/fish/completions/gamesheet-admin.fish
 ```
 
 Then source the script in your shell configuration file.
 
 ## Return Codes
 
-The CLI follows Unix exit-code conventions:
+Both CLIs follow Unix exit-code conventions:
 
 | Code | Meaning                                                                                 |
 | ---- | --------------------------------------------------------------------------------------- |
@@ -111,7 +127,8 @@ The CLI follows Unix exit-code conventions:
 | 1    | General error. Authentication failed, resource not found, network error, or user abort. |
 | 2    | Usage error. Invalid arguments, missing required options, or unknown command/option.    |
 
-Exit codes are resolved by {func}`gamesheet_sdk.cli.core.resolve_exit` and {func}`gamesheet_sdk.cli.core.resolve_system_exit` from click exceptions:
+Exit codes are resolved by {func}`gamesheet_sdk.common.cli.core.resolve_exit` and {func}`gamesheet_sdk.common.cli.core.resolve_system_exit` from click
+exceptions:
 
 - {class}`click.exceptions.Exit` — mapped to its `exit_code` attribute.
 - {class}`click.exceptions.UsageError` — always returns 2 (after displaying the error message).
@@ -120,12 +137,12 @@ Exit codes are resolved by {func}`gamesheet_sdk.cli.core.resolve_exit` and {func
 
 ## Environment Variables
 
-The CLI reads configuration from `GAMESHEET_`-prefixed environment variables via {class}`gamesheet_sdk.config.Config` (implemented with `pydantic-settings`).
-Values are resolved in this precedence order:
+Both CLIs read configuration from `GAMESHEET_`-prefixed environment variables via {class}`gamesheet_sdk.common.config.Config` (implemented with
+`pydantic-settings`). Values are resolved in this precedence order:
 
 1. Command-line arguments (`--base-url`, `--email`, `--password`, etc.)
 2. Environment variables
-3. Field defaults defined in {class}`~gamesheet_sdk.config.Config`
+3. Field defaults defined in {class}`~gamesheet_sdk.common.config.Config`
 
 ### Supported variables
 
@@ -147,6 +164,7 @@ Values are resolved in this precedence order:
 - `$XDG_CACHE_HOME` defaults to `~/.cache` on Linux/macOS if the variable is not set. On Windows, the analogous user cache directory is used.
 - `GAMESHEET_PASSWORD` is stored as a {class}`pydantic.SecretStr` to prevent accidental logging.
 - Boolean environment variables accept `1`/`true`/`yes` (case-insensitive) for True, `0`/`false`/`no` for False.
+- The admin CLI defaults `GAMESHEET_BASE_URL` to `https://gamesheet.app`; the teams CLI defaults to `https://teams.gamesheet.app`.
 
 ### Example usage
 
@@ -154,16 +172,16 @@ Values are resolved in this precedence order:
 # Authenticate using environment variables instead of prompts
 export GAMESHEET_USERNAME="user@example.com"
 export GAMESHEET_PASSWORD="secret"
-gamesheet-sdk-py login
+gamesheet-admin login
 
 # Use a custom base URL and increase timeout
 export GAMESHEET_BASE_URL="https://custom.gamesheet.app"
 export GAMESHEET_TIMEOUT="60.0"
-gamesheet-sdk-py associations list
+gamesheet-admin associations list
 
 # Disable SSL verification (not recommended for production)
 export GAMESHEET_VERIFY_SSL="false"
-gamesheet-sdk-py login
+gamesheet-admin login
 ```
 
 ## Configuration File Support
@@ -171,7 +189,7 @@ gamesheet-sdk-py login
 A TOML configuration file source is **not yet implemented**. Currently, configuration is resolved only from command-line arguments and environment variables.
 
 Future releases may add support for a `~/.config/gamesheet-sdk-py/config.toml` file (XDG-compliant path) by overriding `settings_customise_sources` in
-{class}`~gamesheet_sdk.config.Config`. When implemented, the precedence order will be:
+{class}`~gamesheet_sdk.common.config.Config`. When implemented, the precedence order will be:
 
 1. Command-line arguments (highest priority)
 2. Environment variables
@@ -182,7 +200,8 @@ For now, use environment variables or CLI flags to configure the SDK. See the {r
 
 ## See also
 
-- {mod}`gamesheet_sdk.cli` — CLI module reference with full API documentation.
+- {mod}`gamesheet_sdk.admin.cli` — Admin CLI module reference.
+- {mod}`gamesheet_sdk.teams.cli` — Teams CLI module reference.
 - {doc}`api` — Complete API reference for all SDK modules.
 - {doc}`../tutorials/using-cli-commands` — Step-by-step tutorial for using CLI commands.
 - {doc}`../how-to/index` — Task-oriented guides for common workflows.

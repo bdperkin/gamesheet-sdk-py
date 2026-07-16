@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
-from gamesheet_sdk.cli.commands import completion_command
+from gamesheet_sdk.admin.cli.commands import completion_command
+from gamesheet_sdk.admin.cli.main import cli
 
 
 def test_completion_command_exists(runner: CliRunner) -> None:

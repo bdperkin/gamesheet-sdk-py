@@ -60,6 +60,8 @@ help: ## Show this help message
 		"VENV"    "Virtualenv directory" "$(VENV)"
 	@printf "  $(CYAN)%-20s$(RESET) %s (current: $(GREEN)%s$(RESET))\n" \
 		"DOCKER_TAG" "Docker image tag" "$(DOCKER_TAG)"
+	@printf "  $(CYAN)%-20s$(RESET) %s (current: $(GREEN)%s$(RESET))\n" \
+		"DOCKER_CMD" "Docker run command (e.g., gamesheet-admin --help)" "$(or $(DOCKER_CMD),(default))"
 	@printf "\n$(BOLD)Targets:$(RESET)\n"
 	@awk 'BEGIN {FS = ":.*?## "} \
 			/^[a-zA-Z_-]+:.*?## / { \
@@ -252,10 +254,12 @@ docker-build: ## Build Docker image locally
 	@printf "  run with: $(YELLOW)make docker-run$(RESET)\n"
 	@printf "  push with: $(YELLOW)make docker-push$(RESET) (requires authentication)\n"
 
+DOCKER_CMD         ?=
+
 .PHONY: docker-run
-docker-run: ## Run Docker container locally
+docker-run: ## Run Docker container locally (DOCKER_CMD="gamesheet-admin --help")
 	@printf "$(CYAN)→$(RESET) running container: $(GREEN)$(DOCKER_FULL_IMAGE)$(RESET)\n"
-	docker run --rm -it $(DOCKER_FULL_IMAGE)
+	docker run --rm -it $(DOCKER_FULL_IMAGE) $(DOCKER_CMD)
 
 .PHONY: docker-push
 docker-push: ## Push Docker image to registry (requires authentication)

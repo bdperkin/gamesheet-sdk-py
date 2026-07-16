@@ -16,13 +16,13 @@ def test_games_scheduled_get_coverage() -> None:
     """Ensure games scheduled get command body is covered."""
     from unittest.mock import MagicMock
 
-    from gamesheet_sdk.cli.commands.games import games_group
+    from gamesheet_sdk.admin.cli.commands.games import games_group
 
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.commands.games_scheduled.run_action_or_exit",
             return_value=MagicMock(
                 model_dump=lambda **__kw: {
                     "id": 123,
@@ -31,7 +31,7 @@ def test_games_scheduled_get_coverage() -> None:
                 },
             ),
         ),
-        patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
+        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.render_get_command"),
     ):
         result = runner.invoke(
             games_group,

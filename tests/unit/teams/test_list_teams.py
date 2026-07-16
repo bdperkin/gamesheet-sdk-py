@@ -1,7 +1,7 @@
 # Copyright (c) 2026 bdperkin
 # SPDX-License-Identifier: MIT
 
-"""Tests for :mod:`gamesheet_sdk.teams`."""
+"""Tests for :mod:`gamesheet_sdk.admin.teams`."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ from gamesheet_sdk import (
     Session,
     list_teams,
 )
-from gamesheet_sdk.teams import Team
+from gamesheet_sdk.admin.teams import Team
 from tests.helpers import (
     JSONAPI_CONTENT_TYPE,
     SEASON_ID,

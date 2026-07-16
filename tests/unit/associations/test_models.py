@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from gamesheet_sdk.associations import Association
+from gamesheet_sdk.admin.associations import Association
 
 
 def test_association_model_ignores_unknown_attributes() -> None:

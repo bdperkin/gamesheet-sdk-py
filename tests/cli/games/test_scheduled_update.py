@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
+from gamesheet_sdk.admin.cli.main import cli
 
 
 def _mock_current_game() -> MagicMock:
@@ -53,16 +53,19 @@ def _mock_updated_game() -> MagicMock:
 def test_scheduled_update_command(runner: CliRunner) -> None:
     """Test scheduled game update command with new start time."""
     with (
-        patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.commands.games_scheduled.run_action_or_exit",
         ) as mock_run,
-        patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
+        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.render_get_command"),
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_run.side_effect = [_mock_current_game(), _mock_updated_game()]
 
@@ -95,16 +98,19 @@ def test_scheduled_update_command(runner: CliRunner) -> None:
 def test_update_with_duration_only(runner: CliRunner) -> None:
     """Test update with --duration only recomputes end from current start."""
     with (
-        patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.commands.games_scheduled.run_action_or_exit",
         ) as mock_run,
-        patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
+        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.render_get_command"),
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_run.side_effect = [_mock_current_game(), _mock_updated_game()]
 
@@ -133,18 +139,21 @@ def test_update_with_duration_only(runner: CliRunner) -> None:
 def test_update_with_split_start_inputs(runner: CliRunner) -> None:
     """Test update with --start-date + --start-time split inputs."""
     with (
-        patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.commands.games_scheduled.run_action_or_exit",
         ) as mock_run,
-        patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
+        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.render_get_command"),
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
         patch(
-            "gamesheet_sdk.cli.shared.datetime_helpers.get_local_timezone_offset",
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
+        patch(
+            "gamesheet_sdk.admin.cli.shared.datetime_helpers.get_local_timezone_offset",
             return_value=-240,
         ),
     ):
@@ -199,16 +208,19 @@ def test_update_conflict_options_raises(runner: CliRunner) -> None:
 def test_update_no_time_changes(runner: CliRunner) -> None:
     """Test update with only non-time fields preserves current times."""
     with (
-        patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.commands.games_scheduled.run_action_or_exit",
         ) as mock_run,
-        patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
+        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.render_get_command"),
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_run.side_effect = [_mock_current_game(), _mock_updated_game()]
 
@@ -237,16 +249,19 @@ def test_update_no_time_changes(runner: CliRunner) -> None:
 def test_update_end_and_duration(runner: CliRunner) -> None:
     """Test update with --end-datetime + --duration computes new start."""
     with (
-        patch("gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.commands.games_scheduled.run_action_or_exit",
         ) as mock_run,
-        patch("gamesheet_sdk.cli.commands.games_scheduled.render_get_command"),
+        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.render_get_command"),
         patch(
-            "gamesheet_sdk.cli.helpers.load_refresh_token",
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
         ),
-        patch("gamesheet_sdk.cli.helpers.load_access_token", return_value="bearer-tok"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="bearer-tok",
+        ),
     ):
         mock_run.side_effect = [_mock_current_game(), _mock_updated_game()]
 

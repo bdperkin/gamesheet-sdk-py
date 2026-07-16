@@ -11,7 +11,7 @@ import pytest
 import responses
 
 from gamesheet_sdk import AuthenticationError, Config, GameSheetError, Session
-from gamesheet_sdk.referees import list_referees
+from gamesheet_sdk.admin.referees import list_referees
 from tests.helpers import (
     DEFAULT_COACH_LAST_NAME,
     DEFAULT_PLAYER_FIRST_NAME,

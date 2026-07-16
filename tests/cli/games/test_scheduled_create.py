@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from gamesheet_sdk.cli import cli
+from gamesheet_sdk.admin.cli.main import cli
 from tests.fixtures.constants import (
     TEST_ACCESS_TOKEN,
     TEST_LOCATION_NAME,
@@ -22,13 +22,13 @@ from tests.fixtures.constants import (
 )
 
 _CREATE_MOCKS = (
-    "gamesheet_sdk.cli.commands.games_scheduled.build_authenticated_session",
-    "gamesheet_sdk.cli.commands.games_scheduled.run_action_or_exit",
-    "gamesheet_sdk.cli.commands.games_scheduled.get_local_timezone_name",
-    "gamesheet_sdk.cli.commands.games_scheduled.get_local_timezone_offset",
-    "gamesheet_sdk.cli.commands.games_scheduled.render_get_command",
-    "gamesheet_sdk.cli.helpers.load_refresh_token",
-    "gamesheet_sdk.cli.helpers.load_access_token",
+    "gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session",
+    "gamesheet_sdk.admin.cli.commands.games_scheduled.run_action_or_exit",
+    "gamesheet_sdk.admin.cli.commands.games_scheduled.get_local_timezone_name",
+    "gamesheet_sdk.admin.cli.commands.games_scheduled.get_local_timezone_offset",
+    "gamesheet_sdk.admin.cli.commands.games_scheduled.render_get_command",
+    "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
+    "gamesheet_sdk.admin.cli.helpers.load_access_token",
 )
 
 
@@ -244,7 +244,7 @@ def test_create_with_split_date_time(runner: CliRunner) -> None:
         patch(_CREATE_MOCKS[5], return_value=TEST_REFRESH_TOKEN),
         patch(_CREATE_MOCKS[6], return_value=TEST_ACCESS_TOKEN),
         patch(
-            "gamesheet_sdk.cli.shared.datetime_helpers.get_local_timezone_offset",
+            "gamesheet_sdk.admin.cli.shared.datetime_helpers.get_local_timezone_offset",
             return_value=-240,
         ),
     ):
@@ -500,7 +500,7 @@ def test_create_natural_language_date(runner: CliRunner) -> None:
         patch(_CREATE_MOCKS[5], return_value=TEST_REFRESH_TOKEN),
         patch(_CREATE_MOCKS[6], return_value=TEST_ACCESS_TOKEN),
         patch(
-            "gamesheet_sdk.cli.shared.datetime_helpers.get_local_timezone_offset",
+            "gamesheet_sdk.admin.cli.shared.datetime_helpers.get_local_timezone_offset",
             return_value=-240,
         ),
     ):

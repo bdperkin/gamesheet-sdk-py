@@ -32,7 +32,7 @@ def test_version_fallback_when_package_not_found() -> None:
         import gamesheet_sdk as gs
 
         # The fallback version should be set
-        assert gs.__version__ == "0+unknown"  # noqa: S101
+        assert gs.__version__ == "0+unknown"
 
     # Clean up: remove from sys.modules again
     if "gamesheet_sdk" in sys.modules:
@@ -43,4 +43,4 @@ def test_version_fallback_when_package_not_found() -> None:
     import gamesheet_sdk
 
     # Verify it's back to normal
-    assert gamesheet_sdk.__version__ == original_version  # noqa: S101
+    assert gamesheet_sdk.__version__ == original_version
