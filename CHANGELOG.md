@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.1 (2026-07-16)
+
+### Bug Fixes
+
+- **release**: Make all commit types produce patch bumps only
+  ([`00b453b`](https://github.com/bdperkin/gamesheet-sdk-py/commit/00b453b77feeb430ede9176d5c450aa37c1d54ae))
+
+### Chores
+
+- **security**: Suppress 3 Perl CVEs in container base image
+  ([`6da8ee8`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6da8ee84df91185e73795aa5829770e016ec4df3))
+
 ## v0.4.0 (2026-07-16)
 
 ### Documentation
