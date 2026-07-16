@@ -2,6 +2,47 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.0 (2026-07-16)
+
+### Documentation
+
+- Update Dockerfile, README, CLAUDE.md, SUPPORT.md, Makefile, and tox.ini for dual-CLI
+  ([`3b4a1c3`](https://github.com/bdperkin/gamesheet-sdk-py/commit/3b4a1c32917afa2c67b20583bcfce8fd4868f6b7))
+
+### Features
+
+- **auth**: Add AdminLoginFlow as concrete LoginFlow implementation
+  ([`dee6213`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dee62138fb0d458f3940d8397a2fc8c46d18c849))
+
+- **auth**: Add LoginFlow protocol for pluggable authentication strategies
+  ([`1363119`](https://github.com/bdperkin/gamesheet-sdk-py/commit/13631191bf317c8c2af9818b74b8ca0c69707b6b))
+
+- **auth**: Add teams token refresh via POST /api/auth/refresh
+  ([`5c08ee1`](https://github.com/bdperkin/gamesheet-sdk-py/commit/5c08ee1463c6a81b69e927d0f9225f971b2464dc))
+
+- **auth**: Add TeamsLoginFlow with HTTP-only login and shared auth helpers
+  ([`c5f54c3`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c5f54c3749115cf04a05080339f1e9792d9408a4))
+
+- **cli**: Add lookups domain module and CLI commands for gamesheet-teams
+  ([`0957ac6`](https://github.com/bdperkin/gamesheet-sdk-py/commit/0957ac6fd84f0ddd691d63ded9bbb21745dbc87b))
+
+- **cli**: Harmonize help formatting and add lookups get subcommand
+  ([`50c6e76`](https://github.com/bdperkin/gamesheet-sdk-py/commit/50c6e7616b0101f7cf18cbf0eb7e27a54882a287))
+
+- **cli**: Split into dual-CLI architecture (gamesheet-admin + gamesheet-teams)
+  ([`2ea40dc`](https://github.com/bdperkin/gamesheet-sdk-py/commit/2ea40dcecfb93a61b9ee78d9d008dccd811db72c))
+
+- **cli**: Wire gamesheet-teams login to TeamsLoginFlow
+  ([`83970ac`](https://github.com/bdperkin/gamesheet-sdk-py/commit/83970acad8da7f53f66c6b833e7ac6b5c3dc6a1c))
+
+### Refactoring
+
+- **auth**: Extract BaseAuthenticatedSession to de-duplicate session code
+  ([`2d3b97f`](https://github.com/bdperkin/gamesheet-sdk-py/commit/2d3b97fe91ef46471cb8813a1cbf294a7b0fc72e))
+
+- **shared**: Move jsonapi.py from common/shared/ to admin/shared/
+  ([`cbcf42d`](https://github.com/bdperkin/gamesheet-sdk-py/commit/cbcf42dc5166141478a875ffc7fa30dce9e678de))
+
 ## v0.3.0 (2026-07-14)
 
 ### Chores
