@@ -164,12 +164,15 @@ CVE-2026-50811  # Out-of-bounds read vulnerability in FreeType 2.14.3+
 # Impact: None — Perl is a build/system dependency, not invoked by Python SDK
 #         The HTTP::Tiny credential forwarding issue doesn't affect Python code
 CVE-2026-7017   # HTTP::Tiny forwards credential headers to redirects
+CVE-2026-13221  # Silently incorrect regex results through Perl 5.43.9
+CVE-2026-57432  # Integer overflow in S_measure_struct (Storable)
+CVE-2026-57433  # Signed integer overflow in Storable before 3.41
 
 # ==============================================================================
 # Review Schedule
 # ==============================================================================
-# Last reviewed: 2026-07-08
-# Next review: 2026-10-08 (quarterly)
-# Reviewer: Added 9 new CVEs for X11/Xvfb/FreeType/Perl - all container base
-#           image dependencies with no fixed versions available in Debian stable
+# Last reviewed: 2026-07-16
+# Next review: 2026-10-16 (quarterly)
+# Reviewer: Added 3 Perl CVEs (CVE-2026-13221, CVE-2026-57432, CVE-2026-57433)
+#           all container base image dependencies with no fixed versions
 # ==============================================================================
