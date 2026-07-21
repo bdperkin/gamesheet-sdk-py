@@ -7,15 +7,24 @@ ______________________________________________________________________
 
 ## Phase 1: Discovery (no code changes) — COMPLETE
 
-- [x] **Auth flow** — Both admin and teams use the same Firebase project (`gamesheet-production`, apiKey `AIzaSyCk5pKBFxvCMuwPchzXgvvz4XmmscJTvs8`). Teams auth
-  is HTTP-only (no browser needed): Firebase REST `signInWithPassword` → `GET /api/auth/tokens` (Bearer ID token) → access+refresh tokens. Refresh via
-  `POST /api/auth/refresh` (Bearer refresh token). Three auth methods: email/password, OTP, Google/Apple sign-in. Ten auth endpoints total under `/api/auth/*`.
+- [x] **Auth flow** — Both admin and teams use the same Firebase project:
+
+  ```text
+  (`gamesheet-production`, apiKey `AIzaSyCk5pKBFxvCMuwPchzXgvvz4XmmscJTvs8`)  # notsecret
+  ```
+
+  Teams auth is HTTP-only (no browser needed): Firebase REST `signInWithPassword` → `GET /api/auth/tokens` (Bearer ID token) → access+refresh tokens. Refresh
+  via `POST /api/auth/refresh` (Bearer refresh token). Three auth methods: email/password, OTP, Google/Apple sign-in. Ten auth endpoints total under
+  `/api/auth/*`.
+
 - [x] **API surface** — ~80 pure REST/JSON endpoints through a single gateway (`https://api.teams.gamesheet.app`). No JSON:API, no GraphQL, no BFF. All calls
   use `Authorization: Bearer <access_token>`. Auto-refresh on 401 via fetch wrapper. Response envelope: `{success: true, <resource>: ...}` or
   `{success: true, data: ...}`. Errors: `{error: "msg"}` or `{errors: [{message: "..."}]}`. Contrast with admin's 4+ backends and JSON:API format.
+
 - [x] **ID format** — Dual-ID system for teams: integer `.id` (internal) + string `.teamId`/`.prototeamId` (primary routing key, likely UUID). Most resources
   (games, seasons, divisions, members, players, coaches) use integer IDs. Conversations and calendar events use string IDs. Registries use UUIDs.
   Recommendation: use `str` for all IDs in pydantic models (matching admin convention), which may eliminate the need for Phase 5 entirely.
+
 - [x] **Resource inventory** — Nine sections cataloged: Schedule (games, practices, events, calendar subscribe, availability RSVP, scoresheets), Roster
   (players, coaches, CSV/HCR/USAH import), Messages (conversations, DMs, groups, attachments, reactions), Members (staff + follower invitations, code-based
   join), Lineups (playing/not-playing, starter goalie, coach signatures, sign & publish), Team Management (create/edit/archive, seasons, divisions, leagues,
