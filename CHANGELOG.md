@@ -2,6 +2,19 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.3 (2026-07-21)
+
+### Bug Fixes
+
+- **deps**: Pin mirrors-mypy to v2.1.0 for corporate mirror compat
+  ([`ad43f05`](https://github.com/bdperkin/gamesheet-sdk-py/commit/ad43f053a282a294dc08532d13a527bdafa77f55))
+
+- **deps**: Pin mirrors-mypy to v2.1.0 for corporate mirror compat
+  ([`79ca66a`](https://github.com/bdperkin/gamesheet-sdk-py/commit/79ca66a4612c101fd1dc099f71a398ab0ccce30d))
+
+- **deps**: Pin mirrors-mypy to v2.1.0 for corporate mirror compat
+  ([`0b34476`](https://github.com/bdperkin/gamesheet-sdk-py/commit/0b344768c5ae3c59f71aad40801605163f90d93a))
+
 ## v0.4.2 (2026-07-21)
 
 ### Bug Fixes
