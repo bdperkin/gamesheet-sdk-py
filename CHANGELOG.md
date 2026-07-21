@@ -2,6 +2,23 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.2 (2026-07-21)
+
+### Bug Fixes
+
+- **deps**: Pin mirrors-mypy to v2.1.0 and fix lookups test assertion
+  ([`20a3f3d`](https://github.com/bdperkin/gamesheet-sdk-py/commit/20a3f3d1a0c1ba06913ecb2fcb32190eea773b57))
+
+### Chores
+
+- **deps**: Update pre-commit hooks ([`8b1c987`](https://github.com/bdperkin/gamesheet-sdk-py/commit/8b1c98766fef8b7d2e3a160383cd67dac591e654))
+
+- **deps)(deps**: Bump actions/setup-python from 6.3.0 to 7.0.0
+  ([`f64cc8a`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f64cc8a1619b4e74b9c6dcc4568b8c1385276f77))
+
+- **deps)(deps**: Bump the actions group with 4 updates
+  ([`c6dee92`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c6dee9264792d165a3f0bcdf6c190e7930bcd0d7))
+
 ## v0.4.1 (2026-07-16)
 
 ### Bug Fixes
