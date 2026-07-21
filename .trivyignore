@@ -26,6 +26,7 @@
 #   - Decompress untrusted archives via gzip
 #   - Use PKCS#11 tokens or crypto smartcards
 #   - Invoke LLVM toolchain at runtime
+#   - Use SQLite databases (libsqlite3 Session Extension not exploitable)
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -168,11 +169,20 @@ CVE-2026-13221  # Silently incorrect regex results through Perl 5.43.9
 CVE-2026-57432  # Integer overflow in S_measure_struct (Storable)
 CVE-2026-57433  # Signed integer overflow in Storable before 3.41
 
+# ------------------------------------------------------------------------------
+# libsqlite3 — SQLite database library (not used by this project)
+# ------------------------------------------------------------------------------
+# Status: No fixed version available in Debian stable
+# Impact: None — project does not use SQLite; the Session Extension affected by
+#         CVE-2026-50812 is not exposed by Python's sqlite3 stdlib binding
+CVE-2026-50812  # NULL pointer dereference in SQLite Session Extension
+CVE-2026-50813  # Local issue in SQLite (pre Fossil check-in 869a51ae84df)
+
 # ==============================================================================
 # Review Schedule
 # ==============================================================================
-# Last reviewed: 2026-07-16
-# Next review: 2026-10-16 (quarterly)
-# Reviewer: Added 3 Perl CVEs (CVE-2026-13221, CVE-2026-57432, CVE-2026-57433)
-#           all container base image dependencies with no fixed versions
+# Last reviewed: 2026-07-21
+# Next review: 2026-10-21 (quarterly)
+# Reviewer: Added 2 SQLite CVEs (CVE-2026-50812, CVE-2026-50813)
+#           container base image libsqlite3-0, no fixed versions
 # ==============================================================================

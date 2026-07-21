@@ -386,7 +386,7 @@ repos:
           - gamesheet-sdk-py[pyright]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.3.0
+    rev: v2.1.0
     hooks:
       - id: mypy
         args: ["--strict"]
