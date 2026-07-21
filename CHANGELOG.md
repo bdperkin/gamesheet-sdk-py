@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.4 (2026-07-21)
+
+### Bug Fixes
+
+- **security**: Annotate Firebase API key as notsecret
+  ([`b5bcbbd`](https://github.com/bdperkin/gamesheet-sdk-py/commit/b5bcbbddd811d3b99f569cb17d3ab5f69967a852))
+
 ## v0.4.3 (2026-07-21)
 
 ### Bug Fixes
