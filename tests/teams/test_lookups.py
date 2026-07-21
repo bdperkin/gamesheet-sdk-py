@@ -135,7 +135,7 @@ def test_list_lookups_empty_data() -> None:
 
     result = list_lookups(timeout=1.0)
 
-    assert result == {}
+    assert not result
 
 
 @responses.activate
