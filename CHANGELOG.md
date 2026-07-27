@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.5 (2026-07-27)
+
+### Bug Fixes
+
+- **errors**: Drop stray trailing comma making error messages tuples ([#162](https://github.com/bdperkin/gamesheet-sdk-py/pull/162),
+  [`b94376b`](https://github.com/bdperkin/gamesheet-sdk-py/commit/b94376be04d49d9dd221d8cf2ee49b27f56eaa4d))
+
+### Code Style
+
+- **config**: Reorder [tool.pyproject-fmt] keys for pyproject-fmt 2.26.0 ([#162](https://github.com/bdperkin/gamesheet-sdk-py/pull/162),
+  [`b94376b`](https://github.com/bdperkin/gamesheet-sdk-py/commit/b94376be04d49d9dd221d8cf2ee49b27f56eaa4d))
+
 ## v0.4.4 (2026-07-21)
 
 ### Bug Fixes
