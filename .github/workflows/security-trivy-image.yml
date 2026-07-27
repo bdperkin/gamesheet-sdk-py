@@ -1,0 +1,136 @@
+---
+# ╔══════════════════════════════════════════════════════════════════════════════════════════╗
+# ║ GitHub Actions Workflow                                                                  ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Name      │ Security - Trivy Container Image Scan                                        ║
+# ║ Category  │ Security - Container Vulnerability Scanning                                  ║
+# ║ Purpose   │ Build the container image and scan it for OS-package CVEs. Gates PRs         ║
+# ║           │ that touch the Dockerfile, and keeps the Security tab's image findings       ║
+# ║           │ fresh between releases.                                                      ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Action    │ aquasecurity/trivy-action (image mode)                                       ║
+# ║ Trigger   │ pull_request: paths=[Dockerfile, .dockerignore,                              ║
+# ║           │ .trivyignore.yaml, this workflow] — gate only, no SARIF                      ║
+# ║           │ schedule: weekly on Mondays at 9:30 AM UTC — gate + SARIF                    ║
+# ║           │ workflow_dispatch: manual run — gate + SARIF                                 ║
+# ║ Runs on   │ ubuntu-latest                                                                ║
+# ║ Jobs      │ trivy-image (docker build + Trivy scan)                                      ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Permissions                                                                              ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ contents: read        │ Checkout repository                                              ║
+# ║ security-events: write│ Upload SARIF (non-PR runs only)                                  ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Key Features                                                                             ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • Builds the real multi-stage image (linux/amd64) so the scan sees the                   ║
+# ║   actual installed Debian package set, not just the Dockerfile text                      ║
+# ║ • Two-pass pattern mirroring trivy-fs: informational table for all                       ║
+# ║   severities, then a gate that fails on CRITICAL/HIGH                                    ║
+# ║ • Weekly schedule catches base-image CVEs that appear with no repo change                ║
+# ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+# ║ Notes                                                                                    ║
+# ╟──────────────────────────────────────────────────────────────────────────────────────────╢
+# ║ • SARIF is uploaded with NO category, i.e. into the same analysis stream                 ║
+# ║   release.yml uses. That refreshes the existing image findings instead of                ║
+# ║   creating a second parallel alert stream for the same image.                            ║
+# ║ • Why this workflow uploads at all: release.yml's build-container job is                 ║
+# ║   gated on `needs.version.outputs.released == 'true'`, and PSR only                      ║
+# ║   releases on feat:/fix:/perf:. Without an upload here, a run of ci:- or                 ║
+# ║   chore:-only commits would never refresh image findings, leaving stale                  ║
+# ║   alerts open indefinitely. The weekly run bounds that staleness to 7 days;              ║
+# ║   workflow_dispatch clears it on demand.                                                 ║
+# ║ • PR runs deliberately skip the upload — a PR should gate, not mutate the                ║
+# ║   repository's alert state.                                                              ║
+# ║ • .trivyignore.yaml must be passed explicitly — Trivy auto-detects a plain               ║
+# ║   `.trivyignore` but not the YAML form (verified against trivy 0.69.3).                  ║
+# ║ • Single-platform build; release.yml builds linux/amd64 + linux/arm64.                   ║
+# ║   OS-package CVEs are identical across both, so amd64 is representative.                 ║
+# ╚══════════════════════════════════════════════════════════════════════════════════════════╝
+
+name: Security - Trivy Container Image Scan
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - "Dockerfile"
+      - ".dockerignore"
+      - ".trivyignore.yaml"
+      - ".github/workflows/security-trivy-image.yml"
+  schedule:
+    # Run weekly on Mondays at 9:30 AM UTC, 30 minutes after the filesystem
+    # scan, to pick up base-image CVEs published since the last run.
+    - cron: "30 9 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  trivy-image:
+    name: Trivy container image scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Needed only by the SARIF upload step, which is skipped on PR runs.
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build container image
+        run: |
+          docker build --tag gamesheet-sdk-py:scan-candidate .
+
+      - name: Run Trivy image scan (informational)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: "image"
+          image-ref: "gamesheet-sdk-py:scan-candidate"
+          format: "table"
+          severity: "CRITICAL,HIGH,MEDIUM"
+          exit-code: "0" # Report only; the gate below decides pass/fail
+          # Required: Trivy auto-loads `.trivyignore` but not `.trivyignore.yaml`
+          trivyignores: ".trivyignore.yaml"
+
+      # SARIF refresh runs BEFORE the gate so that a CRITICAL/HIGH failure still
+      # leaves the Security tab up to date rather than silently stale.
+      - name: Run Trivy image scan (SARIF)
+        if: github.event_name != 'pull_request'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: "image"
+          image-ref: "gamesheet-sdk-py:scan-candidate"
+          format: "sarif"
+          output: "trivy-image-results.sarif"
+          exit-code: "0"
+          # Required: Trivy auto-loads `.trivyignore` but not `.trivyignore.yaml`
+          trivyignores: ".trivyignore.yaml"
+
+      - name: Upload Trivy image results to GitHub Security
+        if: github.event_name != 'pull_request'
+        uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4.37.3
+        with:
+          sarif_file: "trivy-image-results.sarif"
+          # No `category:` on purpose — this must land in the same analysis
+          # stream as release.yml's image scan so findings are refreshed rather
+          # than duplicated into a second parallel alert set.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Trivy image scan (fail on CRITICAL/HIGH)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: "image"
+          image-ref: "gamesheet-sdk-py:scan-candidate"
+          format: "table"
+          severity: "CRITICAL,HIGH"
+          exit-code: "1" # Fail on unsuppressed critical/high findings
+          # Required: Trivy auto-loads `.trivyignore` but not `.trivyignore.yaml`
+          trivyignores: ".trivyignore.yaml"

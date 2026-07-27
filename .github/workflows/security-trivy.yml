@@ -26,7 +26,7 @@
 # ║   - Scans filesystem for vulnerabilities in dependencies (pyproject.toml, lock files)    ║
 # ║   - Severity: CRITICAL, HIGH, MEDIUM (SARIF report uploaded to Security tab)             ║
 # ║   - Second pass fails workflow on CRITICAL/HIGH findings (exit-code: 1)                  ║
-# ║   - Uses .trivyignore for suppressed container base image CVEs                           ║
+# ║   - Passes .trivyignore.yaml explicitly (that filename is not auto-detected)             ║
 # ║ • trivy-config job:                                                                      ║
 # ║   - Scans configuration files (YAML, Dockerfile, etc.) for misconfigurations             ║
 # ║   - Reports findings without failing build (exit-code: 0)                                ║
@@ -45,8 +45,9 @@
 # ╠══════════════════════════════════════════════════════════════════════════════════════════╣
 # ║ Notes                                                                                    ║
 # ╟──────────────────────────────────────────────────────────────────────────────────────────╢
-# ║ • .trivyignore file suppresses unfixable container base image CVEs (documented in        ║
-# ║   commit messages; see CLAUDE.md security section)                                       ║
+# ║ • .trivyignore.yaml suppresses unfixable container base image CVEs, each with a          ║
+# ║   `statement` rationale and an `expired_at` date (see CLAUDE.md security section)        ║
+# ║ • Container image scanning lives in security-trivy-image.yml (PR-gated) and release.yml  ║
 # ║ • trivy-fs double-scan pattern: SARIF upload (all severities) + fail-on-critical/high    ║
 # ║ • pip-audit complements Trivy (Python-specific OSV/CVE database)                         ║
 # ║ • pip-audit runs continue-on-error to avoid blocking on advisory-only findings           ║
@@ -93,6 +94,8 @@ jobs:
           output: "trivy-fs-results.sarif"
           severity: "CRITICAL,HIGH,MEDIUM"
           exit-code: "0" # Don't fail build, just report
+          # Required: Trivy auto-loads `.trivyignore` but not `.trivyignore.yaml`
+          trivyignores: ".trivyignore.yaml"
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4.37.3
@@ -110,6 +113,8 @@ jobs:
           format: "table"
           severity: "CRITICAL,HIGH"
           exit-code: "1" # Fail on critical/high
+          # Required: Trivy auto-loads `.trivyignore` but not `.trivyignore.yaml`
+          trivyignores: ".trivyignore.yaml"
 
   trivy-config:
     name: Trivy config scan

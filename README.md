@@ -369,7 +369,7 @@ Security is a top priority. This project employs multiple layers of automated se
 
 - **Static analysis:** Bandit (Python), Semgrep (SAST), CodeQL (semantic analysis)
 - **Dependency scanning:** OSV-Scanner, pip-audit
-- **Container scanning:** Trivy (with CVE suppression documented in `.trivyignore`)
+- **Container scanning:** Trivy (with CVE suppression documented in `.trivyignore.yaml`, each entry carrying a rationale and an expiry date)
 - **Secret detection:** GitGuardian
 - **Code quality:** Pre-commit hooks enforce security best practices
 

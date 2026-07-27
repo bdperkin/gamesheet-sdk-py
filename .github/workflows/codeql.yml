@@ -39,7 +39,7 @@
 # ╟──────────────────────────────────────────────────────────────────────────────────────────╢
 # ║ • GitHub-supplied workflow kept on original trigger pattern (includes synchronize)       ║
 # ║ • Full commit history not required (shallow clone is sufficient)                         ║
-# ║ • No custom CodeQL queries configured (uses default security suite)                      ║
+# ║ • Runs the security-extended + security-and-quality suites (not just the default)        ║
 # ║ • Manual build mode available if automatic build fails                                   ║
 # ╚══════════════════════════════════════════════════════════════════════════════════════════╝
 
@@ -117,12 +117,15 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
-          # If you wish to specify custom queries, you can do so here or in a config file.
-          # By default, queries listed here will override any specified in a config file.
-          # Prefix the list here with "+" to use these queries and those in the config file.
+          # Query suites (superset of the default suite):
+          #   security-extended     — lower-precision / lower-severity security queries
+          #   security-and-quality  — the above plus maintainability and reliability queries
+          # Both suites exist for the `actions` and `python` packs used in the matrix.
+          # Expect a larger alert volume than the default suite; most additions are
+          # quality findings rather than vulnerabilities.
           # For more details on CodeQL's query packs, refer to:
           # https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
-          # queries: security-extended,security-and-quality
+          queries: security-extended,security-and-quality
       # If the analyze step fails for one of the languages you are analyzing with
       # "We were unable to automatically build your code", modify the matrix above
       # to set the build mode to "manual" for that language. Then modify this step
