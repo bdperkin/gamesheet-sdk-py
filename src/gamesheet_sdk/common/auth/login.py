@@ -259,7 +259,7 @@ def _await_auth_outcome(
         page.wait_for_timeout(POLL_INTERVAL_MS)
     _err_msg = (
         f"Login flow did not complete within {timeout_s:.0f}s. "
-        "Auth backend returned no response. Try `--no-headless -vv` to debug.",
+        "Auth backend returned no response. Try `--no-headless -vv` to debug."
     )
     raise AuthenticationError(_err_msg)
 

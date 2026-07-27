@@ -1482,12 +1482,12 @@ ignore_decorators = [
 
 ## ## pyproject-fmt - Pyproject.toml formatter
 [tool.pyproject-fmt]
+indent = 2
 check = true
+column-width = 120
 description = "An automated formatter for `pyproject.toml` files to keep dependencies and tables consistent."
 diff = true
 recursive = true
-column-width = 120
-indent = 2
 table-format = "short"
 
 ## # -------------------------------------------------------------------------------------------------------------------
