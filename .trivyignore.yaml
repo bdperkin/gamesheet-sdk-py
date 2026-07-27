@@ -1,0 +1,1495 @@
+---
+# ==============================================================================
+# Trivy Vulnerability Suppressions
+# ==============================================================================
+# Suppresses CVEs that are either:
+#   1. Not exploitable in this project's context
+#   2. No fixed version available in the base image's Debian suite
+#   3. Transitive dependencies of the container base image
+#
+# See: https://trivy.dev/latest/docs/configuration/filtering/
+#
+# ------------------------------------------------------------------------------
+# This file is the single source of truth for CVE suppression
+# ------------------------------------------------------------------------------
+# Suppression used to be split between this file and ~337 "won't fix" alert
+# dismissals in the GitHub Security UI. Those were folded in here and reopened
+# on 2026-07-27, so no Trivy alert is dismissed in the UI any more.
+#
+# Suppress a new base-image CVE by adding an entry below — NOT by dismissing the
+# alert in the UI. A UI dismissal is invisible to anyone reading the repo, is
+# exempt from the expiry mechanism below, and re-splits the source of truth.
+#
+# This also satisfies the project's own policy: the "Documentation Requirements"
+# section of docs/security/vulnerability-acceptance-criteria.md requires each
+# accepted vulnerability to record CVE ID, package, severity, justification,
+# review date and expiration date. A UI dismissal captured none of those beyond
+# a boilerplate comment; an entry here captures all of them.
+#
+# ------------------------------------------------------------------------------
+# IMPORTANT — this filename is NOT auto-detected
+# ------------------------------------------------------------------------------
+# Trivy auto-loads a plain `.trivyignore` from the working directory, but it
+# does NOT auto-load `.trivyignore.yaml` (verified against trivy 0.69.3). Every
+# scan must therefore pass the file explicitly:
+#
+#   trivy ...          --ignorefile .trivyignore.yaml
+#   aquasecurity/trivy-action:  trivyignores: .trivyignore.yaml
+#
+# If you add a new Trivy invocation and forget this, all suppressions below go
+# silently inactive and the Security tab fills with base-image noise.
+#
+# ------------------------------------------------------------------------------
+# expired_at — suppressions self-terminate
+# ------------------------------------------------------------------------------
+# `expired_at` is the date the ignore rule STOPS applying. Once it passes, the
+# CVE is reported again, which forces a fresh look instead of relying on a
+# human remembering the quarterly review. Dates are staggered by severity so
+# the whole file doesn't come due at once:
+#
+#   CRITICAL / HIGH   → 3 months   (2026-10-27)
+#   MEDIUM / unrated  → 6 months   (2027-01-27)
+#   LOW / Debian-"unimportant" → 12 months (2027-07-27)
+#
+# When an entry expires: re-check the Debian security tracker
+# (https://security-tracker.debian.org/tracker/<CVE>). If a fix has landed,
+# delete the entry and rebuild. If not, extend `expired_at` and say why.
+#
+# ------------------------------------------------------------------------------
+# Risk assessment shared by every entry below
+# ------------------------------------------------------------------------------
+# These live in Debian system libraries pulled in by the `python:3.11-slim`
+# base image (Debian trixie) and by Playwright's Chromium dependency list in
+# the Dockerfile. None is a direct dependency of this project's Python code.
+# The SDK/CLI does not:
+#   - Parse XML files directly (libxml2 / libexpat not reachable)
+#   - Use audio libraries (libasound2 not reachable)
+#   - Run or connect to a D-Bus server (GDBus paths not reachable)
+#   - Decompress untrusted archives via gzip
+#   - Use PKCS#11 tokens or crypto smartcards
+#   - Invoke the LLVM toolchain at runtime
+#   - Use SQLite databases
+#   - Invoke coreutils / diffutils binaries with attacker-controlled arguments
+# The runtime container also runs as a single non-root user, so attacks that
+# require an attacker-writable path or a hostile local user do not apply.
+# ==============================================================================
+
+vulnerabilities:
+  # ----------------------------------------------------------------------------
+  # libxml2 — XML parsing library (not used by this project)
+  # ----------------------------------------------------------------------------
+  - id: CVE-2026-6653
+    statement: >-
+      libxml2 arbitrary code execution in XML parsing. No fixed version in
+      Debian trixie. Not reachable: the SDK never parses XML.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-11979
+    statement: >-
+      libxml2 arbitrary code execution in the xmlcatalog utility. No fixed
+      version in Debian trixie. Not reachable: xmlcatalog is never invoked.
+    expired_at: 2027-07-27
+
+  # ----------------------------------------------------------------------------
+  # libexpat1 — XML parsing library (not used by this project)
+  # ----------------------------------------------------------------------------
+  # No fixed versions in Debian trixie. None reachable: the SDK never parses
+  # XML, so no untrusted input reaches expat.
+  - id: CVE-2026-56131
+    statement: "libexpat buffer overflow in XML_GetBuffer; XML never parsed."
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-56132
+    statement: "libexpat integer overflow in XML_GetBuffer; XML never parsed."
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-56403
+    statement: "libexpat use-after-free in doContent; XML never parsed."
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-56404
+    statement: "libexpat heap buffer overflow in build_model; XML never parsed."
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-56405
+    statement: "libexpat out-of-bounds read in storeAtts; XML never parsed."
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-56406
+    statement: "libexpat null pointer dereference in poolGrow; XML never parsed."
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-56407
+    statement: "libexpat stack exhaustion via nested entities; XML never parsed."
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-56408
+    statement: "libexpat integer overflow in XML_ParseBuffer; XML never parsed."
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-56409
+    statement: "libexpat heap buffer overflow in addBinding; XML never parsed."
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-56410
+    statement: "libexpat use-after-free in poolDestroy; XML never parsed."
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-56411
+    statement: "libexpat integer overflow in poolGrow; XML never parsed."
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-56412
+    statement: "libexpat out-of-bounds write in storeRawNames; XML never parsed."
+    expired_at: 2027-01-27
+
+  # ----------------------------------------------------------------------------
+  # libasound2 — ALSA audio library (not used by this project)
+  # ----------------------------------------------------------------------------
+  - id: CVE-2026-56109
+    statement: >-
+      libasound2 buffer overflow in snd_pcm_ioplug. No fixed version in Debian
+      trixie. Not reachable: the container has no audio devices and the SDK
+      never opens an ALSA device.
+    expired_at: 2027-07-27
+
+  # ----------------------------------------------------------------------------
+  # libacl1 — Access Control Lists library (not used by this project)
+  # ----------------------------------------------------------------------------
+  - id: CVE-2026-54369
+    statement: >-
+      libacl1 buffer overflow in acl_to_text. No fixed version in Debian
+      trixie. Not reachable: the SDK never manipulates POSIX ACLs.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-54370
+    statement: >-
+      libacl1 integer overflow in acl_copy_entry. No fixed version in Debian
+      trixie. Not reachable: the SDK never manipulates POSIX ACLs.
+    expired_at: 2027-01-27
+
+  # ----------------------------------------------------------------------------
+  # libattr1 — Extended file attributes library (not used by this project)
+  # ----------------------------------------------------------------------------
+  - id: CVE-2026-54371
+    statement: >-
+      libattr1 buffer overflow in attr_list_by_handle. No fixed version in
+      Debian trixie. Not reachable: the SDK never reads or writes xattrs.
+    expired_at: 2027-01-27
+
+  # ----------------------------------------------------------------------------
+  # libglib2.0-0t64 — GLib core library (transitive via atk / pango / dbus)
+  # ----------------------------------------------------------------------------
+  # No fixed versions in Debian trixie. GLib is present because Playwright's
+  # Chromium dependency list pulls it in; the SDK never calls into it directly.
+  - id: CVE-2026-58010
+    statement: "HIGH: GLib buffer over-read in gvs_tuple_is_normal(); not called by the SDK."
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-58011
+    statement: "HIGH: GLib out-of-bounds read in g_date_time_get_ymd; not called by the SDK."
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-58012
+    statement: "HIGH: GLib buffer over-read in g_regex_replace(); not called by the SDK."
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-58013
+    statement: >-
+      HIGH: GLib buffer over-read in g_io_channel_read_line_backend; not called
+      by the SDK.
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-58014
+    statement: >-
+      HIGH: GLib off-by-one in g_key_file_get_locale_string_list; the SDK reads
+      no GKeyFile input.
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-58015
+    statement: >-
+      HIGH: GLib path traversal in gdbusauthmechanismsha1.c. Not reachable: the
+      container runs no D-Bus daemon or GDBus server.
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-58016
+    statement: >-
+      CRITICAL: GLib integer underflow in g_dbus_node_info_new_for_xml. Not
+      reachable: the SDK never introspects D-Bus XML.
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-15588
+    statement: >-
+      MEDIUM: GDBusServer pre-authentication DoS via unbounded SASL line
+      buffering. Fixed upstream on the glib-2-88 branch; Debian trixie is
+      unfixed and marked <no-dsa> (minor issue). Not reachable: the image runs
+      no GDBusServer and exposes no D-Bus socket.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-16118
+    statement: >-
+      MEDIUM: xdgmime heap buffer overflow in _xdg_mime_magic_parse_magic_line().
+      Unfixed upstream; Debian trixie marked <no-dsa> (minor issue). Requires an
+      attacker-writable MIME magic file under $XDG_DATA_HOME parsed via
+      g_content_type_guess(); the container has a single non-root user and the
+      SDK never performs MIME type detection.
+    expired_at: 2027-01-27
+
+  # ----------------------------------------------------------------------------
+  # gzip — Compression utility (not used for untrusted data)
+  # ----------------------------------------------------------------------------
+  - id: CVE-2026-41991
+    statement: >-
+      MEDIUM: arbitrary file overwrite in the gzexe utility. No fixed version in
+      Debian trixie. Not reachable: gzexe is never invoked.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-41992
+    statement: >-
+      HIGH: global buffer overflow in LZH decompression. No fixed version in
+      Debian trixie. Not reachable: the SDK decompresses no untrusted archives.
+    expired_at: 2026-10-27
+
+  # ----------------------------------------------------------------------------
+  # util-linux family — System utilities (mount, login, blkid, etc.)
+  # ----------------------------------------------------------------------------
+  # Affects: bsdutils, libblkid1, liblastlog2-2, libmount1, libsmartcols1,
+  #          libuuid1, login, mount, util-linux
+  - id: CVE-2026-13595
+    statement: >-
+      MEDIUM: heap use-after-free in libblkid nested partition probing. No fixed
+      version in Debian trixie. Not reachable: the SDK probes no block devices.
+    expired_at: 2027-01-27
+
+  # ----------------------------------------------------------------------------
+  # p11-kit — PKCS#11 toolkit for crypto tokens
+  # ----------------------------------------------------------------------------
+  - id: CVE-2026-13757
+    statement: >-
+      MEDIUM: stack exhaustion via unbounded recursion in RPC parsing. No fixed
+      version in Debian trixie. Not reachable: the SDK uses no crypto tokens or
+      smartcards.
+    expired_at: 2027-01-27
+
+  # ----------------------------------------------------------------------------
+  # LLVM — Compiler infrastructure (build-time only)
+  # ----------------------------------------------------------------------------
+  - id: CVE-2026-13573
+    statement: >-
+      LOW: DoS via stack buffer overflow in StringMap::insert. No fixed version
+      in Debian trixie. Not reachable: LLVM is never invoked at runtime.
+    expired_at: 2027-07-27
+
+  - id: CVE-2026-13574
+    statement: >-
+      LOW: DoS via heap buffer overflow in the Bitcode File Handler. No fixed
+      version in Debian trixie. Not reachable: LLVM is never invoked at runtime.
+    expired_at: 2027-07-27
+
+  # ----------------------------------------------------------------------------
+  # NSS — Network Security Services (Chromium dependency, Dockerfile:82)
+  # ----------------------------------------------------------------------------
+  # libnss3 is installed only to satisfy Playwright's Chromium dependency list.
+  # Chromium itself uses BoringSSL and the SDK uses Python's `ssl` module, so
+  # NSS is not on any TLS path this project exercises.
+  - id: CVE-2026-16389
+    statement: >-
+      MEDIUM: incorrect boundary conditions / integer overflow in the NSS
+      Libraries component, fixed in Firefox and Thunderbird 153. Debian sid has
+      nss 2:3.126-1 but trixie remains unfixed. Not reachable: no Firefox or
+      Thunderbird in the image, and NSS is not on the SDK's TLS path.
+    expired_at: 2027-01-27
+
+  # ----------------------------------------------------------------------------
+  # X11 / Xvfb — X Window System server components
+  # ----------------------------------------------------------------------------
+  # No fixed versions in Debian trixie. Required for headless Chromium via
+  # Playwright. The SDK does not process X11 protocol from untrusted sources,
+  # and browser rendering happens inside Chromium's sandbox.
+  - id: CVE-2026-55999
+    statement: "glamor Font Atlas heap buffer overflow; no untrusted X11 input."
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-56000
+    statement: "GLX contextTags use-after-free in CommonMakeCurrent(); no untrusted X11 input."
+    expired_at: 2027-01-27
+
+  # ----------------------------------------------------------------------------
+  # Perl — Perl language runtime (build/system dependency)
+  # ----------------------------------------------------------------------------
+  # No fixed versions in Debian trixie. Perl is never invoked by the SDK.
+  - id: CVE-2026-7017
+    statement: >-
+      HTTP::Tiny forwards credential headers on redirect. Not reachable: the SDK
+      makes HTTP requests via Python `requests`, not Perl.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-13221
+    statement: >-
+      CRITICAL: silently incorrect regex results through Perl 5.43.9. Not
+      reachable: no Perl code runs in this image.
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-57432
+    statement: >-
+      HIGH: integer overflow in S_measure_struct (Storable). Not reachable: no
+      Perl code runs in this image.
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-57433
+    statement: >-
+      Signed integer overflow in Storable before 3.41. Not reachable: no Perl
+      code runs in this image.
+    expired_at: 2027-01-27
+
+  # ----------------------------------------------------------------------------
+  # libsqlite3 — SQLite database library (not used by this project)
+  # ----------------------------------------------------------------------------
+  - id: CVE-2026-50812
+    statement: >-
+      MEDIUM: NULL pointer dereference in the SQLite Session Extension. No fixed
+      version in Debian trixie. Not reachable: the SDK uses no SQLite, and the
+      Session Extension is not exposed by Python's sqlite3 binding.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-50813
+    statement: >-
+      MEDIUM: local issue in SQLite (pre Fossil check-in 869a51ae84df). No fixed
+      version in Debian trixie. Not reachable: the SDK uses no SQLite.
+    expired_at: 2027-01-27
+
+  # ----------------------------------------------------------------------------
+  # coreutils — GNU core utilities (base image essential, never invoked)
+  # ----------------------------------------------------------------------------
+  # Debian trixie unfixed, both flagged urgency "unimportant" ("negligible
+  # security impact"). Both require attacker-controlled argv to a coreutils
+  # binary the SDK never shells out to.
+  - id: CVE-2026-56391
+    statement: >-
+      LOW: out-of-bounds read in `uniq -w` on crafted multibyte input, via
+      find_field() length miscalculation. Fixed upstream (coreutils
+      d64e35a8a4c0e4608321433e0d84d917e4e36371); Debian trixie unfixed,
+      urgency "unimportant". Not reachable: the SDK never invokes uniq.
+    expired_at: 2027-07-27
+
+  - id: CVE-2026-56392
+    statement: >-
+      LOW: heap buffer overflow in `unexpand -t` from an integer overflow in
+      allocation sizing. Fixed upstream (coreutils
+      b60a159fdc5bfcf9988d3a4cb6f53abe8ad5d35d); Debian trixie unfixed, urgency
+      "unimportant". Not reachable: the SDK never invokes unexpand.
+    expired_at: 2027-07-27
+
+  # ----------------------------------------------------------------------------
+  # diffutils — GNU diff utilities (base image essential, never invoked)
+  # ----------------------------------------------------------------------------
+  - id: CVE-2026-53910
+    statement: >-
+      LOW: heap buffer overflow in diff3 from signed integer overflows in
+      line-mapping arithmetic. Exploitation needs `diff3 --diff-program` pointed
+      at a malicious script. Fixed upstream (diffutils
+      9ff04d5b84743e331e80b589335a52c5480d1815); Debian trixie unfixed, urgency
+      "unimportant" ("negligible security impact"), and upstream maintainers
+      dispute that it is a security issue. Not reachable: the SDK never invokes
+      diff3.
+    expired_at: 2027-07-27
+
+  # ============================================================================
+  # Migrated from GitHub code-scanning dismissals — 2026-07-27
+  # ============================================================================
+  # The 337 alerts below were previously suppressed by dismissing them in the
+  # GitHub Security UI as "won't fix" (337 alerts collapsing to 158 unique CVE
+  # IDs, one alert per affected package). That state lived only in GitHub, was
+  # invisible to anyone reading the repo, and never expired. Folding them in
+  # here makes suppression auditable in one versioned place.
+  #
+  # HONESTY NOTE: these entries were migrated in bulk, not individually
+  # re-triaged. Each carries the package, Trivy's title and Debian status as
+  # recorded in the 2026-07-27 image scan, plus a rationale that applies to its
+  # package family rather than to the specific CVE. The `expired_at` dates are
+  # what forces real per-CVE triage: as each tier comes due, the CVE is reported
+  # again and must be justified individually or dropped.
+  #
+  # Of the 158 unique dismissed CVEs, the 119 added here are the ones still
+  # present in the current image. 34 matched nothing in it and were left out,
+  # for the same reason the five stale hand-written rules were removed: a rule
+  # that matches nothing is dead weight that hides the fact it is obsolete.
+  # (The remaining 5 of the 124 in-image CVEs were already covered above.)
+
+  # ----------------------------------------------------------------------------
+  # glibc / shell / core utilities
+  # ----------------------------------------------------------------------------
+  # Base-image essentials. The SDK shells out to none of these; exploitation
+  # needs attacker-controlled arguments or input to a binary this project never
+  # invokes.
+
+  - id: CVE-2005-2541
+    statement: >-
+      LOW: tar — tar: does not properly warn the user when extracting setuid or
+      setgid files. Debian trixie: affected, no fixed version. Migrated
+      2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2010-4756
+    statement: >-
+      LOW: libc-bin, libc6 — glibc: glob implementation can cause excessive CPU
+      and memory consumption due to crafted glob expressions. Debian trixie:
+      affected, no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2017-18018
+    statement: >-
+      LOW: coreutils — coreutils: race condition vulnerability in chown and
+      chgrp. Debian trixie: affected, no fixed version. Migrated 2026-07-27
+      from a GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2018-20796
+    statement: >-
+      LOW: libc-bin, libc6 — glibc: uncontrolled recursion in function
+      check_dst_limits_calc_pos_1 in posix/regexec.c. Debian trixie: affected,
+      no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2019-1010022
+    statement: >-
+      LOW: libc-bin, libc6 — glibc: stack guard protection bypass. Debian
+      trixie: affected, no fixed version. Migrated 2026-07-27 from a GitHub
+      "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2019-1010023
+    statement: >-
+      LOW: libc-bin, libc6 — glibc: running ldd on malicious ELF leads to code
+      execution because of wrong size computation. Debian trixie: affected, no
+      fixed version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal;
+      not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2019-1010024
+    statement: >-
+      LOW: libc-bin, libc6 — glibc: ASLR bypass using cache of thread stack and
+      heap. Debian trixie: affected, no fixed version. Migrated 2026-07-27 from
+      a GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2019-1010025
+    statement: >-
+      LOW: libc-bin, libc6 — glibc: information disclosure of heap addresses of
+      pthread_created thread. Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2019-9192
+    statement: >-
+      LOW: libc-bin, libc6 — glibc: uncontrolled recursion in function
+      check_dst_limits_calc_pos_1 in posix/regexec.c. Debian trixie: affected,
+      no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2025-5278
+    statement: >-
+      LOW: coreutils — coreutils: Heap Buffer Under-Read in GNU Coreutils sort
+      via Key Specification. Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2026-5435
+    statement: >-
+      MEDIUM: libc-bin, libc6 — glibc: glibc: Out-of-bounds write via TSIG
+      record processing. Debian trixie: affected, no fixed version. Migrated
+      2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-5450
+    statement: >-
+      MEDIUM: libc-bin, libc6 — glibc: glibc: Heap Buffer Overflow in `scanf`
+      with `%mc` format specifier and large width. Debian trixie: affected, no
+      fixed version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal;
+      not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-5704
+    statement: >-
+      MEDIUM: tar — tar: tar: Hidden file injection via crafted archives.
+      Debian trixie: affected, no fixed version. Migrated 2026-07-27 from a
+      GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-5928
+    statement: >-
+      MEDIUM: libc-bin, libc6 — glibc: glibc: Information disclosure or denial
+      of service via ungetwc function with specific wide character encodings.
+      Debian trixie: affected, no fixed version. Migrated 2026-07-27 from a
+      GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-6238
+    statement: >-
+      MEDIUM: libc-bin, libc6 — glibc: glibc: Application crash or
+      uninitialized memory read via crafted DNS response. Debian trixie:
+      affected, no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: TEMP-0290435-0B57B5
+    statement: >-
+      LOW: tar — [tar's rmt command may have undesired side effects]. Debian
+      trixie: affected, no fixed version. Migrated 2026-07-27 from a GitHub
+      "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: TEMP-0517018-A83CE6
+    statement: >-
+      LOW: sysvinit-utils — [sysvinit: no-root option in expert installer
+      exposes locally exploitable security flaw]. Debian trixie: affected, no
+      fixed version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal;
+      not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: TEMP-0841856-B18BAF
+    statement: >-
+      LOW: bash — [Privilege escalation possible to other user than root].
+      Debian trixie: affected, no fixed version. Migrated 2026-07-27 from a
+      GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  # ----------------------------------------------------------------------------
+  # apt — Debian package manager
+  # ----------------------------------------------------------------------------
+  # apt runs only during the image build, never at runtime. The runtime
+  # container installs no packages and reaches no APT repository.
+
+  - id: CVE-2011-3374
+    statement: >-
+      LOW: apt, libapt-pkg7.0 — It was found that apt-key in apt, all versions,
+      do not correctly valid ... Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-07-27
+
+  # ----------------------------------------------------------------------------
+  # PAM / login / passwd — local account handling
+  # ----------------------------------------------------------------------------
+  # The container runs as a single non-root user started by the entrypoint.
+  # There is no interactive login, no su/sudo, and no local account
+  # administration, so these code paths are never entered.
+
+  - id: CVE-2007-5686
+    statement: >-
+      LOW: login.defs, passwd — initscripts in rPath Linux 1 sets insecure
+      permissions for the /var/lo ... Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2022-0563
+    statement: >-
+      LOW: bsdutils, libblkid1, liblastlog2-2, libmount1, libsmartcols1,
+      libuuid1, login, mount, util-linux — util-linux: partial disclosure of
+      arbitrary files in chfn and chsh when compiled with libreadline. Debian
+      trixie: affected, no fixed version. Migrated 2026-07-27 from a GitHub
+      "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2024-56433
+    statement: >-
+      LOW: login.defs, passwd — shadow-utils: Default subordinate ID
+      configuration in /etc/login.defs could lead to compromise. Debian trixie:
+      affected, no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2025-14104
+    statement: >-
+      LOW: bsdutils, libblkid1, liblastlog2-2, libmount1, libsmartcols1,
+      libuuid1, login, mount, util-linux — util-linux: util-linux: Heap buffer
+      overread in setpwnam() when processing 256-byte usernames. Debian trixie:
+      affected, no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2026-27456
+    statement: >-
+      MEDIUM: bsdutils, libblkid1, liblastlog2-2, libmount1, libsmartcols1,
+      libuuid1, login, mount, util-linux — util-linux: TOCTOU in the mount
+      program when setting up loop devices. Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-3184
+    statement: >-
+      MEDIUM: bsdutils, libblkid1, liblastlog2-2, libmount1, libsmartcols1,
+      libuuid1, login, mount, util-linux — util-linux: util-linux: Access
+      control bypass due to improper hostname canonicalization. Debian trixie:
+      affected, no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-53612
+    statement: >-
+      UNKNOWN: bsdutils, libblkid1, liblastlog2-2, libmount1, libsmartcols1,
+      libuuid1, login, mount, util-linux — [Local Privilege Escalation via
+      TOCTOU in mount(8) hook_owner.c chmod/chown]. Debian trixie: affected, no
+      fixed version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal;
+      not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-53613
+    statement: >-
+      UNKNOWN: bsdutils, libblkid1, liblastlog2-2, libmount1, libsmartcols1,
+      libuuid1, login, mount, util-linux — [Local Privilege Escalation via
+      TOCTOU in mount(8) - Target Path Redirection]. Debian trixie: affected,
+      no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-53614
+    statement: >-
+      UNKNOWN: bsdutils, libblkid1, liblastlog2-2, libmount1, libsmartcols1,
+      libuuid1, login, mount, util-linux — [Local Privilege Escalation via
+      LIBMOUNT_FORCE_MOUNT2 Environment Variable - nosuid/noexec Bypass in SUID
+      mount(8)]. Debian trixie: affected, no fixed version. Migrated 2026-07-27
+      from a GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-53615
+    statement: >-
+      HIGH: bsdutils, libblkid1, liblastlog2-2, libmount1, libsmartcols1,
+      libuuid1, login, mount, util-linux — [Integer Overflow or Wraparound in
+      libblkid/src/partitions/dos.c]. Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-54411
+    statement: >-
+      MEDIUM: libpam-modules, libpam-modules-bin, libpam-runtime, libpam0g —
+      linux-pam: Plaintext password recovery via timing discrepancy in
+      pam_userdb module. Debian trixie: fix deferred. Migrated 2026-07-27 from
+      a GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: TEMP-0628843-DBAD28
+    statement: >-
+      LOW: login.defs, passwd — [more related to CVE-2005-4890]. Debian trixie:
+      affected, no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  # ----------------------------------------------------------------------------
+  # Kerberos / GSSAPI
+  # ----------------------------------------------------------------------------
+  # Pulled in transitively via libcurl/GSSAPI-aware libraries. The SDK
+  # authenticates to GameSheet with bearer tokens over HTTPS and never
+  # negotiates Kerberos.
+
+  - id: CVE-2018-5709
+    statement: >-
+      LOW: libgssapi-krb5-2, libk5crypto3, libkrb5-3, libkrb5support0 — krb5:
+      integer overflow in dbentry->n_key_data in kadmin/dbutil/dump.c. Debian
+      trixie: affected, no fixed version. Migrated 2026-07-27 from a GitHub
+      "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2024-26458
+    statement: >-
+      LOW: libgssapi-krb5-2, libk5crypto3, libkrb5-3, libkrb5support0 — krb5:
+      Memory leak at /krb5/src/lib/rpc/pmap_rmt.c. Debian trixie: affected, no
+      fixed version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal;
+      not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2024-26461
+    statement: >-
+      LOW: libgssapi-krb5-2, libk5crypto3, libkrb5-3, libkrb5support0 — krb5:
+      Memory leak at /krb5/src/lib/gssapi/krb5/k5sealv3.c. Debian trixie:
+      affected, no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2026-11850
+    statement: >-
+      LOW: libgssapi-krb5-2, libk5crypto3, libkrb5-3, libkrb5support0 — krb5:
+      krb5: integer underflow in berval2tl_data() leads to heap out-of-bounds
+      read. Debian trixie: affected, no fixed version. Migrated 2026-07-27 from
+      a GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  # ----------------------------------------------------------------------------
+  # TLS libraries — GnuTLS / NSS
+  # ----------------------------------------------------------------------------
+  # Not on this project's TLS path. Python's `ssl` module uses OpenSSL, and
+  # Chromium uses its own bundled BoringSSL.
+
+  - id: CVE-2011-3389
+    statement: >-
+      LOW: libgnutls30t64 — HTTPS: block-wise chosen-plaintext attack against
+      SSL/TLS (BEAST). Debian trixie: affected, no fixed version. Migrated
+      2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2017-11695
+    statement: >-
+      LOW: libnss3 — nss: Heap-buffer-overflow in alloc_segs. Debian trixie:
+      affected, no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2017-11696
+    statement: >-
+      LOW: libnss3 — nss: Heap-buffer-overflow in __hash_open. Debian trixie:
+      affected, no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2017-11697
+    statement: >-
+      LOW: libnss3 — nss: Floating Point Exception in __hash_open. Debian
+      trixie: affected, no fixed version. Migrated 2026-07-27 from a GitHub
+      "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2017-11698
+    statement: >-
+      LOW: libnss3 — nss: Heap-buffer-overflow in __get_page. Debian trixie:
+      affected, no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  # ----------------------------------------------------------------------------
+  # systemd / udev libraries
+  # ----------------------------------------------------------------------------
+  # Linked in transitively; the container runs no init system, no systemd
+  # services, and no udev daemon.
+
+  - id: CVE-2013-4392
+    statement: >-
+      LOW: libsystemd0, libudev1 — systemd: TOCTOU race condition when updating
+      file permissions and SELinux security contexts. Debian trixie: affected,
+      no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2023-31437
+    statement: >-
+      LOW: libsystemd0, libudev1 — An issue was discovered in systemd 253. An
+      attacker can modify a seale ... Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2023-31438
+    statement: >-
+      LOW: libsystemd0, libudev1 — An issue was discovered in systemd 253. An
+      attacker can truncate a sea ... Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2023-31439
+    statement: >-
+      LOW: libsystemd0, libudev1 — An issue was discovered in systemd 253. An
+      attacker can modify the con ... Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2026-40228
+    statement: >-
+      LOW: libsystemd0, libudev1 — systemd: systemd-journald: Unintended output
+      to user terminals via logger command. Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-07-27
+
+  # ----------------------------------------------------------------------------
+  # Mesa / OpenGL / X11 — headless Chromium rendering stack
+  # ----------------------------------------------------------------------------
+  # Required by Playwright's headless Chromium. Rendering happens inside
+  # Chromium's sandbox on pages the SDK itself navigates to; no untrusted X11
+  # client connects to Xvfb.
+
+  - id: CVE-2017-7475
+    statement: >-
+      LOW: libcairo2 — cairo: NULL pointer dereference with a crafted font
+      file. Debian trixie: marked "will not fix". Migrated 2026-07-27 from a
+      GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2018-15853
+    statement: >-
+      LOW: x11-xkb-utils — libxkbcommon: xkbcomp: Endless recursion in
+      xkbcomp/expr.c resulting in a crash. Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2018-15859
+    statement: >-
+      LOW: x11-xkb-utils — libxkbcommon: xkbcomp: NULL pointer dereference when
+      parsing invalid atoms in ExprResolveLhs resulting in a crash. Debian
+      trixie: affected, no fixed version. Migrated 2026-07-27 from a GitHub
+      "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2018-15861
+    statement: >-
+      LOW: x11-xkb-utils — libxkbcommon: xkbcomp: NULL pointer dereference in
+      ExprResolveLhs resulting in a crash. Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2018-15863
+    statement: >-
+      LOW: x11-xkb-utils — libxkbcommon: xkbcomp: NULL pointer dereference in
+      ResolveStateAndPredicate resulting in a crash. Debian trixie: affected,
+      no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2018-18064
+    statement: >-
+      LOW: libcairo2 — cairo: Stack-based buffer overflow via parsing of
+      crafted WebKitGTK+ document. Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2021-4214
+    statement: >-
+      LOW: libpng16-16t64 — libpng: hardcoded value leads to heap-overflow.
+      Debian trixie: affected, no fixed version. Migrated 2026-07-27 from a
+      GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2023-37769
+    statement: >-
+      LOW: libpixman-1-0 — stress-test master commit e4c878 was discovered to
+      contain a FPE vulne ... Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2023-45913
+    statement: >-
+      LOW: libgbm1, libgl1-mesa-dri, libglx-mesa0, mesa-libgallium — Mesa
+      v23.0.4 was discovered to contain a NULL pointer dereference via  ...
+      Debian trixie: affected, no fixed version. Migrated 2026-07-27 from a
+      GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2023-45919
+    statement: >-
+      LOW: libgbm1, libgl1-mesa-dri, libglx-mesa0, mesa-libgallium — Mesa
+      23.0.4 was discovered to contain a buffer over-read in glXQuerySe ...
+      Debian trixie: affected, no fixed version. Migrated 2026-07-27 from a
+      GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2023-45922
+    statement: >-
+      LOW: libgbm1, libgl1-mesa-dri, libglx-mesa0, mesa-libgallium —
+      glx_pbuffer.c in Mesa 23.0.4 was discovered to contain a segmentation
+      ... Debian trixie: affected, no fixed version. Migrated 2026-07-27 from a
+      GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2023-45924
+    statement: >-
+      LOW: libgl1, libglvnd0, libglx0 — libglxproto.c in OpenGL libglvnd
+      bb06db5a was discovered to contain a  ... Debian trixie: affected, no
+      fixed version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal;
+      not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2023-45931
+    statement: >-
+      LOW: libgbm1, libgl1-mesa-dri, libglx-mesa0, mesa-libgallium — Mesa
+      23.0.4 was discovered to contain a NULL pointer dereference in ch ...
+      Debian trixie: affected, no fixed version. Migrated 2026-07-27 from a
+      GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2023-5574
+    statement: >-
+      HIGH: xserver-common, xvfb — xorg-x11-server: Use-after-free bug in
+      DamageDestroy. Debian trixie: fix deferred. Migrated 2026-07-27 from a
+      GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2026-10-27
+
+  - id: CVE-2025-50422
+    statement: >-
+      LOW: libcairo2 — poppler: Poppler crash on malformed input. Debian
+      trixie: fix deferred. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2026-3713
+    statement: >-
+      LOW: libpng16-16t64 — libpng: libpng: Heap-based buffer overflow in
+      pnm2png allows information disclosure and denial of service. Debian
+      trixie: affected, no fixed version. Migrated 2026-07-27 from a GitHub
+      "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  # ----------------------------------------------------------------------------
+  # ncurses — terminal handling
+  # ----------------------------------------------------------------------------
+  # The SDK renders CLI output with click/tabulate, not curses. No TUI is ever
+  # initialised and TERM is not attacker-controlled.
+
+  - id: CVE-2025-6141
+    statement: >-
+      LOW: libncursesw6, libtinfo6, ncurses-base, ncurses-bin — gnu-ncurses:
+      ncurses Stack Buffer Overflow. Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2025-69720
+    statement: >-
+      HIGH: libncursesw6, libtinfo6, ncurses-base, ncurses-bin — ncurses:
+      ncurses: Buffer overflow vulnerability may lead to arbitrary code
+      execution. Debian trixie: affected, no fixed version. Migrated 2026-07-27
+      from a GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2026-10-27
+
+  # ----------------------------------------------------------------------------
+  # Compression libraries
+  # ----------------------------------------------------------------------------
+  # The SDK decompresses no untrusted archives. These are linked in transitively
+  # by Python and by the Chromium dependency set.
+
+  - id: CVE-2026-27171
+    statement: >-
+      MEDIUM: zlib1g — zlib: zlib: Denial of Service via infinite loop in CRC32
+      combine functions. Debian trixie: affected, no fixed version. Migrated
+      2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-42250
+    statement: >-
+      MEDIUM: libbz2-1.0 — bzip2: bzip2: Denial of Service in bzip2recover via
+      a specially crafted file. Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-01-27
+
+  # ----------------------------------------------------------------------------
+  # Avahi — mDNS/DNS-SD service discovery
+  # ----------------------------------------------------------------------------
+  # No Avahi daemon runs in the container and the SDK performs no service
+  # discovery; pulled in transitively by the CUPS client library.
+
+  - id: CVE-2024-52615
+    statement: >-
+      MEDIUM: libavahi-client3, libavahi-common-data, libavahi-common3 — avahi:
+      Avahi Wide-Area DNS Uses Constant Source Port. Debian trixie: affected,
+      no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2024-52616
+    statement: >-
+      MEDIUM: libavahi-client3, libavahi-common-data, libavahi-common3 — avahi:
+      Avahi Wide-Area DNS Predictable Transaction IDs. Debian trixie: affected,
+      no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2025-59529
+    statement: >-
+      MEDIUM: libavahi-client3, libavahi-common-data, libavahi-common3 — avahi:
+      simple clients denial-of-service. Debian trixie: fix deferred. Migrated
+      2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2025-68276
+    statement: >-
+      MEDIUM: libavahi-client3, libavahi-common-data, libavahi-common3 — avahi:
+      Avahi: Denial of Service via D-Bus record browsers with
+      AVAHI_LOOKUP_USE_WIDE_AREA flag. Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2025-68468
+    statement: >-
+      MEDIUM: libavahi-client3, libavahi-common-data, libavahi-common3 — avahi:
+      Avahi: Denial of Service via crafted mDNS/DNS-SD announcements. Debian
+      trixie: affected, no fixed version. Migrated 2026-07-27 from a GitHub
+      "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2025-68471
+    statement: >-
+      MEDIUM: libavahi-client3, libavahi-common-data, libavahi-common3 — avahi:
+      Avahi: Denial of Service via unsolicited CNAME announcements. Debian
+      trixie: affected, no fixed version. Migrated 2026-07-27 from a GitHub
+      "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-24401
+    statement: >-
+      MEDIUM: libavahi-client3, libavahi-common-data, libavahi-common3 — avahi:
+      Avahi: Denial of Service via recursive CNAME record in mDNS response.
+      Debian trixie: affected, no fixed version. Migrated 2026-07-27 from a
+      GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-34933
+    statement: >-
+      MEDIUM: libavahi-client3, libavahi-common-data, libavahi-common3 — avahi:
+      avahi-daemon: Avahi: Denial of Service via D-Bus method call. Debian
+      trixie: affected, no fixed version. Migrated 2026-07-27 from a GitHub
+      "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  # ----------------------------------------------------------------------------
+  # CUPS — printing client library
+  # ----------------------------------------------------------------------------
+  # A Playwright Chromium dependency. The container has no printers configured
+  # and the SDK never prints.
+
+  - id: CVE-2014-8166
+    statement: >-
+      LOW: libcups2t64 — cups: code execution via unescape ANSI escape
+      sequences. Debian trixie: affected, no fixed version. Migrated 2026-07-27
+      from a GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2025-58436
+    statement: >-
+      MEDIUM: libcups2t64 — cups: Slow client communication leads to a possible
+      DoS attack. Debian trixie: affected, no fixed version. Migrated
+      2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2025-61915
+    statement: >-
+      MEDIUM: libcups2t64 — CUPS: Local denial-of-service via cupsd.conf update
+      and related issues. Debian trixie: affected, no fixed version. Migrated
+      2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-27447
+    statement: >-
+      MEDIUM: libcups2t64 — cups: OpenPrinting CUPS: Authorization bypass via
+      case-insensitive username comparison. Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-34978
+    statement: >-
+      MEDIUM: libcups2t64 — cups: OpenPrinting CUPS: Denial of Service via path
+      traversal in RSS notifier. Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-34979
+    statement: >-
+      MEDIUM: libcups2t64 — cups: OpenPrinting CUPS: Denial of Service via
+      heap-based buffer overflow in job attribute processing. Debian trixie:
+      affected, no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-34980
+    statement: >-
+      HIGH: libcups2t64 — cups: OpenPrinting CUPS: Shared PostScript queue lets
+      anonymous Print-Job requests reach `lp` code execution over the network.
+      Debian trixie: affected, no fixed version. Migrated 2026-07-27 from a
+      GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-34990
+    statement: >-
+      MEDIUM: libcups2t64 — cups: OpenPrinting CUPS: Privilege escalation via
+      arbitrary file overwrite due to coerced authentication. Debian trixie:
+      affected, no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-39314
+    statement: >-
+      MEDIUM: libcups2t64 — cups: CUPS: Denial of Service via integer underflow
+      in IPP attribute handling. Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-39316
+    statement: >-
+      MEDIUM: libcups2t64 — cups: CUPS: Denial of Service and potential
+      arbitrary code execution via use-after-free vulnerability when deleting
+      temporary printers. Debian trixie: affected, no fixed version. Migrated
+      2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-41079
+    statement: >-
+      MEDIUM: libcups2t64 — cups: CUPS: Information disclosure via crafted SNMP
+      response. Debian trixie: affected, no fixed version. Migrated 2026-07-27
+      from a GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  # ----------------------------------------------------------------------------
+  # ALSA — audio libraries
+  # ----------------------------------------------------------------------------
+  # The container exposes no audio devices and the SDK opens no ALSA device.
+
+  - id: CVE-2026-25068
+    statement: >-
+      MEDIUM: libasound2-data, libasound2t64 — alsa-lib: alsa-lib Topology
+      Decoder Heap-based Buffer Overflow. Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-01-27
+
+  # ----------------------------------------------------------------------------
+  # libelf — ELF object file access
+  # ----------------------------------------------------------------------------
+  # Used by build/debug tooling only; the SDK parses no ELF objects.
+
+  - id: CVE-2024-25260
+    statement: >-
+      LOW: libelf1t64 — elfutils: global-buffer-overflow exists in the function
+      ebl_machine_flag_name in eblmachineflagname.c. Debian trixie: affected,
+      no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2025-1352
+    statement: >-
+      LOW: libelf1t64 — elfutils: GNU elfutils eu-readelf libdw_alloc.c
+      __libdw_thread_tail memory corruption. Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2025-1365
+    statement: >-
+      LOW: libelf1t64 — elfutils: GNU elfutils eu-readelf readelf.c
+      process_symtab buffer overflow. Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2025-1371
+    statement: >-
+      LOW: libelf1t64 — elfutils: GNU elfutils eu-read readelf.c
+      handle_dynamic_symtab null pointer dereference. Debian trixie: affected,
+      no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2025-1372
+    statement: >-
+      LOW: libelf1t64 — elfutils: GNU elfutils eu-readelf readelf.c
+      print_string_section buffer overflow. Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2025-1376
+    statement: >-
+      LOW: libelf1t64 — elfutils: GNU elfutils eu-strip elf_strptr.c elf_strptr
+      denial of service. Debian trixie: affected, no fixed version. Migrated
+      2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2025-1377
+    statement: >-
+      LOW: libelf1t64 — elfutils: GNU elfutils eu-strip strip.c
+      gelf_getsymshndx denial of service. Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-07-27
+
+  # ----------------------------------------------------------------------------
+  # LLVM — compiler infrastructure
+  # ----------------------------------------------------------------------------
+  # Present as a Mesa build dependency. Never invoked at runtime.
+
+  - id: CVE-2024-7883
+    statement: >-
+      LOW: libllvm19 — clang: CMSE secure state may leak from stack to
+      floating-point registers. Debian trixie: marked "will not fix". Migrated
+      2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-07-27
+
+  # ----------------------------------------------------------------------------
+  # libexpat — XML parsing
+  # ----------------------------------------------------------------------------
+  # The SDK parses no XML.
+
+  - id: CVE-2025-59375
+    statement: >-
+      HIGH: libexpat1 — firefox: thunderbird: expat: libexpat in Expat allows
+      attackers to trigger large dynamic memory allocations via a small
+      document that is submitted... Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2026-10-27
+
+  - id: CVE-2025-66382
+    statement: >-
+      MEDIUM: libexpat1 — libexpat: libexpat: Denial of service via crafted
+      file processing. Debian trixie: fix deferred. Migrated 2026-07-27 from a
+      GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-24515
+    statement: >-
+      LOW: libexpat1 — libexpat: libexpat null pointer dereference. Debian
+      trixie: affected, no fixed version. Migrated 2026-07-27 from a GitHub
+      "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2026-25210
+    statement: >-
+      HIGH: libexpat1 — libexpat: libexpat: Information disclosure and data
+      integrity issues due to integer overflow in buffer reallocation. Debian
+      trixie: affected, no fixed version. Migrated 2026-07-27 from a GitHub
+      "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-32776
+    statement: >-
+      MEDIUM: libexpat1 — libexpat: libexpat: Denial of Service due to NULL
+      pointer dereference. Debian trixie: affected, no fixed version. Migrated
+      2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-32777
+    statement: >-
+      MEDIUM: libexpat1 — libexpat: libexpat: Denial of Service via infinite
+      loop in DTD content parsing. Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-32778
+    statement: >-
+      MEDIUM: libexpat1 — libexpat: libexpat: Denial of Service via NULL
+      pointer dereference after out-of-memory condition. Debian trixie:
+      affected, no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-41080
+    statement: >-
+      LOW: libexpat1 — libexpat: expat: libexpat: Denial of Service via hash
+      flooding with crafted XML. Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2026-45186
+    statement: >-
+      HIGH: libexpat1 — libexpat: denial of service via crafted XML input.
+      Debian trixie: affected, no fixed version. Migrated 2026-07-27 from a
+      GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-50219
+    statement: >-
+      MEDIUM: libexpat1 — expat: libexpat: Use-after-free vulnerability due to
+      improper handler call depth tracking. Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-01-27
+
+  # ----------------------------------------------------------------------------
+  # GLib
+  # ----------------------------------------------------------------------------
+  # Pulled in by the Chromium dependency set; the SDK never calls into GLib
+  # directly.
+
+  - id: CVE-2012-0039
+    statement: >-
+      LOW: libglib2.0-0t64 — glib2: hash table collisions CPU usage DoS. Debian
+      trixie: affected, no fixed version. Migrated 2026-07-27 from a GitHub
+      "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  # ----------------------------------------------------------------------------
+  # SQLite
+  # ----------------------------------------------------------------------------
+  # The SDK uses no SQLite database.
+
+  - id: CVE-2021-45346
+    statement: >-
+      LOW: libsqlite3-0 — sqlite: crafted SQL query allows a malicious user to
+      obtain sensitive information. Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2025-70873
+    statement: >-
+      LOW: libsqlite3-0 — sqlite: SQLite: Information Disclosure via Crafted
+      ZIP File. Debian trixie: affected, no fixed version. Migrated 2026-07-27
+      from a GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2026-11822
+    statement: >-
+      MEDIUM: libsqlite3-0 — SQLite before 3.53.2 contains memory corruption
+      vulnerabilities in the ... Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-11824
+    statement: >-
+      MEDIUM: libsqlite3-0 — SQLite before 3.53.2 contains a heap-based buffer
+      overflow vulnerabili ... Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-01-27
+
+  # ----------------------------------------------------------------------------
+  # Perl
+  # ----------------------------------------------------------------------------
+  # Perl is a system/build dependency; no Perl code runs in this image.
+
+  - id: CVE-2011-4116
+    statement: >-
+      LOW: perl-base — perl: File:: Temp insecure temporary file handling.
+      Debian trixie: affected, no fixed version. Migrated 2026-07-27 from a
+      GitHub "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-07-27
+
+  - id: CVE-2025-15649
+    statement: >-
+      MEDIUM: perl-base — perl-IO-Compress: perl-IO-Compress: Denial of Service
+      via malformed DOS date in zip header. Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-12087
+    statement: >-
+      MEDIUM: perl-base — perl-Socket: perl-Socket: Information Disclosure due
+      to Out-of-Bounds Read. Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-42496
+    statement: >-
+      CRITICAL: perl-base — perl-archive-tar: perl-archive-tar: Path traversal
+      via crafted symlinks allows arbitrary file access. Debian trixie: fix
+      deferred. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-42497
+    statement: >-
+      HIGH: perl-base — perl-Archive-Tar: perl-Archive-Tar: Arbitrary file
+      modification via crafted hardlinks during archive extraction. Debian
+      trixie: fix deferred. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-48959
+    statement: >-
+      MEDIUM: perl-base — perl-IO-Compress: perl-IO-Compress: CPU exhaustion
+      via per-byte read loop in fastForward. Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-48961
+    statement: >-
+      MEDIUM: perl-base — perl-IO-Compress: IO::Compress: Denial of Service in
+      zipdetails CLI tool via malformed Info-ZIP Unix Extra Field. Debian
+      trixie: affected, no fixed version. Migrated 2026-07-27 from a GitHub
+      "won't fix" dismissal; not individually re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-48962
+    statement: >-
+      HIGH: perl-base — perl-IO-Compress: perl-IO-Compress: Arbitrary code
+      execution via attacker-controlled output glob. Debian trixie: affected,
+      no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
+      dismissal; not individually re-triaged.
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-7010
+    statement: >-
+      MEDIUM: perl-base — HTTP::Tiny versions before 0.093 for Perl do not
+      validate CRLF in HTTP ... Debian trixie: affected, no fixed version.
+      Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not individually
+      re-triaged.
+    expired_at: 2027-01-27
+
+  - id: CVE-2026-8376
+    statement: >-
+      CRITICAL: perl-base — perl: Perl: Heap buffer overflow when compiling
+      regular expressions on 32-bit builds. Debian trixie: affected, no fixed
+      version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2026-10-27
+
+  - id: CVE-2026-9538
+    statement: >-
+      HIGH: perl-base — perl-Archive-Tar: perl-Archive-Tar: Denial of Service
+      via crafted tar header with large entry size. Debian trixie: fix
+      deferred. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
+      individually re-triaged.
+    expired_at: 2026-10-27
+
+# ==============================================================================
+# Review Schedule
+# ==============================================================================
+# Suppressions now expire on their own via `expired_at`, so the calendar review
+# is a backstop rather than the only control.
+#
+# Last reviewed: 2026-07-27  —  164 rules total
+#   - Migrated from plain `.trivyignore` to this YAML format to gain
+#     `expired_at` and per-CVE `statement` fields.
+#   - Added 6 CVEs from the 2026-07-27 container scan, all unfixed in Debian
+#     trixie: CVE-2026-16389 (libnss3), CVE-2026-16118 and CVE-2026-15588
+#     (libglib2.0-0t64), CVE-2026-56391 and CVE-2026-56392 (coreutils),
+#     CVE-2026-53910 (diffutils).
+#   - Backfilled Debian tracker status and expiry dates for the 44 pre-existing
+#     entries.
+#   - Removed 5 rules that matched nothing in the current image (CVE-2026-12318,
+#     CVE-2026-50811, CVE-2026-56001, CVE-2026-56002, CVE-2026-56003) — their
+#     packages (libfreetype6, libxfont2) are no longer installed.
+#   - Folded in 119 CVEs previously suppressed only as GitHub UI dismissals, so
+#     that suppression is auditable in one versioned place. See the "Migrated
+#     from GitHub code-scanning dismissals" section above for what that bulk
+#     migration does and does not claim.
+#   - Reopened all 337 UI dismissals afterwards, so this file is now the only
+#     suppression mechanism in use. 81 resolved straight to "fixed" (their CVEs
+#     are no longer in the image); the remaining 256 close on the next image
+#     scan that uploads SARIF.
+#
+# Expiry tiers in force: 22 rules due 2026-10-27, 71 due 2027-01-27,
+#                        71 due 2027-07-27.
+# Next backstop review: 2026-10-27 (when the CRITICAL/HIGH tier expires)
+# ==============================================================================

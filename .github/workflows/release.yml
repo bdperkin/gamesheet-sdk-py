@@ -93,7 +93,7 @@
 #   - pyproject.toml ([tool.semantic_release], [project.version], [build-system])
 #   - CHANGELOG.md (managed by PSR, extracted by github-release job)
 #   - Dockerfile (container build context)
-#   - .trivyignore (suppressed container base image CVEs)
+#   - .trivyignore.yaml (suppressed container base image CVEs, with expiry dates)
 #
 # Maintenance Notes:
 #   - RELEASE_TOKEN (PAT) is optional; falls back to GITHUB_TOKEN if not configured
@@ -101,7 +101,8 @@
 #   - Trusted publishing is configured on PyPI/TestPyPI (no manual token setup required)
 #   - Container tags follow OCI best practices (semver + latest + traceability)
 #   - SBOM generation uses Anchore sbom-action (SPDX JSON format)
-#   - Trivy scans use .trivyignore to suppress unfixable base image CVEs (documented in commits)
+#   - Trivy scans use .trivyignore.yaml to suppress unfixable base image CVEs; that filename is
+#     NOT auto-detected by Trivy, so every scan must pass `trivyignores:` explicitly
 #   - Keep semantic-release config in sync with CLAUDE.md's versioning strategy docs
 name: Version and Release
 
@@ -347,7 +348,10 @@ jobs:
           image-ref: ghcr.io/bdperkin/gamesheet-sdk-py:${{ needs.version.outputs.version }}
           format: sarif
           output: trivy-results.sarif
-          trivyignores: .trivyignore
+          # Must be passed explicitly: Trivy auto-loads a plain `.trivyignore`
+          # but NOT `.trivyignore.yaml`. Dropping this input silently disables
+          # every suppression in that file.
+          trivyignores: .trivyignore.yaml
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4.37.3

@@ -204,15 +204,20 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   Autoupdates land as PRs (empty `autoupdate_branch`), not auto-merges. `.github/dependabot.yml` opens grouped weekly PRs for Python runtime deps, Python dev
   deps, and GitHub Actions versions — three PRs/week max.
 
+  **Three hook revs are deliberately pinned one release behind** (`pyproject-fmt` v2.25.3 not v2.26.0, `pyrefly-pre-commit` 1.2.0.dev2 not 1.2.0.dev3,
+  `mirrors-mypy` v2.1.0 not v2.3.0) because the newer revs failed to install locally. All six versions are present on upstream PyPI, so the failure was a
+  lagging private package index rather than a missing release — meaning CI and pre-commit.ci would have been fine on the newer revs. Expect `autoupdate` to keep
+  proposing them; re-pin only if the install failure reproduces.
+
 - **CI workflow layout.** GitHub Actions is fanned out into per-category workflow files under `.github/workflows/`: a small `ci.yml` build/install sanity check,
   `tests.yml` (pytest matrix py3.11–3.14), `docs.yml` (HTML/EPUB/man/PDF/lint/linkcheck/doctest as parallel jobs + a Pages deploy gated on `push` to main),
   `pre-commit.yml`, `codecov.yml` (per-PR pytest matrix with coverage + JUnit uploads to Codecov), plus one workflow per tool category: `type_checkers.yml`,
   `code_quality_linters_-_static_analysis.yml`, `code_style_-_formatting_-automated_fixers-.yml`, `code_cleaners_-_dead_code_detectors.yml`,
   `configuration_file_linters_-_formatters.yml`, `documentation_-_docstring_tools.yml`, `documentation_-_markdown_tools.yml`,
   `security-_metrics_-_complexity.yml`, and `comprehensive-tests.yml` (nightly, multi-OS; also uploads to Codecov). Plus the GitHub-supplied `codeql.yml`,
-  `dependency-review.yml`, security scanning workflows (`gitguardian.yml`, `semgrep.yml`, `security-trivy.yml`, `osv-scanner.yml`, `workflow-linter.yml`), and
-  `release.yml`. Each tool runs as its own matrixed job (py3.11–3.14) installing the `tox-workdir` plugin and invoking the matching tox env. Job display names
-  are the bare tool name (e.g. `mypy (py3.11)`, `pytest (py3.12)`) so the Checks UI stays scannable.
+  `dependency-review.yml`, security scanning workflows (`gitguardian.yml`, `semgrep.yml`, `security-trivy.yml`, `security-trivy-image.yml`, `osv-scanner.yml`,
+  `workflow-linter.yml`), and `release.yml`. Each tool runs as its own matrixed job (py3.11–3.14) installing the `tox-workdir` plugin and invoking the matching
+  tox env. Job display names are the bare tool name (e.g. `mypy (py3.11)`, `pytest (py3.12)`) so the Checks UI stays scannable.
 
   **Trigger layout (uniform across most workflows):** `push:` is scoped to `branches: [main]` — CI runs on main branch pushes and when PRs are opened/updated
   against main. `pull_request:` uses either `types: [opened, reopened, synchronize]` (default behavior, runs on every PR push) or `branches: [main]` depending
@@ -337,9 +342,34 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   - **bandit** — Python code security scanner (via pre-commit and dedicated workflow)
   - **GitGuardian** — secret scanning in commits
   - **Semgrep** — SAST (static application security testing)
-  - **Trivy** — container vulnerability scanning with `.trivyignore` for suppressed CVEs
+  - **Trivy** — container vulnerability scanning with `.trivyignore.yaml` for suppressed CVEs
   - **OSV-Scanner** — dependency vulnerability scanning
   - **CodeQL** — semantic code analysis
   - **pip-audit** — Python dependency vulnerability scanning
 
-  The `.trivyignore` file contains suppressed container base image CVEs that cannot be fixed (documented in commit messages).
+  The `.trivyignore.yaml` file contains suppressed container base image CVEs that cannot be fixed. It uses Trivy's YAML ignore format so each entry carries a
+  `statement` (why it is not exploitable here, plus Debian tracker status) and an `expired_at` date, after which Trivy reports the CVE again. Expiries are
+  staggered by severity — CRITICAL/HIGH at 3 months, MEDIUM at 6, LOW at 12 — so the file cannot silently accumulate stale suppressions.
+
+  **This file is the single source of truth for CVE suppression.** Base-image noise used to be split between it and 337 "won't fix" dismissals in the GitHub
+  Security UI, which were invisible to anyone reading the repo and never expired. Those were folded in on 2026-07-27 and the dismissals then reopened, so **no
+  Trivy alert is dismissed in the UI any more** and the file's 164 rules account for every CVE in the published image exactly (164 rules, 164 image CVEs, zero
+  unsuppressed, zero rules matching nothing). **Suppress new base-image CVEs by adding an entry here, not by dismissing the alert in the UI** — a UI dismissal
+  reintroduces the split and is silently exempt from the expiry mechanism. Conversely, a rule that stops matching anything should be deleted rather than left in
+  place, since a dead rule hides the fact that it is obsolete. This arrangement is also what `docs/security/vulnerability-acceptance-criteria.md`
+  ("Documentation Requirements") actually asks for: CVE ID, package, severity, justification, review date and expiration date per accepted vulnerability — none
+  of which a UI dismissal recorded.
+
+  **Gotcha worth preserving:** Trivy auto-loads a plain `.trivyignore` from the working directory but does **not** auto-load `.trivyignore.yaml` (verified
+  against trivy 0.69.3). Every Trivy invocation must therefore pass the file explicitly (`trivyignores: .trivyignore.yaml` for `aquasecurity/trivy-action`,
+  `--ignorefile` on the CLI). Omitting it silently disables all suppressions rather than erroring, which floods the Security tab with base-image noise.
+
+  Container images are scanned in two places. `security-trivy-image.yml` builds and scans the image as a pass/fail gate on PRs that touch the `Dockerfile`, plus
+  a weekly run and a `workflow_dispatch` for base-image drift. `release.yml` scans the published image during a release. Both upload SARIF **with no
+  `category:`** so they land in the same analysis stream and refresh each other's findings instead of creating two parallel alert sets for the same image; PR
+  runs skip the upload entirely, because a PR should gate rather than mutate the repository's alert state.
+
+  **Why `security-trivy-image.yml` uploads SARIF at all:** `release.yml`'s `build-container` job is gated on `needs.version.outputs.released == 'true'`, and PSR
+  only releases on `feat:`/`fix:`/`perf:`. A run of `ci:`- or `chore:`-only commits therefore produces no container scan and no SARIF, which would leave image
+  findings stale — and any alert that has been reopened stuck open — indefinitely. The weekly run bounds that staleness to seven days;
+  `gh workflow run "Security - Trivy Container Image Scan"` clears it on demand.
