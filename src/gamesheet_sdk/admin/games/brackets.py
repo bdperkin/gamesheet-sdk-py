@@ -75,6 +75,6 @@ def get_game(session: Session, season_id: str, game_id: int) -> Game:
     # Game not found
     _err_msg = (
         f"Game '{game_id}' not found in season '{season_id}'. "
-        f"Make sure you're using a valid game ID and season ID.",
+        f"Make sure you're using a valid game ID and season ID."
     )
     raise GameSheetError(_err_msg)

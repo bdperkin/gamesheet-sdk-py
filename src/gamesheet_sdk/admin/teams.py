@@ -184,7 +184,7 @@ def get_team(session: Session, season_id: str, team_id: str) -> Team:
     # Team not found
     _err_msg = (
         f"Team '{team_id}' not found in season '{season_id}'. "
-        f"Make sure you're using a valid team ID and season ID.",
+        f"Make sure you're using a valid team ID and season ID."
     )
     raise GameSheetError(_err_msg)
 
