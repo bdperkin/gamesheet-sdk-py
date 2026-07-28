@@ -13,7 +13,6 @@ import pytest
 import responses
 
 from gamesheet_sdk import (
-    BFF_API_BASE_URL,
     CLOUDFLARE_IMAGE_DELIVERY_BASE,
     AuthenticationError,
     Config,
@@ -32,7 +31,6 @@ from tests.helpers import (
 )
 
 _TEAM_ID = TEAM_ID_TERTIARY
-_BFF_BASE = BFF_API_BASE_URL
 _UPLOAD_URL_ENDPOINT = f"{TEST_BFF_BASE_URL}{BFF_ASSETS_UPLOAD_URL_PATH}"
 _GET_ENDPOINT = team_endpoint(SEASON_ID, _TEAM_ID)
 _UPDATE_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams-v2/{_TEAM_ID}"

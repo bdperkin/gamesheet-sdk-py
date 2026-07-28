@@ -43,7 +43,6 @@ Load existing tokens and refresh if needed:
 from __future__ import annotations
 
 import json
-import logging
 
 import requests
 
@@ -56,8 +55,6 @@ from gamesheet_sdk.common.auth.storage import (
 )
 from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
-
-_LOGGER = logging.getLogger(__name__)
 
 
 def load_access_token(config: Config) -> str | None:

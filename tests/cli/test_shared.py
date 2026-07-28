@@ -34,7 +34,7 @@ def test_common_output_options_decorator() -> None:
     @common_output_options
     @click.command()
     def dummy_command(output_format: str, output_path: str | None) -> None:
-        del output_format, output_path
+        _ = output_format, output_path
 
     # Check that the command has the expected parameters
     params = {p.name for p in dummy_command.params}
@@ -48,7 +48,7 @@ def test_list_columns_option_decorator() -> None:
     @list_columns_option
     @click.command()
     def dummy_command(columns_spec: str | None) -> None:
-        del columns_spec
+        _ = columns_spec
 
     # Check that the command has the columns_spec parameter
     params = {p.name for p in dummy_command.params}
@@ -61,7 +61,7 @@ def test_get_fields_option_decorator() -> None:
     @get_fields_option
     @click.command()
     def dummy_command(fields_spec: str | None) -> None:
-        del fields_spec
+        _ = fields_spec
 
     # Check that the command has the fields_spec parameter
     params = {p.name for p in dummy_command.params}

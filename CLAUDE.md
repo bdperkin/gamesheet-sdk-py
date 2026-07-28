@@ -344,7 +344,8 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   - **Semgrep** — SAST (static application security testing)
   - **Trivy** — container vulnerability scanning with `.trivyignore.yaml` for suppressed CVEs
   - **OSV-Scanner** — dependency vulnerability scanning
-  - **CodeQL** — semantic code analysis
+  - **CodeQL** — semantic code analysis, running the `security-extended` + `security-and-quality` suites (see `codeql.yml`), so alerts include quality and
+    maintainability findings, not just vulnerabilities
   - **pip-audit** — Python dependency vulnerability scanning
 
   The `.trivyignore.yaml` file contains suppressed container base image CVEs that cannot be fixed. It uses Trivy's YAML ignore format so each entry carries a
@@ -365,11 +366,30 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   `--ignorefile` on the CLI). Omitting it silently disables all suppressions rather than erroring, which floods the Security tab with base-image noise.
 
   Container images are scanned in two places. `security-trivy-image.yml` builds and scans the image as a pass/fail gate on PRs that touch the `Dockerfile`, plus
-  a weekly run and a `workflow_dispatch` for base-image drift. `release.yml` scans the published image during a release. Both upload SARIF **with no
-  `category:`** so they land in the same analysis stream and refresh each other's findings instead of creating two parallel alert sets for the same image; PR
-  runs skip the upload entirely, because a PR should gate rather than mutate the repository's alert state.
+  a weekly run and a `workflow_dispatch` for base-image drift. `release.yml` scans the published image during a release. Both upload SARIF under the **explicit
+  shared category `trivy-image`**, so they write to one analysis stream and refresh each other's findings instead of creating two parallel alert sets for the
+  same image; PR runs skip the upload entirely, because a PR should gate rather than mutate the repository's alert state.
+
+  **Gotcha worth preserving:** an *omitted* `category:` is not a shared category. GitHub derives one per workflow as `.github/workflows/<file>:<job>`, and
+  replacement of previous findings happens per category — same category replaces, different categories accumulate in parallel. Uploading the same tool's results
+  from two workflows without an explicit shared category therefore produces two independent alert sets that never close each other out. This bit us once: the
+  `trivy-image` category was introduced precisely because a category-less upload from `security-trivy-image.yml` created a third stream instead of refreshing
+  `release.yml`'s.
 
   **Why `security-trivy-image.yml` uploads SARIF at all:** `release.yml`'s `build-container` job is gated on `needs.version.outputs.released == 'true'`, and PSR
   only releases on `feat:`/`fix:`/`perf:`. A run of `ci:`- or `chore:`-only commits therefore produces no container scan and no SARIF, which would leave image
   findings stale — and any alert that has been reopened stuck open — indefinitely. The weekly run bounds that staleness to seven days;
   `gh workflow run "Security - Trivy Container Image Scan"` clears it on demand.
+
+- **CodeQL quality findings that are false positives.** Two code shapes in this repo are reported by the `security-and-quality` suite but must not be "fixed",
+  and both carry inline comments saying so:
+
+  - `if TYPE_CHECKING: from pydantic import SecretStr` alongside `cast("SecretStr", ...)` in tests reads as `py/unused-import`. It isn't: flake8-type-checking's
+    **TC006** requires `cast()` annotations to be string literals, and a string annotation means the import can only live in a `TYPE_CHECKING` block. Unquoting
+    the cast or moving the import to runtime trades a CodeQL note for a flake8 failure, and flake8 gates merges while the note does not.
+  - `FIREBASE_AUTH_URL` and `TOKEN_EXCHANGE_URL` in `common/auth/constants.py` read as `py/unused-global-variable` because nothing in their defining module
+    consumes them — they are imported by `teams/login.py` and `tests/common/auth/conftest.py`.
+
+  Both were dismissed as false positives in the Security UI. Note the contrast with Trivy: CVE suppression belongs in `.trivyignore.yaml` because Trivy supports
+  a versioned ignore file with expiry, whereas CodeQL offers no equivalent per-alert repo-side mechanism short of `query-filters`, which would suppress a whole
+  rule across the codebase rather than six specific sites.

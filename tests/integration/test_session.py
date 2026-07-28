@@ -68,10 +68,15 @@ def test_post_put_delete_resolve_too(config: Config) -> None:
     responses.add(responses.POST, "https://test.example/a", status=201)
     responses.add(responses.PUT, "https://test.example/b", status=204)
     responses.add(responses.DELETE, "https://test.example/c", status=204)
+    # The requests are issued outside the assertions on purpose: `python -O`
+    # strips asserts, which would skip the calls this test exists to make.
     with Session(config) as sess:
-        assert sess.post("/a").status_code == 201
-        assert sess.put("/b").status_code == 204
-        assert sess.delete("/c").status_code == 204
+        post_response = sess.post("/a")
+        put_response = sess.put("/b")
+        delete_response = sess.delete("/c")
+    assert post_response.status_code == 201
+    assert put_response.status_code == 204
+    assert delete_response.status_code == 204
 
 
 @responses.activate

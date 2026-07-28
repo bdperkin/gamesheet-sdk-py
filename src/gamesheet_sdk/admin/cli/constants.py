@@ -67,10 +67,6 @@ TIMEZONE_OFFSET_HELP_TEXT = f"Time zone offset in minutes (e.g., {TIMEZONE_OFFSE
 
 # Common CLI help snippets
 HELP_USE_LOCATIONS_LIST = "Use 'gamesheet-admin locations list' to see all valid locations."
-# Re-export from shared.constants to avoid circular imports (used in errors.py)
-# pylint: disable-next=unused-import,wrong-import-position
-from gamesheet_sdk.common.shared.constants import HELP_USE_SEASONS_LIST  # noqa: E402, F401
-
 HELP_USE_BROADCASTERS_LIST = "Use 'gamesheet-admin games broadcasters list' to see valid options."
 
 # Resource ID help text for Click options
