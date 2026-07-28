@@ -31,9 +31,10 @@
 # ╠══════════════════════════════════════════════════════════════════════════════════════════╣
 # ║ Notes                                                                                    ║
 # ╟──────────────────────────────────────────────────────────────────────────────────────────╢
-# ║ • SARIF is uploaded with NO category, i.e. into the same analysis stream                 ║
-# ║   release.yml uses. That refreshes the existing image findings instead of                ║
-# ║   creating a second parallel alert stream for the same image.                            ║
+# ║ • SARIF is uploaded under the explicit shared category "trivy-image", the                ║
+# ║   same one release.yml uses, so both refresh one analysis stream instead of              ║
+# ║   creating parallel alert sets. Omitting the category does NOT share a                   ║
+# ║   stream — GitHub derives ".github/workflows/<file>:<job>" per workflow.                 ║
 # ║ • Why this workflow uploads at all: release.yml's build-container job is                 ║
 # ║   gated on `needs.version.outputs.released == 'true'`, and PSR only                      ║
 # ║   releases on feat:/fix:/perf:. Without an upload here, a run of ci:- or                 ║
@@ -76,9 +77,8 @@ jobs:
     name: Trivy container image scan
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      # Needed only by the SARIF upload step, which is skipped on PR runs.
-      security-events: write
+      contents: read # Checkout repository
+      security-events: write # Upload SARIF (non-PR runs only)
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -119,9 +119,11 @@ jobs:
         uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4.37.3
         with:
           sarif_file: "trivy-image-results.sarif"
-          # No `category:` on purpose — this must land in the same analysis
-          # stream as release.yml's image scan so findings are refreshed rather
-          # than duplicated into a second parallel alert set.
+          # Shared with release.yml's image scan so both workflows write to one
+          # analysis stream and refresh each other's findings. An omitted category
+          # is NOT shared: GitHub derives ".github/workflows/<file>:<job>", which
+          # yields two parallel alert sets for the same image.
+          category: "trivy-image"
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Trivy image scan (fail on CRITICAL/HIGH)

@@ -18,6 +18,9 @@ from tests.common.auth.conftest import _FIREBASE_URL, _TOKEN_URL, _make_response
 from tests.helpers import TEST_EMAIL_MINIMAL
 
 if TYPE_CHECKING:
+    # Imported for typing only, and referenced as a string in cast() below:
+    # flake8-type-checking's TC006 requires cast() annotations to be string
+    # literals, so CodeQL reports this as py/unused-import. Do not remove it.
     from pydantic import SecretStr
 # ---------- credential validation ----------------------------------------
 

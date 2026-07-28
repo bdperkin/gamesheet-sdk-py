@@ -16,6 +16,9 @@ from gamesheet_sdk.teams.login import TeamsLoginFlow, refresh_access_token
 from tests.helpers import TEST_EMAIL_MINIMAL
 
 if TYPE_CHECKING:
+    # Imported for typing only, and referenced as a string in cast() below:
+    # flake8-type-checking's TC006 requires cast() annotations to be string
+    # literals, so CodeQL reports this as py/unused-import. Do not remove it.
     from pydantic import SecretStr
 
 
