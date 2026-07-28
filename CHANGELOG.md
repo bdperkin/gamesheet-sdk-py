@@ -2,6 +2,26 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.6 (2026-07-28)
+
+### Bug Fixes
+
+- **ci**: Share one SARIF category for image scans and clear CodeQL findings
+  ([`e868f4b`](https://github.com/bdperkin/gamesheet-sdk-py/commit/e868f4b8278e87703299e94e4074edca0ec0c6c7))
+
+### Chores
+
+- **deps**: Update pre-commit hooks ([#161](https://github.com/bdperkin/gamesheet-sdk-py/pull/161),
+  [`c0d9270`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c0d927061fabbff1c1664861880d8a4966c66df1))
+
+- **deps)(deps**: Bump the actions group across 1 directory with 5 updates ([#160](https://github.com/bdperkin/gamesheet-sdk-py/pull/160),
+  [`16ccb51`](https://github.com/bdperkin/gamesheet-sdk-py/commit/16ccb51aca4bdc4420fcce4af798accbdd389676))
+
+### Continuous Integration
+
+- **security**: Consolidate CVE suppression and enable CodeQL quality suite
+  ([`6d54d7b`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6d54d7b46de8ffddf70346aecff24a3729899df8))
+
 ## v0.4.5 (2026-07-27)
 
 ### Bug Fixes
