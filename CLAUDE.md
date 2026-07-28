@@ -376,6 +376,24 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   `trivy-image` category was introduced precisely because a category-less upload from `security-trivy-image.yml` created a third stream instead of refreshing
   `release.yml`'s.
 
+  **Second gotcha, for hand-uploaded SARIF:** when POSTing to `/code-scanning/sarifs` directly, the category comes from `runs[].automationDetails.id`, and that
+  field is parsed as `<category>/<run-specific-id>` — GitHub splits at the **final `/`** and keeps only the part before it as the category. So an id of
+  `.github/workflows/release.yml:build-container` files the analysis under category `.github/workflows`, silently landing in the wrong stream. **Append a
+  trailing slash** to have the whole string treated as the category:
+
+  ```text
+  automationDetails.id = ".github/workflows/release.yml:build-container/"   → category ".github/workflows/release.yml:build-container"
+  automationDetails.id = ".github/workflows/release.yml:build-container"    → category ".github/workflows"          ← wrong stream
+  ```
+
+  This is only a concern for manual uploads; `github/codeql-action/upload-sarif` handles the suffix itself when given `category:`. It matters because the
+  failure is silent — the upload returns `202`, processing completes, and the analysis appears under a plausible-looking category while the alerts you meant to
+  close stay open. Verify after any manual upload with
+  `gh api "repos/<owner>/<repo>/code-scanning/analyses?per_page=5" --jq '.[]|"\(.created_at) results=\(.results_count) cat=\(.category)"'`.
+
+  A zero-result SARIF posted to an existing category is the non-destructive way to close a stale alert set — it marks those alerts fixed while leaving the
+  category's analysis history intact, unlike deleting analyses (which, done one at a time, promotes the previous analysis and resurrects its alerts).
+
   **Why `security-trivy-image.yml` uploads SARIF at all:** `release.yml`'s `build-container` job is gated on `needs.version.outputs.released == 'true'`, and PSR
   only releases on `feat:`/`fix:`/`perf:`. A run of `ci:`- or `chore:`-only commits therefore produces no container scan and no SARIF, which would leave image
   findings stale — and any alert that has been reopened stuck open — indefinitely. The weekly run bounds that staleness to seven days;
