@@ -167,6 +167,13 @@ categories:
 
       - name: deptry
         repo: https://github.com/osprey-oss/deptry
+        hooks:
+          - id: deptry
+            overrides:
+              language: python
+            appends:
+              additional_dependencies:
+                - gamesheet-sdk-py[deptry,pytest,type-stubs]
 
   documentation_-_docstring_tools:
     description: Documentation & Docstring Tools
