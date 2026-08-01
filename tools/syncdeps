@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
+"""Dependency convergence tool."""
+
+from pathlib import Path
+import re
+import sys
+
+try:
+    from depsync.cli import app
+except ModuleNotFoundError:
+    import os.path
+
+    TOOLSDIR = Path(os.path.realpath(__file__)).parent
+    sys.path.append(f"{TOOLSDIR}")
+    from depsync.cli import app
+
+if __name__ == "__main__":
+    sys.argv[0] = re.sub(r"(-script\.pyw|\.exe)?$", "", sys.argv[0])
+    sys.exit(app())  # pylint: disable=no-value-for-parameter,missing-kwoa

@@ -404,14 +404,12 @@ class AdminLoginFlow:
         :type email: str | None
         :param password: Login password, or ``None`` to resolve from config/env.
         :type password: str | None
-        :param timeout: Auth round-trip timeout in seconds, or ``None`` for the
-            default.
+        :param timeout: Auth round-trip timeout in seconds, or ``None`` for the default.
         :type timeout: float | None
         :returns: Token bundle with ``"access"`` and ``"refresh"`` keys.
         :rtype: dict[str, str]
-        :raises ~gamesheet_sdk.common.exceptions.AuthenticationError:
-            If credentials are missing, the auth backend rejects them, or
-            tokens are not found in the saved state after login.
+        :raises ~gamesheet_sdk.common.exceptions.AuthenticationError: If credentials are missing, the auth
+            backend rejects them, or tokens are not found in the saved state after login.
         """
         with BrowserSession(self._config) as session:
             login(session, email=email, password=password, timeout=timeout)

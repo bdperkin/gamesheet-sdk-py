@@ -119,11 +119,10 @@ def refresh_access_token(
     :param timeout: Request timeout in seconds. Defaults to
         :data:`~gamesheet_sdk.common.auth.constants.DEFAULT_TIMEOUT_S`.
     :type timeout: float
-    :returns: Dictionary with keys ``access`` and ``refresh``, each containing the corresponding
-        token string.
+    :returns: Dictionary with keys ``access`` and ``refresh``, each containing the corresponding token string.
     :rtype: dict[str, str]
-    :raises AuthenticationError: If the refresh token is rejected (HTTP 401). This typically means
-        the token has expired and the user needs to re-authenticate via ``gamesheet-teams login``.
+    :raises AuthenticationError: If the refresh token is rejected (HTTP 401). This typically means the token
+        has expired and the user needs to re-authenticate via ``gamesheet-teams login``.
     :raises GameSheetError: For any other non-2xx HTTP response from the token refresh endpoint.
     """
     url = f"{TEAMS_API_GATEWAY}{TEAMS_REFRESH_PATH}"
@@ -192,9 +191,8 @@ class TeamsLoginFlow:
         :type timeout: float | None
         :returns: Token bundle with ``"access"`` and ``"refresh"`` keys.
         :rtype: dict[str, str]
-        :raises ~gamesheet_sdk.common.exceptions.AuthenticationError:
-            If credentials are missing, Firebase rejects them, or the
-            token exchange fails.
+        :raises ~gamesheet_sdk.common.exceptions.AuthenticationError: If credentials are missing, Firebase
+            rejects them, or the token exchange fails.
         """
         resolved_email = resolve_email(self._config, email)
         resolved_password = resolve_password(self._config, password)

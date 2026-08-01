@@ -4,7 +4,7 @@ Custom Sphinx Autosummary Template for Modules
 ===============================================================================
 This Jinja2 template controls how autosummary generates documentation pages
 for Python modules. It's used when a module is referenced in an autosummary
-directive with `:template: custom-module-template.rst`.
+directive with ``:template: custom-module-template.rst``.
 
 Template Context Variables (provided by Sphinx autosummary):
   - fullname: Fully qualified module name (e.g., 'gamesheet_sdk.auth.session')
@@ -29,10 +29,10 @@ This template generates a page with:
   6. Exceptions rubric with autosummary table (if any exist)
   7. Submodules section with recursive autosummary (if any exist)
 
-The `:toctree:` option in autosummary directives tells Sphinx to generate
+The ``:toctree:`` option in autosummary directives tells Sphinx to generate
 separate pages for each item and add them to the table of contents.
 
-The `:nosignatures:` option hides function/method signatures in the summary
+The ``:nosignatures:`` option hides function/method signatures in the summary
 table (full signatures appear on the individual detail pages).
 
 See: https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html

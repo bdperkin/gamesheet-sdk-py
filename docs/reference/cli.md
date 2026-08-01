@@ -171,7 +171,7 @@ Both CLIs read configuration from `GAMESHEET_`-prefixed environment variables vi
 ```bash
 # Authenticate using environment variables instead of prompts
 export GAMESHEET_USERNAME="user@example.com"
-export GAMESHEET_PASSWORD="secret"
+export GAMESHEET_PASSWORD="secret"  # pragma: allowlist secret
 gamesheet-admin login
 
 # Use a custom base URL and increase timeout
