@@ -2,6 +2,37 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.7 (2026-08-01)
+
+### Bug Fixes
+
+- **tools**: Address CodeQL findings and detect-aws-credentials CI failure ([#166](https://github.com/bdperkin/gamesheet-sdk-py/pull/166),
+  [`2c55c2e`](https://github.com/bdperkin/gamesheet-sdk-py/commit/2c55c2e021383585526fa80d75cc90fa812194d1))
+
+- **tools**: Blacklist editorconfig-checker-system hook ([#166](https://github.com/bdperkin/gamesheet-sdk-py/pull/166),
+  [`2c55c2e`](https://github.com/bdperkin/gamesheet-sdk-py/commit/2c55c2e021383585526fa80d75cc90fa812194d1))
+
+- **tools**: Configure deptry hook as language python with additional deps ([#166](https://github.com/bdperkin/gamesheet-sdk-py/pull/166),
+  [`2c55c2e`](https://github.com/bdperkin/gamesheet-sdk-py/commit/2c55c2e021383585526fa80d75cc90fa812194d1))
+
+- **tools**: Pin unimport to py3.11, fix CodeQL findings, document cert bypass ([#166](https://github.com/bdperkin/gamesheet-sdk-py/pull/166),
+  [`2c55c2e`](https://github.com/bdperkin/gamesheet-sdk-py/commit/2c55c2e021383585526fa80d75cc90fa812194d1))
+
+### Build System
+
+- **tools**: Add developer tooling with pip config support ([#166](https://github.com/bdperkin/gamesheet-sdk-py/pull/166),
+  [`2c55c2e`](https://github.com/bdperkin/gamesheet-sdk-py/commit/2c55c2e021383585526fa80d75cc90fa812194d1))
+
+### Code Style
+
+- **tools**: Use double quotes in f-string expressions for flake8 Q000 ([#166](https://github.com/bdperkin/gamesheet-sdk-py/pull/166),
+  [`2c55c2e`](https://github.com/bdperkin/gamesheet-sdk-py/commit/2c55c2e021383585526fa80d75cc90fa812194d1))
+
+### Documentation
+
+- **ci**: Record the SARIF automationDetails.id trailing-slash gotcha
+  ([`47f52eb`](https://github.com/bdperkin/gamesheet-sdk-py/commit/47f52eb73be71577ecf93b71ac869fd871f8fec6))
+
 ## v0.4.6 (2026-07-28)
 
 ### Bug Fixes
