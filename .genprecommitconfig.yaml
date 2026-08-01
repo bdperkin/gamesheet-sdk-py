@@ -53,6 +53,10 @@ categories:
       - name: pre-commit-hooks
         repo: https://github.com/pre-commit/pre-commit-hooks
         hooks:
+          - id: detect-aws-credentials
+            appends:
+              args:
+                - --allow-missing-credentials
           - id: pretty-format-json
             appends:
               args:

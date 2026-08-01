@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import logging
 from typing import Any
+from urllib.parse import urlparse
 
 from precommit.config import FETCH_HOOKS_TIMEOUT
 from precommit.exceptions import FetchError
@@ -28,12 +29,13 @@ def _build_raw_url(repo_url: str, rev: str) -> str:
     :raises FetchError: If the repository host is not supported.
     """
     normalized = repo_url.removesuffix(".git")
+    hostname = urlparse(normalized).hostname or ""
 
-    if "github.com" in normalized:
-        raw_base = normalized.replace("github.com", "raw.githubusercontent.com")
+    if hostname == "github.com" or hostname.endswith(".github.com"):
+        raw_base = normalized.replace(hostname, "raw.githubusercontent.com", 1)
         return f"{raw_base}/{rev}/.pre-commit-hooks.yaml"
 
-    if "gitlab.com" in normalized:
+    if hostname == "gitlab.com" or hostname.endswith(".gitlab.com"):
         return f"{normalized}/-/raw/{rev}/.pre-commit-hooks.yaml"
 
     msg = f"Unsupported repository host: {repo_url}"

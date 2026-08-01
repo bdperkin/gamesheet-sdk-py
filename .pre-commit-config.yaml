@@ -237,6 +237,8 @@ repos:
         language: python
         types:
           - text
+        args:
+          - --allow-missing-credentials
       - id: detect-private-key
         name: detect private key
         description: detects the presence of private keys.
