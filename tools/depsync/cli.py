@@ -110,17 +110,19 @@ def _print_result_warnings(results: list[ConvergenceResult]) -> None:
     """Print summary warnings for pinned and stale results."""
     pinned_results = [r for r in results if r.is_pinned]
     if pinned_results:
+        noun = "dependency is" if len(pinned_results) == 1 else "dependencies are"
         console.print(
             f"\n[bold yellow]Warning:[/] {len(pinned_results)} "
-            f"{'dependency is' if len(pinned_results) == 1 else 'dependencies are'} "
+            f"{noun} "
             f"pinned in .genprecommitconfig.yaml — rev values will not be modified",
         )
 
     stale_results = [r for r in results if r.needs_regeneration]
     if stale_results:
+        noun = "repo has a" if len(stale_results) == 1 else "repos have"
         console.print(
             f"[bold yellow]Warning:[/] {len(stale_results)} "
-            f"{'repo has a' if len(stale_results) == 1 else 'repos have'} "
+            f"{noun} "
             f"stale rev in .pre-commit-config.yaml",
         )
 
@@ -168,9 +170,11 @@ def _display_results(results: list[ConvergenceResult]) -> None:
 
         detail_parts = []
         if r.groups:
-            detail_parts.append(f"groups: {', '.join(r.groups)}")
+            groups_str = ", ".join(r.groups)
+            detail_parts.append(f"groups: {groups_str}")
         if r.hook_ids:
-            detail_parts.append(f"hooks: {', '.join(r.hook_ids)}")
+            hooks_str = ", ".join(r.hook_ids)
+            detail_parts.append(f"hooks: {hooks_str}")
         detail = "; ".join(detail_parts) if detail_parts else "-"
 
         label = f"{r.package} (additional_dep)" if r.is_additional_dep else r.package
@@ -414,7 +418,8 @@ def _log_parsed_config(
     if extra_index_urls:
         console.print(f"  Extra index URLs: [cyan]{len(extra_index_urls)}[/]")
     if pip_config.trusted_hosts:
-        console.print(f"  Trusted hosts: [cyan]{', '.join(pip_config.trusted_hosts)}[/]")
+        hosts_str = ", ".join(pip_config.trusted_hosts)
+        console.print(f"  Trusted hosts: [cyan]{hosts_str}[/]")
     if min_python:
         console.print(f"  Python compatibility floor: [cyan]{min_python}[/]")
 

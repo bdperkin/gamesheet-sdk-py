@@ -147,7 +147,8 @@ def _fetch_simple_versions(
     :returns: Dict mapping version string to requires_python (or None), empty on failure.
     """
     normalized = re.sub(r"[-_.]+", "-", package_name).lower()
-    url = f"{index_url.rstrip('/')}/{normalized}/"
+    base = index_url.rstrip("/")
+    url = f"{base}/{normalized}/"
 
     session = get_session()
     try:
