@@ -89,6 +89,7 @@ def fetch_hooks(
 
     session = get_session()
     try:
+        # verify may be False for pip trusted-host entries — intentional, mirrors pip semantics
         resp = session.get(
             url=raw_url,
             timeout=FETCH_HOOKS_TIMEOUT,

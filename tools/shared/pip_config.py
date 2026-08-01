@@ -187,6 +187,11 @@ def _get_system_ca_bundle() -> str | bool:
 def resolve_verify(url: str, config: PipConfig | None = None) -> str | bool:
     """Determine the ``verify`` parameter for a requests call.
 
+    Mirrors pip's ``--trusted-host`` semantics: hosts listed in pip's ``trusted-host`` config skip certificate
+    validation. This is intentional for enterprise environments with internal package indexes that use self-
+    signed or private CA certificates. CodeQL flags the resulting ``verify=False`` as ``py/request-without-
+    cert-validation``; dismiss those findings as false positives in the Security UI after merge.
+
     :param url: The URL being requested.
     :type url: str
     :param config: Pip configuration, or None for defaults.

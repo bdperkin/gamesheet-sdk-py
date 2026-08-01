@@ -152,6 +152,7 @@ def _fetch_simple_versions(
 
     session = get_session()
     try:
+        # verify may be False for pip trusted-host entries — intentional, mirrors pip semantics
         response = session.get(
             url,
             timeout=PYPI_TIMEOUT,

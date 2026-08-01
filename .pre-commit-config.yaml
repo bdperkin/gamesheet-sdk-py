@@ -657,7 +657,7 @@ repos:
           statements
         entry: unimport
         language: python
-        language_version: python3
+        language_version: python3.11
         types:
           - python
 

@@ -37,7 +37,6 @@ PRE_COMMIT_RUN_TIMEOUT = 600
 HOOK_TARGETING_KEYS: set[str] = {"always_run", "files", "stages", "types", "types_or"}
 
 _SEP = "==============================================================================\n"
-_SUBSEP = "----------------------------------------------------------------------------\n"
 
 CI_SECTION_COMMENT = (
     "\n"

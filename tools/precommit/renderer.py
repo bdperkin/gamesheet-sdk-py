@@ -12,7 +12,6 @@ import re
 from typing import Any
 
 from precommit.config import (
-    _SUBSEP,
     CI_PROPERTY_DESCRIPTIONS,
     CI_SECTION_COMMENT,
     GLOBALS_PROPERTY_DESCRIPTIONS,
@@ -25,6 +24,8 @@ from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
 logger = logging.getLogger(__name__)
+
+_SUBSEP = "----------------------------------------------------------------------------\n"
 
 
 def _build_hook_map(hook: dict[str, Any]) -> CommentedMap:
