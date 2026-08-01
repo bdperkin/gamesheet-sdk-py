@@ -1,0 +1,84 @@
+# genprecommitconfig.example.yaml - Example configuration for tools/genprecommitconfig
+#
+# Copy this file to .genprecommitconfig.yaml in your project root and customize.
+# Run: ./tools/genprecommitconfig
+# See: tools/README.genprecommitconfig.md
+#
+# Configuration Reference:
+#
+# globals:
+#   default_language_version:  Language version mapping (default: {python: python3.11})
+#   default_stages:            Default hook stages (default: [pre-commit, pre-push])
+#   fail_fast:                 Stop on first failure (default: true)
+#   output_file:               Output path (default: .pre-commit-config.yaml)
+#   allowed_languages:         Hook languages to include (default: [fail, pygrep, python, script, system])
+#   blacklisted_hooks:         Hook IDs to exclude from all repos
+#
+# categories:
+#   <category-name>:           Organizational grouping (meta, check, lint, format, quality, misc, etc.)
+#     - name:                  Friendly name for the repo (e.g., "ruff" for ruff-pre-commit)
+#       repo:                  Repository URL or "meta"
+#       rev:                   Version spec: null (auto-detect latest), "installed" (match installed package),
+#                              or exact version string (e.g., "v1.2.3")
+#       hooks:                 Per-hook configurations (identified by "id"):
+#         - id:                Hook identifier to match
+#           comment:           Literal comment rendered above the hook in output YAML
+#           overrides:         Fields that replace fetched values entirely
+#             <field>: <value>
+#           appends:           Fields whose values are appended to existing lists
+#             <field>: [<values>]
+#           prepends:          Fields whose values are prepended to existing lists
+#             <field>: [<values>]
+
+globals:
+  default_language_version:
+    python: python3.11
+  default_stages:
+    - pre-commit
+    - pre-push
+  fail_fast: true
+  output_file: .pre-commit-config.yaml
+  allowed_languages:
+    - fail
+    - pygrep
+    - python
+    - script
+    - system
+  blacklisted_hooks: []
+
+categories:
+  meta:
+    - name: meta
+      repo: meta
+      hooks:
+        - id: check-hooks-apply
+        - id: check-useless-excludes
+        - id: identity
+          overrides:
+            stages:
+              - manual
+
+  check:
+    - name: pre-commit-hooks
+      repo: https://github.com/pre-commit/pre-commit-hooks
+
+    - name: pygrep-hooks
+      repo: https://github.com/pre-commit/pygrep-hooks
+
+  lint:
+    - name: yamllint
+      repo: https://github.com/adrienverge/yamllint
+
+  format:
+    - name: ruff
+      repo: https://github.com/astral-sh/ruff-pre-commit
+
+  quality:
+    - name: mypy
+      repo: https://github.com/pre-commit/mirrors-mypy
+      hooks:
+        - id: mypy
+          appends:
+            args:
+              - --install-types
+              - --non-interactive

@@ -1,0 +1,103 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
+"""Remote pre-commit hook definition fetching."""
+
+from __future__ import annotations
+
+import logging
+from typing import Any
+
+from precommit.config import FETCH_HOOKS_TIMEOUT
+from precommit.exceptions import FetchError
+import requests
+from ruamel.yaml import YAML
+from ruamel.yaml.error import YAMLError
+from shared.http_client import get_session
+from shared.pip_config import PipConfig, resolve_verify
+
+logger = logging.getLogger(__name__)
+
+
+def _build_raw_url(repo_url: str, rev: str) -> str:
+    """Build a raw content URL for .pre-commit-hooks.yaml.
+
+    :param repo_url: Repository URL.
+    :param rev: Git revision.
+    :returns: URL to the raw .pre-commit-hooks.yaml file.
+    :raises FetchError: If the repository host is not supported.
+    """
+    normalized = repo_url.removesuffix(".git")
+
+    if "github.com" in normalized:
+        raw_base = normalized.replace("github.com", "raw.githubusercontent.com")
+        return f"{raw_base}/{rev}/.pre-commit-hooks.yaml"
+
+    if "gitlab.com" in normalized:
+        return f"{normalized}/-/raw/{rev}/.pre-commit-hooks.yaml"
+
+    msg = f"Unsupported repository host: {repo_url}"
+    raise FetchError(msg)
+
+
+def _parse_hooks_yaml(content: bytes, raw_url: str, response_text: str) -> list[dict[str, Any]]:
+    """Parse YAML hook definitions from raw response content.
+
+    :param content: Raw response body bytes.
+    :param raw_url: URL the content was fetched from (used in error messages).
+    :param response_text: Response text preview (used in error messages).
+    :returns: Parsed list of hook definition dicts.
+    :raises FetchError: If the YAML is unparseable or not a list.
+    """
+    try:
+        hooks = YAML().load(content)
+    except YAMLError as exc:
+        msg = f"YAML parse error for {raw_url}:\n{response_text[:500]}"
+        raise FetchError(msg) from exc
+
+    if not isinstance(hooks, list):
+        msg = f"Expected list of hooks from {raw_url}, got {type(hooks).__name__}"
+        raise FetchError(msg)
+
+    return hooks
+
+
+def fetch_hooks(
+    repo_url: str,
+    rev: str,
+    *,
+    pip_config: PipConfig | None = None,
+) -> list[dict[str, Any]]:
+    """Fetch .pre-commit-hooks.yaml from a remote repository.
+
+    Constructs the raw content URL for GitHub or GitLab and downloads the hook definition file.
+
+    :param repo_url: Repository URL (GitHub or GitLab).
+    :type repo_url: str
+    :param rev: Git revision (tag or commit hash).
+    :type rev: str
+    :param pip_config: Optional pip configuration for SSL settings.
+    :type pip_config: PipConfig | None
+    :returns: List of hook definition dicts parsed from the YAML.
+    :rtype: list[dict[str, Any]]
+    :raises FetchError: If the URL cannot be determined, the request fails, or the YAML is unparseable.
+    """
+    raw_url = _build_raw_url(repo_url, rev)
+    logger.debug("Fetching hooks from %s", raw_url)
+
+    session = get_session()
+    try:
+        resp = session.get(
+            url=raw_url,
+            timeout=FETCH_HOOKS_TIMEOUT,
+            verify=resolve_verify(raw_url, pip_config),
+        )
+        resp.raise_for_status()
+    except requests.RequestException as exc:
+        msg = f"Failed to fetch hooks from {raw_url}: {exc}"
+        raise FetchError(msg) from exc
+
+    hooks = _parse_hooks_yaml(resp.content, raw_url, resp.text)
+
+    logger.debug("Fetched %d hook definitions from %s", len(hooks), repo_url)
+    return hooks

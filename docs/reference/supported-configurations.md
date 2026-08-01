@@ -90,7 +90,7 @@ Each linter, formatter, type checker, and quality tool is isolated to its own ex
 
 - **Formatters**: `black`, `isort`, `autopep8`, `pyupgrade`, `autoflake`, `ssort`, `add-trailing-comma`, `absolufy-imports`
 - **Linters**: `bandit`, `refurb`, `pyrefly`, `blocklint`, `vulture`, `deptry`, `unimport`
-- **Doc tools**: `codespell`, `blacken-docs`, `docformatter`, `interrogate`, `pydocstyle`, `sphinx-lint`, `pymarkdown`, `mdformat`
+- **Doc tools**: `codespell`, `blacken-docs`, `docformatter`, `interrogate`, `pydocstyle`, `pymarkdown`, `mdformat`
 - **Config file tools**: `yamllint`, `tox-ini-fmt`, `pyproject-fmt`, `validate-pyproject`, `editorconfig-checker`, `pyroma`
 - **Metrics**: `radon`
 

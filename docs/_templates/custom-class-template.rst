@@ -4,7 +4,7 @@ Custom Sphinx Autosummary Template for Classes
 ===============================================================================
 This Jinja2 template controls how autosummary generates documentation pages
 for Python classes. It's used when a class is referenced in an autosummary
-directive with `:template: custom-class-template.rst`.
+directive with ``:template: custom-class-template.rst``.
 
 Template Context Variables (provided by Sphinx autosummary):
   - fullname: Fully qualified class name (e.g., 'gamesheet_sdk.auth.AuthenticatedSession')

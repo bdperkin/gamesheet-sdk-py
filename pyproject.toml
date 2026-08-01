@@ -55,220 +55,261 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "click",
-  "colorlog",
-  "playwright",
-  "pydantic",
-  "pydantic-settings",
-  "python-dateutil",
-  "pyyaml",
-  "requests",
-  "rich",
-  "rich-click",
-  "tabulate",
-  "tzlocal",
-  "urllib3",
+  "click==8.4.2",
+  "colorlog==6.10.1",
+  "playwright==1.61.0",
+  "pydantic==2.13.4",
+  "pydantic-settings==2.14.2",
+  "python-dateutil==2.9.0.post0",
+  "pyyaml==6.0.3",
+  "requests==2.34.2",
+  "rich==15.0.0",
+  "rich-click==1.9.8",
+  "tabulate==0.10.0",
+  "tzlocal==5.4.4",
+  "urllib3==2.7.0",
 ]
 optional-dependencies.absolufy-imports = [
-  "absolufy-imports",
+  "absolufy-imports==0.3.1",
 ]
 optional-dependencies.add-trailing-comma = [
-  "add-trailing-comma",
-]
-optional-dependencies.all = [
-  """\
-  gamesheet-sdk-py[absolufy-imports,add-trailing-comma,autoflake,autopep8,bandit,black,blacken-docs,blocklint,codespell\
-  ,deptry,dev,docconvert,docformatter,docs,editorconfig-checker,flake8,interrogate,mdformat,mypy,psr,pymarkdown,pyproje\
-  ct-fmt,pyrefly,pyright,pyroma,sphinx-lint,ssort,tox-ini-fmt,unimport,validate-pyproject,vulture,yamllint]\
-  """,
+  "add-trailing-comma==4.0.0",
 ]
 optional-dependencies.autoflake = [
-  "autoflake",
+  "autoflake==2.3.3",
+]
+optional-dependencies.automated-fixers = [
+  "gamesheet-sdk-py[absolufy-imports,add-trailing-comma,autopep8,black,isort,pyupgrade,ssort]",
 ]
 optional-dependencies.autopep8 = [
-  "autopep8",
+  "autopep8==2.3.2",
 ]
 optional-dependencies.bandit = [
-  "bandit",
+  "bandit==1.9.4",
 ]
 optional-dependencies.black = [
-  "black",
+  "black==26.5.1",
 ]
 optional-dependencies.blacken-docs = [
-  "blacken-docs",
+  "blacken-docs==1.20.0",
 ]
 optional-dependencies.blocklint = [
-  "blocklint",
+  "blocklint==0.3.0",
 ]
 optional-dependencies.codespell = [
-  "codespell",
+  "codespell==2.4.3",
+]
+optional-dependencies.complexity = [
+  "gamesheet-sdk-py[bandit,radon]",
+]
+optional-dependencies.dead-code-detectors = [
+  "gamesheet-sdk-py[autoflake,unimport,vulture]",
 ]
 optional-dependencies.deptry = [
-  "deptry",
+  "deptry==0.25.1",
+  """\
+  gamesheet-sdk-py[automated_fixers,complexity,dead_code_detectors,dev,docconvert,docs,docstring_tools,formatters,markd\
+  own_tools,pytest,static_analysis,type_checkers]\
+  """,
 ]
 optional-dependencies.dev = [
-  "pre-commit",
-  "tox-workdir",
+  "pre-commit==4.6.0",
+  "tox-workdir==0.1.0",
 ]
 optional-dependencies.docconvert = [
-  "docconvert",
+  "docconvert==2.2.0",
 ]
 optional-dependencies.docformatter = [
-  "docformatter",
+  "docformatter==1.7.8",
 ]
 optional-dependencies.docs = [
-  "furo",
-  "myst-parser[linkify]",
-  "sphinx-autobuild",
-  "sphinx-click",
-  "sphinx-copybutton",
-  "sphinx-design",
-  "sphinx-lint",
+  "furo==2025.12.19",
+  "myst-parser[linkify]==5.1.0",
+  "sphinx-autobuild==2025.8.25",
+  "sphinx-click==6.2.0",
+  "sphinx-copybutton==0.5.2",
+  "sphinx-design==0.7.0",
+  "sphinx-lint==1.0.2",
+]
+optional-dependencies.docstring-tools = [
+  "gamesheet-sdk-py[blacken-docs,codespell,docformatter,interrogate,pydocstyle]",
 ]
 optional-dependencies.editorconfig-checker = [
-  "editorconfig-checker",
+  "editorconfig-checker==3.6.1",
 ]
 optional-dependencies.flake8 = [
-  "flake8-pyproject",
+  "flake8-pyproject==1.2.4",
   "gamesheet-sdk-py[flake8-plugins]",
 ]
 optional-dependencies.flake8-plugins = [
-  "eradicate",
-  "fastapi",
-  "flake8-2020",
-  "flake8-annotations",
-  "flake8-assertive",
-  "flake8-async",
-  "flake8-bandit",
-  "flake8-blind-except",
-  "flake8-boolean-trap",
-  "flake8-bugbear",
-  "flake8-builtins",
-  "flake8-commas",
-  "flake8-comprehensions",
-  "flake8-copyright",
-  "flake8-debugger",
-  "flake8-django",
-  "flake8-errmsg",
-  "flake8-executable",
-  "flake8-fixme",
-  "flake8-future-annotations",
-  "flake8-implicit-str-concat",
-  "flake8-import-conventions",
-  "flake8-logging",
-  "flake8-no-pep420",
-  "flake8-print",
-  "flake8-pyi",
-  "flake8-pytest-style",
-  "flake8-quotes",
-  "flake8-raise",
-  "flake8-self",
-  "flake8-simplify",
-  "flake8-tidy-imports",
-  "flake8-todos",
-  "flake8-type-checking",
-  "flake8-unused-arguments",
-  "flynt",
+  "eradicate==3.0.1",
+  "fastapi==0.141.1",
+  "flake8-2020==1.8.1",
+  "flake8-annotations==3.2.0",
+  "flake8-assertive==2.2.0",
+  "flake8-async==27.7.1",
+  "flake8-bandit==4.1.1",
+  "flake8-blind-except==0.2.1",
+  "flake8-boolean-trap==1.0.1",
+  "flake8-bugbear==25.11.29",
+  "flake8-builtins==3.1.0",
+  "flake8-commas==4.0.0",
+  "flake8-comprehensions==3.17.0",
+  "flake8-copyright==0.2.4",
+  "flake8-debugger==4.1.2",
+  "flake8-errmsg==0.7.0",
+  "flake8-executable==2.1.3",
+  "flake8-fixme==1.1.1",
+  "flake8-future-annotations==1.1.0",
+  "flake8-implicit-str-concat==0.7.0",
+  "flake8-import-conventions==0.1.0",
+  "flake8-logging==1.8.0",
+  "flake8-no-pep420==2.9.0",
+  "flake8-print==5.0.0",
+  "flake8-pyi==26.5.0",
+  "flake8-pytest-style==2.2.0",
+  "flake8-quotes==3.4.0",
+  "flake8-raise==0.0.5",
+  "flake8-self==0.2.2",
+  "flake8-simplify==0.30.0",
+  "flake8-tidy-imports==4.12.0",
+  "flake8-todos==0.3.1",
+  "flake8-type-checking==3.2.0",
+  "flake8-unused-arguments==0.0.14",
+  "flynt==1.0.6",
   "gamesheet-sdk-py[isort,pydocstyle,pylint,pyupgrade,radon,refurb]",
-  "pep8-naming",
-  "pydoclint",
-  "tryceratops",
+  "pep8-naming==0.15.1",
+  "pydoclint==0.9.1",
+  "tryceratops==2.4.1",
+]
+optional-dependencies.formatters = [
+  "gamesheet-sdk-py[editorconfig-checker,pyproject-fmt,pyroma,tox-ini-fmt,validate-pyproject,yamllint]",
 ]
 optional-dependencies.interrogate = [
-  "interrogate",
+  "interrogate==1.7.0",
 ]
 optional-dependencies.isort = [
-  "isort",
+  "isort==8.0.1",
+]
+optional-dependencies.markdown-tools = [
+  "gamesheet-sdk-py[mdformat,pymarkdown]",
 ]
 optional-dependencies.mdformat = [
-  "mdformat-gfm",
-  "mdformat-pyproject",
+  "mdformat-gfm==1.0.0",
+  "mdformat-pyproject==0.1.1",
 ]
 optional-dependencies.mypy = [
-  "gamesheet-sdk-py[pytest,type-stubs]",
-  "mypy",
-]
-optional-dependencies.psr = [
-  "build",
-  "pre-commit",
-  "python-semantic-release",
+  "gamesheet-sdk-py[dev,pytest,tools,type-stubs]",
+  "mypy==2.1.0",
 ]
 optional-dependencies.pydocstyle = [
-  "pydocstyle",
+  "pydocstyle==6.3.0",
 ]
 optional-dependencies.pylint = [
-  "gamesheet-sdk-py[pytest]",
-  "pylint-per-file-ignores",
-  "pylint-pydantic",
+  "gamesheet-sdk-py[pytest,tools]",
+  "pylint-per-file-ignores==3.2.1",
+  "pylint-pydantic==0.4.1",
 ]
 optional-dependencies.pymarkdown = [
-  "pymarkdownlnt",
+  "pymarkdownlnt==0.9.38",
 ]
 optional-dependencies.pyproject-fmt = [
-  "pyproject-fmt",
+  "pyproject-fmt==2.25.3",
 ]
 optional-dependencies.pyrefly = [
   "gamesheet-sdk-py[pytest]",
-  "pyrefly",
+  "pyrefly==1.1.1",
 ]
 optional-dependencies.pyright = [
-  "gamesheet-sdk-py[pytest]",
-  "pyright",
+  "gamesheet-sdk-py[pytest,tools]",
+  "pyright==1.1.411",
 ]
 optional-dependencies.pyroma = [
-  "pyroma",
-  "virtualenv",
+  "pyroma==5.0.1",
 ]
 optional-dependencies.pytest = [
-  "pytest-cov",
-  "pytest-playwright",
-  "pytest-recording",
-  "responses",
+  "pytest-cov==7.1.0",
+  "pytest-playwright==0.8.0",
+  "pytest-recording==0.13.4",
+  "responses==0.26.2",
 ]
 optional-dependencies.pyupgrade = [
-  "pyupgrade",
+  "pyupgrade==3.21.2",
 ]
 optional-dependencies.radon = [
-  "radon",
+  "radon==6.0.1",
 ]
 optional-dependencies.refurb = [
-  "refurb",
-]
-optional-dependencies.sphinx-lint = [
-  "sphinx-lint",
+  "refurb==2.3.1",
 ]
 optional-dependencies.ssort = [
-  "ssort",
+  "ssort==0.16.0",
+]
+optional-dependencies.static-analysis = [
+  "gamesheet-sdk-py[blocklint,flake8,pylint,pyrefly,refurb]",
+]
+optional-dependencies.tools = [
+  "ruamel-yaml==0.19.1",
+  "tomli==2.4.1",
+  "tomlkit==0.15.0",
+  "uv==0.11.28",
 ]
 optional-dependencies.tox-ini-fmt = [
-  "tox-ini-fmt",
+  "tox-ini-fmt==1.7.2",
+]
+optional-dependencies.type-checkers = [
+  "gamesheet-sdk-py[mypy,pyright]",
 ]
 optional-dependencies.type-stubs = [
-  "types-certifi",
-  "types-click",
-  "types-docutils",
-  "types-greenlet",
-  "types-pygments",
-  "types-python-dateutil",
-  "types-pytz",
-  "types-pyyaml",
-  "types-requests",
-  "types-six",
-  "types-tabulate",
-  "types-tzlocal",
-  "types-urllib3",
+  "types-attrs==19.1.0",
+  "types-babel==2.11.0.15",
+  "types-beautifulsoup4==4.12.0.20250516",
+  "types-cachetools==7.0.0.20260518",
+  "types-certifi==2021.10.8.3",
+  "types-click==7.1.8",
+  "types-colorama==0.4.15.20260508",
+  "types-docutils==0.22.3.20260518",
+  "types-filelock==3.2.7",
+  "types-flake8==7.3.0.20260508",
+  "types-flake8-2020==1.8.0.20240818",
+  "types-flake8-bugbear==25.11.29.20260518",
+  "types-flake8-builtins==3.1.0.20260508",
+  "types-flake8-plugin-utils==1.3.7.5",
+  "types-flake8-simplify==0.30.0.20260408",
+  "types-greenlet==3.5.0.20260518",
+  "types-jinja2==2.11.9",
+  "types-markupsafe==1.1.10",
+  "types-mypy-extensions==1.1.0.20260518",
+  "types-pep8-naming==0.15.0.20260408",
+  "types-pluggy==1.2.0.20240106",
+  "types-polib==1.2.0.20260518",
+  "types-pyflakes==3.4.0.20260724",
+  "types-pygments==2.20.0.20260518",
+  "types-python-dateutil==2.9.0.20260518",
+  "types-python-slugify==8.0.2.20240310",
+  "types-pyyaml==6.0.12.20260518",
+  "types-regex==2026.7.19.20260720",
+  "types-requests==2.33.0.20260518",
+  "types-setuptools==83.0.0.20260706",
+  "types-six==1.17.0.20260518",
+  "types-tabulate==0.10.0.20260508",
+  "types-toml==0.10.8.20260518",
+  "types-typing-extensions==3.7.3",
+  "types-tzdata==2026.0.0.20260408",
+  "types-tzlocal==5.1.0.1",
+  "types-urllib3==1.26.25.14"
 ]
 optional-dependencies.unimport = [
-  "unimport",
+  "unimport==0.11.1",
 ]
 optional-dependencies.validate-pyproject = [
-  "validate-pyproject",
+  "validate-pyproject==0.25",
 ]
 optional-dependencies.vulture = [
-  "vulture",
+  "vulture==2.16",
 ]
 optional-dependencies.yamllint = [
-  "yamllint",
+  "yamllint==1.38.0",
 ]
 urls.Documentation = "https://bdperkin.github.io/gamesheet-sdk-py/"
 urls.Homepage = "https://github.com/bdperkin/gamesheet-sdk-py"
@@ -293,24 +334,20 @@ build.targets.sdist.include = [
   "src",
   "tests",
 ]
-description = "Modern, all-in-one Python project manager and build tool that handles environments, testing, and publishing."
 
 ## ## autopep8 - PEP 8 style fixer
 [tool.autopep8]
 max_line_length = 110
 recursive = true
 ignore = "E203"
-# exclude = ""
 aggressive = 1
 check = true
-description = "Automatically formats Python code to conform to the PEP 8 style guide by fixing layout issues."
 exit_code = true
 extend_exclude = "docs/_build,.local,.pytest_cache,.venv"
 hang_closing = false
 
 ## ## black - Uncompromising code formatter
 [tool.black]
-# exclude = ""
 fast = true
 extend_exclude = "docs/_build,.local,.pytest_cache,.venv"
 line_length = 110
@@ -346,7 +383,6 @@ extend_skip = [
 ## ## flake8 - Modular Python linter wrapper
 [tool.flake8]
 check = true
-description = "Combines PyFlakes, pycodestyle, and McCabe to check style compliance and basic logic errors."
 diff = true
 # Enable plugins and extensions that are otherwise disabled by default.
 # enable-extensions = []
@@ -358,7 +394,6 @@ color = "auto"
 count = false
 # Comma-separated list of files or directories to exclude. (Default:
 # .svn,CVS,.bzr,.hg,.git,__pycache__,.tox,.nox,.eggs,*.egg).
-# exclude = []
 # Comma-separated list of files or directories to add to the list of excluded ones.
 extend-exclude = [
   "docs/_build",
@@ -818,6 +853,10 @@ main.py-version = "3.11"
 # relative to the current working directory used to determine a package namespace for modules located under the source
 # root.
 # source-roots =
+main.source-roots = [
+  "src",
+  "tools",
+]
 # When enabled, pylint would attempt to guess common misconfiguration and emit user-friendly hints instead of
 # false-positive error messages.
 # main.suggestion-mode = true
@@ -1177,6 +1216,8 @@ miscellaneous.notes = [
   "docs/**:invalid-name",
   "src/gamesheet_sdk/**:import-outside-toplevel",
   "tests/**:import-outside-toplevel,protected-access",
+  "tools/**/exceptions.py:too-few-public-methods",
+  "tools/precommit/processor.py:import-outside-toplevel",
 ]
 # List of builtins function names that should not be used, separated by a comma.
 deprecated_builtins.bad-functions = [
@@ -1226,7 +1267,6 @@ exclude = [
   ".venv",
 ]
 blank = false
-description = "Automatically reformats Python docstrings to follow PEP 257 description and spacing conventions."
 style = "sphinx"
 
 ## ## interrogate - Docstring coverage checker
@@ -1236,7 +1276,6 @@ ignore-init-method = true
 ignore-magic = true
 ignore-semiprivate = true
 ignore-nested-functions = true
-# exclude = []
 extend-exclude = [
   ".local",
   ".pytest_cache",
@@ -1244,120 +1283,29 @@ extend-exclude = [
   "docs/_build",
 ]
 check = true
-description = "Measures and flags the percentage of your code (modules, classes, methods) that lacks documentation."
 diff = true
 recursive = true
 style = "sphinx"
 
 ## ## deptry - Dependency analyzer
 [tool.deptry]
-# exclude = []
 extend_exclude = [
   ".local",
   ".pytest_cache",
   ".venv",
   "docs",
   "docs/_build",
+  "tools",
 ]
+ignore = []
+per_rule_ignores.DEP002 = [ "gamesheet-sdk-py" ]
 known_first_party = [
   "gamesheet_sdk",
 ]
-package_module_name_map.absolufy-imports = "absolufy_imports"
-package_module_name_map.add-trailing-comma = "add_trailing_comma"
-package_module_name_map.autoflake = "autoflake"
-package_module_name_map.autopep8 = "autopep8"
-package_module_name_map.bandit = "bandit"
-package_module_name_map.black = "black"
-package_module_name_map.blacken-docs = "blacken_docs"
-package_module_name_map.blocklint = "blocklint"
-package_module_name_map.build = "build"
-package_module_name_map.codespell = "codespell"
-package_module_name_map.docconvert = "docconvert"
-package_module_name_map.docformatter = "docformatter"
-package_module_name_map.editorconfig-checker = "editorconfig_checker"
-package_module_name_map.eradicate = "eradicate"
-package_module_name_map.fastapi = "fastapi"
-package_module_name_map.flake8-2020 = "flake8_2020"
-package_module_name_map.flake8-annotations = "flake8_annotations"
-package_module_name_map.flake8-assertive = "flake8_assertive"
-package_module_name_map.flake8-async = "flake8_async"
-package_module_name_map.flake8-bandit = "flake8_bandit"
-package_module_name_map.flake8-blind-except = "flake8_blind_except"
-package_module_name_map.flake8-boolean-trap = "flake8_boolean_trap"
-package_module_name_map.flake8-bugbear = "flake8_bugbear"
-package_module_name_map.flake8-builtins = "flake8_builtins"
-package_module_name_map.flake8-commas = "flake8_commas"
-package_module_name_map.flake8-comprehensions = "flake8_comprehensions"
-package_module_name_map.flake8-copyright = "flake8_copyright"
-package_module_name_map.flake8-debugger = "flake8_debugger"
-package_module_name_map.flake8-django = "flake8_django"
-package_module_name_map.flake8-errmsg = "flake8_errmsg"
-package_module_name_map.flake8-executable = "flake8_executable"
-package_module_name_map.flake8-fixme = "flake8_fixme"
-package_module_name_map.flake8-future-annotations = "flake8_future_annotations"
-package_module_name_map.flake8-implicit-str-concat = "flake8_implicit_str_concat"
-package_module_name_map.flake8-import-conventions = "flake8_import_conventions"
-package_module_name_map.flake8-logging = "flake8_logging"
-package_module_name_map.flake8-no-pep420 = "flake8_no_pep420"
-package_module_name_map.flake8-print = "flake8_print"
-package_module_name_map.flake8-pyi = "flake8_pyi"
-package_module_name_map.flake8-pyproject = "flake8_pyproject"
-package_module_name_map.flake8-pytest-style = "flake8_pytest_style"
-package_module_name_map.flake8-quotes = "flake8_quotes"
-package_module_name_map.flake8-raise = "flake8_raise"
-package_module_name_map.flake8-self = "flake8_self"
-package_module_name_map.flake8-simplify = "flake8_simplify"
-package_module_name_map.flake8-tidy-imports = "flake8_tidy_imports"
-package_module_name_map.flake8-todos = "flake8_todos"
-package_module_name_map.flake8-type-checking = "flake8_type_checking"
-package_module_name_map.flake8-unused-arguments = "flake8_unused_arguments"
-package_module_name_map.flynt = "flynt"
-package_module_name_map.furo = "furo"
-package_module_name_map.interrogate = "interrogate"
-package_module_name_map.isort = "isort"
-package_module_name_map.mdformat-gfm = "mdformat_gfm"
-package_module_name_map.mdformat-pyproject = "mdformat_pyproject"
-package_module_name_map.mypy = "mypy"
-package_module_name_map.myst-parser = "myst_parser"
-package_module_name_map.pep8-naming = "pep8_naming"
-package_module_name_map.pre-commit = "pre_commit"
-package_module_name_map.pydoclint = "pydoclint"
-package_module_name_map.pydocstyle = "pydocstyle"
-package_module_name_map.pylint-per-file-ignores = "pylint_per_file_ignores"
-package_module_name_map.pylint-pydantic = "pylint_pydantic"
-package_module_name_map.pymarkdownlnt = "pymarkdownlnt"
-package_module_name_map.pyproject-fmt = "pyproject_fmt"
-package_module_name_map.pyrefly = "pyrefly"
-package_module_name_map.pyright = "pyright"
-package_module_name_map.pyroma = "pyroma"
-package_module_name_map.pytest-cov = "pytest_cov"
-package_module_name_map.pytest-playwright = "pytest_playwright"
-package_module_name_map.pytest-recording = "pytest_recording"
-package_module_name_map.python-dateutil = "dateutil"
-package_module_name_map.python-semantic-release = "python_semantic_release"
-package_module_name_map.pyupgrade = "pyupgrade"
-package_module_name_map.PyYAML = "yaml"
-package_module_name_map.radon = "radon"
-package_module_name_map.refurb = "refurb"
-package_module_name_map.responses = "responses"
-package_module_name_map.sphinx-autobuild = "sphinx_autobuild"
-package_module_name_map.sphinx-click = "sphinx_click"
-package_module_name_map.sphinx-copybutton = "sphinx_copybutton"
-package_module_name_map.sphinx-design = "sphinx_design"
-package_module_name_map.sphinx-lint = "sphinx_lint"
-package_module_name_map.ssort = "ssort"
-package_module_name_map.tox-ini-fmt = "tox_ini_fmt"
-package_module_name_map.tox-workdir = "tox_workdir"
-package_module_name_map.tryceratops = "tryceratops"
-package_module_name_map.unimport = "unimport"
-package_module_name_map.validate-pyproject = "validate_pyproject"
-package_module_name_map.virtualenv = "virtualenv"
-package_module_name_map.vulture = "vulture"
-package_module_name_map.yamllint = "yamllint"
+experimental_namespace_package = true
 optional_dependencies_dev_groups = [
   "absolufy-imports",
   "add-trailing-comma",
-  "all",
   "autoflake",
   "autopep8",
   "bandit",
@@ -1377,7 +1325,6 @@ optional_dependencies_dev_groups = [
   "isort",
   "mdformat",
   "mypy",
-  "psr",
   "pydocstyle",
   "pylint",
   "pymarkdown",
@@ -1389,8 +1336,8 @@ optional_dependencies_dev_groups = [
   "pyupgrade",
   "radon",
   "refurb",
-  "sphinx-lint",
   "ssort",
+  "tools",
   "tox-ini-fmt",
   "type-stubs",
   "unimport",
@@ -1420,6 +1367,7 @@ ignore_names = [
   "CLI_*",
   "CONTENT_*",
   "copyright",
+  "default_flow_style",
   "discovered_*",
   "element_*",
   "end_*",
@@ -1431,6 +1379,8 @@ ignore_names = [
   "FILENAME_*",
   "FIREBASE_*",
   "form_*",
+  "get_session",
+  "handle_starttag",
   "has_*",
   "HELP_*",
   "html_*",
@@ -1444,6 +1394,7 @@ ignore_names = [
   "myst_*",
   "napoleon_*",
   "OPTIONS_*",
+  "preserve_quotes",
   "province_*",
   "scheduled_*",
   "SCORESHEET_*",
@@ -1456,11 +1407,14 @@ ignore_names = [
   "TEST_*",
   "todo_*",
   "vendors",
+  "verify",
   "viewed",
+  "width",
 ]
 ignore_decorators = [
   "@associations_group.command",
   "@brackets_group.command",
+  "@click.command",
   "@coaches_group.command",
   "@completed_group.command",
   "@divisions_group.command",
@@ -1484,11 +1438,11 @@ ignore_decorators = [
 [tool.pyproject-fmt]
 indent = 2
 check = true
-column-width = 120
-description = "An automated formatter for `pyproject.toml` files to keep dependencies and tables consistent."
+column_width = 120
 diff = true
+keep_full_version = true
 recursive = true
-table-format = "short"
+table_format = "short"
 
 ## # -------------------------------------------------------------------------------------------------------------------
 ## # Security, Metrics & Complexity
@@ -1506,15 +1460,15 @@ skips = [
   "B106",
 ]
 check = true
-description = """\
-  Scans Python source code to find common security flaws and vulnerabilities (like hardcoded passwords or insecure \
-  functions).\
-  """
 diff = true
 recursive = true
 
 ## ## mypy - Industry-standard static type checker
 [tool.mypy]
+mypy_path = [
+  "src",
+  "tools",
+]
 exclude_gitignore = true
 python_version = "3.11"
 strict = true
@@ -1691,14 +1645,12 @@ recursive = true
 black = true
 wrap-summaries = 110
 wrap-descriptions = 110
-# exclude = []
 extend-exclude = [
   "docs/_build",
   ".local",
   ".pytest_cache",
   ".venv",
 ]
-description = "Check docstrings in existing Python files for correct format."
 
 ## ---------------------------------------------------------------------------------------------------------------------
 ## Non-Python Languages
@@ -1709,14 +1661,12 @@ description = "Check docstrings in existing Python files for correct format."
 ## ## editorconfig-checker - EditorConfig compliance verifier
 [tool.editorconfig-checker]
 check = true
-description = "A tool to ensure your code adheres to the definitions laid out in your `.editorconfig` file."
 diff = true
 recursive = true
 
 ## ## yamllint - YAML file linter
 [tool.yamllint]
 check = true
-description = "Checks YAML files for syntax validity, key duplication, and cosmetic issues like line length and spaces."
 diff = true
 recursive = true
 
@@ -1726,7 +1676,6 @@ recursive = true
 ## ## pymarkdown - Markdown linting engine
 [tool.pymarkdown]
 check = true
-description = "Scans Markdown files to ensure they adhere to strict style rules and standard specification guidelines."
 diff = true
 mode.strict-config = true
 plugins.commands-show-output.enabled = false
@@ -1766,24 +1715,18 @@ wrap = 160
 ## ## tox-ini-fmt - Tox configuration formatter
 [tool.tox-ini-fmt]
 check = true
-description = "A lightweight tool that automatically fixes and formats the styling of `tox.ini` files."
 diff = true
 recursive = true
 
 ## ## validate-pyproject - Pyproject.toml validator
 [tool.validate-pyproject]
 check = true
-description = "Validates `pyproject.toml` files against schemas to ensure they are structurally valid for packaging tools."
 diff = true
 recursive = true
 
 ## ## pyroma - Packaging quality checker
 [tool.pyroma]
 check = true
-description = """\
-  Rates your Python project's packaging configuration (`setup.py` or `pyproject.toml`) for compliance with PyPI best \
-  practices.\
-  """
 diff = true
 min_score = 10
 recursive = true
@@ -1794,17 +1737,12 @@ recursive = true
 ## ## pyupgrade - Syntax modernizer
 [tool.pyupgrade]
 check = true
-description = "Automatically upgrades older Python syntax features to match newer language versions."
 diff = true
 recursive = true
 
 ## ## ssort - Code statement sorter
 [tool.ssort]
 check = true
-description = """\
-  Reorders the top-level statements (functions, classes) in a Python file so that dependent items come after their \
-  definitions.\
-  """
 diff = true
 recursive = true
 
@@ -1817,20 +1755,17 @@ gitignore = true
 
 ## ## autoflake - Basic code cleaner
 [tool.autoflake]
-description = "Automatically removes unused imports and unused variables from Python code."
 recursive = true
 
 ## ## sphinx-lint - Sphinx/reStructuredText linter
 [tool.sphinx-lint]
 check = true
-description = "Checks reStructuredText files for common structural mistakes and syntax bugs specific to Sphinx documentation."
 diff = true
 recursive = true
 
 ## ## blacken-docs - Documentation code block formatter
 [tool.blacken-docs]
 check = true
-description = "Applies the `black` code formatter to Python code snippets embedded inside Markdown or reStructuredText documentation."
 diff = true
 recursive = true
 
@@ -1844,7 +1779,6 @@ add-ignore = "D107,D301"
 ## ## blocklint - Inclusive language checker
 [tool.blocklint]
 check = true
-description = "A simple linter that flags the use of non-inclusive words (like 'whitelist' or 'master') in code comments or strings."
 diff = true
 recursive = true
 
@@ -1860,10 +1794,6 @@ ignore = [
 [tool.radon]
 cc_min = "A"
 check = true
-description = """\
-  Computes various code metrics, including Maintainability Index and Cyclomatic Complexity, to identify bloated or \
-  confusing code.\
-  """
 diff = true
 # Indentation size for output.
 indent = 4

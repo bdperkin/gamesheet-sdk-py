@@ -1,0 +1,289 @@
+# .genprecommitconfig.yaml - Configuration for tools/genprecommitconfig
+#
+# Run: ./tools/genprecommitconfig
+# See: tools/README.md
+
+globals:
+  blacklisted_hooks:
+    - check-symlinks
+    - check-xml
+    - file-contents-sorter
+    - forbid-new-submodules
+    - requirements-txt-fixer
+    - sort-simple-yaml
+    - check-byte-order-marker
+    - double-quote-string-fixer
+    - fix-encoding-pragma
+
+ci:
+  autoupdate_schedule: weekly
+  autoupdate_commit_msg: "chore(deps): Update pre-commit hooks"
+  autofix_commit_msg: "style: Auto-fixes from pre-commit.ci"
+  autofix_prs: true
+  skip:
+    - editorconfig-checker
+    - editorconfig-checker-system
+    - mdformat
+    - pyroma
+    - deptry
+    - yesqa
+    - flake8
+    - pylint
+    - pyrefly-check
+    - pyright
+    - mypy
+  autoupdate_branch: ""
+
+categories:
+  meta:
+    description: Meta Hooks (pre-commit validation)
+    repos:
+      - name: meta
+        repo: meta
+
+  conventional-commits:
+    description: Commit Message Linting (Conventional Commits)
+    repos:
+      - name: conventional-pre-commit
+        repo: https://github.com/compilerla/conventional-pre-commit
+
+  check:
+    description: Global File Sanity Checks
+    repos:
+      - name: pre-commit-hooks
+        repo: https://github.com/pre-commit/pre-commit-hooks
+        hooks:
+          - id: pretty-format-json
+            appends:
+              args:
+                - --autofix
+                - --no-sort-keys
+          - id: name-tests-test
+            overrides:
+              exclude: ^tests/.*(cli|conftest|constants|endpoints|mocks|payloads|roster_helpers)\.py$
+            prepends:
+              args:
+                - --pytest-test-first
+
+      - name: pygrep-hooks
+        repo: https://github.com/pre-commit/pygrep-hooks
+        hooks:
+          - id: text-unicode-replacement-char
+            overrides:
+              exclude: "^\\.pre-commit-config.yaml$"
+        resolved_rev: v1.8.0
+
+  configuration_file_linters_-_formatters:
+    description: Configuration File Linters & Formatters
+    repos:
+      - name: editorconfig-checker.python
+        repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+
+      - name: yamllint
+        repo: https://github.com/adrienverge/yamllint
+
+      - name: tox-ini-fmt
+        repo: https://github.com/tox-dev/tox-ini-fmt
+
+      - name: pyproject-fmt
+        repo: https://github.com/tox-dev/pyproject-fmt
+        resolved_rev: v2.25.3
+
+      - name: validate-pyproject
+        repo: https://github.com/abravalheri/validate-pyproject
+
+      - name: pyroma
+        repo: https://github.com/regebro/pyroma
+
+  documentation_-_markdown_tools:
+    description: Documentation & Markdown Tools
+    repos:
+      - name: pymarkdown
+        repo: https://github.com/jackdewinter/pymarkdown
+
+      - name: mdformat
+        repo: https://github.com/executablebooks/mdformat
+        hooks:
+          - id: mdformat
+            appends:
+              additional_dependencies:
+                - gamesheet-sdk-py[mdformat]
+            overrides:
+              language_version: python3.13
+
+  code_style_-_formatting_-automated_fixers-:
+    description: Code Style & Formatting (Automated Fixers)
+    repos:
+      - name: add-trailing-comma
+        repo: https://github.com/asottile/add-trailing-comma
+
+      - name: absolufy-imports
+        repo: https://github.com/marcogorelli/absolufy-imports
+
+      - name: pyupgrade
+        repo: https://github.com/asottile/pyupgrade
+
+      - name: isort
+        repo: https://github.com/pycqa/isort
+
+      - name: ssort
+        repo: https://github.com/bwhmather/ssort
+
+      - name: autopep8
+        repo: https://github.com/hhatto/autopep8
+
+      - name: black-pre-commit-mirror
+        repo: https://github.com/psf/black-pre-commit-mirror
+
+  code_cleaners_-_dead_code_detectors:
+    description: Code Cleaners & Dead Code Detectors
+    repos:
+      - name: detect-secrets
+        repo: https://github.com/Yelp/detect-secrets
+
+      - name: unimport
+        repo: https://github.com/hakancelikdev/unimport
+        rev: 0.11.1
+
+      - name: autoflake
+        repo: https://github.com/pycqa/autoflake
+
+      - name: vulture
+        repo: https://github.com/jendrikseipp/vulture
+        hooks:
+          - id: vulture
+            appends:
+              args:
+                - .
+
+      - name: deptry
+        repo: https://github.com/osprey-oss/deptry
+
+  documentation_-_docstring_tools:
+    description: Documentation & Docstring Tools
+    repos:
+      - name: codespell
+        repo: https://github.com/codespell-project/codespell
+
+      - name: blacken-docs
+        repo: https://github.com/asottile/blacken-docs
+
+      - name: docformatter
+        repo: https://github.com/pycqa/docformatter
+
+      - name: interrogate
+        repo: https://github.com/econchick/interrogate
+        hooks:
+          - id: interrogate
+            overrides:
+              pass_filenames: false
+
+      - name: pydocstyle
+        repo: https://github.com/pycqa/pydocstyle
+
+  code_quality_linters_-_static_analysis:
+    description: Code Quality Linters & Static Analysis
+    repos:
+      - name: blocklint
+        repo: https://github.com/princetonuniversity/blocklint
+
+      - name: yesqa
+        repo: https://github.com/asottile/yesqa
+        hooks:
+          - id: yesqa
+            appends:
+              additional_dependencies:
+                - gamesheet-sdk-py[flake8]
+
+      - name: flake8
+        repo: https://github.com/pycqa/flake8
+        hooks:
+          - id: flake8
+            appends:
+              additional_dependencies:
+                - gamesheet-sdk-py[flake8]
+            overrides:
+              exclude: ^tools/(syncdeps|genprecommitconfig)$
+
+      - name: refurb
+        repo: https://github.com/dosisod/refurb
+        hooks:
+          - id: refurb
+            appends:
+              additional_dependencies:
+                - gamesheet-sdk-py[refurb]
+            overrides:
+              exclude: ^tools/(syncdeps|genprecommitconfig)$
+
+      - name: pylint
+        repo: https://github.com/pylint-dev/pylint
+        hooks:
+          - id: pylint
+            appends:
+              additional_dependencies:
+                - gamesheet-sdk-py[pylint,tools]
+                - ruamel-yaml
+                - tomli
+
+      - name: pyrefly-pre-commit
+        repo: https://github.com/facebook/pyrefly-pre-commit
+        hooks:
+          - id: pyrefly-check
+            appends:
+              additional_dependencies:
+                - gamesheet-sdk-py[pyrefly]
+
+  security-_metrics_-_complexity:
+    description: Security, Metrics & Complexity
+    repos:
+      - name: bandit
+        repo: https://github.com/pycqa/bandit
+        hooks:
+          - id: bandit
+            appends:
+              args:
+                - --configfile
+                - pyproject.toml
+                - --recursive
+
+      - name: xenon
+        repo: https://github.com/rubik/xenon
+
+  type_checkers:
+    description: Type Checkers
+    repos:
+      - name: pyright-python
+        repo: https://github.com/robertcraigie/pyright-python
+        hooks:
+          - id: pyright
+            appends:
+              additional_dependencies:
+                - gamesheet-sdk-py[pyright,tools]
+                - ruamel-yaml
+                - tomli
+                - tomlkit
+
+      - name: mirrors-mypy
+        repo: https://github.com/pre-commit/mirrors-mypy
+        hooks:
+          - id: mypy
+            appends:
+              additional_dependencies:
+                - gamesheet-sdk-py[dev,mypy,pytest,tools]
+                - pre-commit
+                - ruamel-yaml
+                - tomli
+                - tomlkit
+            overrides:
+              args:
+                - --strict
+              exclude: ^tools/(syncdeps|genprecommitconfig)$
+
+  pre-commit-hook-sync:
+    description: Pre-Commit Hook Sync
+    repos:
+      - name: pre-commit-ci-config
+        repo: https://github.com/pre-commit-ci/pre-commit-ci-config
+
+      - name: sync-pre-commit-deps
+        repo: https://github.com/pre-commit/sync-pre-commit-deps

@@ -147,7 +147,8 @@ jobs:
       - name: Update apt cache and install packages
         run: |
           sudo apt-get update
-          sudo apt-get install -y latexmk texlive-latex-recommended tex-gyre texlive-latex-extra texlive-xetex xindy
+          sudo apt-get install -y latexmk texlive-latex-recommended tex-gyre \
+          texlive-latex-extra texlive-xetex xindy
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0 # Full history for version detection

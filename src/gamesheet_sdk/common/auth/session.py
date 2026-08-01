@@ -46,13 +46,12 @@ class BaseAuthenticatedSession(Session, ABC):
         :param config: Optional configuration object. If ``None``, a default
             :class:`~gamesheet_sdk.common.config.Config` is created.
         :type config: Config | None
-        :param access_token: Current access token to use as the bearer in the ``Authorization``
-            header.
+        :param access_token: Current access token to use as the bearer in the ``Authorization`` header.
         :type access_token: str
         :param refresh_token: Refresh token used to renew the access token on 401/403 responses.
         :type refresh_token: str
-        :param on_refresh: Optional callback invoked with a token dict after a successful token
-            refresh. Use this to persist the new tokens to disk (e.g. via
+        :param on_refresh: Optional callback invoked with a token dict after a successful token refresh. Use
+            this to persist the new tokens to disk (e.g. via
             :func:`~gamesheet_sdk.common.auth.tokens.save_tokens`).
         :type on_refresh: OnRefreshCallback | None
         """
@@ -116,8 +115,8 @@ class BaseAuthenticatedSession(Session, ABC):
         :type timeout: float | None
         :param kwargs: Additional keyword arguments forwarded to the parent :meth:`request`.
         :type kwargs: Any
-        :returns: HTTP response object from the request. If token refresh fails, returns the
-            original 401/403 response without raising an exception.
+        :returns: HTTP response object from the request. If token refresh fails, returns the original 401/403
+            response without raising an exception.
         :rtype: requests.Response
         """
         response = super().request(method, url, timeout=timeout, **kwargs)
