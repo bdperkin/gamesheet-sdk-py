@@ -13,6 +13,7 @@ globals:
     - sort-simple-yaml
     - check-byte-order-marker
     - double-quote-string-fixer
+    - editorconfig-checker-system
     - fix-encoding-pragma
 
 ci:

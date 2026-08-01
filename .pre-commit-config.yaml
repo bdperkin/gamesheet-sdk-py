@@ -29,7 +29,6 @@ ci:
   # List of hook ids to skip only in CI (useful for heavy/slow local scripts).
   skip:
     - editorconfig-checker
-    - editorconfig-checker-system
     - mdformat
     - pyroma
     - deptry
@@ -415,15 +414,6 @@ repos:
           your .editorconfig-rules.'
         entry: ec
         language: python
-        types:
-          - text
-        require_serial: true
-      - id: editorconfig-checker-system
-        name: Check .editorconfig rules
-        description: Runs system executable of `editorconfig-checker` to lint
-          text files according to `.editorconfig` rules
-        language: system
-        entry: ec
         types:
           - text
         require_serial: true
