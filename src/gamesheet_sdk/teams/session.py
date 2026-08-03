@@ -17,7 +17,11 @@ class TeamsAuthenticatedSession(BaseAuthenticatedSession):
 
     Example::
 
-        from gamesheet_sdk.common.auth import load_access_token, load_refresh_token, save_tokens
+        from gamesheet_sdk.common.auth import (
+            load_access_token,
+            load_refresh_token,
+            save_tokens,
+        )
         from gamesheet_sdk.teams.session import TeamsAuthenticatedSession
         from gamesheet_sdk.common.config import Config
 

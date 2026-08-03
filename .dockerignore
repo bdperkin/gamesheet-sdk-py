@@ -116,7 +116,6 @@ docs/reference/_autosummary/
 _autosummary/
 *.md
 !README.md
-!LICENSE
 
 # ------------------------------------------------------------------------------
 # Configuration files (not needed in container)
@@ -138,7 +137,7 @@ tox.ini
 # Linting and formatting configs
 .codecov.yml
 .yamllint
-.trivyignore
+.trivyignore.yaml
 .docconvert.json
 
 # Other development configs

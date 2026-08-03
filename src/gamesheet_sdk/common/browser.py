@@ -44,6 +44,7 @@ class BrowserSession:
     Example::
 
         from gamesheet_sdk import BrowserSession, Config
+
         with BrowserSession(Config()) as bs:
             page = bs.goto("/login")
             page.fill("input[name='email']", "...")

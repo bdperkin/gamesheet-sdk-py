@@ -17,7 +17,10 @@ This module provides the foundational infrastructure for building resource-orien
 
 .. code-block:: python
 
-    from gamesheet_sdk.common.cli.core import ResourceGroup, confirm_destructive
+    from gamesheet_sdk.common.cli.core import (
+        ResourceGroup,
+        confirm_destructive,
+    )
 
 
     # Create a resource group with aliases and a default command

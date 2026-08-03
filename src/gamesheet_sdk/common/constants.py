@@ -31,7 +31,9 @@ Using BFF API endpoints:
     games_url = f"{BFF_API_BASE_URL}/games-list/v1"
 Using image delivery:
 .. code-block:: python
-    from gamesheet_sdk.common.constants import CLOUDFLARE_IMAGE_DELIVERY_BASE
+    from gamesheet_sdk.common.constants import (
+        CLOUDFLARE_IMAGE_DELIVERY_BASE,
+    )
 
     logo_url = f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/{image_id}"
 """
