@@ -2,6 +2,30 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.11 (2026-08-03)
+
+### Bug Fixes
+
+- **tools**: Use string concatenation to avoid black/flake8-quotes conflict
+  ([`046ef4e`](https://github.com/bdperkin/gamesheet-sdk-py/commit/046ef4e78aa3b178db61ac78ea1f99ce414dad5c))
+
+### Chores
+
+- **deps)(deps-dev**: Bump types-mypy-extensions ([`ac68ca6`](https://github.com/bdperkin/gamesheet-sdk-py/commit/ac68ca6c5059ca7aa762acacef4baf7579d81e80))
+
+- **deps)(deps-dev**: Bump types-pygments ([`b9907d0`](https://github.com/bdperkin/gamesheet-sdk-py/commit/b9907d0331ab6af6684a3af9405c68d64a1c37d1))
+
+- **deps)(deps-dev**: Bump types-requests ([`226d488`](https://github.com/bdperkin/gamesheet-sdk-py/commit/226d4885b8a9815db600420163d38ee38011ced2))
+
+- **deps)(deps-dev**: Bump types-setuptools ([`8583164`](https://github.com/bdperkin/gamesheet-sdk-py/commit/8583164d558e32bc07b1e32cb21f7fc250b19ebb))
+
+- **deps)(deps-dev**: Bump types-six ([`de9b3e7`](https://github.com/bdperkin/gamesheet-sdk-py/commit/de9b3e7a7a21bf15881bdc74c96ddc16c1e85fce))
+
+### Features
+
+- Integrate semgrep into local tooling and fix genprecommitconfig issues
+  ([`ddc8ec8`](https://github.com/bdperkin/gamesheet-sdk-py/commit/ddc8ec86bf81a0c8ba73b4c3bbfd886dff8a6cc5))
+
 ## v0.4.10 (2026-08-03)
 
 ### Bug Fixes
