@@ -311,7 +311,7 @@ repos:
         minimum_pre_commit_version: 3.2.0
 
   - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.8.0
+    rev: v1.10.0
     hooks:
       - id: python-check-blanket-noqa
         name: check blanket noqa
@@ -433,7 +433,7 @@ repos:
           - yaml
 
   - repo: https://github.com/tox-dev/tox-ini-fmt
-    rev: 1.7.2
+    rev: 1.8.1
     hooks:
       - id: tox-ini-fmt
         name: tox-ini-fmt
@@ -444,7 +444,7 @@ repos:
         files: (^|/)tox\.ini$
 
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.25.3
+    rev: v2.26.0
     hooks:
       - id: pyproject-fmt
         name: pyproject-fmt
@@ -472,7 +472,7 @@ repos:
           - .[all]
 
   - repo: https://github.com/regebro/pyroma
-    rev: 5.0.1
+    rev: 5.1b1
     hooks:
       - id: pyroma
         name: Check package with Pyroma
@@ -491,7 +491,7 @@ repos:
   # ----------------------------------------------------------------------------
 
   - repo: https://github.com/jackdewinter/pymarkdown
-    rev: v0.9.38
+    rev: v0.9.39
     hooks:
       - id: pymarkdown
         name: PyMarkdown
@@ -562,7 +562,7 @@ repos:
         minimum_pre_commit_version: 0.15.0
 
   - repo: https://github.com/pycqa/isort
-    rev: 8.0.1
+    rev: 9.0.0b1
     hooks:
       - id: isort
         name: isort
@@ -583,7 +583,7 @@ repos:
         minimum_pre_commit_version: 3.2.0
 
   - repo: https://github.com/bwhmather/ssort
-    rev: 0.16.0
+    rev: 0.17.0
     hooks:
       - id: ssort
         name: ssort
@@ -651,7 +651,7 @@ repos:
         files: .*
 
   - repo: https://github.com/hakancelikdev/unimport
-    rev: 0.11.1
+    rev: 1.4.0
     hooks:
       - id: unimport
         name: unimport
@@ -849,7 +849,7 @@ repos:
           - tomli
 
   - repo: https://github.com/facebook/pyrefly-pre-commit
-    rev: 1.2.0.dev3
+    rev: 1.2.0
     hooks:
       - id: pyrefly-check
         name: pyrefly check
@@ -927,7 +927,7 @@ repos:
         minimum_pre_commit_version: 2.9.2
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.1.0
+    rev: v2.3.0
     hooks:
       - id: mypy
         name: mypy
