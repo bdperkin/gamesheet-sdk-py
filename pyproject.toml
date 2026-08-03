@@ -1434,13 +1434,13 @@ ignore_decorators = [
 
 ## ## pyproject-fmt - Pyproject.toml formatter
 [tool.pyproject-fmt]
-indent = 2
-check = true
 column_width = 120
-diff = true
+indent = 2
 keep_full_version = true
-recursive = true
 table_format = "short"
+check = true
+diff = true
+recursive = true
 
 ## # -------------------------------------------------------------------------------------------------------------------
 ## # Security, Metrics & Complexity
