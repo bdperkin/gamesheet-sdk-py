@@ -88,7 +88,7 @@ class BaseAuthenticatedSession(Session, ABC):
         try:
             new_tokens = self._do_refresh()
         except GameSheetError as exc:
-            # nosemgrep: python.lang.security.audit.logging.logger-credential-leak
+            # nosemgrep
             _LOGGER.warning(
                 "Token refresh failed: %s; surfacing original response.",
                 exc,
@@ -127,7 +127,7 @@ class BaseAuthenticatedSession(Session, ABC):
             return response
         if not self._try_refresh():
             return response
-        # nosemgrep: python.lang.security.audit.logging.logger-credential-leak
+        # nosemgrep
         _LOGGER.info("Refreshed access token; retrying %s %s.", method, url)
         return super().request(method, url, timeout=timeout, **kwargs)
 
