@@ -34,8 +34,8 @@ COPY pyproject.toml README.md LICENSE ./
 COPY src/ src/
 
 # Upgrade pip, setuptools, and wheel to latest versions (security fix)
-# This addresses CVE-2026-24049 and CVE-2026-23949
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+# setuptools>=83.0.0 addresses CVE-2025-47273 and CVE-2026-59890
+RUN pip install --no-cache-dir --upgrade pip "setuptools>=83.0.0" wheel
 
 # Build wheel distribution (no editable installs in containers)
 RUN pip install --no-cache-dir build && \
@@ -117,9 +117,9 @@ WORKDIR /app
 COPY --from=builder /build/dist/*.whl /tmp/
 
 # Upgrade pip/setuptools/wheel in runtime stage (security fix)
-# Install package and Playwright Chromium browser binary
+# setuptools>=83.0.0 addresses CVE-2025-47273 and CVE-2026-59890
 # Must run as root for system-wide Playwright installation
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+RUN pip install --no-cache-dir --upgrade pip "setuptools>=83.0.0" wheel && \
     pip install --no-cache-dir /tmp/*.whl && \
     rm -f /tmp/*.whl && \
     # Install Chromium browser binary (headless mode)

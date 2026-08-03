@@ -1465,13 +1465,27 @@ vulnerabilities:
       individually re-triaged.
     expired_at: 2026-10-27
 
+  # ----------------------------------------------------------------------------
+  # pip — vendored msgpack (build-time only, not independently upgradeable)
+  # ----------------------------------------------------------------------------
+  - id: GHSA-6v7p-g79w-8964
+    statement: >-
+      HIGH: pip._vendor.msgpack — Out-of-bounds read / crash on Unpacker reuse
+      after a caught error. msgpack 1.1.2 is vendored inside pip; pip 26.1.2
+      (latest as of 2026-08-02) still bundles this version. Cannot be upgraded
+      independently — requires a pip release with an updated vendor bundle.
+      pip is used only during image build (package installation); at runtime the
+      container does not invoke pip or its msgpack vendored code. Not exploitable
+      in this project's runtime context.
+    expired_at: 2026-11-02
+
 # ==============================================================================
 # Review Schedule
 # ==============================================================================
 # Suppressions now expire on their own via `expired_at`, so the calendar review
 # is a backstop rather than the only control.
 #
-# Last reviewed: 2026-07-27  —  164 rules total
+# Last reviewed: 2026-08-02  —  165 rules total
 #   - Migrated from plain `.trivyignore` to this YAML format to gain
 #     `expired_at` and per-CVE `statement` fields.
 #   - Added 6 CVEs from the 2026-07-27 container scan, all unfixed in Debian
@@ -1492,7 +1506,7 @@ vulnerabilities:
 #     are no longer in the image); the remaining 256 close on the next image
 #     scan that uploads SARIF.
 #
-# Expiry tiers in force: 22 rules due 2026-10-27, 71 due 2027-01-27,
-#                        71 due 2027-07-27.
+# Expiry tiers in force: 23 rules due 2026-10-27 or 2026-11-02,
+#                        71 due 2027-01-27, 71 due 2027-07-27.
 # Next backstop review: 2026-10-27 (when the CRITICAL/HIGH tier expires)
 # ==============================================================================
