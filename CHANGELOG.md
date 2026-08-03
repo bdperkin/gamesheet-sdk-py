@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.10 (2026-08-03)
+
+### Bug Fixes
+
+- **config**: Correct dotfile entries and apply formatting fixes
+  ([`915e2a6`](https://github.com/bdperkin/gamesheet-sdk-py/commit/915e2a607f20abaa8f802beda8dcf4f27db194a6))
+
 ## v0.4.9 (2026-08-03)
 
 ### Bug Fixes
