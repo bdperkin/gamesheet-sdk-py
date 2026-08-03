@@ -120,6 +120,7 @@ COPY --from=builder /build/dist/*.whl /tmp/
 # setuptools>=83.0.0 addresses CVE-2025-47273 and CVE-2026-59890
 # Must run as root for system-wide Playwright installation
 RUN pip install --no-cache-dir --upgrade pip "setuptools>=83.0.0" wheel && \
+    rm -rf /usr/local/lib/python3.11/ensurepip/_bundled/ && \
     pip install --no-cache-dir /tmp/*.whl && \
     rm -f /tmp/*.whl && \
     # Install Chromium browser binary (headless mode)
