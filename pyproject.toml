@@ -276,7 +276,7 @@ optional-dependencies.type-stubs = [
   "types-greenlet==3.5.0.20260518",
   "types-jinja2==2.11.9",
   "types-markupsafe==1.1.10",
-  "types-mypy-extensions==1.1.0.20260518",
+  "types-mypy-extensions==1.1.0.20260724",
   "types-pep8-naming==0.15.0.20260408",
   "types-pluggy==1.2.0.20240106",
   "types-polib==1.2.0.20260518",
