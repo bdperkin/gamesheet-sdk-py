@@ -23,8 +23,14 @@ class PyProjectDependency(BaseModel):
     """A dependency extracted from pyproject.toml."""
 
     name: str = Field(description="Normalized package name")
-    version: str | None = Field(default=None, description="Pinned version or None if unpinned")
-    extras: str | None = Field(default=None, description="Extras specifier like [tomli]")
+    version: str | None = Field(
+        default=None,
+        description="Pinned version or None if unpinned",
+    )
+    extras: str | None = Field(
+        default=None,
+        description="Extras specifier like [tomli]",
+    )
     original: str = Field(description="Original dependency string as written")
     group: str = Field(description="Optional-dependency group name or 'base'")
 
@@ -43,7 +49,10 @@ class PreCommitRepo(BaseModel):
 
     url: str = Field(description="Repository URL")
     rev: str = Field(description="Current revision/tag")
-    hook_ids: list[str] = Field(default_factory=list, description="Hook IDs in this repo")
+    hook_ids: list[str] = Field(
+        default_factory=list,
+        description="Hook IDs in this repo",
+    )
     additional_deps: list[PreCommitAdditionalDep] = Field(
         default_factory=list,
         description="Non-local additional_dependencies across all hooks",
@@ -58,15 +67,30 @@ class ConvergenceResult(BaseModel):
     new_version: str = Field(description="Resolved target version")
     target: UpdateTarget = Field(description="Which file(s) to update")
     repo_url: str | None = Field(default=None, description="Git repo URL if applicable")
-    groups: list[str] = Field(default_factory=list, description="pyproject.toml groups affected")
-    hook_ids: list[str] = Field(default_factory=list, description="Pre-commit hook IDs affected")
-    is_additional_dep: bool = Field(default=False, description="True if this is an additional_dependency")
-    is_pinned: bool = Field(default=False, description="True if rev is pinned in .genprecommitconfig.yaml")
+    groups: list[str] = Field(
+        default_factory=list,
+        description="pyproject.toml groups affected",
+    )
+    hook_ids: list[str] = Field(
+        default_factory=list,
+        description="Pre-commit hook IDs affected",
+    )
+    is_additional_dep: bool = Field(
+        default=False,
+        description="True if this is an additional_dependency",
+    )
+    is_pinned: bool = Field(
+        default=False,
+        description="True if rev is pinned in .genprecommitconfig.yaml",
+    )
     needs_regeneration: bool = Field(
         default=False,
         description="True if .pre-commit-config.yaml rev is stale",
     )
-    rev_tag: str | None = Field(default=None, description="Original git tag to write as rev")
+    rev_tag: str | None = Field(
+        default=None,
+        description="Original git tag to write as rev",
+    )
 
 
 class TypesSyncResult(BaseModel):
@@ -76,7 +100,10 @@ class TypesSyncResult(BaseModel):
         default_factory=list,
         description="(package_name, version) pairs for new stubs",
     )
-    removed: list[str] = Field(default_factory=list, description="Package names of orphaned stubs removed")
+    removed: list[str] = Field(
+        default_factory=list,
+        description="Package names of orphaned stubs removed",
+    )
     updated: list[tuple[str, str, str]] = Field(
         default_factory=list,
         description="(package_name, old_version, new_version) for version bumps",

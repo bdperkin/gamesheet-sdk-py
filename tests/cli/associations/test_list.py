@@ -231,8 +231,14 @@ def test_associations_list_with_authentication_error(runner: CliRunner) -> None:
     from gamesheet_sdk.common.exceptions import AuthenticationError
 
     with (
-        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="token",
+        ),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
+            return_value="refresh",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.associations._list_associations_action",
             side_effect=AuthenticationError("Token expired"),
@@ -248,8 +254,14 @@ def test_associations_list_with_gamesheet_error(runner: CliRunner) -> None:
     from gamesheet_sdk.common.exceptions import GameSheetError
 
     with (
-        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="token",
+        ),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
+            return_value="refresh",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.associations._list_associations_action",
             side_effect=GameSheetError("API error"),

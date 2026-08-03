@@ -90,7 +90,9 @@ def test_build_scoresheet_filename_collapse_underscores() -> None:
 def test_completed_download_with_auto_filename(runner: CliRunner) -> None:
     """Test completed game download with auto-generated filename."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.games_completed.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.games_completed.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.games_completed.run_action_or_exit",
         ) as mock_run,
@@ -155,7 +157,9 @@ def test_completed_download_with_explicit_filename(runner: CliRunner) -> None:
         output_path = f.name
 
     with (
-        patch("gamesheet_sdk.admin.cli.commands.games_completed.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.games_completed.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.games_completed.run_action_or_exit",
         ) as mock_run,

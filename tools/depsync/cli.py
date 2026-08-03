@@ -10,7 +10,13 @@ from pathlib import Path
 import shutil
 import subprocess  # noqa: S404 # nosec B404
 
-from depsync.config import GENPRECOMMIT_CONFIG, PRECOMMIT_CONFIG, PYPROJECT_TOML, UV_LOCK, UV_LOCK_TIMEOUT
+from depsync.config import (
+    GENPRECOMMIT_CONFIG,
+    PRECOMMIT_CONFIG,
+    PYPROJECT_TOML,
+    UV_LOCK,
+    UV_LOCK_TIMEOUT,
+)
 from depsync.engine import converge, sync_types
 from depsync.exceptions import LockfileError, SyncDepsError
 from depsync.models import ConvergenceResult, RunConfig, TypesSyncResult, UpdateTarget
@@ -179,7 +185,14 @@ def _display_results(results: list[ConvergenceResult]) -> None:
 
         label = f"{r.package} (additional_dep)" if r.is_additional_dep else r.package
 
-        table.add_row(label, r.old_version or "-", r.new_version, scope, _result_status(r), detail)
+        table.add_row(
+            label,
+            r.old_version or "-",
+            r.new_version,
+            scope,
+            _result_status(r),
+            detail,
+        )
 
     console.print(table)
 
@@ -212,14 +225,19 @@ def _apply_convergence(
 
         console.print("\n[bold]Applying updates...[/]")
         pyproject_count = update_pyproject(config.pyproject_path, results)
-        genprecommit_ad_count = update_genprecommit_additional_deps(config.genprecommit_config_path, results)
+        genprecommit_ad_count = update_genprecommit_additional_deps(
+            config.genprecommit_config_path,
+            results,
+        )
         precommit_count = update_precommit_config(config.precommit_config_path, results)
 
         console.print(f"  Updated [cyan]{pyproject_count}[/] entries in pyproject.toml")
         console.print(
             f"  Updated [cyan]{genprecommit_ad_count}[/] additional_deps in .genprecommitconfig.yaml",
         )
-        console.print(f"  Updated [cyan]{precommit_count}[/] entries in .pre-commit-config.yaml")
+        console.print(
+            f"  Updated [cyan]{precommit_count}[/] entries in .pre-commit-config.yaml",
+        )
 
         if config.diff:
             _show_diffs(snapshots, target_files)
@@ -278,7 +296,9 @@ def _ensure_uv_lock(config: RunConfig) -> None:
         msg = f"uv.lock is {reason} but 'uv' is not on PATH; install uv or run 'uv lock' manually"
         raise LockfileError(msg)
 
-    console.print(f"  [yellow]uv.lock is {reason}; running 'uv lock' to regenerate...[/]")
+    console.print(
+        f"  [yellow]uv.lock is {reason}; running 'uv lock' to regenerate...[/]",
+    )
 
     try:
         subprocess.run(  # noqa: S603, S607 # nosec B603, B607
@@ -376,7 +396,9 @@ def _run_types_sync(
             types_result.removed,
             types_result.updated,
         )
-        console.print(f"  Applied [cyan]{change_count}[/] types-* changes in pyproject.toml")
+        console.print(
+            f"  Applied [cyan]{change_count}[/] types-* changes in pyproject.toml",
+        )
 
         if config.diff:
             _show_diffs(snapshots, target_files)
@@ -475,7 +497,13 @@ def _run(config: RunConfig) -> None:
         console.print("\n[bold green]All dependencies are already converged.[/]")
 
     if config.sync_types:
-        types_changed = _run_types_sync(config, index_url, min_python, extra_index_urls, pip_config)
+        types_changed = _run_types_sync(
+            config,
+            index_url,
+            min_python,
+            extra_index_urls,
+            pip_config,
+        )
         if types_changed:
             has_changes = True
 

@@ -24,7 +24,9 @@ def test_teams_roster_players_list_coverage() -> None:
             "gamesheet_sdk.admin.cli.commands.teams_roster_players.run_action_or_exit",
             return_value=[],
         ),
-        patch("gamesheet_sdk.admin.cli.commands.teams_roster_players.render_list_command"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.teams_roster_players.render_list_command",
+        ),
     ):
         result = runner.invoke(
             teams_roster_players_group,

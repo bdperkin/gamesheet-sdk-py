@@ -2,7 +2,7 @@
 #
 # Copy this file to .genprecommitconfig.yaml in your project root and customize.
 # Run: ./tools/genprecommitconfig
-# See: tools/README.genprecommitconfig.md
+# See: tools/README.md
 #
 # Configuration Reference:
 #
@@ -14,30 +14,38 @@
 #   allowed_languages:         Hook languages to include (default: [fail, pygrep, python, script, system])
 #   blacklisted_hooks:         Hook IDs to exclude from all repos
 #
+# ci:                          Pre-commit.ci service configuration (passed through as-is)
+#   autoupdate_schedule:       How often to auto-update hooks (e.g., weekly)
+#   autoupdate_commit_msg:     Commit message for auto-updates
+#   autofix_commit_msg:        Commit message for auto-fixes
+#   autofix_prs:               Auto-fix PRs (default: true)
+#   skip:                      Hooks to skip in pre-commit.ci
+#   autoupdate_branch:         Branch for auto-update PRs (empty string for default)
+#
 # categories:
 #   <category-name>:           Organizational grouping (meta, check, lint, format, quality, misc, etc.)
-#     - name:                  Friendly name for the repo (e.g., "ruff" for ruff-pre-commit)
-#       repo:                  Repository URL or "meta"
-#       rev:                   Version spec: null (auto-detect latest), "installed" (match installed package),
+#     description:             Human-readable label rendered as a sub-section comment
+#     repos:                   List of repository configurations
+#       - name:                Friendly name for the repo (e.g., "ruff" for ruff-pre-commit)
+#         repo:                Repository URL or "meta"
+#         rev:                 Version spec: null (auto-detect latest), "installed" (match installed package),
 #                              or exact version string (e.g., "v1.2.3")
-#       hooks:                 Per-hook configurations (identified by "id"):
-#         - id:                Hook identifier to match
-#           comment:           Literal comment rendered above the hook in output YAML
-#           overrides:         Fields that replace fetched values entirely
-#             <field>: <value>
-#           appends:           Fields whose values are appended to existing lists
-#             <field>: [<values>]
-#           prepends:          Fields whose values are prepended to existing lists
-#             <field>: [<values>]
+#         resolved_rev:        Tool-resolved revision written by genprecommitconfig on downgrade
+#         hooks:               Per-hook configurations (identified by "id"):
+#           - id:              Hook identifier to match
+#             comment:         Literal comment rendered above the hook in output YAML
+#             overrides:       Fields that replace fetched values entirely
+#               <field>: <value>
+#             appends:         Fields whose values are appended to existing lists
+#               <field>: [<values>]
+#             prepends:        Fields whose values are prepended to existing lists
+#               <field>: [<values>]
 
 globals:
-  default_language_version:
-    python: python3.11
-  default_stages:
-    - pre-commit
-    - pre-push
   fail_fast: true
   output_file: .pre-commit-config.yaml
+  default_language_version:
+    python: python3.11
   allowed_languages:
     - fail
     - pygrep
@@ -45,40 +53,61 @@ globals:
     - script
     - system
   blacklisted_hooks: []
+  default_stages:
+    - pre-commit
+    - pre-push
+
+ci:
+  autofix_commit_msg: "style: Auto-fixes from pre-commit.ci"
+  autofix_prs: true
+  autoupdate_branch: ""
+  autoupdate_commit_msg: "chore(deps): Update pre-commit hooks"
+  autoupdate_schedule: weekly
+  skip: []
 
 categories:
   meta:
-    - name: meta
-      repo: meta
-      hooks:
-        - id: check-hooks-apply
-        - id: check-useless-excludes
-        - id: identity
-          overrides:
-            stages:
-              - manual
+    description: Meta Hooks (pre-commit validation)
+    repos:
+      - name: meta
+        repo: meta
+        hooks:
+          - id: check-hooks-apply
+          - id: check-useless-excludes
+          - id: identity
+            overrides:
+              stages:
+                - manual
 
   check:
-    - name: pre-commit-hooks
-      repo: https://github.com/pre-commit/pre-commit-hooks
+    description: Global File Sanity Checks
+    repos:
+      - name: pre-commit-hooks
+        repo: https://github.com/pre-commit/pre-commit-hooks
 
-    - name: pygrep-hooks
-      repo: https://github.com/pre-commit/pygrep-hooks
+      - name: pygrep-hooks
+        repo: https://github.com/pre-commit/pygrep-hooks
 
   lint:
-    - name: yamllint
-      repo: https://github.com/adrienverge/yamllint
+    description: Code Quality Linters
+    repos:
+      - name: yamllint
+        repo: https://github.com/adrienverge/yamllint
 
   format:
-    - name: ruff
-      repo: https://github.com/astral-sh/ruff-pre-commit
+    description: Code Style & Formatting
+    repos:
+      - name: ruff
+        repo: https://github.com/astral-sh/ruff-pre-commit
 
   quality:
-    - name: mypy
-      repo: https://github.com/pre-commit/mirrors-mypy
-      hooks:
-        - id: mypy
-          appends:
-            args:
-              - --install-types
-              - --non-interactive
+    description: Type Checkers
+    repos:
+      - name: mypy
+        repo: https://github.com/pre-commit/mirrors-mypy
+        hooks:
+          - id: mypy
+            appends:
+              args:
+                - --install-types
+                - --non-interactive

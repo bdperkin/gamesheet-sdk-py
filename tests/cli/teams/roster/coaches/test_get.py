@@ -28,7 +28,9 @@ def test_teams_roster_coaches_get_coverage() -> None:
             "gamesheet_sdk.admin.cli.commands.teams_roster_coaches._get_team_coach_action",
             return_value=mock_coach,
         ),
-        patch("gamesheet_sdk.admin.cli.commands.teams_roster_coaches.render_get_command"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.teams_roster_coaches.render_get_command",
+        ),
     ):
         result = runner.invoke(
             teams_roster_coaches_group,

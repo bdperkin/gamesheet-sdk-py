@@ -16,7 +16,9 @@ from gamesheet_sdk.admin.games import Location
 def test_locations_get_basic(runner: CliRunner) -> None:
     """The locations get command should retrieve a single location."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.locations._get_location_action") as mock_get,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.locations._get_location_action",
+        ) as mock_get,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -52,7 +54,9 @@ def test_locations_get_basic(runner: CliRunner) -> None:
 def test_locations_get_json_output(runner: CliRunner) -> None:
     """The locations get command should support JSON output."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.locations._get_location_action") as mock_get,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.locations._get_location_action",
+        ) as mock_get,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -82,7 +86,9 @@ def test_locations_get_json_output(runner: CliRunner) -> None:
 def test_locations_get_alias_show(runner: CliRunner) -> None:
     """The 'show' alias should invoke the get command."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.locations._get_location_action") as mock_get,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.locations._get_location_action",
+        ) as mock_get,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -111,7 +117,9 @@ def test_locations_get_alias_show(runner: CliRunner) -> None:
 def test_locations_get_alias_view(runner: CliRunner) -> None:
     """The 'view' alias should invoke the get command."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.locations._get_location_action") as mock_get,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.locations._get_location_action",
+        ) as mock_get,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",

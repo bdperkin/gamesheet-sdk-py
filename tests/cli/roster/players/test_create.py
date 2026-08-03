@@ -20,7 +20,9 @@ def test_roster_players_create_coverage() -> None:
     mock_player = MagicMock()
     mock_player.id = PLAYER_ID
     with (
-        patch("gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.roster_players._create_player_action",
             return_value=mock_player,
@@ -48,7 +50,9 @@ def test_roster_players_create_error_handling() -> None:
     """Ensure players create command error path is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.roster_players._create_player_action",
             side_effect=Exception(TEST_ERROR_GENERIC),

@@ -36,16 +36,16 @@ updates:
       - dependencies
       - python
     commit-message:
-      prefix: "chore(deps)"
       include: scope
+      prefix: "chore(deps)"
     groups:
-      runtime-dependencies:
-        dependency-type: production
+      development-dependencies:
+        dependency-type: development
         update-types:
           - minor
           - patch
-      development-dependencies:
-        dependency-type: development
+      runtime-dependencies:
+        dependency-type: production
         update-types:
           - minor
           - patch
@@ -72,8 +72,8 @@ updates:
       - dependencies
       - github-actions
     commit-message:
-      prefix: "chore(deps)"
       include: scope
+      prefix: "chore(deps)"
     groups:
       actions:
         patterns:

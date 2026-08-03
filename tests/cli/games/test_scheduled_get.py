@@ -20,7 +20,9 @@ def test_games_scheduled_get_coverage() -> None:
 
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.games_scheduled.run_action_or_exit",
             return_value=MagicMock(

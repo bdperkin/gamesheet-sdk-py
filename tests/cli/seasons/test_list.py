@@ -18,7 +18,9 @@ from tests.helpers import CLI_TEST_SEASON_ID, TIMESTAMP_2024_01_01
 def test_seasons_list_alias_works(runner: CliRunner) -> None:
     """The 'ls' alias should invoke the list command."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._list_seasons_action") as mock_list,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._list_seasons_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -44,7 +46,9 @@ def test_seasons_missing_league_id_shows_error(runner: CliRunner) -> None:
 def test_seasons_list_json_output(runner: CliRunner) -> None:
     """The seasons list command should support JSON output."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._list_seasons_action") as mock_list,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._list_seasons_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -75,7 +79,9 @@ def test_seasons_list_json_output(runner: CliRunner) -> None:
 def test_seasons_list_yaml_output(runner: CliRunner) -> None:
     """The seasons list command should support YAML output."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._list_seasons_action") as mock_list,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._list_seasons_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -106,7 +112,9 @@ def test_seasons_list_yaml_output(runner: CliRunner) -> None:
 def test_seasons_list_columns_filter(runner: CliRunner) -> None:
     """The --columns option should filter output columns for seasons."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._list_seasons_action") as mock_list,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._list_seasons_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -138,7 +146,9 @@ def test_seasons_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
     """The --output option should write to a file for seasons."""
     output_file = tmp_path / "seasons.json"
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._list_seasons_action") as mock_list,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._list_seasons_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -179,7 +189,9 @@ def test_seasons_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
 def test_seasons_list_csv_output(runner: CliRunner) -> None:
     """The seasons list command should support CSV output."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._list_seasons_action") as mock_list,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._list_seasons_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -211,7 +223,9 @@ def test_seasons_list_csv_output(runner: CliRunner) -> None:
 def test_seasons_list_tsv_output(runner: CliRunner) -> None:
     """The seasons list command should support TSV output."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._list_seasons_action") as mock_list,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._list_seasons_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -255,7 +269,9 @@ def test_seasons_list_with_no_saved_tokens(runner: CliRunner) -> None:
 def test_seasons_list_with_env_var(runner: CliRunner) -> None:
     """The league ID can be provided via GAMESHEET_LEAGUE_ID environment variable."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._list_seasons_action") as mock_list,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._list_seasons_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",

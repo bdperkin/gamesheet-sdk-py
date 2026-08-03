@@ -20,7 +20,9 @@ def test_roster_players_assign_coverage() -> None:
     mock_player = MagicMock()
     mock_player.id = PLAYER_ID
     with (
-        patch("gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.roster_players._assign_player_action",
             return_value=mock_player,
@@ -48,7 +50,9 @@ def test_roster_players_assign_error_handling() -> None:
     """Ensure players assign command error handling is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.roster_players._assign_player_action",
             side_effect=Exception(TEST_ERROR_GENERIC),
@@ -75,8 +79,12 @@ def test_roster_players_unassign_coverage() -> None:
     """Ensure players unassign command body is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session"),
-        patch("gamesheet_sdk.admin.cli.commands.roster_players._unassign_player_action"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session",
+        ),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.roster_players._unassign_player_action",
+        ),
     ):
         result = runner.invoke(
             players_group,
@@ -97,7 +105,9 @@ def test_roster_players_unassign_error_handling() -> None:
     """Ensure players unassign command error handling is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.roster_players._unassign_player_action",
             side_effect=Exception(TEST_ERROR_GENERIC),

@@ -21,10 +21,19 @@ from precommit.config import (
     DEFAULT_STAGES,
 )
 from precommit.discovery import RevisionResult, resolve_revision
-from precommit.exceptions import ConfigError, DiscoveryError, FetchError, PreCommitValidationError
+from precommit.exceptions import (
+    ConfigError,
+    DiscoveryError,
+    FetchError,
+    PreCommitValidationError,
+)
 from precommit.fetcher import fetch_hooks
 from precommit.models import GlobalConfig, RepoConfig, RunConfig, ToolConfig
-from precommit.processor import get_hook_comment, process_meta_hooks, process_remote_hooks
+from precommit.processor import (
+    get_hook_comment,
+    process_meta_hooks,
+    process_remote_hooks,
+)
 from precommit.renderer import render_config
 from precommit.validator import validate_config
 from ruamel.yaml import YAML
@@ -148,7 +157,10 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
 
         return self._validate_tool_config(raw)
 
-    def _resolve_output_path(self: PreCommitGenerator, globals_cfg: GlobalConfig) -> Path:
+    def _resolve_output_path(
+        self: PreCommitGenerator,
+        globals_cfg: GlobalConfig,
+    ) -> Path:
         if self.run_config.output_file is not None:
             return self.run_config.output_file
         return Path(globals_cfg.output_file)
@@ -161,7 +173,9 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
         if not remote_configs:
             return
 
-        def _fetch_one(rc: RepoConfig) -> tuple[str, RevisionResult, list[dict[str, Any]]]:
+        def _fetch_one(
+            rc: RepoConfig,
+        ) -> tuple[str, RevisionResult, list[dict[str, Any]]]:
             rev_result = resolve_revision(
                 rc.repo,
                 rc.rev,
@@ -243,7 +257,11 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
                     logger.info("Cleared resolved_rev for %s", repo_url)
                 break
 
-    def _write_resolved_rev(self: PreCommitGenerator, repo_url: str, resolved_rev: str | None) -> None:
+    def _write_resolved_rev(
+        self: PreCommitGenerator,
+        repo_url: str,
+        resolved_rev: str | None,
+    ) -> None:
         """Write or clear resolved_rev in .genprecommitconfig.yaml."""
         config_path = self.run_config.config_file
 
@@ -306,9 +324,17 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
             )
 
             try:
-                fetched = fetch_hooks(repo_config.repo, candidate, pip_config=self.pip_config)
+                fetched = fetch_hooks(
+                    repo_config.repo,
+                    candidate,
+                    pip_config=self.pip_config,
+                )
             except FetchError:
-                logger.warning("Failed to fetch hooks for %s at %s", repo_config.repo, candidate)
+                logger.warning(
+                    "Failed to fetch hooks for %s at %s",
+                    repo_config.repo,
+                    candidate,
+                )
                 continue
 
             hooks = process_remote_hooks(
@@ -319,7 +345,11 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
             )
 
             if not hooks:
-                logger.warning("No hooks passed filtering for %s at %s", repo_config.name, candidate)
+                logger.warning(
+                    "No hooks passed filtering for %s at %s",
+                    repo_config.name,
+                    candidate,
+                )
                 continue
 
             new_entry: dict[str, Any] = {
@@ -450,7 +480,11 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
                 pip_config=self.pip_config,
                 min_python=self.min_python,
             )
-            fetched = fetch_hooks(repo_config.repo, rev_result.rev, pip_config=self.pip_config)
+            fetched = fetch_hooks(
+                repo_config.repo,
+                rev_result.rev,
+                pip_config=self.pip_config,
+            )
         hooks = process_remote_hooks(
             fetched_hooks=fetched,
             repo_config=repo_config,

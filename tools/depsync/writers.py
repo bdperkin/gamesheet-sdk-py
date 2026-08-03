@@ -389,7 +389,11 @@ def apply_types_sync(
 
     toml_file, doc = _read_toml(path)
 
-    mypy_list = _get_toml_key(doc, ["project", "optional-dependencies", "type-stubs"], path)
+    mypy_list = _get_toml_key(
+        doc,
+        ["project", "optional-dependencies", "type-stubs"],
+        path,
+    )
 
     remove_normalized = {_normalize_dep_name(n) for n in to_remove}
     update_map = {_normalize_dep_name(name): new_ver for name, _, new_ver in to_update}

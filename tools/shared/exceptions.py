@@ -26,7 +26,12 @@ class ToolError(Exception):
 class SubprocessError(ToolError):
     """A subprocess command failed."""
 
-    def __init__(self: SubprocessError, command: str, exit_code: int, stderr: str) -> None:
+    def __init__(
+        self: SubprocessError,
+        command: str,
+        exit_code: int,
+        stderr: str,
+    ) -> None:
         """Initialize with command details.
 
         :param command: The command string that failed.

@@ -19,7 +19,9 @@ def test_games_scheduled_list_coverage() -> None:
     """Ensure scheduled list command body is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.games_scheduled.run_action_or_exit",
             return_value=[],
@@ -38,7 +40,9 @@ def test_games_completed_list_coverage() -> None:
     """Ensure completed list command body is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.admin.cli.commands.games_completed.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.games_completed.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.games_completed.run_action_or_exit",
             return_value=[],
