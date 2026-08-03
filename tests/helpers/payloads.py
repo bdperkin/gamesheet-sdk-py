@@ -30,7 +30,9 @@ def jsonapi_payload(rows: list[dict[str, Any]]) -> dict[str, Any]:
         :param rows: List of JSON:API resource objects
     :returns: JSON:API response dict with {"data": [...]}
     Example:
-        >>> jsonapi_payload([{"type": "associations", "id": "1", "attributes": {...}}])
+        >>> jsonapi_payload(
+        ...     [{"type": "associations", "id": "1", "attributes": {...}}]
+        ... )
         {'data': [{'type': 'associations', 'id': '1', 'attributes': {...}}]}
     """
     return {"data": rows}
@@ -42,7 +44,9 @@ def jsonapi_detail_payload(data: dict[str, Any]) -> dict[str, Any]:
         :param data: Single JSON:API resource object
     :returns: JSON:API response dict with {"data": {...}}
     Example:
-        >>> jsonapi_detail_payload({"type": "associations", "id": "1", "attributes": {...}})
+        >>> jsonapi_detail_payload(
+        ...     {"type": "associations", "id": "1", "attributes": {...}}
+        ... )
         {'data': {'type': 'associations', 'id': '1', 'attributes': {...}}}
     """
     return {"data": data}
@@ -249,7 +253,9 @@ def invitation_relationship_and_included(
         :param code: Invitation code
     :returns: Tuple of (invitations relationship dict, included array)
     Example:
-        >>> rel, inc = invitation_relationship_and_included("inv-123", "RAPTORS2024")
+        >>> rel, inc = invitation_relationship_and_included(
+        ...     "inv-123", "RAPTORS2024"
+        ... )
         >>> # rel = {"invitations": {"data": [{"type": "invitations", "id": "inv-123"}]}}
         >>> # inc = [{"type": "invitations", "id": "inv-123", "attributes": {"code": "RAPTORS2024"}}]
     """

@@ -88,8 +88,8 @@ class BaseAuthenticatedSession(Session, ABC):
         try:
             new_tokens = self._do_refresh()
         except GameSheetError as exc:
-            # nosemgrep
-            _LOGGER.warning(
+            # editorconfig-checker-disable-next-line # pylint: disable-next=line-too-long
+            _LOGGER.warning(  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure # noqa: E501
                 "Token refresh failed: %s; surfacing original response.",
                 exc,
             )
@@ -140,10 +140,15 @@ class AuthenticatedSession(BaseAuthenticatedSession):
 
     Example::
 
-        from gamesheet_sdk.common.auth import load_access_token, load_refresh_token, save_tokens
+        from gamesheet_sdk.common.auth import (
+            load_access_token,
+            load_refresh_token,
+            save_tokens,
+        )
         from gamesheet_sdk.common.auth.session import AuthenticatedSession
         from gamesheet_sdk.admin.associations import list_associations
         from gamesheet_sdk.common.config import Config
+
         config = Config()
         with AuthenticatedSession(
             config,

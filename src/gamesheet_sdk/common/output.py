@@ -76,12 +76,7 @@ def _render_json(
 
     Example output::
 
-        [
-            {
-                "id": 123,
-                "name": "Example"
-            }
-        ]
+        [{"id": 123, "name": "Example"}]
     """
     return json.dumps(rows, indent=JSON_INDENT_SPACES, sort_keys=True, default=str)
 
@@ -127,9 +122,9 @@ def _render_dsv(
     None values are converted to empty strings. Extra keys in each row beyond
     ``columns`` are silently ignored (``extrasaction="ignore"``).
     Example (delimiter=``,``)::
-        id,name
-        123,Example
-        456,Another
+        id, name
+        123, Example
+        456, Another
     """
     buf = io.StringIO()
     writer = csv.DictWriter(

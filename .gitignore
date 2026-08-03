@@ -177,7 +177,6 @@ ehthumbs.db
 Desktop.ini
 
 # Linux
-*~
 .directory
 
 # ------------------------------------------------------------------------------
@@ -199,10 +198,10 @@ _autosummary/
 .local/
 *.log
 *.patch
+ruff.toml
 secrets.toml
 *.bak
 *.tmp
-*.swp
 
 # ------------------------------------------------------------------------------
 # Security and secrets
