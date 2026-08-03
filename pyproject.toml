@@ -287,7 +287,7 @@ optional-dependencies.type-stubs = [
   "types-pyyaml==6.0.12.20260724",
   "types-regex==2026.7.19.20260720",
   "types-requests==2.33.0.20260712",
-  "types-setuptools==83.0.0.20260706",
+  "types-setuptools==83.0.0.20260724",
   "types-six==1.17.0.20260724",
   "types-tabulate==0.10.0.20260508",
   "types-toml==0.10.8.20260518",
