@@ -296,7 +296,7 @@ def _single_to_double_quotes(text: str) -> str:
         inner = m.group(1)
         if "\\" in inner:
             return m.group(0)
-        return f'"{inner}"'
+        return '"' + inner + '"'
 
     def _replace_on_line(line: str) -> str:
         if line.lstrip().startswith("#"):
