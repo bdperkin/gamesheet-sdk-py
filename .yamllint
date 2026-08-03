@@ -27,6 +27,54 @@ ignore: |
 # Rule Customizations & Overrides
 # ------------------------------------------------------------------------------
 rules:
+
+  # ----------------------------------------------------------------------------
+  # Brackets and Braces
+  # ----------------------------------------------------------------------------
+  # Enforce spacing inside brackets and braces for readability
+  braces:
+    max-spaces-inside: 0
+    min-spaces-inside: 0
+  brackets:
+    max-spaces-inside: 0
+    min-spaces-inside: 0
+
+  # ----------------------------------------------------------------------------
+  # Comments
+  # ----------------------------------------------------------------------------
+  # Allow inline comments without requiring a space before them
+  comments:
+    min-spaces-from-content: 1 # Require at least 1 space before inline comment
+
+  # ----------------------------------------------------------------------------
+  # Document End
+  # ----------------------------------------------------------------------------
+  # Disable the requirement for '...' at the end of YAML files
+  document-end: disable
+
+  # ----------------------------------------------------------------------------
+  # Document Start
+  # ----------------------------------------------------------------------------
+  # Disable the requirement for '---' at the top of every YAML file
+  # GitHub Actions workflows don't use document-start markers
+  document-start: disable
+
+  # ----------------------------------------------------------------------------
+  # Empty Lines
+  # ----------------------------------------------------------------------------
+  # Allow reasonable flexibility with blank lines
+  empty-lines:
+    max: 2 # Allow up to 2 consecutive blank lines
+
+  # ----------------------------------------------------------------------------
+  # Indentation
+  # ----------------------------------------------------------------------------
+  # Enforce strict and consistent 2-space indentation throughout
+  indentation:
+    check-multi-line-strings: false # Don't enforce indentation in multi-line strings
+    indent-sequences: true # Enforce correct indentation for list items (-)
+    spaces: 2 # Standardize on 2 spaces for nested blocks
+
   # ----------------------------------------------------------------------------
   # Line Length
   # ----------------------------------------------------------------------------
@@ -38,26 +86,11 @@ rules:
     max: 110 # Allow up to 110 characters per line
 
   # ----------------------------------------------------------------------------
-  # Indentation
+  # Quoted Strings
   # ----------------------------------------------------------------------------
-  # Enforce strict and consistent 2-space indentation throughout
-  indentation:
-    spaces: 2 # Standardize on 2 spaces for nested blocks
-    indent-sequences: true # Enforce correct indentation for list items (-)
-    check-multi-line-strings: false # Don't enforce indentation in multi-line strings
-
-  # ----------------------------------------------------------------------------
-  # Document Start
-  # ----------------------------------------------------------------------------
-  # Disable the requirement for '---' at the top of every YAML file
-  # GitHub Actions workflows don't use document-start markers
-  document-start: disable
-
-  # ----------------------------------------------------------------------------
-  # Document End
-  # ----------------------------------------------------------------------------
-  # Disable the requirement for '...' at the end of YAML files
-  document-end: disable
+  # Don't enforce quoting style (allow both single and double quotes)
+  # Different contexts call for different styles
+  quoted-strings: disable
 
   # ----------------------------------------------------------------------------
   # Truthy Values
@@ -73,36 +106,3 @@ rules:
       - "on"
       - "off"
     check-keys: false # Don't check key names for truthy values
-
-  # ----------------------------------------------------------------------------
-  # Comments
-  # ----------------------------------------------------------------------------
-  # Allow inline comments without requiring a space before them
-  comments:
-    min-spaces-from-content: 1 # Require at least 1 space before inline comment
-
-  # ----------------------------------------------------------------------------
-  # Empty Lines
-  # ----------------------------------------------------------------------------
-  # Allow reasonable flexibility with blank lines
-  empty-lines:
-    max: 2 # Allow up to 2 consecutive blank lines
-
-  # ----------------------------------------------------------------------------
-  # Brackets and Braces
-  # ----------------------------------------------------------------------------
-  # Enforce spacing inside brackets and braces for readability
-  brackets:
-    min-spaces-inside: 0
-    max-spaces-inside: 0
-
-  braces:
-    min-spaces-inside: 0
-    max-spaces-inside: 0
-
-  # ----------------------------------------------------------------------------
-  # Quoted Strings
-  # ----------------------------------------------------------------------------
-  # Don't enforce quoting style (allow both single and double quotes)
-  # Different contexts call for different styles
-  quoted-strings: disable

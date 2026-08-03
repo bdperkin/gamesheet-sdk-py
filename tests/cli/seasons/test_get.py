@@ -18,7 +18,9 @@ from tests.helpers import SEASON_ID, TIMESTAMP_2024_01_01
 def test_seasons_get_alias_show_works(runner: CliRunner) -> None:
     """The 'show' alias should invoke the get command."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._get_season_action") as mock_get,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._get_season_action",
+        ) as mock_get,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -49,7 +51,9 @@ def test_seasons_get_alias_show_works(runner: CliRunner) -> None:
 def test_seasons_get_alias_view_works(runner: CliRunner) -> None:
     """The 'view' alias should invoke the get command."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._get_season_action") as mock_get,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._get_season_action",
+        ) as mock_get,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -87,7 +91,9 @@ def test_seasons_get_missing_season_id_shows_error(runner: CliRunner) -> None:
 def test_seasons_get_json_output(runner: CliRunner) -> None:
     """The seasons get command should support JSON output."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._get_season_action") as mock_get,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._get_season_action",
+        ) as mock_get,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -123,7 +129,9 @@ def test_seasons_get_json_output(runner: CliRunner) -> None:
 def test_seasons_get_yaml_output(runner: CliRunner) -> None:
     """The seasons get command should support YAML output."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._get_season_action") as mock_get,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._get_season_action",
+        ) as mock_get,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -158,7 +166,9 @@ def test_seasons_get_yaml_output(runner: CliRunner) -> None:
 def test_seasons_get_fields_filter(runner: CliRunner) -> None:
     """The --fields option should filter output fields for seasons get."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._get_season_action") as mock_get,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._get_season_action",
+        ) as mock_get,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -194,7 +204,9 @@ def test_seasons_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
     """The --output option should write to a file for seasons get."""
     output_file = tmp_path / "season.json"
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._get_season_action") as mock_get,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._get_season_action",
+        ) as mock_get,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -239,7 +251,9 @@ def test_seasons_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
 def test_seasons_get_table_format(runner: CliRunner) -> None:
     """The seasons get command should support table formats with key-value pairs."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._get_season_action") as mock_get,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._get_season_action",
+        ) as mock_get,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -275,7 +289,9 @@ def test_seasons_get_table_format(runner: CliRunner) -> None:
 def test_seasons_get_grid_format(runner: CliRunner) -> None:
     """The seasons get command should support grid format."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._get_season_action") as mock_get,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._get_season_action",
+        ) as mock_get,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -321,7 +337,9 @@ def test_seasons_get_with_no_saved_tokens(runner: CliRunner) -> None:
 def test_seasons_get_with_env_var(runner: CliRunner) -> None:
     """The season ID can be provided via GAMESHEET_SEASON_ID environment variable."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.seasons._get_season_action") as mock_get,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.seasons._get_season_action",
+        ) as mock_get,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",

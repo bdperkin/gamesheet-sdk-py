@@ -23,7 +23,10 @@ class HookConfig(BaseModel):
     """Per-hook override/append configuration from the config file."""
 
     id: str = Field(description="Hook identifier to match against fetched hooks")
-    comment: str | None = Field(default=None, description="Rendered as a YAML comment above the hook")
+    comment: str | None = Field(
+        default=None,
+        description="Rendered as a YAML comment above the hook",
+    )
     overrides: dict[str, Any] = Field(
         default_factory=dict,
         description="Fields that replace fetched hook values entirely",
@@ -60,8 +63,13 @@ class RepoConfig(BaseModel):
 class CategoryConfig(BaseModel):
     """Category grouping with a description and list of repos."""
 
-    description: str = Field(description="Human-readable label rendered as a sub-section comment")
-    repos: list[RepoConfig] = Field(default_factory=list, description="Repositories in this category")
+    description: str = Field(
+        description="Human-readable label rendered as a sub-section comment",
+    )
+    repos: list[RepoConfig] = Field(
+        default_factory=list,
+        description="Repositories in this category",
+    )
 
 
 class GlobalConfig(BaseModel):
@@ -74,8 +82,14 @@ class GlobalConfig(BaseModel):
         default_factory=DEFAULT_STAGES.copy,
     )
     fail_fast: bool = DEFAULT_FAIL_FAST
-    files: str | None = Field(default=None, description="Global regex for files to include")
-    exclude: str | None = Field(default=None, description="Global regex for files to exclude")
+    files: str | None = Field(
+        default=None,
+        description="Global regex for files to include",
+    )
+    exclude: str | None = Field(
+        default=None,
+        description="Global regex for files to exclude",
+    )
     minimum_pre_commit_version: str | None = Field(
         default=None,
         description="Minimum pre-commit version required",

@@ -89,7 +89,10 @@ class BaseAuthenticatedSession(Session, ABC):
             new_tokens = self._do_refresh()
         except GameSheetError as exc:
             # nosemgrep: python.lang.security.audit.logging.logger-credential-leak
-            _LOGGER.warning("Token refresh failed: %s; surfacing original response.", exc)
+            _LOGGER.warning(
+                "Token refresh failed: %s; surfacing original response.",
+                exc,
+            )
             return False
         self.set_bearer_token(new_tokens["access"])
         self._refresh_token = new_tokens["refresh"]

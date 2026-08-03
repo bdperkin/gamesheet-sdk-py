@@ -140,7 +140,10 @@ def _diff_and_run(
     try:
         shutil.copy2(output_path, backup_path)
     except OSError:
-        logger.warning("Could not create backup of %s; skipping diff optimization", output_path)
+        logger.warning(
+            "Could not create backup of %s; skipping diff optimization",
+            output_path,
+        )
 
     if hook_ids:
         for meta_id in _CONFIG_VALIDATION_HOOKS:

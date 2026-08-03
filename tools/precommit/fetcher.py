@@ -42,7 +42,11 @@ def _build_raw_url(repo_url: str, rev: str) -> str:
     raise FetchError(msg)
 
 
-def _parse_hooks_yaml(content: bytes, raw_url: str, response_text: str) -> list[dict[str, Any]]:
+def _parse_hooks_yaml(
+    content: bytes,
+    raw_url: str,
+    response_text: str,
+) -> list[dict[str, Any]]:
     """Parse YAML hook definitions from raw response content.
 
     :param content: Raw response body bytes.

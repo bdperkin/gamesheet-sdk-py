@@ -159,7 +159,12 @@ def _log_convergence_result(
             ", stale rev" if needs_regen else "",
         )
     elif needs_regen:
-        logger.info("  %s: stale rev %s (expected %s)", pkg_name, repo_rev, target_version)
+        logger.info(
+            "  %s: stale rev %s (expected %s)",
+            pkg_name,
+            repo_rev,
+            target_version,
+        )
     else:
         logger.info("  %s: %s (pinned, up to date)", pkg_name, target_version)
 
@@ -201,7 +206,11 @@ def _converge_shared_main_hooks(
         else:
             pypi_versions = pypi_cache.get(pkg_name, {})
             git_tags = git_cache.get(repo.url, [])
-            common = find_highest_common_version(pypi_versions, git_tags, min_python=min_python)
+            common = find_highest_common_version(
+                pypi_versions,
+                git_tags,
+                min_python=min_python,
+            )
             if not common:
                 logger.warning("No common stable version for %s", pkg_name)
                 processed_packages.add(pkg_name)
@@ -322,7 +331,11 @@ def _converge_pypi_only(
 
         current_version = dep_entries[0].version
 
-        logger.debug("Checking PyPI-only: %s%s", pkg_name, f"=={current_version}" if current_version else "")
+        logger.debug(
+            "Checking PyPI-only: %s%s",
+            pkg_name,
+            f"=={current_version}" if current_version else "",
+        )
 
         latest = resolve_latest_version(pypi_cache.get(pkg_name, {}), min_python)
         if not latest or latest == current_version:
@@ -841,6 +854,11 @@ def sync_types(
 
     result = TypesSyncResult()
     result.added = _find_new_stubs(available, current_types, types_cache, min_python)
-    result.removed, result.updated = _find_stale_stubs(current_types, all_packages, types_cache, min_python)
+    result.removed, result.updated = _find_stale_stubs(
+        current_types,
+        all_packages,
+        types_cache,
+        min_python,
+    )
 
     return result

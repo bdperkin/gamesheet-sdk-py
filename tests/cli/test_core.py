@@ -48,8 +48,14 @@ def test_cli_with_base_url_override(runner: CliRunner) -> None:
         patch(
             "gamesheet_sdk.admin.cli.commands.associations._list_associations_action",
         ) as mock_list,
-        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="token",
+        ),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
+            return_value="refresh",
+        ),
     ):
         mock_list.return_value = []
         result = runner.invoke(
@@ -67,8 +73,14 @@ def test_cli_with_no_headless_flag(runner: CliRunner) -> None:
         patch(
             "gamesheet_sdk.admin.cli.commands.associations._list_associations_action",
         ) as mock_list,
-        patch("gamesheet_sdk.admin.cli.helpers.load_access_token", return_value="token"),
-        patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="refresh"),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_access_token",
+            return_value="token",
+        ),
+        patch(
+            "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
+            return_value="refresh",
+        ),
     ):
         mock_list.return_value = []
         result = runner.invoke(cli, ["--no-headless", "associations", "list"])

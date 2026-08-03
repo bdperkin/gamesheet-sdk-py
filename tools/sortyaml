@@ -1,0 +1,759 @@
+#!/usr/bin/env python3
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
+"""Sort YAML files by key while preserving comments."""
+
+from __future__ import annotations
+
+from collections.abc import Callable, Iterator
+import difflib
+import io
+import logging
+from pathlib import Path
+import re
+import shutil
+import sys
+
+try:
+    from shared import PROJECT_NAME
+    from shared.log_config import configure_logging
+except ModuleNotFoundError:
+    sys.path.append(str(Path(__file__).resolve().parent))
+    from shared import PROJECT_NAME
+    from shared.log_config import configure_logging
+
+from rich.console import Console
+from rich.syntax import Syntax
+import rich_click as click
+from ruamel.yaml import YAML
+from ruamel.yaml.comments import CommentedMap, CommentedSeq
+from ruamel.yaml.scalarstring import (
+    DoubleQuotedScalarString,
+    FoldedScalarString,
+    SingleQuotedScalarString,
+)
+
+console = Console(stderr=True)
+logger = logging.getLogger(__name__)
+
+_LOG_LEVELS = {True: "info", False: "warning"}
+
+
+# --- Indent detection ---
+
+
+def _has_lc(val: object, typ: type) -> bool:
+    """Check if *val* is a non-empty instance of *typ* with line/column data."""
+    return isinstance(val, typ) and bool(val) and hasattr(val, "lc")
+
+
+def _iter_children(node: object) -> Iterator[object]:
+    """Yield child nodes from lists and sequences."""
+    if isinstance(node, (list, CommentedSeq)):
+        yield from node
+
+
+def _map_indents(node: object) -> Iterator[int]:
+    """Yield mapping-indent deltas found in the data tree."""
+    if not _has_lc(node, CommentedMap):
+        for item in _iter_children(node):
+            yield from _map_indents(item)
+        return
+    for key in node:  # type: ignore[attr-defined]
+        val = node[key]  # type: ignore[index]
+        if _has_lc(val, CommentedMap):
+            keys = list(val.keys())
+            yield val.lc.key(keys[0])[1] - node.lc.key(key)[1]  # type: ignore[attr-defined]
+        yield from _map_indents(val)
+
+
+def _seq_indents(node: object) -> Iterator[int]:
+    """Yield sequence-indent deltas found in the data tree."""
+    if not _has_lc(node, CommentedMap):
+        for item in _iter_children(node):
+            yield from _seq_indents(item)
+        return
+    for key in node:  # type: ignore[attr-defined]
+        val = node[key]  # type: ignore[index]
+        if _has_lc(val, CommentedSeq):
+            yield val.lc.item(0)[1] - node.lc.key(key)[1]  # type: ignore[attr-defined]
+        yield from _seq_indents(val)
+
+
+def _detect_indent(data: object) -> tuple[int, int, int]:
+    """Detect mapping indent, sequence indent, and dash offset from loaded YAML."""
+    mi = next(_map_indents(data), 2)
+    si = next(_seq_indents(data), 2)
+    return mi, si, max(si - 2, 0)
+
+
+# --- Schema-specific sorting ---
+
+SortKeyFn = Callable[[str, object, int, int], tuple[object, ...]]
+
+
+def _ordered_key_pos(key: str, order: tuple[str, ...]) -> int:
+    """Return the position of *key* in *order*, or ``len(order)`` if absent."""
+    try:
+        return order.index(key)
+    except ValueError:
+        return len(order)
+
+
+def _type_order(value: object) -> int:
+    """Return 0 for scalars, 1 for mappings, 2 for sequences."""
+    if isinstance(value, CommentedMap):
+        return 1
+    if isinstance(value, (list, CommentedSeq)):
+        return 2
+    return 0
+
+
+# -- Codecov --
+
+_CODECOV_TOP_LEVEL = (
+    "codecov",
+    "coverage",
+    "parsers",
+    "flags",
+    "flag_management",
+    "component_management",
+    "comment",
+    "github_checks",
+    "ignore",
+    "fixes",
+)
+
+
+def _codecov_top_sort_key(key: str) -> tuple[int, str]:
+    """Return sort key for a codecov top-level key."""
+    return (_ordered_key_pos(key, _CODECOV_TOP_LEVEL), key)
+
+
+def _codecov_nested_sort_key(key: str, value: object) -> tuple[int, int, int, str]:
+    """Return sort key for a nested codecov key (name first, scalars first)."""
+    if key == "name":
+        return (0, _type_order(value), 0, key)
+    name_order = 0 if key.startswith("default") else 1
+    return (1, _type_order(value), name_order, key)
+
+
+def _codecov_sort_key(
+    key: str,
+    value: object,
+    depth: int,
+    _pos: int,
+) -> tuple[object, ...]:
+    """Return sort key for a codecov key at the given depth."""
+    if not depth:
+        return _codecov_top_sort_key(key)
+    return _codecov_nested_sort_key(key, value)
+
+
+# -- Trivyignore --
+
+_TRIVYIGNORE_TOP_LEVEL = (
+    "version",
+    "common",
+    "vulnerabilities",
+    "misconfigurations",
+    "licenses",
+    "secrets",
+)
+
+_TRIVYIGNORE_KEY_PRIORITY = (
+    "id",
+    "vulnerability_id",
+    "rule_id",
+    "pkg_name",
+    "path",
+    "reason",
+    "statement",
+    "created_by",
+    "exp_date",
+    "until",
+    "expired_at",
+)
+
+
+def _trivyignore_nested_sort_key(
+    key: str,
+    value: object,
+) -> tuple[int, int, str]:
+    """Return sort key for a nested trivyignore key (priority then type)."""
+    return (_ordered_key_pos(key, _TRIVYIGNORE_KEY_PRIORITY), _type_order(value), key)
+
+
+def _trivyignore_sort_key(
+    key: str,
+    value: object,
+    depth: int,
+    _pos: int,
+) -> tuple[object, ...]:
+    """Return sort key for a trivyignore key at the given depth."""
+    if not depth:
+        return (_ordered_key_pos(key, _TRIVYIGNORE_TOP_LEVEL), key)
+    return _trivyignore_nested_sort_key(key, value)
+
+
+# -- Pre-commit config --
+
+_PRECOMMIT_TOP_LEVEL = (
+    "fail_fast",
+    "minimum_pre_commit_version",
+    "default_install_hook_types",
+    "default_stages",
+    "default_language_version",
+    "files",
+    "exclude",
+    "ci",
+    "repos",
+)
+
+_PRECOMMIT_REPO_KEYS = (
+    "repo",
+    "rev",
+    "hooks",
+)
+
+_PRECOMMIT_HOOK_KEYS = (
+    "id",
+    "name",
+    "alias",
+    "entry",
+    "language",
+    "language_version",
+    "minimum_pre_commit_version",
+    "pass_filenames",
+    "require_serial",
+    "always_run",
+    "verbose",
+    "stages",
+    "types",
+    "types_or",
+    "files",
+    "exclude",
+    "args",
+    "additional_dependencies",
+)
+
+_PRECOMMIT_DEPTH_KEYS: dict[int, tuple[str, ...]] = {
+    0: _PRECOMMIT_TOP_LEVEL,
+    1: _PRECOMMIT_REPO_KEYS,
+    2: _PRECOMMIT_HOOK_KEYS,
+}
+
+
+def _precommit_sort_key(
+    key: str,
+    value: object,
+    depth: int,
+    _pos: int,
+) -> tuple[object, ...]:
+    """Return sort key for a pre-commit config key at the given depth."""
+    order = _PRECOMMIT_DEPTH_KEYS.get(depth, ())
+    return (_ordered_key_pos(key, order), _type_order(value), key)
+
+
+# -- genprecommitconfig --
+
+_GENPRECOMMIT_TOP_LEVEL = ("globals", "ci", "categories")
+
+_GENPRECOMMIT_CATEGORY_KEYS = ("description", "repos")
+
+_GENPRECOMMIT_REPO_KEYS = ("name", "repo", "rev", "resolved_rev", "hooks")
+
+_GENPRECOMMIT_HOOK_KEYS = ("id", "comment", "overrides", "prepends", "appends")
+
+_GENPRECOMMIT_DEPTH1_KNOWN = frozenset(
+    (
+        "allowed_languages",
+        "autofix_commit_msg",
+        "autofix_prs",
+        "autoupdate_branch",
+        "autoupdate_commit_msg",
+        "autoupdate_schedule",
+        "blacklisted_hooks",
+        "default_language_version",
+        "default_stages",
+        "fail_fast",
+        "output_file",
+        "skip",
+        "submodules",
+    ),
+)
+
+_GENPRECOMMIT_DEPTH_KEYS: dict[int, tuple[str, ...]] = {
+    0: _GENPRECOMMIT_TOP_LEVEL,
+    2: _GENPRECOMMIT_CATEGORY_KEYS,
+    3: _GENPRECOMMIT_REPO_KEYS,
+    4: _GENPRECOMMIT_HOOK_KEYS,
+    5: _PRECOMMIT_HOOK_KEYS,
+}
+
+
+def _genprecommit_sort_key(
+    key: str,
+    value: object,
+    depth: int,
+    pos: int,
+) -> tuple[object, ...]:
+    """Return sort key for a genprecommitconfig key at the given depth."""
+    if depth == 1 and key not in _GENPRECOMMIT_DEPTH1_KNOWN:
+        return (pos,)
+    order = _GENPRECOMMIT_DEPTH_KEYS.get(depth, ())
+    return (_ordered_key_pos(key, order), _type_order(value), key)
+
+
+# -- Dependabot --
+
+_DEPENDABOT_TOP_LEVEL = ("version", "registries", "updates")
+
+_DEPENDABOT_UPDATE_KEYS = (
+    "package-ecosystem",
+    "directory",
+    "directories",
+    "target-branch",
+    "schedule",
+    "insecure-external-code-execution",
+    "open-pull-requests-limit",
+    "rebase-strategy",
+    "vendor",
+    "registries",
+    "assignees",
+    "labels",
+    "milestone",
+    "reviewers",
+    "allow",
+    "commit-message",
+    "groups",
+    "ignore",
+)
+
+_DEPENDABOT_SCHEDULE_KEYS = ("interval", "day", "time", "timezone")
+
+_DEPENDABOT_DEPTH_KEYS: dict[int, tuple[str, ...]] = {
+    0: _DEPENDABOT_TOP_LEVEL,
+    1: _DEPENDABOT_UPDATE_KEYS,
+    2: _DEPENDABOT_SCHEDULE_KEYS,
+}
+
+
+def _dependabot_sort_key(
+    key: str,
+    value: object,
+    depth: int,
+    _pos: int,
+) -> tuple[object, ...]:
+    """Return sort key for a dependabot config key at the given depth."""
+    order = _DEPENDABOT_DEPTH_KEYS.get(depth, ())
+    return (_ordered_key_pos(key, order), _type_order(value), key)
+
+
+# -- GitHub workflow --
+
+_GITHUB_WORKFLOW_TOP_LEVEL = (
+    "name",
+    "run-name",
+    "on",
+    "permissions",
+    "concurrency",
+    "env",
+    "defaults",
+    "jobs",
+)
+
+_GITHUB_WORKFLOW_JOB_KEYS = (
+    "name",
+    "needs",
+    "environment",
+    "permissions",
+    "runs-on",
+    "container",
+    "services",
+    "timeout-minutes",
+    "continue-on-error",
+    "if",
+    "strategy",
+    "env",
+    "defaults",
+    "outputs",
+    "uses",
+    "with",
+    "secrets",
+    "steps",
+)
+
+_GITHUB_WORKFLOW_STEP_KEYS = (
+    "name",
+    "id",
+    "if",
+    "uses",
+    "run",
+    "with",
+    "env",
+    "shell",
+    "working-directory",
+    "continue-on-error",
+    "timeout-minutes",
+)
+
+_GITHUB_WORKFLOW_DEPTH_KEYS: dict[int, tuple[str, ...]] = {
+    0: _GITHUB_WORKFLOW_TOP_LEVEL,
+    2: _GITHUB_WORKFLOW_JOB_KEYS,
+    3: _GITHUB_WORKFLOW_STEP_KEYS,
+}
+
+
+def _is_job_value(value: object) -> bool:
+    """Return True if *value* looks like a GitHub Actions job definition."""
+    if not isinstance(value, CommentedMap):
+        return False
+    return "runs-on" in value or "steps" in value or "uses" in value
+
+
+def _github_workflow_sort_key(
+    key: str,
+    value: object,
+    depth: int,
+    pos: int,
+) -> tuple[object, ...]:
+    """Return sort key for a GitHub Actions workflow key at the given depth."""
+    if depth == 1 and _is_job_value(value):
+        return (pos,)
+    sort_key = "on" if key is True else key  # type: ignore[comparison-overlap]  # bare `on` is YAML boolean
+    order = _GITHUB_WORKFLOW_DEPTH_KEYS.get(depth, ())
+    return (_ordered_key_pos(sort_key, order), _type_order(value), sort_key)
+
+
+_SCHEMA_SORT_KEYS: dict[str, SortKeyFn] = {
+    "codecov": _codecov_sort_key,
+    "dependabot": _dependabot_sort_key,
+    "genprecommitconfig": _genprecommit_sort_key,
+    "github-workflow": _github_workflow_sort_key,
+    "pre-commit-config": _precommit_sort_key,
+    "trivyignore": _trivyignore_sort_key,
+}
+
+
+# --- Identity-key sorting ---
+
+_IDENTITY_KEYS = ("name", "id", "uses", "repo")
+
+
+def _identity_key_pos(key: str) -> int:
+    """Return the priority position for an identity key, or len for non-identity."""
+    return _ordered_key_pos(key, _IDENTITY_KEYS)
+
+
+def _schema_key_fn(
+    data: CommentedMap,
+    sort_key_fn: SortKeyFn,
+    depth: int,
+) -> Callable[[str], tuple[object, ...]]:
+    """Return a sort key function wrapping a schema sort key."""
+    positions = {k: i for i, k in enumerate(data)}
+    return lambda k: sort_key_fn(k, data[k], depth, positions[k])
+
+
+def _identity_key_fn(
+    data: CommentedMap,
+    sort_key_fn: SortKeyFn | None,
+    depth: int,
+) -> Callable[[str], tuple[object, ...]]:
+    """Return a sort key function that puts identity keys first."""
+    base: Callable[[str], object] = _schema_key_fn(data, sort_key_fn, depth) if sort_key_fn else str
+
+    def _key(k: str, b: Callable[[str], object] = base) -> tuple[object, ...]:
+        return (_identity_key_pos(k), b(k))
+
+    return _key
+
+
+# --- Sorting ---
+
+
+def _save_comments(data: CommentedMap) -> dict[str, object]:
+    """Save comment associations from a CommentedMap."""
+    return {k: data.ca.items[k] for k in data if k in data.ca.items}
+
+
+def _sorted_pairs(
+    data: CommentedMap,
+    sort_key_fn: SortKeyFn | None = None,
+    depth: int = 0,
+    *,
+    in_seq: bool = False,
+) -> list[tuple[str, object]]:
+    """Return key-value pairs sorted by the given sort key function."""
+    key_fn: Callable[[str], tuple[object, ...] | str]
+    if sort_key_fn:
+        key_fn = _schema_key_fn(data, sort_key_fn, depth)
+    elif in_seq:
+        key_fn = _identity_key_fn(data, sort_key_fn, depth)
+    else:
+        key_fn = str
+    return [(k, data[k]) for k in sorted(data.keys(), key=key_fn)]
+
+
+def _sort_map_keys(
+    data: CommentedMap,
+    sort_key_fn: SortKeyFn | None = None,
+    depth: int = 0,
+    *,
+    strict: bool = True,
+    in_seq: bool = False,
+) -> None:
+    """Sort a single CommentedMap's keys in place and recurse into values."""
+    saved = _save_comments(data)
+    pairs = _sorted_pairs(data, sort_key_fn, depth, in_seq=in_seq)
+    for k in list(data.keys()):
+        del data[k]
+    data.ca.items.clear()
+    for key, value in pairs:
+        data[key] = value
+        if key in saved:
+            data.ca.items[key] = saved[key]
+        _sort_mapping(value, sort_key_fn, depth + 1, strict=strict)
+
+
+def _sort_mapping(
+    data: object,
+    sort_key_fn: SortKeyFn | None = None,
+    depth: int = 0,
+    *,
+    strict: bool = True,
+    in_seq: bool = False,
+) -> None:
+    """Recursively sort CommentedMap keys, preserving attached comments."""
+    if isinstance(data, CommentedMap):
+        _sort_map_keys(data, sort_key_fn, depth, strict=strict, in_seq=in_seq)
+    elif isinstance(data, (list, CommentedSeq)):
+        for item in data:
+            _sort_mapping(item, sort_key_fn, depth, strict=strict, in_seq=not strict)
+
+
+def _should_fold(value: object, key: str, indent: int, depth: int, width: int) -> bool:
+    """Return True if a quoted string value would wrap when rendered inline."""
+    if not isinstance(value, (DoubleQuotedScalarString, SingleQuotedScalarString)):
+        return False
+    if "\n" in str(value):
+        return False
+    inline_len = depth * indent + len(key) + 4 + len(str(value))
+    return inline_len > width
+
+
+def _fold_map_strings(
+    data: CommentedMap,
+    indent: int,
+    depth: int,
+    width: int,
+) -> None:
+    """Fold long quoted strings in a CommentedMap to block scalar style."""
+    for key in data:
+        value = data[key]
+        if _should_fold(value, key, indent, depth, width):
+            data[key] = FoldedScalarString(str(value))
+        _fold_long_strings(value, indent, depth + 1, width)
+
+
+def _fold_long_strings(
+    data: object,
+    indent: int,
+    depth: int = 0,
+    width: int = 110,
+) -> None:
+    """Walk data tree and convert long quoted strings to >- block scalars."""
+    if isinstance(data, CommentedMap):
+        _fold_map_strings(data, indent, depth, width)
+    elif isinstance(data, (list, CommentedSeq)):
+        for item in data:
+            _fold_long_strings(item, indent, depth, width)
+
+
+def _render(yml: YAML, data: object) -> str:
+    """Dump YAML data to a string, stripping trailing whitespace per line."""
+    buf = io.StringIO()
+    yml.dump(data, buf)
+    return re.sub(r"[ \t]+$", "", buf.getvalue(), flags=re.MULTILINE)
+
+
+# --- CLI helpers ---
+
+
+def _validate_args(*, backup: bool, is_stdin: bool) -> None:
+    """Reject invalid flag combinations."""
+    if backup and is_stdin:
+        console.print("[bold red]Error:[/] --backup cannot be used with stdin")
+        raise SystemExit(2)
+
+
+def _load_yaml(file: io.TextIOWrapper) -> tuple[str, object, YAML]:
+    """Read and parse YAML from *file*.
+
+    :param file: Input file handle.
+    :type file: io.TextIOWrapper
+    :returns: ``(original_text, parsed_data, yaml_instance)``.
+    :rtype: tuple[str, object, YAML]
+    """
+    original = file.read()
+    yml = YAML()
+    yml.preserve_quotes = True
+    if original.startswith("---"):
+        yml.explicit_start = True
+    try:
+        data = yml.load(original)
+    except Exception as exc:
+        console.print(f"[bold red]Error:[/] Failed to parse YAML: {exc}")
+        raise SystemExit(2) from exc
+    return original, data, yml
+
+
+def _handle_empty(original: str, *, is_stdin: bool, check: bool, diff: bool) -> None:
+    """Pass through empty/comment-only documents on stdin in write mode."""
+    logger.info("Empty document, nothing to sort")
+    if is_stdin and not check and not diff:
+        sys.stdout.write(original)
+
+
+def _sort_and_render(
+    data: object,
+    yml: YAML,
+    sort_key_fn: SortKeyFn | None = None,
+    *,
+    strict: bool = True,
+) -> str:
+    """Detect indent, sort keys, and render to string."""
+    mi, si, do = _detect_indent(data)
+    yml.indent(mapping=mi, sequence=si, offset=do)
+    logger.info("Detected indent: mapping=%d, sequence=%d, offset=%d", mi, si, do)
+    _sort_mapping(data, sort_key_fn, strict=strict)
+    _fold_long_strings(data, mi)
+    return _render(yml, data)
+
+
+def _show_diff(original: str, sorted_text: str, source: str) -> None:
+    """Print colorized unified diff to stdout if content changed."""
+    if original == sorted_text:
+        return
+    lines = difflib.unified_diff(
+        original.splitlines(keepends=True),
+        sorted_text.splitlines(keepends=True),
+        fromfile=f"a/{source}",
+        tofile=f"b/{source}",
+    )
+    Console().print(Syntax("".join(lines).rstrip("\n"), "diff", theme="ansi_dark"))
+
+
+def _run_check(original: str, sorted_text: str, source: str, *, showed_diff: bool) -> None:
+    """Exit 1 if content is not sorted."""
+    if original == sorted_text:
+        logger.info("%s already sorted", source)
+        return
+    if not showed_diff:
+        console.print(f"[bold yellow]{source}[/] would be resorted")
+    raise SystemExit(1)
+
+
+def _write_result(sorted_text: str, source: str, *, is_stdin: bool, backup: bool) -> None:
+    """Write sorted YAML to stdout (stdin mode) or back to file."""
+    if is_stdin:
+        sys.stdout.write(sorted_text)
+        return
+    path = Path(source)
+    if backup:
+        bak_path = path.with_suffix(path.suffix + ".bak")
+        shutil.copy2(path, bak_path)
+        logger.info("Backup: %s", bak_path)
+    path.write_text(sorted_text, encoding="utf-8")
+    logger.info("Sorted %s", source)
+
+
+# --- CLI command ---
+
+
+@click.command("sortyaml")
+@click.argument("file", type=click.File("r"), default="-")
+@click.option("-v", "--verbose", is_flag=True, help="Enable verbose output.")
+@click.option(
+    "-b",
+    "--backup",
+    is_flag=True,
+    help="Create a .bak backup before modifying.",
+)
+@click.option(
+    "-c",
+    "--check",
+    is_flag=True,
+    help="Check if already sorted; exit 1 if not.",
+)
+@click.option("-d", "--diff", is_flag=True, help="Show unified diff of changes.")
+@click.option(
+    "-t",
+    "--type",
+    "schema_type",
+    type=click.Choice(sorted(_SCHEMA_SORT_KEYS)),
+    default=None,
+    help="Apply schema-specific sorting rules.",
+)
+@click.option(
+    "-s",
+    "--strict",
+    is_flag=True,
+    help="Disable identity-key-first sorting in sequence elements.",
+)
+@click.version_option(None, "-V", "--version", package_name=PROJECT_NAME)
+@click.help_option("-h", "--help")
+def app(
+    file: io.TextIOWrapper,
+    *,
+    verbose: bool,
+    backup: bool,
+    check: bool,
+    diff: bool,
+    schema_type: str | None,
+    strict: bool,
+) -> None:
+    """Sort YAML file keys alphabetically while preserving comments.
+
+    FILE is the YAML file to sort. Use - or omit for stdin.
+
+    :param file: Input file handle (or stdin).
+    :type file: io.TextIOWrapper
+    :param verbose: Enable verbose output.
+    :type verbose: bool
+    :param backup: Create a .bak backup before modifying.
+    :type backup: bool
+    :param check: Check if already sorted; exit 1 if not.
+    :type check: bool
+    :param diff: Show unified diff of changes.
+    :type diff: bool
+    :param schema_type: Schema type for schema-specific sorting rules.
+    :type schema_type: str | None
+    :param strict: Disable identity-key-first sorting in sequence elements.
+    :type strict: bool
+    """
+    configure_logging(_LOG_LEVELS[verbose], console)
+    is_stdin = file.name == "<stdin>"
+    _validate_args(backup=backup, is_stdin=is_stdin)
+    logger.info("Reading %s", file.name)
+    original, data, yml = _load_yaml(file)
+    if data is None:
+        _handle_empty(original, is_stdin=is_stdin, check=check, diff=diff)
+        return
+    sort_key_fn = _SCHEMA_SORT_KEYS.get(schema_type) if schema_type else None
+    sorted_text = _sort_and_render(data, yml, sort_key_fn, strict=strict)
+    if diff:
+        _show_diff(original, sorted_text, file.name)
+        if not check:
+            return
+    if check:
+        _run_check(original, sorted_text, file.name, showed_diff=diff)
+        return
+    _write_result(sorted_text, file.name, is_stdin=is_stdin, backup=backup)
+
+
+if __name__ == "__main__":
+    sys.argv[0] = re.sub(r"(-script\.pyw|\.exe)?$", "", sys.argv[0])
+    app()  # pylint: disable=no-value-for-parameter,missing-kwoa

@@ -20,7 +20,9 @@ def test_roster_players_update_coverage() -> None:
     mock_player = MagicMock()
     mock_player.id = PLAYER_ID
     with (
-        patch("gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.roster_players._update_player_action",
             return_value=mock_player,
@@ -54,7 +56,9 @@ def test_roster_players_update_valueerror_handling() -> None:
         raise ValueError(TEST_ERROR_VALIDATION)
 
     with (
-        patch("gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.roster_players.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.roster_players._update_player_action",
             side_effect=raise_value_error,

@@ -17,7 +17,9 @@ def test_roster_coaches_list_coverage() -> None:
     """Ensure coaches list command body is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.admin.cli.commands.roster_coaches.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.roster_coaches.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.roster_coaches.run_action_or_exit",
             return_value=[],

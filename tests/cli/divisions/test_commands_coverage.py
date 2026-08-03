@@ -205,7 +205,9 @@ def test_divisions_update_coverage() -> None:
 def test_divisions_update_with_no_fields_exits_with_error() -> None:
     """Ensure divisions update without fields shows error."""
     runner = CliRunner()
-    with patch("gamesheet_sdk.admin.cli.commands.divisions.build_authenticated_session"):
+    with patch(
+        "gamesheet_sdk.admin.cli.commands.divisions.build_authenticated_session",
+    ):
         result = runner.invoke(
             divisions_group,
             [
@@ -305,7 +307,9 @@ def test_divisions_delete_coverage() -> None:
 def test_divisions_delete_requires_confirmation_without_force() -> None:
     """Ensure divisions delete prompts for confirmation without --force."""
     runner = CliRunner()
-    with patch("gamesheet_sdk.admin.cli.commands.divisions.build_authenticated_session"):
+    with patch(
+        "gamesheet_sdk.admin.cli.commands.divisions.build_authenticated_session",
+    ):
         # User declines confirmation (input='n')
         result = runner.invoke(
             divisions_group,

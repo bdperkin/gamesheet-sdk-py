@@ -18,14 +18,18 @@
 # ==============================================================================
 
 ci:
-  # Frequency of dependency updates (weekly, monthly, quarterly).
-  autoupdate_schedule: weekly
-  # The Git commit message used when updating hook tags.
-  autoupdate_commit_msg: "chore(deps): Update pre-commit hooks"
   # The Git commit message used when autofixing code.
   autofix_commit_msg: "style: Auto-fixes from pre-commit.ci"
   # Automatically pushes formatting fixes back to the PR branch.
   autofix_prs: true
+  # Branch to send autoupdate PRs to (empty string = default branch).
+  autoupdate_branch: ""
+  # The Git commit message used when updating hook tags.
+  autoupdate_commit_msg: "chore(deps): Update pre-commit hooks"
+  # Frequency of dependency updates (weekly, monthly, quarterly).
+  autoupdate_schedule: weekly
+  # Whether to recursively check out Git submodules in the CI environment.
+  submodules: false
   # List of hook ids to skip only in CI (useful for heavy/slow local scripts).
   skip:
     - editorconfig-checker
@@ -38,8 +42,6 @@ ci:
     - pyrefly-check
     - pyright
     - mypy
-  # Branch to send autoupdate PRs to (empty string = default branch).
-  autoupdate_branch: ""
 
 # ==============================================================================
 # Global Defaults
@@ -406,7 +408,7 @@ repos:
   # ----------------------------------------------------------------------------
 
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
-    rev: 3.6.1
+    rev: 3.8.0
     hooks:
       - id: editorconfig-checker
         name: Check .editorconfig rules
@@ -705,7 +707,7 @@ repos:
         always_run: true
         pass_filenames: false
         additional_dependencies:
-          - gamesheet-sdk-py[deptry,pytest,type-stubs]
+          - gamesheet-sdk-py[deptry]
 
   # ----------------------------------------------------------------------------
   # Documentation & Docstring Tools
@@ -847,7 +849,7 @@ repos:
           - tomli
 
   - repo: https://github.com/facebook/pyrefly-pre-commit
-    rev: 1.1.1
+    rev: 1.2.0.dev3
     hooks:
       - id: pyrefly-check
         name: pyrefly check
@@ -939,8 +941,7 @@ repos:
           - --strict
         require_serial: true
         additional_dependencies:
-          - gamesheet-sdk-py[dev,mypy,pytest,tools]
-          - pre-commit
+          - gamesheet-sdk-py[mypy,tools]
           - ruamel-yaml
           - tomli
           - tomlkit

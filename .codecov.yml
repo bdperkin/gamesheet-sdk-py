@@ -34,33 +34,33 @@ coverage:
   # Coverage percentage precision
   precision: 2
 
-  # Rounding mode for coverage percentages
-  round: down
-
   # Color range for coverage display (red at ≤95%, green at 100%)
   range: 95..100
 
+  # Rounding mode for coverage percentages
+  round: down
+
   status:
-    # Overall project coverage status
-    project:
+    # Indirect coverage changes (not directly modified lines)
+    changes:
       default:
-        target: 100%
-        threshold: 0% # No drops tolerated - maintain 100%
         if_ci_failed: error
-        if_no_uploads: error
+        informational: true # Don't fail PRs on indirect-coverage shifts
 
     # New code coverage status (only lines changed in PR)
     patch:
       default:
+        if_ci_failed: error
         target: 100% # All new code must be fully covered
         threshold: 0% # No exceptions
-        if_ci_failed: error
 
-    # Indirect coverage changes (not directly modified lines)
-    changes:
+    # Overall project coverage status
+    project:
       default:
-        informational: true # Don't fail PRs on indirect-coverage shifts
         if_ci_failed: error
+        if_no_uploads: error
+        target: 100%
+        threshold: 0% # No drops tolerated - maintain 100%
 
 # ==============================================================================
 # Flag Management (Coverage Organized by Upload Tags)
@@ -77,63 +77,63 @@ flag_management:
   default_rules:
     carryforward: true
     statuses:
-      - type: project
-        target: 100%
+      - target: 100%
         threshold: 0%
-      - type: patch
-        target: 100%
+        type: project
+      - target: 100%
         threshold: 0%
+        type: patch
 
   # Individual flag definitions
   individual_flags:
     # Per-PR pytest matrix flag (aggregates all Python versions)
     - name: unittests
+      carryforward: true
       paths:
         - src/
-      carryforward: true
 
     # Nightly comprehensive test run flag
     - name: nightly
+      carryforward: true
       paths:
         - src/
-      carryforward: true
 
     # Python version flags (tagged by both PR and nightly runs)
     - name: py3-11
+      carryforward: true
       paths:
         - src/
-      carryforward: true
 
     - name: py3-12
+      carryforward: true
       paths:
         - src/
-      carryforward: true
 
     - name: py3-13
+      carryforward: true
       paths:
         - src/
-      carryforward: true
 
     - name: py3-14
+      carryforward: true
       paths:
         - src/
-      carryforward: true
 
     # Operating system flags (nightly comprehensive runs only)
     - name: ubuntu-latest
+      carryforward: true
       paths:
         - src/
-      carryforward: true
 
     - name: macos-latest
+      carryforward: true
       paths:
         - src/
-      carryforward: true
 
     - name: windows-latest
+      carryforward: true
       paths:
         - src/
-      carryforward: true
 
 # ==============================================================================
 # Component Management (Coverage Organized by Module/Package)
@@ -150,109 +150,109 @@ component_management:
   # Default rules applied to all components
   default_rules:
     statuses:
-      - type: project
-        target: 100%
+      - target: 100%
         threshold: 0%
-      - type: patch
-        target: 100%
+        type: project
+      - target: 100%
         threshold: 0%
+        type: patch
 
   # Individual component definitions (alphabetical order)
   individual_components:
     # Package directories
-    - component_id: auth
-      name: Authentication
+    - name: Authentication
+      component_id: auth
       paths:
         - src/gamesheet_sdk/auth/
 
-    - component_id: cli
-      name: CLI
+    - name: CLI
+      component_id: cli
       paths:
         - src/gamesheet_sdk/cli/
 
-    - component_id: games
-      name: Games
+    - name: Games
+      component_id: games
       paths:
         - src/gamesheet_sdk/games/
 
-    - component_id: roster
-      name: Roster
+    - name: Roster
+      component_id: roster
       paths:
         - src/gamesheet_sdk/roster/
 
-    - component_id: shared
-      name: Shared
+    - name: Shared
+      component_id: shared
       paths:
         - src/gamesheet_sdk/shared/
 
     # Individual module files
-    - component_id: associations
-      name: Associations
+    - name: Associations
+      component_id: associations
       paths:
         - src/gamesheet_sdk/associations.py
 
-    - component_id: browser
-      name: Browser
+    - name: Browser
+      component_id: browser
       paths:
         - src/gamesheet_sdk/browser.py
 
-    - component_id: config
-      name: Config
+    - name: Config
+      component_id: config
       paths:
         - src/gamesheet_sdk/config.py
 
-    - component_id: constants
-      name: Constants
+    - name: Constants
+      component_id: constants
       paths:
         - src/gamesheet_sdk/constants.py
 
-    - component_id: divisions
-      name: Divisions
+    - name: Divisions
+      component_id: divisions
       paths:
         - src/gamesheet_sdk/divisions.py
 
-    - component_id: errors
-      name: Errors
+    - name: Errors
+      component_id: errors
       paths:
         - src/gamesheet_sdk/errors.py
 
-    - component_id: exceptions
-      name: Exceptions
+    - name: Exceptions
+      component_id: exceptions
       paths:
         - src/gamesheet_sdk/exceptions.py
 
-    - component_id: ipad_keys
-      name: iPad Keys
+    - name: iPad Keys
+      component_id: ipad_keys
       paths:
         - src/gamesheet_sdk/ipad_keys.py
 
-    - component_id: leagues
-      name: Leagues
+    - name: Leagues
+      component_id: leagues
       paths:
         - src/gamesheet_sdk/leagues.py
 
-    - component_id: output
-      name: Output
+    - name: Output
+      component_id: output
       paths:
         - src/gamesheet_sdk/output.py
 
-    - component_id: referees
-      name: Referees
+    - name: Referees
+      component_id: referees
       paths:
         - src/gamesheet_sdk/referees.py
 
-    - component_id: seasons
-      name: Seasons
+    - name: Seasons
+      component_id: seasons
       paths:
         - src/gamesheet_sdk/seasons.py
 
-    - component_id: session
-      name: Session
+    - name: Session
+      component_id: session
       paths:
         - src/gamesheet_sdk/session.py
 
-    - component_id: teams
-      name: Teams
+    - name: Teams
+      component_id: teams
       paths:
         - src/gamesheet_sdk/teams.py
 
@@ -262,16 +262,18 @@ component_management:
 # Controls the Codecov bot's PR comment appearance and content.
 # ==============================================================================
 comment:
+  # Comment behavior
+  behavior: default # Comment on every PR
+
+  hide_project_coverage: false # Show overall project coverage
+
   # Layout sections in display order
   layout: "header, diff, flags, components, files, footer"
 
-  # Comment behavior
-  behavior: default # Comment on every PR
-  require_changes: false # Comment even if no coverage change
   require_base: false # Comment even if base commit has no coverage
+  require_changes: false # Comment even if no coverage change
   require_head: true # Only comment if HEAD commit has coverage
   show_carryforward_flags: true # Show which flags were carried forward
-  hide_project_coverage: false # Show overall project coverage
 
 # ==============================================================================
 # GitHub Checks Annotations
@@ -290,7 +292,6 @@ ignore:
   - "tests/**" # Test code itself
   - "docs/**" # Sphinx documentation sources
   - "**/__init__.py" # Re-export modules (typically just imports)
-
 
 # ==============================================================================
 # Test Analytics

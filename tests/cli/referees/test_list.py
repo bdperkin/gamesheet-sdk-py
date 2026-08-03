@@ -23,7 +23,9 @@ from tests.helpers import (
 def test_referees_list_alias_works(runner: CliRunner) -> None:
     """The 'ls' alias should invoke the list command."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.referees._list_referees_action") as mock_list,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.referees._list_referees_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -45,7 +47,9 @@ def test_referees_list_alias_works(runner: CliRunner) -> None:
 def test_referees_list_json_output(runner: CliRunner) -> None:
     """The referees list command should support JSON output."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.referees._list_referees_action") as mock_list,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.referees._list_referees_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -78,7 +82,9 @@ def test_referees_list_json_output(runner: CliRunner) -> None:
 def test_referees_list_yaml_output(runner: CliRunner) -> None:
     """The referees list command should support YAML output."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.referees._list_referees_action") as mock_list,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.referees._list_referees_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -111,7 +117,9 @@ def test_referees_list_yaml_output(runner: CliRunner) -> None:
 def test_referees_list_columns_filter(runner: CliRunner) -> None:
     """The --columns option should filter output columns for referees."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.referees._list_referees_action") as mock_list,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.referees._list_referees_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -152,7 +160,9 @@ def test_referees_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
     """The --output option should write to a file for referees."""
     output_file = tmp_path / "referees.json"
     with (
-        patch("gamesheet_sdk.admin.cli.commands.referees._list_referees_action") as mock_list,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.referees._list_referees_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -195,7 +205,9 @@ def test_referees_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
 def test_referees_list_csv_output(runner: CliRunner) -> None:
     """The referees list command should support CSV output."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.referees._list_referees_action") as mock_list,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.referees._list_referees_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -229,7 +241,9 @@ def test_referees_list_csv_output(runner: CliRunner) -> None:
 def test_referees_list_tsv_output(runner: CliRunner) -> None:
     """The referees list command should support TSV output."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.referees._list_referees_action") as mock_list,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.referees._list_referees_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",
@@ -278,7 +292,9 @@ def test_referees_list_with_no_saved_tokens(runner: CliRunner) -> None:
 def test_referees_list_with_env_var(runner: CliRunner) -> None:
     """The season ID can be provided via GAMESHEET_SEASON_ID environment variable."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.referees._list_referees_action") as mock_list,
+        patch(
+            "gamesheet_sdk.admin.cli.commands.referees._list_referees_action",
+        ) as mock_list,
         patch(
             "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
             return_value="refresh-tok",

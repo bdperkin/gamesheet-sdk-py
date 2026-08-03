@@ -107,10 +107,7 @@ optional-dependencies.dead-code-detectors = [
 ]
 optional-dependencies.deptry = [
   "deptry==0.25.1",
-  """\
-  gamesheet-sdk-py[automated_fixers,complexity,dead_code_detectors,dev,docconvert,docs,docstring_tools,formatters,markd\
-  own_tools,pytest,static_analysis,type_checkers]\
-  """,
+  "gamesheet-sdk-py[]",
 ]
 optional-dependencies.dev = [
   "pre-commit==4.6.0",
@@ -221,7 +218,7 @@ optional-dependencies.pyrefly = [
   "pyrefly==1.1.1",
 ]
 optional-dependencies.pyright = [
-  "gamesheet-sdk-py[pytest,tools]",
+  "gamesheet-sdk-py[pytest]",
   "pyright==1.1.411",
 ]
 optional-dependencies.pyroma = [
@@ -438,6 +435,7 @@ per-file-ignores = [
   "tests/integration/*:DOC,SF01",
   "tests/teams/*:DOC",
   "tests/unit/*:DOC",
+  "tools/*:INP001",
 ]
 # Maximum allowed line length for the entirety of this run. (Default: 79).
 max-line-length = 110

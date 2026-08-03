@@ -20,7 +20,9 @@ def test_roster_coaches_update_coverage() -> None:
     mock_coach = MagicMock()
     mock_coach.id = COACH_ID_SECONDARY
     with (
-        patch("gamesheet_sdk.admin.cli.commands.roster_coaches.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.roster_coaches.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.roster_coaches._update_coach_action",
             return_value=mock_coach,
@@ -54,7 +56,9 @@ def test_roster_coaches_update_valueerror_handling() -> None:
         raise ValueError(TEST_ERROR_VALIDATION)
 
     with (
-        patch("gamesheet_sdk.admin.cli.commands.roster_coaches.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.roster_coaches.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.roster_coaches._update_coach_action",
             side_effect=raise_value_error,

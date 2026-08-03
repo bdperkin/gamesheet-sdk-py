@@ -53,7 +53,9 @@ def _mock_updated_game() -> MagicMock:
 def test_scheduled_update_command(runner: CliRunner) -> None:
     """Test scheduled game update command with new start time."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.games_scheduled.run_action_or_exit",
         ) as mock_run,
@@ -98,7 +100,9 @@ def test_scheduled_update_command(runner: CliRunner) -> None:
 def test_update_with_duration_only(runner: CliRunner) -> None:
     """Test update with --duration only recomputes end from current start."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.games_scheduled.run_action_or_exit",
         ) as mock_run,
@@ -139,7 +143,9 @@ def test_update_with_duration_only(runner: CliRunner) -> None:
 def test_update_with_split_start_inputs(runner: CliRunner) -> None:
     """Test update with --start-date + --start-time split inputs."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.games_scheduled.run_action_or_exit",
         ) as mock_run,
@@ -208,7 +214,9 @@ def test_update_conflict_options_raises(runner: CliRunner) -> None:
 def test_update_no_time_changes(runner: CliRunner) -> None:
     """Test update with only non-time fields preserves current times."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.games_scheduled.run_action_or_exit",
         ) as mock_run,
@@ -249,7 +257,9 @@ def test_update_no_time_changes(runner: CliRunner) -> None:
 def test_update_end_and_duration(runner: CliRunner) -> None:
     """Test update with --end-datetime + --duration computes new start."""
     with (
-        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.games_scheduled.run_action_or_exit",
         ) as mock_run,

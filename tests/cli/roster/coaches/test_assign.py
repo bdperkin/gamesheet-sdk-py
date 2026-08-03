@@ -20,7 +20,9 @@ def test_roster_coaches_assign_coverage() -> None:
     mock_coach = MagicMock()
     mock_coach.id = COACH_ID_PRIMARY
     with (
-        patch("gamesheet_sdk.admin.cli.commands.roster_coaches.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.roster_coaches.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.roster_coaches._assign_coach_action",
             return_value=mock_coach,
@@ -48,7 +50,9 @@ def test_roster_coaches_assign_error_handling() -> None:
     """Ensure coaches assign command error handling is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.admin.cli.commands.roster_coaches.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.roster_coaches.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.roster_coaches._assign_coach_action",
             side_effect=Exception(TEST_ERROR_GENERIC),
@@ -75,7 +79,9 @@ def test_roster_coaches_unassign_coverage() -> None:
     """Ensure coaches unassign command body is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.admin.cli.commands.roster_coaches.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.roster_coaches.build_authenticated_session",
+        ),
         patch("gamesheet_sdk.admin.cli.commands.roster_coaches._unassign_coach_action"),
     ):
         result = runner.invoke(
@@ -97,7 +103,9 @@ def test_roster_coaches_unassign_error_handling() -> None:
     """Ensure coaches unassign command error handling is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.admin.cli.commands.roster_coaches.build_authenticated_session"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.roster_coaches.build_authenticated_session",
+        ),
         patch(
             "gamesheet_sdk.admin.cli.commands.roster_coaches._unassign_coach_action",
             side_effect=Exception(TEST_ERROR_GENERIC),

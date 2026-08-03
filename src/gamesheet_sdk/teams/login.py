@@ -197,7 +197,11 @@ class TeamsLoginFlow:
         resolved_email = resolve_email(self._config, email)
         resolved_password = resolve_password(self._config, password)
         timeout_s = timeout if timeout is not None else DEFAULT_TIMEOUT_S
-        id_token = _firebase_sign_in(resolved_email, resolved_password, timeout=timeout_s)
+        id_token = _firebase_sign_in(
+            resolved_email,
+            resolved_password,
+            timeout=timeout_s,
+        )
         tokens = _exchange_id_token(id_token, timeout=timeout_s)
         save_tokens(self._config, access=tokens["access"], refresh=tokens["refresh"])
         _LOGGER.info("Teams login succeeded for %s.", resolved_email)

@@ -39,7 +39,11 @@ class _SimpleIndexParser(HTMLParser):
         super().__init__()
         self.files: list[tuple[str, str | None]] = []
 
-    def handle_starttag(self: _SimpleIndexParser, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+    def handle_starttag(
+        self: _SimpleIndexParser,
+        tag: str,
+        attrs: list[tuple[str, str | None]],
+    ) -> None:
         if tag != "a":
             return
         href = None
@@ -128,7 +132,11 @@ def _parse_simple_response(
         else:
             versions = _extract_versions_from_simple_html(response.text)
     except (ValueError, KeyError, TypeError):
-        logger.warning("Failed to parse index response for %s at %s", package_name, index_url)
+        logger.warning(
+            "Failed to parse index response for %s at %s",
+            package_name,
+            index_url,
+        )
         return {}
     return versions
 
@@ -164,7 +172,12 @@ def _fetch_simple_versions(
             return {}
         response.raise_for_status()
     except requests.RequestException as exc:
-        logger.warning("Index query failed for %s at %s: %s", package_name, index_url, exc)
+        logger.warning(
+            "Index query failed for %s at %s: %s",
+            package_name,
+            index_url,
+            exc,
+        )
         return {}
 
     content_type = response.headers.get("content-type", "")
@@ -198,12 +211,20 @@ def check_package_exists(
     :rtype: bool
     """
     if index_url:
-        versions = _fetch_simple_versions(package_name, index_url, pip_config=pip_config)
+        versions = _fetch_simple_versions(
+            package_name,
+            index_url,
+            pip_config=pip_config,
+        )
         if versions:
             return True
 
     for extra_url in extra_index_urls:
-        versions = _fetch_simple_versions(package_name, extra_url, pip_config=pip_config)
+        versions = _fetch_simple_versions(
+            package_name,
+            extra_url,
+            pip_config=pip_config,
+        )
         if versions:
             return True
 
@@ -284,13 +305,21 @@ def fetch_pypi_versions(
     :raises FetchError: If all fetch attempts fail.
     """
     if index_url:
-        versions = _fetch_simple_versions(package_name, index_url, pip_config=pip_config)
+        versions = _fetch_simple_versions(
+            package_name,
+            index_url,
+            pip_config=pip_config,
+        )
         if versions:
             return versions
         logger.debug("Primary index returned no results for %s", package_name)
 
     for extra_url in extra_index_urls:
-        versions = _fetch_simple_versions(package_name, extra_url, pip_config=pip_config)
+        versions = _fetch_simple_versions(
+            package_name,
+            extra_url,
+            pip_config=pip_config,
+        )
         if versions:
             return versions
 

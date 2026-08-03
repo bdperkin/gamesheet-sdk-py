@@ -35,7 +35,9 @@ def test_teams_roster_players_create_coverage() -> None:
             "gamesheet_sdk.admin.cli.commands.teams_roster_players._create_team_player_action",
             return_value=mock_player,
         ),
-        patch("gamesheet_sdk.admin.cli.commands.teams_roster_players.render_get_command"),
+        patch(
+            "gamesheet_sdk.admin.cli.commands.teams_roster_players.render_get_command",
+        ),
     ):
         result = runner.invoke(
             teams_roster_players_group,

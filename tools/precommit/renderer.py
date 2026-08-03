@@ -102,7 +102,10 @@ def _add_global_comment(doc: CommentedMap, key: str) -> None:
     :param key: The key to annotate.
     """
     if key in GLOBALS_PROPERTY_DESCRIPTIONS:
-        doc.yaml_set_comment_before_after_key(key, before=GLOBALS_PROPERTY_DESCRIPTIONS[key])
+        doc.yaml_set_comment_before_after_key(
+            key,
+            before=GLOBALS_PROPERTY_DESCRIPTIONS[key],
+        )
 
 
 def _add_globals_section(
