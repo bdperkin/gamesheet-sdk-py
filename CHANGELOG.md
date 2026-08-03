@@ -2,6 +2,33 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.9 (2026-08-03)
+
+### Bug Fixes
+
+- **config**: Sort pyproject-fmt keys alphabetically for v2.26.0
+  ([`4909a2a`](https://github.com/bdperkin/gamesheet-sdk-py/commit/4909a2af6f96afa500720a51a459435e8168978d))
+
+- **security**: Use bare nosemgrep to suppress false-positive credential-leak finding
+  ([`aec6046`](https://github.com/bdperkin/gamesheet-sdk-py/commit/aec604663f0b0f1a2b44c3f0fe841ccda6b0766f))
+
+### Chores
+
+- **deps)(deps**: Bump colorlog in the runtime-dependencies group
+  ([`40ba9f6`](https://github.com/bdperkin/gamesheet-sdk-py/commit/40ba9f6f9a7561d31ef065f94973728ee289eed6))
+
+- **deps)(deps**: Bump the actions group with 6 updates
+  ([`7b23c4a`](https://github.com/bdperkin/gamesheet-sdk-py/commit/7b23c4a8bd8fa27699119a8e91371a98bc78ba05))
+
+- **deps)(deps-dev**: Bump the development-dependencies group with 7 updates
+  ([`8dadc6b`](https://github.com/bdperkin/gamesheet-sdk-py/commit/8dadc6b887d290746bcaa8e7c4475670f64b5d7d))
+
+- **deps)(deps-dev**: Bump types-cachetools ([`1f1d6d2`](https://github.com/bdperkin/gamesheet-sdk-py/commit/1f1d6d2fde44ffd54b52f9daccb565ee15450ba1))
+
+- **deps)(deps-dev**: Bump types-docutils ([`cda82a1`](https://github.com/bdperkin/gamesheet-sdk-py/commit/cda82a1eb8a3d881adcaba55850b9f915f7e4dcb))
+
+- **deps)(deps-dev**: Bump types-pyyaml ([`0d29353`](https://github.com/bdperkin/gamesheet-sdk-py/commit/0d29353591ead795f653647303633c0e0eb6baac))
+
 ## v0.4.8 (2026-08-03)
 
 ### Bug Fixes
