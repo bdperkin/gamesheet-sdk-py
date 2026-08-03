@@ -2,6 +2,21 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.8 (2026-08-03)
+
+### Bug Fixes
+
+- **security**: Resolve 3 open Trivy container image CVEs
+  ([`19ca057`](https://github.com/bdperkin/gamesheet-sdk-py/commit/19ca05763d0ea2c730f08dd13f7d240c7a4e6200))
+
+- **security**: Suppress pip-vendored setuptools CVEs, clean ensurepip cache
+  ([`8fd2fb7`](https://github.com/bdperkin/gamesheet-sdk-py/commit/8fd2fb7623a936bf86e26a22f020214868ad705b))
+
+### Build System
+
+- **tools**: Add sortyaml YAML sorting tool with schema-aware key ordering
+  ([`5ab5643`](https://github.com/bdperkin/gamesheet-sdk-py/commit/5ab56436001eef38e0d4bdadb756cd0e506644f1))
+
 ## v0.4.7 (2026-08-01)
 
 ### Bug Fixes
