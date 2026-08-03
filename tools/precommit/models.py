@@ -127,3 +127,4 @@ class RunConfig(BaseModel):
     dry_run: bool = False
     validate_incremental: bool = True
     max_downgrade_attempts: int | None = None
+    reset_on_failure: bool = True

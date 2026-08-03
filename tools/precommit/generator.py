@@ -376,7 +376,8 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
                     candidate,
                     exc,
                 )
-                _reset_working_tree(exclude=str(self.run_config.config_file))
+                if self.run_config.reset_on_failure:
+                    _reset_working_tree(exclude=str(self.run_config.config_file))
                 continue
 
             logger.info(
@@ -435,7 +436,8 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
                 rev_result.rev,
                 exc,
             )
-            _reset_working_tree(exclude=str(self.run_config.config_file))
+            if self.run_config.reset_on_failure:
+                _reset_working_tree(exclude=str(self.run_config.config_file))
             self._try_downgrade_candidates(
                 repo_config,
                 globals_cfg,

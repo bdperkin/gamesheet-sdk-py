@@ -237,7 +237,8 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   - **Code cleaners / dead-code:** autoflake, unimport, vulture, deptry.
   - **Code-quality linters / static analysis:** flake8 (via `flake8-pyproject` + ~50 plugins in `[flake8-plugins]`), pylint, refurb, pyrefly, blocklint.
   - **Type checkers:** mypy (`--strict`), pyright.
-  - **Security / metrics / complexity:** bandit (`[tool.bandit]`), xenon (complexity gate — see below), radon (cc / raw / mi / hal as separate envs).
+  - **Security / metrics / complexity:** bandit (`[tool.bandit]`), semgrep (`--config auto --error`), xenon (complexity gate — see below), radon (cc / raw / mi
+    / hal as separate envs).
   - **Docstring / doc tools:** codespell, blacken-docs, docformatter, interrogate, pydocstyle, mdformat (+ mdformat-gfm), pymarkdown. Note: `docconvert` is
     available via tox and CI workflows but not in pre-commit hooks.
   - **Configuration-file linters / formatters:** yamllint (`-d relaxed`), tox-ini-fmt, pyproject-fmt, validate-pyproject, editorconfig-checker (+ -system

@@ -152,7 +152,7 @@ Every workflow explicitly defines a `permissions:` block at the workflow or job 
 All workflows upload results in SARIF (Static Analysis Results Interchange Format) to the GitHub Security tab via:
 
 ```yaml
-uses: github/codeql-action/upload-sarif@df409f7d9260372bd5f19e5b04e83cb3c43714ae # v3.27.9
+uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
 ```
 
 **Benefits:**
@@ -177,12 +177,11 @@ All actions are SHA-pinned. The following table maps SHAs to version tags for re
 
 | Action                              | SHA (first 7 chars) | Version Tag | Full SHA                                   |
 | ----------------------------------- | ------------------- | ----------- | ------------------------------------------ |
-| `actions/checkout`                  | `11bd719`           | v4.2.2      | `11bd71901bbe5b1630ceea73d27597364c9af683` |
-| `actions/setup-python`              | `0b93645`           | v5.3.0      | `0b93645e9fea7318ecaed2b359559ac225c90a2b` |
-| `actions/upload-artifact`           | `b4b15b8`           | v4.4.3      | `b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882` |
-| `github/codeql-action/upload-sarif` | `df409f7`           | v3.27.9     | `df409f7d9260372bd5f19e5b04e83cb3c43714ae` |
-| `google/osv-scanner-action`         | `19ec111`           | v1.9.1      | `19ec1116569a47416e11a45848722b1c87f7104c` |
-| `GitGuardian/ggshield-action`       | `4d9f8fc`           | v1.33.0     | `4d9f8fc464c9e3e170ca89bd3fa6e5f8dd2837b8` |
+| `actions/checkout`                  | `3d3c42e`           | v7.0.1      | `3d3c42e5aac5ba805825da76410c181273ba90b1` |
+| `actions/setup-python`              | `5fda3b9`           | v7.0.0      | `5fda3b95a4ea91299a34e894583c3862153e4b97` |
+| `actions/upload-artifact`           | `043fb46`           | v7.0.1      | `043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` |
+| `github/codeql-action/upload-sarif` | `f205ea1`           | v4.37.4     | `f205ea1c3313d32999d8d6a48b4f6530d4437b38` |
+| `GitGuardian/ggshield-action`       | `2002482`           | v1.53.0     | `2002482fb5990b486be5598ebcf48a8eba393fce` |
 
 ## Maintenance
 
@@ -200,10 +199,10 @@ When a new version of an action is released:
 
 ```yaml
 # Old
-uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-# New (when v4.3.0 is released)
-uses: actions/checkout@<new-40-char-sha> # v4.3.0
+# New (when v7.1.0 is released)
+uses: actions/checkout@<new-40-char-sha> # v7.1.0
 ```
 
 ### Monitoring

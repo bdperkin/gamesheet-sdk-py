@@ -127,8 +127,12 @@ class BaseAuthenticatedSession(Session, ABC):
             return response
         if not self._try_refresh():
             return response
-        # nosemgrep
-        _LOGGER.info("Refreshed access token; retrying %s %s.", method, url)
+        # editorconfig-checker-disable-next-line # pylint: disable-next=line-too-long
+        _LOGGER.warning(  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure # noqa: E501
+            "Refreshed access token; retrying %s %s.",
+            method,
+            url,
+        )
         return super().request(method, url, timeout=timeout, **kwargs)
 
 

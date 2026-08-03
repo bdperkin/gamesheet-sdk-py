@@ -149,8 +149,10 @@ def _process_single_hook(
         return None
 
     if not any(key in hook for key in HOOK_TARGETING_KEYS):
-        logger.debug("Skipping %s: no targeting metadata", hook_id)
-        return None
+        logger.debug(
+            "Hook %s has no targeting metadata; including with pre-commit defaults",
+            hook_id,
+        )
 
     result = hook.copy()
 
