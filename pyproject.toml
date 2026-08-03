@@ -110,7 +110,7 @@ optional-dependencies.deptry = [
   "gamesheet-sdk-py[]",
 ]
 optional-dependencies.dev = [
-  "pre-commit==4.6.0",
+  "pre-commit==4.6.1",
   "tox-workdir==0.1.0",
 ]
 optional-dependencies.docconvert = [
@@ -197,7 +197,7 @@ optional-dependencies.mdformat = [
 ]
 optional-dependencies.mypy = [
   "gamesheet-sdk-py[dev,pytest,tools,type-stubs]",
-  "mypy==2.1.0",
+  "mypy==2.3.0",
 ]
 optional-dependencies.pydocstyle = [
   "pydocstyle==6.3.0",
@@ -208,10 +208,10 @@ optional-dependencies.pylint = [
   "pylint-pydantic==0.4.1",
 ]
 optional-dependencies.pymarkdown = [
-  "pymarkdownlnt==0.9.38",
+  "pymarkdownlnt==0.9.39",
 ]
 optional-dependencies.pyproject-fmt = [
-  "pyproject-fmt==2.25.3",
+  "pyproject-fmt==2.26.0",
 ]
 optional-dependencies.pyrefly = [
   "gamesheet-sdk-py[pytest]",
@@ -248,11 +248,11 @@ optional-dependencies.static-analysis = [
 optional-dependencies.tools = [
   "ruamel-yaml==0.19.1",
   "tomli==2.4.1",
-  "tomlkit==0.15.0",
-  "uv==0.11.28",
+  "tomlkit==0.15.1",
+  "uv==0.12.0",
 ]
 optional-dependencies.tox-ini-fmt = [
-  "tox-ini-fmt==1.7.2",
+  "tox-ini-fmt==1.8.1",
 ]
 optional-dependencies.type-checkers = [
   "gamesheet-sdk-py[mypy,pyright]",
