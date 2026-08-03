@@ -20,11 +20,12 @@ PYPI_TIMEOUT = 10
 UV_LOCK_TIMEOUT = 120
 
 TOOL_MAPPING: dict[str, str] = {
-    "ruff": "https://github.com/astral-sh/ruff-pre-commit",
     "mypy": "https://github.com/pre-commit/mirrors-mypy",
-    "pymarkdownlnt": "https://github.com/jackdewinter/pymarkdown",
-    "shfmt-py": "https://github.com/scop/pre-commit-shfmt",
     "pre-commit-uv": "https://github.com/astral-sh/uv-pre-commit",
+    "pymarkdownlnt": "https://github.com/jackdewinter/pymarkdown",
+    "ruff": "https://github.com/astral-sh/ruff-pre-commit",
+    "semgrep": "https://github.com/semgrep/pre-commit",
+    "shfmt-py": "https://github.com/scop/pre-commit-shfmt",
 }
 
 REVERSE_MAPPING: dict[str, str] = {url: pkg for pkg, url in TOOL_MAPPING.items()}

@@ -49,6 +49,8 @@ updates:
         update-types:
           - minor
           - patch
+    cooldown:
+      default-days: 7
 
   # ----------------------------------------------------------------------------
   # GitHub Actions (workflow files)
@@ -81,6 +83,8 @@ updates:
         update-types:
           - minor
           - patch
+    cooldown:
+      default-days: 7
 
 # ==============================================================================
 # Update Strategy Summary

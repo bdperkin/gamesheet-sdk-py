@@ -286,12 +286,22 @@ def _add_repo_spacing(text: str) -> str:
 
 
 def _single_to_double_quotes(text: str) -> str:
-    """Replace single-quoted YAML scalar values with double-quoted equivalents."""
+    """Replace single-quoted YAML scalar values with double-quoted equivalents.
+
+    Strings containing backslashes are left single-quoted because YAML double-quoted strings interpret
+    backslash escape sequences.
+    """
+
+    def _replace_match(m: re.Match[str]) -> str:
+        inner = m.group(1)
+        if "\\" in inner:
+            return m.group(0)
+        return '"' + inner + '"'
 
     def _replace_on_line(line: str) -> str:
         if line.lstrip().startswith("#"):
             return line
-        return re.sub(r"'([^']*)'", r'"\1"', line)
+        return re.sub(r"'([^']*)'", _replace_match, line)
 
     return "\n".join(_replace_on_line(line) for line in text.splitlines())
 

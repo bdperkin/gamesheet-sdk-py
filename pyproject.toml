@@ -57,7 +57,7 @@ classifiers = [
 dependencies = [
   "click==8.4.2",
   "colorlog==6.12.0",
-  "playwright==1.61.0",
+  "playwright==1.62.0",
   "pydantic==2.13.4",
   "pydantic-settings==2.14.2",
   "python-dateutil==2.9.0.post0",
@@ -100,7 +100,7 @@ optional-dependencies.codespell = [
   "codespell==2.4.3",
 ]
 optional-dependencies.complexity = [
-  "gamesheet-sdk-py[bandit,radon]",
+  "gamesheet-sdk-py[bandit,radon,semgrep]",
 ]
 optional-dependencies.dead-code-detectors = [
   "gamesheet-sdk-py[autoflake,unimport,vulture]",
@@ -132,7 +132,7 @@ optional-dependencies.docstring-tools = [
   "gamesheet-sdk-py[blacken-docs,codespell,docformatter,interrogate,pydocstyle]",
 ]
 optional-dependencies.editorconfig-checker = [
-  "editorconfig-checker==3.6.1",
+  "editorconfig-checker==3.8.0",
 ]
 optional-dependencies.flake8 = [
   "flake8-pyproject==1.2.4",
@@ -215,7 +215,7 @@ optional-dependencies.pyproject-fmt = [
 ]
 optional-dependencies.pyrefly = [
   "gamesheet-sdk-py[pytest]",
-  "pyrefly==1.1.1",
+  "pyrefly==1.2.0",
 ]
 optional-dependencies.pyright = [
   "gamesheet-sdk-py[pytest]",
@@ -239,17 +239,21 @@ optional-dependencies.radon = [
 optional-dependencies.refurb = [
   "refurb==2.3.1",
 ]
+optional-dependencies.semgrep = [
+  "semgrep==1.172.0",
+]
 optional-dependencies.ssort = [
-  "ssort==0.16.0",
+  "ssort==0.17.0",
 ]
 optional-dependencies.static-analysis = [
   "gamesheet-sdk-py[blocklint,flake8,pylint,pyrefly,refurb]",
 ]
 optional-dependencies.tools = [
+  "gamesheet-sdk-py[dev]",
   "ruamel-yaml==0.19.1",
   "tomli==2.4.1",
   "tomlkit==0.15.1",
-  "uv==0.12.0",
+  "uv==0.12.1",
 ]
 optional-dependencies.tox-ini-fmt = [
   "tox-ini-fmt==1.8.1",
@@ -261,10 +265,13 @@ optional-dependencies.type-stubs = [
   "types-attrs==19.1.0",
   "types-babel==2.11.0.15",
   "types-beautifulsoup4==4.12.0.20250516",
+  "types-boltons==26.1.0.20260724",
   "types-cachetools==7.0.0.20260713",
   "types-certifi==2021.10.8.3",
+  "types-cffi==2.0.0.20260518",
   "types-click==7.1.8",
   "types-colorama==0.4.15.20260508",
+  "types-cryptography==3.3.23.2",
   "types-docutils==0.22.3.20260724",
   "types-filelock==3.2.7",
   "types-flake8==7.3.0.20260508",
@@ -275,15 +282,20 @@ optional-dependencies.type-stubs = [
   "types-flake8-simplify==0.30.0.20260408",
   "types-greenlet==3.5.0.20260518",
   "types-jinja2==2.11.9",
+  "types-jsonschema==4.26.0.20260518",
   "types-markupsafe==1.1.10",
   "types-mypy-extensions==1.1.0.20260724",
+  "types-peewee==4.3.0.20260802",
   "types-pep8-naming==0.15.0.20260408",
   "types-pluggy==1.2.0.20240106",
   "types-polib==1.2.0.20260518",
+  "types-protobuf==7.34.1.20260518",
   "types-pyflakes==3.4.0.20260724",
   "types-pygments==2.20.0.20260728",
-  "types-python-dateutil==2.9.0.20260518",
+  "types-pyjwt==1.7.1",
+  "types-python-dateutil==2.9.0.20260716",
   "types-python-slugify==8.0.2.20240310",
+  "types-pywin32==312.0.0.20260724",
   "types-pyyaml==6.0.12.20260724",
   "types-regex==2026.7.19.20260720",
   "types-requests==2.33.0.20260712",
@@ -1334,6 +1346,7 @@ optional_dependencies_dev_groups = [
   "pyupgrade",
   "radon",
   "refurb",
+  "semgrep",
   "ssort",
   "tools",
   "tox-ini-fmt",

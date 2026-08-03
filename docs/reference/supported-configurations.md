@@ -89,7 +89,7 @@ The package declares many extras via `[project.optional-dependencies]`. The two 
 Each linter, formatter, type checker, and quality tool is isolated to its own extra. Examples include:
 
 - **Formatters**: `black`, `isort`, `autopep8`, `pyupgrade`, `autoflake`, `ssort`, `add-trailing-comma`, `absolufy-imports`
-- **Linters**: `bandit`, `refurb`, `pyrefly`, `blocklint`, `vulture`, `deptry`, `unimport`
+- **Linters**: `bandit`, `refurb`, `pyrefly`, `blocklint`, `vulture`, `deptry`, `unimport`, `semgrep`
 - **Doc tools**: `codespell`, `blacken-docs`, `docformatter`, `interrogate`, `pydocstyle`, `pymarkdown`, `mdformat`
 - **Config file tools**: `yamllint`, `tox-ini-fmt`, `pyproject-fmt`, `validate-pyproject`, `editorconfig-checker`, `pyroma`
 - **Metrics**: `radon`
