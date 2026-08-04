@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.13 (2026-08-04)
+
+### Bug Fixes
+
+- **tools**: Pin bare additional_dependencies versions in syncdeps
+  ([`5a4a4d3`](https://github.com/bdperkin/gamesheet-sdk-py/commit/5a4a4d36331e43b0cca05f2494c7a24c7ab6654c))
+
 ## v0.4.12 (2026-08-04)
 
 ### Features
