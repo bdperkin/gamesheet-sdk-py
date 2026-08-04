@@ -497,7 +497,7 @@ repos:
           - .[all]
 
   - repo: https://github.com/regebro/pyroma
-    rev: 5.0.1
+    rev: 5.1b1
     hooks:
       - id: pyroma
         name: Check package with Pyroma
@@ -587,7 +587,7 @@ repos:
         minimum_pre_commit_version: 0.15.0
 
   - repo: https://github.com/pycqa/isort
-    rev: 8.0.1
+    rev: 9.0.0b1
     hooks:
       - id: isort
         name: isort
@@ -676,7 +676,7 @@ repos:
         files: .*
 
   - repo: https://github.com/hakancelikdev/unimport
-    rev: 0.11.1
+    rev: 1.4.0
     hooks:
       - id: unimport
         name: unimport
