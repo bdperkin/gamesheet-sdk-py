@@ -116,6 +116,7 @@ class RunConfig(BaseModel):
     pyproject_path: Path = Field(default=Path("pyproject.toml"))
     precommit_config_path: Path = Field(default=Path(".pre-commit-config.yaml"))
     genprecommit_config_path: Path = Field(default=Path(".genprecommitconfig.yaml"))
+    dependabot_path: Path = Field(default=Path(".github/dependabot.yml"))
     uv_lock_path: Path = Field(default=Path("uv.lock"))
     log_level: str = Field(default="info", pattern=r"^(debug|info|warning|error)$")
     dry_run: bool = False

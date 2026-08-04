@@ -193,21 +193,18 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   - `unit/` — unit tests by domain (associations, divisions, games, ipad_keys, leagues, referees, roster, seasons, teams, gamesheet_http)
 
 - **Dependency updates.** `pre-commit.ci` configuration lives inline in `.pre-commit-config.yaml` under the top-level `ci:` key (the only path that service
-  reads). It pins `python_version: "3.11"`, runs `autoupdate_schedule: weekly`, and auto-fixes formatting on PRs (`autofix_prs: true`). Three hooks are listed
-  in `ci.skip` — they still run in GitHub Actions where there is no 250 MiB tier limit and `python -m venv` works:
+  reads). It pins `python_version: "3.11"`, runs `autoupdate_schedule: weekly`, and auto-fixes formatting on PRs (`autofix_prs: true`). Eleven hooks are listed
+  in `ci.skip` — they still run in GitHub Actions where there is no 250 MiB tier limit and `python -m venv` works. The three main reasons a hook lands in the
+  skip list:
 
-  - `pyright` — deps don't fit pre-commit.ci's tier.
-  - `flake8` — `[flake8-plugins]` pulls fastapi, flake8-django, etc., exceeding 250 MiB.
-  - `pyroma` — introspects via `python -m build`, which calls `python -m venv`; pre-commit.ci's bundled Python lacks `ensurepip`, so the build env can't
-    bootstrap pip.
+  - **Deps exceed the 250 MiB tier** — `pyright`, `flake8` (`[flake8-plugins]` pulls fastapi, flake8-django, etc.), `deptry`, `yesqa`, `refurb`.
+  - **Requires runtime deps via `additional_dependencies`** — `mypy`, `pylint`, `pyrefly-check`, `semgrep`.
+  - **Needs `python -m venv`** — `pyroma` (introspects via `python -m build`; pre-commit.ci's bundled Python lacks `ensurepip`).
+
+  Also skipped: `editorconfig-checker`, `mdformat`.
 
   Autoupdates land as PRs (empty `autoupdate_branch`), not auto-merges. `.github/dependabot.yml` opens grouped weekly PRs for Python runtime deps, Python dev
   deps, and GitHub Actions versions — three PRs/week max.
-
-  **Three hook revs are deliberately pinned one release behind** (`pyproject-fmt` v2.25.3 not v2.26.0, `pyrefly-pre-commit` 1.2.0.dev2 not 1.2.0.dev3,
-  `mirrors-mypy` v2.1.0 not v2.3.0) because the newer revs failed to install locally. All six versions are present on upstream PyPI, so the failure was a
-  lagging private package index rather than a missing release — meaning CI and pre-commit.ci would have been fine on the newer revs. Expect `autoupdate` to keep
-  proposing them; re-pin only if the install failure reproduces.
 
 - **CI workflow layout.** GitHub Actions is fanned out into per-category workflow files under `.github/workflows/`: a small `ci.yml` build/install sanity check,
   `tests.yml` (pytest matrix py3.11–3.14), `docs.yml` (HTML/EPUB/man/PDF/lint/linkcheck/doctest as parallel jobs + a Pages deploy gated on `push` to main),
@@ -245,12 +242,12 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
     variant), pyroma.
   - **Meta:** sync-pre-commit-deps.
 
-  mypy + pylint in pre-commit use `local` hooks because (a) pre-commit/mirrors-mypy tags currently drift ahead of upstream mypy on PyPI, and (b) pylint needs
-  the project's runtime deps duplicated in `additional_dependencies` to resolve imports inside the isolated hook venv. Every hook's `additional_dependencies` is
-  consolidated to a single `gamesheet-sdk-py[<extras>]` self-reference (e.g. `gamesheet-sdk-py[mypy,pytest,type-stubs]`, `gamesheet-sdk-py[pylint,pytest]`,
-  `gamesheet-sdk-py[pyrefly,pytest]`, `gamesheet-sdk-py[deptry,pytest,type-stubs]`) so `pyproject.toml`'s `optional-dependencies.*` groups are the single source
-  of truth for what each tool needs. The `[pyroma]` extra includes `virtualenv` so pyroma can introspect the build backend. Pyroma is skipped on pre-commit.ci
-  (see above) and runs locally / in GitHub Actions where the project's build backend (`hatchling`) is already present.
+  Several hooks need the project's runtime deps or tool-specific plugins to resolve imports inside the isolated hook venv. Every such hook's
+  `additional_dependencies` is consolidated to a single `gamesheet-sdk-py[<extras>]` self-reference (e.g. `gamesheet-sdk-py[mypy,tools]`,
+  `gamesheet-sdk-py[pylint,tools]`, `gamesheet-sdk-py[pyright,tools]`, `gamesheet-sdk-py[pyrefly]`, `gamesheet-sdk-py[deptry]`, `gamesheet-sdk-py[flake8]`,
+  `gamesheet-sdk-py[refurb]`, `gamesheet-sdk-py[mdformat]`) so `pyproject.toml`'s `optional-dependencies.*` groups are the single source of truth for what each
+  tool needs. Pyroma is skipped on pre-commit.ci (see above) and runs locally / in GitHub Actions where the project's build backend (`hatchling`) is already
+  present.
 
 - **Complexity gate.** A `xenon` pre-commit hook enforces `--max-absolute=A --max-modules=A --max-average=B` against `src/` on every commit
   (`pass_filenames: false`, runs the whole package as one analysis). Translation: **every block (function / method / class) must stay at cyclomatic-complexity

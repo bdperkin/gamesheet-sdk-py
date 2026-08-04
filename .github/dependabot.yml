@@ -49,6 +49,10 @@ updates:
         update-types:
           - minor
           - patch
+    ignore:
+      # Managed by syncdeps — do not edit manually
+      - dependency-name: unimport
+        versions: ['> 0.11.1']
     cooldown:
       default-days: 7
 

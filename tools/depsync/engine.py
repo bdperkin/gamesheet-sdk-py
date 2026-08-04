@@ -65,6 +65,28 @@ def _normalize_rev(rev: str) -> str | None:
             return None
 
 
+def resolve_pinned_packages(pinned_revs: dict[str, str]) -> dict[str, str]:
+    """Map repo-URL-keyed pins to PyPI-package-name-keyed versions.
+
+    :param pinned_revs: Dict mapping repo URL to pinned rev string.
+    :type pinned_revs: dict[str, str]
+    :returns: Dict mapping PyPI package name to normalized version string.
+    :rtype: dict[str, str]
+    """
+    result: dict[str, str] = {}
+    for url, rev in pinned_revs.items():
+        pkg = _repo_url_to_package(url)
+        if pkg is None:
+            logger.debug("Cannot resolve package name for %s, skipping", url)
+            continue
+        version = _normalize_rev(rev)
+        if version is None:
+            logger.debug("Cannot normalize rev %r for %s, skipping", rev, url)
+            continue
+        result[pkg] = version
+    return result
+
+
 def _prefetch_versions(
     package_names: set[str],
     repo_urls: set[str],
