@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.12 (2026-08-04)
+
+### Features
+
+- **tools**: Add dependabot ignore-list sync to syncdeps
+  ([`d9b9197`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d9b9197db35baa1c80f2fbd16df0a5edf8f522da))
+
 ## v0.4.11 (2026-08-03)
 
 ### Bug Fixes
