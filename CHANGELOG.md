@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.14 (2026-08-04)
+
+### Bug Fixes
+
+- **config**: Revert pre-release hook revs to latest stable
+  ([`60fe269`](https://github.com/bdperkin/gamesheet-sdk-py/commit/60fe269f633980da5990412549f32224a96fc8ff))
+
 ## v0.4.13 (2026-08-04)
 
 ### Bug Fixes
