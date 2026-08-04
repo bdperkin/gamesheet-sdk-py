@@ -274,6 +274,23 @@ def _converge_shared_main_hooks(
     return results
 
 
+def _precommit_ads_need_sync(
+    ad_name: str,
+    target_version: str,
+    repos_with_ad: list[PreCommitRepo],
+) -> bool:
+    return any(
+        ad.version != target_version
+        for repo in repos_with_ad
+        for ad in repo.additional_deps
+        if ad.name == ad_name
+    )
+
+
+def _collect_hook_ids(ad_name: str, repos_with_ad: list[PreCommitRepo]) -> list[str]:
+    return [ad.hook_id for repo in repos_with_ad for ad in repo.additional_deps if ad.name == ad_name]
+
+
 def _converge_shared_additional_deps(
     pyproject_deps: dict[str, list[PyProjectDependency]],
     precommit_additional_names: dict[str, list[PreCommitRepo]],
@@ -289,9 +306,7 @@ def _converge_shared_additional_deps(
     results: list[ConvergenceResult] = []
 
     for ad_name, repos_with_ad in precommit_additional_names.items():
-        if ad_name in processed_packages:
-            continue
-        if ad_name not in pyproject_deps:
+        if ad_name in processed_packages or ad_name not in pyproject_deps:
             continue
 
         dep_entries = pyproject_deps[ad_name]
@@ -305,23 +320,26 @@ def _converge_shared_additional_deps(
             processed_packages.add(ad_name)
             continue
 
-        if latest != current_version:
-            hook_ids: list[str] = [
-                ad.hook_id for repo in repos_with_ad for ad in repo.additional_deps if ad.name == ad_name
-            ]
+        target_version = latest
+        needs_update = latest != current_version or _precommit_ads_need_sync(
+            ad_name,
+            target_version,
+            repos_with_ad,
+        )
 
+        if needs_update:
             results.append(
                 ConvergenceResult(
                     package=ad_name,
                     old_version=current_version,
-                    new_version=latest,
+                    new_version=target_version,
                     target=UpdateTarget.BOTH,
                     groups=[d.group for d in dep_entries],
-                    hook_ids=hook_ids,
+                    hook_ids=_collect_hook_ids(ad_name, repos_with_ad),
                     is_additional_dep=True,
                 ),
             )
-            logger.info("  %s: %s → %s", ad_name, current_version, latest)
+            logger.info("  %s: %s → %s", ad_name, current_version, target_version)
 
         processed_packages.add(ad_name)
 

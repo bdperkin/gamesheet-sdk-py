@@ -870,8 +870,8 @@ repos:
         require_serial: true
         additional_dependencies:
           - gamesheet-sdk-py[pylint,tools]
-          - ruamel-yaml
-          - tomli
+          - ruamel-yaml==0.19.1
+          - tomli==2.4.1
 
   - repo: https://github.com/facebook/pyrefly-pre-commit
     rev: 1.2.0
@@ -970,9 +970,9 @@ repos:
         require_serial: true
         additional_dependencies:
           - gamesheet-sdk-py[pyright,tools]
-          - ruamel-yaml
-          - tomli
-          - tomlkit
+          - ruamel-yaml==0.19.1
+          - tomli==2.4.1
+          - tomlkit==0.15.1
         minimum_pre_commit_version: 2.9.2
 
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -991,9 +991,9 @@ repos:
         require_serial: true
         additional_dependencies:
           - gamesheet-sdk-py[mypy,tools]
-          - ruamel-yaml
-          - tomli
-          - tomlkit
+          - ruamel-yaml==0.19.1
+          - tomli==2.4.1
+          - tomlkit==0.15.1
         minimum_pre_commit_version: 2.9.2
         exclude: ^tools/(syncdeps|genprecommitconfig)$
 
