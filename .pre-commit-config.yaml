@@ -42,6 +42,8 @@ ci:
     - pyrefly-check
     - pyright
     - mypy
+    - semgrep
+    - semgrep-ci
 
 # ==============================================================================
 # Global Defaults
@@ -126,6 +128,12 @@ repos:
         language: python
         types:
           - python
+      - id: check-case-conflict
+        name: check for case conflicts
+        description: checks for files that would conflict in case-insensitive
+          filesystems.
+        entry: check-case-conflict
+        language: python
       - id: check-docstring-first
         name: check docstring is first
         description: checks a common error of defining a docstring after code.
@@ -260,6 +268,14 @@ repos:
           - pre-push
           - manual
         minimum_pre_commit_version: 3.2.0
+      - id: file-contents-sorter
+        name: file contents sorter
+        description: sorts the lines in specified files (defaults to
+          alphabetical). you must provide list of target files as input in your
+          .pre-commit-config.yaml file.
+        entry: file-contents-sorter
+        language: python
+        files: ^custom-dictionary\.txt$
       - id: fix-byte-order-marker
         name: fix utf-8 byte order marker
         description: removes utf-8 byte order marker.
@@ -318,6 +334,15 @@ repos:
         description: 'Enforce that `noqa` annotations always occur with specific codes.
           Sample annotations: `# noqa: F401`, `# noqa: F401,W203`'
         entry: "(?i)# noqa(?!: )"
+        language: pygrep
+        types:
+          - python
+      - id: python-check-blanket-type-ignore
+        name: check blanket type ignore
+        description: 'Enforce that `# type: ignore` annotations always occur with
+          specific codes. Sample annotations: `# type: ignore[attr-defined]`, `# type:
+          ignore[attr-defined, name-defined]`'
+        entry: '# type:? *ignore(?!\[|\w)'
         language: pygrep
         types:
           - python
@@ -381,8 +406,8 @@ repos:
       - id: rst-directive-colons
         name: rst directives end with two colons
         description: Detect mistake of rst directive not ending with double
-          colon
-        entry: ^\s*\.\. [a-z]+:$
+          colon or space before the double colon
+        entry: ^\s*\.\. [a-z]+(| | :):$
         language: pygrep
         types:
           - rst
@@ -401,7 +426,7 @@ repos:
         language: pygrep
         types:
           - text
-        exclude: ^\.pre-commit-config.yaml$
+        exclude: ^\.pre-commit-config\.yaml$
 
   # ----------------------------------------------------------------------------
   # Configuration File Linters & Formatters
@@ -444,7 +469,7 @@ repos:
         files: (^|/)tox\.ini$
 
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.26.0
+    rev: v2.27.0
     hooks:
       - id: pyproject-fmt
         name: pyproject-fmt
@@ -845,8 +870,8 @@ repos:
         require_serial: true
         additional_dependencies:
           - gamesheet-sdk-py[pylint,tools]
-          - ruamel-yaml
-          - tomli
+          - ruamel-yaml==0.19.1
+          - tomli==2.4.1
 
   - repo: https://github.com/facebook/pyrefly-pre-commit
     rev: 1.2.0
@@ -891,6 +916,30 @@ repos:
           - pyproject.toml
           - --recursive
 
+  - repo: https://github.com/semgrep/pre-commit
+    rev: v1.172.0
+    hooks:
+      - id: semgrep
+        name: semgrep
+        entry: semgrep
+        language: python
+        args:
+          - --disable-version-check
+          - --quiet
+          - --skip-unknown-extensions
+          - --jobs
+          - "1"
+      - id: semgrep-ci
+        name: semgrep
+        entry: semgrep
+        language: python
+        pass_filenames: false
+        args:
+          - ci
+          - --dry-run
+          - --baseline-commit
+          - HEAD
+
   - repo: https://github.com/rubik/xenon
     rev: v0.9.3
     hooks:
@@ -921,9 +970,9 @@ repos:
         require_serial: true
         additional_dependencies:
           - gamesheet-sdk-py[pyright,tools]
-          - ruamel-yaml
-          - tomli
-          - tomlkit
+          - ruamel-yaml==0.19.1
+          - tomli==2.4.1
+          - tomlkit==0.15.1
         minimum_pre_commit_version: 2.9.2
 
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -942,9 +991,9 @@ repos:
         require_serial: true
         additional_dependencies:
           - gamesheet-sdk-py[mypy,tools]
-          - ruamel-yaml
-          - tomli
-          - tomlkit
+          - ruamel-yaml==0.19.1
+          - tomli==2.4.1
+          - tomlkit==0.15.1
         minimum_pre_commit_version: 2.9.2
         exclude: ^tools/(syncdeps|genprecommitconfig)$
 

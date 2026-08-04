@@ -14,6 +14,7 @@ from typing import Any
 from depsync.exceptions import WriteError
 from depsync.models import ConvergenceResult, UpdateTarget
 from ruamel.yaml import YAML
+from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from shared import PROJECT_NAME
 from tomlkit.toml_file import TOMLFile
 
@@ -196,16 +197,19 @@ def _update_additional_dep_list(
     count = 0
     for i, raw_ad_str in enumerate(ad_list):
         ad_value = str(raw_ad_str)
-        if "==" not in ad_value:
-            continue
-        name_part = ad_value.split("==", maxsplit=1)[0].strip().lower()
+        if "==" in ad_value:
+            name_part = ad_value.split("==", maxsplit=1)[0].strip().lower()
+        else:
+            name_part = ad_value.strip().lower()
         name_match = re.match(r"^([a-zA-Z0-9\-_]+)", name_part)
         if not name_match:
             continue
         normalized = re.sub(r"[-_.]+", "-", name_match.group(1)).lower()
+        if normalized == _normalize_dep_name(PROJECT_NAME):
+            continue
         if normalized in pkg_to_result:
             result = pkg_to_result[normalized]
-            prefix = ad_value.split("==", maxsplit=1)[0]
+            prefix = ad_value.split("==", maxsplit=1)[0] if "==" in ad_value else ad_value
             ad_list[i] = f"{prefix}=={result.new_version}"
             count += 1
     return count
@@ -217,11 +221,12 @@ def _update_repo_additional_deps(
 ) -> int:
     count = 0
     for hook_entry in repo_entry.get("hooks", []):
-        hook_overrides = hook_entry.get("overrides", {})
-        ad_list = hook_overrides.get("additional_dependencies")
-        if not ad_list:
-            continue
-        count += _update_additional_dep_list(ad_list, pkg_to_result)
+        for section_key in ("overrides", "appends"):
+            section = hook_entry.get(section_key, {})
+            ad_list = section.get("additional_dependencies")
+            if not ad_list:
+                continue
+            count += _update_additional_dep_list(ad_list, pkg_to_result)
     return count
 
 
@@ -321,6 +326,101 @@ def update_precommit_config(
 
     logger.info("Updated %d entries in %s", updated_count, path)
     return updated_count
+
+
+def _find_pip_ecosystem(data: Any) -> Any | None:
+    for update in data.get("updates") or []:
+        if update.get("package-ecosystem") == "pip":
+            return update
+    return None
+
+
+def _extract_current_ignores(pip_entry: Any) -> dict[str, str]:
+    result: dict[str, str] = {}
+    for entry in pip_entry.get("ignore") or []:
+        name = entry.get("dependency-name", "")
+        versions = entry.get("versions", [])
+        if name and versions:
+            result[name] = str(versions[0])
+    return result
+
+
+def _build_ignore_list(desired_ignores: dict[str, str]) -> Any:
+    ignore_list = CommentedSeq()
+    ignore_list.yaml_set_start_comment(
+        "Managed by syncdeps — do not edit manually",
+        indent=6,
+    )
+    for name, constraint in sorted(desired_ignores.items()):
+        entry = CommentedMap()
+        entry["dependency-name"] = name
+        versions_seq = CommentedSeq([constraint])
+        versions_seq.fa.set_flow_style()
+        entry["versions"] = versions_seq
+        ignore_list.append(entry)
+    return ignore_list
+
+
+def _apply_ignore_list(pip_entry: Any, desired_ignores: dict[str, str]) -> None:
+    if not desired_ignores:
+        if "ignore" in pip_entry:
+            del pip_entry["ignore"]
+        return
+
+    ignore_list = _build_ignore_list(desired_ignores)
+    if "ignore" in pip_entry:
+        del pip_entry["ignore"]
+    keys = list(pip_entry.keys())
+    insert_pos = keys.index("cooldown") if "cooldown" in keys else len(keys)
+    pip_entry.insert(insert_pos, "ignore", ignore_list)
+
+
+def update_dependabot_ignores(
+    path: Path,
+    pinned_packages: dict[str, str],
+) -> tuple[int, int]:
+    """Sync the ignore list under the pip ecosystem in dependabot.yml.
+
+    :param path: Path to dependabot.yml.
+    :type path: Path
+    :param pinned_packages: Dict mapping PyPI package name to pinned version.
+    :type pinned_packages: dict[str, str]
+    :returns: Tuple of (added_count, removed_count).
+    :rtype: tuple[int, int]
+    """
+    if not path.exists():
+        logger.debug("dependabot.yml not found, skipping ignore sync")
+        return 0, 0
+
+    yml = _create_yaml(wide=True)
+    data = _read_yaml_file(path, yml)
+
+    pip_entry = _find_pip_ecosystem(data)
+    if pip_entry is None:
+        logger.debug("No pip ecosystem found in %s", path)
+        return 0, 0
+
+    current_ignores = _extract_current_ignores(pip_entry)
+    desired_ignores: dict[str, str] = {
+        name: f"> {version}" for name, version in sorted(pinned_packages.items())
+    }
+
+    if current_ignores == desired_ignores:
+        return 0, 0
+
+    added = set(desired_ignores) - set(current_ignores)
+    removed = set(current_ignores) - set(desired_ignores)
+
+    _apply_ignore_list(pip_entry, desired_ignores)
+    _write_yaml_file(path, yml, data)
+
+    logger.info(
+        "Updated dependabot ignores in %s: +%d -%d",
+        path,
+        len(added),
+        len(removed),
+    )
+    return len(added), len(removed)
 
 
 def _sort_types_entries(mypy_list: list) -> None:  # type: ignore[type-arg]

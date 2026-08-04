@@ -95,6 +95,7 @@ dmypy.json
 .pytype/
 .ruff_cache/
 .pyright/
+semgrep-results.sarif
 
 # ------------------------------------------------------------------------------
 # Virtual environments

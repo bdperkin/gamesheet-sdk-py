@@ -79,6 +79,12 @@ def _write_init_template(config_file: Path) -> None:
     help="Max older revisions to try on validation failure (0=none, -1=all).",
 )
 @click.option(
+    "--no-reset",
+    is_flag=True,
+    default=False,
+    help="Do not reset the working tree on validation failure.",
+)
+@click.option(
     "--init",
     is_flag=True,
     default=False,
@@ -93,6 +99,7 @@ def app(
     *,
     dry_run: bool,
     no_validate: bool,
+    no_reset: bool,
     init: bool,
 ) -> None:
     """Generate .pre-commit-config.yaml from a declarative configuration file.
@@ -112,6 +119,8 @@ def app(
     :type dry_run: bool
     :param no_validate: Skip per-repo incremental validation.
     :type no_validate: bool
+    :param no_reset: Do not reset the working tree on validation failure.
+    :type no_reset: bool
     :param init: Write a minimal template config file and exit.
     :type init: bool
     :raises SystemExit: If generation fails.
@@ -132,6 +141,7 @@ def app(
         dry_run=dry_run,
         validate_incremental=not no_validate,
         max_downgrade_attempts=max_downgrade_attempts,
+        reset_on_failure=not no_reset,
     )
 
     try:

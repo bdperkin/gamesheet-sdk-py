@@ -183,10 +183,10 @@ jobs:
           echo "run_attempt=$RUN_ATTEMPT" >> $GITHUB_OUTPUT
           if [ "$RUN_ATTEMPT" = "1" ]; then
             echo "should_create_issue=false" >> $GITHUB_OUTPUT
-            echo "🔄 First failure detected - will retry automatically"
+            echo "First failure detected - will retry automatically"
           else
             echo "should_create_issue=true" >> $GITHUB_OUTPUT
-            echo "❌ Retry also failed - will create issue"
+            echo "Retry also failed - will create issue"
           fi
       - name: Trigger automatic retry (first attempt only)
         if: github.run_attempt == 1

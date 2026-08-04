@@ -39,7 +39,7 @@ max_line_length          = 110         # Informational only; enforced by linters
 # Data & Configuration Formats
 # ------------------------------------------------------------------------------
 # Standard practice: 2-space indentation for YAML, JSON, TOML
-[*.{yml,yaml,json,toml}]
+[*.{yml,yaml,json,toml,ini}]
 indent_size              = 2
 
 # ------------------------------------------------------------------------------

@@ -5,16 +5,15 @@
 
 globals:
   blacklisted_hooks:
+    - check-byte-order-marker
     - check-symlinks
     - check-xml
-    - file-contents-sorter
-    - forbid-new-submodules
-    - requirements-txt-fixer
-    - sort-simple-yaml
-    - check-byte-order-marker
     - double-quote-string-fixer
     - editorconfig-checker-system
     - fix-encoding-pragma
+    - forbid-new-submodules
+    - requirements-txt-fixer
+    - sort-simple-yaml
 
 ci:
   autofix_commit_msg: "style: Auto-fixes from pre-commit.ci"
@@ -34,6 +33,8 @@ ci:
     - pyrefly-check
     - pyright
     - mypy
+    - semgrep
+    - semgrep-ci
 
 categories:
   meta:
@@ -58,6 +59,9 @@ categories:
             appends:
               args:
                 - --allow-missing-credentials
+          - id: file-contents-sorter
+            overrides:
+              files: ^custom-dictionary\.txt$
           - id: pretty-format-json
             appends:
               args:
@@ -65,27 +69,23 @@ categories:
                 - --no-sort-keys
           - id: name-tests-test
             overrides:
-              exclude:
-                ^tests/.*(cli|conftest|constants|endpoints|mocks|payloads|roster_helpers)\.py$
+              exclude: ^tests/.*(cli|conftest|constants|endpoints|mocks|payloads|roster_helpers)\.py$
             prepends:
               args:
                 - --pytest-test-first
 
       - name: pygrep-hooks
         repo: https://github.com/pre-commit/pygrep-hooks
-        resolved_rev: v1.8.0
-
         hooks:
           - id: text-unicode-replacement-char
             overrides:
-              exclude: "^\\.pre-commit-config.yaml$"
+              exclude: ^\.pre-commit-config\.yaml$
 
   configuration_file_linters_-_formatters:
     description: Configuration File Linters & Formatters
     repos:
       - name: editorconfig-checker.python
-        repo:
-          https://github.com/editorconfig-checker/editorconfig-checker.python
+        repo: https://github.com/editorconfig-checker/editorconfig-checker.python
 
       - name: yamllint
         repo: https://github.com/adrienverge/yamllint
@@ -95,7 +95,6 @@ categories:
 
       - name: pyproject-fmt
         repo: https://github.com/tox-dev/pyproject-fmt
-        resolved_rev: v2.25.3
 
       - name: validate-pyproject
         repo: https://github.com/abravalheri/validate-pyproject
@@ -241,13 +240,11 @@ categories:
             appends:
               additional_dependencies:
                 - gamesheet-sdk-py[pylint,tools]
-                - ruamel-yaml
-                - tomli
+                - ruamel-yaml==0.19.1
+                - tomli==2.4.1
 
       - name: pyrefly-pre-commit
         repo: https://github.com/facebook/pyrefly-pre-commit
-        resolved_rev: 1.2.0.dev3
-
         hooks:
           - id: pyrefly-check
             appends:
@@ -267,6 +264,15 @@ categories:
                 - pyproject.toml
                 - --recursive
 
+      - name: semgrep
+        repo: https://github.com/semgrep/pre-commit
+        hooks:
+          - id: semgrep
+            appends:
+              args:
+                - --jobs
+                - "1"
+
       - name: xenon
         repo: https://github.com/rubik/xenon
 
@@ -280,9 +286,9 @@ categories:
             appends:
               additional_dependencies:
                 - gamesheet-sdk-py[pyright,tools]
-                - ruamel-yaml
-                - tomli
-                - tomlkit
+                - ruamel-yaml==0.19.1
+                - tomli==2.4.1
+                - tomlkit==0.15.1
 
       - name: mirrors-mypy
         repo: https://github.com/pre-commit/mirrors-mypy
@@ -295,9 +301,9 @@ categories:
             appends:
               additional_dependencies:
                 - gamesheet-sdk-py[mypy,tools]
-                - ruamel-yaml
-                - tomli
-                - tomlkit
+                - ruamel-yaml==0.19.1
+                - tomli==2.4.1
+                - tomlkit==0.15.1
 
   pre-commit-hook-sync:
     description: Pre-Commit Hook Sync

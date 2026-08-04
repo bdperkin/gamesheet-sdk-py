@@ -114,11 +114,13 @@ pre-commit run --all-files
 pylint src/
 flake8 src/
 bandit -r src/
+semgrep scan --config auto --error
 
 # Via tox
 tox -e pylint
 tox -e flake8
 tox -e bandit
+tox -e semgrep
 ```
 
 ### Formatting
