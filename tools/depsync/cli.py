@@ -6,18 +6,20 @@
 from __future__ import annotations
 
 import difflib
+import logging
 from pathlib import Path
 import shutil
 import subprocess  # noqa: S404 # nosec B404
 
 from depsync.config import (
+    DEPENDABOT_CONFIG,
     GENPRECOMMIT_CONFIG,
     PRECOMMIT_CONFIG,
     PYPROJECT_TOML,
     UV_LOCK,
     UV_LOCK_TIMEOUT,
 )
-from depsync.engine import converge, sync_types
+from depsync.engine import converge, resolve_pinned_packages, sync_types
 from depsync.exceptions import LockfileError, SyncDepsError
 from depsync.models import ConvergenceResult, RunConfig, TypesSyncResult, UpdateTarget
 from depsync.parsers import (
@@ -30,6 +32,7 @@ from depsync.parsers import (
 )
 from depsync.writers import (
     apply_types_sync,
+    update_dependabot_ignores,
     update_genprecommit_additional_deps,
     update_precommit_config,
     update_pyproject,
@@ -44,6 +47,7 @@ from shared.log_config import configure_logging
 from shared.pip_config import PipConfig, load_pip_config
 
 console = Console()
+logger = logging.getLogger(__name__)
 
 
 def _snapshot_files(paths: list[Path]) -> dict[Path, bytes]:
@@ -446,6 +450,83 @@ def _log_parsed_config(
         console.print(f"  Python compatibility floor: [cyan]{min_python}[/]")
 
 
+def _report_dependabot_changes(added: int, removed: int) -> None:
+    if added:
+        noun = "entry" if added == 1 else "entries"
+        console.print(f"  Added [cyan]{added}[/] ignore {noun} in .github/dependabot.yml")
+    if removed:
+        noun = "entry" if removed == 1 else "entries"
+        console.print(
+            f"  Removed [cyan]{removed}[/] stale ignore {noun} from .github/dependabot.yml",
+        )
+
+
+def _run_dependabot_write(
+    config: RunConfig,
+    pinned_packages: dict[str, str],
+) -> bool:
+    target_files = [config.dependabot_path]
+    snapshots = _snapshot_files(target_files)
+    if config.backup:
+        _create_backups(snapshots)
+
+    added, removed = update_dependabot_ignores(config.dependabot_path, pinned_packages)
+    if not (added or removed):
+        return False
+
+    _report_dependabot_changes(added, removed)
+    if config.diff:
+        _show_diffs(snapshots, target_files)
+    return True
+
+
+def _run_dependabot_preview(
+    config: RunConfig,
+    pinned_packages: dict[str, str],
+) -> bool:
+    target_files = [config.dependabot_path]
+
+    if config.diff:
+        snapshots = _snapshot_files(target_files)
+        added, removed = update_dependabot_ignores(config.dependabot_path, pinned_packages)
+        _show_diffs(snapshots, target_files)
+        _restore_files(snapshots)
+        return bool(added or removed)
+
+    added, removed = update_dependabot_ignores(config.dependabot_path, pinned_packages)
+    if added or removed:
+        label = "Check mode" if config.check else "Dry run"
+        console.print(f"  [bold yellow]{label} — dependabot.yml would be modified.[/]")
+        return True
+    return False
+
+
+def _run_dependabot_sync(
+    config: RunConfig,
+    pinned_revs: dict[str, str],
+) -> bool:
+    """Sync dependabot.yml ignore list with pinned revs.
+
+    :returns: True if changes are needed (or were applied), False otherwise.
+    """
+    pinned_packages = resolve_pinned_packages(pinned_revs)
+
+    if not config.dependabot_path.exists():
+        logger.debug("dependabot.yml not found at %s, skipping", config.dependabot_path)
+        return False
+
+    console.print("\n[bold]Syncing dependabot ignore list...[/]")
+
+    if not (config.dry_run or config.check):
+        changed = _run_dependabot_write(config, pinned_packages)
+    else:
+        changed = _run_dependabot_preview(config, pinned_packages)
+
+    if not changed:
+        console.print("  [green]Dependabot ignore list already in sync.[/]")
+    return changed
+
+
 def _run(config: RunConfig) -> None:
     """Execute the convergence pipeline.
 
@@ -507,6 +588,10 @@ def _run(config: RunConfig) -> None:
         if types_changed:
             has_changes = True
 
+    dependabot_changed = _run_dependabot_sync(config, pinned_revs)
+    if dependabot_changed:
+        has_changes = True
+
     if config.check and has_changes:
         raise SystemExit(1)
 
@@ -534,6 +619,13 @@ def _run(config: RunConfig) -> None:
     default=GENPRECOMMIT_CONFIG,
     show_default=True,
     help="Path to .genprecommitconfig.yaml.",
+)
+@click.option(
+    "--dependabot",
+    type=click.Path(),
+    default=DEPENDABOT_CONFIG,
+    show_default=True,
+    help="Path to dependabot.yml (ignore list synced with pinned revs).",
 )
 @click.option(
     "--uv-lock",
@@ -586,6 +678,7 @@ def app(  # pylint: disable=redefined-outer-name
     pyproject: str,
     precommit_config: str,
     genprecommit_config: str,
+    dependabot: str,
     uv_lock: str,
     log_level: str,
     *,
@@ -606,6 +699,8 @@ def app(  # pylint: disable=redefined-outer-name
     :type precommit_config: str
     :param genprecommit_config: Path to .genprecommitconfig.yaml.
     :type genprecommit_config: str
+    :param dependabot: Path to dependabot.yml.
+    :type dependabot: str
     :param uv_lock: Path to uv.lock.
     :type uv_lock: str
     :param log_level: Logging level string.
@@ -628,6 +723,7 @@ def app(  # pylint: disable=redefined-outer-name
         pyproject_path=Path(pyproject),
         precommit_config_path=Path(precommit_config),
         genprecommit_config_path=Path(genprecommit_config),
+        dependabot_path=Path(dependabot),
         uv_lock_path=Path(uv_lock),
         log_level=log_level,
         dry_run=dry_run,

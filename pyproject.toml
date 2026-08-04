@@ -211,7 +211,7 @@ optional-dependencies.pymarkdown = [
   "pymarkdownlnt==0.9.39",
 ]
 optional-dependencies.pyproject-fmt = [
-  "pyproject-fmt==2.26.0",
+  "pyproject-fmt==2.27.0",
 ]
 optional-dependencies.pyrefly = [
   "gamesheet-sdk-py[pytest]",

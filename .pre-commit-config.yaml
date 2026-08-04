@@ -43,6 +43,7 @@ ci:
     - pyright
     - mypy
     - semgrep
+    - semgrep-ci
 
 # ==============================================================================
 # Global Defaults
@@ -468,7 +469,7 @@ repos:
         files: (^|/)tox\.ini$
 
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.26.0
+    rev: v2.27.0
     hooks:
       - id: pyproject-fmt
         name: pyproject-fmt
