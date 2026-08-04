@@ -240,8 +240,8 @@ categories:
             appends:
               additional_dependencies:
                 - gamesheet-sdk-py[pylint,tools]
-                - ruamel-yaml
-                - tomli
+                - ruamel-yaml==0.19.1
+                - tomli==2.4.1
 
       - name: pyrefly-pre-commit
         repo: https://github.com/facebook/pyrefly-pre-commit
@@ -286,9 +286,9 @@ categories:
             appends:
               additional_dependencies:
                 - gamesheet-sdk-py[pyright,tools]
-                - ruamel-yaml
-                - tomli
-                - tomlkit
+                - ruamel-yaml==0.19.1
+                - tomli==2.4.1
+                - tomlkit==0.15.1
 
       - name: mirrors-mypy
         repo: https://github.com/pre-commit/mirrors-mypy
@@ -301,9 +301,9 @@ categories:
             appends:
               additional_dependencies:
                 - gamesheet-sdk-py[mypy,tools]
-                - ruamel-yaml
-                - tomli
-                - tomlkit
+                - ruamel-yaml==0.19.1
+                - tomli==2.4.1
+                - tomlkit==0.15.1
 
   pre-commit-hook-sync:
     description: Pre-Commit Hook Sync

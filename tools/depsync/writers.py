@@ -197,16 +197,19 @@ def _update_additional_dep_list(
     count = 0
     for i, raw_ad_str in enumerate(ad_list):
         ad_value = str(raw_ad_str)
-        if "==" not in ad_value:
-            continue
-        name_part = ad_value.split("==", maxsplit=1)[0].strip().lower()
+        if "==" in ad_value:
+            name_part = ad_value.split("==", maxsplit=1)[0].strip().lower()
+        else:
+            name_part = ad_value.strip().lower()
         name_match = re.match(r"^([a-zA-Z0-9\-_]+)", name_part)
         if not name_match:
             continue
         normalized = re.sub(r"[-_.]+", "-", name_match.group(1)).lower()
+        if normalized == _normalize_dep_name(PROJECT_NAME):
+            continue
         if normalized in pkg_to_result:
             result = pkg_to_result[normalized]
-            prefix = ad_value.split("==", maxsplit=1)[0]
+            prefix = ad_value.split("==", maxsplit=1)[0] if "==" in ad_value else ad_value
             ad_list[i] = f"{prefix}=={result.new_version}"
             count += 1
     return count
@@ -218,11 +221,12 @@ def _update_repo_additional_deps(
 ) -> int:
     count = 0
     for hook_entry in repo_entry.get("hooks", []):
-        hook_overrides = hook_entry.get("overrides", {})
-        ad_list = hook_overrides.get("additional_dependencies")
-        if not ad_list:
-            continue
-        count += _update_additional_dep_list(ad_list, pkg_to_result)
+        for section_key in ("overrides", "appends"):
+            section = hook_entry.get(section_key, {})
+            ad_list = section.get("additional_dependencies")
+            if not ad_list:
+                continue
+            count += _update_additional_dep_list(ad_list, pkg_to_result)
     return count
 
 
