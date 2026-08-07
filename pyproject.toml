@@ -59,7 +59,7 @@ dependencies = [
   "colorlog==6.12.0",
   "playwright==1.62.0",
   "pydantic==2.13.4",
-  "pydantic-settings==2.14.2",
+  "pydantic-settings==2.15.0",
   "python-dateutil==2.9.0.post0",
   "pyyaml==6.0.3",
   "requests==2.34.2",
@@ -250,7 +250,7 @@ optional-dependencies.tools = [
   "ruamel-yaml==0.19.1",
   "tomli==2.4.1",
   "tomlkit==0.15.1",
-  "uv==0.12.1",
+  "uv==0.12.3",
 ]
 optional-dependencies.tox-ini-fmt = [
   "tox-ini-fmt==1.8.1",
@@ -282,7 +282,7 @@ optional-dependencies.type-stubs = [
   "types-jsonschema==4.26.0.20260518",
   "types-markupsafe==1.1.10",
   "types-mypy-extensions==1.1.0.20260724",
-  "types-peewee==4.3.0.20260802",
+  "types-peewee==4.3.0.20260807",
   "types-pep8-naming==0.15.0.20260408",
   "types-pluggy==1.2.0.20240106",
   "types-polib==1.2.0.20260518",
@@ -290,13 +290,13 @@ optional-dependencies.type-stubs = [
   "types-pyflakes==3.4.0.20260724",
   "types-pygments==2.20.0.20260728",
   "types-pyjwt==1.7.1",
-  "types-python-dateutil==2.9.0.20260716",
+  "types-python-dateutil==2.9.0.20260807",
   "types-python-slugify==8.0.2.20240310",
   "types-pywin32==312.0.0.20260724",
   "types-pyyaml==6.0.12.20260724",
   "types-regex==2026.7.19.20260720",
   "types-requests==2.33.0.20260712",
-  "types-setuptools==83.0.0.20260724",
+  "types-setuptools==83.0.0.20260807",
   "types-six==1.17.0.20260724",
   "types-tabulate==0.10.0.20260508",
   "types-toml==0.10.8.20260518",
@@ -1480,6 +1480,12 @@ python_version = "3.11"
 strict = true
 plugins = [
   "pydantic.mypy",
+]
+overrides = [
+  # Third-party libraries: Ignore missing type stubs
+  { module = [
+    "pre_commit.clientlib",
+  ], ignore_missing_imports = true },
 ]
 
 ## ## pyrefly - Code health and quality reviewer

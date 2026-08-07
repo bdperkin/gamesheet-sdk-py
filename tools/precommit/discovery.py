@@ -228,6 +228,8 @@ def _resolve_latest_tag(
     Args:
         repo_url: Remote repository URL.
         index_url: Optional PEP 503 index URL for availability checks.
+        extra_index_urls: Additional PEP 503 index URLs to try.
+        pip_config: Optional pip configuration for SSL settings.
         min_python: Minimum Python version to filter compatible
             releases.
 

@@ -40,18 +40,21 @@ categories:
   meta:
     description: Meta Hooks (pre-commit validation)
     repos:
+
       - name: meta
         repo: meta
 
   conventional-commits:
     description: Commit Message Linting (Conventional Commits)
     repos:
+
       - name: conventional-pre-commit
         repo: https://github.com/compilerla/conventional-pre-commit
 
   check:
     description: Global File Sanity Checks
     repos:
+
       - name: pre-commit-hooks
         repo: https://github.com/pre-commit/pre-commit-hooks
         hooks:
@@ -84,6 +87,7 @@ categories:
   configuration_file_linters_-_formatters:
     description: Configuration File Linters & Formatters
     repos:
+
       - name: editorconfig-checker.python
         repo: https://github.com/editorconfig-checker/editorconfig-checker.python
 
@@ -105,6 +109,7 @@ categories:
   documentation_-_markdown_tools:
     description: Documentation & Markdown Tools
     repos:
+
       - name: pymarkdown
         repo: https://github.com/jackdewinter/pymarkdown
 
@@ -121,6 +126,7 @@ categories:
   code_style_-_formatting_-automated_fixers-:
     description: Code Style & Formatting (Automated Fixers)
     repos:
+
       - name: add-trailing-comma
         repo: https://github.com/asottile/add-trailing-comma
 
@@ -145,8 +151,9 @@ categories:
   code_cleaners_-_dead_code_detectors:
     description: Code Cleaners & Dead Code Detectors
     repos:
+
       - name: detect-secrets
-        repo: https://github.com/Yelp/detect-secrets
+        repo: https://github.com/yelp/detect-secrets
 
       - name: unimport
         repo: https://github.com/hakancelikdev/unimport
@@ -180,6 +187,7 @@ categories:
   documentation_-_docstring_tools:
     description: Documentation & Docstring Tools
     repos:
+
       - name: codespell
         repo: https://github.com/codespell-project/codespell
 
@@ -202,6 +210,7 @@ categories:
   code_quality_linters_-_static_analysis:
     description: Code Quality Linters & Static Analysis
     repos:
+
       - name: blocklint
         repo: https://github.com/princetonuniversity/blocklint
 
@@ -254,6 +263,7 @@ categories:
   security-_metrics_-_complexity:
     description: Security, Metrics & Complexity
     repos:
+
       - name: bandit
         repo: https://github.com/pycqa/bandit
         hooks:
@@ -279,6 +289,7 @@ categories:
   type_checkers:
     description: Type Checkers
     repos:
+
       - name: pyright-python
         repo: https://github.com/robertcraigie/pyright-python
         hooks:
@@ -308,6 +319,7 @@ categories:
   pre-commit-hook-sync:
     description: Pre-Commit Hook Sync
     repos:
+
       - name: pre-commit-ci-config
         repo: https://github.com/pre-commit-ci/pre-commit-ci-config
 

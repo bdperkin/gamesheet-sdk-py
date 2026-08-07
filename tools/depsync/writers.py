@@ -9,13 +9,14 @@ import io
 import logging
 from pathlib import Path
 import re
-from typing import Any
+from typing import Any, cast
 
 from depsync.exceptions import WriteError
 from depsync.models import ConvergenceResult, UpdateTarget
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from shared import PROJECT_NAME
+from tomlkit.toml_document import TOMLDocument
 from tomlkit.toml_file import TOMLFile
 
 logger = logging.getLogger(__name__)
@@ -41,7 +42,7 @@ def _write_yaml(path: Path, yml: YAML, data: object) -> None:
         fh.write(cleaned)
 
 
-def _read_toml(path: Path) -> tuple[TOMLFile, Any]:
+def _read_toml(path: Path) -> tuple[TOMLFile, TOMLDocument]:
     """Read a TOML file and return the file handle and parsed document.
 
     Returns:
@@ -59,7 +60,7 @@ def _read_toml(path: Path) -> tuple[TOMLFile, Any]:
     return toml_file, doc
 
 
-def _write_toml(path: Path, toml_file: TOMLFile, doc: Any) -> None:
+def _write_toml(path: Path, toml_file: TOMLFile, doc: TOMLDocument) -> None:
     """Write a TOML document back to disk.
 
     Raises:
@@ -72,7 +73,7 @@ def _write_toml(path: Path, toml_file: TOMLFile, doc: Any) -> None:
         raise WriteError(msg) from exc
 
 
-def _read_yaml_file(path: Path, yml: YAML) -> Any:
+def _read_yaml_file(path: Path, yml: YAML) -> CommentedMap:
     """Read a YAML file and return the parsed data.
 
     Returns:
@@ -83,13 +84,13 @@ def _read_yaml_file(path: Path, yml: YAML) -> Any:
     """
     try:
         with path.open(encoding="utf-8") as f:
-            return yml.load(f)
+            return cast("CommentedMap", yml.load(f))
     except Exception as exc:
         msg = f"Failed to read {path}: {exc}"
         raise WriteError(msg) from exc
 
 
-def _write_yaml_file(path: Path, yml: YAML, data: Any) -> None:
+def _write_yaml_file(path: Path, yml: YAML, data: CommentedMap) -> None:
     """Write YAML data back to disk.
 
     Raises:
@@ -102,7 +103,7 @@ def _write_yaml_file(path: Path, yml: YAML, data: Any) -> None:
         raise WriteError(msg) from exc
 
 
-def _get_toml_key(doc: Any, keys: list[str], path: Path) -> Any:
+def _get_toml_key(doc: TOMLDocument, keys: list[str], path: Path) -> object:
     """Traverse nested keys in a TOML document.
 
     Returns:
@@ -183,18 +184,18 @@ def update_pyproject(
 
     toml_file, doc = _read_toml(path)
 
-    opt_deps = _get_toml_key(doc, ["project", "optional-dependencies"], path)
+    opt_deps = cast("CommentedMap", _get_toml_key(doc, ["project", "optional-dependencies"], path))
 
     updated_count = 0
 
     for result in pyproject_results:
         for group_name in result.groups:
             if group_name == "base":
-                dep_list = _get_toml_key(doc, ["project", "dependencies"], path)
+                dep_list = cast("list[Any]", _get_toml_key(doc, ["project", "dependencies"], path))
             else:
                 if group_name not in opt_deps:
                     continue
-                dep_list = opt_deps[group_name]
+                dep_list = cast("list[Any]", opt_deps[group_name])
 
             _update_dep_in_list(dep_list, result)
             updated_count += 1
@@ -348,14 +349,14 @@ def update_precommit_config(
     return updated_count
 
 
-def _find_pip_ecosystem(data: Any) -> Any | None:
+def _find_pip_ecosystem(data: CommentedMap) -> CommentedMap | None:
     for update in data.get("updates") or []:
         if update.get("package-ecosystem") == "pip":
-            return update
+            return cast("CommentedMap", update)
     return None
 
 
-def _extract_current_ignores(pip_entry: Any) -> dict[str, str]:
+def _extract_current_ignores(pip_entry: CommentedMap) -> dict[str, str]:
     result: dict[str, str] = {}
     for entry in pip_entry.get("ignore") or []:
         name = entry.get("dependency-name", "")
@@ -365,7 +366,7 @@ def _extract_current_ignores(pip_entry: Any) -> dict[str, str]:
     return result
 
 
-def _build_ignore_list(desired_ignores: dict[str, str]) -> Any:
+def _build_ignore_list(desired_ignores: dict[str, str]) -> CommentedSeq:
     ignore_list = CommentedSeq()
     ignore_list.yaml_set_start_comment(
         "Managed by syncdeps — do not edit manually",
@@ -381,7 +382,7 @@ def _build_ignore_list(desired_ignores: dict[str, str]) -> Any:
     return ignore_list
 
 
-def _apply_ignore_list(pip_entry: Any, desired_ignores: dict[str, str]) -> None:
+def _apply_ignore_list(pip_entry: CommentedMap, desired_ignores: dict[str, str]) -> None:
     if not desired_ignores:
         if "ignore" in pip_entry:
             del pip_entry["ignore"]
@@ -444,22 +445,22 @@ def update_dependabot_ignores(
     return len(added), len(removed)
 
 
-def _sort_types_entries(mypy_list: list) -> None:  # type: ignore[type-arg]
+def _sort_types_entries(type_stubs_list: list) -> None:  # type: ignore[type-arg]
     """Sort types-* entries alphabetically, preserving non-types entries in place."""
     types_indices: list[int] = []
     types_entries: list[str] = []
-    for i, entry in enumerate(mypy_list):
+    for i, entry in enumerate(type_stubs_list):
         if str(entry).lower().startswith("types-"):
             types_indices.append(i)
             types_entries.append(str(entry))
 
     types_entries.sort(key=str.lower)
     for idx, entry in zip(types_indices, types_entries, strict=True):
-        mypy_list[idx] = entry
+        type_stubs_list[idx] = entry
 
 
 def _apply_removes_and_updates(
-    mypy_list: list[Any],
+    type_stubs_list: list[Any],
     remove_normalized: set[str],
     update_map: dict[str, str],
 ) -> int:
@@ -469,17 +470,17 @@ def _apply_removes_and_updates(
         Number of entries changed.
     """
     change_count = 0
-    i = len(mypy_list) - 1
+    i = len(type_stubs_list) - 1
     while i >= 0:
-        entry = str(mypy_list[i])
+        entry = str(type_stubs_list[i])
         norm = _normalize_dep_name(entry.lower())
         if norm in remove_normalized:
-            del mypy_list[i]
+            del type_stubs_list[i]
             change_count += 1
             logger.debug("  Removed %s from type-stubs group", entry)
         elif norm in update_map:
             prefix = entry.split("==", maxsplit=1)[0] if "==" in entry else entry
-            mypy_list[i] = f"{prefix}=={update_map[norm]}"
+            type_stubs_list[i] = f"{prefix}=={update_map[norm]}"
             change_count += 1
             logger.debug("  Updated %s in type-stubs group", norm)
         i -= 1
@@ -513,19 +514,22 @@ def apply_types_sync(
 
     toml_file, doc = _read_toml(path)
 
-    mypy_list = _get_toml_key(
-        doc,
-        ["project", "optional-dependencies", "type-stubs"],
-        path,
+    type_stubs_list = cast(
+        "list[Any]",
+        _get_toml_key(
+            doc,
+            ["project", "optional-dependencies", "type-stubs"],
+            path,
+        ),
     )
 
     remove_normalized = {_normalize_dep_name(n) for n in to_remove}
     update_map = {_normalize_dep_name(name): new_ver for name, _, new_ver in to_update}
 
-    change_count = _apply_removes_and_updates(mypy_list, remove_normalized, update_map)
+    change_count = _apply_removes_and_updates(type_stubs_list, remove_normalized, update_map)
 
-    insert_before = len(mypy_list)
-    for i, entry in enumerate(mypy_list):
+    insert_before = len(type_stubs_list)
+    for i, entry in enumerate(type_stubs_list):
         entry_str = str(entry).strip()
         is_self_ref = entry_str.startswith(f"{PROJECT_NAME}[")
         is_bare_non_types = not entry_str.lower().startswith("types-") and "==" not in entry_str
@@ -534,11 +538,11 @@ def apply_types_sync(
             break
 
     for name, version in sorted(to_add, reverse=True):
-        mypy_list.insert(insert_before, f"{name}=={version}")
+        type_stubs_list.insert(insert_before, f"{name}=={version}")
         logger.debug("  Added %s==%s to type-stubs group", name, version)
     change_count += len(to_add)
 
-    _sort_types_entries(mypy_list)
+    _sort_types_entries(type_stubs_list)
 
     _write_toml(path, toml_file, doc)
 

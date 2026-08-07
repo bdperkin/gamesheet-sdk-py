@@ -290,7 +290,11 @@ def _build_document(
 
 
 def _add_repo_spacing(text: str) -> str:
-    """Insert a blank line before each ``- repo:`` entry that lacks one."""
+    """Insert a blank line before each ``- repo:`` entry that lacks one.
+
+    Returns:
+        str: Text with blank lines inserted before repo entries.
+    """
     lines = text.splitlines()
     result: list[str] = []
     for i, line in enumerate(lines):
@@ -310,6 +314,9 @@ def _single_to_double_quotes(text: str) -> str:
 
     Strings containing backslashes are left single-quoted because YAML double-quoted strings interpret
     backslash escape sequences.
+
+    Returns:
+        str: Text with single quotes replaced by double quotes.
     """
 
     def _replace_match(m: re.Match[str]) -> str:

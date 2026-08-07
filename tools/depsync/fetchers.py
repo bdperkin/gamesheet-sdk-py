@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from html.parser import HTMLParser
+import http
 import logging
 import operator
 import re
@@ -174,7 +175,7 @@ def _fetch_simple_versions(
             verify=resolve_verify(url, pip_config),
             headers={"Accept": _SIMPLE_ACCEPT},
         )
-        if response.status_code == 404:
+        if response.status_code == http.HTTPStatus.NOT_FOUND:
             logger.debug("Package %s not found on index %s", package_name, index_url)
             return {}
         response.raise_for_status()
@@ -244,7 +245,7 @@ def check_package_exists(
         response = session.head(url, timeout=PYPI_TIMEOUT)
     except requests.RequestException:
         return False
-    return response.status_code == 200
+    return response.status_code == http.HTTPStatus.OK
 
 
 def _extract_requires_python(files: list[dict[str, str | None]]) -> str | None:
@@ -281,7 +282,7 @@ def _fetch_pypi_json_versions(package_name: str) -> dict[str, str | None]:
     session = get_session()
     try:
         response = session.get(url, timeout=PYPI_TIMEOUT)
-        if response.status_code == 404:
+        if response.status_code == http.HTTPStatus.NOT_FOUND:
             logger.warning("Package %s not found on PyPI", package_name)
             return {}
         response.raise_for_status()

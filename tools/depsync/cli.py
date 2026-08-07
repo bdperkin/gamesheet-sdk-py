@@ -133,9 +133,7 @@ def _print_result_warnings(results: list[ConvergenceResult]) -> None:
     if stale_results:
         noun = "repo has a" if len(stale_results) == 1 else "repos have"
         console.print(
-            f"[bold yellow]Warning:[/] {len(stale_results)} "
-            f"{noun} "
-            f"stale rev in .pre-commit-config.yaml",
+            f"[bold yellow]Warning:[/] {len(stale_results)} {noun} stale rev in .pre-commit-config.yaml",
         )
 
 
@@ -147,7 +145,11 @@ _SCOPE_LABELS: dict[UpdateTarget, str] = {
 
 
 def _result_status(r: ConvergenceResult) -> str:
-    """Compute the rich-markup status string for a convergence result."""
+    """Compute the rich-markup status string for a convergence result.
+
+    Returns:
+        str: Rich-markup status label.
+    """
     if r.is_pinned and r.old_version == r.new_version:
         status = "[magenta]pinned (up to date)[/]"
     elif r.is_pinned:

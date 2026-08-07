@@ -742,7 +742,7 @@ def converge(
     return results
 
 
-def _parse_mypy_types(pyproject_path: Path) -> dict[str, str | None]:
+def _parse_type_stubs_types(pyproject_path: Path) -> dict[str, str | None]:
     """Extract types-* entries from the type-stubs optional-dependency group.
 
     Returns:
@@ -757,9 +757,9 @@ def _parse_mypy_types(pyproject_path: Path) -> dict[str, str | None]:
     except ToolError as exc:
         raise ParseError(str(exc)) from exc
 
-    mypy_deps = data.get("project", {}).get("optional-dependencies", {}).get("type-stubs", [])
+    type_stubs_deps = data.get("project", {}).get("optional-dependencies", {}).get("type-stubs", [])
     types_map: dict[str, str | None] = {}
-    for dep_str in mypy_deps:
+    for dep_str in type_stubs_deps:
         dep = dep_str.strip()
         if not dep.lower().startswith("types-"):
             continue
@@ -822,7 +822,11 @@ def _collect_types_to_fetch(
     current_types: dict[str, str | None],
     all_packages: set[str],
 ) -> set[str]:
-    """Build the set of types-* package names whose versions need fetching."""
+    """Build the set of types-* package names whose versions need fetching.
+
+    Returns:
+        set[str]: Package names to fetch version data for.
+    """
     types_to_fetch: set[str] = set()
     for name in available:
         types_name = f"types-{name}"
@@ -841,7 +845,11 @@ def _find_new_stubs(
     types_cache: dict[str, dict[str, str | None]],
     min_python: Version | None,
 ) -> list[tuple[str, str]]:
-    """Identify types-* stubs to add."""
+    """Identify types-* stubs to add.
+
+    Returns:
+        list[tuple[str, str]]: List of (package_name, version) pairs.
+    """
     added: list[tuple[str, str]] = []
     for name in sorted(available):
         types_name = f"types-{name}"
@@ -859,7 +867,12 @@ def _find_stale_stubs(
     types_cache: dict[str, dict[str, str | None]],
     min_python: Version | None,
 ) -> tuple[list[str], list[tuple[str, str, str]]]:
-    """Identify types-* stubs to remove or update."""
+    """Identify types-* stubs to remove or update.
+
+    Returns:
+        tuple[list[str], list[tuple[str, str, str]]]: Removed names and
+        updated (name, old_version, new_version) triples.
+    """
     removed: list[str] = []
     updated: list[tuple[str, str, str]] = []
     for types_name, current_version in sorted(current_types.items()):
@@ -904,9 +917,11 @@ def sync_types(
     Returns:
         TypesSyncResult: TypesSyncResult describing all changes.
     """
-    current_types = _parse_mypy_types(pyproject_path)
+    current_types = _parse_type_stubs_types(pyproject_path)
 
-    candidates = {name for name in base_packages if not name.startswith(PROJECT_NAME) and name != "mypy"}
+    candidates = {
+        name for name in base_packages if not name.startswith(PROJECT_NAME) and name != "type-stubs"
+    }
 
     already_known = {name.removeprefix("types-") for name in current_types}
     to_check = candidates - already_known

@@ -664,7 +664,7 @@ repos:
   # Code Cleaners & Dead Code Detectors
   # ----------------------------------------------------------------------------
 
-  - repo: https://github.com/Yelp/detect-secrets
+  - repo: https://github.com/yelp/detect-secrets
     rev: v1.5.0
     hooks:
       - id: detect-secrets
@@ -676,7 +676,7 @@ repos:
         files: .*
 
   - repo: https://github.com/hakancelikdev/unimport
-    rev: 1.4.0
+    rev: 0.11.1
     hooks:
       - id: unimport
         name: unimport

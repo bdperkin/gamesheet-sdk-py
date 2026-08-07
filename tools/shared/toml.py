@@ -33,3 +33,8 @@ def load_toml(path: Path) -> dict[str, Any]:
     except tomli.TOMLDecodeError as exc:
         msg = f"Invalid TOML in {path}: {exc}"
         raise ToolError(msg) from exc
+
+
+_PYPROJECT_PATH = Path(__file__).resolve().parents[2] / "pyproject.toml"
+
+PROJECT_NAME: str = load_toml(_PYPROJECT_PATH)["project"]["name"]

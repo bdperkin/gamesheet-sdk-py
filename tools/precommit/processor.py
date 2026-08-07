@@ -25,7 +25,9 @@ def _discover_meta_hooks() -> list[str]:
         ProcessingError: If pre-commit is not installed.
     """
     try:
-        from pre_commit.clientlib import _meta  # type: ignore[import-not-found,import-untyped,unused-ignore]
+        from pre_commit.clientlib import (
+            _meta,
+        )
     except ImportError as exc:
         msg = "pre-commit package not installed — cannot discover meta hooks"
         raise ProcessingError(msg) from exc

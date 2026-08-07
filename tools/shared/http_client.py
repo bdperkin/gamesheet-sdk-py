@@ -16,7 +16,7 @@ HTTP_RETRY_BACKOFF_FACTOR = 1
 
 HTTP_RETRY_STATUS_FORCELIST = (429, 500, 502, 503, 504)
 
-_session: requests.Session | None = None  # pylint: disable=invalid-name
+_state: dict[str, requests.Session] = {}
 
 
 def get_session(pip_config: PipConfig | None = None) -> requests.Session:
@@ -30,8 +30,7 @@ def get_session(pip_config: PipConfig | None = None) -> requests.Session:
         requests.Session: A shared requests Session with retry-on-
         transient-error.
     """
-    global _session  # pylint: disable=global-statement
-    if _session is None:
+    if "session" not in _state:
         retry = Retry(
             total=HTTP_RETRY_TOTAL,
             backoff_factor=HTTP_RETRY_BACKOFF_FACTOR,
@@ -40,11 +39,12 @@ def get_session(pip_config: PipConfig | None = None) -> requests.Session:
             raise_on_status=False,
         )
         adapter = HTTPAdapter(max_retries=retry)
-        _session = requests.Session()
-        _session.mount("https://", adapter)
-        _session.mount("http://", adapter)
+        session = requests.Session()
+        session.mount("https://", adapter)
+        session.mount("http://", adapter)
         if pip_config and pip_config.cert:
-            _session.verify = pip_config.cert
+            session.verify = pip_config.cert
         if pip_config and pip_config.client_cert:
-            _session.cert = pip_config.client_cert
-    return _session
+            session.cert = pip_config.client_cert
+        _state["session"] = session
+    return _state["session"]

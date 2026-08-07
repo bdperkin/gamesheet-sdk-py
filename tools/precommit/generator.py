@@ -10,10 +10,9 @@ import io
 import logging
 from pathlib import Path
 import subprocess  # noqa: S404 # nosec B404
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from depsync.parsers import parse_index_url, parse_requires_python
-from packaging.version import Version
 from precommit.config import (
     DEFAULT_ALLOWED_LANGUAGES,
     DEFAULT_FAIL_FAST,
@@ -41,6 +40,10 @@ from ruamel.yaml.error import YAMLError
 from shared.concurrency import PARALLEL_WORKERS
 from shared.http_client import get_session
 from shared.pip_config import PipConfig, load_pip_config
+
+if TYPE_CHECKING:
+    from packaging.version import Version
+
 
 logger = logging.getLogger(__name__)
 
