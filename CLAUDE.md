@@ -236,8 +236,7 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   - **Type checkers:** mypy (`--strict`), pyright.
   - **Security / metrics / complexity:** bandit (`[tool.bandit]`), semgrep (`--config auto --error`), xenon (complexity gate — see below), radon (cc / raw / mi
     / hal as separate envs).
-  - **Docstring / doc tools:** codespell, blacken-docs, docformatter, interrogate, pydocstyle, mdformat (+ mdformat-gfm), pymarkdown. Note: `docconvert` is
-    available via tox and CI workflows but not in pre-commit hooks.
+  - **Docstring / doc tools:** codespell, blacken-docs, docformatter, interrogate, pydocstyle, mdformat (+ mdformat-gfm), pymarkdown.
   - **Configuration-file linters / formatters:** yamllint (`-d relaxed`), tox-ini-fmt, pyproject-fmt, validate-pyproject, editorconfig-checker (+ -system
     variant), pyroma.
   - **Meta:** sync-pre-commit-deps.

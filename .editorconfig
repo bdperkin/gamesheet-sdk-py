@@ -63,9 +63,6 @@ indent_size              = 2
 [.editorconfig-checker.json]
 indent_size              = 2
 
-[.docconvert.json]
-indent_size              = 2
-
 # ------------------------------------------------------------------------------
 # Build Automation Files
 # ------------------------------------------------------------------------------

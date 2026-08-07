@@ -113,9 +113,6 @@ optional-dependencies.dev = [
   "pre-commit==4.6.1",
   "tox-workdir==0.1.0",
 ]
-optional-dependencies.docconvert = [
-  "docconvert==2.2.0",
-]
 optional-dependencies.docformatter = [
   "docformatter==1.7.8",
 ]
@@ -1325,7 +1322,6 @@ optional_dependencies_dev_groups = [
   "codespell",
   "deptry",
   "dev",
-  "docconvert",
   "docformatter",
   "docs",
   "editorconfig-checker",
@@ -1649,19 +1645,6 @@ upload_to_release = false
 init_forbid_extra = true
 init_typed = true
 warn_required_dynamic_aliases = true
-
-## ## docconvert - Docstring format
-[tool.docconvert]
-recursive = true
-black = true
-wrap-summaries = 110
-wrap-descriptions = 110
-extend-exclude = [
-  "docs/_build",
-  ".local",
-  ".pytest_cache",
-  ".venv",
-]
 
 ## ---------------------------------------------------------------------------------------------------------------------
 ## Non-Python Languages
