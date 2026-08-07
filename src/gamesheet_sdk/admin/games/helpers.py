@@ -28,19 +28,18 @@ def _make_request(
 ) -> list[Game]:
     """Make a request to the BFF games-list endpoint.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier.
-    :type season_id: str
-    :param completed: Filter for completed games.
-    :type completed: bool | None
-    :param scheduled: Filter for scheduled games.
-    :type scheduled: bool | None
-    :param brackets: Filter for bracket games.
-    :type brackets: bool | None
-    :returns: A list of :class:`Game` objects.
-    :rtype: list[Game]
-    :raises GameSheetError: For any non-2xx response.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier.
+        completed (bool | None): Filter for completed games.
+        scheduled (bool | None): Filter for scheduled games.
+        brackets (bool | None): Filter for bracket games.
+
+    Returns:
+        list[Game]: A list of :class:`Game` objects.
+
+    Raises:
+        GameSheetError: For any non-2xx response.
     """
     params: dict[str, Any] = {
         "filter[seasons]": season_id,
@@ -68,9 +67,11 @@ def _make_request(
 def validate_game_type(game_type: str) -> None:
     """Validate a game type against the known valid types.
 
-    :param game_type: The game type to validate.
-    :type game_type: str
-    :raises GameSheetError: If the game type is not valid.
+    Args:
+        game_type (str): The game type to validate.
+
+    Raises:
+        GameSheetError: If the game type is not valid.
     """
     sorted_game_types = ", ".join(sorted(VALID_GAME_TYPES))
     if game_type not in VALID_GAME_TYPES:

@@ -74,16 +74,14 @@ def scheduled_get_command(
     """Get detailed information about a scheduled game.
 
     Uses the JSON:API /api/seasons/{id}/schedule/{game_id} endpoint for richer structured data.\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param game_id: The game identifier
-    :type game_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param fields_spec: Optional comma-separated list of fields to display
-    :type fields_spec: str | None
+
+    Args:
+        ctx (Context): Click context object containing config
+        game_id (str): The game identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        fields_spec (str | None): Optional comma-separated list of
+            fields to display
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
@@ -106,14 +104,13 @@ def scheduled_list_command(
     """List all scheduled games in the specified season.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param columns_spec: Optional comma-separated list of columns to display
-    :type columns_spec: str | None
+
+    Args:
+        ctx (Context): Click context object containing config
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        columns_spec (str | None): Optional comma-separated list of
+            columns to display
     """
     # Extract config and season_id from context (set by games_group)
     # ctx.obj is always a dict set by games_group with "config" and "season_id" keys
@@ -299,54 +296,34 @@ def scheduled_create_command(
     the third. If time zone options are not specified, they default to the local system
     timezone.\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param start_datetime: Start date and time (flexible format)
-    :type start_datetime: str | None
-    :param end_datetime: End date and time (flexible format)
-    :type end_datetime: str | None
-    :param start_date: Start date component
-    :type start_date: str | None
-    :param start_time_str: Start time component
-    :type start_time_str: str | None
-    :param end_date: End date component
-    :type end_date: str | None
-    :param end_time_str: End time component
-    :type end_time_str: str | None
-    :param duration: Game duration in minutes
-    :type duration: int | None
-    :param home_team_id: Home team identifier
-    :type home_team_id: str
-    :param home_division_id: Home team division identifier
-    :type home_division_id: str
-    :param visitor_team_id: Visitor team identifier
-    :type visitor_team_id: str
-    :param visitor_division_id: Visitor team division identifier
-    :type visitor_division_id: str
-    :param location: Game location/venue
-    :type location: str
-    :param scorekeeper_name: Scorekeeper's full name
-    :type scorekeeper_name: str
-    :param scorekeeper_phone: Scorekeeper's phone number
-    :type scorekeeper_phone: str
-    :param game_type: Game type
-    :type game_type: str
-    :param time_zone_name: IANA time zone name (optional, defaults to system)
-    :type time_zone_name: str | None
-    :param time_zone_offset: Time zone offset in minutes (optional, defaults to system)
-    :type time_zone_offset: int | None
-    :param number: Game number
-    :type number: str
-    :param broadcaster: Broadcast provider name
-    :type broadcaster: str
-    :param home_label: Home team label override
-    :type home_label: str
-    :param visitor_label: Visitor team label override
-    :type visitor_label: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        start_datetime (str | None): Start date and time (flexible
+            format)
+        end_datetime (str | None): End date and time (flexible format)
+        start_date (str | None): Start date component
+        start_time_str (str | None): Start time component
+        end_date (str | None): End date component
+        end_time_str (str | None): End time component
+        duration (int | None): Game duration in minutes
+        home_team_id (str): Home team identifier
+        home_division_id (str): Home team division identifier
+        visitor_team_id (str): Visitor team identifier
+        visitor_division_id (str): Visitor team division identifier
+        location (str): Game location/venue
+        scorekeeper_name (str): Scorekeeper's full name
+        scorekeeper_phone (str): Scorekeeper's phone number
+        game_type (str): Game type
+        time_zone_name (str | None): IANA time zone name (optional,
+            defaults to system)
+        time_zone_offset (int | None): Time zone offset in minutes
+            (optional, defaults to system)
+        number (str): Game number
+        broadcaster (str): Broadcast provider name
+        home_label (str): Home team label override
+        visitor_label (str): Visitor team label override
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
     """
     validate_no_input_conflict(start_datetime, start_date, start_time_str, "start")
     validate_no_input_conflict(end_datetime, end_date, end_time_str, "end")
@@ -566,56 +543,34 @@ def scheduled_update_command(
     (or ``--end-date`` + ``--end-time``), and ``--duration`` to automatically calculate
     missing time fields.\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param game_id: Game identifier
-    :type game_id: str
-    :param start_datetime: Start date and time (flexible format)
-    :type start_datetime: str | None
-    :param end_datetime: End date and time (flexible format)
-    :type end_datetime: str | None
-    :param start_date: Start date component
-    :type start_date: str | None
-    :param start_time_str: Start time component
-    :type start_time_str: str | None
-    :param end_date: End date component
-    :type end_date: str | None
-    :param end_time_str: End time component
-    :type end_time_str: str | None
-    :param duration: Game duration in minutes
-    :type duration: int | None
-    :param home_team_id: Home team identifier
-    :type home_team_id: str | None
-    :param home_division_id: Home team division identifier
-    :type home_division_id: str | None
-    :param visitor_team_id: Visitor team identifier
-    :type visitor_team_id: str | None
-    :param visitor_division_id: Visitor team division identifier
-    :type visitor_division_id: str | None
-    :param location: Game location/venue
-    :type location: str | None
-    :param scorekeeper_name: Scorekeeper's full name
-    :type scorekeeper_name: str | None
-    :param scorekeeper_phone: Scorekeeper's phone number
-    :type scorekeeper_phone: str | None
-    :param game_type: Game type
-    :type game_type: str | None
-    :param time_zone_name: IANA time zone name
-    :type time_zone_name: str | None
-    :param time_zone_offset: Time zone offset in minutes
-    :type time_zone_offset: int | None
-    :param number: Game number
-    :type number: str | None
-    :param broadcaster: Broadcast provider name
-    :type broadcaster: str | None
-    :param home_label: Home team label override
-    :type home_label: str | None
-    :param visitor_label: Visitor team label override
-    :type visitor_label: str | None
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        game_id (str): Game identifier
+        start_datetime (str | None): Start date and time (flexible
+            format)
+        end_datetime (str | None): End date and time (flexible format)
+        start_date (str | None): Start date component
+        start_time_str (str | None): Start time component
+        end_date (str | None): End date component
+        end_time_str (str | None): End time component
+        duration (int | None): Game duration in minutes
+        home_team_id (str | None): Home team identifier
+        home_division_id (str | None): Home team division identifier
+        visitor_team_id (str | None): Visitor team identifier
+        visitor_division_id (str | None): Visitor team division
+            identifier
+        location (str | None): Game location/venue
+        scorekeeper_name (str | None): Scorekeeper's full name
+        scorekeeper_phone (str | None): Scorekeeper's phone number
+        game_type (str | None): Game type
+        time_zone_name (str | None): IANA time zone name
+        time_zone_offset (int | None): Time zone offset in minutes
+        number (str | None): Game number
+        broadcaster (str | None): Broadcast provider name
+        home_label (str | None): Home team label override
+        visitor_label (str | None): Visitor team label override
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
     """
     validate_no_input_conflict(start_datetime, start_date, start_time_str, "start")
     validate_no_input_conflict(end_datetime, end_date, end_time_str, "end")
@@ -692,10 +647,10 @@ def scheduled_delete_command(
 
     Requires authentication (run 'gamesheet-admin login' first). This operation is destructive and requires
     confirmation unless --force is specified.\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param game_id: Game identifier
-    :type game_id: str
+
+    Args:
+        ctx (Context): Click context object containing config
+        game_id (str): Game identifier
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]

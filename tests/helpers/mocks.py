@@ -24,12 +24,14 @@ def setup_photo_upload_mocks(
     Creates a temporary image file and sets up the mock responses needed for photo upload via the BFF API and
     Cloudflare upload endpoint.
 
-    :param upload_status: HTTP status code for the upload request (default 200).
-    :type upload_status: int
-    :param upload_response: JSON response for the upload request (default {"success": True}).
-    :type upload_response: dict[str, Any] | None
-    :returns: Path to the temporary image file.
-    :rtype: str
+    Args:
+        upload_status (int): HTTP status code for the upload request
+            (default 200).
+        upload_response (dict[str, Any] | None): JSON response for the
+            upload request (default {"success": True}).
+
+    Returns:
+        str: Path to the temporary image file.
     """
     with tempfile.NamedTemporaryFile(
         mode="w",
@@ -71,14 +73,11 @@ def setup_team_roster_update_mocks(
 
     Mocks the GET team endpoint to fetch current roster and PATCH endpoint to update team roster.
 
-    :param base_url: Base API URL.
-    :type base_url: str
-    :param season_id: Season ID.
-    :type season_id: str
-    :param team_id: Team ID.
-    :type team_id: str
-    :param team_data: Team payload data.
-    :type team_data: dict[str, Any]
+    Args:
+        base_url (str): Base API URL.
+        season_id (str): Season ID.
+        team_id (str): Team ID.
+        team_data (dict[str, Any]): Team payload data.
     """
     # Mock GET team to fetch current roster
     responses.add(
@@ -105,12 +104,10 @@ def setup_update_player_mocks(
 
     Mocks the GET player endpoint to fetch current player and PATCH endpoint to update player.
 
-    :param endpoint: Player endpoint URL.
-    :type endpoint: str
-    :param current_player: Current player payload data.
-    :type current_player: dict[str, Any]
-    :param updated_player: Updated player payload data.
-    :type updated_player: dict[str, Any]
+    Args:
+        endpoint (str): Player endpoint URL.
+        current_player (dict[str, Any]): Current player payload data.
+        updated_player (dict[str, Any]): Updated player payload data.
     """
     # Mock GET player to fetch current data
     responses.add(
@@ -137,12 +134,10 @@ def setup_update_coach_mocks(
 
     Mocks the GET coach endpoint to fetch current coach and PATCH endpoint to update coach.
 
-    :param endpoint: Coach endpoint URL.
-    :type endpoint: str
-    :param current_coach: Current coach payload data.
-    :type current_coach: dict[str, Any]
-    :param updated_coach: Updated coach payload data.
-    :type updated_coach: dict[str, Any]
+    Args:
+        endpoint (str): Coach endpoint URL.
+        current_coach (dict[str, Any]): Current coach payload data.
+        updated_coach (dict[str, Any]): Updated coach payload data.
     """
     # Mock GET coach to fetch current data
     responses.add(
@@ -170,14 +165,13 @@ def setup_get_team_roster_mocks(
 
     Mocks the GET team endpoint which returns team data with roster and included player/coach resources.
 
-    :param endpoint: Team GET endpoint URL.
-    :type endpoint: str
-    :param team_id: Team ID.
-    :type team_id: str
-    :param roster_data: Team roster attributes (players and coaches arrays).
-    :type roster_data: dict[str, Any]
-    :param included: List of included player/coach resource objects.
-    :type included: list[dict[str, Any]]
+    Args:
+        endpoint (str): Team GET endpoint URL.
+        team_id (str): Team ID.
+        roster_data (dict[str, Any]): Team roster attributes (players
+            and coaches arrays).
+        included (list[dict[str, Any]]): List of included player/coach
+            resource objects.
     """
     responses.add(
         responses.GET,

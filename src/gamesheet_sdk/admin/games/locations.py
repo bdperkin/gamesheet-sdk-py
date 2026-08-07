@@ -22,12 +22,15 @@ def list_locations(session: Session) -> list[Location]:
     and surface name which together form the location identifier used when creating or updating scheduled
     games.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :returns: A list of :class:`Location` objects.
-    :rtype: list[Location]
-    :raises AuthenticationError: If the server returns 401 or 403.
-    :raises GameSheetError: For any other non-2xx response.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+
+    Returns:
+        list[Location]: A list of :class:`Location` objects.
+
+    Raises:
+        AuthenticationError: If the server returns 401 or 403.
+        GameSheetError: For any other non-2xx response.
     """
     url = f"{DEFAULT_BASE_URL}{API_LOCATIONS}"
     response = session.get(url)
@@ -41,13 +44,15 @@ def get_location(session: Session, location_id: str) -> Location:
 
     Fetches the list of all locations and returns the one matching the given ID.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param location_id: The location UUID to retrieve.
-    :type location_id: str
-    :returns: The :class:`Location` with the specified ID.
-    :rtype: Location
-    :raises GameSheetError: If the location ID is not found.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        location_id (str): The location UUID to retrieve.
+
+    Returns:
+        Location: The :class:`Location` with the specified ID.
+
+    Raises:
+        GameSheetError: If the location ID is not found.
     """
     locations = list_locations(session)
     for loc in locations:
@@ -63,13 +68,16 @@ def validate_location(session: Session, location: str) -> str:
     Fetches the list of valid locations and performs a case-insensitive match against the concatenation of
     location_name + " " + surface_name. Returns the correctly-cased full location name.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param location: The location string to validate (case-insensitive).
-    :type location: str
-    :returns: The correctly-cased location string.
-    :rtype: str
-    :raises GameSheetError: If the location is not valid.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        location (str): The location string to validate (case-
+            insensitive).
+
+    Returns:
+        str: The correctly-cased location string.
+
+    Raises:
+        GameSheetError: If the location is not valid.
     """
     if not location:
         return location

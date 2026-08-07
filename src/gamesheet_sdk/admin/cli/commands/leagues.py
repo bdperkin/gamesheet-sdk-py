@@ -98,18 +98,15 @@ def leagues_get_command(
     The league and association IDs can be provided via command-line options or environment variables
     (GAMESHEET_LEAGUE_ID, GAMESHEET_ASSOCIATION_ID). Requires a saved session from `gamesheet-admin login`.
     The output displays league metadata as key-value pairs, with each field on its own row.\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param association_id: The association identifier
-    :type association_id: str
-    :param league_id: The league identifier
-    :type league_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param fields_spec: Optional comma-separated list of fields to display
-    :type fields_spec: str | None
+
+    Args:
+        ctx (Context): Click context object containing config
+        association_id (str): The association identifier
+        league_id (str): The league identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        fields_spec (str | None): Optional comma-separated list of
+            fields to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -173,16 +170,13 @@ def leagues_list_command(
 
         $ gamesheet-admin leagues list\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param association_id: The association identifier
-    :type association_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param columns_spec: Optional comma-separated list of columns to display
-    :type columns_spec: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        association_id (str): The association identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        columns_spec (str | None): Optional comma-separated list of
+            columns to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

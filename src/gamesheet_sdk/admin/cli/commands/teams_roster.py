@@ -45,12 +45,10 @@ def teams_roster_group(ctx: Context, season_id: str, team_id: str) -> None:
     Invoking ``roster`` with no sub-command runs ``players`` by default. The --season-id and --team-id options
     are required and apply to all sub-commands.\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param team_id: The team identifier
-    :type team_id: str
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        team_id (str): The team identifier
     """
     config = ctx.obj
     ctx.obj = {"config": config, "season_id": season_id, "team_id": team_id}
@@ -59,8 +57,9 @@ def teams_roster_group(ctx: Context, season_id: str, team_id: str) -> None:
 def register_teams_roster_group(teams_group: click.Group) -> None:
     """Register the teams roster sub-group with the teams group.
 
-    :param teams_group: The main teams group to attach roster commands to.
-    :type teams_group: click.Group
+    Args:
+        teams_group (click.Group): The main teams group to attach roster
+            commands to.
     """
     teams_group.add_command(teams_roster_group)
 

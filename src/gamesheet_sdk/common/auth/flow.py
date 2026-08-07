@@ -65,16 +65,22 @@ class LoginFlow(Protocol):
         :class:`~gamesheet_sdk.common.exceptions.AuthenticationError` when
         credentials are missing or authentication is rejected.
 
-        :param email: Login email, or ``None`` to resolve from config/env.
-        :type email: str | None
-        :param password: Login password, or ``None`` to resolve from config/env.
-        :type password: str | None
-        :param timeout: Auth round-trip timeout in seconds, or ``None`` for the implementation's default.
-        :type timeout: float | None
-        :returns: Token bundle with at least ``"access"`` and ``"refresh"`` keys.
-        :rtype: dict[str, str]
-        :raises ~gamesheet_sdk.common.exceptions.AuthenticationError: If credentials are missing or the auth
-            backend rejects them.
+        Args:
+            email (str | None): Login email, or ``None`` to resolve from
+                config/env.
+            password (str | None): Login password, or ``None`` to
+                resolve from config/env.
+            timeout (float | None): Auth round-trip timeout in seconds,
+                or ``None`` for the implementation's default.
+
+        Returns:
+            dict[str, str]: Token bundle with at least ``"access"`` and
+            ``"refresh"`` keys.
+
+        Raises:
+            ~gamesheet_sdk.common.exceptions.AuthenticationError: If
+                credentials are missing or the auth backend rejects
+                them.
         """
         _ = (email, password, timeout)
         return {}

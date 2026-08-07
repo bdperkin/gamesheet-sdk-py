@@ -26,32 +26,34 @@ class Player(BaseModel):
     Maps the ``data[*]`` items in the JSON:API response of ``GET /api/seasons/{id}/players`` to a flat typed
     model. Includes both base player data and roster-specific metadata (position, jersey, etc.).
 
-    :var id: Player identifier (string in JSON:API).
-    :var season_id: Parent season identifier.
-    :var external_id: External identifier.
-    :var first_name: Player's first name.
-    :var last_name: Player's last name.
-    :var birthdate: Player's birthdate.
-    :var photo_url: URL to player photo.
-    :var biography: Player biography.
-    :var height: Player height.
-    :var weight: Player weight.
-    :var shot_hand: Player's shooting hand.
-    :var province: Player's province.
-    :var hometown: Player's hometown.
-    :var country: Player's country.
-    :var drafted_by: Team that drafted the player.
-    :var committed_to: School/team player committed to.
-    :var number: Player's jersey number (team roster only).
-    :var position: Player's position (team roster only).
-    :var duty: Player's duty (team roster only).
-    :var designation: Player's designation (team roster only).
-    :var status: Player's status (team roster only).
-    :var starting: Whether player is starting (team roster only).
-    :var added_at_game_time: Whether player was added at game time (team roster only).
-    :var affiliated: Whether player is affiliated (team roster only).
-    :var created_at: When the player record was created.
-    :var updated_at: Last time the player record was updated.
+    Attributes:
+        id: Player identifier (string in JSON:API).
+        season_id: Parent season identifier.
+        external_id: External identifier.
+        first_name: Player's first name.
+        last_name: Player's last name.
+        birthdate: Player's birthdate.
+        photo_url: URL to player photo.
+        biography: Player biography.
+        height: Player height.
+        weight: Player weight.
+        shot_hand: Player's shooting hand.
+        province: Player's province.
+        hometown: Player's hometown.
+        country: Player's country.
+        drafted_by: Team that drafted the player.
+        committed_to: School/team player committed to.
+        number: Player's jersey number (team roster only).
+        position: Player's position (team roster only).
+        duty: Player's duty (team roster only).
+        designation: Player's designation (team roster only).
+        status: Player's status (team roster only).
+        starting: Whether player is starting (team roster only).
+        added_at_game_time: Whether player was added at game time (team
+            roster only).
+        affiliated: Whether player is affiliated (team roster only).
+        created_at: When the player record was created.
+        updated_at: Last time the player record was updated.
     """
 
     id: str = Field(description="Player identifier (string in JSON:API).")
@@ -121,16 +123,17 @@ class Coach(BaseModel):
     Maps the ``data[*]`` items in the JSON:API response of ``GET /api/seasons/{id}/coaches`` to a flat typed
     model.
 
-    :var id: Coach identifier (string in JSON:API).
-    :var season_id: Parent season identifier.
-    :var external_id: External identifier.
-    :var first_name: Coach's first name.
-    :var last_name: Coach's last name.
-    :var position: Coach's position (team roster only).
-    :var status: Coach's status (team roster only).
-    :var signature: Coach's signature (team roster only).
-    :var created_at: When the coach record was created.
-    :var updated_at: Last time the coach record was updated.
+    Attributes:
+        id: Coach identifier (string in JSON:API).
+        season_id: Parent season identifier.
+        external_id: External identifier.
+        first_name: Coach's first name.
+        last_name: Coach's last name.
+        position: Coach's position (team roster only).
+        status: Coach's status (team roster only).
+        signature: Coach's signature (team roster only).
+        created_at: When the coach record was created.
+        updated_at: Last time the coach record was updated.
     """
 
     id: str = Field(description="Coach identifier (string in JSON:API).")
@@ -160,10 +163,12 @@ class Coach(BaseModel):
 def parse_player(item: dict[str, Any]) -> Player:
     """Flatten a JSON:API resource object into a :class:`Player`.
 
-    :param item: A JSON:API resource object with ``id``, ``attributes``, and ``relationships`` keys.
-    :type item: dict[str, Any]
-    :returns: Parsed Player model instance.
-    :rtype: Player
+    Args:
+        item (dict[str, Any]): A JSON:API resource object with ``id``,
+            ``attributes``, and ``relationships`` keys.
+
+    Returns:
+        Player: Parsed Player model instance.
     """
     data = parse_jsonapi_resource(item, relationship_map={"season": "season_id"})
     return Player(**data)
@@ -172,10 +177,12 @@ def parse_player(item: dict[str, Any]) -> Player:
 def parse_coach(item: dict[str, Any]) -> Coach:
     """Flatten a JSON:API resource object into a :class:`Coach`.
 
-    :param item: A JSON:API resource object with ``id``, ``attributes``, and ``relationships`` keys.
-    :type item: dict[str, Any]
-    :returns: Parsed Coach model instance.
-    :rtype: Coach
+    Args:
+        item (dict[str, Any]): A JSON:API resource object with ``id``,
+            ``attributes``, and ``relationships`` keys.
+
+    Returns:
+        Coach: Parsed Coach model instance.
     """
     data = parse_jsonapi_resource(item, relationship_map={"season": "season_id"})
     return Coach(**data)

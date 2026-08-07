@@ -202,26 +202,31 @@ def list_seasons(
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401. When filters are
     provided, the BFF API endpoint is used. Otherwise, the JSON:API endpoint is used and results are filtered
     client-side.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param league_id: The league identifier whose seasons to list.
-    :type league_id: str
-    :param starts_after: Optional filter for seasons starting after this date (ISO format: YYYY-MM-DD).
-    :type starts_after: str | None
-    :param ends_before: Optional filter for seasons ending before this date (ISO format: YYYY-MM-DD).
-    :type ends_before: str | None
-    :param status: Optional status filter (e.g., 'archived', 'active', 'all').
-    :type status: str | None
-    :param stats_year: Optional statistics year filter (e.g., '2026-2027').
-    :type stats_year: str | None
-    :param title: Optional title search filter (free-form text).
-    :type title: str | None
-    :returns: A list of :class:`Season`, in the order the server returned them. The list may be empty if the
-        league has no seasons.
-    :rtype: list[Season]
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-admin login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        league_id (str): The league identifier whose seasons to list.
+        starts_after (str | None): Optional filter for seasons starting
+            after this date (ISO format: YYYY-MM-DD).
+        ends_before (str | None): Optional filter for seasons ending
+            before this date (ISO format: YYYY-MM-DD).
+        status (str | None): Optional status filter (e.g., 'archived',
+            'active', 'all').
+        stats_year (str | None): Optional statistics year filter (e.g.,
+            '2026-2027').
+        title (str | None): Optional title search filter (free-form
+            text).
+
+    Returns:
+        list[Season]: A list of :class:`Season`, in the order the server
+        returned them. The list may be empty if the league has no
+        seasons.
+
+    Raises:
+        AuthenticationError: If the server returns 401 (the bearer is
+            missing, malformed, or expired -- run ``gamesheet-admin
+            login`` to refresh).
+        GameSheetError: For any other non-2xx response.
     """
     has_filters = any([starts_after, ends_before, status, stats_year, title])
     if has_filters:
@@ -258,15 +263,21 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier to retrieve.
-    :type season_id: str
-    :returns: A :class:`SeasonDetail` with complete season information.
-    :rtype: SeasonDetail
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-admin login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response (including 404 if the season doesn't exist).
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier to retrieve.
+
+    Returns:
+        SeasonDetail: A :class:`SeasonDetail` with complete season
+        information.
+
+    Raises:
+        AuthenticationError: If the server returns 401 (the bearer is
+            missing, malformed, or expired -- run ``gamesheet-admin
+            login`` to refresh).
+        GameSheetError: For any other non-2xx response (including 404 if
+            the season doesn't exist).
     """
     endpoint = f"{_ENDPOINT}/{season_id}"
     response = session.get(

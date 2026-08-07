@@ -111,26 +111,20 @@ def seasons_list_command(
     Optional filters can be applied to narrow the results:
     --starts-after, --ends-before, --status, --stats-year, and --title.\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param league_id: The league identifier
-    :type league_id: str
-    :param starts_after: Optional filter for seasons starting after this date
-    :type starts_after: str | None
-    :param ends_before: Optional filter for seasons ending before this date
-    :type ends_before: str | None
-    :param status: Optional filter for season status
-    :type status: str | None
-    :param stats_year: Optional filter for statistics year
-    :type stats_year: str | None
-    :param title: Optional filter for season title
-    :type title: str | None
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param columns_spec: Optional comma-separated list of columns to display
-    :type columns_spec: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        league_id (str): The league identifier
+        starts_after (str | None): Optional filter for seasons starting
+            after this date
+        ends_before (str | None): Optional filter for seasons ending
+            before this date
+        status (str | None): Optional filter for season status
+        stats_year (str | None): Optional filter for statistics year
+        title (str | None): Optional filter for season title
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        columns_spec (str | None): Optional comma-separated list of
+            columns to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -175,16 +169,13 @@ def seasons_get_command(
     value pairs, with each field on its own row. Complex nested fields (like settings, flagging_criteria) are
     displayed as JSON.\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param fields_spec: Optional comma-separated list of fields to display
-    :type fields_spec: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        fields_spec (str | None): Optional comma-separated list of
+            fields to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

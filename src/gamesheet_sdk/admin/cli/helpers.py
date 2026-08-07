@@ -27,11 +27,14 @@ def build_authenticated_session(
 ) -> AuthenticatedSession:
     """Build an AuthenticatedSession from saved tokens.
 
-    :param config: The application config.
-    :type config: Config
-    :returns: An AuthenticatedSession ready to use.
-    :rtype: AuthenticatedSession
-    :raises Exit: If no tokens are saved.
+    Args:
+        config (Config): The application config.
+
+    Returns:
+        AuthenticatedSession: An AuthenticatedSession ready to use.
+
+    Raises:
+        Exit: If no tokens are saved.
     """
     access = load_access_token(config)
     refresh = load_refresh_token(config)
@@ -57,17 +60,22 @@ def run_action_or_exit(session: AuthenticatedSession, action: Any, *args: Any) -
     :exc:`GameSheetError`. On either exception, prints a user-friendly error message to stderr and exits with
     code 1. The session context manager ensures proper cleanup (e.g., closing connections) regardless of
     success or failure.
-    :param session: The authenticated session to use as a context manager.
-    :type session: AuthenticatedSession
-    :param action: A callable that takes ``session`` and ``*args`` and returns a result. Typically a domain
-        action function (e.g., ``list_associations``, ``list_leagues``).
-    :type action: Any
-    :param args: Positional arguments forwarded to ``action`` after ``session``.
-    :type args: Any
-    :returns: The result of ``action(session, *args)`` on success.
-    :rtype: Any
-    :raises Exit: If ``action`` raises :exc:`AuthenticationError` or :exc:`GameSheetError`. Exit code is 1 in
-        both cases.
+
+    Args:
+        session (AuthenticatedSession): The authenticated session to use
+            as a context manager.
+        action (Any): A callable that takes ``session`` and ``*args``
+            and returns a result. Typically a domain action function
+            (e.g., ``list_associations``, ``list_leagues``).
+        *args (Any): Positional arguments forwarded to ``action`` after
+            ``session``.
+
+    Returns:
+        Any: The result of ``action(session, *args)`` on success.
+
+    Raises:
+        Exit: If ``action`` raises :exc:`AuthenticationError` or
+            :exc:`GameSheetError`. Exit code is 1 in both cases.
     """
     try:
         with session:
@@ -96,29 +104,24 @@ def run_team_update(
     """Run team update action and render output.
 
     Shared implementation for teams update and divisions teams update commands.
-    :param ctx: The click context containing the config.
-    :type ctx: Context
-    :param season_id: Season ID containing the team.
-    :type season_id: str
-    :param team_id: Team ID to update.
-    :type team_id: str
-    :param title: New team name/title.
-    :type title: str | None
-    :param division_id: New division ID.
-    :type division_id: str | None
-    :param external_id: New external identifier.
-    :type external_id: str | None
-    :param logo_path: Path to a new logo image file.
-    :type logo_path: str | None
-    :param remove_logo: Remove the team's logo.
-    :type remove_logo: bool
-    :param output_format: Output format for rendering.
-    :type output_format: str
-    :param output_path: Optional output file path.
-    :type output_path: str | None
-    :raises Exit: If no fields are provided for update.
-    :returns: None
-    :rtype: None
+
+    Args:
+        ctx (Context): The click context containing the config.
+        season_id (str): Season ID containing the team.
+        team_id (str): Team ID to update.
+        title (str | None): New team name/title.
+        division_id (str | None): New division ID.
+        external_id (str | None): New external identifier.
+        logo_path (str | None): Path to a new logo image file.
+        remove_logo (bool): Remove the team's logo.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+
+    Raises:
+        Exit: If no fields are provided for update.
+
+    Returns:
+        None: None
     """
     from gamesheet_sdk.admin.teams import Team, update_team as _update_team_action
 
@@ -165,24 +168,19 @@ def run_team_create(
     """Run team create action and render output with success message.
 
     Shared implementation for teams create and divisions teams create commands.
-    :param ctx: The click context containing the config.
-    :type ctx: Context
-    :param season_id: Season ID to create the team in.
-    :type season_id: str
-    :param title: Team name/title.
-    :type title: str
-    :param division_id: Division ID the team belongs to.
-    :type division_id: str
-    :param external_id: Optional external identifier.
-    :type external_id: str | None
-    :param logo_path: Optional path to a logo image file.
-    :type logo_path: str | None
-    :param output_format: Output format for rendering.
-    :type output_format: str
-    :param output_path: Optional output file path.
-    :type output_path: str | None
-    :returns: None
-    :rtype: None
+
+    Args:
+        ctx (Context): The click context containing the config.
+        season_id (str): Season ID to create the team in.
+        title (str): Team name/title.
+        division_id (str): Division ID the team belongs to.
+        external_id (str | None): Optional external identifier.
+        logo_path (str | None): Optional path to a logo image file.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+
+    Returns:
+        None: None
     """
     from gamesheet_sdk.admin.teams import create_team as _create_team_action
 
@@ -217,12 +215,11 @@ def run_team_delete(ctx: Context, season_id: str, team_id: str) -> None:
     """Run team delete action with success message.
 
     Shared implementation for teams delete and divisions teams delete commands.
-    :param ctx: The click context containing the config.
-    :type ctx: Context
-    :param season_id: Season ID containing the team.
-    :type season_id: str
-    :param team_id: Team ID to delete.
-    :type team_id: str
+
+    Args:
+        ctx (Context): The click context containing the config.
+        season_id (str): Season ID containing the team.
+        team_id (str): Team ID to delete.
     """
     from gamesheet_sdk.admin.teams import delete_team as _delete_team_action
 
@@ -245,25 +242,20 @@ def run_roster_assign_with_output(
 ) -> None:
     """Run roster assign action with error handling and output rendering.
 
-    :param action: The assign action function to call.
-    :type action: Any
-    :param session: Authenticated session.
-    :type session: AuthenticatedSession
-    :param resource_type: Type of resource being assigned (player/coach).
-    :type resource_type: str
-    :param resource_id: ID of the resource being assigned.
-    :type resource_id: str
-    :param target_id: ID of the target team.
-    :type target_id: str
-    :param output_format: Output format for rendering.
-    :type output_format: str
-    :param output_path: Optional output file path.
-    :type output_path: str | None
-    :param args: Positional arguments forwarded to ``action``.
-    :type args: Any
-    :param kwargs: Keyword arguments forwarded to ``action``.
-    :type kwargs: Any
-    :raises Exit: If the action raises an exception.
+    Args:
+        action (Any): The assign action function to call.
+        session (AuthenticatedSession): Authenticated session.
+        resource_type (str): Type of resource being assigned
+            (player/coach).
+        resource_id (str): ID of the resource being assigned.
+        target_id (str): ID of the target team.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        *args (Any): Positional arguments forwarded to ``action``.
+        **kwargs (Any): Keyword arguments forwarded to ``action``.
+
+    Raises:
+        Exit: If the action raises an exception.
     """
     from gamesheet_sdk.admin.cli.shared import render_get_command
 
@@ -290,19 +282,17 @@ def run_roster_unassign(
 ) -> None:
     """Run roster unassign action with error handling.
 
-    :param action: The unassign action function to call.
-    :type action: Any
-    :param session: Authenticated session.
-    :type session: AuthenticatedSession
-    :param resource_type: Type of resource being unassigned (player/coach).
-    :type resource_type: str
-    :param resource_id: ID of the resource being unassigned.
-    :type resource_id: str
-    :param target_id: ID of the target team.
-    :type target_id: str
-    :param args: Positional arguments forwarded to ``action``.
-    :type args: Any
-    :raises Exit: If the action raises an exception.
+    Args:
+        action (Any): The unassign action function to call.
+        session (AuthenticatedSession): Authenticated session.
+        resource_type (str): Type of resource being unassigned
+            (player/coach).
+        resource_id (str): ID of the resource being unassigned.
+        target_id (str): ID of the target team.
+        *args (Any): Positional arguments forwarded to ``action``.
+
+    Raises:
+        Exit: If the action raises an exception.
     """
     try:
         with session:
@@ -327,21 +317,18 @@ def run_roster_update_with_output(
 ) -> None:
     """Run roster update action with error handling and output rendering.
 
-    :param action: The update action function to call.
-    :type action: Any
-    :param session: Authenticated session.
-    :type session: AuthenticatedSession
-    :param resource_type: Type of resource being updated (player/coach).
-    :type resource_type: str
-    :param output_format: Output format for rendering.
-    :type output_format: str
-    :param output_path: Optional output file path.
-    :type output_path: str | None
-    :param args: Positional arguments forwarded to ``action``.
-    :type args: Any
-    :param kwargs: Keyword arguments forwarded to ``action``.
-    :type kwargs: Any
-    :raises Exit: If the action raises an exception.
+    Args:
+        action (Any): The update action function to call.
+        session (AuthenticatedSession): Authenticated session.
+        resource_type (str): Type of resource being updated
+            (player/coach).
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        *args (Any): Positional arguments forwarded to ``action``.
+        **kwargs (Any): Keyword arguments forwarded to ``action``.
+
+    Raises:
+        Exit: If the action raises an exception.
     """
     from gamesheet_sdk.admin.cli.shared import render_get_command
 
@@ -373,23 +360,20 @@ def run_roster_create_with_output(
 ) -> None:
     """Run roster create action with error handling and output rendering.
 
-    :param action: The create action function to call.
-    :type action: Any
-    :param session: Authenticated session.
-    :type session: AuthenticatedSession
-    :param resource_type: Type of resource being created (player/coach).
-    :type resource_type: str
-    :param output_format: Output format for rendering.
-    :type output_format: str
-    :param output_path: Optional output file path.
-    :type output_path: str | None
-    :param args: Positional arguments forwarded to ``action``.
-    :type args: Any
-    :param success_message: Optional custom success message (uses result.id formatting if contains {id}).
-    :type success_message: str | None
-    :param kwargs: Keyword arguments forwarded to ``action``.
-    :type kwargs: Any
-    :raises Exit: If the action raises an exception.
+    Args:
+        action (Any): The create action function to call.
+        session (AuthenticatedSession): Authenticated session.
+        resource_type (str): Type of resource being created
+            (player/coach).
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        *args (Any): Positional arguments forwarded to ``action``.
+        success_message (str | None): Optional custom success message
+            (uses result.id formatting if contains {id}).
+        **kwargs (Any): Keyword arguments forwarded to ``action``.
+
+    Raises:
+        Exit: If the action raises an exception.
     """
     from gamesheet_sdk.admin.cli.shared import render_get_command
 

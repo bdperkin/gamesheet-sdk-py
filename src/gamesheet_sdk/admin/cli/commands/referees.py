@@ -85,16 +85,12 @@ def referees_get_command(
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param referee_id: The referee identifier
-    :type referee_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        referee_id (str): The referee identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -130,16 +126,12 @@ def referees_report_command(
     Retrieves career statistics, games officiated, and penalty details. Requires authentication (run
     'gamesheet-admin login' first).\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param referee_id: The referee identifier
-    :type referee_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        referee_id (str): The referee identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -200,22 +192,17 @@ def referees_create_command(
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param first_name: Referee's first name
-    :type first_name: str
-    :param last_name: Referee's last name
-    :type last_name: str
-    :param email_address: Optional email address for the referee
-    :type email_address: str | None
-    :param external_id: Optional external identifier for the referee
-    :type external_id: str | None
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        first_name (str): Referee's first name
+        last_name (str): Referee's last name
+        email_address (str | None): Optional email address for the
+            referee
+        external_id (str | None): Optional external identifier for the
+            referee
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -287,25 +274,19 @@ def referees_update_command(
     At least one field must be provided to update. Requires authentication (run 'gamesheet-admin login'
     first).\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param referee_id: The referee identifier to update
-    :type referee_id: str
-    :param first_name: Optional updated first name
-    :type first_name: str | None
-    :param last_name: Optional updated last name
-    :type last_name: str | None
-    :param email_address: Optional updated email address
-    :type email_address: str | None
-    :param external_id: Optional updated external identifier
-    :type external_id: str | None
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :raises click.UsageError: If no fields are provided for update
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        referee_id (str): The referee identifier to update
+        first_name (str | None): Optional updated first name
+        last_name (str | None): Optional updated last name
+        email_address (str | None): Optional updated email address
+        external_id (str | None): Optional updated external identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+
+    Raises:
+        click.UsageError: If no fields are provided for update
     """
     # Validate that at least one field is provided
     if not any([first_name, last_name, email_address, external_id]):
@@ -354,12 +335,10 @@ def referees_delete_command(
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param referee_id: The referee identifier to delete
-    :type referee_id: str
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        referee_id (str): The referee identifier to delete
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -389,16 +368,13 @@ def referees_list_command(
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param columns_spec: Optional comma-separated list of columns to display
-    :type columns_spec: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        columns_spec (str | None): Optional comma-separated list of
+            columns to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

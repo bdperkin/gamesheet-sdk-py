@@ -38,9 +38,14 @@ _MIN_PARTS = 2
 def _resolve_installed_version(repo_url: str) -> str:
     """Resolve version from the installed package matching the repo name.
 
-    :param repo_url: Repository URL to extract package name from.
-    :returns: Installed package version string.
-    :raises DiscoveryError: If the package is not installed.
+    Args:
+        repo_url: Repository URL to extract package name from.
+
+    Returns:
+        Installed package version string.
+
+    Raises:
+        DiscoveryError: If the package is not installed.
     """
     package_name = repo_url.rsplit("/", maxsplit=1)[-1].replace("-pre-commit", "")
     try:
@@ -64,13 +69,16 @@ def _find_highest_available_tag(
 ) -> tuple[str, str] | None:
     """Find the highest git tag whose version is available on PyPI.
 
-    :param tags: Raw git tag strings.
-    :param pypi_name: PyPI package name to query.
-    :param index_url: Optional PEP 503 index URL.
-    :param extra_index_urls: Additional PEP 503 index URLs to try.
-    :param pip_config: Optional pip configuration for SSL settings.
-    :param min_python: Minimum Python version to filter against.
-    :returns: Tuple of (original_tag, normalized_version) or None if no match.
+    Args:
+        tags: Raw git tag strings.
+        pypi_name: PyPI package name to query.
+        index_url: Optional PEP 503 index URL.
+        extra_index_urls: Additional PEP 503 index URLs to try.
+        pip_config: Optional pip configuration for SSL settings.
+        min_python: Minimum Python version to filter against.
+
+    Returns:
+        Tuple of (original_tag, normalized_version) or None if no match.
     """
     pypi_versions = fetch_pypi_versions(
         pypi_name,
@@ -89,8 +97,11 @@ def _parse_tags(ls_remote_output: str) -> list[str]:
 
     Filters out annotated-tag dereferences (``^{}``) and pre-release tags.
 
-    :param ls_remote_output: Raw stdout from git ls-remote.
-    :returns: List of release tag names.
+    Args:
+        ls_remote_output: Raw stdout from git ls-remote.
+
+    Returns:
+        List of release tag names.
     """
     tags: list[str] = []
     for line in ls_remote_output.strip().splitlines():
@@ -113,8 +124,11 @@ def _parse_tags(ls_remote_output: str) -> list[str]:
 def _normalize_version(tag: str) -> str:
     """Strip common version prefixes for comparison.
 
-    :param tag: Raw tag name.
-    :returns: Numeric version string with v/ver prefix removed.
+    Args:
+        tag: Raw tag name.
+
+    Returns:
+        Numeric version string with v/ver prefix removed.
     """
     return re.sub(r"^(ver|v)", "", tag, flags=re.IGNORECASE)
 
@@ -124,8 +138,11 @@ def _select_latest_tag(tags: list[str]) -> str:
 
     Falls back to string sorting if version parsing fails for all tags.
 
-    :param tags: List of tag names.
-    :returns: The tag name with the highest version.
+    Args:
+        tags: List of tag names.
+
+    Returns:
+        The tag name with the highest version.
     """
     versioned: list[tuple[Version, str]] = []
     for tag in tags:
@@ -146,8 +163,12 @@ def _select_latest_tag(tags: list[str]) -> str:
 def _sort_tags_descending(tags: list[str]) -> list[str]:
     """Sort tags newest-first by PEP 440 version.
 
-    :param tags: List of tag names.
-    :returns: Tags sorted from newest to oldest. Unparseable tags are excluded.
+    Args:
+        tags: List of tag names.
+
+    Returns:
+        Tags sorted from newest to oldest. Unparseable tags are
+        excluded.
     """
     versioned: list[tuple[Version, str]] = []
     for tag in tags:
@@ -164,9 +185,14 @@ def _sort_tags_descending(tags: list[str]) -> list[str]:
 def _resolve_head_commit(repo_url: str) -> str:
     """Resolve HEAD commit hash when no tags are available.
 
-    :param repo_url: Remote repository URL.
-    :returns: HEAD commit SHA.
-    :raises DiscoveryError: If the git command fails.
+    Args:
+        repo_url: Remote repository URL.
+
+    Returns:
+        HEAD commit SHA.
+
+    Raises:
+        DiscoveryError: If the git command fails.
     """
     try:
         result = run_ls_remote(repo_url, "--quiet", refspecs=("HEAD",))
@@ -199,11 +225,17 @@ def _resolve_latest_tag(
     tags against available versions on the configured package index and falls back through tags until an
     available version is found.
 
-    :param repo_url: Remote repository URL.
-    :param index_url: Optional PEP 503 index URL for availability checks.
-    :param min_python: Minimum Python version to filter compatible releases.
-    :returns: RevisionResult with the latest tag and all sorted candidates.
-    :raises DiscoveryError: If no tags are found or the git command fails.
+    Args:
+        repo_url: Remote repository URL.
+        index_url: Optional PEP 503 index URL for availability checks.
+        min_python: Minimum Python version to filter compatible
+            releases.
+
+    Returns:
+        RevisionResult with the latest tag and all sorted candidates.
+
+    Raises:
+        DiscoveryError: If no tags are found or the git command fails.
     """
     try:
         result = run_ls_remote(repo_url, "--tags", "--quiet")
@@ -254,21 +286,23 @@ def resolve_revision(
 ) -> RevisionResult:
     """Resolve a repository revision from a spec.
 
-    :param repo_url: Repository URL.
-    :type repo_url: str
-    :param rev_spec: Revision specification: None for latest tag, "installed" for installed package version,
-        or an exact version string.
-    :type rev_spec: str | None
-    :param index_url: Optional PEP 503 package index URL to cross-reference tag availability.
-    :type index_url: str | None
-    :param extra_index_urls: Additional PEP 503 index URLs to try.
-    :type extra_index_urls: Sequence[str]
-    :param pip_config: Optional pip configuration for SSL settings.
-    :type pip_config: PipConfig | None
-    :param min_python: Minimum Python version to filter compatible releases.
-    :type min_python: Version | None
-    :returns: RevisionResult with the resolved revision and candidate tags.
-    :rtype: RevisionResult
+    Args:
+        repo_url (str): Repository URL.
+        rev_spec (str | None): Revision specification: None for latest
+            tag, "installed" for installed package version, or an exact
+            version string.
+        index_url (str | None): Optional PEP 503 package index URL to
+            cross-reference tag availability.
+        extra_index_urls (Sequence[str]): Additional PEP 503 index URLs
+            to try.
+        pip_config (PipConfig | None): Optional pip configuration for
+            SSL settings.
+        min_python (Version | None): Minimum Python version to filter
+            compatible releases.
+
+    Returns:
+        RevisionResult: RevisionResult with the resolved revision and
+        candidate tags.
     """
     if rev_spec is not None and rev_spec != "installed":
         logger.info("%s : %s (pinned)", repo_url, rev_spec)

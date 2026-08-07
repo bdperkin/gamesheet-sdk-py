@@ -27,8 +27,8 @@ OUTPUT_DIR = AUTOSUMMARY_DIR
 def main() -> int:
     """Run sphinx-apidoc to generate API documentation.
 
-    :returns: Integer exit code.
-    :rtype: int
+    Returns:
+        int: Integer exit code.
     """
     # Ensure output directory exists
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

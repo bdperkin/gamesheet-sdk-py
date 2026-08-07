@@ -26,8 +26,8 @@ SRC_DIR = PACKAGE_DIR
 def get_newest_source_mtime() -> float:
     """Get the modification time of the newest source file.
 
-    :returns: Return value.
-    :rtype: float
+    Returns:
+        float: Return value.
     """
     if not SRC_DIR.exists():
         return 0.0
@@ -40,8 +40,8 @@ def get_newest_source_mtime() -> float:
 def get_oldest_doc_mtime() -> float:
     """Get the modification time of the oldest generated doc file.
 
-    :returns: Return value.
-    :rtype: float
+    Returns:
+        float: Return value.
     """
     if not AUTOSUMMARY_DIR.exists():
         return 0.0
@@ -54,8 +54,8 @@ def get_oldest_doc_mtime() -> float:
 def main() -> int:
     """Check if API docs need regeneration.
 
-    :returns: Integer exit code.
-    :rtype: int
+    Returns:
+        int: Integer exit code.
     """
     newest_source = get_newest_source_mtime()
     oldest_doc = get_oldest_doc_mtime()

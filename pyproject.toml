@@ -704,7 +704,7 @@ staticmethod-decorators = [
 ]
 # pydoclint #
 # Which style of docstring is your code base using.
-style = "sphinx"
+style = "google"
 # Whether to require argument type hints in function signatures.
 arg-type-hints-in-signature = true
 # Whether to require type hints in the argument list in docstrings.
@@ -1274,12 +1274,11 @@ exclude = [
   ".venv",
 ]
 blank = false
-style = "sphinx"
+style = "google"
 
 ## ## interrogate - Docstring coverage checker
 [tool.interrogate]
 fail-under = 100
-ignore-init-method = true
 ignore-magic = true
 ignore-semiprivate = true
 ignore-nested-functions = true
@@ -1292,7 +1291,7 @@ extend-exclude = [
 check = true
 diff = true
 recursive = true
-style = "sphinx"
+style = "google"
 
 ## ## deptry - Dependency analyzer
 [tool.deptry]

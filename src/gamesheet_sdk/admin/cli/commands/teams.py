@@ -85,18 +85,14 @@ def teams_get_command(
     (GAMESHEET_TEAM_ID, GAMESHEET_SEASON_ID). Requires a saved session from `gamesheet-admin login`. The
     output displays team metadata as key-value pairs, with each field on its own row.\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param team_id: The team identifier
-    :type team_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param fields_spec: Optional comma-separated list of fields to display
-    :type fields_spec: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        team_id (str): The team identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        fields_spec (str | None): Optional comma-separated list of
+            fields to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -127,16 +123,13 @@ def teams_list_command(
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param columns_spec: Optional comma-separated list of columns to display
-    :type columns_spec: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        columns_spec (str | None): Optional comma-separated list of
+            columns to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -181,22 +174,15 @@ def teams_create_command(
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param title: Team name/title
-    :type title: str
-    :param division_id: Division ID the team belongs to
-    :type division_id: str
-    :param external_id: Optional external identifier
-    :type external_id: str | None
-    :param logo_path: Optional path to a logo image file
-    :type logo_path: str | None
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        title (str): Team name/title
+        division_id (str): Division ID the team belongs to
+        external_id (str | None): Optional external identifier
+        logo_path (str | None): Optional path to a logo image file
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
     """
     # pylint: disable=duplicate-code
     run_team_create(
@@ -246,26 +232,17 @@ def teams_update_command(
     Requires authentication (run 'gamesheet-admin login' first). At least one field must be provided for
     update.\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param team_id: The team identifier to update
-    :type team_id: str
-    :param title: Optional new team name/title
-    :type title: str | None
-    :param division_id: Optional new division ID
-    :type division_id: str | None
-    :param external_id: Optional new external identifier
-    :type external_id: str | None
-    :param logo_path: Optional path to a new logo image file
-    :type logo_path: str | None
-    :param remove_logo: Remove the team's logo
-    :type remove_logo: bool
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        team_id (str): The team identifier to update
+        title (str | None): Optional new team name/title
+        division_id (str | None): Optional new division ID
+        external_id (str | None): Optional new external identifier
+        logo_path (str | None): Optional path to a new logo image file
+        remove_logo (bool): Remove the team's logo
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
     """
     # pylint: disable=duplicate-code
     run_team_update(
@@ -307,12 +284,10 @@ def teams_delete_command(
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param team_id: The team identifier to delete
-    :type team_id: str
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        team_id (str): The team identifier to delete
     """
     # pylint: enable=duplicate-code
     run_team_delete(ctx, season_id, team_id)

@@ -62,16 +62,21 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier whose iPad keys to list.
-    :type season_id: str
-    :returns: A list of :class:`IPadKey`, in the order the server returned them. The list may be empty if the
-        season has no iPad keys configured.
-    :rtype: list[IPadKey]
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-admin login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier whose iPad keys to list.
+
+    Returns:
+        list[IPadKey]: A list of :class:`IPadKey`, in the order the
+        server returned them. The list may be empty if the season has no
+        iPad keys configured.
+
+    Raises:
+        AuthenticationError: If the server returns 401 (the bearer is
+            missing, malformed, or expired -- run ``gamesheet-admin
+            login`` to refresh).
+        GameSheetError: For any other non-2xx response.
     """
     response = session.get(
         _ENDPOINT,

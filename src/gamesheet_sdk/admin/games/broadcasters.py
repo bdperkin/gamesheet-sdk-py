@@ -20,12 +20,15 @@ def list_broadcasters(session: Session) -> list[Broadcaster]:
     Fetches the current list of broadcaster services from the BFF API. The returned broadcaster keys can be
     used when creating or updating scheduled games.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :returns: A list of :class:`Broadcaster` objects.
-    :rtype: list[Broadcaster]
-    :raises AuthenticationError: If the server returns 401 or 403.
-    :raises GameSheetError: For any other non-2xx response.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+
+    Returns:
+        list[Broadcaster]: A list of :class:`Broadcaster` objects.
+
+    Raises:
+        AuthenticationError: If the server returns 401 or 403.
+        GameSheetError: For any other non-2xx response.
     """
     url = f"{BFF_API_BASE_URL}{BFF_BROADCASTERS}"
     response = session.get(url)
@@ -42,13 +45,16 @@ def validate_broadcaster_key(session: Session, broadcaster: str) -> str:
     Fetches the list of valid broadcasters and performs a case-insensitive match. Returns the broadcaster key
     with the correct casing as stored in the API.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param broadcaster: The broadcaster key to validate (case-insensitive).
-    :type broadcaster: str
-    :returns: The correctly-cased broadcaster key.
-    :rtype: str
-    :raises GameSheetError: If the broadcaster key is not valid.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        broadcaster (str): The broadcaster key to validate (case-
+            insensitive).
+
+    Returns:
+        str: The correctly-cased broadcaster key.
+
+    Raises:
+        GameSheetError: If the broadcaster key is not valid.
     """
     if not broadcaster:
         return broadcaster

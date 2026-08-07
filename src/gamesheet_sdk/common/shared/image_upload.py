@@ -22,16 +22,19 @@ from gamesheet_sdk.common.session import Session
 def upload_image(session: Session, image_path: str, image_type: str = "image") -> str:
     """Upload an image file and return its Cloudflare CDN URL.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param image_path: Path to a local image file.
-    :type image_path: str
-    :param image_type: Type of image for error messages (e.g., "photo", "logo").
-    :type image_type: str
-    :returns: The Cloudflare CDN URL for the uploaded image.
-    :rtype: str
-    :raises GameSheetError: If the file is not found, is not a valid image, or the upload fails.
-    :raises AuthenticationError: If the server returns 401.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        image_path (str): Path to a local image file.
+        image_type (str): Type of image for error messages (e.g.,
+            "photo", "logo").
+
+    Returns:
+        str: The Cloudflare CDN URL for the uploaded image.
+
+    Raises:
+        GameSheetError: If the file is not found, is not a valid image,
+            or the upload fails.
+        AuthenticationError: If the server returns 401.
     """
     image_file_path = Path(image_path)
     if not image_file_path.exists():

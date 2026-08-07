@@ -40,10 +40,10 @@ def games_group(ctx: Context, season_id: str) -> None:
 
     Invoking ``games`` with no sub-command runs ``scheduled`` by default. The --season-id option is required
     and applies to all sub-commands.\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
+
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
     """
     # Store season_id in context for sub-commands to access
     # ctx.obj is a Config object from the root CLI - wrap it in a dict

@@ -44,8 +44,11 @@ def _write_yaml(path: Path, yml: YAML, data: object) -> None:
 def _read_toml(path: Path) -> tuple[TOMLFile, Any]:
     """Read a TOML file and return the file handle and parsed document.
 
-    :returns: Tuple of (TOMLFile, parsed document).
-    :raises WriteError: If the file cannot be read.
+    Returns:
+        Tuple of (TOMLFile, parsed document).
+
+    Raises:
+        WriteError: If the file cannot be read.
     """
     try:
         toml_file = TOMLFile(str(path))
@@ -59,7 +62,8 @@ def _read_toml(path: Path) -> tuple[TOMLFile, Any]:
 def _write_toml(path: Path, toml_file: TOMLFile, doc: Any) -> None:
     """Write a TOML document back to disk.
 
-    :raises WriteError: If the file cannot be written.
+    Raises:
+        WriteError: If the file cannot be written.
     """
     try:
         toml_file.write(doc)
@@ -71,8 +75,11 @@ def _write_toml(path: Path, toml_file: TOMLFile, doc: Any) -> None:
 def _read_yaml_file(path: Path, yml: YAML) -> Any:
     """Read a YAML file and return the parsed data.
 
-    :returns: Parsed YAML data.
-    :raises WriteError: If the file cannot be read.
+    Returns:
+        Parsed YAML data.
+
+    Raises:
+        WriteError: If the file cannot be read.
     """
     try:
         with path.open(encoding="utf-8") as f:
@@ -85,7 +92,8 @@ def _read_yaml_file(path: Path, yml: YAML) -> Any:
 def _write_yaml_file(path: Path, yml: YAML, data: Any) -> None:
     """Write YAML data back to disk.
 
-    :raises WriteError: If the file cannot be written.
+    Raises:
+        WriteError: If the file cannot be written.
     """
     try:
         _write_yaml(path, yml, data)
@@ -97,8 +105,11 @@ def _write_yaml_file(path: Path, yml: YAML, data: Any) -> None:
 def _get_toml_key(doc: Any, keys: list[str], path: Path) -> Any:
     """Traverse nested keys in a TOML document.
 
-    :returns: The value at the nested key path.
-    :raises WriteError: If any key in the path is missing.
+    Returns:
+        The value at the nested key path.
+
+    Raises:
+        WriteError: If any key in the path is missing.
     """
     try:
         current = doc
@@ -114,7 +125,8 @@ def _get_toml_key(doc: Any, keys: list[str], path: Path) -> Any:
 def _normalize_dep_name(dep_lower: str) -> str:
     """Extract and normalize the package name from a dependency string.
 
-    :returns: Normalized name with separators replaced by hyphens.
+    Returns:
+        Normalized name with separators replaced by hyphens.
     """
     name = dep_lower.split("==", maxsplit=1)[0].split("[", maxsplit=1)[0]
     return re.sub(r"[-_.]+", "-", name)
@@ -148,13 +160,16 @@ def update_pyproject(
 ) -> int:
     """Update dependency versions in pyproject.toml, preserving formatting.
 
-    :param path: Path to pyproject.toml.
-    :type path: Path
-    :param results: Convergence results targeting pyproject.toml.
-    :type results: list[ConvergenceResult]
-    :returns: Number of dependencies updated.
-    :rtype: int
-    :raises WriteError: If the file cannot be read or written.
+    Args:
+        path (Path): Path to pyproject.toml.
+        results (list[ConvergenceResult]): Convergence results targeting
+            pyproject.toml.
+
+    Returns:
+        int: Number of dependencies updated.
+
+    Raises:
+        WriteError: If the file cannot be read or written.
     """
     pyproject_results = [
         r
@@ -236,13 +251,16 @@ def update_genprecommit_additional_deps(
 ) -> int:
     """Update additional_dependencies versions in .genprecommitconfig.yaml.
 
-    :param path: Path to .genprecommitconfig.yaml.
-    :type path: Path
-    :param results: Convergence results targeting additional_dependencies.
-    :type results: list[ConvergenceResult]
-    :returns: Number of additional_dependencies updated.
-    :rtype: int
-    :raises WriteError: If the file cannot be read or written.
+    Args:
+        path (Path): Path to .genprecommitconfig.yaml.
+        results (list[ConvergenceResult]): Convergence results targeting
+            additional_dependencies.
+
+    Returns:
+        int: Number of additional_dependencies updated.
+
+    Raises:
+        WriteError: If the file cannot be read or written.
     """
     ad_results = [
         r
@@ -284,13 +302,15 @@ def update_precommit_config(
 ) -> int:
     """Update revs and additional_dependencies in .pre-commit-config.yaml.
 
-    :param path: Path to .pre-commit-config.yaml.
-    :type path: Path
-    :param results: All convergence results.
-    :type results: list[ConvergenceResult]
-    :returns: Number of entries updated.
-    :rtype: int
-    :raises WriteError: If the file cannot be read or written.
+    Args:
+        path (Path): Path to .pre-commit-config.yaml.
+        results (list[ConvergenceResult]): All convergence results.
+
+    Returns:
+        int: Number of entries updated.
+
+    Raises:
+        WriteError: If the file cannot be read or written.
     """
     rev_results = {r.repo_url: r for r in results if r.needs_regeneration and r.rev_tag}
     ad_results = {
@@ -381,12 +401,13 @@ def update_dependabot_ignores(
 ) -> tuple[int, int]:
     """Sync the ignore list under the pip ecosystem in dependabot.yml.
 
-    :param path: Path to dependabot.yml.
-    :type path: Path
-    :param pinned_packages: Dict mapping PyPI package name to pinned version.
-    :type pinned_packages: dict[str, str]
-    :returns: Tuple of (added_count, removed_count).
-    :rtype: tuple[int, int]
+    Args:
+        path (Path): Path to dependabot.yml.
+        pinned_packages (dict[str, str]): Dict mapping PyPI package name
+            to pinned version.
+
+    Returns:
+        tuple[int, int]: Tuple of (added_count, removed_count).
     """
     if not path.exists():
         logger.debug("dependabot.yml not found, skipping ignore sync")
@@ -444,7 +465,8 @@ def _apply_removes_and_updates(
 ) -> int:
     """Remove and update entries in the type-stubs dependency list (reverse iteration).
 
-    :returns: Number of entries changed.
+    Returns:
+        Number of entries changed.
     """
     change_count = 0
     i = len(mypy_list) - 1
@@ -472,17 +494,19 @@ def apply_types_sync(
 ) -> int:
     """Apply types-* stub changes to the type-stubs group in pyproject.toml.
 
-    :param path: Path to pyproject.toml.
-    :type path: Path
-    :param to_add: (package_name, version) pairs to add.
-    :type to_add: list[tuple[str, str]]
-    :param to_remove: Package names to remove.
-    :type to_remove: list[str]
-    :param to_update: (package_name, old_version, new_version) tuples.
-    :type to_update: list[tuple[str, str, str]]
-    :returns: Total number of changes applied.
-    :rtype: int
-    :raises WriteError: If the file cannot be read or written.
+    Args:
+        path (Path): Path to pyproject.toml.
+        to_add (list[tuple[str, str]]): (package_name, version) pairs to
+            add.
+        to_remove (list[str]): Package names to remove.
+        to_update (list[tuple[str, str, str]]): (package_name,
+            old_version, new_version) tuples.
+
+    Returns:
+        int: Total number of changes applied.
+
+    Raises:
+        WriteError: If the file cannot be read or written.
     """
     if not to_add and not to_remove and not to_update:
         return 0

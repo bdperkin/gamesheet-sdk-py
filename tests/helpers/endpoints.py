@@ -15,10 +15,11 @@ from tests.helpers.constants import TEST_BASE_URL
 def coaches_endpoint(season_id: str) -> str:
     """Build the coaches endpoint URL for a season.
 
-    :param season_id: Season identifier.
-    :type season_id: str
-    :returns: Full endpoint URL.
-    :rtype: str
+    Args:
+        season_id (str): Season identifier.
+
+    Returns:
+        str: Full endpoint URL.
     """
     return f"{TEST_BASE_URL}/api/seasons/{season_id}/coaches"
 
@@ -26,10 +27,11 @@ def coaches_endpoint(season_id: str) -> str:
 def players_endpoint(season_id: str) -> str:
     """Build the players endpoint URL for a season.
 
-    :param season_id: Season identifier.
-    :type season_id: str
-    :returns: Full endpoint URL.
-    :rtype: str
+    Args:
+        season_id (str): Season identifier.
+
+    Returns:
+        str: Full endpoint URL.
     """
     return f"{TEST_BASE_URL}/api/seasons/{season_id}/players"
 
@@ -37,10 +39,11 @@ def players_endpoint(season_id: str) -> str:
 def referees_endpoint(season_id: str) -> str:
     """Build the referees endpoint URL for a season.
 
-    :param season_id: Season identifier.
-    :type season_id: str
-    :returns: Full endpoint URL.
-    :rtype: str
+    Args:
+        season_id (str): Season identifier.
+
+    Returns:
+        str: Full endpoint URL.
     """
     return f"{TEST_BASE_URL}/api/seasons/{season_id}/referees"
 
@@ -48,12 +51,12 @@ def referees_endpoint(season_id: str) -> str:
 def referee_endpoint(season_id: str, referee_id: str) -> str:
     """Build the single referee endpoint URL.
 
-    :param season_id: Season identifier.
-    :type season_id: str
-    :param referee_id: Referee identifier.
-    :type referee_id: str
-    :returns: Full endpoint URL.
-    :rtype: str
+    Args:
+        season_id (str): Season identifier.
+        referee_id (str): Referee identifier.
+
+    Returns:
+        str: Full endpoint URL.
     """
     return f"{TEST_BASE_URL}/api/seasons/{season_id}/referees/{referee_id}"
 
@@ -61,10 +64,11 @@ def referee_endpoint(season_id: str, referee_id: str) -> str:
 def teams_endpoint(season_id: str) -> str:
     """Build the teams endpoint URL for a season.
 
-    :param season_id: Season identifier.
-    :type season_id: str
-    :returns: Full endpoint URL.
-    :rtype: str
+    Args:
+        season_id (str): Season identifier.
+
+    Returns:
+        str: Full endpoint URL.
     """
     return f"{TEST_BASE_URL}/api/seasons/{season_id}/teams"
 
@@ -72,11 +76,11 @@ def teams_endpoint(season_id: str) -> str:
 def team_endpoint(season_id: str, team_id: str) -> str:
     """Build the single team endpoint URL.
 
-    :param season_id: Season identifier.
-    :type season_id: str
-    :param team_id: Team identifier.
-    :type team_id: str
-    :returns: Full endpoint URL.
-    :rtype: str
+    Args:
+        season_id (str): Season identifier.
+        team_id (str): Team identifier.
+
+    Returns:
+        str: Full endpoint URL.
     """
     return f"{TEST_BASE_URL}/api/seasons/{season_id}/teams/{team_id}"

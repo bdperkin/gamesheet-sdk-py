@@ -15,11 +15,14 @@ import tomli
 def load_toml(path: Path) -> dict[str, Any]:
     """Read and parse a TOML file.
 
-    :param path: Path-like object to the TOML file.
-    :type path: Path
-    :returns: Parsed TOML data as a dict.
-    :rtype: dict[str, Any]
-    :raises ToolError: If the file cannot be read or contains invalid TOML.
+    Args:
+        path (Path): Path-like object to the TOML file.
+
+    Returns:
+        dict[str, Any]: Parsed TOML data as a dict.
+
+    Raises:
+        ToolError: If the file cannot be read or contains invalid TOML.
     """
     try:
         with path.open("rb") as f:

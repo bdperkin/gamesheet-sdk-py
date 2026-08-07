@@ -90,16 +90,13 @@ def associations_get_command(
     browser storage state on disk and attached to the HTTP request. No browser is launched. The output
     displays association metadata as key-value pairs, with each field on its own row.\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param association_id: The association identifier
-    :type association_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param fields_spec: Optional comma-separated list of fields to display
-    :type fields_spec: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        association_id (str): The association identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        fields_spec (str | None): Optional comma-separated list of
+            fields to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -144,14 +141,12 @@ def associations_list_command(
 
         $ gamesheet-admin associations list --format yaml --output assocs.yaml\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param columns_spec: Optional comma-separated list of columns to display
-    :type columns_spec: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        columns_spec (str | None): Optional comma-separated list of
+            columns to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

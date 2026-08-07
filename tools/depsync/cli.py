@@ -53,7 +53,8 @@ logger = logging.getLogger(__name__)
 def _snapshot_files(paths: list[Path]) -> dict[Path, bytes]:
     """Read and store the content of each file that exists.
 
-    :returns: Mapping of path to original bytes for files that exist.
+    Returns:
+        Mapping of path to original bytes for files that exist.
     """
     snapshots: dict[Path, bytes] = {}
     for path in paths:
@@ -79,7 +80,8 @@ def _restore_files(snapshots: dict[Path, bytes]) -> None:
 def _print_colored_diff(diff_lines: list[str]) -> None:
     """Print diff lines with colorized output based on line prefix.
 
-    :param diff_lines: Lines from a unified diff.
+    Args:
+        diff_lines: Lines from a unified diff.
     """
     for line in diff_lines:
         text = line.rstrip("\n")
@@ -207,7 +209,8 @@ def _apply_convergence(
 ) -> bool:
     """Apply or preview convergence results.
 
-    :returns: True if actual file changes are needed.
+    Returns:
+        True if actual file changes are needed.
     """
     _display_results(results)
 
@@ -264,10 +267,15 @@ def _apply_convergence(
 def _check_lockfile_staleness(config: RunConfig) -> str | None:
     """Check whether the lockfile is missing or stale relative to pyproject.toml.
 
-    :param config: Run configuration containing file paths.
-    :returns: A reason string if the lockfile needs regeneration, or None if it is up to date.
-    :rtype: str | None
-    :raises LockfileError: If stat calls fail unexpectedly.
+    Args:
+        config: Run configuration containing file paths.
+
+    Returns:
+        str | None: A reason string if the lockfile needs regeneration,
+        or None if it is up to date.
+
+    Raises:
+        LockfileError: If stat calls fail unexpectedly.
     """
     if not config.uv_lock_path.exists():
         return "missing"
@@ -288,8 +296,9 @@ def _check_lockfile_staleness(config: RunConfig) -> str | None:
 def _ensure_uv_lock(config: RunConfig) -> None:
     """Regenerate uv.lock if it is missing or stale relative to pyproject.toml.
 
-    :raises LockfileError: If uv is not found, the subprocess fails, times out, or the lockfile is still
-        absent after generation.
+    Raises:
+        LockfileError: If uv is not found, the subprocess fails, times
+            out, or the lockfile is still absent after generation.
     """
     reason = _check_lockfile_staleness(config)
 
@@ -361,7 +370,8 @@ def _run_types_sync(
 ) -> bool:
     """Run the types-* stub synchronization phase.
 
-    :returns: True if changes are needed (or were applied), False otherwise.
+    Returns:
+        True if changes are needed (or were applied), False otherwise.
     """
     console.print("\n[bold]Syncing types-* stub packages...[/]")
 
@@ -507,7 +517,8 @@ def _run_dependabot_sync(
 ) -> bool:
     """Sync dependabot.yml ignore list with pinned revs.
 
-    :returns: True if changes are needed (or were applied), False otherwise.
+    Returns:
+        True if changes are needed (or were applied), False otherwise.
     """
     pinned_packages = resolve_pinned_packages(pinned_revs)
 
@@ -530,7 +541,8 @@ def _run_dependabot_sync(
 def _run(config: RunConfig) -> None:
     """Execute the convergence pipeline.
 
-    :raises SystemExit: If check mode is active and changes are needed.
+    Raises:
+        SystemExit: If check mode is active and changes are needed.
     """
     console.print("[bold]Parsing configuration files...[/]")
 
@@ -693,29 +705,21 @@ def app(  # pylint: disable=redefined-outer-name
     Synchronizes dependency versions across pyproject.toml, .genprecommitconfig.yaml, and .pre-commit-
     config.yaml by querying PyPI and git tags for the latest stable versions.
 
-    :param pyproject: Path to pyproject.toml.
-    :type pyproject: str
-    :param precommit_config: Path to .pre-commit-config.yaml.
-    :type precommit_config: str
-    :param genprecommit_config: Path to .genprecommitconfig.yaml.
-    :type genprecommit_config: str
-    :param dependabot: Path to dependabot.yml.
-    :type dependabot: str
-    :param uv_lock: Path to uv.lock.
-    :type uv_lock: str
-    :param log_level: Logging level string.
-    :type log_level: str
-    :param dry_run: If True, report changes without writing files.
-    :type dry_run: bool
-    :param sync_types: If True, synchronize types-* stub packages.
-    :type sync_types: bool
-    :param backup: If True, create backup files before writing.
-    :type backup: bool
-    :param check_mode: If True, exit 1 when changes would be made.
-    :type check_mode: bool
-    :param show_diff: If True, show unified diff of changes.
-    :type show_diff: bool
-    :raises SystemExit: If a SyncDepsError occurs during execution.
+    Args:
+        pyproject (str): Path to pyproject.toml.
+        precommit_config (str): Path to .pre-commit-config.yaml.
+        genprecommit_config (str): Path to .genprecommitconfig.yaml.
+        dependabot (str): Path to dependabot.yml.
+        uv_lock (str): Path to uv.lock.
+        log_level (str): Logging level string.
+        dry_run (bool): If True, report changes without writing files.
+        sync_types (bool): If True, synchronize types-* stub packages.
+        backup (bool): If True, create backup files before writing.
+        check_mode (bool): If True, exit 1 when changes would be made.
+        show_diff (bool): If True, show unified diff of changes.
+
+    Raises:
+        SystemExit: If a SyncDepsError occurs during execution.
     """
     configure_logging(log_level, console)
 

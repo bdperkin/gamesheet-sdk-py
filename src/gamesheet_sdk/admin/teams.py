@@ -37,16 +37,17 @@ class Team(BaseModel):
     Maps the ``data[*]`` items in the JSON:API response of ``GET /api/seasons/{season_id}/teams`` to a flat
     typed model.
 
-    :var id: Team identifier (string in JSON:API).
-    :var season_id: Parent season identifier.
-    :var title: Team name/title.
-    :var division_id: Division identifier if team belongs to a division.
-    :var logo: URL to the team logo image.
-    :var invitation_code: Invitation code for joining the team.
-    :var player_count: Number of players on the team.
-    :var coach_count: Number of coaches on the team.
-    :var created_at: When the team was created.
-    :var updated_at: Last time the team was updated.
+    Attributes:
+        id: Team identifier (string in JSON:API).
+        season_id: Parent season identifier.
+        title: Team name/title.
+        division_id: Division identifier if team belongs to a division.
+        logo: URL to the team logo image.
+        invitation_code: Invitation code for joining the team.
+        player_count: Number of players on the team.
+        coach_count: Number of coaches on the team.
+        created_at: When the team was created.
+        updated_at: Last time the team was updated.
     """
 
     id: str = Field(description="Team identifier (string in JSON:API).")
@@ -79,10 +80,12 @@ class Team(BaseModel):
 def _parse(item: dict[str, Any]) -> Team:
     """Flatten a JSON:API resource object into a :class:`Team`.
 
-    :param item: A JSON:API resource object with ``id``, ``attributes``, and ``relationships`` keys.
-    :type item: dict[str, Any]
-    :returns: Parsed Team model instance.
-    :rtype: Team
+    Args:
+        item (dict[str, Any]): A JSON:API resource object with ``id``,
+            ``attributes``, and ``relationships`` keys.
+
+    Returns:
+        Team: Parsed Team model instance.
     """
     attrs = item.get("attributes", {})
     relationships = item.get("relationships", {})
@@ -118,13 +121,14 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier whose teams to list.
-    :type season_id: str
-    :returns: A list of :class:`Team`, in the order the server returned them. The list may be empty if the
-        season has no teams.
-    :rtype: list[Team]
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier whose teams to list.
+
+    Returns:
+        list[Team]: A list of :class:`Team`, in the order the server
+        returned them. The list may be empty if the season has no teams.
     """
     endpoint = f"/api/seasons/{season_id}/teams"
     # Request sparse fieldset including logo_url and roster (for player/coach counts)
@@ -160,16 +164,21 @@ def get_team(session: Session, season_id: str, team_id: str) -> Team:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The parent season identifier.
-    :type season_id: str
-    :param team_id: The team identifier to retrieve.
-    :type team_id: str
-    :returns: The :class:`Team` with the specified ID.
-    :rtype: Team
-    :raises GameSheetError: If the team is not found or for any other non-2xx response from the API.
-    .. note:: The single-team GET endpoint doesn't support including related invitations,
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The parent season identifier.
+        team_id (str): The team identifier to retrieve.
+
+    Returns:
+        Team: The :class:`Team` with the specified ID.
+
+    Raises:
+        GameSheetError: If the team is not found or for any other
+            non-2xx response from the API.
+
+    Note:
+        The single-team GET endpoint doesn't support including related invitations,
         so this function fetches all teams in the season (which does include invitations)
         and filters to the requested team. This ensures invitation_code is populated.
     """
@@ -192,14 +201,17 @@ def get_team(session: Session, season_id: str, team_id: str) -> Team:
 def _upload_logo(session: Session, logo_path: str) -> str:
     """Upload a logo image and return its URL.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param logo_path: Path to a local logo image file.
-    :type logo_path: str
-    :returns: The Cloudflare CDN URL for the uploaded logo.
-    :rtype: str
-    :raises GameSheetError: If the file is not found, is not a valid image, or the upload fails.
-    :raises AuthenticationError: If the server returns 401.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        logo_path (str): Path to a local logo image file.
+
+    Returns:
+        str: The Cloudflare CDN URL for the uploaded logo.
+
+    Raises:
+        GameSheetError: If the file is not found, is not a valid image,
+            or the upload fails.
+        AuthenticationError: If the server returns 401.
     """
     from gamesheet_sdk.common.shared import upload_image
 
@@ -214,16 +226,15 @@ def _handle_team_response_errors(
 ) -> None:
     """Check response for common errors and raise appropriate exceptions.
 
-    :param response: The HTTP response object.
-    :type response: Any
-    :param endpoint: The API endpoint that was called.
-    :type endpoint: str
-    :param team_id: The team identifier.
-    :type team_id: str
-    :param season_id: The season identifier.
-    :type season_id: str
-    :raises AuthenticationError: If the response is 401.
-    :raises GameSheetError: For 404 or other non-2xx responses.
+    Args:
+        response (Any): The HTTP response object.
+        endpoint (str): The API endpoint that was called.
+        team_id (str): The team identifier.
+        season_id (str): The season identifier.
+
+    Raises:
+        AuthenticationError: If the response is 401.
+        GameSheetError: For 404 or other non-2xx responses.
     """
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
@@ -260,26 +271,23 @@ def update_team(
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401. At least one field
     must be provided for update. The API requires sending the full team data, so this function first fetches
     the current team to preserve unchanged fields.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier containing the team.
-    :type season_id: str
-    :param team_id: The team identifier to update.
-    :type team_id: str
-    :param title: Optional new team name/title.
-    :type title: str | None
-    :param external_id: Optional new external identifier.
-    :type external_id: str | None
-    :param division_id: Optional new division identifier.
-    :type division_id: str | None
-    :param logo_path: Optional path to a new logo image file.
-    :type logo_path: str | None
-    :param remove_logo: If True, remove the team's logo.
-    :type remove_logo: bool
-    :returns: The updated :class:`Team`.
-    :rtype: Team
-    :raises GameSheetError: For any other non-2xx response.
-    :raises ValueError: If no fields are provided for update.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier containing the team.
+        team_id (str): The team identifier to update.
+        title (str | None): Optional new team name/title.
+        external_id (str | None): Optional new external identifier.
+        division_id (str | None): Optional new division identifier.
+        logo_path (str | None): Optional path to a new logo image file.
+        remove_logo (bool): If True, remove the team's logo.
+
+    Returns:
+        Team: The updated :class:`Team`.
+
+    Raises:
+        GameSheetError: For any other non-2xx response.
+        ValueError: If no fields are provided for update.
     """
     if all(v is None or v is False for v in (title, external_id, division_id, logo_path, remove_logo)):
         raise ValueError(errors.ERROR_MSG_AT_LEAST_ONE_FIELD)
@@ -385,22 +393,24 @@ def create_team(
     1. Request an upload URL for the logo (if logo_path is provided)
     2. Upload the logo to the returned URL (if logo_path is provided)
     3. Create the team with the logo URL
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier to create the team in.
-    :type season_id: str
-    :param title: The team name/title.
-    :type title: str
-    :param division_id: The division identifier the team belongs to.
-    :type division_id: str
-    :param external_id: Optional external identifier for the team.
-    :type external_id: str | None
-    :param logo_path: Optional path to a local logo image file.
-    :type logo_path: str | None
-    :returns: The server's response containing prototeam, seasonTeam, member, and invitation data.
-    :rtype: dict[str, Any]
-    :raises AuthenticationError: If the server returns 401.
-    :raises GameSheetError: For any other non-2xx response.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier to create the team in.
+        title (str): The team name/title.
+        division_id (str): The division identifier the team belongs to.
+        external_id (str | None): Optional external identifier for the
+            team.
+        logo_path (str | None): Optional path to a local logo image
+            file.
+
+    Returns:
+        dict[str, Any]: The server's response containing prototeam,
+        seasonTeam, member, and invitation data.
+
+    Raises:
+        AuthenticationError: If the server returns 401.
+        GameSheetError: For any other non-2xx response.
     """
     logo_url: str | None = None
     if logo_path:
@@ -441,15 +451,17 @@ def delete_team(
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier containing the team.
-    :type season_id: str
-    :param team_id: The team identifier to delete.
-    :type team_id: str
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-admin login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier containing the team.
+        team_id (str): The team identifier to delete.
+
+    Raises:
+        AuthenticationError: If the server returns 401 (the bearer is
+            missing, malformed, or expired -- run ``gamesheet-admin
+            login`` to refresh).
+        GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
     response = session.delete(

@@ -48,14 +48,14 @@ def login_command(
     authentication tokens. Tokens are saved to disk so subsequent commands can authenticate without launching
     a browser.\f
 
-    :param ctx: Click context carrying the :class:`~gamesheet_sdk.common.config.Config` instance.
-    :type ctx: Context
-    :param email: Email address for login, or ``None`` to use the environment variable.
-    :type email: str | None
-    :param password: Password for login, or ``None`` to prompt interactively.
-    :type password: str | None
-    :param timeout: Page-load timeout in milliseconds.
-    :type timeout: int
+    Args:
+        ctx (Context): Click context carrying the
+            :class:`~gamesheet_sdk.common.config.Config` instance.
+        email (str | None): Email address for login, or ``None`` to use
+            the environment variable.
+        password (str | None): Password for login, or ``None`` to prompt
+            interactively.
+        timeout (int): Page-load timeout in milliseconds.
     """
     config: Config = ctx.obj
     try:

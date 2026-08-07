@@ -26,16 +26,17 @@ def get_player(session: Session, season_id: str, player_id: str) -> Player:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The parent season identifier.
-    :type season_id: str
-    :param player_id: The player identifier to retrieve.
-    :type player_id: str
-    :returns: The requested Player model instance.
-    :rtype: Player
-    :raises AuthenticationError: If the server returns 401.
-    :raises GameSheetError: For any other non-2xx response.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The parent season identifier.
+        player_id (str): The player identifier to retrieve.
+
+    Returns:
+        Player: The requested Player model instance.
+
+    Raises:
+        AuthenticationError: If the server returns 401.
+        GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/players/{player_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -49,13 +50,15 @@ def list_players(session: Session, season_id: str) -> list[Player]:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier whose players to list.
-    :type season_id: str
-    :returns: A list of :class:`Player`, in the order the server returned them. The list may be empty if the
-        season has no players.
-    :rtype: list[Player]
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier whose players to list.
+
+    Returns:
+        list[Player]: A list of :class:`Player`, in the order the server
+        returned them. The list may be empty if the season has no
+        players.
     """
     endpoint = f"/api/seasons/{season_id}/players"
     response = session.get(
@@ -75,15 +78,15 @@ def list_team_players(session: Session, season_id: str, team_id: str) -> list[Pl
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier.
-    :type season_id: str
-    :param team_id: The team identifier whose players to list.
-    :type team_id: str
-    :returns: A list of :class:`Player`, in the order the server returned them. The list may be empty if the
-        team has no players.
-    :rtype: list[Player]
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier.
+        team_id (str): The team identifier whose players to list.
+
+    Returns:
+        list[Player]: A list of :class:`Player`, in the order the server
+        returned them. The list may be empty if the team has no players.
     """
     endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
     response = session.get(
@@ -128,14 +131,17 @@ def list_team_players(session: Session, season_id: str, team_id: str) -> list[Pl
 def _upload_photo(session: Session, photo_path: str) -> str:
     """Upload a photo image and return its URL.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param photo_path: Path to a local photo image file.
-    :type photo_path: str
-    :returns: The Cloudflare CDN URL for the uploaded photo.
-    :rtype: str
-    :raises GameSheetError: If the file is not found, is not a valid image, or the upload fails.
-    :raises AuthenticationError: If the server returns 401.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        photo_path (str): Path to a local photo image file.
+
+    Returns:
+        str: The Cloudflare CDN URL for the uploaded photo.
+
+    Raises:
+        GameSheetError: If the file is not found, is not a valid image,
+            or the upload fails.
+        AuthenticationError: If the server returns 401.
     """
     from gamesheet_sdk.common.shared import upload_image
 
@@ -145,12 +151,10 @@ def _upload_photo(session: Session, photo_path: str) -> str:
 def _add_optional_field(attrs: dict[str, Any], key: str, value: Any) -> None:
     """Add a field to attrs dict if value is truthy.
 
-    :param attrs: The attributes dictionary to update.
-    :type attrs: dict[str, Any]
-    :param key: The attribute key name.
-    :type key: str
-    :param value: The value to add (only added if truthy).
-    :type value: Any
+    Args:
+        attrs (dict[str, Any]): The attributes dictionary to update.
+        key (str): The attribute key name.
+        value (Any): The value to add (only added if truthy).
     """
     if value:
         attrs[key] = value
@@ -184,52 +188,44 @@ def create_player(
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier to create the player in.
-    :type season_id: str
-    :param first_name: Player's first name.
-    :type first_name: str
-    :param last_name: Player's last name.
-    :type last_name: str
-    :param external_id: Optional external identifier for the player.
-    :type external_id: str | None
-    :param jersey: Optional jersey number.
-    :type jersey: str | None
-    :param position: Optional position (Forward, Defence, Goalie, etc.).
-    :type position: str | None
-    :param status: Optional status (Regular, Affiliated, etc.).
-    :type status: str | None
-    :param designation: Optional designation (Captain, Alternate Captain, etc.).
-    :type designation: str | None
-    :param team_id: Optional team identifier to associate the player with.
-    :type team_id: str | None
-    :param biography: Optional biography text.
-    :type biography: str | None
-    :param height: Optional height (e.g., "6'2\"").
-    :type height: str | None
-    :param weight: Optional weight (e.g., "185").
-    :type weight: str | None
-    :param shot_hand: Optional shooting hand (left, right).
-    :type shot_hand: str | None
-    :param birthdate: Optional birthdate (ISO format: YYYY-MM-DD).
-    :type birthdate: str | None
-    :param hometown: Optional hometown.
-    :type hometown: str | None
-    :param country: Optional country code (e.g., "US", "CA").
-    :type country: str | None
-    :param province: Optional province/state.
-    :type province: str | None
-    :param drafted_by: Optional drafted by team name.
-    :type drafted_by: str | None
-    :param committed_to: Optional committed to institution.
-    :type committed_to: str | None
-    :param photo_path: Optional path to a local photo image file.
-    :type photo_path: str | None
-    :returns: The newly created Player model instance.
-    :rtype: Player
-    :raises AuthenticationError: If the server returns 401.
-    :raises GameSheetError: For any other non-2xx response, or if photo upload fails.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier to create the player in.
+        first_name (str): Player's first name.
+        last_name (str): Player's last name.
+        external_id (str | None): Optional external identifier for the
+            player.
+        jersey (str | None): Optional jersey number.
+        position (str | None): Optional position (Forward, Defence,
+            Goalie, etc.).
+        status (str | None): Optional status (Regular, Affiliated,
+            etc.).
+        designation (str | None): Optional designation (Captain,
+            Alternate Captain, etc.).
+        team_id (str | None): Optional team identifier to associate the
+            player with.
+        biography (str | None): Optional biography text.
+        height (str | None): Optional height (e.g., "6'2\"").
+        weight (str | None): Optional weight (e.g., "185").
+        shot_hand (str | None): Optional shooting hand (left, right).
+        birthdate (str | None): Optional birthdate (ISO format: YYYY-MM-
+            DD).
+        hometown (str | None): Optional hometown.
+        country (str | None): Optional country code (e.g., "US", "CA").
+        province (str | None): Optional province/state.
+        drafted_by (str | None): Optional drafted by team name.
+        committed_to (str | None): Optional committed to institution.
+        photo_path (str | None): Optional path to a local photo image
+            file.
+
+    Returns:
+        Player: The newly created Player model instance.
+
+    Raises:
+        AuthenticationError: If the server returns 401.
+        GameSheetError: For any other non-2xx response, or if photo
+            upload fails.
     """
     photo_url: str | None = None
     if photo_path:
@@ -284,17 +280,18 @@ def get_team_player(
     the team context, unlike :func:`get_player` which fetches from the season-level players endpoint without
     roster metadata. The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier.
-    :type season_id: str
-    :param team_id: The team identifier.
-    :type team_id: str
-    :param player_id: The player identifier to retrieve.
-    :type player_id: str
-    :returns: The :class:`Player` with team roster metadata populated.
-    :rtype: Player
-    :raises GameSheetError: If the player is not found on the team's roster.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier.
+        team_id (str): The team identifier.
+        player_id (str): The player identifier to retrieve.
+
+    Returns:
+        Player: The :class:`Player` with team roster metadata populated.
+
+    Raises:
+        GameSheetError: If the player is not found on the team's roster.
     """
     players = list_team_players(session, season_id, team_id)
     for player in players:
@@ -314,18 +311,19 @@ def _build_player_roster_entry(
 ) -> dict[str, Any]:
     """Build a player roster entry dict for team roster updates.
 
-    :param player_id: The player identifier.
-    :type player_id: str
-    :param jersey: Optional jersey number.
-    :type jersey: str | None
-    :param position: Optional position (Forward, Defence, Goalie, etc.).
-    :type position: str | None
-    :param status: Optional status (Regular, Affiliated, etc.).
-    :type status: str | None
-    :param designation: Optional designation (Captain, Alternate Captain, etc.).
-    :type designation: str | None
-    :returns: Dictionary containing roster entry data ready for team roster update.
-    :rtype: dict[str, Any]
+    Args:
+        player_id (str): The player identifier.
+        jersey (str | None): Optional jersey number.
+        position (str | None): Optional position (Forward, Defence,
+            Goalie, etc.).
+        status (str | None): Optional status (Regular, Affiliated,
+            etc.).
+        designation (str | None): Optional designation (Captain,
+            Alternate Captain, etc.).
+
+    Returns:
+        dict[str, Any]: Dictionary containing roster entry data ready
+        for team roster update.
     """
     entry: dict[str, Any] = {
         "id": player_id,
@@ -360,16 +358,12 @@ def _populate_player_metadata(
 
     Mutates the Player object in place to set roster-specific fields.
 
-    :param player: The Player instance to populate.
-    :type player: Player
-    :param jersey: Optional jersey number.
-    :type jersey: str | None
-    :param position: Optional position.
-    :type position: str | None
-    :param status: Optional status.
-    :type status: str | None
-    :param designation: Optional designation.
-    :type designation: str | None
+    Args:
+        player (Player): The Player instance to populate.
+        jersey (str | None): Optional jersey number.
+        position (str | None): Optional position.
+        status (str | None): Optional status.
+        designation (str | None): Optional designation.
     """
     if jersey:
         player.number = jersey
@@ -412,52 +406,44 @@ def create_team_player(
     team's roster to include the new player with position and other metadata.  The supplied
     :class:`Session` must already carry a bearer token (e.g. via :meth:`Session.set_bearer_token`);
     the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier.
-    :type season_id: str
-    :param team_id: The team identifier to add the player to.
-    :type team_id: str
-    :param first_name: Player's first name.
-    :type first_name: str
-    :param last_name: Player's last name.
-    :type last_name: str
-    :param external_id: Optional external identifier for the player.
-    :type external_id: str | None
-    :param jersey: Optional jersey number.
-    :type jersey: str | None
-    :param position: Optional position (Forward, Defence, Goalie, etc.).
-    :type position: str | None
-    :param status: Optional status (Regular, Affiliated, etc.).
-    :type status: str | None
-    :param designation: Optional designation (Captain, Alternate Captain, etc.).
-    :type designation: str | None
-    :param biography: Optional biography text.
-    :type biography: str | None
-    :param height: Optional height (e.g., "6'2\"").
-    :type height: str | None
-    :param weight: Optional weight (e.g., "185").
-    :type weight: str | None
-    :param shot_hand: Optional shooting hand (left, right).
-    :type shot_hand: str | None
-    :param birthdate: Optional birthdate (ISO format: YYYY-MM-DD).
-    :type birthdate: str | None
-    :param hometown: Optional hometown.
-    :type hometown: str | None
-    :param country: Optional country code (e.g., "US", "CA").
-    :type country: str | None
-    :param province: Optional province/state.
-    :type province: str | None
-    :param drafted_by: Optional drafted by team name.
-    :type drafted_by: str | None
-    :param committed_to: Optional committed to institution.
-    :type committed_to: str | None
-    :param photo_path: Optional path to a local photo image file.
-    :type photo_path: str | None
-    :returns: The newly created Player model instance with roster metadata populated.
-    :rtype: Player
-    :raises AuthenticationError: If the server returns 401.
-    :raises GameSheetError: For any other non-2xx response, or if photo upload fails.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier.
+        team_id (str): The team identifier to add the player to.
+        first_name (str): Player's first name.
+        last_name (str): Player's last name.
+        external_id (str | None): Optional external identifier for the
+            player.
+        jersey (str | None): Optional jersey number.
+        position (str | None): Optional position (Forward, Defence,
+            Goalie, etc.).
+        status (str | None): Optional status (Regular, Affiliated,
+            etc.).
+        designation (str | None): Optional designation (Captain,
+            Alternate Captain, etc.).
+        biography (str | None): Optional biography text.
+        height (str | None): Optional height (e.g., "6'2\"").
+        weight (str | None): Optional weight (e.g., "185").
+        shot_hand (str | None): Optional shooting hand (left, right).
+        birthdate (str | None): Optional birthdate (ISO format: YYYY-MM-
+            DD).
+        hometown (str | None): Optional hometown.
+        country (str | None): Optional country code (e.g., "US", "CA").
+        province (str | None): Optional province/state.
+        drafted_by (str | None): Optional drafted by team name.
+        committed_to (str | None): Optional committed to institution.
+        photo_path (str | None): Optional path to a local photo image
+            file.
+
+    Returns:
+        Player: The newly created Player model instance with roster
+        metadata populated.
+
+    Raises:
+        AuthenticationError: If the server returns 401.
+        GameSheetError: For any other non-2xx response, or if photo
+            upload fails.
     """
     photo_url: str | None = None
     if photo_path:
@@ -536,14 +522,11 @@ def _merge_optional_field(
 ) -> None:
     """Merge an optional field into attrs dict, preferring new value over current.
 
-    :param attrs: The attributes dictionary to update.
-    :type attrs: dict[str, Any]
-    :param key: The attribute key name.
-    :type key: str
-    :param new_value: The new value (may be None).
-    :type new_value: Any
-    :param current_value: The current value from existing record.
-    :type current_value: Any
+    Args:
+        attrs (dict[str, Any]): The attributes dictionary to update.
+        key (str): The attribute key name.
+        new_value (Any): The new value (may be None).
+        current_value (Any): The current value from existing record.
     """
     if new_value is not None:
         attrs[key] = new_value
@@ -577,45 +560,38 @@ def update_player(
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401. At least one field
     must be provided for update.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier containing the player.
-    :type season_id: str
-    :param player_id: The player identifier to update.
-    :type player_id: str
-    :param first_name: Optional updated first name.
-    :type first_name: str | None
-    :param last_name: Optional updated last name.
-    :type last_name: str | None
-    :param external_id: Optional updated external identifier.
-    :type external_id: str | None
-    :param biography: Optional updated biography text.
-    :type biography: str | None
-    :param height: Optional updated height (e.g., "6'2\"").
-    :type height: str | None
-    :param weight: Optional updated weight (e.g., "185").
-    :type weight: str | None
-    :param shot_hand: Optional updated shooting hand (left, right).
-    :type shot_hand: str | None
-    :param birthdate: Optional updated birthdate (ISO format: YYYY-MM-DD).
-    :type birthdate: str | None
-    :param hometown: Optional updated hometown.
-    :type hometown: str | None
-    :param country: Optional updated country code (e.g., "US", "CA").
-    :type country: str | None
-    :param province: Optional updated province/state.
-    :type province: str | None
-    :param drafted_by: Optional updated drafted by team name.
-    :type drafted_by: str | None
-    :param committed_to: Optional updated committed to institution.
-    :type committed_to: str | None
-    :param photo_path: Optional path to a new photo image file.
-    :type photo_path: str | None
-    :param remove_photo: If True, remove the player's photo.
-    :type remove_photo: bool
-    :returns: The updated :class:`Player`.
-    :rtype: Player
-    :raises ValueError: If no fields are provided for update or both photo_path and remove_photo are set.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier containing the player.
+        player_id (str): The player identifier to update.
+        first_name (str | None): Optional updated first name.
+        last_name (str | None): Optional updated last name.
+        external_id (str | None): Optional updated external identifier.
+        biography (str | None): Optional updated biography text.
+        height (str | None): Optional updated height (e.g., "6'2\"").
+        weight (str | None): Optional updated weight (e.g., "185").
+        shot_hand (str | None): Optional updated shooting hand (left,
+            right).
+        birthdate (str | None): Optional updated birthdate (ISO format:
+            YYYY-MM-DD).
+        hometown (str | None): Optional updated hometown.
+        country (str | None): Optional updated country code (e.g., "US",
+            "CA").
+        province (str | None): Optional updated province/state.
+        drafted_by (str | None): Optional updated drafted by team name.
+        committed_to (str | None): Optional updated committed to
+            institution.
+        photo_path (str | None): Optional path to a new photo image
+            file.
+        remove_photo (bool): If True, remove the player's photo.
+
+    Returns:
+        Player: The updated :class:`Player`.
+
+    Raises:
+        ValueError: If no fields are provided for update or both
+            photo_path and remove_photo are set.
     """
     if all(
         v is None or v is False
@@ -721,47 +697,39 @@ def update_team_player(
     This function updates the player at the season level. The supplied :class:`Session` must already carry a
     bearer token (e.g. via :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will
     401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier.
-    :type season_id: str
-    :param team_id: The team identifier.
-    :type team_id: str
-    :param player_id: The player identifier to update.
-    :type player_id: str
-    :param first_name: Optional updated first name.
-    :type first_name: str | None
-    :param last_name: Optional updated last name.
-    :type last_name: str | None
-    :param external_id: Optional updated external identifier.
-    :type external_id: str | None
-    :param biography: Optional updated biography text.
-    :type biography: str | None
-    :param height: Optional updated height (e.g., "6'2\"").
-    :type height: str | None
-    :param weight: Optional updated weight (e.g., "185").
-    :type weight: str | None
-    :param shot_hand: Optional updated shooting hand (left, right).
-    :type shot_hand: str | None
-    :param birthdate: Optional updated birthdate (ISO format: YYYY-MM-DD).
-    :type birthdate: str | None
-    :param hometown: Optional updated hometown.
-    :type hometown: str | None
-    :param country: Optional updated country code (e.g., "US", "CA").
-    :type country: str | None
-    :param province: Optional updated province/state.
-    :type province: str | None
-    :param drafted_by: Optional updated drafted by team name.
-    :type drafted_by: str | None
-    :param committed_to: Optional updated committed to institution.
-    :type committed_to: str | None
-    :param photo_path: Optional path to a new photo image file.
-    :type photo_path: str | None
-    :param remove_photo: If True, remove the player's photo.
-    :type remove_photo: bool
-    :returns: The updated :class:`Player`.
-    :rtype: Player
-    :raises ValueError: If no fields are provided for update or both photo_path and remove_photo are set.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier.
+        team_id (str): The team identifier.
+        player_id (str): The player identifier to update.
+        first_name (str | None): Optional updated first name.
+        last_name (str | None): Optional updated last name.
+        external_id (str | None): Optional updated external identifier.
+        biography (str | None): Optional updated biography text.
+        height (str | None): Optional updated height (e.g., "6'2\"").
+        weight (str | None): Optional updated weight (e.g., "185").
+        shot_hand (str | None): Optional updated shooting hand (left,
+            right).
+        birthdate (str | None): Optional updated birthdate (ISO format:
+            YYYY-MM-DD).
+        hometown (str | None): Optional updated hometown.
+        country (str | None): Optional updated country code (e.g., "US",
+            "CA").
+        province (str | None): Optional updated province/state.
+        drafted_by (str | None): Optional updated drafted by team name.
+        committed_to (str | None): Optional updated committed to
+            institution.
+        photo_path (str | None): Optional path to a new photo image
+            file.
+        remove_photo (bool): If True, remove the player's photo.
+
+    Returns:
+        Player: The updated :class:`Player`.
+
+    Raises:
+        ValueError: If no fields are provided for update or both
+            photo_path and remove_photo are set.
     """
     if all(
         v is None or v is False
@@ -853,12 +821,11 @@ def delete_player(session: Session, season_id: str, player_id: str) -> None:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier containing the player.
-    :type season_id: str
-    :param player_id: The player identifier to delete.
-    :type player_id: str
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier containing the player.
+        player_id (str): The player identifier to delete.
     """
     endpoint = f"/api/seasons/{season_id}/players/{player_id}"
     response = session.delete(endpoint, headers=JSONAPI_HEADERS)
@@ -875,15 +842,15 @@ def unassign_player(
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier.
-    :type season_id: str
-    :param player_id: The player identifier to unassign.
-    :type player_id: str
-    :param team_id: The team identifier to unassign the player from.
-    :type team_id: str
-    :raises GameSheetError: If the player is not assigned to the team.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier.
+        player_id (str): The player identifier to unassign.
+        team_id (str): The team identifier to unassign the player from.
+
+    Raises:
+        GameSheetError: If the player is not assigned to the team.
     """
     # Step 1: Fetch current team data
     team_data = get_team_for_roster_update(session, season_id, team_id)
@@ -922,14 +889,12 @@ def delete_team_player(
     (2) deletes the player at the season level. The supplied :class:`Session` must already
     carry a bearer token (e.g. via :meth:`Session.set_bearer_token`); the call is otherwise
     unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier.
-    :type season_id: str
-    :param team_id: The team identifier.
-    :type team_id: str
-    :param player_id: The player identifier to delete.
-    :type player_id: str
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier.
+        team_id (str): The team identifier.
+        player_id (str): The player identifier to delete.
     """
     # Step 1: Remove player from team roster (may not be on this team's roster)
     with suppress(GameSheetError):
@@ -954,26 +919,25 @@ def assign_player(
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier.
-    :type season_id: str
-    :param player_id: The player identifier to assign.
-    :type player_id: str
-    :param team_id: The team identifier to assign the player to.
-    :type team_id: str
-    :param jersey: Optional jersey number.
-    :type jersey: str | None
-    :param position: Optional position (Forward, Defence, Goalie, etc.).
-    :type position: str | None
-    :param status: Optional status (Regular, Affiliated, etc.).
-    :type status: str | None
-    :param designation: Optional designation (Captain, Alternate Captain, etc.).
-    :type designation: str | None
-    :returns: The :class:`Player` with roster metadata populated.
-    :rtype: Player
-    :raises GameSheetError: If the player is already assigned to the team.
-    :raises AuthenticationError: If the server returns 401.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier.
+        player_id (str): The player identifier to assign.
+        team_id (str): The team identifier to assign the player to.
+        jersey (str | None): Optional jersey number.
+        position (str | None): Optional position (Forward, Defence,
+            Goalie, etc.).
+        status (str | None): Optional status (Regular, Affiliated,
+            etc.).
+        designation (str | None): Optional designation (Captain,
+            Alternate Captain, etc.).
+
+    Returns:
+        Player: The :class:`Player` with roster metadata populated.
+
+    Raises:
+        GameSheetError: If the player is already assigned to the team.
+        AuthenticationError: If the server returns 401.
     """
     player = get_player(session, season_id, player_id)
     team_data = get_team_for_roster_update(session, season_id, team_id)
@@ -1029,26 +993,26 @@ def assign_team_player(
     This is an alias for :func:`assign_player` provided for consistency with the team-scoped command
     structure. The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier.
-    :type season_id: str
-    :param team_id: The team identifier to assign the player to.
-    :type team_id: str
-    :param player_id: The player identifier to assign.
-    :type player_id: str
-    :param jersey: Optional jersey number.
-    :type jersey: str | None
-    :param position: Optional position (Forward, Defence, Goalie, etc.).
-    :type position: str | None
-    :param status: Optional status (Regular, Affiliated, etc.).
-    :type status: str | None
-    :param designation: Optional designation (Captain, Alternate Captain, etc.).
-    :type designation: str | None
-    :returns: The :class:`Player` with roster metadata populated.
-    :rtype: Player
-    :raises GameSheetError: If the player is already assigned to the team.
-    :raises AuthenticationError: If the server returns 401.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier.
+        team_id (str): The team identifier to assign the player to.
+        player_id (str): The player identifier to assign.
+        jersey (str | None): Optional jersey number.
+        position (str | None): Optional position (Forward, Defence,
+            Goalie, etc.).
+        status (str | None): Optional status (Regular, Affiliated,
+            etc.).
+        designation (str | None): Optional designation (Captain,
+            Alternate Captain, etc.).
+
+    Returns:
+        Player: The :class:`Player` with roster metadata populated.
+
+    Raises:
+        GameSheetError: If the player is already assigned to the team.
+        AuthenticationError: If the server returns 401.
     """
     return assign_player(
         session,
@@ -1073,14 +1037,12 @@ def unassign_team_player(
     This is an alias for :func:`unassign_player` provided for consistency with the team-scoped command
     structure. The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier.
-    :type season_id: str
-    :param team_id: The team identifier to unassign the player from.
-    :type team_id: str
-    :param player_id: The player identifier to unassign.
-    :type player_id: str
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier.
+        team_id (str): The team identifier to unassign the player from.
+        player_id (str): The player identifier to unassign.
     """
     unassign_player(session, season_id, player_id, team_id)
 
@@ -1095,15 +1057,15 @@ def get_player_penalty_report(
     First retrieves the player to get their external_id, then fetches the penalty report from the BFF API. The
     supplied :class:`Session` must already carry a bearer token (e.g. via :meth:`Session.set_bearer_token`);
     the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier.
-    :type season_id: str
-    :param player_id: The player identifier.
-    :type player_id: str
-    :returns: Penalty report data including player_games, player_penalties, rostered_players, and
-        season_players.
-    :rtype: dict[str, Any]
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier.
+        player_id (str): The player identifier.
+
+    Returns:
+        dict[str, Any]: Penalty report data including player_games,
+        player_penalties, rostered_players, and season_players.
     """
     player = get_player(session, season_id, player_id)
     external_id = player.external_id

@@ -19,10 +19,11 @@ F = TypeVar("F", bound=Callable[..., object])
 def common_output_options(func: F) -> F:
     """Add standard --format and --output options to command.
 
-    :param func: The Click command function to decorate
-    :type func: F
-    :returns: The decorated function with --format and --output options
-    :rtype: F
+    Args:
+        func (F): The Click command function to decorate
+
+    Returns:
+        F: The decorated function with --format and --output options
     """
     func = click.option(
         "--format",
@@ -51,10 +52,11 @@ def common_output_options(func: F) -> F:
 def list_columns_option(func: F) -> F:
     """Add --columns option for list commands.
 
-    :param func: The Click command function to decorate
-    :type func: F
-    :returns: The decorated function with --columns option
-    :rtype: F
+    Args:
+        func (F): The Click command function to decorate
+
+    Returns:
+        F: The decorated function with --columns option
     """
     return click.option(
         "--columns",
@@ -68,10 +70,11 @@ def list_columns_option(func: F) -> F:
 def get_fields_option(func: F) -> F:
     """Add --fields option for get commands.
 
-    :param func: The Click command function to decorate
-    :type func: F
-    :returns: The decorated function with --fields option
-    :rtype: F
+    Args:
+        func (F): The Click command function to decorate
+
+    Returns:
+        F: The decorated function with --fields option
     """
     return click.option(
         "--fields",
@@ -85,10 +88,11 @@ def get_fields_option(func: F) -> F:
 def team_update_options(func: F) -> F:
     """Add common team update options.
 
-    :param func: The Click command function to decorate
-    :type func: F
-    :returns: The decorated function with team update options
-    :rtype: F
+    Args:
+        func (F): The Click command function to decorate
+
+    Returns:
+        F: The decorated function with team update options
     """
     func = click.option(
         "--title",
@@ -126,10 +130,11 @@ def team_update_options(func: F) -> F:
 def team_create_options(func: F) -> F:
     """Add common team create options.
 
-    :param func: The Click command function to decorate
-    :type func: F
-    :returns: The decorated function with team create options
-    :rtype: F
+    Args:
+        func (F): The Click command function to decorate
+
+    Returns:
+        F: The decorated function with team create options
     """
     func = click.option(
         "--external-id",

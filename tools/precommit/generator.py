@@ -101,8 +101,9 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
     def __init__(self: PreCommitGenerator, run_config: RunConfig) -> None:
         """Initialize the generator with a run configuration.
 
-        :param run_config: Runtime configuration for the generation pipeline.
-        :type run_config: RunConfig
+        Args:
+            run_config (RunConfig): Runtime configuration for the
+                generation pipeline.
         """
         self.run_config = run_config
         self.tool_config: ToolConfig | None = None
@@ -120,9 +121,14 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
     def _validate_tool_config(raw: dict[str, Any]) -> ToolConfig:
         """Validate a raw config dict into a ToolConfig model.
 
-        :param raw: Parsed and merged configuration dictionary.
-        :returns: Validated ToolConfig instance.
-        :raises ConfigError: If the configuration data fails validation.
+        Args:
+            raw: Parsed and merged configuration dictionary.
+
+        Returns:
+            Validated ToolConfig instance.
+
+        Raises:
+            ConfigError: If the configuration data fails validation.
         """
         try:
             return ToolConfig.model_validate(raw)

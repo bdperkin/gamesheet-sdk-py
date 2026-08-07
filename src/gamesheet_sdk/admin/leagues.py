@@ -49,11 +49,12 @@ class League(BaseModel):
     Maps the ``data[*]`` items in the JSON:API response of ``GET /api/associations/{id}/leagues`` to a flat
     typed model.
 
-    :var id: League identifier (string in JSON:API).
-    :var association_id: Parent association identifier.
-    :var title: Display name of the league.
-    :var created_at: When the league was created.
-    :var updated_at: Last time the league was updated.
+    Attributes:
+        id: League identifier (string in JSON:API).
+        association_id: Parent association identifier.
+        title: Display name of the league.
+        created_at: When the league was created.
+        updated_at: Last time the league was updated.
     """
 
     id: str = Field(description="League identifier (string in JSON:API).")
@@ -68,13 +69,16 @@ def _parse(item: dict[str, Any], association_id: str) -> League:
 
     Extracts the ``id`` from the top-level resource object and merges ``attributes`` to produce a flat
     pydantic model. Internal helper for :func:`list_leagues`.
-    :param item: A single JSON:API resource object from the ``data`` array, with top-level ``id`` and nested
-        ``attributes``.
-    :type item: dict[str, Any]
-    :param association_id: The parent association identifier to attach to the resulting model.
-    :type association_id: str
-    :returns: Return value.
-    :rtype: League
+
+    Args:
+        item (dict[str, Any]): A single JSON:API resource object from
+            the ``data`` array, with top-level ``id`` and nested
+            ``attributes``.
+        association_id (str): The parent association identifier to
+            attach to the resulting model.
+
+    Returns:
+        League: Return value.
     """
     data = parse_jsonapi_resource(item)
     data["association_id"] = association_id
@@ -86,14 +90,14 @@ def get_league(session: Session, association_id: str, league_id: str) -> League:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param association_id: The parent association identifier.
-    :type association_id: str
-    :param league_id: The league identifier to retrieve.
-    :type league_id: str
-    :returns: Return value.
-    :rtype: League
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        association_id (str): The parent association identifier.
+        league_id (str): The league identifier to retrieve.
+
+    Returns:
+        League: Return value.
     """
     endpoint = f"{_ENDPOINT_TEMPLATE.format(association_id=association_id)}/{league_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -107,13 +111,16 @@ def list_leagues(session: Session, association_id: str) -> list[League]:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param association_id: The association identifier whose leagues to list.
-    :type association_id: str
-    :returns: A list of :class:`League`, in the order the server returned them. The list may be empty if the
-        association has no leagues.
-    :rtype: list[League]
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        association_id (str): The association identifier whose leagues
+            to list.
+
+    Returns:
+        list[League]: A list of :class:`League`, in the order the server
+        returned them. The list may be empty if the association has no
+        leagues.
     """
     endpoint = _ENDPOINT_TEMPLATE.format(association_id=association_id)
     response = session.get(endpoint, headers=JSONAPI_HEADERS)

@@ -77,10 +77,13 @@ def load_access_token(config: Config) -> str | None:
         if token:
             print("Access token loaded successfully")
 
-    :param config: Configuration object containing the base URL and browser state path.
-    :type config: Config
-    :returns: The access token string if found, otherwise ``None``.
-    :rtype: str | None
+    Args:
+        config (Config): Configuration object containing the base URL
+            and browser state path.
+
+    Returns:
+        str | None: The access token string if found, otherwise
+        ``None``.
     """
     return load_local_storage_value(config, "accessToken")
 
@@ -92,10 +95,13 @@ def load_refresh_token(config: Config) -> str | None:
     localStorage entry. Used to drive :func:`refresh_access_token` and
     :class:`~gamesheet_sdk.common.auth.session.AuthenticatedSession`.
 
-    :param config: Configuration object containing the base URL and browser state path.
-    :type config: Config
-    :returns: The refresh token string if found, otherwise ``None``.
-    :rtype: str | None
+    Args:
+        config (Config): Configuration object containing the base URL
+            and browser state path.
+
+    Returns:
+        str | None: The refresh token string if found, otherwise
+        ``None``.
     """
     return load_local_storage_value(config, "refreshToken")
 
@@ -124,15 +130,17 @@ def build_token_updates(
         sorted(updates.keys())
         # ['accessToken', 'refreshToken']
 
-    :param access: The access token to store (required).
-    :type access: str
-    :param refresh: The refresh token to store, or ``None`` to skip.
-    :type refresh: str | None
-    :param roles: The roles token to store, or ``None`` to skip.
-    :type roles: str | None
-    :returns: Dictionary mapping localStorage keys (``accessToken``, ``refreshToken``, ``rolesToken``) to
-        their values.
-    :rtype: dict[str, str]
+    Args:
+        access (str): The access token to store (required).
+        refresh (str | None): The refresh token to store, or ``None`` to
+            skip.
+        roles (str | None): The roles token to store, or ``None`` to
+            skip.
+
+    Returns:
+        dict[str, str]: Dictionary mapping localStorage keys
+        (``accessToken``, ``refreshToken``, ``rolesToken``) to their
+        values.
     """
     updates: dict[str, str] = {"accessToken": access}
     if refresh is not None:
@@ -175,15 +183,14 @@ def save_tokens(
             roles="roles_token",
         )
 
-    :param config: Configuration object containing the base URL and browser state path where tokens will be
-        saved.
-    :type config: Config
-    :param access: The access token to save (required).
-    :type access: str
-    :param refresh: The refresh token to save, or ``None`` to leave unchanged.
-    :type refresh: str | None
-    :param roles: The roles token to save, or ``None`` to leave unchanged.
-    :type roles: str | None
+    Args:
+        config (Config): Configuration object containing the base URL
+            and browser state path where tokens will be saved.
+        access (str): The access token to save (required).
+        refresh (str | None): The refresh token to save, or ``None`` to
+            leave unchanged.
+        roles (str | None): The roles token to save, or ``None`` to
+            leave unchanged.
     """
     path = config.browser_state_path
     state = read_state_or_empty(path)
@@ -241,19 +248,25 @@ def refresh_access_token(
             except AuthenticationError:
                 print("Refresh token expired, please log in again")
 
-    :param refresh_token: The refresh token to exchange for new tokens.
-    :type refresh_token: str
-    :param user_agent: Optional User-Agent header value for the request.
-    :type user_agent: str | None
-    :param timeout: Request timeout in seconds. Defaults to
-        :data:`~gamesheet_sdk.common.auth.constants.REFRESH_TIMEOUT_S`.
-    :type timeout: float
-    :returns: Dictionary with keys ``access``, ``refresh``, and ``roles``, each containing the corresponding
-        token string.
-    :rtype: dict[str, str]
-    :raises AuthenticationError: If the refresh token is rejected (HTTP 401). This typically means the token
-        has expired and the user needs to re-authenticate via ``gamesheet-admin login``.
-    :raises GameSheetError: For any other non-2xx HTTP response from the token refresh endpoint.
+    Args:
+        refresh_token (str): The refresh token to exchange for new
+            tokens.
+        user_agent (str | None): Optional User-Agent header value for
+            the request.
+        timeout (float): Request timeout in seconds. Defaults to
+            :data:`~gamesheet_sdk.common.auth.constants.REFRESH_TIMEOUT_
+            S`.
+
+    Returns:
+        dict[str, str]: Dictionary with keys ``access``, ``refresh``,
+        and ``roles``, each containing the corresponding token string.
+
+    Raises:
+        AuthenticationError: If the refresh token is rejected (HTTP
+            401). This typically means the token has expired and the
+            user needs to re-authenticate via ``gamesheet-admin login``.
+        GameSheetError: For any other non-2xx HTTP response from the
+            token refresh endpoint.
     """
     headers = {
         "Authorization": f"Bearer {refresh_token}",

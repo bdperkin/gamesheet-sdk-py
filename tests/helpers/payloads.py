@@ -28,7 +28,9 @@ def jsonapi_payload(rows: list[dict[str, Any]]) -> dict[str, Any]:
     """Build a JSON:API response with data array.
 
         :param rows: List of JSON:API resource objects
-    :returns: JSON:API response dict with {"data": [...]}
+
+    Returns:
+        JSON:API response dict with {"data": [...]}
     Example:
         >>> jsonapi_payload(
         ...     [{"type": "associations", "id": "1", "attributes": {...}}]
@@ -42,7 +44,9 @@ def jsonapi_detail_payload(data: dict[str, Any]) -> dict[str, Any]:
     """Build a JSON:API response with single data object.
 
         :param data: Single JSON:API resource object
-    :returns: JSON:API response dict with {"data": {...}}
+
+    Returns:
+        JSON:API response dict with {"data": {...}}
     Example:
         >>> jsonapi_detail_payload(
         ...     {"type": "associations", "id": "1", "attributes": {...}}
@@ -67,7 +71,9 @@ def roster_player_payload(
         :param first_name: First name (defaults to "John")
         :param last_name: Last name (defaults to "Doe")
         :param external_id: External ID (optional, defaults to empty string)
-    :returns: JSON:API player resource object
+
+    Returns:
+        JSON:API player resource object
     Example:
         >>> roster_player_payload()
         {'type': 'players', 'id': '8043169', 'attributes': {...}}
@@ -125,7 +131,9 @@ def roster_coach_payload(
         :param first_name: First name (defaults to "Coach")
         :param last_name: Last name (defaults to "Smith")
         :param external_id: External ID (optional, defaults to empty string)
-    :returns: JSON:API coach resource object
+
+    Returns:
+        JSON:API coach resource object
     Example:
         >>> roster_coach_payload()
         {'type': 'coaches', 'id': '1879938', 'attributes': {...}}
@@ -160,7 +168,9 @@ def association_payload(
 
         :param association_id: Association ID
         :param name: Association name
-    :returns: JSON:API association resource object
+
+    Returns:
+        JSON:API association resource object
     Example:
         >>> association_payload("1", "Hockey Canada")
         {'type': 'associations', 'id': '1', 'attributes': {'name': 'Hockey Canada'}}
@@ -181,10 +191,13 @@ def league_payload(
 ) -> dict[str, Any]:
     """Build a JSON:API league resource object.
 
-    :param league_id: League ID
-    :param name: League name
-    :param association_id: Parent association ID
-    :returns: JSON:API league resource object
+    Args:
+        league_id: League ID
+        name: League name
+        association_id: Parent association ID
+
+    Returns:
+        JSON:API league resource object
     """
     return {
         "type": "leagues",
@@ -214,7 +227,9 @@ def team_payload(
         :param team_id: Team ID
         :param players: List of player roster entries (defaults to empty list)
         :param coaches: List of coach roster entries (defaults to empty list)
-    :returns: JSON:API team resource object with roster
+
+    Returns:
+        JSON:API team resource object with roster
     Example:
         >>> team_payload()
         {'type': 'teams', 'id': '12345', 'attributes': {...}, 'relationships': {...}}
@@ -251,7 +266,9 @@ def invitation_relationship_and_included(
 
         :param invitation_id: Invitation ID
         :param code: Invitation code
-    :returns: Tuple of (invitations relationship dict, included array)
+
+    Returns:
+        Tuple of (invitations relationship dict, included array)
     Example:
         >>> rel, inc = invitation_relationship_and_included(
         ...     "inv-123", "RAPTORS2024"

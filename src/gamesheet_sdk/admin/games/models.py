@@ -13,9 +13,10 @@ from pydantic import BaseModel, Field
 class Broadcaster(BaseModel):
     """A broadcaster/streaming service.
 
-    :var key: Broadcaster key identifier (e.g., "LIVEBARN").
-    :var title: Display name of the broadcaster.
-    :var url: Broadcaster website URL.
+    Attributes:
+        key: Broadcaster key identifier (e.g., "LIVEBARN").
+        title: Display name of the broadcaster.
+        url: Broadcaster website URL.
     """
 
     key: str = Field(description="Broadcaster key identifier.")
@@ -26,12 +27,13 @@ class Broadcaster(BaseModel):
 class Location(BaseModel):
     """A game location/venue with surface.
 
-    :var id: Location identifier (UUID).
-    :var location_name: Venue name (e.g., "140 Ice Den").
-    :var surface_name: Surface/rink name (e.g., "Rink #1").
-    :var city: City where the location is located.
-    :var province_state: Province or state.
-    :var country: Country.
+    Attributes:
+        id: Location identifier (UUID).
+        location_name: Venue name (e.g., "140 Ice Den").
+        surface_name: Surface/rink name (e.g., "Rink #1").
+        city: City where the location is located.
+        province_state: Province or state.
+        country: Country.
     """
 
     id: str = Field(description="Location identifier (UUID).")
@@ -44,8 +46,8 @@ class Location(BaseModel):
     def full_name(self: Location) -> str:
         """Return the full location name as location_name + surface_name.
 
-        :returns: Combined location and surface name.
-        :rtype: str
+        Returns:
+            str: Combined location and surface name.
         """
         return f"{self.location_name} {self.surface_name}"
 
@@ -53,10 +55,11 @@ class Location(BaseModel):
 class TeamInfo(BaseModel):
     """Team information within a game.
 
-    :var id: Team identifier.
-    :var title: Team name.
-    :var division_id: Division identifier.
-    :var division_title: Division name.
+    Attributes:
+        id: Team identifier.
+        title: Team name.
+        division_id: Division identifier.
+        division_title: Division name.
     """
 
     id: int = Field(description="Team identifier.")
@@ -78,22 +81,23 @@ class Game(BaseModel):
 
     Maps the game objects from the BFF API response.
 
-    :var id: Game identifier.
-    :var status: Game status (e.g., completed, scheduled).
-    :var date: Game date (YYYY-MM-DD).
-    :var time: Game start time.
-    :var end_time: Game end time.
-    :var time_zone_name: Time zone name.
-    :var location: Venue/location of the game.
-    :var game_number: Game number or identifier.
-    :var game_type: Game type (regular, playoff, etc.).
-    :var visitor: Visiting team information.
-    :var home: Home team information.
-    :var visitor_score: Visitor team score.
-    :var home_score: Home team score.
-    :var has_shootout: Whether game had a shootout.
-    :var has_overtime: Whether game had overtime.
-    :var viewed: Whether the user has viewed this game.
+    Attributes:
+        id: Game identifier.
+        status: Game status (e.g., completed, scheduled).
+        date: Game date (YYYY-MM-DD).
+        time: Game start time.
+        end_time: Game end time.
+        time_zone_name: Time zone name.
+        location: Venue/location of the game.
+        game_number: Game number or identifier.
+        game_type: Game type (regular, playoff, etc.).
+        visitor: Visiting team information.
+        home: Home team information.
+        visitor_score: Visitor team score.
+        home_score: Home team score.
+        has_shootout: Whether game had a shootout.
+        has_overtime: Whether game had overtime.
+        viewed: Whether the user has viewed this game.
     """
 
     id: int = Field(description="Game identifier.")
@@ -156,8 +160,9 @@ class Game(BaseModel):
 class Scorekeeper(BaseModel):
     """Scorekeeper information for a scheduled game.
 
-    :var name: Scorekeeper's full name.
-    :var phone: Scorekeeper's phone number.
+    Attributes:
+        name: Scorekeeper's full name.
+        phone: Scorekeeper's phone number.
     """
 
     name: str = Field(description="Scorekeeper's full name.")
@@ -167,13 +172,14 @@ class Scorekeeper(BaseModel):
 class GameData(BaseModel):
     """Additional game metadata.
 
-    :var vendors: Vendor information (typically empty dict).
-    :var is_valid: Game validation status.
-    :var broadcaster: Broadcast provider name.
-    :var location_id: Location identifier.
-    :var broadcaster_id: Broadcaster identifier.
-    :var home_label: Home team label override.
-    :var visitor_label: Visitor team label override.
+    Attributes:
+        vendors: Vendor information (typically empty dict).
+        is_valid: Game validation status.
+        broadcaster: Broadcast provider name.
+        location_id: Location identifier.
+        broadcaster_id: Broadcaster identifier.
+        home_label: Home team label override.
+        visitor_label: Visitor team label override.
     """
 
     vendors: dict[str, Any] = Field(
@@ -212,8 +218,9 @@ class GameData(BaseModel):
 class RelationshipData(BaseModel):
     """JSON:API relationship data.
 
-    :var id: Related resource identifier.
-    :var type: Related resource type.
+    Attributes:
+        id: Related resource identifier.
+        type: Related resource type.
     """
 
     id: str = Field(description="Related resource identifier.")
@@ -223,7 +230,8 @@ class RelationshipData(BaseModel):
 class Relationship(BaseModel):
     """JSON:API relationship wrapper.
 
-    :var data: Relationship data.
+    Attributes:
+        data: Relationship data.
     """
 
     data: RelationshipData = Field(description="Relationship data.")
@@ -232,13 +240,14 @@ class Relationship(BaseModel):
 class ScheduledGameRelationships(BaseModel):
     """Relationships for a scheduled game (JSON:API format).
 
-    :var association: Parent association.
-    :var home_division: Home team's division.
-    :var home_team: Home team.
-    :var league: Parent league.
-    :var season: Parent season.
-    :var visitor_division: Visitor team's division.
-    :var visitor_team: Visitor team.
+    Attributes:
+        association: Parent association.
+        home_division: Home team's division.
+        home_team: Home team.
+        league: Parent league.
+        season: Parent season.
+        visitor_division: Visitor team's division.
+        visitor_team: Visitor team.
     """
 
     association: Relationship | None = Field(
@@ -266,19 +275,20 @@ class ScheduledGameRelationships(BaseModel):
 class ScheduledGameAttributes(BaseModel):
     """Attributes for a scheduled game (JSON:API format).
 
-    :var status: Game status.
-    :var number: Game number.
-    :var scheduled_start_time: Scheduled start time (ISO 8601).
-    :var scheduled_time_gmt: Scheduled time in GMT (ISO 8601).
-    :var scheduled_end_time: Scheduled end time (ISO 8601).
-    :var time_zone_name: IANA time zone name.
-    :var location: Venue/location.
-    :var category: Game category.
-    :var game_type: Game type (exhibition, regular_season, etc.).
-    :var scorekeeper: Scorekeeper information.
-    :var data: Additional game metadata.
-    :var created_at: Creation timestamp (ISO 8601).
-    :var updated_at: Last update timestamp (ISO 8601).
+    Attributes:
+        status: Game status.
+        number: Game number.
+        scheduled_start_time: Scheduled start time (ISO 8601).
+        scheduled_time_gmt: Scheduled time in GMT (ISO 8601).
+        scheduled_end_time: Scheduled end time (ISO 8601).
+        time_zone_name: IANA time zone name.
+        location: Venue/location.
+        category: Game category.
+        game_type: Game type (exhibition, regular_season, etc.).
+        scorekeeper: Scorekeeper information.
+        data: Additional game metadata.
+        created_at: Creation timestamp (ISO 8601).
+        updated_at: Last update timestamp (ISO 8601).
     """
 
     status: str = Field(description="Game status.")
@@ -308,10 +318,11 @@ class ScheduledGameAttributes(BaseModel):
 class ScheduledGameData(BaseModel):
     """JSON:API data wrapper for a scheduled game.
 
-    :var type: Resource type (always 'scheduled-games').
-    :var id: Game identifier.
-    :var attributes: Game attributes.
-    :var relationships: Game relationships.
+    Attributes:
+        type: Resource type (always 'scheduled-games').
+        id: Game identifier.
+        attributes: Game attributes.
+        relationships: Game relationships.
     """
 
     type: str = Field(description="Resource type.")
@@ -325,7 +336,8 @@ class ScheduledGame(BaseModel):
 
     Used for create/get/update operations via the /api/seasons/{id}/schedule endpoint.
 
-    :var data: Game data wrapper.
+    Attributes:
+        data: Game data wrapper.
     """
 
     data: ScheduledGameData = Field(description="Game data wrapper.")

@@ -22,10 +22,13 @@ _session: requests.Session | None = None  # pylint: disable=invalid-name
 def get_session(pip_config: PipConfig | None = None) -> requests.Session:
     """Return a shared requests Session with retry-on-transient-error.
 
-    :param pip_config: Optional pip configuration for SSL settings.
-    :type pip_config: PipConfig | None
-    :returns: A shared requests Session with retry-on-transient-error.
-    :rtype: requests.Session
+    Args:
+        pip_config (PipConfig | None): Optional pip configuration for
+            SSL settings.
+
+    Returns:
+        requests.Session: A shared requests Session with retry-on-
+        transient-error.
     """
     global _session  # pylint: disable=global-statement
     if _session is None:

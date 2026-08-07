@@ -25,13 +25,17 @@ def resolve_email(cfg: Config, email: str | None) -> str:
     Falls through: explicit ``email`` argument → ``GAMESHEET_USERNAME``
     env var → ``Config.username``.
 
-    :param cfg: Configuration object containing username from env/defaults.
-    :type cfg: Config
-    :param email: Explicit email address, or ``None`` to fall back to config.
-    :type email: str | None
-    :returns: The resolved email address.
-    :rtype: str
-    :raises AuthenticationError: If no email is available from any source.
+    Args:
+        cfg (Config): Configuration object containing username from
+            env/defaults.
+        email (str | None): Explicit email address, or ``None`` to fall
+            back to config.
+
+    Returns:
+        str: The resolved email address.
+
+    Raises:
+        AuthenticationError: If no email is available from any source.
     """
     if email is None:
         email = cfg.username
@@ -47,13 +51,18 @@ def resolve_password(cfg: Config, password: str | None) -> str:
     Falls through: explicit ``password`` argument → ``GAMESHEET_PASSWORD``
     env var → ``Config.password``.
 
-    :param cfg: Configuration object containing password from env/defaults.
-    :type cfg: Config
-    :param password: Explicit password, or ``None`` to fall back to config.
-    :type password: str | None
-    :returns: The resolved password string.
-    :rtype: str
-    :raises AuthenticationError: If no password is available from any source.
+    Args:
+        cfg (Config): Configuration object containing password from
+            env/defaults.
+        password (str | None): Explicit password, or ``None`` to fall
+            back to config.
+
+    Returns:
+        str: The resolved password string.
+
+    Raises:
+        AuthenticationError: If no password is available from any
+            source.
     """
     if password is None and cfg.password is not None:
         password = cfg.password.get_secret_value()

@@ -24,8 +24,8 @@ def completion_command(shell: str) -> None:
 
         eval "$(gamesheet-teams completion bash)"\f
 
-    :param shell: Target shell (bash, zsh, or fish).
-    :type shell: str
+    Args:
+        shell (str): Target shell (bash, zsh, or fish).
     """
     from click import get_current_context
     from click.shell_completion import get_completion_class

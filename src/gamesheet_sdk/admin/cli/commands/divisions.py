@@ -86,16 +86,14 @@ def divisions_get_command(
     The division ID can be provided via --division-id or the GAMESHEET_DIVISION_ID environment variable.
     Requires a saved session from `gamesheet-admin login`. The output displays division metadata as key-value
     pairs, with each field on its own row.\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param division_id: The division identifier
-    :type division_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param fields_spec: Optional comma-separated list of fields to display
-    :type fields_spec: str | None
+
+    Args:
+        ctx (Context): Click context object containing config
+        division_id (str): The division identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        fields_spec (str | None): Optional comma-separated list of
+            fields to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -124,16 +122,14 @@ def divisions_list_command(
     """List all divisions in the specified season.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param columns_spec: Optional comma-separated list of columns to display
-    :type columns_spec: str | None
+
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        columns_spec (str | None): Optional comma-separated list of
+            columns to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -178,18 +174,14 @@ def divisions_create_command(
     """Create a new division in the specified season.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param title: Division name/title
-    :type title: str
-    :param external_id: Optional external identifier
-    :type external_id: str | None
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
+
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        title (str): Division name/title
+        external_id (str | None): Optional external identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -251,21 +243,18 @@ def divisions_update_command(
 
     At least one of --title or --external-id must be provided. Requires authentication (run 'gamesheet-admin
     login' first).\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param division_id: The division identifier to update
-    :type division_id: str
-    :param title: Optional new division name/title
-    :type title: str | None
-    :param external_id: Optional new external identifier
-    :type external_id: str | None
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :raises Exit: If neither title nor external_id is provided
+
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        division_id (str): The division identifier to update
+        title (str | None): Optional new division name/title
+        external_id (str | None): Optional new external identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+
+    Raises:
+        Exit: If neither title nor external_id is provided
     """
     if title is None is external_id:
         click.secho(
@@ -333,16 +322,14 @@ def divisions_teams_list_command(
     """List all teams in the specified division.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param division_id: The division identifier
-    :type division_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param columns_spec: Optional comma-separated list of columns to display
-    :type columns_spec: str | None
+
+    Args:
+        ctx (Context): Click context object containing config
+        division_id (str): The division identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        columns_spec (str | None): Optional comma-separated list of
+            columns to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -377,16 +364,13 @@ def divisions_teams_get_command(
     """Get detailed information about a specific team.
 
     Delegates to teams get functionality.\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param team_id: The team identifier
-    :type team_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
+
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        team_id (str): The team identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
     """
     from gamesheet_sdk.admin.teams import get_team as _get_team_action
 
@@ -433,22 +417,16 @@ def divisions_teams_create_command(
     """Create a new team in the specified division.
 
     Delegates to teams create functionality.\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param division_id: Division ID the team belongs to
-    :type division_id: str
-    :param title: Team name/title
-    :type title: str
-    :param external_id: Optional external identifier
-    :type external_id: str | None
-    :param logo_path: Optional path to a logo image file
-    :type logo_path: str | None
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
+
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        division_id (str): Division ID the team belongs to
+        title (str): Team name/title
+        external_id (str | None): Optional external identifier
+        logo_path (str | None): Optional path to a logo image file
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
     """
     # pylint: disable=duplicate-code
     run_team_create(
@@ -497,26 +475,18 @@ def divisions_teams_update_command(
     """Update an existing team.
 
     Delegates to teams update functionality.\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param team_id: The team identifier to update
-    :type team_id: str
-    :param title: Optional new team name/title
-    :type title: str | None
-    :param division_id: Optional new division ID
-    :type division_id: str | None
-    :param external_id: Optional new external identifier
-    :type external_id: str | None
-    :param logo_path: Optional path to a new logo image file
-    :type logo_path: str | None
-    :param remove_logo: Remove the team's logo
-    :type remove_logo: bool
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
+
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        team_id (str): The team identifier to update
+        title (str | None): Optional new team name/title
+        division_id (str | None): Optional new division ID
+        external_id (str | None): Optional new external identifier
+        logo_path (str | None): Optional path to a new logo image file
+        remove_logo (bool): Remove the team's logo
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
     """
     # pylint: disable=duplicate-code
     run_team_update(
@@ -558,12 +528,11 @@ def divisions_teams_delete_command(
     """Delete a team.
 
     Delegates to teams delete functionality.\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param team_id: The team identifier to delete
-    :type team_id: str
+
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        team_id (str): The team identifier to delete
     """
     run_team_delete(ctx, season_id, team_id)
 
@@ -592,12 +561,11 @@ def divisions_delete_command(
     """Delete a division.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param season_id: The season identifier
-    :type season_id: str
-    :param division_id: The division identifier to delete
-    :type division_id: str
+
+    Args:
+        ctx (Context): Click context object containing config
+        season_id (str): The season identifier
+        division_id (str): The division identifier to delete
     """
     # pylint: enable=duplicate-code
     config: Config = ctx.obj

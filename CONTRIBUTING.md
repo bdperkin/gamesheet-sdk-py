@@ -287,7 +287,7 @@ tox -e interrogate
 
 ### Docstring Style
 
-- **Style**: Sphinx (configured in `[tool.interrogate] style = "sphinx"`)
+- **Style**: Google (configured in `[tool.interrogate] style = "google"`)
 - **Format**: PEP 257 compliant, enforced by `docformatter`
 - **Length**: Wrap at 110 characters
 

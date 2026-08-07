@@ -52,11 +52,12 @@ class Association(BaseModel):
 
     Maps the ``data[*]`` items in the JSON:API response of ``GET /api/associations`` to a flat typed model.
 
-    :var id: Association identifier (string in JSON:API).
-    :var title: Display name of the association.
-    :var logo: Logo asset URL, possibly empty string.
-    :var created_at: When the association was created.
-    :var updated_at: Last time the association was updated.
+    Attributes:
+        id: Association identifier (string in JSON:API).
+        title: Display name of the association.
+        logo: Logo asset URL, possibly empty string.
+        created_at: When the association was created.
+        updated_at: Last time the association was updated.
     """
 
     id: str = Field(description="Association identifier (string in JSON:API).")
@@ -69,10 +70,12 @@ class Association(BaseModel):
 def _parse(item: dict[str, Any]) -> Association:
     """Flatten a JSON:API resource object into an :class:`Association`.
 
-    :param item: A JSON:API resource object with ``id`` and ``attributes`` keys.
-    :type item: dict[str, Any]
-    :returns: Parsed Association model instance.
-    :rtype: Association
+    Args:
+        item (dict[str, Any]): A JSON:API resource object with ``id``
+            and ``attributes`` keys.
+
+    Returns:
+        Association: Parsed Association model instance.
     """
     return Association(**parse_jsonapi_resource(item))
 
@@ -83,14 +86,18 @@ def get_association(session: Session, association_id: str) -> Association:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param association_id: The association identifier to retrieve.
-    :type association_id: str
-    :returns: The requested Association model instance.
-    :rtype: Association
-    :raises AuthenticationError: If the server returns 401 (bearer missing or expired).
-    :raises GameSheetError: For any other non-2xx response (including 404 if not found).
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        association_id (str): The association identifier to retrieve.
+
+    Returns:
+        Association: The requested Association model instance.
+
+    Raises:
+        AuthenticationError: If the server returns 401 (bearer missing
+            or expired).
+        GameSheetError: For any other non-2xx response (including 404 if
+            not found).
     """
     endpoint = f"{_ENDPOINT}/{association_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -104,11 +111,14 @@ def list_associations(session: Session) -> list[Association]:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :returns: A list of :class:`Association`, in the order the server returned them. The list may be empty if
-        the user has access to no associations.
-    :rtype: list[Association]
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+
+    Returns:
+        list[Association]: A list of :class:`Association`, in the order
+        the server returned them. The list may be empty if the user has
+        access to no associations.
     """
     response = session.get(_ENDPOINT, headers=JSONAPI_HEADERS)
     handle_response(response, _ENDPOINT, "GET associations")

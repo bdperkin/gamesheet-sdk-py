@@ -592,10 +592,12 @@ def _validate_args(*, backup: bool, is_stdin: bool) -> None:
 def _load_yaml(file: io.TextIOWrapper) -> tuple[str, object, YAML]:
     """Read and parse YAML from *file*.
 
-    :param file: Input file handle.
-    :type file: io.TextIOWrapper
-    :returns: ``(original_text, parsed_data, yaml_instance)``.
-    :rtype: tuple[str, object, YAML]
+    Args:
+        file (io.TextIOWrapper): Input file handle.
+
+    Returns:
+        tuple[str, object, YAML]: ``(original_text, parsed_data,
+        yaml_instance)``.
     """
     original = file.read()
     yml = YAML()
@@ -719,20 +721,16 @@ def app(
 
     FILE is the YAML file to sort. Use - or omit for stdin.
 
-    :param file: Input file handle (or stdin).
-    :type file: io.TextIOWrapper
-    :param verbose: Enable verbose output.
-    :type verbose: bool
-    :param backup: Create a .bak backup before modifying.
-    :type backup: bool
-    :param check: Check if already sorted; exit 1 if not.
-    :type check: bool
-    :param diff: Show unified diff of changes.
-    :type diff: bool
-    :param schema_type: Schema type for schema-specific sorting rules.
-    :type schema_type: str | None
-    :param strict: Disable identity-key-first sorting in sequence elements.
-    :type strict: bool
+    Args:
+        file (io.TextIOWrapper): Input file handle (or stdin).
+        verbose (bool): Enable verbose output.
+        backup (bool): Create a .bak backup before modifying.
+        check (bool): Check if already sorted; exit 1 if not.
+        diff (bool): Show unified diff of changes.
+        schema_type (str | None): Schema type for schema-specific
+            sorting rules.
+        strict (bool): Disable identity-key-first sorting in sequence
+            elements.
     """
     configure_logging(_LOG_LEVELS[verbose], console)
     is_stdin = file.name == "<stdin>"

@@ -20,14 +20,16 @@ def handle_response(
 ) -> None:
     """Centralized HTTP error handling for all domain modules.
 
-    :param response: The HTTP response object.
-    :type response: requests.Response
-    :param endpoint: The endpoint that was called.
-    :type endpoint: str
-    :param context_msg: Context message for error reporting (e.g., ``"GET associations"``).
-    :type context_msg: str
-    :raises AuthenticationError: If response status is 401 (Unauthorized) or 403 (Forbidden).
-    :raises GameSheetError: If response status is 404 or any other >= 400.
+    Args:
+        response (requests.Response): The HTTP response object.
+        endpoint (str): The endpoint that was called.
+        context_msg (str): Context message for error reporting (e.g.,
+            ``"GET associations"``).
+
+    Raises:
+        AuthenticationError: If response status is 401 (Unauthorized) or
+            403 (Forbidden).
+        GameSheetError: If response status is 404 or any other >= 400.
     """
     if response.status_code == 401:
         msg = errors.ERROR_MSG_401_GENERIC.format(context=context_msg)
@@ -54,11 +56,12 @@ def check_bff_response_status(data: dict[str, Any], endpoint: str) -> None:  # n
 
     BFF API responses include a ``"status"`` field that should be ``"success"``.
 
-    :param data: The parsed JSON response data.
-    :type data: dict[str, Any]
-    :param endpoint: The endpoint that was called.
-    :type endpoint: str
-    :raises GameSheetError: If status is not ``"success"``.
+    Args:
+        data (dict[str, Any]): The parsed JSON response data.
+        endpoint (str): The endpoint that was called.
+
+    Raises:
+        GameSheetError: If status is not ``"success"``.
     """
     status = data.get("status")
     if status != "success":
@@ -75,14 +78,14 @@ def handle_season_scoped_response(
 
     Provides season-specific error messages for common failures.
 
-    :param response: The HTTP response object.
-    :type response: requests.Response
-    :param endpoint: The endpoint that was called.
-    :type endpoint: str
-    :param season_id: The season ID used in the request.
-    :type season_id: str
-    :raises AuthenticationError: If response status is 401 (Unauthorized).
-    :raises GameSheetError: If response status is 404 or any other >= 400.
+    Args:
+        response (requests.Response): The HTTP response object.
+        endpoint (str): The endpoint that was called.
+        season_id (str): The season ID used in the request.
+
+    Raises:
+        AuthenticationError: If response status is 401 (Unauthorized).
+        GameSheetError: If response status is 404 or any other >= 400.
     """
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)

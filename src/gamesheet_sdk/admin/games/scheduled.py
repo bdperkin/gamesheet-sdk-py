@@ -23,13 +23,16 @@ def list_scheduled(session: Session, season_id: str) -> list[Game]:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier whose scheduled games to list.
-    :type season_id: str
-    :returns: A list of :class:`Game`, in the order the server returned them. The list may be empty if the
-        season has no scheduled games.
-    :rtype: list[Game]
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier whose scheduled games to
+            list.
+
+    Returns:
+        list[Game]: A list of :class:`Game`, in the order the server
+        returned them. The list may be empty if the season has no
+        scheduled games.
     """
     return _make_request(session, season_id, completed=False, scheduled=True)
 
@@ -59,49 +62,42 @@ def create_scheduled_game(
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The parent season identifier.
-    :type season_id: str
-    :param scheduled_start_time: Scheduled start time (ISO 8601 format).
-    :type scheduled_start_time: str
-    :param scheduled_end_time: Scheduled end time (ISO 8601 format).
-    :type scheduled_end_time: str
-    :param home_team_id: Home team identifier.
-    :type home_team_id: str
-    :param home_division_id: Home team division identifier.
-    :type home_division_id: str
-    :param visitor_team_id: Visitor team identifier.
-    :type visitor_team_id: str
-    :param visitor_division_id: Visitor team division identifier.
-    :type visitor_division_id: str
-    :param location: Game location/venue (default: empty string). Must match format '<location_name>
-        <surface_name>' from the API (case-insensitive match, but stored with correct casing).
-    :type location: str
-    :param scorekeeper_name: Scorekeeper's full name.
-    :type scorekeeper_name: str
-    :param scorekeeper_phone: Scorekeeper's phone number.
-    :type scorekeeper_phone: str
-    :param game_type: Game type. Must be one of: playoff, exhibition, tournament, regular_season.
-    :type game_type: str
-    :param time_zone_name: IANA time zone name.
-    :type time_zone_name: str
-    :param time_zone_offset: Time zone offset in minutes.
-    :type time_zone_offset: int
-    :param number: Game number.
-    :type number: str
-    :param broadcaster: Broadcast provider name (default: empty string). Must match a valid broadcaster key
-        from the API (case-insensitive match, but stored with correct casing).
-    :type broadcaster: str
-    :param home_label: Home team label override (default: empty string).
-    :type home_label: str
-    :param visitor_label: Visitor team label override (default: empty string).
-    :type visitor_label: str
-    :returns: The created :class:`ScheduledGame`.
-    :rtype: ScheduledGame
-    :raises AuthenticationError: If the server returns 401.
-    :raises GameSheetError: If the game_type, location, or broadcaster is invalid, or for any other non-2xx
-        response.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The parent season identifier.
+        scheduled_start_time (str): Scheduled start time (ISO 8601
+            format).
+        scheduled_end_time (str): Scheduled end time (ISO 8601 format).
+        home_team_id (str): Home team identifier.
+        home_division_id (str): Home team division identifier.
+        visitor_team_id (str): Visitor team identifier.
+        visitor_division_id (str): Visitor team division identifier.
+        location (str): Game location/venue (default: empty string).
+            Must match format '<location_name> <surface_name>' from the
+            API (case-insensitive match, but stored with correct
+            casing).
+        scorekeeper_name (str): Scorekeeper's full name.
+        scorekeeper_phone (str): Scorekeeper's phone number.
+        game_type (str): Game type. Must be one of: playoff, exhibition,
+            tournament, regular_season.
+        time_zone_name (str): IANA time zone name.
+        time_zone_offset (int): Time zone offset in minutes.
+        number (str): Game number.
+        broadcaster (str): Broadcast provider name (default: empty
+            string). Must match a valid broadcaster key from the API
+            (case-insensitive match, but stored with correct casing).
+        home_label (str): Home team label override (default: empty
+            string).
+        visitor_label (str): Visitor team label override (default: empty
+            string).
+
+    Returns:
+        ScheduledGame: The created :class:`ScheduledGame`.
+
+    Raises:
+        AuthenticationError: If the server returns 401.
+        GameSheetError: If the game_type, location, or broadcaster is
+            invalid, or for any other non-2xx response.
     """
     # Import here to avoid circular dependency
     from gamesheet_sdk.admin.games.broadcasters import validate_broadcaster_key
@@ -158,16 +154,18 @@ def get_scheduled_game(session: Session, season_id: str, game_id: str) -> Schedu
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The parent season identifier.
-    :type season_id: str
-    :param game_id: The game identifier to retrieve.
-    :type game_id: str
-    :returns: The :class:`ScheduledGame` with the specified ID.
-    :rtype: ScheduledGame
-    :raises AuthenticationError: If the server returns 401.
-    :raises GameSheetError: For any other non-2xx response, including 404 if the game is not found.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The parent season identifier.
+        game_id (str): The game identifier to retrieve.
+
+    Returns:
+        ScheduledGame: The :class:`ScheduledGame` with the specified ID.
+
+    Raises:
+        AuthenticationError: If the server returns 401.
+        GameSheetError: For any other non-2xx response, including 404 if
+            the game is not found.
     """
     url = f"{DEFAULT_BASE_URL}{API_SEASONS_SCHEDULE_GAME.format(season_id=season_id, game_id=game_id)}"
     response = session.get(url)
@@ -204,53 +202,44 @@ def update_scheduled_game(
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The parent season identifier.
-    :type season_id: str
-    :param game_id: The game identifier to update.
-    :type game_id: str
-    :param scheduled_start_time: Scheduled start time (ISO 8601 format).
-    :type scheduled_start_time: str
-    :param scheduled_end_time: Scheduled end time (ISO 8601 format).
-    :type scheduled_end_time: str
-    :param home_team_id: Home team identifier.
-    :type home_team_id: str
-    :param home_division_id: Home team division identifier.
-    :type home_division_id: str
-    :param visitor_team_id: Visitor team identifier.
-    :type visitor_team_id: str
-    :param visitor_division_id: Visitor team division identifier.
-    :type visitor_division_id: str
-    :param location: Game location/venue. Must match format '<location_name> <surface_name>' from the API
-        (case-insensitive match, but stored with correct casing).
-    :type location: str
-    :param scorekeeper_name: Scorekeeper's full name.
-    :type scorekeeper_name: str
-    :param scorekeeper_phone: Scorekeeper's phone number.
-    :type scorekeeper_phone: str
-    :param game_type: Game type. Must be one of: playoff, exhibition, tournament, regular_season.
-    :type game_type: str
-    :param time_zone_name: IANA time zone name.
-    :type time_zone_name: str
-    :param time_zone_offset: Time zone offset in minutes.
-    :type time_zone_offset: int
-    :param number: Game number.
-    :type number: str
-    :param status: Game status.
-    :type status: str
-    :param broadcaster: Broadcast provider name (default: empty string). Must match a valid broadcaster key
-        from the API (case-insensitive match, but stored with correct casing).
-    :type broadcaster: str
-    :param home_label: Home team label override (default: empty string).
-    :type home_label: str
-    :param visitor_label: Visitor team label override (default: empty string).
-    :type visitor_label: str
-    :returns: The updated :class:`ScheduledGame`.
-    :rtype: ScheduledGame
-    :raises AuthenticationError: If the server returns 401.
-    :raises GameSheetError: If the game_type, location, or broadcaster is invalid, or for any other non-2xx
-        response, including 404 if the game is not found.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The parent season identifier.
+        game_id (str): The game identifier to update.
+        scheduled_start_time (str): Scheduled start time (ISO 8601
+            format).
+        scheduled_end_time (str): Scheduled end time (ISO 8601 format).
+        home_team_id (str): Home team identifier.
+        home_division_id (str): Home team division identifier.
+        visitor_team_id (str): Visitor team identifier.
+        visitor_division_id (str): Visitor team division identifier.
+        location (str): Game location/venue. Must match format
+            '<location_name> <surface_name>' from the API (case-
+            insensitive match, but stored with correct casing).
+        scorekeeper_name (str): Scorekeeper's full name.
+        scorekeeper_phone (str): Scorekeeper's phone number.
+        game_type (str): Game type. Must be one of: playoff, exhibition,
+            tournament, regular_season.
+        time_zone_name (str): IANA time zone name.
+        time_zone_offset (int): Time zone offset in minutes.
+        number (str): Game number.
+        status (str): Game status.
+        broadcaster (str): Broadcast provider name (default: empty
+            string). Must match a valid broadcaster key from the API
+            (case-insensitive match, but stored with correct casing).
+        home_label (str): Home team label override (default: empty
+            string).
+        visitor_label (str): Visitor team label override (default: empty
+            string).
+
+    Returns:
+        ScheduledGame: The updated :class:`ScheduledGame`.
+
+    Raises:
+        AuthenticationError: If the server returns 401.
+        GameSheetError: If the game_type, location, or broadcaster is
+            invalid, or for any other non-2xx response, including 404 if
+            the game is not found.
     """
     # Import here to avoid circular dependency
     from gamesheet_sdk.admin.games.broadcasters import validate_broadcaster_key
@@ -311,14 +300,15 @@ def delete_scheduled_game(session: Session, season_id: str, game_id: str) -> Non
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The parent season identifier.
-    :type season_id: str
-    :param game_id: The game identifier to delete.
-    :type game_id: str
-    :raises AuthenticationError: If the server returns 401.
-    :raises GameSheetError: For any other non-2xx response, including 404 if the game is not found.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The parent season identifier.
+        game_id (str): The game identifier to delete.
+
+    Raises:
+        AuthenticationError: If the server returns 401.
+        GameSheetError: For any other non-2xx response, including 404 if
+            the game is not found.
     """
     url = f"{DEFAULT_BASE_URL}{API_SEASONS_SCHEDULE_GAME.format(season_id=season_id, game_id=game_id)}"
     response = session.delete(url)

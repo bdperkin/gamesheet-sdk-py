@@ -21,8 +21,11 @@ _ENDPOINT = referees_endpoint(SEASON_ID)
 def referee_response_data(referee_id: str) -> dict[str, Any]:
     """Build standard referee response payload for tests.
 
-    :param referee_id: The referee ID to use in the response
-    :returns: A dict representing a JSON:API referee response
+    Args:
+        referee_id: The referee ID to use in the response
+
+    Returns:
+        A dict representing a JSON:API referee response
     """
     return {
         "data": {
