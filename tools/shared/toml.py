@@ -26,15 +26,18 @@ def load_toml(path: Path) -> dict[str, Any]:
     """
     try:
         with path.open("rb") as f:
-            return tomli.load(f)
+            # Annotated because tomli is absent from some hook envs, where
+            # tomli.load() would otherwise read as Any.
+            data: dict[str, Any] = tomli.load(f)
     except OSError as exc:
         msg = f"Cannot read {path}: {exc}"
         raise ToolError(msg) from exc
     except tomli.TOMLDecodeError as exc:
         msg = f"Invalid TOML in {path}: {exc}"
         raise ToolError(msg) from exc
+    return data
 
 
-_PYPROJECT_PATH = Path(__file__).resolve().parents[2] / "pyproject.toml"
+PYPROJECT_PATH = Path(__file__).resolve().parents[2] / "pyproject.toml"
 
-PROJECT_NAME: str = load_toml(_PYPROJECT_PATH)["project"]["name"]
+PROJECT_NAME: str = load_toml(PYPROJECT_PATH)["project"]["name"]

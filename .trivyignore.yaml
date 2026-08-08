@@ -1,3 +1,4 @@
+---
 # ==============================================================================
 # Trivy Vulnerability Suppressions
 # ==============================================================================
@@ -335,7 +336,7 @@ vulnerabilities:
 
   - id: CVE-2026-57432
     statement: >-
-      HIGH: integer overflow in S_measure_struct (Storable). Not reachable: no
+      HIGH: integer overflow in S_measure_struct (Storable). Not reachable: false
       Perl code runs in this image.
     expired_at: 2026-10-27
 

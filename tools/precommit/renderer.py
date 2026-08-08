@@ -22,6 +22,7 @@ from precommit.config import (
 from precommit.exceptions import RenderError
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
+from shared.yaml_format import format_yaml
 
 logger = logging.getLogger(__name__)
 
@@ -349,8 +350,7 @@ def _write_yaml(output_path: Path, doc: CommentedMap) -> None:
     yml.dump(doc, buf)
     text = _add_repo_spacing(buf.getvalue())
     text = _single_to_double_quotes(text)
-    cleaned = "\n".join(line.rstrip() for line in text.splitlines()) + "\n"
-
+    cleaned = format_yaml("\n".join(line.rstrip() for line in text.splitlines()) + "\n")
     with output_path.open("w", encoding="utf-8") as fh:
         fh.write(cleaned)
 

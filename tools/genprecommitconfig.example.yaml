@@ -1,3 +1,4 @@
+---
 # genprecommitconfig.example.yaml - Example configuration for tools/genprecommitconfig
 #
 # Copy this file to .genprecommitconfig.yaml in your project root and customize.

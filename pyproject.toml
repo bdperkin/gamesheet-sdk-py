@@ -177,7 +177,7 @@ optional-dependencies.flake8-plugins = [
   "tryceratops==2.4.1",
 ]
 optional-dependencies.formatters = [
-  "gamesheet-sdk-py[editorconfig-checker,pyproject-fmt,pyroma,tox-ini-fmt,validate-pyproject,yamllint]",
+  "gamesheet-sdk-py[editorconfig-checker,pyproject-fmt,pyroma,tox-ini-fmt,validate-pyproject,yamlfix,yamllint]",
 ]
 optional-dependencies.interrogate = [
   "interrogate==1.7.0",
@@ -251,6 +251,7 @@ optional-dependencies.tools = [
   "tomli==2.4.1",
   "tomlkit==0.15.1",
   "uv==0.12.3",
+  "yamlfix==1.19.1",
 ]
 optional-dependencies.tox-ini-fmt = [
   "tox-ini-fmt==1.8.1",
@@ -313,6 +314,9 @@ optional-dependencies.validate-pyproject = [
 ]
 optional-dependencies.vulture = [
   "vulture==2.16",
+]
+optional-dependencies.yamlfix = [
+  "yamlfix==1.19.1",
 ]
 optional-dependencies.yamllint = [
   "yamllint==1.38.0",
@@ -1349,6 +1353,7 @@ optional_dependencies_dev_groups = [
   "unimport",
   "validate-pyproject",
   "vulture",
+  "yamlfix",
   "yamllint",
 ]
 
@@ -1662,6 +1667,32 @@ warn_required_dynamic_aliases = true
 check = true
 diff = true
 recursive = true
+
+## ## yamlfix - YAML file formatter
+[tool.yamlfix]
+check = true
+diff = true
+recursive = true
+allow_duplicate_keys = false
+comments_min_spaces_from_content = 1
+comments_require_starting_space = true
+whitelines = 1
+comments_whitelines = 1
+section_whitelines = 1
+explicit_start = true
+sequence_style = "block_style"
+indent_mapping = 2
+indent_offset = 2
+indent_sequence = 4
+line_length = 110
+none_representation = ""
+quote_basic_values = false
+quote_keys_and_basic_values = false
+quote_representation = '"'
+preserve_quotes = true
+preserve_block_scalars = true
+whitelines_adjusting = true
+exclude = [ "venv/*", ".git/*" ]
 
 ## ## yamllint - YAML file linter
 [tool.yamllint]

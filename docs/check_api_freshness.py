@@ -13,7 +13,7 @@ from __future__ import annotations
 import sys
 
 # pylint: disable-next=import-error
-from _constants import (  # type: ignore[import-not-found]
+from _constants import (
     AUTOSUMMARY_DIR,
     PACKAGE_DIR,
 )

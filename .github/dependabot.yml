@@ -1,3 +1,4 @@
+---
 # ==============================================================================
 # Dependabot Configuration
 # ==============================================================================
@@ -52,7 +53,8 @@ updates:
     ignore:
       # Managed by syncdeps — do not edit manually
       - dependency-name: unimport
-        versions: ['> 0.11.1']
+        versions:
+          - '> 0.11.1'
     cooldown:
       default-days: 7
 

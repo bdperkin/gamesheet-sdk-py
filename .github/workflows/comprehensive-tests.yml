@@ -72,21 +72,24 @@
 name: Comprehensive Testing
 
 on:
-  push:
-    branches-ignore: ["**"]
+  workflow_dispatch:
   pull_request:
-    branches-ignore: ["**"]
+    branches-ignore:
+      - "**"
+  push:
+    branches-ignore:
+      - "**"
   schedule:
     # Run daily at 2:00 AM UTC
     - cron: "0 2 * * *"
-  workflow_dispatch:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
 
 permissions:
   contents: read
+
+concurrency:
+  cancel-in-progress: true
+
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
   comprehensive-test:
@@ -95,7 +98,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
         python-version:
           - "3.11"
           - "3.12"
@@ -114,12 +120,12 @@ jobs:
       - name: Cache tool directories
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: |
-            .pytest_cache
-            .mypy_cache
           key: >-
             tools-${{ runner.os }}-py${{ matrix.python-version }}-
             ${{ hashFiles('src/**/*.py', 'tests/**/*.py') }}
+          path: |
+            .pytest_cache
+            .mypy_cache
           restore-keys: |
             tools-${{ runner.os }}-py${{ matrix.python-version }}-
             tools-${{ runner.os }}-
@@ -129,56 +135,54 @@ jobs:
         run: |
           pytest -v --cov --cov-report=xml --cov-report=term
       - name: Compute Codecov per-version flag
-        if: success()
         id: pyflag
-        shell: bash
-        env:
-          PYTHON_VERSION: ${{ matrix.python-version }}
+        if: success()
         run: |
           pyflag="py$(echo "$PYTHON_VERSION" | tr '.' '-')"
           echo "value=${pyflag}" >> "$GITHUB_OUTPUT"
       # Codecov requires one flag per upload. Upload the same coverage.xml
       # three times so the same data feeds the `nightly` aggregate, the
       # per-OS flag, and the per-Python-version flag.
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
+        shell: bash
       - name: Upload coverage to Codecov (nightly)
         if: success()
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           flags: nightly
           name: nightly-${{ matrix.os }}-py${{ matrix.python-version }}-nightly
 
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload coverage to Codecov (${{ matrix.os }})
         if: success()
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           flags: ${{ matrix.os }}
           name: nightly-${{ matrix.os }}-py${{ matrix.python-version }}-os
 
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload coverage to Codecov (${{ steps.pyflag.outputs.value }})
         if: success()
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           flags: ${{ steps.pyflag.outputs.value }}
           name: nightly-${{ matrix.os }}-py${{ matrix.python-version }}-pyver
 
+          token: ${{ secrets.CODECOV_TOKEN }}
   retry-on-failure:
     name: Retry Failed Jobs
     needs: comprehensive-test
-    if: failure()
     runs-on: ubuntu-latest
+    if: failure()
     outputs:
       should_create_issue: ${{ steps.check-attempt.outputs.should_create_issue }}
     steps:
       - name: Check if this is first attempt
         id: check-attempt
-        env:
-          RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
           echo "run_attempt=$RUN_ATTEMPT" >> $GITHUB_OUTPUT
           if [ "$RUN_ATTEMPT" = "1" ]; then
@@ -188,11 +192,13 @@ jobs:
             echo "should_create_issue=true" >> $GITHUB_OUTPUT
             echo "Retry also failed - will create issue"
           fi
+        env:
+          RUN_ATTEMPT: ${{ github.run_attempt }}
       - name: Trigger automatic retry (first attempt only)
         if: github.run_attempt == 1
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
-          script: |
+          script: |-
             console.log('🔄 Triggering automatic retry of failed jobs...');
             // Wait 60 seconds before retrying to allow transient issues to resolve
             await new Promise(resolve => setTimeout(resolve, 60000));

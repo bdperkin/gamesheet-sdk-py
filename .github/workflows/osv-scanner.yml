@@ -50,13 +50,15 @@
 name: Python Dependency Vulnerability Scanner
 
 on:
-  push:
-    branches: [main]
+  pull_request:
+    branches:
+      - main
     paths-ignore:
       - "CHANGELOG.md"
       - "pyproject.toml"
-  pull_request:
-    branches: [main]
+  push:
+    branches:
+      - main
     paths-ignore:
       - "CHANGELOG.md"
       - "pyproject.toml"
@@ -64,21 +66,22 @@ on:
     # Run daily at 2:00 AM UTC
     - cron: "0 2 * * *"
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
-
 permissions:
   contents: read
+
+concurrency:
+  cancel-in-progress: true
+
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
   pip-audit-scan:
     name: pip-audit Vulnerability Scan
-    runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write # Required for uploading SARIF results
 
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -98,7 +101,6 @@ jobs:
 
       - name: Run pip-audit vulnerability scan
         id: pip-audit
-        continue-on-error: true
         run: |
           # Install pip-audit
           pip install pip-audit
@@ -125,9 +127,10 @@ jobs:
             echo "❌ Scan failed"
             exit 1
           fi
+        continue-on-error: true
       - name: Upload audit results as artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pip-audit-results
           path: audit.json
@@ -135,6 +138,6 @@ jobs:
 
       - name: Fail if vulnerabilities found
         if: steps.pip-audit.outputs.scan_status == 'vulnerabilities_found'
-        run: |
+        run: |-
           echo "::error::Vulnerabilities detected in dependencies"
           exit 1

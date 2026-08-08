@@ -16,6 +16,7 @@ from depsync.models import ConvergenceResult, UpdateTarget
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from shared import PROJECT_NAME
+from shared.yaml_format import format_yaml
 from tomlkit.toml_document import TOMLDocument
 from tomlkit.toml_file import TOMLFile
 
@@ -37,7 +38,9 @@ def _create_yaml(*, wide: bool = False, explicit_start: bool = False) -> YAML:
 def _write_yaml(path: Path, yml: YAML, data: object) -> None:
     buf = io.StringIO()
     yml.dump(data, buf)
-    cleaned = "\n".join(line.rstrip() for line in buf.getvalue().splitlines()) + "\n"
+    cleaned = format_yaml(
+        "\n".join(line.rstrip() for line in buf.getvalue().splitlines()) + "\n",
+    )
     with path.open("w", encoding="utf-8") as fh:
         fh.write(cleaned)
 

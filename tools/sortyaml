@@ -18,10 +18,12 @@ import sys
 try:
     from shared import PROJECT_NAME
     from shared.log_config import configure_logging
+    from shared.yaml_format import format_yaml
 except ModuleNotFoundError:
     sys.path.append(str(Path(__file__).resolve().parent))
     from shared import PROJECT_NAME
     from shared.log_config import configure_logging
+    from shared.yaml_format import format_yaml
 
 from rich.console import Console
 from rich.syntax import Syntax
@@ -733,7 +735,7 @@ def _preserve_anchors(data: object, visited: set[int] | None = None) -> None:
 
 
 def _render(yml: YAML, data: object) -> str:
-    """Dump YAML data to a string, stripping trailing whitespace per line.
+    """Dump YAML data to a string.
 
     Returns:
         str: Rendered YAML text.
@@ -742,14 +744,7 @@ def _render(yml: YAML, data: object) -> str:
     _preserve_anchors(data)
     buf = io.StringIO()
     yml.dump(data, buf)
-    text = buf.getvalue()
-    text = re.sub(
-        r"^(\s*<<:[^\n]*\S)\s*\n\s*(#[^\n]*)",
-        r"\1  \2",
-        text,
-        flags=re.MULTILINE,
-    )
-    return re.sub(r"[ \t]+$", "", text, flags=re.MULTILINE)
+    return buf.getvalue()
 
 
 # --- CLI helpers ---
@@ -808,10 +803,10 @@ def _sort_and_render(
     *,
     strict: bool = True,
 ) -> str:
-    """Detect indent, sort keys, and render to string.
+    """Detect indent, sort keys, render to string, and format with yamlfix.
 
     Returns:
-        str: Sorted and rendered YAML text.
+        str: Sorted, rendered, and yamlfix-formatted YAML text.
 
     """
     mi, si, do = _detect_indent(data)
@@ -822,7 +817,7 @@ def _sort_and_render(
         logger.info("Found %d merge-involved maps, skipping their key reorder", len(merge_ids))
     _sort_mapping(data, sort_key_fn, strict=strict, merge_ids=merge_ids)
     _fold_long_strings(data, mi)
-    return _render(yml, data)
+    return format_yaml(_render(yml, data))
 
 
 def _show_diff(original: str, sorted_text: str, source: str) -> None:

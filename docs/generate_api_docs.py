@@ -14,7 +14,7 @@ import subprocess  # noqa: S404 # nosec B404
 import sys
 
 # pylint: disable-next=import-error
-from _constants import (  # type: ignore[import-not-found]
+from _constants import (
     AUTOSUMMARY_DIR,
     PACKAGE_DIR,
 )
