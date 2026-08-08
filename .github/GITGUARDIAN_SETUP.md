@@ -1,13 +1,13 @@
 # GitGuardian API Key Setup Guide
 
-## Prerequisites
+## 1. Prerequisites
 
 - GitHub account
 - Valid email address
 
-## Step-by-Step Instructions
+## 2. Step-by-Step Instructions
 
-### 1. Sign Up for GitGuardian
+### 2.1. Sign Up for GitGuardian
 
 **URL:** [GitGuardian Sign Up](https://dashboard.gitguardian.com/auth/signup)
 
@@ -22,7 +22,7 @@
 - Sufficient for most projects
 - No credit card required
 
-### 2. Complete Account Setup
+### 2.2. Complete Account Setup
 
 After signing up:
 
@@ -30,7 +30,7 @@ After signing up:
 2. Complete the onboarding survey (optional, can skip)
 3. You'll land on the GitGuardian dashboard
 
-### 3. Generate API Key
+### 2.3. Generate API Key
 
 **Navigation:** Dashboard → Settings → API → Personal Access Tokens
 
@@ -49,7 +49,7 @@ After signing up:
      - Alternative: 1 year or No expiration (less secure)
 5. Click **"Create"** or **"Generate"**
 
-### 4. Copy and Save the Token
+### 2.4. Copy and Save the Token
 
 **IMPORTANT:** The token is shown only ONCE!
 
@@ -63,7 +63,7 @@ Example format: ggapi-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 2. Store it temporarily in a secure location (password manager, secure note)
 3. Do NOT commit it to git or save in plain text files
 
-### 5. Add to GitHub Repository Secrets
+### 2.5. Add to GitHub Repository Secrets
 
 **GitHub Repository URL:**
 
@@ -85,7 +85,7 @@ Example format: ggapi-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 - The secret should now appear in the list as `GITGUARDIAN_API_KEY`
 - The value is hidden (shows as `•••••`)
 
-## Alternative: Using GitHub CLI
+## 3. Alternative: Using GitHub CLI
 
 If you prefer command-line:
 
@@ -100,7 +100,7 @@ echo "ggapi-your-actual-token-here" | gh secret set GITGUARDIAN_API_KEY
 gh secret list
 ```
 
-## Token Permissions
+## 4. Token Permissions
 
 The **"Scan"** scope provides:
 
@@ -110,7 +110,7 @@ The **"Scan"** scope provides:
 - ❌ No ability to modify workspace settings
 - ❌ No ability to delete incidents
 
-## Free Tier Limits
+## 5. Free Tier Limits
 
 **GitGuardian Free Plan:**
 
@@ -127,32 +127,32 @@ The **"Scan"** scope provides:
 - ~10-20 PRs per month
 - Well within free tier limits
 
-## Security Best Practices
+## 6. Security Best Practices
 
 1. **Token Rotation:** Rotate the token every 90 days
 2. **Scope Limitation:** Only grant "Scan" scope (principle of least privilege)
 3. **Audit Access:** Periodically review token usage in GitGuardian dashboard
 4. **Revocation:** If compromised, immediately revoke in GitGuardian dashboard
 
-## Troubleshooting
+## 7. Troubleshooting
 
-### Error: "Invalid API key"
+### 7.1. Error: "Invalid API key"
 
 - Double-check you copied the entire token
 - Ensure no extra spaces or newlines
 - Verify the secret name is exactly `GITGUARDIAN_API_KEY`
 
-### Error: "Rate limit exceeded"
+### 7.2. Error: "Rate limit exceeded"
 
 - You've exceeded 10,000 scans/month on free tier
 - Upgrade to paid plan or wait for monthly reset
 
-### Workflow doesn't run
+### 7.3. Workflow doesn't run
 
 - Ensure the secret is set at the **repository** level (not environment level)
 - Check workflow logs for authentication errors
 
-## Token Management Dashboard
+## 8. Token Management Dashboard
 
 **View your tokens:** [GitGuardian Token Management](https://dashboard.gitguardian.com/workspace/settings/api)
 
@@ -163,7 +163,7 @@ The **"Scan"** scope provides:
 - Revoke tokens
 - Create new tokens
 
-## Support
+## 9. Support
 
 - Documentation: [GitGuardian Docs](https://docs.gitguardian.com)
 - Community: [GitGuardian Community](https://community.gitguardian.com)

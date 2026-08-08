@@ -7,7 +7,7 @@
 Tutorials are **learning-oriented**. The reader is a beginner. They follow what the author tells them, step by step, and at the end they have built something
 they didn't know how to build before.
 
-## Authoring guidance
+## 1. Authoring guidance
 
 When adding a tutorial to this section:
 

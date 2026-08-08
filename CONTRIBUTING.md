@@ -5,7 +5,7 @@ Thank you for your interest in contributing to gamesheet-sdk-py! We welcome cont
 This document provides guidelines and information to help you contribute effectively. Whether you are fixing a bug, adding a feature, improving documentation,
 or enhancing tests, your contributions help make this project better for everyone.
 
-## Table of Contents
+## 1. Table of Contents
 
 01. [Code of Conduct](#code-of-conduct)
 02. [Getting Started](#getting-started)
@@ -20,12 +20,12 @@ or enhancing tests, your contributions help make this project better for everyon
 11. [Common Tasks](#common-tasks)
 12. [Getting Help](#getting-help)
 
-## Code of Conduct
+## 2. Code of Conduct
 
 We are committed to providing a welcoming and inclusive environment for all contributors. By participating in this project, you agree to abide by our commitment
 to respectful and professional conduct.
 
-## Getting Started
+## 3. Getting Started
 
 Before you begin:
 
@@ -34,15 +34,15 @@ Before you begin:
 3. For major changes, open an issue first to discuss your proposed approach
 4. Review the [documentation](https://bdperkin.github.io/gamesheet-sdk-py/) to understand the project's architecture
 
-## Development Setup
+## 4. Development Setup
 
-### Prerequisites
+### 4.1. Prerequisites
 
 - **Python 3.11+** (3.11, 3.12, 3.13, or 3.14)
 - **Git** for version control
 - **make** (optional, but recommended for convenience)
 
-### Initial Setup
+### 4.2. Initial Setup
 
 1. Fork the repository on GitHub
 2. Clone your fork locally:
@@ -79,7 +79,7 @@ pre-commit install
 
 This will automatically run code quality checks before each commit.
 
-### Verifying Your Setup
+### 4.3. Verifying Your Setup
 
 Run the test suite to ensure everything is working:
 
@@ -94,9 +94,9 @@ pytest --cov
 make test
 ```
 
-## Development Workflow
+## 5. Development Workflow
 
-### Creating a Feature Branch
+### 5.1. Creating a Feature Branch
 
 Always create a new branch for your work:
 
@@ -106,7 +106,7 @@ git checkout -b feature/your-feature-name
 git checkout -b fix/your-bug-fix-name
 ```
 
-### Making Changes
+### 5.2. Making Changes
 
 1. Make your changes in the appropriate files under `src/gamesheet_sdk/` or `tests/`
 2. Add or update tests to cover your changes
@@ -129,7 +129,7 @@ pytest --cov
 make test-cov
 ```
 
-### Project Structure
+### 5.3. Project Structure
 
 The project uses a `src/` layout with the following structure:
 
@@ -151,21 +151,21 @@ The project uses a `src/` layout with the following structure:
   - `unit/` - Unit tests by domain
 - `docs/` - Sphinx documentation (follows Diátaxis framework)
 
-## Code Style Guidelines
+## 6. Code Style Guidelines
 
-### Line Length
+### 6.1. Line Length
 
 - Maximum line length: **110 characters**
 - Configured in Black, flake8, isort, autopep8, and other formatters
 
-#### Python Version
+#### 6.1.1. Python Version
 
 - Use modern Python 3.11+ syntax
 - Include `from __future__ import annotations` at the top of files
 - Use `X | None` instead of `Optional[X]`
 - Use `X | Y` instead of `Union[X, Y]`
 
-#### Formatters (Auto-fix)
+#### 6.1.2. Formatters (Auto-fix)
 
 The project uses multiple formatters that run automatically via pre-commit hooks:
 
@@ -183,7 +183,7 @@ Apply all formatters with:
 make fix
 ```
 
-#### Linters
+#### 6.1.3. Linters
 
 The project uses comprehensive linting:
 
@@ -193,7 +193,7 @@ The project uses comprehensive linting:
 - **pyrefly** for architectural health
 - **blocklint** for inclusive language
 
-#### Type Checking
+#### 6.1.4. Type Checking
 
 All code must pass strict type checking:
 
@@ -215,23 +215,23 @@ make type
 - Pass `mypy --strict` with zero errors
 - The project ships with `py.typed` (PEP 561)
 
-## Testing Requirements
+## 7. Testing Requirements
 
-### Coverage Requirement
+### 7.1. Coverage Requirement
 
 **100% test coverage is required** for all code.
 
 - **Local enforcement**: `[tool.coverage.report] fail_under = 100` in pyproject.toml
 - **Codecov enforcement**: Project coverage target 100% (0% drop tolerated), patch coverage 100% on newly-introduced lines
 
-### Test Categories
+### 7.2. Test Categories
 
 Tests use pytest markers (declared in `[tool.pytest.ini_options].markers`):
 
 - `@pytest.mark.vcr` - Replays HTTP from cassettes (sensitive data scrubbed)
 - `@pytest.mark.browser` - Requires headless Chromium (slow tests)
 
-### Network Isolation
+### 7.3. Network Isolation
 
 Tests are configured with `--block-network` (via `pytest-recording`):
 
@@ -239,7 +239,7 @@ Tests are configured with `--block-network` (via `pytest-recording`):
 - Use `@pytest.mark.vcr` for HTTP-based tests
 - Use `@pytest.mark.browser` for Playwright tests
 
-### Running Tests
+### 7.4. Running Tests
 
 ```bash
 # Run all tests
@@ -263,7 +263,7 @@ make test-fast   # skip browser tests
 make test-cov    # with coverage
 ```
 
-### Writing Tests
+### 7.5. Writing Tests
 
 - Place tests in the appropriate directory under `tests/`
 - Follow the existing test structure and naming conventions
@@ -272,9 +272,9 @@ make test-cov    # with coverage
 - Use VCR cassettes for HTTP interactions (scrub sensitive data in `tests/conftest.py`)
 - Ensure all code paths are covered (branches, exceptions, edge cases)
 
-## Documentation Requirements
+## 8. Documentation Requirements
 
-### Docstring Coverage
+### 8.1. Docstring Coverage
 
 **100% docstring coverage is required** for all public APIs.
 
@@ -285,7 +285,7 @@ Enforced via `interrogate` with `fail-under = 100`:
 tox -e interrogate
 ```
 
-### Docstring Style
+### 8.2. Docstring Style
 
 - **Style**: Google (configured in `[tool.interrogate] style = "google"`)
 - **Format**: PEP 257 compliant, enforced by `docformatter`
@@ -308,7 +308,7 @@ def example_function(arg1: str, arg2: int) -> bool:
     pass
 ```
 
-### Documentation Files
+### 8.3. Documentation Files
 
 The project uses [Diátaxis](https://diataxis.fr/) for documentation organization under `docs/`:
 
@@ -324,7 +324,7 @@ When adding documentation:
 3. Ensure links work (`make docs-linkcheck`)
 4. Preview locally (`make docs-serve`)
 
-### API Documentation
+### 8.4. API Documentation
 
 API docs are auto-generated from docstrings using Sphinx autodoc/autosummary. After adding or modifying public APIs, regenerate docs:
 
@@ -332,13 +332,13 @@ API docs are auto-generated from docstrings using Sphinx autodoc/autosummary. Af
 make docs
 ```
 
-## Commit Message Conventions
+## 9. Commit Message Conventions
 
 **All commits must follow [Conventional Commits](https://www.conventionalcommits.org/) format.**
 
 This is enforced by the `conventional-pre-commit` hook.
 
-### Format
+### 9.1. Format
 
 ```text
 <type>[optional scope]: <description>
@@ -348,7 +348,7 @@ This is enforced by the `conventional-pre-commit` hook.
 [optional footer(s)]
 ```
 
-### Types
+### 9.2. Types
 
 - `feat:` - A new feature (triggers patch bump until 1.0.0, then minor)
 - `fix:` - A bug fix (triggers patch bump)
@@ -362,18 +362,18 @@ This is enforced by the `conventional-pre-commit` hook.
 - `chore:` - Other changes that don't modify src or test files
 - `revert:` - Reverts a previous commit
 
-### Scopes (Optional but Encouraged)
+### 9.3. Scopes (Optional but Encouraged)
 
 Examples: `auth`, `cli`, `api`, `docs`, `tests`, `deps`, `config`
 
-### Breaking Changes
+### 9.4. Breaking Changes
 
 For breaking changes (triggers major bump after 1.0.0):
 
 - Add `!` after type/scope: `feat!: breaking change description`
 - Or include `BREAKING CHANGE:` in the commit body/footer
 
-### Examples
+### 9.5. Examples
 
 ```bash
 # Feature commit
@@ -392,16 +392,16 @@ BREAKING CHANGE: list_seasons now returns an iterator instead of a list.
 Update your code to convert to list if needed: list(list_seasons(...))
 ```
 
-### Commit Message Tips
+### 9.6. Commit Message Tips
 
 - Use imperative mood ("add feature" not "added feature")
 - Keep the first line under 72 characters
 - Provide context in the body for non-trivial changes
 - Reference issues: `Closes #123` or `Fixes #456`
 
-## Pull Request Process
+## 10. Pull Request Process
 
-### Before Opening a PR
+### 10.1. Before Opening a PR
 
 1. Ensure all tests pass: `pytest --cov`
 2. Ensure 100% test coverage: `pytest --cov` (coverage report will show any gaps)
@@ -411,7 +411,7 @@ Update your code to convert to list if needed: list(list_seasons(...))
 6. Update documentation if needed
 7. Ensure all commits follow Conventional Commits format
 
-### Opening a PR
+### 10.2. Opening a PR
 
 1. Push your branch to your fork:
 
@@ -426,7 +426,7 @@ git push origin feature/your-feature-name
    - **Related Issues**: Reference any related issues
    - **Breaking Changes**: Note any breaking changes
 
-### PR Title
+### 10.3. PR Title
 
 PR titles should also follow Conventional Commits format:
 
@@ -436,7 +436,7 @@ fix(auth): prevent token refresh race condition
 docs: add CONTRIBUTING.md with comprehensive guidelines
 ```
 
-### PR Review Process
+### 10.4. PR Review Process
 
 1. Automated CI checks will run:
 
@@ -455,7 +455,7 @@ docs: add CONTRIBUTING.md with comprehensive guidelines
 
 4. Once approved and CI passes, a maintainer will merge your PR
 
-### After Your PR is Merged
+### 10.5. After Your PR is Merged
 
 1. Delete your feature branch (GitHub offers a button for this)
 2. Update your local repository:
@@ -467,7 +467,7 @@ git pull upstream main
 
 1. The automated release workflow will handle versioning and changelog generation based on your Conventional Commits
 
-## Complexity Requirements
+## 11. Complexity Requirements
 
 **All code blocks (functions, methods, classes) must maintain cyclomatic complexity grade A (cc ≤ 5).**
 
@@ -477,7 +477,7 @@ This is enforced by a `xenon` pre-commit hook:
 xenon --max-absolute=A --max-modules=A --max-average=B src/
 ```
 
-### Checking Complexity
+### 11.1. Checking Complexity
 
 ```bash
 # Check complexity metrics
@@ -487,7 +487,7 @@ make metrics
 tox -e radon-cc
 ```
 
-### Reducing Complexity
+### 11.2. Reducing Complexity
 
 When adding a fourth `if` / `except` / `for` / `and` / `or` to a block:
 
@@ -515,9 +515,9 @@ def login(config, email, password):
     return _await_auth_outcome(page)
 ```
 
-## Common Tasks
+## 12. Common Tasks
 
-### Adding a New CLI Command
+### 12.1. Adding a New CLI Command
 
 1. Create or modify a command module under `src/gamesheet_sdk/cli/commands/`
 2. Use `ResourceGroup` for resource-oriented commands (create, get, list, update, delete)
@@ -526,7 +526,7 @@ def login(config, email, password):
 5. Add tests under `tests/cli/`
 6. The CLI reference docs will auto-update via `sphinx-click`
 
-### Adding a New Domain Module
+### 12.2. Adding a New Domain Module
 
 1. Create pydantic models in a new module under `src/gamesheet_sdk/`
 2. Implement action functions (e.g., `list_items()`, `get_item()`, `create_item()`)
@@ -534,7 +534,7 @@ def login(config, email, password):
 4. Add comprehensive tests under `tests/unit/` and `tests/cli/`
 5. Update documentation
 
-### Adding a New Dependency
+### 12.3. Adding a New Dependency
 
 1. Add to `[project] dependencies` in `pyproject.toml` for runtime dependencies
 2. Or add to `optional-dependencies.<group>` for dev/test dependencies
@@ -542,7 +542,7 @@ def login(config, email, password):
 4. Run `pip install -e ".[all]"` to install
 5. Consider adding type stubs to `optional-dependencies.type-stubs` if available
 
-### Running Specific Tox Environments
+### 12.4. Running Specific Tox Environments
 
 The project has ~60 tox environments for isolated tool runs:
 
@@ -566,7 +566,7 @@ tox -e flake8
 tox -e bandit
 ```
 
-## Getting Help
+## 13. Getting Help
 
 - **Documentation**: <https://bdperkin.github.io/gamesheet-sdk-py/>
 - **Issues**: <https://github.com/bdperkin/gamesheet-sdk-py/issues>
@@ -574,12 +574,12 @@ tox -e bandit
 - **CLAUDE.md**: See the [CLAUDE.md](CLAUDE.md) file for detailed project architecture and conventions
 - **Makefile**: Run `make help` for a list of available make targets
 
-### Project Maintainers
+### 13.1. Project Maintainers
 
 The project maintainers are listed in the [CODEOWNERS](https://github.com/bdperkin/gamesheet-sdk-py/blob/main/.github/CODEOWNERS) file (if available) or can be
 found in the commit history.
 
-## Recognition
+## 14. Recognition
 
 All contributors will be recognized in the project's commit history and on GitHub's contributors page. Significant contributions may be highlighted in release
 notes.

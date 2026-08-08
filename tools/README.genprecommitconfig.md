@@ -3,7 +3,7 @@
 Automated `.pre-commit-config.yaml` generator that fetches hook definitions from upstream repositories, applies declarative configuration overrides, and
 validates the result incrementally.
 
-## Overview
+## 1. Overview
 
 `genprecommitconfig` replaces manual maintenance of `.pre-commit-config.yaml` with a reproducible, configuration-driven workflow. Instead of editing the
 pre-commit config directly, you declare repositories and hook customizations in `.genprecommitconfig.yaml` and the tool:
@@ -17,7 +17,7 @@ pre-commit config directly, you declare repositories and hook customizations in 
 
 This "suck-in" approach means remote hook changes only appear locally when the tool is re-run, giving full control over what lands in the project.
 
-## Architecture
+## 2. Architecture
 
 ```text
 tools/genprecommitconfig        # Thin entry point
@@ -37,7 +37,7 @@ tools/precommit/
 Shared utilities: tools/shared/ (HTTP sessions, git subprocess, logging, exceptions)
 ```
 
-### Execution Pipeline
+### 2.1. Execution Pipeline
 
 | Phase | Module                                                          | Description                                                      |
 | ----- | --------------------------------------------------------------- | ---------------------------------------------------------------- |
@@ -48,7 +48,7 @@ Shared utilities: tools/shared/ (HTTP sessions, git subprocess, logging, excepti
 | 5     | `validator.py`                                                  | Per-repo incremental validation via `pre-commit run`             |
 | 6     | `validator.py`                                                  | Final full validation run                                        |
 
-## Prerequisites
+## 3. Prerequisites
 
 - Python 3.11+
 - `pre-commit` (installed and available on `PATH`)
@@ -62,9 +62,9 @@ Install development dependencies:
 make venv  # or: pip install -e ".[dev]"
 ```
 
-## Usage
+## 4. Usage
 
-### Basic Usage
+### 4.1. Basic Usage
 
 ```bash
 # Generate .pre-commit-config.yaml from default config
@@ -86,7 +86,7 @@ make venv  # or: pip install -e ".[dev]"
 ./tools/genprecommitconfig --log-level debug
 ```
 
-### Command-Line Options
+### 4.2. Command-Line Options
 
 | Option          | Default                             | Description                                 |
 | --------------- | ----------------------------------- | ------------------------------------------- |
@@ -98,16 +98,16 @@ make venv  # or: pip install -e ".[dev]"
 | `--version`     | —                                   | Show version and exit                       |
 | `--help`        | —                                   | Show help and exit                          |
 
-### Expected Runtime
+### 4.3. Expected Runtime
 
 - **Dry-run**: 10-30 seconds (network I/O for version discovery and hook fetching)
 - **Full run**: 1-5 minutes (includes pre-commit validation after each repo)
 
-## Configuration File
+## 5. Configuration File
 
 The tool reads `.genprecommitconfig.yaml` from the project root. An example template is provided at `tools/genprecommitconfig.example.yaml`.
 
-### Structure
+### 5.1. Structure
 
 ```yaml
 globals:
@@ -173,7 +173,7 @@ categories:                    # Repos grouped by function
               exclude: "^(bin|docs)/.*$"
 ```
 
-### Category Configuration
+### 5.2. Category Configuration
 
 Each category entry supports:
 
@@ -182,7 +182,7 @@ Each category entry supports:
 | `description` | string | **Required.** Human-readable label rendered as a sub-section comment   |
 | `repos`       | list   | **Required.** List of repository configurations (see Repository below) |
 
-### Repository Configuration
+### 5.3. Repository Configuration
 
 Each repository entry (within `repos`) supports:
 
@@ -193,7 +193,7 @@ Each repository entry (within `repos`) supports:
 | `rev`   | string/null | Version: `null` = auto-detect latest, `"installed"` = match installed package, or exact string |
 | `hooks` | list        | Per-hook overrides (see below)                                                                 |
 
-### Hook Configuration
+### 5.4. Hook Configuration
 
 Each hook entry (within `hooks`) supports:
 
@@ -205,7 +205,7 @@ Each hook entry (within `hooks`) supports:
 | `appends`   | mapping | List fields to extend (added after existing values)  |
 | `prepends`  | mapping | List fields to extend (added before existing values) |
 
-### Version Resolution
+### 5.5. Version Resolution
 
 The `rev` field controls how the tool resolves the repository version:
 
@@ -215,7 +215,7 @@ The `rev` field controls how the tool resolves the repository version:
   (e.g., `uv-pre-commit` → `uv`).
 - **Exact string** (e.g., `"v1.7.7"`): Used as-is without any resolution.
 
-### Hook Filtering
+### 5.6. Hook Filtering
 
 Hooks from remote repositories are filtered through three gates:
 
@@ -223,7 +223,7 @@ Hooks from remote repositories are filtered through three gates:
 2. **Blacklist filter**: Hooks with IDs in `globals.blacklisted_hooks` are excluded
 3. **Targeting filter**: Only hooks with explicit file targeting metadata (`always_run`, `files`, `stages`, `types`, or `types_or`) are included
 
-### Override vs. Append vs. Prepend
+### 5.7. Override vs. Append vs. Prepend
 
 - **`overrides`**: Replaces the fetched field value entirely. Use for scalar fields (`exclude`, `entry`, `always_run`) or when you want to replace the entire
   list.
@@ -231,7 +231,7 @@ Hooks from remote repositories are filtered through three gates:
 - **`prepends`**: Extends existing list fields by inserting values at the beginning. Use when argument order matters (e.g., `--add-plugin` must come before
   other args).
 
-## Exception Hierarchy
+## 6. Exception Hierarchy
 
 ```text
 GenPreCommitConfigError         # Base (has exit_code attribute)
@@ -244,7 +244,7 @@ GenPreCommitConfigError         # Base (has exit_code attribute)
 └── SubprocessError             # Subprocess command failure
 ```
 
-## Dependencies
+## 7. Dependencies
 
 The tool requires the `pre-commit-config` optional dependency group:
 
@@ -260,9 +260,9 @@ pre-commit-config = [
 
 These are included transitively via `gamesheet-sdk-py[dev]`.
 
-## Troubleshooting
+## 8. Troubleshooting
 
-### Common Issues
+### 8.1. Common Issues
 
 | Problem                                         | Solution                                                                   |
 | ----------------------------------------------- | -------------------------------------------------------------------------- |
@@ -273,7 +273,7 @@ These are included transitively via `gamesheet-sdk-py[dev]`.
 | `ValidationError: pre-commit validation failed` | Check pre-commit output for hook failures; fix and re-run                  |
 | `pre-commit executable not found`               | Install pre-commit: `pip install pre-commit`                               |
 
-### Debug Mode
+### 8.2. Debug Mode
 
 ```bash
 # Enable debug logging to see all operations
@@ -283,11 +283,11 @@ These are included transitively via `gamesheet-sdk-py[dev]`.
 ./tools/genprecommitconfig --dry-run
 ```
 
-## Related Tools
+## 9. Related Tools
 
 - [`tools/syncdeps`](README.syncdeps.md) — Bidirectional dependency convergence
 
-## Files
+## 10. Files
 
 | File                                    | Purpose                              |
 | --------------------------------------- | ------------------------------------ |

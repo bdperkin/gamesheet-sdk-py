@@ -2,7 +2,7 @@
 
 This directory contains the Sphinx-based documentation for gamesheet-sdk-py.
 
-## Quick start
+## 1. Quick start
 
 ```bash
 # Generate API documentation
@@ -21,14 +21,14 @@ make docs-check
 make docs-lint
 ```
 
-## Architecture
+## 2. Architecture
 
-### Automatic API documentation
+### 2.1. Automatic API documentation
 
 API documentation is **automatically generated** from Python source code using `sphinx-apidoc`. This ensures the API reference stays in sync with the actual
 codebase.
 
-#### How it works
+#### 2.1.1. How it works
 
 1. **`docs/generate_api_docs.py`** - Runs `sphinx-apidoc` to recursively discover all Python modules in `src/gamesheet_sdk/` and generates ReStructuredText
    files with `automodule` directives.
@@ -39,7 +39,7 @@ codebase.
 
 4. **`docs/conf.py`** - Sphinx configuration with `autosummary_generate = True` to automatically create documentation stubs.
 
-#### When API docs are regenerated
+#### 2.1.2. When API docs are regenerated
 
 API documentation is regenerated automatically:
 
@@ -48,7 +48,7 @@ API documentation is regenerated automatically:
 - **During `make docs-lint`** - Ensures docs are fresh before linting
 - **In CI/CD** - GitHub Actions runs the same tox environments that regenerate docs
 
-#### Freshness checking
+#### 2.1.3. Freshness checking
 
 **`docs/check_api_freshness.py`** compares modification times of source files vs. generated documentation to detect when regeneration is needed. Run it with:
 
@@ -58,7 +58,7 @@ make docs-check
 
 This is automatically run by `make docs-lint` and in CI.
 
-### CLI documentation
+### 2.2. CLI documentation
 
 CLI documentation uses `sphinx-click` to automatically render the click command trees from `gamesheet_sdk.admin.cli.main:cli` and
 `gamesheet_sdk.teams.cli.main:cli`. The rendered documentation always matches the shipped binaries because it's generated live from the actual click groups.
@@ -66,7 +66,7 @@ CLI documentation uses `sphinx-click` to automatically render the click command 
 See `docs/reference/cli.md` which uses `eval-rst` directives with the `click` domain to automatically generate CLI documentation for both `gamesheet-admin` and
 `gamesheet-teams` from the code.
 
-### Custom templates
+### 2.3. Custom templates
 
 Sphinx autosummary templates can be customized in `docs/_templates/`:
 
@@ -75,7 +75,7 @@ Sphinx autosummary templates can be customized in `docs/_templates/`:
 
 These templates control how API documentation is structured and formatted.
 
-## Directory structure
+## 3. Directory structure
 
 ```text
 docs/
@@ -99,7 +99,7 @@ docs/
 └── explanation/                       # Understanding-oriented guides
 ```
 
-## Diátaxis framework
+## 4. Diátaxis framework
 
 Documentation is organized using the [Diátaxis framework](https://diataxis.fr/):
 
@@ -115,9 +115,9 @@ Documentation is organized using the [Diátaxis framework](https://diataxis.fr/)
 
 See `docs/explanation/diataxis.md` for more details.
 
-## Building documentation
+## 5. Building documentation
 
-### Local builds
+### 5.1. Local builds
 
 ```bash
 # Full two-pass build (strict mode on second pass)
@@ -133,7 +133,7 @@ make docs-pdf
 make docs-linkcheck
 ```
 
-### Using tox
+### 5.2. Using tox
 
 ```bash
 # HTML documentation
@@ -161,7 +161,7 @@ tox -e docs-linkcheck
 tox -e docs-doctest
 ```
 
-## CI/CD
+## 6. CI/CD
 
 Documentation builds run in GitHub Actions (`.github/workflows/docs.yml`):
 
@@ -170,7 +170,7 @@ Documentation builds run in GitHub Actions (`.github/workflows/docs.yml`):
 - **Link checking** - Validation of external links
 - **Deployment** - HTML docs deploy to GitHub Pages on push to `main`
 
-## Configuration
+## 7. Configuration
 
 Key Sphinx settings in `docs/conf.py`:
 
@@ -198,9 +198,9 @@ extensions = [
 ]
 ```
 
-## Troubleshooting
+## 8. Troubleshooting
 
-### API docs out of date
+### 8.1. API docs out of date
 
 If source files change but docs don't update:
 
@@ -213,7 +213,7 @@ make clean-all
 make docs
 ```
 
-### Missing modules in API reference
+### 8.2. Missing modules in API reference
 
 Check if `sphinx-apidoc` excluded them:
 
@@ -224,7 +224,7 @@ ls docs/reference/_autosummary/
 # Check exclusion patterns in docs/generate_api_docs.py
 ```
 
-### Sphinx warnings
+### 8.3. Sphinx warnings
 
 Run with verbose output:
 
@@ -232,7 +232,7 @@ Run with verbose output:
 sphinx-build -b html -v docs docs/_build/html
 ```
 
-### Import errors during build
+### 8.4. Import errors during build
 
 Ensure the package is installed in editable mode:
 
@@ -240,7 +240,7 @@ Ensure the package is installed in editable mode:
 pip install -e ".[docs]"
 ```
 
-## References
+## 9. References
 
 - [Sphinx documentation](https://www.sphinx-doc.org/)
 - [sphinx-apidoc](https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html)

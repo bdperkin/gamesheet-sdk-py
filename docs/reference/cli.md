@@ -7,7 +7,7 @@ The package installs two console scripts:
 
 Both CLIs share common infrastructure (authentication, configuration, output formatting) from {mod}`gamesheet_sdk.common`.
 
-## Rich Help Output
+## 1. Rich Help Output
 
 Both CLIs use [rich-click](https://github.com/ewels/rich-click) to provide beautifully formatted help output with:
 
@@ -16,7 +16,7 @@ Both CLIs use [rich-click](https://github.com/ewels/rich-click) to provide beaut
 - **Rich formatting** — Tables, borders, and color-coded sections enhance readability
 - **Consistent styling** — All help pages follow the same visual design for a polished experience
 
-## Admin CLI
+## 2. Admin CLI
 
 The admin CLI provides full resource management for the GameSheet admin dashboard.
 
@@ -26,7 +26,7 @@ The admin CLI provides full resource management for the GameSheet admin dashboar
     :nested: full
 ```
 
-## Teams CLI
+## 3. Teams CLI
 
 The teams CLI targets the GameSheet teams dashboard. Login is not yet implemented.
 
@@ -36,12 +36,12 @@ The teams CLI targets the GameSheet teams dashboard. Login is not yet implemente
     :nested: full
 ```
 
-## Usage Examples
+## 4. Usage Examples
 
 Both CLIs follow a resource-oriented (noun-first) command structure. Every resource group supports canonical verbs (`create`, `get`, `list`, `update`, `delete`)
 with short aliases (`add`/`new`, `show`/`view`, `ls`, `set`/`edit`, `rm`/`remove`).
 
-### Basic authentication
+### 4.1. Basic authentication
 
 Authenticate with GameSheet and save session tokens:
 
@@ -51,7 +51,7 @@ Password: [hidden input]
 Login successful! Tokens saved.
 ```
 
-### Listing resources
+### 4.2. Listing resources
 
 List all associations on your account:
 
@@ -73,7 +73,7 @@ List leagues within an association:
 $ gamesheet-admin leagues list --association-id 12345
 ```
 
-### Output formats
+### 4.3. Output formats
 
 Change output format using `--format`:
 
@@ -85,7 +85,7 @@ $ gamesheet-admin seasons list --league-id 111 --format csv > seasons.csv
 
 Supported formats: `json`, `yaml`, `csv`, `tsv`, plus thirteen `tabulate` table formats (see `--help` for the full list).
 
-### Verbose logging
+### 4.4. Verbose logging
 
 Enable info-level logging with `-v`, debug-level with `-vv`:
 
@@ -97,7 +97,7 @@ INFO:gamesheet_sdk.common.session:Response: 200 OK
 
 The verbosity flag is a global option and must precede the resource name.
 
-### Browser visibility
+### 4.5. Browser visibility
 
 Show the browser window during headless operations (useful for debugging):
 
@@ -105,7 +105,7 @@ Show the browser window during headless operations (useful for debugging):
 $ gamesheet-admin --no-headless login --email user@example.com
 ```
 
-### Shell completion
+### 4.6. Shell completion
 
 Generate a completion script for your shell:
 
@@ -117,7 +117,7 @@ $ gamesheet-admin completion fish > ~/.config/fish/completions/gamesheet-admin.f
 
 Then source the script in your shell configuration file.
 
-## Return Codes
+## 5. Return Codes
 
 Both CLIs follow Unix exit-code conventions:
 
@@ -135,7 +135,7 @@ exceptions:
 - {class}`click.exceptions.Abort` — returns 1 (after printing "Aborted.").
 - {class}`SystemExit` — mapped to its code (0 if None, 1 if non-integer, otherwise the code itself).
 
-## Environment Variables
+## 6. Environment Variables
 
 Both CLIs read configuration from `GAMESHEET_`-prefixed environment variables via {class}`gamesheet_sdk.common.config.Config` (implemented with
 `pydantic-settings`). Values are resolved in this precedence order:
@@ -144,7 +144,7 @@ Both CLIs read configuration from `GAMESHEET_`-prefixed environment variables vi
 2. Environment variables
 3. Field defaults defined in {class}`~gamesheet_sdk.common.config.Config`
 
-### Supported variables
+### 6.1. Supported variables
 
 | Variable                       | Type    | Default                                               | Description                                               |
 | ------------------------------ | ------- | ----------------------------------------------------- | --------------------------------------------------------- |
@@ -166,7 +166,7 @@ Both CLIs read configuration from `GAMESHEET_`-prefixed environment variables vi
 - Boolean environment variables accept `1`/`true`/`yes` (case-insensitive) for True, `0`/`false`/`no` for False.
 - The admin CLI defaults `GAMESHEET_BASE_URL` to `https://gamesheet.app`; the teams CLI defaults to `https://teams.gamesheet.app`.
 
-### Example usage
+### 6.2. Example usage
 
 ```bash
 # Authenticate using environment variables instead of prompts
@@ -184,7 +184,7 @@ export GAMESHEET_VERIFY_SSL="false"
 gamesheet-admin login
 ```
 
-## Configuration File Support
+## 7. Configuration File Support
 
 A TOML configuration file source is **not yet implemented**. Currently, configuration is resolved only from command-line arguments and environment variables.
 
@@ -198,7 +198,7 @@ Future releases may add support for a `~/.config/gamesheet-sdk-py/config.toml` f
 
 For now, use environment variables or CLI flags to configure the SDK. See the {ref}`reference/cli:Environment Variables` section above for details.
 
-## See also
+## 8. See also
 
 - {mod}`gamesheet_sdk.admin.cli` — Admin CLI module reference.
 - {mod}`gamesheet_sdk.teams.cli` — Teams CLI module reference.

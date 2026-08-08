@@ -3,7 +3,7 @@
 This page enumerates the Python versions, operating systems, browsers, and dependencies that `gamesheet-sdk-py` officially supports. The authoritative source
 for everything below is `pyproject.toml`; this page mirrors it for lookup convenience.
 
-## Python versions
+## 1. Python versions
 
 | Version  | Status        |
 | -------- | ------------- |
@@ -15,7 +15,7 @@ for everything below is `pyproject.toml`; this page mirrors it for lookup conven
 
 The constraint is enforced in `pyproject.toml` as `requires-python = ">=3.11"`. Installing on an unsupported interpreter will be rejected by pip.
 
-## Operating systems
+## 2. Operating systems
 
 The SDK runs anywhere CPython 3.11–3.14 runs _and_ Playwright can install Chromium. In practice that means:
 
@@ -26,7 +26,7 @@ The SDK runs anywhere CPython 3.11–3.14 runs _and_ Playwright can install Chro
 Other targets (Linux 32-bit, BSD, etc.) are not tested. They may work for SDK operations that do not require Playwright; they will fail at
 `python -m playwright install chromium`.
 
-## Bundled browser
+## 3. Bundled browser
 
 Workflows that need a real browser drive headless Chromium via Playwright.
 
@@ -40,7 +40,7 @@ Workflows that need a real browser drive headless Chromium via Playwright.
 
 For caching the install across CI runs, see {doc}`../how-to/install-in-github-actions`.
 
-## Runtime dependencies
+## 4. Runtime dependencies
 
 These are required and installed automatically by `pip install gamesheet-sdk-py`:
 
@@ -59,7 +59,7 @@ These are required and installed automatically by `pip install gamesheet-sdk-py`
 
 If you change `[project.dependencies]` in `pyproject.toml`, update this table in the same commit.
 
-## Optional dependency groups
+## 5. Optional dependency groups
 
 The package declares many extras via `[project.optional-dependencies]`. The two most important are:
 
@@ -69,7 +69,7 @@ The package declares many extras via `[project.optional-dependencies]`. The two 
 - **`all`** — includes every tool extra declared in the project (pytest, mypy, pylint, flake8, bandit, formatters, linters, type checkers, etc.). This is the
   one-line install for full local development capability.
 
-### Core extras
+### 5.1. Core extras
 
 | Extra        | Contents                                                                                                       |
 | ------------ | -------------------------------------------------------------------------------------------------------------- |
@@ -84,7 +84,7 @@ The package declares many extras via `[project.optional-dependencies]`. The two 
 | `flake8`     | `flake8-pyproject`, `gamesheet-sdk-py[flake8-plugins,pylint]`                                                  |
 | `all`        | Includes every extra listed in this table plus all individual tool extras                                      |
 
-### Individual tool extras
+### 5.2. Individual tool extras
 
 Each linter, formatter, type checker, and quality tool is isolated to its own extra. Examples include:
 
@@ -96,7 +96,7 @@ Each linter, formatter, type checker, and quality tool is isolated to its own ex
 
 See `[project.optional-dependencies]` in `pyproject.toml` for the complete list.
 
-### Install combinations
+### 5.3. Install combinations
 
 | Command                            | What it gets you                                   |
 | ---------------------------------- | -------------------------------------------------- |
@@ -107,7 +107,7 @@ See `[project.optional-dependencies]` in `pyproject.toml` for the complete list.
 | `pip install -e ".[all]"`          | Everything (all tools, all extras).                |
 | `pip install -e ".[dev,docs,all]"` | Equivalent to `[all]` (all is already exhaustive). |
 
-## Distribution
+## 6. Distribution
 
 | Channel | Identifier                                                                |
 | ------- | ------------------------------------------------------------------------- |
@@ -115,7 +115,7 @@ See `[project.optional-dependencies]` in `pyproject.toml` for the complete list.
 | Source  | <https://github.com/bdperkin/gamesheet-sdk-py>                            |
 | Type    | Pure-Python wheel; ships `py.typed` (PEP 561) so type checkers see hints. |
 
-## How the package version is managed
+## 7. How the package version is managed
 
 The version **is** written in `pyproject.toml` in the `[project] version` field. It is managed by
 [python-semantic-release](https://python-semantic-release.readthedocs.io/) (PSR), which automates version bumping and changelog generation based on Conventional

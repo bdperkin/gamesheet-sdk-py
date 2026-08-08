@@ -7,7 +7,7 @@
 How-to guides are **task-oriented**. The reader has a specific goal in mind and wants the shortest path to it. They are not beginners — they understand the
 building blocks; they just need a recipe.
 
-## Authoring guidance
+## 1. Authoring guidance
 
 When adding a how-to guide to this section:
 
@@ -16,7 +16,7 @@ When adding a how-to guide to this section:
 - **Stay focused.** The guide solves _one_ problem. If you find yourself branching, split the guide.
 - **Pick sensible defaults and move on.** Walking through alternative configurations is the job of a {doc}`tutorial <../tutorials/index>`.
 
-## Available guides
+## 2. Available guides
 
 ```{toctree}
 :maxdepth: 1
@@ -28,7 +28,7 @@ cut-a-release
 release-process
 ```
 
-## Planned guides
+## 3. Planned guides
 
 The following how-to guides are planned for future releases based on common SDK workflows:
 

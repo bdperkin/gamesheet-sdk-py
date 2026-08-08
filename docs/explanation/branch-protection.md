@@ -4,7 +4,7 @@ The `main` branch on this repository has classic branch protection configured. T
 why each knob is set the way it is. The settings themselves live in repository configuration, not in the tree, so without a write-up like this the rationale is
 invisible to anyone reading the code.
 
-## The shape of the protection
+## 1. The shape of the protection
 
 | Setting                            | Value   | Effect on `main`                                                               |
 | ---------------------------------- | ------- | ------------------------------------------------------------------------------ |
@@ -35,7 +35,7 @@ Two CI jobs are deliberately _excluded_ from the required list:
 - **`Deploy to GitHub Pages`** — only triggers on `push` to `main` after `Build HTML for GitHub Pages` succeeds, so it's a deployment step rather than a merge
   gate.
 
-## Why `Build HTML for GitHub Pages` is now required
+## 2. Why `Build HTML for GitHub Pages` is now required
 
 Earlier versions of this branch protection excluded the documentation build from the required list, reasoning that it "only triggers on `push` to `main`, never
 on a PR, so requiring it would create an unsatisfiable precondition." The workflow has since been restructured: `Build HTML for GitHub Pages` now runs on both
@@ -43,7 +43,7 @@ on a PR, so requiring it would create an unsatisfiable precondition." The workfl
 This split means PRs can (and must) prove the docs build successfully before merge, while the actual Pages publish happens only after the merge lands on `main`.
 Requiring the build check catches Sphinx errors, broken cross-references, and MyST syntax issues in the PR review phase rather than post-merge.
 
-## Why protect at all
+## 3. Why protect at all
 
 The project is currently solo and pushes directly to `main`, so on the surface branch protection looks like ceremony. It is in place for two forward-looking
 reasons:
@@ -54,43 +54,43 @@ reasons:
   the linear-history and no-force-push rules make it harder to accidentally rewrite published history (which, on a project that publishes to PyPI, is a
   release-management hazard).
 
-## Why these specific choices
+## 4. Why these specific choices
 
-### `enforce_admins: false`
+### 4.1. `enforce_admins: false`
 
 The maintainer is the sole admin and pushes directly to `main` for routine fixes (docs, lint, dependency bumps). Setting `enforce_admins: true` would force
 every such commit through a PR with the full check matrix. For a solo alpha that's a productivity tax with no security upside — there is no second pair of eyes
 available to gate on. When the project grows past one person, flipping this to `true` becomes worthwhile.
 
-### `strict: false`
+### 4.2. `strict: false`
 
 Strict mode requires every PR branch to be up-to-date with `main` before merge — i.e. another rebase-and-recheck round-trip every time the base branch moves. On
 a low-traffic alpha repo the protection that buys (rejecting a PR whose merge would silently break against newer `main`) is almost never engaged. The friction
 it adds (every PR needs a final "update branch" click) is paid every time. Easy to flip on later.
 
-### No required PR reviews
+### 4.3. No required PR reviews
 
 Solo project. Requiring approvals when there is no second reviewer just blocks merges. The setting is `required_pull_request_reviews: null` rather than "1
 approval", because the latter would still require a _PR-shaped_ event (so direct pushes would break), whereas `null` leaves the maintainer's direct-push
 workflow alone entirely.
 
-### `required_linear_history: true`
+### 4.4. `required_linear_history: true`
 
 Merge commits make the history harder to read and harder to bisect. Linear history (squash or rebase) keeps `main`'s log a clean left-to-right line, which
 matches how `git describe` derives version numbers in {doc}`../reference/supported-configurations` and how the `Deploy to GitHub Pages` workflow's gating on
 `github.ref == 'refs/heads/main'` is meant to behave (one published commit per release-worthy state).
 
-### `allow_force_pushes: false` and `allow_deletions: false`
+### 4.5. `allow_force_pushes: false` and `allow_deletions: false`
 
 These are protection against the _worst_ kind of accident — losing published history that downstream users may have pinned via git refs. Admins bypass them, but
 a fat-fingered `git push --force` from a non-admin (or from a misconfigured CI bot) is now rejected by the server rather than silently rewriting published
 commits.
 
-### `required_conversation_resolution: true`
+### 4.6. `required_conversation_resolution: true`
 
 Cheap to have on; biggest payoff is the first time someone forgets to mark "we agreed not to do X" resolved before merging the PR that did X.
 
-## How to inspect or change it
+## 5. How to inspect or change it
 
 The protection settings are managed through the GitHub API. The maintainer can read them with:
 
@@ -107,7 +107,7 @@ Adjustments worth thinking about as the project matures:
 - Flip `strict` to `true` if PRs start landing fast enough that base-branch drift becomes a real problem.
 - Add `required_pull_request_reviews` with `required_approving_review_count: 1` the moment a second reviewer exists.
 
-## See also
+## 6. See also
 
 - {doc}`../reference/supported-configurations` — what each required check actually checks.
 - {doc}`../how-to/cut-a-release` — the one workflow that pushes a tag (which bypasses branch-protection entirely, since tags aren't branches) and is gated by

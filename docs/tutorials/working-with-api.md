@@ -5,7 +5,7 @@ leagues, seasons), and processes the results programmatically.
 
 The whole walkthrough should take about twenty minutes.
 
-## What you will need
+## 1. What you will need
 
 - A **working `gamesheet-sdk-py` installation** with a valid login. Complete {doc}`getting-started` and {doc}`authentication-workflow` first if you haven't
   already.
@@ -15,7 +15,7 @@ The whole walkthrough should take about twenty minutes.
 
 That is the complete list.
 
-## Step 1 — Create a script file
+## 2. Step 1 — Create a script file
 
 Create a new Python file named `fetch_associations.py`:
 
@@ -25,7 +25,7 @@ Create a new Python file named `fetch_associations.py`:
 
 Open it in your editor. You'll add code to it step by step.
 
-## Step 2 — Import the SDK modules
+## 3. Step 2 — Import the SDK modules
 
 Start with the imports. You need three modules: `auth` for loading the access token, `session` for making authenticated HTTP requests, and `associations` for
 the association-specific logic.
@@ -38,7 +38,7 @@ from gamesheet_sdk.associations import list_associations
 
 Add this to the top of `fetch_associations.py`.
 
-## Step 3 — Load the access token
+## 4. Step 3 — Load the access token
 
 The `load_access_token()` function reads the saved token from disk (the one you created in {doc}`authentication-workflow`). Call it and store the result:
 
@@ -48,7 +48,7 @@ token = load_access_token()
 
 This will raise an `AuthenticationError` if the token file doesn't exist. If that happens, run `gamesheet-admin login` first.
 
-## Step 4 — Create an authenticated session
+## 5. Step 4 — Create an authenticated session
 
 The `Session` class is a thin wrapper around `requests.Session` with a `set_bearer_token()` method. Create an instance and attach the token:
 
@@ -59,7 +59,7 @@ session.set_bearer_token(token)
 
 Now the session carries your credentials on every request.
 
-## Step 5 — Fetch and print associations
+## 6. Step 5 — Fetch and print associations
 
 Call `list_associations()` with the session, then loop over the results and print them:
 
@@ -87,7 +87,7 @@ for assoc in associations:
     print(f"{assoc.title} (ID: {assoc.id})")
 ```
 
-## Step 6 — Run the script
+## 7. Step 6 — Run the script
 
 Make sure your virtual environment is active, then run the script:
 
@@ -99,7 +99,7 @@ Tournament Series 2024 (ID: 67890)
 
 If it prints your associations, the script is working. If you see `AuthenticationError`, run `gamesheet-admin login` to refresh your tokens.
 
-## Step 7 — Fetch leagues for each association
+## 8. Step 7 — Fetch leagues for each association
 
 Now extend the script to fetch leagues for each association. Import the `list_leagues()` function and call it inside the loop:
 
@@ -138,7 +138,7 @@ Tournament Series 2024 (ID: 67890)
 
 Now you're fetching data from two levels of the hierarchy.
 
-## Step 8 — Fetch seasons for each league
+## 9. Step 8 — Fetch seasons for each league
 
 Add one more level: seasons. Import `list_seasons()` and call it inside the league loop:
 
@@ -185,7 +185,7 @@ Tournament Series 2024 (ID: 67890)
 
 You've now walked the full hierarchy from associations to leagues to seasons, all with authenticated API calls.
 
-## Step 9 — Access model attributes
+## 10. Step 9 — Access model attributes
 
 Every resource is returned as a Pydantic model, so you can access its attributes by name. For example, the `Association` model has `id`, `title`, `logo`,
 `created_at`, and `updated_at` fields. Try printing more details:
@@ -200,7 +200,7 @@ for assoc in associations:
 
 The models are fully typed, so your editor will autocomplete the field names.
 
-## Step 10 — Handle errors
+## 11. Step 10 — Handle errors
 
 If a request fails (expired token, network error, etc.), the SDK raises an exception. Wrap your API calls in a try-except block to handle errors gracefully:
 
@@ -230,7 +230,7 @@ except GameSheetError as e:
 
 Now if the access token expires, the script prints a helpful message instead of crashing.
 
-## Step 11 — Use the Config class
+## 12. Step 11 — Use the Config class
 
 If you want to customize the base URL or other settings, use the `Config` class instead of hardcoding them:
 
@@ -254,12 +254,12 @@ for assoc in associations:
 
 Now if you set `GAMESHEET_BASE_URL` in the environment, the script picks it up automatically.
 
-## You're done
+## 13. You're done
 
 You have written a Python script that authenticates against GameSheet, retrieves data from multiple resources, and processes the results programmatically. The
 same pattern works for every resource: load the token, create a session, call the resource-specific function, loop over the results.
 
-## Where to go next
+## 14. Where to go next
 
 - {doc}`../reference/index` — the full Python API reference, including every module, class, and function.
 - {doc}`../how-to/index` — recipes for solving specific tasks, like automating workflows or integrating with other tools.

@@ -51,16 +51,9 @@ on:
     paths-ignore:
       - "CHANGELOG.md"
       - "pyproject.toml"
-
   push:
     branches-ignore:
       - "**"
-
-permissions:
-  contents: read
-
-concurrency:
-  cancel-in-progress: true
 
 # If using a dependency submission action in this workflow this permission will need to be set to:
 #
@@ -68,6 +61,11 @@ concurrency:
 #   contents: write
 #
 # https://docs.github.com/en/enterprise-cloud@latest/code-security/supply-chain-security/understanding-your-software-supply-chain/using-the-dependency-submission-api
+permissions:
+  contents: read
+
+concurrency:
+  cancel-in-progress: true
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:

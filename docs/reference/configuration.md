@@ -6,7 +6,7 @@ The `gamesheet-sdk-py` package uses `pydantic-settings` for configuration manage
 2. `GAMESHEET_`-prefixed environment variables
 3. Built-in defaults
 
-## Environment Variables
+## 1. Environment Variables
 
 | Variable                       | Purpose                                              | Default                                               |
 | ------------------------------ | ---------------------------------------------------- | ----------------------------------------------------- |
@@ -21,9 +21,9 @@ The `gamesheet-sdk-py` package uses `pydantic-settings` for configuration manage
 | `GAMESHEET_BROWSER_STATE_PATH` | Where to persist Playwright storage state            | `$XDG_CACHE_HOME/gamesheet-sdk-py/browser-state.json` |
 | `GAMESHEET_BROWSER_HEADLESS`   | Launch Playwright in headless mode (`--no-headless`) | `true`                                                |
 
-## Usage Examples
+## 2. Usage Examples
 
-### Python API
+### 2.1. Python API
 
 ```python
 from gamesheet_sdk import Config
@@ -41,7 +41,7 @@ os.environ["GAMESHEET_TIMEOUT"] = "45"
 config = Config(timeout=60)  # Uses 60, not 45
 ```
 
-### CLI
+### 2.2. CLI
 
 ```bash
 # Use env vars
@@ -53,7 +53,7 @@ gamesheet-admin login
 gamesheet-admin --base-url https://custom.gamesheet.app login --email you@example.com
 ```
 
-## Session Storage
+## 3. Session Storage
 
 The package persists authentication state in two files:
 
@@ -69,7 +69,7 @@ export GAMESHEET_SESSION_PATH=~/.config/gamesheet/session.json
 export GAMESHEET_BROWSER_STATE_PATH=~/.config/gamesheet/browser-state.json
 ```
 
-## SSL/TLS Verification
+## 4. SSL/TLS Verification
 
 By default, SSL certificate verification is enabled. To disable (not recommended for production):
 

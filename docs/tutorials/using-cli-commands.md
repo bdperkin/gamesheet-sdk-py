@@ -5,7 +5,7 @@ resources, and formatted the output in different ways.
 
 The whole walkthrough should take about fifteen minutes.
 
-## What you will need
+## 1. What you will need
 
 - A **working `gamesheet-sdk-py` installation** with a valid login. Complete {doc}`getting-started` and {doc}`authentication-workflow` first if you haven't
   already.
@@ -14,7 +14,7 @@ The whole walkthrough should take about fifteen minutes.
 
 That is the complete list.
 
-## Step 1 — Understand the command structure
+## 2. Step 1 — Understand the command structure
 
 The CLI is organized around **resources** (nouns) and **verbs** (actions on those resources). Every command follows the pattern:
 
@@ -36,7 +36,7 @@ The resource is `associations`, and the verb is `list`. Most resources support t
 - `update` (alias: `set`, `edit`) — Update an existing item (not yet implemented for most resources).
 - `delete` (alias: `rm`, `remove`) — Delete an item (not yet implemented for most resources).
 
-## Step 2 — List your associations
+## 3. Step 2 — List your associations
 
 Start with the top-level resource: associations. An association is the highest organizational unit in GameSheet (a league operator, a tournament series, etc.).
 
@@ -50,7 +50,7 @@ ID      TITLE                    CREATED AT
 The default output is a simple table. If your account has no associations, the output will be empty. That's fine — you can still follow the rest of this
 tutorial to see how the commands work.
 
-## Step 3 — Use an alias for list
+## 4. Step 3 — Use an alias for list
 
 Most verbs have short aliases to save typing. The `list` verb has an alias `ls`, so these two commands are identical:
 
@@ -63,7 +63,7 @@ ID      TITLE                    CREATED AT
 
 The output is the same. You can use whichever form you prefer.
 
-## Step 4 — Change the output format
+## 5. Step 4 — Change the output format
 
 The SDK supports thirteen different table formats (via the `tabulate` library), plus JSON, YAML, CSV, and TSV. Change the format with `--format`:
 
@@ -89,7 +89,7 @@ The SDK supports thirteen different table formats (via the `tabulate` library), 
 
 JSON output includes all fields, not just the ones shown in the table. Try `--format yaml` or `--format csv` to see other formats.
 
-## Step 5 — List leagues under an association
+## 6. Step 5 — List leagues under an association
 
 Associations contain leagues. To list the leagues in an association, you need the association ID from the previous step. Pick one and run:
 
@@ -102,7 +102,7 @@ ID      NAME                     SEASON
 
 The `--association-id` argument is required. If you omit it, the command will fail with an error message.
 
-## Step 6 — List seasons under a league
+## 7. Step 6 — List seasons under a league
 
 Leagues contain seasons. To list the seasons in a league, you need the league ID from the previous step:
 
@@ -114,7 +114,7 @@ ID      NAME          START DATE   END DATE
 
 The `--league-id` argument is required.
 
-## Step 7 — Get detailed season information
+## 8. Step 7 — Get detailed season information
 
 Once you have a season ID, you can retrieve detailed information about that season with the `seasons get` command:
 
@@ -129,7 +129,7 @@ League ID: 111
 
 The `get` verb shows more detail than `list`, and the output is formatted for readability rather than compactness.
 
-## Step 8 — Retrieve iPad Scoring Access Keys
+## 9. Step 8 — Retrieve iPad Scoring Access Keys
 
 GameSheet provides Scoring Access Keys (numeric PINs) for scorekeepers using iPads at the rink. To retrieve the keys for a season, use the `ipad-keys` command:
 
@@ -142,7 +142,7 @@ Blue Stars U15           5678
 
 This command requires a browser (it scrapes the keys from the WebUI), so it may take a few seconds longer than the JSON:API commands.
 
-## Step 9 — Use verbose logging to debug
+## 10. Step 9 — Use verbose logging to debug
 
 If a command fails or takes longer than expected, add `-v` (or `-vv` for even more detail) to see what the SDK is doing:
 
@@ -158,7 +158,7 @@ ID      TITLE                    CREATED AT
 The `-v` flag goes **before** the resource name, because it's a global option. Use `-vv` to enable debug-level logging, which shows request headers, response
 bodies, and Playwright browser events.
 
-## Step 10 — Save output to a file
+## 11. Step 10 — Save output to a file
 
 The SDK writes to stdout by default, so you can redirect the output to a file with standard shell redirection:
 
@@ -172,12 +172,12 @@ id,title,logo,created_at,updated_at
 
 This works with any output format. Use `--format json > data.json` to save JSON, `--format yaml > data.yaml` to save YAML, etc.
 
-## You're done
+## 12. You're done
 
 You have explored the CLI's resource-oriented command structure, retrieved data from associations, leagues, seasons, and iPad keys, and formatted the output in
 multiple ways. The CLI is designed to be predictable: once you know the pattern for one resource, you know the pattern for all of them.
 
-## Where to go next
+## 13. Where to go next
 
 - {doc}`working-with-api` — use the Python API to build scripts that automate multi-step workflows.
 - {doc}`../reference/index` — the full CLI reference, including every option and every output format.

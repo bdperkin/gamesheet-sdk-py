@@ -9,7 +9,7 @@ while doing their work. It does not teach, it does not motivate, and it does not
 
 Most of this section is generated from source by `sphinx.ext.autodoc`, `sphinx.ext.autosummary`, and `sphinx_click`, so it cannot drift from the shipped binary.
 
-## Authoring guidance
+## 1. Authoring guidance
 
 Hand-written reference pages should:
 

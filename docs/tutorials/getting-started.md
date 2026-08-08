@@ -5,7 +5,7 @@ command line and from Python.
 
 The whole walkthrough should take about five minutes.
 
-## What you will need
+## 1. What you will need
 
 - **Python 3.11, 3.12, 3.13, or 3.14** on your PATH. Check with:
 
@@ -20,7 +20,7 @@ The whole walkthrough should take about five minutes.
 
 That is the complete list. You do not need a GameSheet account for this tutorial.
 
-## Step 1 — Create an isolated environment
+## 2. Step 1 — Create an isolated environment
 
 Pick a working directory and create a virtual environment named `.venv` inside it. Then activate it.
 
@@ -39,7 +39,7 @@ instead of `source .venv/bin/activate`. The rest of this tutorial is the same.
 
 The `(.venv)` prefix on your prompt tells you the environment is active. Every command from here on assumes that prefix.
 
-## Step 2 — Install the SDK
+## 3. Step 2 — Install the SDK
 
 Install `gamesheet-sdk-py` from PyPI:
 
@@ -49,7 +49,7 @@ Install `gamesheet-sdk-py` from PyPI:
 
 Pip will pull in `requests`, `playwright`, `pydantic`, and `click`. Wait for it to finish.
 
-## Step 3 — Install the Playwright browser
+## 4. Step 3 — Install the Playwright browser
 
 Some SDK workflows drive a headless browser, so you also need the Chromium binary that Playwright manages. Install it now so it's ready when you need it:
 
@@ -63,7 +63,7 @@ on Linux, the analogous location on other OSes). It only happens once per
 machine, not per project.
 ```
 
-## Step 4 — Verify the CLI works
+## 5. Step 4 — Verify the CLI works
 
 The package installs two console scripts: `gamesheet-admin` (admin dashboard) and `gamesheet-teams` (teams dashboard). Try the admin CLI first:
 
@@ -102,7 +102,7 @@ Commands:
 
 If the command prints output and exits cleanly, the CLI is installed correctly.
 
-## Step 5 — Verify the Python API works
+## 6. Step 5 — Verify the Python API works
 
 The SDK also imports as a Python package. Start the interpreter and ask it for the same version:
 
@@ -116,7 +116,7 @@ The SDK also imports as a Python package. Start the interpreter and ask it for t
 
 If the import succeeded and printed a version string, the package is installed correctly for Python use too.
 
-## Step 6 — Authentication quickstart
+## 7. Step 6 — Authentication quickstart
 
 Most SDK operations require authentication. The `login` command handles this for you by opening a headless browser, submitting your credentials, and saving the
 session tokens for future use.
@@ -140,7 +140,7 @@ these tokens automatically — no need to log in again until they expire.
 If you do not have a GameSheet account yet, you can skip this step. The CLI and Python API verification steps above confirm the SDK is working; you can return
 here when you are ready to authenticate.
 
-## Step 7 — Basic usage examples
+## 8. Step 7 — Basic usage examples
 
 Once authenticated, you can query GameSheet resources. Try listing the associations on your account:
 
@@ -191,12 +191,12 @@ Each resource (associations, leagues, seasons, etc.) follows the same pattern. U
 (.venv) $ gamesheet-admin seasons list --help
 ```
 
-## You're done
+## 9. You're done
 
 You have a working `gamesheet-sdk-py` installation. Both the CLI and the Python API are reachable. You have authenticated (or know how to do so when ready), and
 you have seen how to query resources and format the output. The version you saw will increase as the SDK gains functionality.
 
-## Where to go next
+## 10. Where to go next
 
 - {doc}`../how-to/index` — recipes for solving specific tasks against the GameSheet platform.
 - {doc}`../reference/index` — the full module-by-module and option-by-option technical description.

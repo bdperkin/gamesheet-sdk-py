@@ -9,7 +9,7 @@ is absent, and may break without warning when the UI changes.
 
 Unofficial Python SDK and command-line interface for the [GameSheet Inc.](https://gamesheetinc.com) platform.
 
-## The four documentation quadrants
+## 1. The four documentation quadrants
 
 This documentation is organized following the [Diátaxis](https://diataxis.fr/) framework, which separates technical writing into four kinds with distinct
 audiences and purposes. Pick the entry point that matches _your current need_, not the topic you're interested in. (For background on why we split things this
@@ -45,7 +45,7 @@ reference/index
 explanation/index
 ```
 
-## Indices
+## 2. Indices
 
 - {ref}`genindex`
 - {ref}`modindex`

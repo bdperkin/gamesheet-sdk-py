@@ -7,7 +7,7 @@
 Explanation is **understanding-oriented**. It exists to broaden context — why choices were made, how the system behaves under the hood, what assumptions
 constrain the design. It does not give step-by-step instructions and it does not list APIs.
 
-## Authoring guidance
+## 1. Authoring guidance
 
 When adding an explanation to this section:
 

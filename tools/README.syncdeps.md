@@ -1,6 +1,6 @@
 # syncdeps
 
-## Overview
+## 1. Overview
 
 `syncdeps` performs **bidirectional dependency convergence** between `pyproject.toml` and `.pre-commit-config.yaml`. It ensures that pinned versions in both
 files stay synchronized by querying PyPI and git tags for the latest stable releases, then applying the appropriate updates while preserving file formatting and
@@ -14,7 +14,7 @@ Unlike the legacy `cideps` script, `syncdeps` is a modular package that:
 - Uses `rich` for structured output tables and progress reporting
 - Preserves file formatting via `tomlkit` (TOML) and `ruamel.yaml` (YAML)
 
-## Architecture
+## 2. Architecture
 
 The tool follows the same modular package pattern as `tools/precommit/`.
 
@@ -31,7 +31,7 @@ The tool follows the same modular package pattern as `tools/precommit/`.
 | Writers     | `tools/depsync/writers.py`    | Style-preserving file updates                               |
 | Shared      | `tools/shared/`               | Shared utilities (HTTP, git, logging, TOML, exceptions)     |
 
-### Execution Pipeline
+### 2.1. Execution Pipeline
 
 | Phase       | Description                                         |
 | ----------- | --------------------------------------------------- |
@@ -42,13 +42,13 @@ The tool follows the same modular package pattern as `tools/precommit/`.
 | 5. Display  | Show results table                                  |
 | 6. Write    | Apply updates to all three files directly           |
 
-## Prerequisites
+## 3. Prerequisites
 
-### Python Version
+### 3.1. Python Version
 
 - Python 3.11 or later
 
-### Python Packages
+### 3.2. Python Packages
 
 Installed via the `syncdeps` optional-dependency group in `pyproject.toml`:
 
@@ -62,27 +62,27 @@ Core dependencies (already installed):
 
 - `rich` — Terminal UI (tables, logging)
 
-## Usage
+## 4. Usage
 
-### Basic Usage
+### 4.1. Basic Usage
 
 ```console
 ./tools/syncdeps
 ```
 
-### Dry Run (Preview Only)
+### 4.2. Dry Run (Preview Only)
 
 ```console
 ./tools/syncdeps --dry-run
 ```
 
-### Debug Logging
+### 4.3. Debug Logging
 
 ```console
 ./tools/syncdeps --log-level=debug
 ```
 
-### CLI Options
+### 4.4. CLI Options
 
 | Option                  | Default                    | Description                                     |
 | ----------------------- | -------------------------- | ----------------------------------------------- |
@@ -94,36 +94,36 @@ Core dependencies (already installed):
 | `--version`             | —                          | Show version and exit                           |
 | `--help`                | —                          | Show help and exit                              |
 
-## Convergence Algorithm
+## 5. Convergence Algorithm
 
 Dependencies are categorized and handled differently based on where they appear:
 
-### Shared Main Hooks
+### 5.1. Shared Main Hooks
 
 Packages that exist in both `pyproject.toml` and as a pre-commit repo (mapped via `TOOL_MAPPING`). The tool finds the **highest version common to both** PyPI
 releases and git tags, then updates both files to that version.
 
-### Shared Additional Dependencies
+### 5.2. Shared Additional Dependencies
 
 Packages in both `pyproject.toml` and as `additional_dependencies` in pre-commit hooks. Updated to the latest stable PyPI version in both files.
 
-### PyPI-Only Dependencies
+### 5.3. PyPI-Only Dependencies
 
 Packages only in `pyproject.toml` (not referenced by pre-commit). Updated to the latest stable PyPI version.
 
-### Pre-commit-Only Repos
+### 5.4. Pre-commit-Only Repos
 
 Repos only in `.pre-commit-config.yaml` (no matching pyproject.toml entry). Updated to the latest stable git tag.
 
-### Pre-commit-Only Additional Dependencies
+### 5.5. Pre-commit-Only Additional Dependencies
 
 `additional_dependencies` not in `pyproject.toml`. Updated to the latest stable PyPI version.
 
-### Version Prefix Preservation
+### 5.6. Version Prefix Preservation
 
 The tool preserves `v` prefixes on git tags. If the current rev is `v1.2.3`, the updated rev will also use the `v` prefix (e.g., `v1.3.0`).
 
-### Filtered Dependencies
+### 5.7. Filtered Dependencies
 
 The following are explicitly skipped during parsing:
 
@@ -132,7 +132,7 @@ The following are explicitly skipped during parsing:
 - Inequality constraints (containing `<` or `>`)
 - Self-referencing gamesheet-sdk-py extras (e.g., `gamesheet-sdk-py[common]`)
 
-## Exception Hierarchy
+## 6. Exception Hierarchy
 
 ```text
 SyncDepsError (base)
@@ -142,7 +142,7 @@ SyncDepsError (base)
 └── LockfileError     — uv.lock generation/validation failures
 ```
 
-## Dependencies
+## 7. Dependencies
 
 The `syncdeps` optional-dependency group in `pyproject.toml`:
 
@@ -156,7 +156,7 @@ syncdeps = [
 ]
 ```
 
-## Troubleshooting
+## 8. Troubleshooting
 
 | Issue                          | Cause                               | Solution                                |
 | ------------------------------ | ----------------------------------- | --------------------------------------- |
@@ -165,12 +165,12 @@ syncdeps = [
 | `FetchError` for git tags      | Repository URL unreachable          | Check URL, verify git access            |
 | No common version found        | PyPI and git tag sets don't overlap | Check if repo uses different versioning |
 
-## Related Tools
+## 9. Related Tools
 
 - [`tools/genprecommitconfig`](README.genprecommitconfig.md) — Pre-commit config generation (generates `.pre-commit-config.yaml` from
   `.genprecommitconfig.yaml`)
 
-## Files
+## 10. Files
 
 | File                          | Purpose                  |
 | ----------------------------- | ------------------------ |

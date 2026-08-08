@@ -9,7 +9,7 @@ The package is organized into three pillars:
 - **`admin`** — Admin dashboard domain modules and CLI
 - **`teams`** — Teams dashboard CLI (domain modules forthcoming)
 
-## Module index
+## 1. Module index
 
 All Python modules are automatically discovered and documented. Click any module name to view its complete API documentation.
 
@@ -45,7 +45,7 @@ All Python modules are automatically discovered and documented. Click any module
     gamesheet_sdk.teams.cli
 ```
 
-## Common infrastructure
+## 2. Common infrastructure
 
 Shared modules used by both admin and teams CLIs.
 
@@ -63,7 +63,7 @@ Shared modules used by both admin and teams CLIs.
     _autosummary/gamesheet_sdk.common.session
 ```
 
-## Authentication package
+## 3. Authentication package
 
 Authentication flows, token management, and authenticated HTTP session.
 
@@ -79,7 +79,7 @@ Authentication flows, token management, and authenticated HTTP session.
     _autosummary/gamesheet_sdk.common.auth.tokens
 ```
 
-## Shared utilities
+## 4. Shared utilities
 
 Shared utilities and helpers used across the SDK.
 
@@ -94,7 +94,7 @@ Shared utilities and helpers used across the SDK.
     _autosummary/gamesheet_sdk.common.shared.jsonapi
 ```
 
-## Common CLI infrastructure
+## 5. Common CLI infrastructure
 
 Shared CLI framework used by both admin and teams CLIs.
 
@@ -107,7 +107,7 @@ Shared CLI framework used by both admin and teams CLIs.
     _autosummary/gamesheet_sdk.common.cli.core
 ```
 
-## Admin domain modules
+## 6. Admin domain modules
 
 Domain modules for the admin dashboard.
 
@@ -125,7 +125,7 @@ Domain modules for the admin dashboard.
     _autosummary/gamesheet_sdk.admin.teams
 ```
 
-## Admin games package
+## 7. Admin games package
 
 Game retrieval and management for scheduled, completed, and bracket games.
 
@@ -143,7 +143,7 @@ Game retrieval and management for scheduled, completed, and bracket games.
     _autosummary/gamesheet_sdk.admin.games.scheduled
 ```
 
-## Admin roster package
+## 8. Admin roster package
 
 Player and coach roster management.
 
@@ -158,7 +158,7 @@ Player and coach roster management.
     _autosummary/gamesheet_sdk.admin.roster.players
 ```
 
-## Admin CLI
+## 9. Admin CLI
 
 Admin CLI framework and command implementations.
 
@@ -197,7 +197,7 @@ Admin CLI framework and command implementations.
     _autosummary/gamesheet_sdk.admin.cli.commands.teams_roster_players
 ```
 
-## Teams CLI
+## 10. Teams CLI
 
 Teams CLI framework and command implementations.
 

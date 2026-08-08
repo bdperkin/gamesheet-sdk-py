@@ -2,7 +2,7 @@
 
 Sort YAML file keys alphabetically while preserving comments, quoting style, and indentation.
 
-## Overview
+## 1. Overview
 
 `sortyaml` sorts the keys of YAML mappings in place, recursively. It auto-detects the file's indentation style, preserves attached comments and scalar quoting,
 and optionally folds long quoted strings into block scalars. When no file argument is given it reads from stdin and writes to stdout, making it usable as a pipe
@@ -11,16 +11,16 @@ filter or a pre-commit hook.
 For well-known configuration formats the tool ships built-in schema-aware sorting rules so that keys appear in their canonical order (e.g., `repo` before `rev`
 before `hooks` in a pre-commit config).
 
-## Prerequisites
+## 2. Prerequisites
 
 - Python 3.11+
 - Python packages: `rich-click`, `ruamel.yaml`
 
 These are included transitively via `gamesheet-sdk-py[dev]`.
 
-## Usage
+## 3. Usage
 
-### Basic Usage
+### 3.1. Basic Usage
 
 ```bash
 # Sort a YAML file in place
@@ -39,7 +39,7 @@ cat config.yaml | ./tools/sortyaml
 ./tools/sortyaml --backup config.yaml
 ```
 
-### Schema-Specific Sorting
+### 3.2. Schema-Specific Sorting
 
 Use `--type` to apply canonical key ordering for known configuration formats:
 
@@ -53,7 +53,7 @@ Use `--type` to apply canonical key ordering for known configuration formats:
 ./tools/sortyaml --type trivyignore .trivyignore.yaml
 ```
 
-### Command-Line Options
+### 3.3. Command-Line Options
 
 | Option            | Default | Description                                           |
 | ----------------- | ------- | ----------------------------------------------------- |
@@ -67,7 +67,7 @@ Use `--type` to apply canonical key ordering for known configuration formats:
 | `-V`, `--version` | —       | Show version and exit                                 |
 | `-h`, `--help`    | —       | Show help and exit                                    |
 
-### Exit Codes
+### 3.4. Exit Codes
 
 | Code | Meaning                                         |
 | ---- | ----------------------------------------------- |
@@ -75,14 +75,14 @@ Use `--type` to apply canonical key ordering for known configuration formats:
 | 1    | `--check` mode: file is not sorted              |
 | 2    | Error (invalid YAML, invalid flag combination)  |
 
-## Sorting Behavior
+## 4. Sorting Behavior
 
-### Default (No Schema)
+### 4.1. Default (No Schema)
 
 All mapping keys are sorted lexicographically. Inside sequences, **identity keys** (`name`, `id`, `uses`, `repo`) are floated to the top of each mapping element
 so the most informative field appears first.
 
-### Schema-Aware Sorting
+### 4.2. Schema-Aware Sorting
 
 With `--type`, keys at each depth level are ordered according to a built-in priority list that matches the format's conventions. Keys not in the priority list
 sort lexicographically after the known keys.
@@ -97,17 +97,17 @@ sort lexicographically after the known keys.
 | `codecov`            | `codecov.yml`              | Canonical codecov section ordering                                           |
 | `trivyignore`        | `.trivyignore.yaml`        | `version` → vulnerability/rule fields by priority                            |
 
-### Long String Folding
+### 4.3. Long String Folding
 
 After sorting, quoted strings whose rendered inline length would exceed the file's line width (default 110 columns) are automatically converted to YAML block
 scalars (`>-` folded style).
 
-### Indent Detection
+### 4.4. Indent Detection
 
 The tool detects the mapping indent, sequence indent, and dash offset from the parsed YAML data and preserves them on output, so files formatted with 2-space or
 4-space indentation stay consistent.
 
-## Troubleshooting
+## 5. Troubleshooting
 
 | Problem                     | Solution                                                 |
 | --------------------------- | -------------------------------------------------------- |
@@ -116,12 +116,12 @@ The tool detects the mapping indent, sequence indent, and dash offset from the p
 | Comments move to wrong keys | ruamel.yaml attaches comments to adjacent keys; re-check |
 | `--check` exits 1 in CI     | Run `./tools/sortyaml --diff` to see what would change   |
 
-## Related Tools
+## 6. Related Tools
 
 - [`tools/genprecommitconfig`](README.genprecommitconfig.md) — Generates `.pre-commit-config.yaml` (sortyaml can sort the input config)
 - [`tools/syncdeps`](README.syncdeps.md) — Dependency convergence (operates on the same YAML files)
 
-## Files
+## 7. Files
 
 | File             | Purpose           |
 | ---------------- | ----------------- |

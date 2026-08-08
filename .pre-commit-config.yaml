@@ -441,7 +441,6 @@ repos:
         language_version: python3
         types:
           - yaml
-        exclude: ^\.pre-commit-config\.yaml$
 
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.38.0
@@ -528,6 +527,19 @@ repos:
         language_version: python3.13
         additional_dependencies:
           - gamesheet-sdk-py[mdformat]
+
+  - repo: https://github.com/jsh9/markdown-heading-numbering
+    rev: 0.1.1
+    hooks:
+      - id: markdown-heading-numbering
+        name: markdown heading numbering
+        description: Add hierarchical numbering to Markdown headings.
+        entry: markdown-heading-numbering
+        language: python
+        language_version: python3
+        types:
+          - markdown
+        exclude: ^CHANGELOG\.md$
 
   - repo: https://github.com/jackdewinter/pymarkdown
     rev: v0.9.39

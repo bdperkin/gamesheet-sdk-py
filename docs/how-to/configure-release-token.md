@@ -2,7 +2,7 @@
 
 This guide explains how to set up a Personal Access Token (PAT) to allow the automated release workflow to bypass branch protection rules.
 
-## Why This Is Needed
+## 1. Why This Is Needed
 
 The automated release workflow (`release.yml`) needs to push commits to the protected `main` branch:
 
@@ -16,13 +16,13 @@ The default `GITHUB_TOKEN` **cannot bypass branch protection**, so PSR fails wit
 remote: error: GH006: Protected branch update failed for refs/heads/main
 ```
 
-## Solution: Use a Personal Access Token
+## 2. Solution: Use a Personal Access Token
 
 A fine-grained Personal Access Token (PAT) with specific permissions can bypass branch protection.
 
-## Setup Steps
+## 3. Setup Steps
 
-### 1. Create Fine-Grained Personal Access Token
+### 3.1. Create Fine-Grained Personal Access Token
 
 1. Go to: <https://github.com/settings/tokens?type=beta>
 2. Click **"Generate new token"** → **"Generate new token (fine-grained)"**
@@ -37,7 +37,7 @@ A fine-grained Personal Access Token (PAT) with specific permissions can bypass 
 4. Click **"Generate token"**
 5. **Copy the token** (you won't see it again!)
 
-### 2. Add Token as Repository Secret
+### 3.2. Add Token as Repository Secret
 
 1. Go to: <https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets>
 2. Click **"New repository secret"**
@@ -46,7 +46,7 @@ A fine-grained Personal Access Token (PAT) with specific permissions can bypass 
    - **Secret**: Paste the token you copied
 4. Click **"Add secret"**
 
-### 3. Verify Workflow Configuration
+### 3.3. Verify Workflow Configuration
 
 The workflow (`.github/workflows/release.yml`) should already be configured to use the token:
 
@@ -70,7 +70,7 @@ The `||` fallback means:
 - If `RELEASE_TOKEN` exists → use it (can bypass protection)
 - If `RELEASE_TOKEN` is missing → use `GITHUB_TOKEN` (will fail on protected branches)
 
-## Testing
+## 4. Testing
 
 After setting up the token:
 
@@ -88,7 +88,7 @@ After setting up the token:
 
 3. The `Version and Release` workflow should run successfully and push the release commit to `main`
 
-## Token Renewal
+## 5. Token Renewal
 
 Fine-grained PATs expire. When your token expires:
 
@@ -98,14 +98,14 @@ Fine-grained PATs expire. When your token expires:
 
 **Set a calendar reminder** to renew the token before it expires!
 
-## Security Considerations
+## 6. Security Considerations
 
 - **Least Privilege**: The token only has `Contents: write` permission on one repository
 - **Expiration**: Tokens expire, requiring periodic renewal (reduces risk of leaked tokens)
 - **Repository Secret**: The token is encrypted and only accessible to workflows
 - **Audit Trail**: All actions taken with the token are logged in the repository
 
-## Alternative: GitHub App (More Secure)
+## 7. Alternative: GitHub App (More Secure)
 
 For organizations or projects requiring higher security, consider using a GitHub App instead:
 
@@ -116,9 +116,9 @@ For organizations or projects requiring higher security, consider using a GitHub
 
 See: <https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps>
 
-## Troubleshooting
+## 8. Troubleshooting
 
-### Workflow Still Fails with "Protected branch update failed"
+### 8.1. Workflow Still Fails with "Protected branch update failed"
 
 **Check:**
 
@@ -127,19 +127,19 @@ See: <https://docs.github.com/en/apps/creating-github-apps/about-creating-github
 3. Token hasn't expired
 4. Token scope includes the `gamesheet-sdk-py` repository
 
-### Token Expired
+### 8.2. Token Expired
 
 **Error**: `Bad credentials` or `401 Unauthorized`
 
 **Solution**: Generate a new token and update the secret
 
-### Workflow Can't Find Secret
+### 8.3. Workflow Can't Find Secret
 
 **Error**: Workflow uses `GITHUB_TOKEN` instead of `RELEASE_TOKEN`
 
 **Check**: Secret name is exactly `RELEASE_TOKEN` (case-sensitive)
 
-## References
+## 9. References
 
 - [GitHub Fine-Grained PATs](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token)
 - [GitHub Actions Secrets](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions)

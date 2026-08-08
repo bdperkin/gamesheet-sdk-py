@@ -94,10 +94,6 @@ categories:
 
       - name: yamlfix
         repo: https://github.com/lyz-code/yamlfix
-        hooks:
-          - id: yamlfix
-            overrides:
-              exclude: ^\.pre-commit-config\.yaml$
 
       - name: yamllint
         repo: https://github.com/adrienverge/yamllint
@@ -131,6 +127,16 @@ categories:
             appends:
               additional_dependencies:
                 - gamesheet-sdk-py[mdformat]
+
+      - name: markdown-heading-numbering
+        repo: https://github.com/jsh9/markdown-heading-numbering
+        hooks:
+          # semantic-release prepends each release at the placeholder, so
+          # numbering CHANGELOG.md would renumber every entry below it on
+          # every release — and count backwards through time besides.
+          - id: markdown-heading-numbering
+            overrides:
+              exclude: ^CHANGELOG\.md$
 
       - name: pymarkdown
         repo: https://github.com/jackdewinter/pymarkdown

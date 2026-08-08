@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project nature
+## 1. Project nature
 
 Unofficial Python SDK + CLI for the GameSheet Inc. platform. GameSheet does not publish a public API for the operations this library targets, so functionality
 is implemented by **automating the GameSheet WebUI** via a combination of:
@@ -68,7 +68,7 @@ The package is alpha. It uses a **three-pillar layout** under `src/gamesheet_sdk
 Future domain modules attach the same way: a thin action function in a domain module, a pydantic model, and a corresponding command module in the pillar's
 `cli/commands/`.
 
-## Common commands
+## 2. Common commands
 
 ```bash
 # Editable install with everything (run once after clone / when deps change).
@@ -101,7 +101,7 @@ pre-commit run --all-files
 mypy src
 ```
 
-### Makefile shortcuts
+### 2.1. Makefile shortcuts
 
 A `Makefile` wraps the most common workflows. `make help` lists every target. Highlights:
 
@@ -122,7 +122,7 @@ make clean         # caches + build artifacts (.tox, .venv, _build untouched)
 make clean-all     # + .tox, $(VENV), docs build dirs
 ```
 
-### Tox
+### 2.2. Tox
 
 Tox now ships ~60 envs — one per linter / formatter / type checker / doc builder — instead of the prior monolithic `lint` / `type` / `security` / `files-check`
 aggregates. Use **labels** for grouped runs:
@@ -150,7 +150,7 @@ venv with the minimum surface area.
 The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.admin.cli:main`) and `gamesheet-teams` (entry point:
 `gamesheet_sdk.teams.cli:main`).
 
-## Architecture notes
+## 3. Architecture notes
 
 - **`src/` layout.** Tests import via the installed package; `pyproject.toml` also sets `pythonpath = ["src"]` so `pytest` works without an install, but
   workflows that need the CLI or Playwright still require `pip install -e ".[all]"` (or at minimum `[dev,pytest]`).
