@@ -73,6 +73,7 @@ def test_list_completed_parses_bff_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_completed(session, SEASON_ID)
+
     assert len(result) == 1
     assert result[0].id == 2826460
     assert result[0].status == "completed"
@@ -128,6 +129,7 @@ def test_list_scheduled_parses_bff_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_scheduled(session, SEASON_ID)
+
     assert len(result) == 1
     assert result[0].id == 2437882
     assert result[0].status == "scheduled"
@@ -192,6 +194,7 @@ def test_list_completed_handles_empty_data(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid")
         result = list_completed(session, SEASON_ID)
+
     assert not result
 
 

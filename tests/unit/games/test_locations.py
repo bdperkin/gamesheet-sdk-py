@@ -52,6 +52,7 @@ def test_list_locations() -> None:
     with Session(config) as session:
         session.set_bearer_token(TEST_BEARER_TOKEN)
         locations = list_locations(session)
+
     assert len(locations) == 1
     assert locations[0].id == "loc-1"
 
@@ -83,6 +84,7 @@ def test_get_location_found() -> None:
     with Session(config) as session:
         session.set_bearer_token(TEST_BEARER_TOKEN)
         location = get_location(session, "loc-123")
+
     assert location.id == "loc-123"
 
 
@@ -130,6 +132,7 @@ def test_validate_location_valid() -> None:
         session.set_bearer_token(TEST_BEARER_TOKEN)
         # Test case-insensitive match
         result = validate_location(session, "arena a ice 1")
+
     assert result == "Arena A Ice 1"
 
 
@@ -139,6 +142,7 @@ def test_validate_location_empty() -> None:
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
         result = validate_location(session, "")
+
     assert not result
 
 

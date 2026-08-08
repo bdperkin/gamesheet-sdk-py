@@ -100,6 +100,7 @@ def _wait_for_login_form(page: Any, cfg: Config) -> bool:
             cfg.browser_state_path,
         )
         return False
+
     return True
 
 
@@ -187,6 +188,7 @@ def _firebase_error_message(response: Response) -> str:
         body: dict[str, Any] = response.json()
     except (ValueError, KeyError):
         return f"HTTP {response.status}"
+
     return extract_firebase_error(body, response.status)
 
 
@@ -250,10 +252,12 @@ def _auth_round_trip_complete(captured: dict[str, Response | None], email: str) 
     fb = captured["firebase"]
     if fb is None:
         return False
+
     _raise_for_firebase_error(fb)
     tok = captured["token"]
     if tok is None:
         return False
+
     _raise_for_token_error(tok)
     _LOGGER.info("Login succeeded for %s.", email)
     return True
@@ -294,7 +298,9 @@ def _await_auth_outcome(
     while time.monotonic() < deadline:
         if _auth_round_trip_complete(captured, email):
             return
+
         page.wait_for_timeout(POLL_INTERVAL_MS)
+
     _err_msg = (
         f"Login flow did not complete within {timeout_s:.0f}s. "
         "Auth backend returned no response. Try `--no-headless -vv` to debug."
@@ -385,7 +391,9 @@ def login(
         # Saved storage state already authenticates; just settle and return.
         if post_login_path is not None:
             _settle_post_login(session, post_login_path)
+
         return
+
     captured = _attach_response_capture(page)
     _submit_login_form(page, email, password)
     _await_auth_outcome(
@@ -463,9 +471,11 @@ class AdminLoginFlow:
         """
         with BrowserSession(self._config) as session:
             login(session, email=email, password=password, timeout=timeout)
+
         access = load_access_token(self._config)
         refresh = load_refresh_token(self._config)
         if access is None or refresh is None:
             _err_msg = "Login completed but tokens were not found in saved state."
             raise AuthenticationError(_err_msg)
+
         return {"access": access, "refresh": refresh}

@@ -84,6 +84,7 @@ class BaseAuthenticatedSession(Session, ABC):
         """Invoke the optional persistence callback, swallowing disk errors."""
         if self._on_refresh is None:
             return
+
         try:
             self._on_refresh(new_tokens)
         except OSError as exc:
@@ -100,6 +101,7 @@ class BaseAuthenticatedSession(Session, ABC):
                 exc,
             )
             return False
+
         self.set_bearer_token(new_tokens["access"])
         self._refresh_token = new_tokens["refresh"]
         self._notify_refresh(new_tokens)
@@ -132,6 +134,7 @@ class BaseAuthenticatedSession(Session, ABC):
         response = super().request(method, url, timeout=timeout, **kwargs)
         if response.status_code not in (401, 403):
             return response
+
         if not self._try_refresh():
             return response
         # editorconfig-checker-disable-next-line # pylint: disable-next=line-too-long

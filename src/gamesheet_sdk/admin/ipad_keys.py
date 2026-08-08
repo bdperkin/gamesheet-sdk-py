@@ -85,9 +85,11 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
     )
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if response.status_code == 404:
         _err_msg = errors.ERROR_MSG_404_IPAD_KEYS.format(season_id=season_id)
         raise GameSheetError(_err_msg)
+
     if response.status_code >= 400:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=_ENDPOINT,
@@ -95,5 +97,6 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
             text=repr(response.text[:200]),
         )
         raise GameSheetError(_err_msg)
+
     body: dict[str, Any] = response.json()
     return [_parse(item) for item in body.get("data", [])]

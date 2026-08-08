@@ -27,6 +27,7 @@ def test_construction_does_not_start_playwright(config: Config) -> None:
     """Just building a BrowserSession should not touch Playwright."""
     with patch("gamesheet_sdk.common.browser.sync_playwright") as mocked:
         BrowserSession(config)
+
     mocked.assert_not_called()
 
 
@@ -104,6 +105,7 @@ def test_load_storage_state_corrupt_warns_and_returns_none(
     bs = BrowserSession(config)
     with caplog.at_level("WARNING"):
         result = bs._load_storage_state()
+
     assert result is None
     assert "Failed to load browser storage state" in caplog.text
 
@@ -158,6 +160,7 @@ def test_start_launches_chromium_headless_by_default(config: Config) -> None:
     with patch("gamesheet_sdk.common.browser.sync_playwright", pw_factory):
         bs = BrowserSession(config)
         _ = bs.context  # triggers _start
+
     pw_factory.assert_called_once_with()
     pw_runtime.chromium.launch.assert_called_once_with(headless=True)
     browser.new_context.assert_called_once_with()
@@ -171,6 +174,7 @@ def test_start_passes_headless_false_when_configured(config: Config) -> None:
     with patch("gamesheet_sdk.common.browser.sync_playwright", pw_factory):
         bs = BrowserSession(config)
         _ = bs.context
+
     pw_runtime.chromium.launch.assert_called_once_with(headless=False)
     bs.close()  # exercise close on a mocked chain too
 
@@ -184,6 +188,7 @@ def test_start_restores_storage_state_when_file_exists(config: Config) -> None:
     with patch("gamesheet_sdk.common.browser.sync_playwright", pw_factory):
         bs = BrowserSession(config)
         _ = bs.context
+
     browser.new_context.assert_called_once_with(storage_state=state)
     bs.close()
 
@@ -195,6 +200,7 @@ def test_close_tears_down_in_order(config: Config) -> None:
         bs = BrowserSession(config)
         _ = bs.context  # trigger _start
         bs.close()
+
     context.close.assert_called_once_with()
     browser.close.assert_called_once_with()
     pw_runtime.stop.assert_called_once_with()
@@ -212,6 +218,7 @@ def test_context_manager_saves_on_exit(config: Config) -> None:
         BrowserSession(config) as bs,
     ):
         _ = bs.context  # force start
+
     assert config.browser_state_path.exists()
     assert json.loads(config.browser_state_path.read_text()) == fake_state
 
@@ -225,6 +232,7 @@ def test_goto_resolves_url_and_returns_page(config: Config) -> None:
         bs = BrowserSession(config)
         returned = bs.goto("/login", wait_until="domcontentloaded")
         bs.close()
+
     page.goto.assert_called_once_with(
         "https://test.example/login",
         wait_until="domcontentloaded",
@@ -264,6 +272,7 @@ def test_close_handles_save_oserror_gracefully(
     bs._context = fake_context
     with caplog.at_level("WARNING"):
         bs.close()
+
     assert "Failed to save browser storage state" in caplog.text
     assert TEST_ERROR_DISK_FULL in caplog.text
     assert bs._closed
@@ -277,6 +286,7 @@ def test_context_returns_same_context_on_subsequent_calls(config: Config) -> Non
         ctx1 = bs.context  # first access triggers _start
         ctx2 = bs.context  # second access should return existing context
         bs.close()
+
     assert ctx1 is ctx2
     assert ctx1 is context
     # _start should only be called once (on first access)

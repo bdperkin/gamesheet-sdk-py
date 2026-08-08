@@ -45,6 +45,7 @@ def build_authenticated_session(
             err=True,
         )
         raise Exit(1)
+
     return AuthenticatedSession(
         config,
         access_token=access,
@@ -134,6 +135,7 @@ def run_team_update(
             err=True,
         )
         raise Exit(1)
+
     config: Config = ctx.obj
     session = build_authenticated_session(config)
 
@@ -265,6 +267,7 @@ def run_roster_assign_with_output(
     except Exception as exc:
         click.secho(f"Error assigning {resource_type}: {exc}", fg="red", err=True)
         raise Exit(1) from exc
+
     render_get_command(result, output_format, output_path, None)
     click.secho(
         f"{resource_type.capitalize()} {resource_id} assigned to team {target_id} successfully.",
@@ -300,6 +303,7 @@ def run_roster_unassign(
     except Exception as exc:
         click.secho(f"Error unassigning {resource_type}: {exc}", fg="red", err=True)
         raise Exit(1) from exc
+
     click.secho(
         f"{resource_type.capitalize()} {resource_id} unassigned from team {target_id} successfully.",
         fg="green",
@@ -341,6 +345,7 @@ def run_roster_update_with_output(
     except Exception as exc:
         click.secho(f"Error updating {resource_type}: {exc}", fg="red", err=True)
         raise Exit(1) from exc
+
     render_get_command(result, output_format, output_path, None)
     click.secho(
         f"{resource_type.capitalize()} {result.id} updated successfully.",
@@ -383,6 +388,7 @@ def run_roster_create_with_output(
     except Exception as exc:
         click.secho(f"Error creating {resource_type}: {exc}", fg="red", err=True)
         raise Exit(1) from exc
+
     render_get_command(result, output_format, output_path, None)
     if success_message:
         message = success_message.format(id=result.id) if "{id}" in success_message else success_message

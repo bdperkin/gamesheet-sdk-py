@@ -111,6 +111,7 @@ def create_scheduled_game(
     # Validate broadcaster if provided
     if broadcaster:
         broadcaster = validate_broadcaster_key(session, broadcaster)
+
     url = f"{DEFAULT_BASE_URL}{API_SEASONS_SCHEDULE.format(season_id=season_id)}"
     payload = {
         "data": {
@@ -253,6 +254,7 @@ def update_scheduled_game(
     # Validate broadcaster if provided
     if broadcaster:
         broadcaster = validate_broadcaster_key(session, broadcaster)
+
     url = f"{DEFAULT_BASE_URL}{API_SEASONS_SCHEDULE_GAME.format(season_id=season_id, game_id=game_id)}"
     payload = {
         "data": {

@@ -580,6 +580,17 @@ repos:
         types:
           - python
 
+  - repo: https://github.com/jsh9/blank-line-after-blocks
+    rev: 0.1.4
+    hooks:
+      - id: blank-line-after-blocks
+        name: Add blank lines after code blocks (in .py files)
+        description: Automatically add blank lines after if/for/while/with/try blocks to improve code readability.
+        entry: blank-line-after-blocks
+        language: python
+        types:
+          - python
+
   - repo: https://github.com/marcogorelli/absolufy-imports
     rev: v0.3.1
     hooks:

@@ -48,6 +48,7 @@ def test_get_referee_returns_single_referee(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_referee(session, SEASON_ID, _referee_id)
+
     assert result.id == _referee_id
     assert result.first_name == "WES"
     assert result.last_name == "MCCAULEY"
@@ -69,6 +70,7 @@ def test_get_referee_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("test-token")
         get_referee(session, SEASON_ID, _referee_id)
+
     from tests.helpers import JSONAPI_CONTENT_TYPE
 
     assert len(responses.calls) == 1

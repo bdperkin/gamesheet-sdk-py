@@ -33,6 +33,7 @@ def get_local_timezone_name() -> str:
             pass
         else:
             return str(tz.key) if hasattr(tz, "key") else str(tz)
+
         import os
         from pathlib import Path
 
@@ -48,6 +49,7 @@ def get_local_timezone_name() -> str:
             DEFAULT_TIMEZONE,
             exc,
         )
+
     return DEFAULT_TIMEZONE
 
 
@@ -66,6 +68,7 @@ def get_local_timezone_offset() -> int:
         offset_seconds = -time.altzone
     else:
         offset_seconds = -time.timezone
+
     return offset_seconds // 60
 
 
@@ -90,6 +93,7 @@ def parse_flexible_datetime(raw: str) -> datetime:
     except (ValueError, OverflowError) as exc:
         msg = f"Cannot parse datetime '{raw}': {exc}"
         raise click.UsageError(msg) from exc
+
     return dt.replace(tzinfo=None)
 
 
@@ -158,11 +162,14 @@ def resolve_datetime_input(
     """
     if combined:
         return combined
+
     if date_part and time_part:
         return f"{date_part} {time_part}"
+
     if date_part or time_part:
         msg = f"Both --{label}-date and --{label}-time are required when using split inputs."
         raise click.UsageError(msg)
+
     return None
 
 
@@ -207,6 +214,7 @@ def _resolve_all_three(
     if abs((end_dt - expected_end).total_seconds()) > 59:
         msg = f"Inconsistent inputs: start ({start_raw}) + duration ({duration}min) != end ({end_raw})."
         raise click.UsageError(msg)
+
     return _format_utc_iso(start_dt), _format_utc_iso(end_dt)
 
 
@@ -282,10 +290,13 @@ def _resolve_with_all_inputs(
     """
     if start_raw and end_raw and duration is not None:
         return _resolve_all_three(start_raw, end_raw, duration)
+
     if start_raw and end_raw:
         return _resolve_start_and_end(start_raw, end_raw)
+
     if start_raw and duration is not None:
         return _resolve_start_and_duration(start_raw, duration)
+
     return _resolve_end_and_duration(end_raw, duration)  # type: ignore[arg-type]
 
 
@@ -312,6 +323,7 @@ def resolve_create_times(
     if given < 2:
         msg = "At least 2 of --start-datetime, --end-datetime, --duration are required."
         raise click.UsageError(msg)
+
     return _resolve_with_all_inputs(start_raw, end_raw, duration)
 
 
@@ -339,11 +351,13 @@ def _resolve_single_update(
         end_dt = parse_flexible_datetime(current_end)
         validate_end_after_start(start_dt, end_dt)
         return _format_utc_iso(start_dt), current_end
+
     if end_raw:
         start_dt = parse_flexible_datetime(current_start)
         end_dt = parse_flexible_datetime(end_raw)
         validate_end_after_start(start_dt, end_dt)
         return current_start, _format_utc_iso(end_dt)
+
     start_dt = parse_flexible_datetime(current_start)
     end_dt = start_dt + timedelta(minutes=duration)  # type: ignore[arg-type]
     return _format_utc_iso(start_dt), _format_utc_iso(end_dt)
@@ -373,8 +387,10 @@ def resolve_update_times(
     given = (start_raw is not None) + (end_raw is not None) + (duration is not None)
     if not given:
         return current_start, current_end
+
     if given >= 2:
         return _resolve_with_all_inputs(start_raw, end_raw, duration)
+
     return _resolve_single_update(
         start_raw,
         end_raw,

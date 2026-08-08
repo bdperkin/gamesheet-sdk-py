@@ -47,6 +47,7 @@ class _SimpleIndexParser(HTMLParser):
     ) -> None:
         if tag != "a":
             return
+
         href = None
         req_py = None
         for attr, value in attrs:
@@ -54,6 +55,7 @@ class _SimpleIndexParser(HTMLParser):
                 href = value.rsplit("#", 1)[0].rsplit("/", 1)[-1]
             elif attr == "data-requires-python" and value:
                 req_py = value
+
         if href:
             self.files.append((href, req_py))
 
@@ -68,11 +70,13 @@ def _version_from_filename(filename: str) -> str | None:
         if filename.endswith(".whl"):
             _, ver, _, _ = parse_wheel_filename(filename)
             return str(ver)
+
         if filename.endswith((".tar.gz", ".zip")):
             _, ver = parse_sdist_filename(filename)
             return str(ver)
     except (InvalidWheelFilename, InvalidSdistFilename):
         logger.debug("Could not parse version from filename: %s", filename)
+
     return None
 
 
@@ -144,6 +148,7 @@ def _parse_simple_response(
             index_url,
         )
         return {}
+
     return versions
 
 
@@ -178,6 +183,7 @@ def _fetch_simple_versions(
         if response.status_code == http.HTTPStatus.NOT_FOUND:
             logger.debug("Package %s not found on index %s", package_name, index_url)
             return {}
+
         response.raise_for_status()
     except requests.RequestException as exc:
         logger.warning(
@@ -245,6 +251,7 @@ def check_package_exists(
         response = session.head(url, timeout=PYPI_TIMEOUT)
     except requests.RequestException:
         return False
+
     return response.status_code == http.HTTPStatus.OK
 
 
@@ -262,6 +269,7 @@ def _extract_requires_python(files: list[dict[str, str | None]]) -> str | None:
         rp = f.get("requires_python")
         if rp:
             return rp
+
     return None
 
 
@@ -285,6 +293,7 @@ def _fetch_pypi_json_versions(package_name: str) -> dict[str, str | None]:
         if response.status_code == http.HTTPStatus.NOT_FOUND:
             logger.warning("Package %s not found on PyPI", package_name)
             return {}
+
         response.raise_for_status()
         data = response.json()
     except requests.RequestException as exc:
@@ -329,6 +338,7 @@ def fetch_pypi_versions(
         )
         if versions:
             return versions
+
         logger.debug("Primary index returned no results for %s", package_name)
 
     for extra_url in extra_index_urls:
@@ -371,6 +381,7 @@ def fetch_git_tags(repo_url: str) -> list[str]:
     for line in result.stdout.strip().split("\n"):
         if not line:
             continue
+
         parts = line.split("refs/tags/")
         if len(parts) > 1:
             tag = parts[1].replace("^{}", "")
@@ -408,9 +419,12 @@ def clean_and_sort_versions(
                 parsed = Version(stripped)
             except InvalidVersion:
                 continue
+
         if not include_prerelease and (parsed.is_prerelease or parsed.is_devrelease):
             continue
+
         valid.append((v, parsed))
+
     valid.sort(key=operator.itemgetter(1))
     return valid
 
@@ -438,6 +452,7 @@ def filter_python_compatible(
         if req_py is None:
             compatible.append(ver)
             continue
+
         try:
             if min_python in SpecifierSet(req_py):
                 compatible.append(ver)
@@ -450,6 +465,7 @@ def filter_python_compatible(
                 )
         except InvalidSpecifier:
             compatible.append(ver)
+
     return compatible
 
 
@@ -475,8 +491,10 @@ def resolve_latest_version(
     sorted_versions = clean_and_sort_versions(compatible)
     if not sorted_versions:
         sorted_versions = clean_and_sort_versions(compatible, include_prerelease=True)
+
     if not sorted_versions:
         return None
+
     return str(sorted_versions[-1][1])
 
 

@@ -41,6 +41,7 @@ def test_update_coach_updates_fields(config: Config) -> None:
             COACH_ID_SECONDARY,
             last_name="UPDATED",
         )
+
     assert result.last_name == "UPDATED"
 
 
@@ -100,6 +101,7 @@ def test_update_team_coach_updates_fields(config: Config) -> None:
             COACH_ID_SECONDARY,
             last_name="UPDATED",
         )
+
     assert result.last_name == "UPDATED"
 
 
@@ -177,6 +179,7 @@ def test_update_team_coach_with_position_updates_roster(config: Config) -> None:
             COACH_ID_SECONDARY,
             position="Head Coach",
         )
+
     assert result.position == "Head Coach"
 
 
@@ -214,6 +217,7 @@ def test_update_coach_with_all_fields(config: Config) -> None:
             position="Head Coach",
             external_id="ext-123",
         )
+
     assert result.first_name == "NEW"
     assert result.last_name == "COACH"
 
@@ -257,6 +261,7 @@ def test_update_coach_preserves_existing_position(config: Config) -> None:
             COACH_ID_SECONDARY,
             last_name="UPDATED",
         )
+
     assert result.last_name == "UPDATED"
 
 
@@ -294,6 +299,7 @@ def test_update_coach_preserves_existing_external_id(config: Config) -> None:
             COACH_ID_SECONDARY,
             last_name="UPDATED",
         )
+
     assert result.last_name == "UPDATED"
     assert result.external_id == "existing-ext-id"
 
@@ -350,6 +356,7 @@ def test_update_team_coach_with_external_id(config: Config) -> None:
             COACH_ID_SECONDARY,
             external_id="new-ext-id",
         )
+
     assert result.external_id == "new-ext-id"
 
 
@@ -381,6 +388,7 @@ def test_update_coach_with_no_external_id_preserved(config: Config) -> None:
             COACH_ID_SECONDARY,
             last_name="UPDATED",
         )
+
     assert result.last_name == "UPDATED"
 
 
@@ -436,6 +444,7 @@ def test_update_team_coach_preserves_existing_external_id(config: Config) -> Non
             COACH_ID_SECONDARY,
             last_name="UPDATED",
         )
+
     assert result.last_name == "UPDATED"
     assert result.external_id == "existing-ext-id"
 
@@ -492,6 +501,7 @@ def test_update_team_coach_with_no_external_id_preserved(config: Config) -> None
             COACH_ID_SECONDARY,
             last_name="UPDATED",
         )
+
     assert result.last_name == "UPDATED"
 
 
@@ -575,4 +585,5 @@ def test_update_team_coach_position_when_not_in_roster(config: Config) -> None:
             COACH_ID_SECONDARY,
             position="Head Coach",
         )
+
     assert result.position == "Head Coach"

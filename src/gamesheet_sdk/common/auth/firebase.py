@@ -33,4 +33,5 @@ def extract_firebase_error(body: dict[str, Any], status: int) -> str:
         message = err.get("message")
         if isinstance(message, str):
             return message
+
     return f"HTTP {status}"

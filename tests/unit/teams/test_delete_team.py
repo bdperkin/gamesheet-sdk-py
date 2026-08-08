@@ -28,6 +28,7 @@ def test_delete_team_success(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         delete_team(session, SEASON_ID, _TEAM_ID)
+
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == _ENDPOINT
 

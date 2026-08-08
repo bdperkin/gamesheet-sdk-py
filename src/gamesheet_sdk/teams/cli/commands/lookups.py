@@ -50,6 +50,7 @@ def _render_category(
             err=True,
         )
         raise Exit(1)
+
     rows = [v.model_dump(mode="json") for v in lookups[category]]
     rendered = render(rows, fmt=output_format)
     write_output(rendered, output_path, fmt=output_format)
@@ -67,6 +68,7 @@ def _render_summary(
     else:
         rows = [{"category": cat, "count": len(vals)} for cat, vals in sorted(lookups.items())]
         rendered = render(rows, fmt=output_format)
+
     write_output(rendered, output_path, fmt=output_format)
 
 

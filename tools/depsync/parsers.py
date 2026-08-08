@@ -52,6 +52,7 @@ def _parse_dep_string(
     dep = dep_raw.strip()
     if not dep or "@" in dep or "<" in dep or ">" in dep:
         return None
+
     if dep.startswith(f"{PROJECT_NAME}["):
         return None
 
@@ -134,6 +135,7 @@ def _parse_additional_dep(
                 original=dep_str,
                 hook_id=hook_id,
             )
+
         return None
 
     name_match = re.match(r"^([a-zA-Z0-9\-_]+)", dep_str)
@@ -144,6 +146,7 @@ def _parse_additional_dep(
             original=dep_str,
             hook_id=hook_id,
         )
+
     return None
 
 
@@ -173,6 +176,7 @@ def _parse_repo_hooks(
                 or _has_inequality_constraint(ad_str)
             ):
                 continue
+
             ad_parsed = _parse_additional_dep(ad_str, hook_id)
             if ad_parsed:
                 additional_deps.append(ad_parsed)
@@ -204,6 +208,7 @@ def parse_precommit_config(path: Path) -> list[PreCommitRepo]:
     repos: list[PreCommitRepo] = []
     if data is None:
         return repos
+
     for repo_entry in data.get("repos", []):
         url = repo_entry.get("repo", "")
         if url in {"meta", "local"} or not url.startswith("https://"):
@@ -238,17 +243,21 @@ def _extract_pinned_from_data(data: dict[str, Any]) -> dict[str, str]:
     for cat in (data.get("categories") or {}).values():
         if not cat:
             continue
+
         for repo_entry in cat.get("repos", []):
             url = repo_entry.get("repo", "")
             if not url.startswith("https://"):
                 continue
+
             rev = repo_entry.get("rev")
             if rev is not None and str(rev) != "installed":
                 pinned[url] = str(rev)
                 continue
+
             resolved_rev = repo_entry.get("resolved_rev")
             if resolved_rev is not None:
                 pinned[url] = str(resolved_rev)
+
     return pinned
 
 
@@ -382,4 +391,5 @@ def parse_index_url(path: Path) -> str | None:
     index_url = data.get("tool", {}).get("uv", {}).get("index-url")
     if isinstance(index_url, str) and index_url.strip():
         return index_url.strip()
+
     return None

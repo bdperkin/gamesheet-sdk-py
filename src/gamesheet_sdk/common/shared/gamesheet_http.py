@@ -34,12 +34,15 @@ def handle_response(
     if response.status_code == 401:
         msg = errors.ERROR_MSG_401_GENERIC.format(context=context_msg)
         raise AuthenticationError(msg)
+
     if response.status_code == 403:
         msg = errors.ERROR_MSG_403_GENERIC.format(context=context_msg)
         raise AuthenticationError(msg)
+
     if response.status_code == 404:
         msg = errors.ERROR_MSG_404_RESOURCE.format(endpoint=endpoint)
         raise GameSheetError(msg)
+
     if response.status_code >= 400:
         msg = errors.ERROR_MSG_GENERIC_HTTP.format(
             context=context_msg.upper(),
@@ -89,9 +92,11 @@ def handle_season_scoped_response(
     """
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if response.status_code == 404:
         msg = errors.ERROR_MSG_404_SEASON.format(season_id=season_id)
         raise GameSheetError(msg)
+
     if response.status_code >= 400:
         msg = errors.ERROR_MSG_GENERIC_HTTP.format(
             context="GET",

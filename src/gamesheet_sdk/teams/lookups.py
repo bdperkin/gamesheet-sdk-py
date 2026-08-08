@@ -61,5 +61,6 @@ def list_lookups(
     if response.status_code >= 400:
         msg = f"GET {TEAMS_LOOKUPS_PATH} returned HTTP {response.status_code}: {response.text}"
         raise GameSheetError(msg)
+
     data: dict[str, list[dict[str, Any]]] = response.json().get("data", {})
     return {category: [LookupValue(**item) for item in values] for category, values in data.items()}

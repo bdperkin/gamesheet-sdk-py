@@ -79,6 +79,7 @@ def test_list_referees_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_referees(session, SEASON_ID)
+
     assert [r.id for r in result] == ["101", "102"]
     assert result[0].first_name == DEFAULT_PLAYER_FIRST_NAME
     assert result[0].last_name == DEFAULT_COACH_LAST_NAME
@@ -98,6 +99,7 @@ def test_list_referees_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_referees(session, SEASON_ID)
+
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
@@ -160,5 +162,6 @@ def test_list_referees_uses_correct_endpoint(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_referees(session, SEASON_ID)
+
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == _ENDPOINT

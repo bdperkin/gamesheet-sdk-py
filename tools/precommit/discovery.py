@@ -266,6 +266,7 @@ def _resolve_latest_tag(
             tag_str, _version = common
             logger.info("%s : %s (highest available on index)", repo_url, tag_str)
             return RevisionResult(rev=tag_str, candidates=sorted_tags)
+
         logger.warning(
             "No index-available version found for %s (%s); using latest git tag",
             pypi_name,

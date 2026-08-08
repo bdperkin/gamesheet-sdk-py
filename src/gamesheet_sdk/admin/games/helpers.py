@@ -50,10 +50,13 @@ def _make_request(
     # Set filter flags
     if completed is not None:
         params["filter[completed]"] = "true" if completed else "false"
+
     if scheduled is not None:
         params["filter[scheduled]"] = "true" if scheduled else "false"
+
     if brackets is not None:
         params["filter[brackets]"] = "true" if brackets else "false"
+
     url = f"{BFF_API_BASE_URL}{BFF_GAMES_LIST}"
     response = session.get(url, params=params)
     handle_response(response, url, "GET games")

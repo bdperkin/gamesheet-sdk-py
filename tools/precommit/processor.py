@@ -49,6 +49,7 @@ def _apply_modifications(hook: dict[str, Any], cfg: HookConfig) -> None:
     for key, values in cfg.appends.items():
         if key not in hook:
             hook[key] = []
+
         if not isinstance(hook[key], list):
             logger.warning(
                 "Cannot append to non-list field '%s' on hook '%s'",
@@ -56,12 +57,14 @@ def _apply_modifications(hook: dict[str, Any], cfg: HookConfig) -> None:
                 hook["id"],
             )
             continue
+
         hook[key].extend(values)
 
     for key, values in cfg.prepends.items():
         if key not in hook:
             hook[key] = values.copy()
             continue
+
         if not isinstance(hook[key], list):
             logger.warning(
                 "Cannot prepend to non-list field '%s' on hook '%s'",
@@ -69,6 +72,7 @@ def _apply_modifications(hook: dict[str, Any], cfg: HookConfig) -> None:
                 hook["id"],
             )
             continue
+
         for i, val in enumerate(values):
             hook[key].insert(i, val)
 
@@ -225,4 +229,5 @@ def get_hook_comment(repo_config: RepoConfig, hook_id: str) -> str | None:
     for hook_cfg in repo_config.hooks:
         if hook_cfg.id == hook_id and hook_cfg.comment:
             return hook_cfg.comment
+
     return None

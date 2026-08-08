@@ -60,6 +60,7 @@ def _snapshot_files(paths: list[Path]) -> dict[Path, bytes]:
     for path in paths:
         if path.exists():
             snapshots[path] = path.read_bytes()
+
     return snapshots
 
 
@@ -102,6 +103,7 @@ def _show_diffs(snapshots: dict[Path, bytes], paths: list[Path]) -> None:
     for path in paths:
         if path not in snapshots:
             continue
+
         original = snapshots[path].decode("utf-8", errors="replace").splitlines(keepends=True)
         current = path.read_text(encoding="utf-8").splitlines(keepends=True)
         diff = list(
@@ -115,6 +117,7 @@ def _show_diffs(snapshots: dict[Path, bytes], paths: list[Path]) -> None:
         )
         if not diff:
             continue
+
         _print_colored_diff(diff)
 
 
@@ -164,6 +167,7 @@ def _result_status(r: ConvergenceResult) -> str:
             status += " [yellow](stale rev)[/]"
         else:
             status = "[yellow]stale rev[/]"
+
     return status
 
 
@@ -186,9 +190,11 @@ def _display_results(results: list[ConvergenceResult]) -> None:
         if r.groups:
             groups_str = ", ".join(r.groups)
             detail_parts.append(f"groups: {groups_str}")
+
         if r.hook_ids:
             hooks_str = ", ".join(r.hook_ids)
             detail_parts.append(f"hooks: {hooks_str}")
+
         detail = "; ".join(detail_parts) if detail_parts else "-"
 
         label = f"{r.package} (additional_dep)" if r.is_additional_dep else r.package
@@ -453,11 +459,14 @@ def _log_parsed_config(
     )
     if index_url:
         console.print(f"  Using package index: [cyan]{index_url}[/]")
+
     if extra_index_urls:
         console.print(f"  Extra index URLs: [cyan]{len(extra_index_urls)}[/]")
+
     if pip_config.trusted_hosts:
         hosts_str = ", ".join(pip_config.trusted_hosts)
         console.print(f"  Trusted hosts: [cyan]{hosts_str}[/]")
+
     if min_python:
         console.print(f"  Python compatibility floor: [cyan]{min_python}[/]")
 
@@ -466,6 +475,7 @@ def _report_dependabot_changes(added: int, removed: int) -> None:
     if added:
         noun = "entry" if added == 1 else "entries"
         console.print(f"  Added [cyan]{added}[/] ignore {noun} in .github/dependabot.yml")
+
     if removed:
         noun = "entry" if removed == 1 else "entries"
         console.print(
@@ -489,6 +499,7 @@ def _run_dependabot_write(
     _report_dependabot_changes(added, removed)
     if config.diff:
         _show_diffs(snapshots, target_files)
+
     return True
 
 
@@ -510,6 +521,7 @@ def _run_dependabot_preview(
         label = "Check mode" if config.check else "Dry run"
         console.print(f"  [bold yellow]{label} — dependabot.yml would be modified.[/]")
         return True
+
     return False
 
 
@@ -537,6 +549,7 @@ def _run_dependabot_sync(
 
     if not changed:
         console.print("  [green]Dependabot ignore list already in sync.[/]")
+
     return changed
 
 

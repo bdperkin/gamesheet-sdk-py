@@ -30,8 +30,10 @@ def _create_yaml(*, wide: bool = False, explicit_start: bool = False) -> YAML:
     yml.default_flow_style = False
     if wide:
         yml.width = 4096
+
     if explicit_start:
         yml.explicit_start = True
+
     return yml
 
 
@@ -60,6 +62,7 @@ def _read_toml(path: Path) -> tuple[TOMLFile, TOMLDocument]:
     except Exception as exc:
         msg = f"Failed to read {path}: {exc}"
         raise WriteError(msg) from exc
+
     return toml_file, doc
 
 
@@ -123,6 +126,7 @@ def _get_toml_key(doc: TOMLDocument, keys: list[str], path: Path) -> object:
         dotted = ".".join(keys)
         msg = f"{path} is missing [{dotted}]"
         raise WriteError(msg) from exc
+
     return current
 
 
@@ -198,6 +202,7 @@ def update_pyproject(
             else:
                 if group_name not in opt_deps:
                     continue
+
                 dep_list = cast("list[Any]", opt_deps[group_name])
 
             _update_dep_in_list(dep_list, result)
@@ -220,17 +225,21 @@ def _update_additional_dep_list(
             name_part = ad_value.split("==", maxsplit=1)[0].strip().lower()
         else:
             name_part = ad_value.strip().lower()
+
         name_match = re.match(r"^([a-zA-Z0-9\-_]+)", name_part)
         if not name_match:
             continue
+
         normalized = re.sub(r"[-_.]+", "-", name_match.group(1)).lower()
         if normalized == _normalize_dep_name(PROJECT_NAME):
             continue
+
         if normalized in pkg_to_result:
             result = pkg_to_result[normalized]
             prefix = ad_value.split("==", maxsplit=1)[0] if "==" in ad_value else ad_value
             ad_list[i] = f"{prefix}=={result.new_version}"
             count += 1
+
     return count
 
 
@@ -245,7 +254,9 @@ def _update_repo_additional_deps(
             ad_list = section.get("additional_dependencies")
             if not ad_list:
                 continue
+
             count += _update_additional_dep_list(ad_list, pkg_to_result)
+
     return count
 
 
@@ -283,6 +294,7 @@ def update_genprecommit_additional_deps(
     for cat in (data.get("categories") or {}).values():
         if not cat:
             continue
+
         for repo_entry in cat.get("repos", []):
             updated_count += _update_repo_additional_deps(
                 repo_entry,
@@ -356,6 +368,7 @@ def _find_pip_ecosystem(data: CommentedMap) -> CommentedMap | None:
     for update in data.get("updates") or []:
         if update.get("package-ecosystem") == "pip":
             return cast("CommentedMap", update)
+
     return None
 
 
@@ -366,6 +379,7 @@ def _extract_current_ignores(pip_entry: CommentedMap) -> dict[str, str]:
         versions = entry.get("versions", [])
         if name and versions:
             result[name] = str(versions[0])
+
     return result
 
 
@@ -382,6 +396,7 @@ def _build_ignore_list(desired_ignores: dict[str, str]) -> CommentedSeq:
         versions_seq.fa.set_flow_style()
         entry["versions"] = versions_seq
         ignore_list.append(entry)
+
     return ignore_list
 
 
@@ -389,11 +404,13 @@ def _apply_ignore_list(pip_entry: CommentedMap, desired_ignores: dict[str, str])
     if not desired_ignores:
         if "ignore" in pip_entry:
             del pip_entry["ignore"]
+
         return
 
     ignore_list = _build_ignore_list(desired_ignores)
     if "ignore" in pip_entry:
         del pip_entry["ignore"]
+
     keys = list(pip_entry.keys())
     insert_pos = keys.index("cooldown") if "cooldown" in keys else len(keys)
     pip_entry.insert(insert_pos, "ignore", ignore_list)
@@ -486,7 +503,9 @@ def _apply_removes_and_updates(
             type_stubs_list[i] = f"{prefix}=={update_map[norm]}"
             change_count += 1
             logger.debug("  Updated %s in type-stubs group", norm)
+
         i -= 1
+
     return change_count
 
 
@@ -543,6 +562,7 @@ def apply_types_sync(
     for name, version in sorted(to_add, reverse=True):
         type_stubs_list.insert(insert_before, f"{name}=={version}")
         logger.debug("  Added %s==%s to type-stubs group", name, version)
+
     change_count += len(to_add)
 
     _sort_types_entries(type_stubs_list)

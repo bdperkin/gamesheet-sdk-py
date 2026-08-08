@@ -6,6 +6,7 @@
 
 globals:
   blacklisted_hooks:
+    - blank-line-after-blocks-jupyter
     - check-byte-order-marker
     - check-symlinks
     - check-xml
@@ -150,6 +151,9 @@ categories:
 
       - name: add-trailing-comma
         repo: https://github.com/asottile/add-trailing-comma
+
+      - name: blank-line-after-blocks
+        repo: https://github.com/jsh9/blank-line-after-blocks
 
       - name: absolufy-imports
         repo: https://github.com/marcogorelli/absolufy-imports

@@ -208,6 +208,7 @@ def coaches_create_command(
     except Exception as exc:
         click.secho(f"Error creating coach: {exc}", fg="red", err=True)
         raise Exit(1) from exc
+
     render_get_command(coach, output_format, output_path, None)
     click.secho(f"Coach {coach.id} created successfully.", fg="green")
 
@@ -326,6 +327,7 @@ def coaches_delete_command(ctx: Context, coach_id: str) -> None:
     except Exception as exc:
         click.secho(f"Error deleting coach: {exc}", fg="red", err=True)
         raise Exit(1) from exc
+
     click.secho(f"Coach {coach_id} deleted successfully.", fg="green")
 
 
@@ -371,6 +373,7 @@ def coaches_penalty_report_command(
             output_text = yaml.dump(report, default_flow_style=False)
         else:
             output_text = json.dumps(report, indent=2)
+
         from gamesheet_sdk.common.output import write_output
 
         write_output(output_text, output_path, fmt=output_format)

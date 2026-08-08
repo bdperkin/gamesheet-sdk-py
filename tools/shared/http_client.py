@@ -44,7 +44,10 @@ def get_session(pip_config: PipConfig | None = None) -> requests.Session:
         session.mount("http://", adapter)
         if pip_config and pip_config.cert:
             session.verify = pip_config.cert
+
         if pip_config and pip_config.client_cert:
             session.cert = pip_config.client_cert
+
         _state["session"] = session
+
     return _state["session"]

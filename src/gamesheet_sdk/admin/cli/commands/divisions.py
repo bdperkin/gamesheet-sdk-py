@@ -263,6 +263,7 @@ def divisions_update_command(
             err=True,
         )
         raise Exit(1)
+
     config: Config = ctx.obj
     session = build_authenticated_session(config)
 

@@ -69,4 +69,5 @@ def login_command(
     except Exception as exc:
         click.secho(f"Login failed: {exc}", fg="red", err=True)
         raise Exit(1) from exc
+
     click.secho("Login successful! Tokens saved.", fg="green")

@@ -80,6 +80,7 @@ def parse_jsonapi_resource(
     if relationship_map:
         for rel_name, attr_key in relationship_map.items():
             result[attr_key] = extract_relationship_id(item, rel_name)
+
     return result
 
 
@@ -103,6 +104,7 @@ def build_invitation_code_lookup(body: dict[str, Any]) -> dict[str, str]:
             code = item.get("attributes", {}).get("code")
             if invitation_id and code:
                 invitation_codes[invitation_id] = code
+
     return invitation_codes
 
 
@@ -128,4 +130,5 @@ def get_invitation_code_from_relationship(
         inv_id = inv_rel[0]["id"] if isinstance(inv_rel, list) else inv_rel.get("id")
         if inv_id and inv_id in invitation_codes:
             return invitation_codes[inv_id]
+
     return None

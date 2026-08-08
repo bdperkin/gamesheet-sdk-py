@@ -120,11 +120,14 @@ def list_team_players(session: Session, season_id: str, team_id: str) -> list[Pl
             # Map back: "captain" -> "Captain", "alternate_captain" -> "Alternate Captain"
             if player.duty:
                 player.designation = player.duty.replace("_", " ").title()
+
             player.status = metadata.get("status")
             player.starting = metadata.get("starting")
             player.added_at_game_time = metadata.get("added_at_game_time")
             player.affiliated = metadata.get("affiliated")
+
         players.append(player)
+
     return players
 
 
@@ -230,6 +233,7 @@ def create_player(
     photo_url: str | None = None
     if photo_path:
         photo_url = _upload_photo(session, photo_path)
+
     endpoint = f"/api/seasons/{season_id}/players"
     payload: dict[str, Any] = {
         "data": {
@@ -262,6 +266,7 @@ def create_player(
         payload["data"]["relationships"] = {
             "teams": {"data": [{"type": "teams", "id": team_id}]},
         }
+
     response = session.post(endpoint, headers=JSONAPI_HEADERS, json=payload)
     handle_response(response, endpoint, "POST player")
     body: dict[str, Any] = response.json()
@@ -297,6 +302,7 @@ def get_team_player(
     for player in players:
         if player.id == player_id:
             return player
+
     msg = f"Player {player_id} not found on team {team_id}"
     raise GameSheetError(msg)
 
@@ -334,15 +340,19 @@ def _build_player_roster_entry(
     }
     if jersey:
         entry["number"] = jersey
+
     if position:
         entry["position"] = position.lower()
+
     if status:
         status_map = {"Regular": "playing", "Affiliated": "affiliated"}
         entry["status"] = status_map.get(status, status.lower())
         if status == "Affiliated":
             entry["affiliated"] = True
+
     if designation:
         entry["duty"] = designation.lower().replace(" ", "_")
+
     return entry
 
 
@@ -367,10 +377,13 @@ def _populate_player_metadata(
     """
     if jersey:
         player.number = jersey
+
     if position:
         player.position = position
+
     if status:
         player.status = status
+
     if designation:
         player.designation = designation
 
@@ -456,28 +469,40 @@ def create_team_player(
     attrs = payload["data"]["attributes"]
     if external_id:
         attrs["external_id"] = external_id
+
     if biography:
         attrs["biography"] = biography
+
     if height:
         attrs["height"] = height
+
     if weight:
         attrs["weight"] = weight
+
     if shot_hand:
         attrs["shot_hand"] = shot_hand
+
     if birthdate:
         attrs["birthdate"] = birthdate
+
     if hometown:
         attrs["hometown"] = hometown
+
     if country:
         attrs["country"] = country
+
     if province:
         attrs["province"] = province
+
     if drafted_by:
         attrs["drafted_by"] = drafted_by
+
     if committed_to:
         attrs["committed_to"] = committed_to
+
     if photo_url:
         attrs["photo_url"] = photo_url
+
     response = session.post(endpoint, headers=JSONAPI_HEADERS, json=payload)
     handle_response(response, endpoint, "POST player")
     player = parse_player(response.json()["data"])
@@ -614,6 +639,7 @@ def update_player(
         )
     ):
         raise ValueError(errors.ERROR_MSG_AT_LEAST_ONE_FIELD)
+
     if photo_path and remove_photo:
         raise ValueError(errors.ERROR_MSG_CANNOT_UPLOAD_AND_REMOVE_PHOTO)
     # Handle photo upload/removal
@@ -663,6 +689,7 @@ def update_player(
         attrs["photo_url"] = ""
     elif current_player.photo_url:
         attrs["photo_url"] = current_player.photo_url
+
     endpoint = f"/api/seasons/{season_id}/players/{player_id}"
     response = session.patch(endpoint, headers=JSONAPI_HEADERS, json=payload)
     handle_response(response, endpoint, "PATCH player")
@@ -752,6 +779,7 @@ def update_team_player(
         )
     ):
         raise ValueError(errors.ERROR_MSG_AT_LEAST_ONE_FIELD)
+
     if photo_path and remove_photo:
         raise ValueError(errors.ERROR_MSG_CANNOT_UPLOAD_AND_REMOVE_PHOTO)
     # Handle photo upload/removal
@@ -800,6 +828,7 @@ def update_team_player(
         attrs["photo_url"] = ""
     elif current_player.photo_url:
         attrs["photo_url"] = current_player.photo_url
+
     endpoint = f"/api/seasons/{season_id}/players/{player_id}"
     response = session.patch(endpoint, headers=JSONAPI_HEADERS, json=payload)
     handle_response(response, endpoint, "PATCH team player")
@@ -865,6 +894,7 @@ def unassign_player(
     if len(players_roster) == original_count:
         msg = f"Player {player_id} is not assigned to team {team_id}"
         raise GameSheetError(msg)
+
     roster["players"] = players_roster
     # Step 3: Update team roster
     update_team_roster(
@@ -950,6 +980,7 @@ def assign_player(
         if existing_player.get("id") == player_id:
             msg = f"Player {player_id} is already assigned to team {team_id}"
             raise GameSheetError(msg)
+
     player_entry = _build_player_roster_entry(
         player_id,
         jersey=jersey,
@@ -1077,5 +1108,6 @@ def get_player_penalty_report(
         status = body.get("status")
         msg = errors.ERROR_MSG_PENALTY_REPORT_API_STATUS.format(status=status)
         raise GameSheetError(msg)
+
     data: dict[str, Any] = body["data"]
     return data

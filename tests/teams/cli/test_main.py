@@ -52,6 +52,7 @@ def test_teams_login_success(runner: CliRunner) -> None:
             cli,
             ["login", "--email", TEST_EMAIL_GENERIC, "--password", "secret"],
         )
+
     assert not result.exit_code
     assert "Login successful" in result.output
     assert "Tokens saved" in result.output
@@ -69,6 +70,7 @@ def test_teams_login_failure(runner: CliRunner) -> None:
             cli,
             ["login", "--email", TEST_EMAIL_GENERIC, "--password", "wrong"],
         )
+
     assert result.exit_code == 1
     assert "Login failed" in result.output
     assert "Invalid credentials" in result.output
@@ -95,6 +97,7 @@ def test_teams_login_passes_credentials(runner: CliRunner) -> None:
                 "30.0",
             ],
         )
+
     assert not result.exit_code
     mock_flow_cls.return_value.authenticate.assert_called_once_with(
         email=TEST_EMAIL_GENERIC,
@@ -113,6 +116,7 @@ def test_teams_login_no_credentials(runner: CliRunner) -> None:
             "refresh": "r",
         }
         result = runner.invoke(cli, ["login"])
+
     assert not result.exit_code
     call_kwargs = mock_flow_cls.return_value.authenticate.call_args.kwargs
     assert call_kwargs["email"] is None
@@ -137,6 +141,7 @@ def test_teams_login_without_parent_context(runner: CliRunner) -> None:
             "refresh": "r",
         }
         result = runner.invoke(login_command, [], obj=mock_config)
+
     assert not result.exit_code
     assert "Login successful" in result.output
 
@@ -221,6 +226,7 @@ def test_teams_cli_with_no_headless_flag(runner: CliRunner) -> None:
             "refresh": "r",
         }
         result = runner.invoke(cli, ["--no-headless", "login"])
+
     assert not result.exit_code
     assert "Login successful" in result.output
 
@@ -279,6 +285,7 @@ def test_teams_lookups_list_summary(runner: CliRunner) -> None:
     """Default lookups list shows summary with category names and counts."""
     with patch(_LOOKUPS_PATCH, return_value=_MOCK_LOOKUPS):
         result = runner.invoke(cli, ["lookups"])
+
     assert not result.exit_code
     assert "sports" in result.output
     assert "game_types" in result.output
@@ -288,6 +295,7 @@ def test_teams_lookups_list_category(runner: CliRunner) -> None:
     """Lookups list --category shows values for that category."""
     with patch(_LOOKUPS_PATCH, return_value=_MOCK_LOOKUPS):
         result = runner.invoke(cli, ["lookups", "list", "--category", "sports"])
+
     assert not result.exit_code
     assert "hockey" in result.output
     assert "Hockey" in result.output
@@ -298,6 +306,7 @@ def test_teams_lookups_list_unknown_category(runner: CliRunner) -> None:
     """Unknown --category exits 1 with available categories."""
     with patch(_LOOKUPS_PATCH, return_value=_MOCK_LOOKUPS):
         result = runner.invoke(cli, ["lookups", "list", "--category", "bogus"])
+
     assert result.exit_code == 1
     assert "Unknown category" in result.output
     assert "sports" in result.output
@@ -307,6 +316,7 @@ def test_teams_lookups_list_json(runner: CliRunner) -> None:
     """Lookups list --format json outputs valid JSON."""
     with patch(_LOOKUPS_PATCH, return_value=_MOCK_LOOKUPS):
         result = runner.invoke(cli, ["lookups", "list", "--format", "json"])
+
     assert not result.exit_code
     assert "sports" in result.output
     assert "hockey" in result.output
@@ -319,6 +329,7 @@ def test_teams_lookups_list_category_json(runner: CliRunner) -> None:
             cli,
             ["lookups", "list", "--category", "sports", "--format", "json"],
         )
+
     assert not result.exit_code
     assert "hockey" in result.output
 
@@ -330,6 +341,7 @@ def test_teams_lookups_error(runner: CliRunner) -> None:
         side_effect=GameSheetError("GET /api/lookups returned HTTP 500: boom"),
     ):
         result = runner.invoke(cli, ["lookups"])
+
     assert result.exit_code == 1
     assert "HTTP 500" in result.output
 
@@ -338,6 +350,7 @@ def test_teams_lookups_alias_ls(runner: CliRunner) -> None:
     """The 'ls' alias works for the list subcommand."""
     with patch(_LOOKUPS_PATCH, return_value=_MOCK_LOOKUPS):
         result = runner.invoke(cli, ["lookups", "ls"])
+
     assert not result.exit_code
     assert "sports" in result.output
 
@@ -348,6 +361,7 @@ def test_teams_lookups_without_parent_context(runner: CliRunner) -> None:
     mock_config.timeout = 1.0
     with patch(_LOOKUPS_PATCH, return_value=_MOCK_LOOKUPS):
         result = runner.invoke(lookups_group, [], obj=mock_config)
+
     assert not result.exit_code
     assert "sports" in result.output
 
@@ -359,6 +373,7 @@ def test_teams_lookups_get_category(runner: CliRunner) -> None:
     """Lookups get --category shows values for that category."""
     with patch(_LOOKUPS_PATCH, return_value=_MOCK_LOOKUPS):
         result = runner.invoke(cli, ["lookups", "get", "--category", "sports"])
+
     assert not result.exit_code
     assert "hockey" in result.output
     assert "Hockey" in result.output
@@ -369,6 +384,7 @@ def test_teams_lookups_get_unknown_category(runner: CliRunner) -> None:
     """Unknown --category exits 1 with available categories."""
     with patch(_LOOKUPS_PATCH, return_value=_MOCK_LOOKUPS):
         result = runner.invoke(cli, ["lookups", "get", "--category", "bogus"])
+
     assert result.exit_code == 1
     assert "Unknown category" in result.output
     assert "sports" in result.output
@@ -381,6 +397,7 @@ def test_teams_lookups_get_json(runner: CliRunner) -> None:
             cli,
             ["lookups", "get", "--category", "sports", "--format", "json"],
         )
+
     assert not result.exit_code
     assert "hockey" in result.output
 
@@ -392,6 +409,7 @@ def test_teams_lookups_get_error(runner: CliRunner) -> None:
         side_effect=GameSheetError("GET /api/lookups returned HTTP 500: boom"),
     ):
         result = runner.invoke(cli, ["lookups", "get", "--category", "sports"])
+
     assert result.exit_code == 1
     assert "HTTP 500" in result.output
 
@@ -400,6 +418,7 @@ def test_teams_lookups_get_alias_show(runner: CliRunner) -> None:
     """The 'show' alias works for the get subcommand."""
     with patch(_LOOKUPS_PATCH, return_value=_MOCK_LOOKUPS):
         result = runner.invoke(cli, ["lookups", "show", "--category", "sports"])
+
     assert not result.exit_code
     assert "hockey" in result.output
 
@@ -408,6 +427,7 @@ def test_teams_lookups_get_alias_view(runner: CliRunner) -> None:
     """The 'view' alias works for the get subcommand."""
     with patch(_LOOKUPS_PATCH, return_value=_MOCK_LOOKUPS):
         result = runner.invoke(cli, ["lookups", "view", "--category", "sports"])
+
     assert not result.exit_code
     assert "hockey" in result.output
 

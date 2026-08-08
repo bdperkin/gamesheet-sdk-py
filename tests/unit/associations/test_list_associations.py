@@ -62,6 +62,7 @@ def test_list_associations_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_associations(session)
+
     assert [a.id for a in result] == ["11", "40"]
     assert result[0].title == "Hockey Time Productions"
     assert not result[0].logo
@@ -95,6 +96,7 @@ def test_list_associations_sends_bearer_and_jsonapi_accept(config: Config) -> No
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_associations(session)
+
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"

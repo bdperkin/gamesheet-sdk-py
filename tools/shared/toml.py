@@ -35,6 +35,7 @@ def load_toml(path: Path) -> dict[str, Any]:
     except tomli.TOMLDecodeError as exc:
         msg = f"Invalid TOML in {path}: {exc}"
         raise ToolError(msg) from exc
+
     return data
 
 

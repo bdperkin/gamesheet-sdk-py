@@ -29,5 +29,6 @@ def test_download_completed_game_pdf(tmp_path: Path) -> None:
     with Session(config) as session:
         session.set_bearer_token(TEST_BEARER_TOKEN)
         download_completed_game_pdf(session, "game-1", str(output_file))
+
     assert output_file.exists()
     assert output_file.read_bytes() == b"PDF content"

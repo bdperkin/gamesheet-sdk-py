@@ -145,8 +145,10 @@ def build_token_updates(
     updates: dict[str, str] = {"accessToken": access}
     if refresh is not None:
         updates["refreshToken"] = refresh
+
     if roles is not None:
         updates["rolesToken"] = roles
+
     return updates
 
 
@@ -274,13 +276,16 @@ def refresh_access_token(
     }
     if user_agent is not None:
         headers["User-Agent"] = user_agent
+
     response = requests.post(REFRESH_URL, json={}, headers=headers, timeout=timeout)
     if response.status_code == 401:
         _err_msg = "Refresh token rejected. Run `gamesheet-admin login` to re-authenticate."
         raise AuthenticationError(_err_msg)
+
     if response.status_code >= 400:
         _err_msg = f"Token refresh failed: HTTP {response.status_code}: {response.text[:200]!r}"
         raise GameSheetError(_err_msg)
+
     body = response.json()
     return {
         "access": body["access"],

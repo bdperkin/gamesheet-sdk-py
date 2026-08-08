@@ -41,15 +41,18 @@ def _build_hook_map(hook: dict[str, Any]) -> CommentedMap:
     hook_map = CommentedMap()
     if "id" in hook:
         hook_map["id"] = hook["id"]
+
     for key, value in hook.items():
         if key == "id":
             continue
+
         if isinstance(value, list):
             hook_map[key] = CommentedSeq(value)
         elif isinstance(value, dict):
             hook_map[key] = CommentedMap(value)
         else:
             hook_map[key] = value
+
     return hook_map
 
 
@@ -100,6 +103,7 @@ def _build_repo_map(repo: dict[str, Any]) -> CommentedMap:
         hooks_seq = CommentedSeq()
         for hook in repo["hooks"]:
             hooks_seq.append(_build_hook_map(hook))
+
         repo_map["hooks"] = hooks_seq
 
     return repo_map
@@ -193,6 +197,7 @@ def _apply_hook_comments(
     hooks_list = repo_map.get("hooks")
     if not isinstance(hooks_list, CommentedSeq):
         return
+
     for hook_idx in range(len(hooks_list)):
         comment_key = (repo_idx, hook_idx)
         if comment_key in hook_comments:
@@ -306,7 +311,9 @@ def _add_repo_spacing(text: str) -> str:
             and not lines[i - 1].strip().startswith("repos:")
         ):
             result.append("")
+
         result.append(line)
+
     return "\n".join(result)
 
 
@@ -324,11 +331,13 @@ def _single_to_double_quotes(text: str) -> str:
         inner = m.group(1)
         if "\\" in inner:
             return m.group(0)
+
         return '"' + inner + '"'
 
     def _replace_on_line(line: str) -> str:
         if line.lstrip().startswith("#"):
             return line
+
         return re.sub(r"'([^']*)'", _replace_match, line)
 
     return "\n".join(_replace_on_line(line) for line in text.splitlines())
@@ -414,4 +423,4 @@ def render_config(
         msg = f"Failed to render {output_path}: {exc}"
         raise RenderError(msg) from exc
 
-    logger.info("Wrote %s", output_path)
+    logger.debug("Wrote %s", output_path)

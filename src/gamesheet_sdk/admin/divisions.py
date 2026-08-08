@@ -117,7 +117,9 @@ def list_division_teams(session: Session, division_id: str) -> list[Team]:
         if invitation_code:
             # Update the team with the invitation code using model_copy
             team = team.model_copy(update={"invitation_code": invitation_code})
+
         teams.append(team)
+
     return teams
 
 
@@ -155,6 +157,7 @@ def get_division(
     if include_team_count:
         teams = list_division_teams(session, division.id)
         division.team_count = len(teams)
+
     return division
 
 
@@ -201,6 +204,7 @@ def list_divisions(
         for division in divisions:
             teams = list_division_teams(session, division.id)
             division.team_count = len(teams)
+
     return divisions
 
 
@@ -238,6 +242,7 @@ def create_division(
     # Generate external_id if not provided
     if external_id is None:
         external_id = str(uuid.uuid4())
+
     payload = {
         "data": {
             "type": "divisions",
@@ -307,6 +312,7 @@ def update_division(
             # If we can't fetch the current title, the PATCH will fail anyway
             # Let it proceed and return the API's error
             title = ""
+
     endpoint = f"/api/seasons/{season_id}/divisions/{division_id}"
     # Build attributes dict - title is always required by the API
     attributes: dict[str, Any] = {
@@ -315,6 +321,7 @@ def update_division(
     }
     if external_id is not None:
         attributes["external_id"] = external_id
+
     payload = {
         "data": {
             "type": "divisions",

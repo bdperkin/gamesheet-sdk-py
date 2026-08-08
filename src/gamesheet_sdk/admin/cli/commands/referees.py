@@ -295,6 +295,7 @@ def referees_update_command(
             "Use --first-name, --last-name, --email-address, or --external-id."
         )
         raise click.UsageError(msg)
+
     config: Config = ctx.obj
     session = build_authenticated_session(config)
     referee = run_action_or_exit(

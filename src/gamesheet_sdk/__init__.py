@@ -121,6 +121,7 @@ try:
     __version__ = version("gamesheet-sdk-py")
 except PackageNotFoundError:
     __version__ = "0+unknown"
+
 __all__ = [
     "ALL_FORMATS",
     "APP_GAMESHEET_COM",

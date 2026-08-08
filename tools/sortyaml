@@ -66,12 +66,15 @@ def _map_indents(node: object) -> Iterator[int]:
     if not _has_lc(node, CommentedMap):
         for item in _iter_children(node):
             yield from _map_indents(item)
+
         return
+
     for key in node:  # type: ignore[attr-defined]
         val = node[key]  # type: ignore[index]
         if _has_lc(val, CommentedMap):
             keys = list(val.keys())
             yield val.lc.key(keys[0])[1] - node.lc.key(key)[1]  # type: ignore[attr-defined]
+
         yield from _map_indents(val)
 
 
@@ -80,11 +83,14 @@ def _seq_indents(node: object) -> Iterator[int]:
     if not _has_lc(node, CommentedMap):
         for item in _iter_children(node):
             yield from _seq_indents(item)
+
         return
+
     for key in node:  # type: ignore[attr-defined]
         val = node[key]  # type: ignore[index]
         if _has_lc(val, CommentedSeq):
             yield val.lc.item(0)[1] - node.lc.key(key)[1]  # type: ignore[attr-defined]
+
         yield from _seq_indents(val)
 
 
@@ -118,8 +124,10 @@ def _type_order(value: object) -> int:
     """Return 0 for scalars, 1 for mappings, 2 for sequences."""
     if isinstance(value, CommentedMap):
         return 1
+
     if isinstance(value, (list, CommentedSeq)):
         return 2
+
     return 0
 
 
@@ -148,6 +156,7 @@ def _codecov_nested_sort_key(key: str, value: object) -> tuple[int, int, int, st
     """Return sort key for a nested codecov key (name first, scalars first)."""
     if key == "name":
         return (0, _type_order(value), 0, key)
+
     name_order = 0 if key.startswith("default") else 1
     return (1, _type_order(value), name_order, key)
 
@@ -161,6 +170,7 @@ def _codecov_sort_key(
     """Return sort key for a codecov key at the given depth."""
     if not depth:
         return _codecov_top_sort_key(key)
+
     return _codecov_nested_sort_key(key, value)
 
 
@@ -207,6 +217,7 @@ def _trivyignore_sort_key(
     """Return sort key for a trivyignore key at the given depth."""
     if not depth:
         return (_ordered_key_pos(key, _TRIVYIGNORE_TOP_LEVEL), key)
+
     return _trivyignore_nested_sort_key(key, value)
 
 
@@ -315,6 +326,7 @@ def _genprecommit_sort_key(
     """Return sort key for a genprecommitconfig key at the given depth."""
     if depth == 1 and key not in _GENPRECOMMIT_DEPTH1_KNOWN:
         return (pos,)
+
     order = _GENPRECOMMIT_DEPTH_KEYS.get(depth, ())
     return (_ordered_key_pos(key, order), _type_order(value), key)
 
@@ -423,6 +435,7 @@ def _is_job_value(value: object) -> bool:
     """Return True if *value* looks like a GitHub Actions job definition."""
     if not isinstance(value, CommentedMap):
         return False
+
     return "runs-on" in value or "steps" in value or "uses" in value
 
 
@@ -435,6 +448,7 @@ def _github_workflow_sort_key(
     """Return sort key for a GitHub Actions workflow key at the given depth."""
     if depth == 1 and _is_job_value(value):
         return (pos,)
+
     sort_key = "on" if key is True else key  # type: ignore[comparison-overlap]  # bare `on` is YAML boolean
     order = _GITHUB_WORKFLOW_DEPTH_KEYS.get(depth, ())
     return (_ordered_key_pos(sort_key, order), _type_order(value), sort_key)
@@ -500,8 +514,10 @@ def _gitlab_ci_sort_key(
         idx = _ordered_key_pos(key, _GITLAB_CI_TOP_LEVEL)
         if idx < len(_GITLAB_CI_TOP_LEVEL):
             return (idx, 0, key)
+
         group = len(_GITLAB_CI_TOP_LEVEL) if key.startswith(".") else len(_GITLAB_CI_TOP_LEVEL) + 1
         return (group, pos, key)
+
     order = _GITLAB_CI_DEPTH_KEYS.get(depth, ())
     return (_ordered_key_pos(key, order), _type_order(value), key)
 
@@ -579,6 +595,7 @@ def _sorted_pairs(
         key_fn = _identity_key_fn(data, sort_key_fn, depth)
     else:
         key_fn = str
+
     return [(k, data[k]) for k in sorted(data.keys(), key=key_fn)]
 
 
@@ -587,9 +604,11 @@ def _walk_merge_ids(data: object, ids: set[int], visited: set[int]) -> bool:
     """Return True if *data* is or contains a merge-involved map."""
     if not isinstance(data, (CommentedMap, list, CommentedSeq)):
         return False
+
     obj_id = id(data)
     if obj_id in visited:
         return obj_id in ids
+
     visited.add(obj_id)
     if isinstance(data, CommentedMap):
         merge = getattr(data, "merge", None)
@@ -598,15 +617,20 @@ def _walk_merge_ids(data: object, ids: set[int], visited: set[int]) -> bool:
             for merged_map in merge:
                 if isinstance(merged_map, CommentedMap):
                     ids.add(id(merged_map))
+
         has_merge_child = False
         for value in data.values():
             if _walk_merge_ids(value, ids, visited):
                 has_merge_child = True
+
         if has_merge_child:
             ids.add(obj_id)
+
         return obj_id in ids
+
     for item in data:
         _walk_merge_ids(item, ids, visited)
+
     return False
 
 
@@ -640,16 +664,20 @@ def _sort_map_keys(
         logger.debug("Skipping sort of merge-involved map at depth %d", depth)
         for value in data.values():
             _sort_mapping(value, sort_key_fn, depth + 1, strict=strict, merge_ids=merge_ids)
+
         return
+
     saved = _save_comments(data)
     pairs = _sorted_pairs(data, sort_key_fn, depth, in_seq=in_seq)
     for k in list(data.keys()):
         del data[k]
+
     data.ca.items.clear()
     for key, value in pairs:
         data[key] = value
         if key in saved:
             data.ca.items[key] = saved[key]
+
         _sort_mapping(value, sort_key_fn, depth + 1, strict=strict, merge_ids=merge_ids)
 
 
@@ -681,8 +709,10 @@ def _should_fold(value: object, key: str, indent: int, depth: int, width: int) -
     """Return True if a quoted string value would wrap when rendered inline."""
     if not isinstance(value, (DoubleQuotedScalarString, SingleQuotedScalarString)):
         return False
+
     if "\n" in str(value):
         return False
+
     inline_len = depth * indent + len(key) + 4 + len(str(value))
     return inline_len > width
 
@@ -698,6 +728,7 @@ def _fold_map_strings(
         value = data[key]
         if _should_fold(value, key, indent, depth, width):
             data[key] = FoldedScalarString(str(value))
+
         _fold_long_strings(value, indent, depth + 1, width)
 
 
@@ -719,13 +750,16 @@ def _preserve_anchors(data: object, visited: set[int] | None = None) -> None:
     """Force all YAML anchors to emit even when no alias references them."""
     if visited is None:
         visited = set()
+
     obj_id = id(data)
     if obj_id in visited:
         return
+
     visited.add(obj_id)
     anchor = getattr(data, "anchor", None)
     if anchor and anchor.value:
         anchor.always_dump = True
+
     if isinstance(data, CommentedMap):
         for value in data.values():
             _preserve_anchors(value, visited)
@@ -781,11 +815,13 @@ def _load_yaml(file: io.TextIOWrapper) -> tuple[str, object, YAML]:
     yml.preserve_quotes = True
     if original.startswith("---"):
         yml.explicit_start = True
+
     try:
         data = yml.load(original)
     except Exception as exc:
         console.print(f"[bold red]Error:[/] Failed to parse YAML: {exc}")
         raise SystemExit(2) from exc
+
     return original, data, yml
 
 
@@ -815,6 +851,7 @@ def _sort_and_render(
     merge_ids = _collect_merge_ids(data)
     if merge_ids:
         logger.info("Found %d merge-involved maps, skipping their key reorder", len(merge_ids))
+
     _sort_mapping(data, sort_key_fn, strict=strict, merge_ids=merge_ids)
     _fold_long_strings(data, mi)
     return format_yaml(_render(yml, data))
@@ -824,6 +861,7 @@ def _show_diff(original: str, sorted_text: str, source: str) -> None:
     """Print colorized unified diff to stdout if content changed."""
     if original == sorted_text:
         return
+
     lines = difflib.unified_diff(
         original.splitlines(keepends=True),
         sorted_text.splitlines(keepends=True),
@@ -843,8 +881,10 @@ def _run_check(original: str, sorted_text: str, source: str, *, showed_diff: boo
     if original == sorted_text:
         logger.info("%s already sorted", source)
         return
+
     if not showed_diff:
         console.print(f"[bold yellow]{source}[/] would be resorted")
+
     raise SystemExit(1)
 
 
@@ -853,11 +893,13 @@ def _write_result(sorted_text: str, source: str, *, is_stdin: bool, backup: bool
     if is_stdin:
         sys.stdout.write(sorted_text)
         return
+
     path = Path(source)
     if backup:
         bak_path = path.with_suffix(path.suffix + ".bak")
         shutil.copy2(path, bak_path)
         logger.info("Backup: %s", bak_path)
+
     path.write_text(sorted_text, encoding="utf-8")
     logger.info("Sorted %s", source)
 
@@ -931,15 +973,18 @@ def app(
     if data is None:
         _handle_empty(original, is_stdin=is_stdin, check=check, diff=diff)
         return
+
     sort_key_fn = _SCHEMA_SORT_KEYS.get(schema_type) if schema_type else None
     sorted_text = _sort_and_render(data, yml, sort_key_fn, strict=strict)
     if diff:
         _show_diff(original, sorted_text, file.name)
         if not check:
             return
+
     if check:
         _run_check(original, sorted_text, file.name, showed_diff=diff)
         return
+
     _write_result(sorted_text, file.name, is_stdin=is_stdin, backup=backup)
 
 

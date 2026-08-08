@@ -48,6 +48,7 @@ def test_get_division_returns_single_division(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_division(session, _division_id, include_team_count=False)
+
     assert result.id == _division_id
     assert result.season_id == SEASON_ID
     assert result.title == DEFAULT_DIVISION_NAME
@@ -80,6 +81,7 @@ def test_get_division_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("test-token")
         get_division(session, _division_id, include_team_count=False)
+
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == TEST_AUTH_HEADER
@@ -195,6 +197,7 @@ def test_get_division_with_team_count(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_division(session, _division_id, include_team_count=True)
+
     assert result.id == _division_id
     assert result.season_id == SEASON_ID
     assert result.title == DEFAULT_DIVISION_NAME

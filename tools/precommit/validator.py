@@ -49,6 +49,7 @@ def _run_pre_commit(
     cmd = [pre_commit, "run"]
     if hook_id:
         cmd.append(hook_id)
+
     cmd.extend(["--all-files", "--verbose"])
 
     try:
@@ -77,7 +78,7 @@ def _run_pre_commit(
     failed = bool(result.returncode)
 
     if print_output and stdout:
-        logger.info("%s", stdout.rstrip())
+        logger.debug("%s", stdout.rstrip())
 
     if failed:
         detail = stderr or stdout.rstrip()
@@ -85,6 +86,7 @@ def _run_pre_commit(
         msg = f"pre-commit validation failed{label} (exit {result.returncode})"
         if detail:
             msg = f"{msg}:\n{detail}"
+
         err = PreCommitValidationError(msg)
         err.exit_code = result.returncode or 1
         raise err
@@ -114,6 +116,7 @@ def _config_unchanged(backup_path: Path, output_path: Path) -> bool:
     """
     if not (backup_path.exists() and output_path.exists()):
         return False
+
     with suppress(FileNotFoundError):
         result = subprocess.run(  # noqa: S603, S607 # nosec B603, B607
             ["diff", "-q", str(backup_path), str(output_path)],
@@ -123,6 +126,7 @@ def _config_unchanged(backup_path: Path, output_path: Path) -> bool:
         )
         if not result.returncode:
             return True
+
     return False
 
 
@@ -158,6 +162,7 @@ def _diff_and_run(
     if hook_ids:
         for meta_id in _CONFIG_VALIDATION_HOOKS:
             _run_pre_commit(pre_commit, hook_id=meta_id, print_output=print_output)
+
         for hook_id in hook_ids:
             _run_pre_commit(pre_commit, hook_id=hook_id, print_output=print_output)
     else:

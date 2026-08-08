@@ -106,6 +106,7 @@ def test_create_scheduled_game() -> None:
             home_label="",
             visitor_label="",
         )
+
     assert game.data.id == "game-1"
 
 
@@ -151,6 +152,7 @@ def test_get_scheduled_game() -> None:
     with Session(config) as session:
         session.set_bearer_token(TEST_BEARER_TOKEN)
         game = get_scheduled_game(session, "123", "game-1")
+
     assert game.data.id == "game-1"
 
 
@@ -257,6 +259,7 @@ def test_update_scheduled_game() -> None:
             visitor_label="Away",
             status="scheduled",
         )
+
     assert game.data.id == "game-1"
     assert game.data.attributes.number == "G2"
 

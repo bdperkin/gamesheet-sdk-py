@@ -55,6 +55,7 @@ def test_assign_player_minimal_fields(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = assign_player(session, SEASON_ID, _PLAYER_ID, _TEAM_ID)
+
     assert result.id == _PLAYER_ID
 
 
@@ -84,6 +85,7 @@ def test_assign_player_with_optional_fields(config: Config) -> None:
             status="Regular",
             designation="Captain",
         )
+
     assert result.id == _PLAYER_ID
     assert result.number == "99"
     assert result.position == "Forward"
@@ -135,6 +137,7 @@ def test_assign_coach_minimal_fields(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = assign_coach(session, SEASON_ID, _COACH_ID, _TEAM_ID)
+
     assert result.id == _COACH_ID
     assert result.status == "coaching"
 
@@ -162,6 +165,7 @@ def test_assign_coach_with_position(config: Config) -> None:
             _TEAM_ID,
             position="Head Coach",
         )
+
     assert result.id == _COACH_ID
     assert result.position == "Head Coach"
     assert result.status == "coaching"
@@ -290,6 +294,7 @@ def test_assign_team_player_calls_assign_player(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = assign_team_player(session, SEASON_ID, _TEAM_ID, _PLAYER_ID)
+
     assert result.id == _PLAYER_ID
 
 
@@ -325,6 +330,7 @@ def test_assign_team_coach_calls_assign_coach(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = assign_team_coach(session, SEASON_ID, _TEAM_ID, _COACH_ID)
+
     assert result.id == _COACH_ID
     assert result.status == "coaching"
 
@@ -387,6 +393,7 @@ def test_assign_player_with_existing_other_players_on_roster(config: Config) -> 
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = assign_player(session, SEASON_ID, _PLAYER_ID, _TEAM_ID)
+
     assert result.id == _PLAYER_ID
 
 
@@ -423,6 +430,7 @@ def test_assign_coach_with_existing_other_coaches_on_roster(config: Config) -> N
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = assign_coach(session, SEASON_ID, _COACH_ID, _TEAM_ID)
+
     assert result.id == _COACH_ID
     assert result.status == "coaching"
 

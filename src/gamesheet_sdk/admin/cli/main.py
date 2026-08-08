@@ -122,8 +122,10 @@ def cli(
     overrides: dict[str, Any] = {}
     if base_url is not None:
         overrides["base_url"] = base_url
+
     if no_headless:
         overrides["browser_headless"] = False
+
     ctx.obj = Config(**overrides)
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
@@ -162,6 +164,7 @@ def main(argv: list[str] | None = None) -> int:
         )
     except (KeyboardInterrupt, SystemExit, Exit, UsageError, Abort) as exc:
         return resolve_exit(exc)
+
     return result if isinstance(result, int) else 0
 
 

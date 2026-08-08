@@ -32,7 +32,7 @@ def _load_yamlfix_config() -> YamlfixConfig:
     fields = frozenset(YamlfixConfig.model_fields)
     table = load_toml(PYPROJECT_PATH).get("tool", {}).get("yamlfix", {})
     known = {key: value for key, value in table.items() if key in fields}
-    logger.info("Loaded %d yamlfix option(s) from %s", len(known), PYPROJECT_PATH)
+    logger.debug("Loaded %d yamlfix option(s) from %s", len(known), PYPROJECT_PATH)
     return YamlfixConfig(**known)
 
 
@@ -52,6 +52,7 @@ def _apply_yamlfix(text: str) -> str:
     except Exception as exc:
         logger.exception("yamlfix failed to format output")
         raise SystemExit(2) from exc
+
     return formatted
 
 

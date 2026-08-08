@@ -34,6 +34,7 @@ def completion_command(shell: str) -> None:
     if cls is None:  # pragma: no cover
         click.secho(f"Unsupported shell: {shell}", fg="red", err=True)
         raise Exit(1)
+
     ctx = get_current_context()
     if ctx.parent:
         comp = cls(

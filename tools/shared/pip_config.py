@@ -91,6 +91,7 @@ def _read_config_files(paths: list[Path]) -> configparser.ConfigParser:
                 logger.debug("Read pip config from %s", path)
             except (configparser.Error, OSError) as exc:
                 logger.debug("Skipping unreadable pip config %s: %s", path, exc)
+
     return parser
 
 
@@ -110,6 +111,7 @@ def _read_global_section(
     """
     if not parser.has_section("global"):
         return None, [], [], None, None
+
     index_url = parser.get("global", "index-url", fallback=None)
     extra_raw = parser.get("global", "extra-index-url", fallback=None)
     extra_index_urls = _split_multi_value(extra_raw) if extra_raw else []
@@ -187,9 +189,11 @@ def _get_system_ca_bundle() -> str | bool:
     paths = ssl.get_default_verify_paths()
     if paths.cafile:
         return paths.cafile
+
     for ca_path in _SYSTEM_CA_PATHS:
         if Path(ca_path).is_file():
             return ca_path
+
     return True
 
 
@@ -214,6 +218,8 @@ def resolve_verify(url: str, config: PipConfig | None = None) -> str | bool:
         hostname = urlparse(url).hostname or ""
         if hostname in config.trusted_hosts:
             return False
+
     if config and config.cert:
         return config.cert
+
     return _get_system_ca_bundle()

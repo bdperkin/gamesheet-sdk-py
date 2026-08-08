@@ -151,21 +151,28 @@ def _list_seasons_bff(
     }
     if starts_after:
         params["filter[starts_after]"] = starts_after
+
     if ends_before:
         params["filter[ends_before]"] = ends_before
+
     if status:
         params["filter[status]"] = status
+
     if stats_year:
         params["filter[stats_year]"] = stats_year
+
     if title:
         params["filter[title]"] = title
+
     url = f"{BFF_API_BASE_URL}/leagues/{league_id}/seasons"
     response = session.get(url, params=params)
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if response.status_code == 404:
         _err_msg = errors.ERROR_MSG_404_LEAGUE.format(league_id=league_id)
         raise GameSheetError(_err_msg)
+
     if response.status_code >= 400:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=url,
@@ -173,16 +180,19 @@ def _list_seasons_bff(
             text=repr(response.text[:200]),
         )
         raise GameSheetError(_err_msg)
+
     body: dict[str, Any] = response.json()
     if body.get("status") != "success":
         status = body.get("status")
         _err_msg = errors.ERROR_MSG_BFF_NON_SUCCESS_SIMPLE.format(status=status)
         raise GameSheetError(_err_msg)
+
     data = body.get("data", [])
     if isinstance(data, dict):
         items = data.get("items", [])
     else:
         items = data
+
     return [_parse_bff_season(item, league_id) for item in items]
 
 
@@ -239,12 +249,14 @@ def list_seasons(
             stats_year=stats_year,
             title=title,
         )
+
     response = session.get(
         _ENDPOINT,
         headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if response.status_code >= 400:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=_ENDPOINT,
@@ -252,6 +264,7 @@ def list_seasons(
             text=repr(response.text[:200]),
         )
         raise GameSheetError(_err_msg)
+
     body: dict[str, Any] = response.json()
     # Parse all seasons and filter to only those belonging to the requested league
     all_seasons = [_parse(item) for item in body.get("data", [])]
@@ -286,9 +299,11 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
     )
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if response.status_code == 404:
         _err_msg = errors.ERROR_MSG_404_SEASON.format(season_id=season_id)
         raise GameSheetError(_err_msg)
+
     if response.status_code >= 400:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=endpoint,
@@ -296,5 +311,6 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
             text=repr(response.text[:200]),
         )
         raise GameSheetError(_err_msg)
+
     body: dict[str, Any] = response.json()
     return _parse_detail(body["data"])

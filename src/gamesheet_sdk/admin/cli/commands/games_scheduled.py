@@ -349,8 +349,10 @@ def scheduled_create_command(
 
     if time_zone_name is None:
         time_zone_name = get_local_timezone_name()
+
     if time_zone_offset is None:
         time_zone_offset = get_local_timezone_offset()
+
     game = run_action_or_exit(
         session,
         _create_scheduled_game_action,

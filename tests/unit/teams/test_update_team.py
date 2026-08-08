@@ -101,6 +101,7 @@ def test_update_team_title_only(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = update_team(session, SEASON_ID, _TEAM_ID, title="Updated Team Name")
+
     assert result.title == "Updated Team Name"
     assert result.id == _TEAM_ID
     # Verify the update request payload
@@ -127,6 +128,7 @@ def test_update_team_division_id_only(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = update_team(session, SEASON_ID, _TEAM_ID, division_id="99999")
+
     assert result.division_id == "99999"
     # Verify division_id in payload
     import json
@@ -151,6 +153,7 @@ def test_update_team_external_id_only(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = update_team(session, SEASON_ID, _TEAM_ID, external_id="new-ext-id")
+
     assert result.id == _TEAM_ID
     # Verify external_id in payload
     import json
@@ -185,6 +188,7 @@ def test_update_team_multiple_fields(config: Config) -> None:
             division_id="88888",
             external_id="custom-id",
         )
+
     assert result.title == "New Title"
     assert result.division_id == "88888"
     # Verify all fields in payload
@@ -205,6 +209,7 @@ def test_update_team_with_logo(config: Config) -> None:
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
         logo_path = f.name
+
     try:
         responses.add(responses.GET, _GET_ENDPOINT, json=_mock_get_team(), status=200)
         # Mock upload URL request
@@ -244,6 +249,7 @@ def test_update_team_with_logo(config: Config) -> None:
         with Session(config) as session:
             session.set_bearer_token("abc")
             result = update_team(session, SEASON_ID, _TEAM_ID, logo_path=logo_path)
+
         assert result.logo == new_logo_url
         # Verify all requests were made
         assert len(responses.calls) == 4  # GET + upload-url + upload + POST
@@ -273,6 +279,7 @@ def test_update_team_remove_logo(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = update_team(session, SEASON_ID, _TEAM_ID, remove_logo=True)
+
     assert result.logo is None
     # Verify logo is set to empty string in payload and DELETE was called
     import json
@@ -376,6 +383,7 @@ def test_update_team_both_logo_and_remove_logo_raises_value_error(
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
         logo_path = f.name
+
     try:
         with Session(config) as session:
             session.set_bearer_token("abc")

@@ -110,12 +110,15 @@ def create_coach(
     }
     if external_id:
         payload["data"]["attributes"]["external_id"] = external_id
+
     if position:
         payload["data"]["attributes"]["position"] = position
+
     if team_id:
         payload["data"]["relationships"] = {
             "teams": {"data": [{"type": "teams", "id": team_id}]},
         }
+
     response = session.post(endpoint, headers=JSONAPI_HEADERS, json=payload)
     handle_response(response, endpoint, "POST coach")
     body: dict[str, Any] = response.json()
@@ -173,10 +176,12 @@ def update_coach(
         payload["data"]["attributes"]["external_id"] = external_id
     elif current_coach.external_id:
         payload["data"]["attributes"]["external_id"] = current_coach.external_id
+
     if position is not None:
         payload["data"]["attributes"]["position"] = position
     elif current_coach.position:
         payload["data"]["attributes"]["position"] = current_coach.position
+
     endpoint = f"/api/seasons/{season_id}/coaches/{coach_id}"
     response = session.patch(endpoint, headers=JSONAPI_HEADERS, json=payload)
     handle_response(response, endpoint, "PATCH coach")
@@ -227,7 +232,9 @@ def list_team_coaches(session: Session, season_id: str, team_id: str) -> list[Co
             coach.position = metadata.get("position")
             coach.status = metadata.get("status")
             coach.signature = metadata.get("signature")
+
         coaches.append(coach)
+
     return coaches
 
 
@@ -287,6 +294,7 @@ def _build_coach_roster_entry(
     }
     if position:
         entry["position"] = position
+
     return entry
 
 
@@ -306,6 +314,7 @@ def _populate_coach_metadata(
     """
     if position:
         coach.position = position
+
     coach.status = "coaching"
 
 
@@ -347,6 +356,7 @@ def create_team_coach(
     }
     if external_id:
         payload["data"]["attributes"]["external_id"] = external_id
+
     response = session.post(endpoint, headers=JSONAPI_HEADERS, json=payload)
     handle_response(response, endpoint, "POST coach")
     coach = parse_coach(response.json()["data"])
@@ -423,6 +433,7 @@ def update_team_coach(
         payload["data"]["attributes"]["external_id"] = external_id
     elif current_coach.external_id:
         payload["data"]["attributes"]["external_id"] = current_coach.external_id
+
     endpoint = f"/api/seasons/{season_id}/coaches/{coach_id}"
     response = session.patch(endpoint, headers=JSONAPI_HEADERS, json=payload)
     handle_response(response, endpoint, "PATCH team coach")
@@ -437,6 +448,7 @@ def update_team_coach(
             if coach_entry.get("id") == coach_id:
                 coach_entry["position"] = position
                 break
+
         update_team_roster(
             session,
             season_id,
@@ -446,6 +458,7 @@ def update_team_coach(
             team_data.get("data", {}).get("relationships", {}),
         )
         coach.position = position
+
     coach.status = getattr(current_coach, "status", None) or "coaching"
     return coach
 
@@ -499,6 +512,7 @@ def unassign_coach(
     if len(coaches_roster) == original_count:
         msg = f"Coach {coach_id} is not assigned to team {team_id}"
         raise GameSheetError(msg)
+
     roster["coaches"] = coaches_roster
     # Step 3: Update team roster
     update_team_roster(
@@ -578,6 +592,7 @@ def assign_coach(
         if existing_coach.get("id") == coach_id:
             msg = f"Coach {coach_id} is already assigned to team {team_id}"
             raise GameSheetError(msg)
+
     coach_entry = _build_coach_roster_entry(coach_id, position=position)
     coaches_roster.append(coach_entry)
     roster["coaches"] = coaches_roster
@@ -674,5 +689,6 @@ def get_coach_penalty_report(
         status = body.get("status")
         msg = errors.ERROR_MSG_PENALTY_REPORT_API_STATUS.format(status=status)
         raise GameSheetError(msg)
+
     data: dict[str, Any] = body["data"]
     return data

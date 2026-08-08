@@ -58,11 +58,13 @@ def validate_broadcaster_key(session: Session, broadcaster: str) -> str:
     """
     if not broadcaster:
         return broadcaster
+
     broadcasters = list_broadcasters(session)
     broadcaster_lower = broadcaster.lower()
     for b in broadcasters:
         if b.key.lower() == broadcaster_lower:
             return b.key
+
     valid_keys = [b.key for b in broadcasters]
     joined_valid_keys = ", ".join(valid_keys)
     msg = f"Invalid broadcaster '{broadcaster}'. Valid options (case-insensitive): {joined_valid_keys}"

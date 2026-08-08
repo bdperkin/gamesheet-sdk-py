@@ -539,6 +539,7 @@ def teams_roster_players_delete_command(ctx: Context, player_id: str) -> None:
     except Exception as exc:
         click.secho(f"Error deleting player: {exc}", fg="red", err=True)
         raise Exit(1) from exc
+
     click.secho(f"Player {player_id} deleted successfully.", fg="green")
 
 

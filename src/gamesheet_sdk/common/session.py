@@ -49,6 +49,7 @@ def _default_user_agent() -> str:
         ver = _resolved_version("gamesheet-sdk-py")
     except PackageNotFoundError:
         ver = "0+unknown"
+
     return f"gamesheet-sdk-py/{ver} (+https://github.com/bdperkin/gamesheet-sdk-py)"
 
 
@@ -137,11 +138,13 @@ class Session:
         path = self.config.session_path
         if not path.exists():
             return
+
         try:
             data = json.loads(path.read_text())
         except (OSError, json.JSONDecodeError) as exc:
             _LOGGER.warning("Failed to load session cookies from %s: %s", path, exc)
             return
+
         for raw in data.get("cookies", []):
             # Create a dictionary of the cookie attributes
             cookie_dict = {
@@ -220,6 +223,7 @@ class Session:
         """
         if url.startswith(("http://", "https://")):
             return url
+
         return urljoin(self.config.base_url.rstrip("/") + "/", url.lstrip("/"))
 
     # -- request methods --------------------------------------------------
@@ -358,6 +362,7 @@ class Session:
             self.save()
         except OSError as exc:
             _LOGGER.warning("Failed to save session cookies: %s", exc)
+
         self._http.close()
 
     def __enter__(self: Session) -> Session:

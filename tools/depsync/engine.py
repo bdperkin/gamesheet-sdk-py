@@ -47,6 +47,7 @@ def _repo_url_to_package(url: str) -> str | None:
     """
     if url in REVERSE_MAPPING:
         return REVERSE_MAPPING[url]
+
     last_segment = url.rstrip("/").rsplit("/", 1)[-1]
     return last_segment.lower() if last_segment else None
 
@@ -84,11 +85,14 @@ def resolve_pinned_packages(pinned_revs: dict[str, str]) -> dict[str, str]:
         if pkg is None:
             logger.debug("Cannot resolve package name for %s, skipping", url)
             continue
+
         version = _normalize_rev(rev)
         if version is None:
             logger.debug("Cannot normalize rev %r for %s, skipping", rev, url)
             continue
+
         result[pkg] = version
+
     return result
 
 
@@ -249,6 +253,7 @@ def _converge_shared_main_hooks(
                 logger.warning("No common stable version for %s", pkg_name)
                 processed_packages.add(pkg_name)
                 continue
+
             tag_str, target_version = common
 
         normalized_rev = _normalize_rev(repo.rev)
@@ -379,8 +384,10 @@ def _converge_pypi_only(
     for pkg_name, dep_entries in pyproject_deps.items():
         if pkg_name in processed_packages:
             continue
+
         if pkg_name in pkg_to_repo_url:
             continue
+
         if pkg_name in precommit_additional_names:
             continue
 
@@ -504,6 +511,7 @@ def _detect_stale_precommit_revs(
             normalized_rev = _normalize_rev(repo.rev)
             if normalized_rev == expected_version:
                 continue
+
             results.append(
                 ConvergenceResult(
                     package=repo_name,
@@ -763,12 +771,15 @@ def _parse_type_stubs_types(pyproject_path: Path) -> dict[str, str | None]:
         dep = dep_str.strip()
         if not dep.lower().startswith("types-"):
             continue
+
         if "==" in dep:
             name_part, version = dep.split("==", 1)
         else:
             name_part, version = dep, None
+
         normalized = re.sub(r"[-_.]+", "-", name_part.strip()).lower()
         types_map[normalized] = version
+
     return types_map
 
 
@@ -810,6 +821,7 @@ def _discover_available_types(
                 pkg = futures[future]
                 logger.warning("Failed to check types-%s availability; skipping", pkg)
                 continue
+
             if exists:
                 available.add(name)
                 logger.debug("  types-%s exists on index", name)
@@ -832,10 +844,12 @@ def _collect_types_to_fetch(
         types_name = f"types-{name}"
         if types_name not in current_types:
             types_to_fetch.add(types_name)
+
     for types_name in current_types:
         base_name = types_name.removeprefix("types-")
         if base_name in all_packages:
             types_to_fetch.add(types_name)
+
     return types_to_fetch
 
 
@@ -858,6 +872,7 @@ def _find_new_stubs(
             if latest:
                 added.append((types_name, latest))
                 logger.info("  Add %s==%s", types_name, latest)
+
     return added
 
 
@@ -886,6 +901,7 @@ def _find_stale_stubs(
         if latest and latest != current_version:
             updated.append((types_name, current_version or "", latest))
             logger.info("  Update %s: %s → %s", types_name, current_version, latest)
+
     return removed, updated
 
 

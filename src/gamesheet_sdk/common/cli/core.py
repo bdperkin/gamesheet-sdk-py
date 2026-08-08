@@ -136,9 +136,11 @@ class ResourceGroup(click.RichGroup):
         cmd = super().get_command(ctx, cmd_name)
         if cmd is not None:
             return cmd
+
         target = self._aliases.get(cmd_name)
         if target is None:
             return None
+
         return super().get_command(ctx, target)
 
     def parse_args(self: ResourceGroup, ctx: Context, args: list[str]) -> list[str]:
@@ -159,6 +161,7 @@ class ResourceGroup(click.RichGroup):
         """
         if not args and self.default_cmd_name is not None and not ctx.resilient_parsing:
             args = [self.default_cmd_name]
+
         result: list[str] = super().parse_args(ctx, args)
         return result
 
@@ -199,6 +202,7 @@ class ResourceGroup(click.RichGroup):
             cmd = self.get_command(ctx, name)
             if cmd is None or cmd.hidden:
                 continue
+
             yield self._command_row(name, cmd)
 
     def format_commands(
@@ -239,9 +243,11 @@ class ResourceGroup(click.RichGroup):
         """
         if alias in seen or not alias.startswith(incomplete):
             return None
+
         cmd = self.commands.get(target)
         if cmd is None or cmd.hidden:
             return None
+
         short = cmd.get_short_help_str()
         help_text = f"(alias for {target}) {short}".rstrip()
         return CompletionItem(alias, help=help_text)
@@ -266,8 +272,10 @@ class ResourceGroup(click.RichGroup):
             item = self._alias_item_if_visible(alias, target, incomplete, seen)
             if item is None:
                 continue
+
             items.append(item)
             seen.add(alias)
+
         return items
 
     def shell_complete(
@@ -295,6 +303,7 @@ class ResourceGroup(click.RichGroup):
             results = list(super_shell_complete(ctx, incomplete))
         else:
             results = []
+
         seen = {item.value for item in results}
         results.extend(self._alias_completion_items(incomplete, seen))
         return results
@@ -383,10 +392,12 @@ def _should_color(handler: logging.StreamHandler[Any]) -> bool:
     """
     if "NO_COLOR" in os.environ:
         return False
+
     try:
         stream = handler.stream
     except AttributeError:
         return False
+
     return hasattr(stream, "isatty") and stream.isatty()
 
 
@@ -405,6 +416,7 @@ def _configure_logging(verbose: int) -> None:
         level = logging.INFO
     else:
         level = logging.DEBUG
+
     handler = logging.StreamHandler(sys.stderr)
     if _should_color(handler):
         formatter: logging.Formatter = colorlog.ColoredFormatter(
@@ -419,6 +431,7 @@ def _configure_logging(verbose: int) -> None:
         )
     else:
         formatter = logging.Formatter("%(levelname)-8s %(message)s")
+
     handler.setFormatter(formatter)
     logging.basicConfig(level=level, handlers=[handler], force=True)
 
@@ -445,9 +458,11 @@ def parse_columns_spec(spec: str | None) -> list[str] | None:
     """
     if spec is None:
         return None
+
     stripped = spec.strip()
     if not stripped:
         return None
+
     return [col.strip() for col in stripped.split(",") if col.strip()]
 
 
@@ -470,8 +485,10 @@ def resolve_system_exit(
     code = getattr(exc, "code", None)
     if code is None:
         return 0
+
     if isinstance(code, int):
         return code
+
     return 1
 
 
@@ -493,10 +510,13 @@ def resolve_exit(exc: BaseException) -> int:
     """
     if isinstance(exc, Exit):
         return int(exc.exit_code)
+
     if isinstance(exc, UsageError):
         exc.show()
         return 2
+
     if isinstance(exc, Abort):
         click.echo("Aborted.", err=True)
         return 1
+
     return resolve_system_exit(exc)

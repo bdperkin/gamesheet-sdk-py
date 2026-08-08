@@ -535,6 +535,7 @@ def players_delete_command(ctx: Context, player_id: str) -> None:
     except Exception as exc:
         click.secho(f"Error deleting player: {exc}", fg="red", err=True)
         raise Exit(1) from exc
+
     click.secho(f"Player {player_id} deleted successfully.", fg="green")
 
 
@@ -580,6 +581,7 @@ def players_penalty_report_command(
             output_text = yaml.dump(report, default_flow_style=False)
         else:
             output_text = json.dumps(report, indent=2)
+
         from gamesheet_sdk.common.output import write_output
 
         write_output(output_text, output_path, fmt=output_format)

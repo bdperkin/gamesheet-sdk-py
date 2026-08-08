@@ -39,9 +39,11 @@ def resolve_email(cfg: Config, email: str | None) -> str:
     """
     if email is None:
         email = cfg.username
+
     if not email:
         _err_msg = "Login requires an email. Pass it explicitly or set GAMESHEET_USERNAME."
         raise AuthenticationError(_err_msg)
+
     return email
 
 
@@ -66,7 +68,9 @@ def resolve_password(cfg: Config, password: str | None) -> str:
     """
     if password is None and cfg.password is not None:
         password = cfg.password.get_secret_value()
+
     if not password:
         _err_msg = "Login requires a password. Pass it explicitly or set GAMESHEET_PASSWORD."
         raise AuthenticationError(_err_msg)
+
     return password

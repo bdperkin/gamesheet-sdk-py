@@ -79,6 +79,7 @@ class BrowserSession:
         path = self.config.browser_state_path
         if not path.exists():
             return None
+
         try:
             loaded: StorageState = json.loads(path.read_text())
         except (OSError, json.JSONDecodeError) as exc:
@@ -88,6 +89,7 @@ class BrowserSession:
                 exc,
             )
             return None
+
         return loaded
 
     # -- internals --------------------------------------------------------
@@ -130,12 +132,15 @@ class BrowserSession:
         if self._closed:
             _err_msg = "BrowserSession has been closed"
             raise RuntimeError(_err_msg)
+
         if self._context is None:
             self._start()
+
         if self._context is None:
             # Defensive check: _start() either succeeds (sets _context) or raises
             _err_msg = "BrowserSession did not start"
             raise ValueError(_err_msg)
+
         return self._context
 
     def new_page(self: BrowserSession) -> Page:
@@ -162,6 +167,7 @@ class BrowserSession:
         """
         if url.startswith(("http://", "https://", "data:", "file:", "about:")):
             return url
+
         return urljoin(self.config.base_url.rstrip("/") + "/", url.lstrip("/"))
 
     def goto(self: BrowserSession, url: str, **kwargs: Any) -> Page:
@@ -198,6 +204,7 @@ class BrowserSession:
         """
         if self._context is None:
             return
+
         path = self.config.browser_state_path
         path.parent.mkdir(parents=True, exist_ok=True)
         state = self._context.storage_state()
@@ -228,10 +235,13 @@ class BrowserSession:
         """
         if self._context is not None:
             self._context.close()
+
         if self._browser is not None:
             self._browser.close()
+
         if self._playwright is not None:
             self._playwright.stop()
+
         self._context = None
         self._browser = None
         self._playwright = None
@@ -243,6 +253,7 @@ class BrowserSession:
         """
         if self._closed:
             return
+
         self._safe_save()
         self._release_playwright()
         self._closed = True

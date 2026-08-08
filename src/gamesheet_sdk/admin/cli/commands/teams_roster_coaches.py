@@ -209,6 +209,7 @@ def teams_roster_coaches_create_command(
     except Exception as exc:
         click.secho(f"Error creating coach: {exc}", fg="red", err=True)
         raise Exit(1) from exc
+
     render_get_command(coach, output_format, output_path, None)
     click.secho(f"Coach {coach.id} added to team {team_id} successfully.", fg="green")
 
@@ -329,6 +330,7 @@ def teams_roster_coaches_delete_command(ctx: Context, coach_id: str) -> None:
     except Exception as exc:
         click.secho(f"Error deleting coach: {exc}", fg="red", err=True)
         raise Exit(1) from exc
+
     click.secho(f"Coach {coach_id} deleted successfully.", fg="green")
 
 

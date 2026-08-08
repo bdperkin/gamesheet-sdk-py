@@ -148,6 +148,7 @@ def _render_dsv(
         writer.writerow(
             {key: ("" if value is None else value) for key, value in row.items()},
         )
+
     return buf.getvalue().rstrip("\n")
 
 
@@ -231,6 +232,7 @@ def _derive_columns(rows: list[dict[str, Any]]) -> list[str]:
     """
     if not rows:
         return []
+
     return list(rows[0].keys())
 
 
@@ -297,10 +299,12 @@ def render(
         _fmt_list = ", ".join(ALL_FORMATS)
         _err_msg = f"Unknown format: {fmt!r}. Expected one of {_fmt_list}."
         raise ValueError(_err_msg)
+
     effective_columns = columns if columns is not None else _derive_columns(rows)
     renderer = _DATA_RENDERERS.get(fmt)
     if renderer is not None:
         return renderer(rows, effective_columns)
+
     return _render_tabulate(rows, effective_columns, fmt)
 
 
@@ -361,6 +365,7 @@ def write_output(
     if path is not None:
         Path(path).write_text(_ensure_trailing_newline(text), encoding=ENCODING_UTF8)
         return
+
     if sys.stdout.isatty() and fmt in ("json", "yaml"):
         Console().print(
             Syntax(
@@ -372,4 +377,5 @@ def write_output(
             ),
         )
         return
+
     sys.stdout.write(_ensure_trailing_newline(text))

@@ -76,6 +76,7 @@ def test_list_divisions_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_divisions(session, SEASON_ID)
+
     assert [d.id for d in result] == [DIVISION_ID, "702"]
     assert result[0].title == "U13 AAA"
     assert result[0].season_id == SEASON_ID
@@ -93,6 +94,7 @@ def test_list_divisions_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_divisions(session, SEASON_ID)
+
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
@@ -307,6 +309,7 @@ def test_list_divisions_includes_team_counts_when_requested(config: Config) -> N
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = list_divisions(session, SEASON_ID, include_team_counts=True)
+
     assert len(result) == 2
     assert result[0].id == DIVISION_ID
     assert result[0].team_count == 3
@@ -341,5 +344,6 @@ def test_list_divisions_without_team_counts_leaves_field_none(config: Config) ->
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = list_divisions(session, SEASON_ID, include_team_counts=False)
+
     assert len(result) == 1
     assert result[0].team_count is None

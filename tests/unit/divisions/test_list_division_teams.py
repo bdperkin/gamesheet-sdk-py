@@ -61,6 +61,7 @@ def _create_team_data(
     }
     if "logo_url" in kwargs:
         data["attributes"]["logo_url"] = kwargs["logo_url"]
+
     return data
 
 
@@ -89,6 +90,7 @@ def test_list_division_teams_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_division_teams(session, _DIVISION_ID)
+
     assert [t.id for t in result] == ["1001", "1002"]
     assert result[0].title == "Raleigh Raptors"
     assert result[0].season_id == SEASON_ID
@@ -115,6 +117,7 @@ def test_list_division_teams_sends_bearer_and_jsonapi_accept(config: Config) -> 
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_division_teams(session, _DIVISION_ID)
+
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
@@ -225,6 +228,7 @@ def test_list_division_teams_with_invitation_codes(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = list_division_teams(session, _DIVISION_ID)
+
     assert len(result) == 1
     assert result[0].invitation_code == "RAPTORS2024"
 
@@ -241,6 +245,7 @@ def test_list_division_teams_sends_include_invitations_param(config: Config) -> 
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_division_teams(session, _DIVISION_ID)
+
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     # Check query parameters
@@ -290,6 +295,7 @@ def test_list_division_teams_handles_invitation_as_single_object(
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = list_division_teams(session, _DIVISION_ID)
+
     assert len(result) == 1
     assert result[0].invitation_code == "SINGLE2024"
 
@@ -329,6 +335,7 @@ def test_list_division_teams_handles_missing_invitation_code_gracefully(
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = list_division_teams(session, _DIVISION_ID)
+
     assert len(result) == 1
     assert result[0].invitation_code is None
 
@@ -374,5 +381,6 @@ def test_list_division_teams_handles_malformed_invitation_data(config: Config) -
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = list_division_teams(session, _DIVISION_ID)
+
     assert len(result) == 1
     assert result[0].invitation_code is None

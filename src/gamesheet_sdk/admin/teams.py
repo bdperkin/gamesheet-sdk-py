@@ -155,7 +155,9 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
         if invitation_code:
             # Update the team with the invitation code using model_copy
             team = team.model_copy(update={"invitation_code": invitation_code})
+
         teams.append(team)
+
     return teams
 
 
@@ -238,12 +240,14 @@ def _handle_team_response_errors(
     """
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if response.status_code == 404:
         _err_msg = errors.ERROR_MSG_404_TEAM.format(
             team_id=team_id,
             season_id=season_id,
         )
         raise GameSheetError(_err_msg)
+
     if response.status_code >= 400:
         _err_msg = errors.ERROR_MSG_GENERIC_HTTP.format(
             context="",
@@ -291,6 +295,7 @@ def update_team(
     """
     if all(v is None or v is False for v in (title, external_id, division_id, logo_path, remove_logo)):
         raise ValueError(errors.ERROR_MSG_AT_LEAST_ONE_FIELD)
+
     if logo_path and remove_logo:
         raise ValueError(errors.ERROR_MSG_CANNOT_UPLOAD_AND_REMOVE_LOGO)
     # Fetch current team data to get all fields
@@ -374,6 +379,7 @@ def update_team(
                 text=repr(delete_response.text[:200]),
             )
             raise GameSheetError(_err_msg)
+
     body: dict[str, Any] = update_response.json()
     return _parse(body["data"])
 
@@ -415,6 +421,7 @@ def create_team(
     logo_url: str | None = None
     if logo_path:
         logo_url = _upload_logo(session, logo_path)
+
     create_endpoint = f"{BFF_API_BASE_URL}/dwg/seasons/{season_id}/teams"
     payload: dict[str, str | int] = {
         "title": title,
@@ -422,11 +429,14 @@ def create_team(
     }
     if external_id:
         payload["externalId"] = external_id
+
     if logo_url:
         payload["logo"] = logo_url
+
     create_response = session.post(create_endpoint, json=payload)
     if create_response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if create_response.status_code >= 400:
         _err_msg = errors.ERROR_MSG_HTTP_POST.format(
             endpoint=create_endpoint,
@@ -434,10 +444,12 @@ def create_team(
             text=repr(create_response.text[:200]),
         )
         raise GameSheetError(_err_msg)
+
     result: dict[str, Any] = create_response.json()
     if result.get("status") != "success":
         _err_msg = f"Failed to create team: {result}"
         raise GameSheetError(_err_msg)
+
     data: dict[str, Any] = result["data"]
     return data
 
@@ -470,12 +482,14 @@ def delete_team(
     )
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if response.status_code == 404:
         _err_msg = errors.ERROR_MSG_404_TEAM.format(
             team_id=team_id,
             season_id=season_id,
         )
         raise GameSheetError(_err_msg)
+
     if response.status_code >= 400:
         _err_msg = errors.ERROR_MSG_HTTP_DELETE.format(
             endpoint=endpoint,

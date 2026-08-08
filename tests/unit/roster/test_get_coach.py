@@ -48,6 +48,7 @@ def test_get_coach_returns_single_coach(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_coach(session, SEASON_ID, _coach_id)
+
     assert result.id == _coach_id
     assert result.season_id == SEASON_ID
     assert result.first_name == "Jane"
@@ -82,6 +83,7 @@ def test_get_coach_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("test-token")
         get_coach(session, SEASON_ID, _coach_id)
+
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == TEST_AUTH_HEADER

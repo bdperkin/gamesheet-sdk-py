@@ -57,6 +57,7 @@ def main() -> int:
             file=sys.stderr,
         )
         return result.returncode
+
     rprint(
         f"[bold green]✓[/bold green] API documentation generated in [cyan]{OUTPUT_DIR}[/cyan]",
     )

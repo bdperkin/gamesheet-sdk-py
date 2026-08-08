@@ -56,6 +56,7 @@ def _firebase_error_message(response: requests.Response) -> str:
         body: dict[str, Any] = response.json()
     except (ValueError, KeyError):
         return f"HTTP {response.status_code}"
+
     return extract_firebase_error(body, response.status_code)
 
 
@@ -79,6 +80,7 @@ def _firebase_sign_in(email: str, password: str, *, timeout: float) -> Any:
     if response.status_code != 200:
         _err_msg = f"Login rejected by Firebase: {_firebase_error_message(response)}"
         raise AuthenticationError(_err_msg)
+
     return response.json()["idToken"]
 
 
@@ -103,6 +105,7 @@ def _exchange_id_token(id_token: str, *, timeout: float) -> dict[str, str]:
     if response.status_code != 200:
         _err_msg = f"Teams token exchange failed (HTTP {response.status_code})."
         raise AuthenticationError(_err_msg)
+
     tokens = response.json()["tokens"]
     return {"access": tokens["access"], "refresh": tokens["refresh"]}
 
@@ -148,9 +151,11 @@ def refresh_access_token(
     if response.status_code == 401:
         _err_msg = "Refresh token rejected. Run `gamesheet-teams login` to re-authenticate."
         raise AuthenticationError(_err_msg)
+
     if response.status_code >= 400:
         _err_msg = f"Token refresh failed: HTTP {response.status_code}: {response.text[:200]!r}"
         raise GameSheetError(_err_msg)
+
     body = response.json()
     return {"access": body["access"], "refresh": body["refresh"]}
 

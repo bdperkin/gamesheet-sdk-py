@@ -92,6 +92,7 @@ def test_visible_command_rows_handles_none_command() -> None:
     def mock_get(_ctx: click.Context, name: str) -> click.Command | None:
         if name == "fake_cmd":
             return None
+
         return original_get(_ctx, name)
 
     with (
@@ -143,6 +144,7 @@ def test_shell_complete_without_super_method() -> None:
             type(super(ResourceGroup, test_group)),
         ):
             return None
+
         return original_getattr(obj, name, default)
 
     with patch("builtins.getattr", mock_getattr):

@@ -46,6 +46,7 @@ def render_get_command(
         rendered = render(rows, fmt=output_format, columns=None)
     else:
         rendered = render([data_dict], fmt=output_format, columns=None)
+
     write_output(rendered, output_path, fmt=output_format)
 
 
@@ -97,4 +98,5 @@ def render_penalty_report(
         output_text = yaml.dump(report, default_flow_style=False)
     else:
         output_text = json.dumps(report, indent=2)
+
     write_output(output_text, output_path, fmt=output_format)

@@ -58,6 +58,7 @@ def get_location(session: Session, location_id: str) -> Location:
     for loc in locations:
         if loc.id == location_id:
             return loc
+
     msg = errors.ERROR_MSG_LOCATION_NOT_FOUND.format(location_id=location_id)
     raise GameSheetError(msg)
 
@@ -81,6 +82,7 @@ def validate_location(session: Session, location: str) -> str:
     """
     if not location:
         return location
+
     locations = list_locations(session)
     location_lower = location.lower()
     for loc in locations:

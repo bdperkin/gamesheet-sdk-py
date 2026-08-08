@@ -31,9 +31,11 @@ def get_newest_source_mtime() -> float:
     """
     if not SRC_DIR.exists():
         return 0.0
+
     source_files = list(SRC_DIR.rglob("*.py"))
     if not source_files:
         return 0.0
+
     return float(max(f.stat().st_mtime for f in source_files))
 
 
@@ -45,9 +47,11 @@ def get_oldest_doc_mtime() -> float:
     """
     if not AUTOSUMMARY_DIR.exists():
         return 0.0
+
     doc_files = list(AUTOSUMMARY_DIR.glob("*.rst"))
     if not doc_files:
         return 0.0
+
     return float(min(f.stat().st_mtime for f in doc_files))
 
 
@@ -62,18 +66,21 @@ def main() -> int:
     if not newest_source:
         rprint("[bold red]ERROR:[/bold red] No source files found")
         return 1
+
     if not oldest_doc:
         rprint(
             "[bold yellow]WARNING:[/bold yellow] No API documentation "
             "found. Run: [cyan]python docs/generate_api_docs.py[/cyan]",
         )
         return 1
+
     if newest_source > oldest_doc:
         rprint(
             "[bold yellow]WARNING:[/bold yellow] Source files are newer than API documentation. "
             "Run: [cyan]python docs/generate_api_docs.py[/cyan]",
         )
         return 1
+
     rprint("[bold green]✓[/bold green] API documentation is up-to-date")
     return 0
 

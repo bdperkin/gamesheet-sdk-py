@@ -84,6 +84,7 @@ def test_list_seasons_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_seasons(session, _LEAGUE_ID)
+
     assert [s.id for s in result] == [CLI_TEST_SEASON_ID, "502"]
     assert result[0].title == "2024-2025"
     assert result[0].league_id == _LEAGUE_ID
@@ -99,6 +100,7 @@ def test_list_seasons_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_seasons(session, _LEAGUE_ID)
+
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
@@ -236,6 +238,7 @@ def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:  #
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = get_season(session, SEASON_ID)
+
     assert result.id == SEASON_ID
     assert result.title == "Test Season 2026-2027"
     assert result.association_id == "38"
@@ -304,6 +307,7 @@ def test_get_season_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("test-token")
         get_season(session, SEASON_ID)
+
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == TEST_AUTH_HEADER
@@ -388,6 +392,7 @@ def test_list_seasons_with_status_filter_uses_bff_api(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = list_seasons(session, _LEAGUE_ID, status="active")
+
     assert len(result) == 1
     assert result[0].id == SEASON_ID
     assert result[0].title == "Active Season"
@@ -424,6 +429,7 @@ def test_list_seasons_with_title_filter_uses_bff_api(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = list_seasons(session, _LEAGUE_ID, title="Raptors")
+
     assert len(result) == 1
     assert "Raptors" in result[0].title
     # Verify the filter was passed
@@ -461,6 +467,7 @@ def test_list_seasons_with_date_filters_uses_bff_api(config: Config) -> None:
             starts_after="2026-01-01",
             ends_before="2027-12-31",
         )
+
     assert len(result) == 1
     # Verify the filters were passed
     req = responses.calls[0].request
@@ -493,6 +500,7 @@ def test_list_seasons_with_stats_year_filter_uses_bff_api(config: Config) -> Non
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = list_seasons(session, _LEAGUE_ID, stats_year="2026-2027")
+
     assert len(result) == 1
     # BFF API returns Season objects which don't have stats_year field
     # Just verify we got a result and the filter was passed
@@ -585,6 +593,7 @@ def test_list_seasons_bff_api_empty_results(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = list_seasons(session, _LEAGUE_ID, status="archived")
+
     assert not result
 
 
@@ -616,5 +625,6 @@ def test_list_seasons_bff_api_data_as_dict_with_items(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = list_seasons(session, _LEAGUE_ID, status="active")
+
     assert len(result) == 1
     assert result[0].title == "Season in dict"

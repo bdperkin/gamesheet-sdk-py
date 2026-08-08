@@ -83,11 +83,13 @@ def read_state_file(path: Path) -> dict[str, Any] | None:
     """
     if not path.exists():
         return None
+
     try:
         loaded: dict[str, Any] = json.loads(path.read_text())
     except (OSError, json.JSONDecodeError):
         _LOGGER.warning("Failed to read browser storage state from %s.", path)
         return None
+
     return loaded
 
 
@@ -117,9 +119,11 @@ def lookup_local_storage(state: dict[str, Any], base_url: str, name: str) -> Any
     for origin in state.get("origins", []):
         if origin.get("origin") != base_url:
             continue
+
         for kv in origin.get("localStorage", []):
             if kv.get("name") == name:
                 return kv.get("value")
+
     return None
 
 
@@ -160,6 +164,7 @@ def load_local_storage_value(config: Config, name: str) -> str | None:
     state = read_state_file(config.browser_state_path)
     if state is None:
         return None
+
     value = lookup_local_storage(state, config.base_url, name)
     return value if isinstance(value, str) and value else None
 
@@ -188,10 +193,12 @@ def read_state_or_empty(path: Path) -> dict[str, Any]:
     empty: dict[str, Any] = {"cookies": [], "origins": []}
     if not path.exists():
         return empty
+
     try:
         loaded: dict[str, Any] = json.loads(path.read_text())
     except json.JSONDecodeError:
         return empty
+
     return loaded
 
 
@@ -221,6 +228,7 @@ def origin_entry_for(state: dict[str, Any], base_url: str) -> dict[str, Any]:
     for origin in origins:
         if origin.get("origin") == base_url:
             return origin
+
     new_entry: dict[str, Any] = {"origin": base_url, "localStorage": []}
     origins.append(new_entry)
     return new_entry

@@ -37,6 +37,7 @@ def test_upload_photo_invalid_mime_type(config: Config) -> None:
     ) as temp_file:
         temp_file.write("not an image")
         temp_path = temp_file.name
+
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(GameSheetError, match="Invalid image file"):
