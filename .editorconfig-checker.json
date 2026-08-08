@@ -1,11 +1,4 @@
 {
-  "__comment__": "==============================================================================",
-  "__comment__ ": "EditorConfig Checker Configuration",
-  "__comment__  ": "==============================================================================",
-  "__comment__   ": "Verifies that files adhere to the rules defined in .editorconfig.",
-  "__comment__    ": "Used in pre-commit hooks and CI workflows.",
-  "__comment__     ": "See: https://editorconfig-checker.github.io/",
-  "__comment__      ": "==============================================================================",
   "Exclude": [
     "\\.git",
     "\\.venv",
@@ -31,6 +24,13 @@
     "tests/cassettes"
   ],
   "__comment_Exclude": "Patterns to exclude from EditorConfig checking (regex-based)",
+  "__comment__": "==============================================================================",
+  "__comment__ ": "EditorConfig Checker Configuration",
+  "__comment__  ": "==============================================================================",
+  "__comment__   ": "Verifies that files adhere to the rules defined in .editorconfig.",
+  "__comment__    ": "Used in pre-commit hooks and CI workflows.",
+  "__comment__     ": "See: https://editorconfig-checker.github.io/",
+  "__comment__      ": "==============================================================================",
   "__comment_note1": "Backslashes must be escaped in JSON strings (\\. for literal dot)",
   "__comment_note2": "Common exclusions: build dirs, caches, generated files, third-party code",
   "__comment_note3": "Sphinx templates are excluded because they have specific formatting needs"

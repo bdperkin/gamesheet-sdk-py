@@ -431,6 +431,21 @@ repos:
           - text
         require_serial: true
 
+  - repo: https://github.com/jsh9/format-json
+    rev: 0.1.2
+    hooks:
+      - id: format-json
+        name: Format JSON files
+        description: Formats JSON files to some pre-configured style
+        entry: format-json
+        language: python
+        types:
+          - json
+        exclude_types:
+          - jupyter
+        args:
+          - --autofix
+
   - repo: https://github.com/lyz-code/yamlfix
     rev: 1.19.1
     hooks:

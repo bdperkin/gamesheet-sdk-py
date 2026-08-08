@@ -93,6 +93,14 @@ categories:
       - name: editorconfig-checker.python
         repo: https://github.com/editorconfig-checker/editorconfig-checker.python
 
+      - name: format-json
+        repo: https://github.com/jsh9/format-json
+        hooks:
+          - id: format-json
+            prepends:
+              args:
+                - --autofix
+
       - name: yamlfix
         repo: https://github.com/lyz-code/yamlfix
 
