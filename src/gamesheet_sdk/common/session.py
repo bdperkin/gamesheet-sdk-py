@@ -72,9 +72,19 @@ class Session:
             resp.raise_for_status()
     The context-manager form persists cookies on exit. If you do not use
     ``with``, call :meth:`Session.close` explicitly to save state.
+
+    Constructs a :class:`requests.Session` with automatic retry logic, a version-stamped User-Agent, and
+    restores any previously-saved cookies from disk. The session is ready for immediate use after
+    construction.
+
+    Args:
+        config (Config | None): Optional configuration object. If
+            ``None``, a default
+            :class:`~gamesheet_sdk.common.config.Config` is created.
     """
 
     # -- internals --------------------------------------------------------
+
     def _build_http_session(self: Session) -> requests.Session:
         """Construct and configure the underlying :class:`requests.Session`.
 
@@ -159,17 +169,6 @@ class Session:
             self._http.cookies.set(**cookie_dict)
 
     def __init__(self: Session, config: Config | None = None) -> None:
-        """Initialize an HTTP session configured for GameSheet WebUI access.
-
-        Constructs a :class:`requests.Session` with automatic retry logic, a version-stamped User-Agent, and
-        restores any previously-saved cookies from disk. The session is ready for immediate use after
-        construction.
-
-        Args:
-            config (Config | None): Optional configuration object. If
-                ``None``, a default
-                :class:`~gamesheet_sdk.common.config.Config` is created.
-        """
         self.config = config or Config()
         self._http = self._build_http_session()
         self._load_cookies()

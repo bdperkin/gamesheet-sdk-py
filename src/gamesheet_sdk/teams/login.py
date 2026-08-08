@@ -179,15 +179,15 @@ class TeamsLoginFlow:
         flow = TeamsLoginFlow(config)
         tokens = flow.authenticate(email="user@example.com", password="secret")
         print(tokens["access"])
+
+    Store the configuration for credential resolution and token persistence.
+
+    Args:
+        config (Config): SDK configuration (credentials, URLs,
+            storage paths).
     """
 
     def __init__(self: TeamsLoginFlow, config: Config) -> None:
-        """Store the configuration for credential resolution and token persistence.
-
-        Args:
-            config (Config): SDK configuration (credentials, URLs,
-                storage paths).
-        """
         self._config = config
 
     def authenticate(

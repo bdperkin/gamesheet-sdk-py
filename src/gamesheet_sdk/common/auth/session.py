@@ -31,6 +31,20 @@ class BaseAuthenticatedSession(Session, ABC):
     ``on_refresh`` with the new token bundle, and retries the original request *once*. Both 401 and 403 are
     treated as authentication failures because different GameSheet API endpoints use different status codes
     for expired tokens. If the refresh itself fails the original response propagates to the caller.
+
+    Args:
+        config (Config | None): Optional configuration object. If
+            ``None``, a default
+            :class:`~gamesheet_sdk.common.config.Config` is created.
+        access_token (str): Current access token to use as the
+            bearer in the ``Authorization`` header.
+        refresh_token (str): Refresh token used to renew the access
+            token on 401/403 responses.
+        on_refresh (OnRefreshCallback | None): Optional callback
+            invoked with a token dict after a successful token
+            refresh. Use this to persist the new tokens to disk
+            (e.g. via
+            :func:`~gamesheet_sdk.common.auth.tokens.save_tokens`).
     """
 
     def __init__(
@@ -41,22 +55,6 @@ class BaseAuthenticatedSession(Session, ABC):
         refresh_token: str,
         on_refresh: OnRefreshCallback | None = None,
     ) -> None:
-        """Initialize an authenticated session with token auto-refresh on 401/403.
-
-        Args:
-            config (Config | None): Optional configuration object. If
-                ``None``, a default
-                :class:`~gamesheet_sdk.common.config.Config` is created.
-            access_token (str): Current access token to use as the
-                bearer in the ``Authorization`` header.
-            refresh_token (str): Refresh token used to renew the access
-                token on 401/403 responses.
-            on_refresh (OnRefreshCallback | None): Optional callback
-                invoked with a token dict after a successful token
-                refresh. Use this to persist the new tokens to disk
-                (e.g. via
-                :func:`~gamesheet_sdk.common.auth.tokens.save_tokens`).
-        """
         super().__init__(config)
         self._refresh_token = refresh_token
         self._on_refresh = on_refresh

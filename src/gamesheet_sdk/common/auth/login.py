@@ -428,15 +428,15 @@ class AdminLoginFlow:
         flow = AdminLoginFlow(config)
         tokens = flow.authenticate(email="user@example.com")
         print(tokens["access"])
+
+    Store the configuration for later browser-session creation.
+
+    Args:
+        config (Config): SDK configuration (credentials, URLs,
+            storage paths).
     """
 
     def __init__(self: AdminLoginFlow, config: Config) -> None:
-        """Store the configuration for later browser-session creation.
-
-        Args:
-            config (Config): SDK configuration (credentials, URLs,
-                storage paths).
-        """
         self._config = config
 
     def authenticate(

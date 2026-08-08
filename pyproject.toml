@@ -1280,6 +1280,38 @@ exclude = [
 blank = false
 style = "google"
 
+## ## pydoclint - Docstring linter that checks arguments, returns, yields, and raises sections
+[tool.pydoclint]
+quiet = "False"
+exclude = ".git|.tox|.pytest_cache|tests"
+style = "google"
+arg-type-hints-in-docstring = "True"
+arg-type-hints-in-signature = "True"
+check-arg-order = "True"
+skip-checking-short-docstrings = "False"
+skip-checking-raises = "True"
+skip-checking-private-functions = "True"
+allow-init-docstring = "True"
+require-return-section-when-returning-nothing = "False"
+check-return-types = "True"
+require-yield-section-when-yielding-nothing = "True"
+check-yield-types = "True"
+ignore-underscore-args = "True"
+ignore-private-args = "True"
+check-class-attributes = "False"
+should-document-private-class-attributes = "False"
+treat-property-methods-as-class-attributes = "False"
+only-attrs-with-ClassVar-are-treated-as-class-attrs = "False"
+require-inline-class-var-docs = "True"
+should-document-star-arguments = "True"
+omit-stars-when-documenting-varargs = "True"
+check-style-mismatch = "True"
+check-arg-defaults = "False"
+generate-baseline = "False"
+auto-regenerate-baseline = "True"
+show-filenames-in-every-violation-message = "True"
+native-mode-noqa-location = "definition"
+
 ## ## interrogate - Docstring coverage checker
 [tool.interrogate]
 fail-under = 100

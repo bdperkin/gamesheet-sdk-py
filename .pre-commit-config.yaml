@@ -827,6 +827,30 @@ repos:
         require_serial: true
         pass_filenames: false
 
+  - repo: https://github.com/jsh9/pydoclint
+    rev: 0.9.1
+    hooks:
+      - id: pydoclint
+        name: pydoclint
+        description: A Python docstring linter that checks arguments, returns, yields, and raises sections
+        entry: pydoclint
+        language: python
+        types:
+          - python
+        require_serial: true
+      - id: pydoclint-flake8
+        name: pydoclint-flake8
+        description: Run `pydoclint` as a `flake8` plugin
+        entry: flake8
+        args:
+          - --select=DOC
+        language: python
+        types:
+          - python
+        require_serial: true
+        additional_dependencies:
+          - flake8==7.3.0
+
   - repo: https://github.com/pycqa/pydocstyle
     rev: 6.3.0
     hooks:

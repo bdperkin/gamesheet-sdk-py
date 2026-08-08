@@ -77,6 +77,28 @@ class ResourceGroup(click.RichGroup):
     **Default sub-command:**
         Pass ``default="list"`` and a bare invocation of the group implicitly runs
         ``list``. Explicit sub-command calls still flow through normally.
+
+    Constructs a :class:`click.RichGroup` and configures command aliases and a default sub-command
+    behavior. The alias mapping is flattened at construction time from ``{canonical: (alias1, alias2,
+    ...)}`` into ``{alias1: canonical, alias2: canonical, ...}`` for O(1) lookup during command
+    resolution.
+
+    Args:
+        *args (Any): Positional arguments forwarded to the decorated
+            function.
+        default (str | None): Name of the sub-command to invoke when
+            the group is called with no arguments. For example,
+            ``default="list"`` makes a bare ``gamesheet-admin
+            associations`` implicitly run ``associations list``.
+        aliases (Mapping[str, Iterable[str]] | None): Mapping of
+            canonical command names to their aliases. For example,
+            ``{"list": ("ls",), "delete": ("rm", "remove")}`` allows
+            ``ls`` to resolve to ``list`` and both ``rm`` and
+            ``remove`` to resolve to ``delete``. Aliases appear in
+            parentheses next to the canonical name in ``--help``
+            output and are included in tab-completion results.
+        **kwargs (Any): Keyword arguments forwarded to the decorated
+            function.
     """
 
     def __init__(
@@ -86,30 +108,6 @@ class ResourceGroup(click.RichGroup):
         aliases: Mapping[str, Iterable[str]] | None = None,
         **kwargs: Any,
     ) -> None:
-        """Initialize a ResourceGroup with alias support and an optional default sub-command.
-
-        Constructs a :class:`click.RichGroup` and configures command aliases and a default sub-command
-        behavior. The alias mapping is flattened at construction time from ``{canonical: (alias1, alias2,
-        ...)}`` into ``{alias1: canonical, alias2: canonical, ...}`` for O(1) lookup during command
-        resolution.
-
-        Args:
-            *args (Any): Positional arguments forwarded to the decorated
-                function.
-            default (str | None): Name of the sub-command to invoke when
-                the group is called with no arguments. For example,
-                ``default="list"`` makes a bare ``gamesheet-admin
-                associations`` implicitly run ``associations list``.
-            aliases (Mapping[str, Iterable[str]] | None): Mapping of
-                canonical command names to their aliases. For example,
-                ``{"list": ("ls",), "delete": ("rm", "remove")}`` allows
-                ``ls`` to resolve to ``list`` and both ``rm`` and
-                ``remove`` to resolve to ``delete``. Aliases appear in
-                parentheses next to the canonical name in ``--help``
-                output and are included in tab-completion results.
-            **kwargs (Any): Keyword arguments forwarded to the decorated
-                function.
-        """
         super().__init__(*args, **kwargs)
         self.default_cmd_name = default
         # Flatten {canonical: (alt, ...)} into {alt: canonical} for O(1)

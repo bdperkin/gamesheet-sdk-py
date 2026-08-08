@@ -103,15 +103,13 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
         4. Build hook configuration (discovery + fetch + process)
         5. Per-repo incremental validation
         6. Final validation
-    """
-
-    def __init__(self: PreCommitGenerator, run_config: RunConfig) -> None:
-        """Initialize the generator with a run configuration.
 
         Args:
             run_config (RunConfig): Runtime configuration for the
                 generation pipeline.
-        """
+    """
+
+    def __init__(self: PreCommitGenerator, run_config: RunConfig) -> None:  # noqa: DOC101, DOC103
         self.run_config = run_config
         self.tool_config: ToolConfig | None = None
         self.repos: list[dict[str, Any]] = []

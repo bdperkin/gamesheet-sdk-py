@@ -48,21 +48,19 @@ class BrowserSession:
         with BrowserSession(Config()) as bs:
             page = bs.goto("/login")
             page.fill("input[name='email']", "...")
+
+    Stores the configuration and sets up internal state for lazy browser initialization. Playwright and
+    Chromium are only launched when :attr:`context` or :meth:`goto` is first accessed. This makes
+    construction cheap and allows sessions that never reach for the browser (e.g. configuration-only runs)
+    to avoid the startup overhead.
+
+    Args:
+        config (Config | None): Optional configuration object. If
+            ``None``, a default
+            :class:`~gamesheet_sdk.common.config.Config` is created.
     """
 
     def __init__(self: BrowserSession, config: Config | None = None) -> None:
-        """Initialize a browser session without starting Playwright.
-
-        Stores the configuration and sets up internal state for lazy browser initialization. Playwright and
-        Chromium are only launched when :attr:`context` or :meth:`goto` is first accessed. This makes
-        construction cheap and allows sessions that never reach for the browser (e.g. configuration-only runs)
-        to avoid the startup overhead.
-
-        Args:
-            config (Config | None): Optional configuration object. If
-                ``None``, a default
-                :class:`~gamesheet_sdk.common.config.Config` is created.
-        """
         self.config = config or Config()
         self._playwright: Playwright | None = None
         self._browser: Browser | None = None
