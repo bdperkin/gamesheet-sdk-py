@@ -1,5 +1,29 @@
 # Configure Release Token for Automated Releases
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Why This Is Needed](#1-why-this-is-needed)
+- [2. Solution: Use a Personal Access Token](#2-solution-use-a-personal-access-token)
+- [3. Setup Steps](#3-setup-steps)
+  - [3.1. Create Fine-Grained Personal Access Token](#31-create-fine-grained-personal-access-token)
+  - [3.2. Add Token as Repository Secret](#32-add-token-as-repository-secret)
+  - [3.3. Verify Workflow Configuration](#33-verify-workflow-configuration)
+- [4. Testing](#4-testing)
+- [5. Token Renewal](#5-token-renewal)
+- [6. Security Considerations](#6-security-considerations)
+- [7. Alternative: GitHub App (More Secure)](#7-alternative-github-app-more-secure)
+- [8. Troubleshooting](#8-troubleshooting)
+  - [8.1. Workflow Still Fails with "Protected branch update failed"](#81-workflow-still-fails-with-protected-branch-update-failed)
+  - [8.2. Token Expired](#82-token-expired)
+  - [8.3. Workflow Can't Find Secret](#83-workflow-cant-find-secret)
+- [9. References](#9-references)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 This guide explains how to set up a Personal Access Token (PAT) to allow the automated release workflow to bypass branch protection rules.
 
 ## 1. Why This Is Needed

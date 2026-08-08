@@ -1,5 +1,34 @@
 # gamesheet-sdk-py
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. ⚠️ Disclaimer](#1--disclaimer)
+- [2. Quick Links](#2-quick-links)
+- [3. Features](#3-features)
+- [4. Requirements](#4-requirements)
+- [5. Installation](#5-installation)
+  - [5.1. Via PyPI](#51-via-pypi)
+  - [5.2. Via Docker](#52-via-docker)
+  - [5.3. From Source](#53-from-source)
+- [6. Available Resources](#6-available-resources)
+- [7. Quick Start](#7-quick-start)
+  - [7.1. CLI](#71-cli)
+  - [7.2. Python API](#72-python-api)
+- [8. Configuration](#8-configuration)
+- [9. Documentation](#9-documentation)
+- [10. Project Status](#10-project-status)
+- [11. Contributing](#11-contributing)
+- [12. Security](#12-security)
+- [13. License](#13-license)
+- [14. Support](#14-support)
+- [15. Links](#15-links)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 > **Unofficial** Python SDK and command-line interface for the [GameSheet Inc.](https://gamesheetinc.com) platform.
 
 <!-- Build & Quality -->
@@ -324,7 +353,7 @@ ______________________________________________________________________
 
 Full documentation is available at **<https://bdperkin.github.io/gamesheet-sdk-py/>**
 
-The docs follow the [Diátaxis](https://diataxis.fr/) framework:
+The docs follow the [Diataxis](https://diataxis.fr/) framework:
 
 - **[Tutorials](docs/tutorials/)** — Step-by-step learning guides
 - **[How-To Guides](docs/how-to/)** — Task-oriented recipes

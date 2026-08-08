@@ -1,5 +1,15 @@
 # Reference
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Authoring guidance](#1-authoring-guidance)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 > Reference guides are **technical descriptions of the machinery and how to operate it**. They are information-oriented, austere, and to the point.
 >
 > — [diataxis.fr/reference](https://diataxis.fr/reference/)

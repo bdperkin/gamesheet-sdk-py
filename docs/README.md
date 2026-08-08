@@ -1,5 +1,35 @@
 # Documentation
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Quick start](#1-quick-start)
+- [2. Architecture](#2-architecture)
+  - [2.1. Automatic API documentation](#21-automatic-api-documentation)
+    - [2.1.1. How it works](#211-how-it-works)
+    - [2.1.2. When API docs are regenerated](#212-when-api-docs-are-regenerated)
+    - [2.1.3. Freshness checking](#213-freshness-checking)
+  - [2.2. CLI documentation](#22-cli-documentation)
+  - [2.3. Custom templates](#23-custom-templates)
+- [3. Directory structure](#3-directory-structure)
+- [4. Diataxis framework](#4-diataxis-framework)
+- [5. Building documentation](#5-building-documentation)
+  - [5.1. Local builds](#51-local-builds)
+  - [5.2. Using tox](#52-using-tox)
+- [6. CI/CD](#6-cicd)
+- [7. Configuration](#7-configuration)
+- [8. Troubleshooting](#8-troubleshooting)
+  - [8.1. API docs out of date](#81-api-docs-out-of-date)
+  - [8.2. Missing modules in API reference](#82-missing-modules-in-api-reference)
+  - [8.3. Sphinx warnings](#83-sphinx-warnings)
+  - [8.4. Import errors during build](#84-import-errors-during-build)
+- [9. References](#9-references)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 This directory contains the Sphinx-based documentation for gamesheet-sdk-py.
 
 ## 1. Quick start
@@ -99,9 +129,9 @@ docs/
 └── explanation/                       # Understanding-oriented guides
 ```
 
-## 4. Diátaxis framework
+## 4. Diataxis framework
 
-Documentation is organized using the [Diátaxis framework](https://diataxis.fr/):
+Documentation is organized using the [Diataxis framework](https://diataxis.fr/):
 
 - **Tutorials** (`tutorials/`) - Learning-oriented, step-by-step lessons
 - **How-to guides** (`how-to/`) - Task-oriented, goal-focused recipes
@@ -247,4 +277,4 @@ pip install -e ".[docs]"
 - [sphinx-click](https://sphinx-click.readthedocs.io/)
 - [MyST Parser](https://myst-parser.readthedocs.io/)
 - [Furo theme](https://pradyunsg.me/furo/)
-- [Diátaxis framework](https://diataxis.fr/)
+- [Diataxis framework](https://diataxis.fr/)

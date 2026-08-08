@@ -1,5 +1,30 @@
 # Command-line Interface
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Rich Help Output](#1-rich-help-output)
+- [2. Admin CLI](#2-admin-cli)
+- [3. Teams CLI](#3-teams-cli)
+- [4. Usage Examples](#4-usage-examples)
+  - [4.1. Basic authentication](#41-basic-authentication)
+  - [4.2. Listing resources](#42-listing-resources)
+  - [4.3. Output formats](#43-output-formats)
+  - [4.4. Verbose logging](#44-verbose-logging)
+  - [4.5. Browser visibility](#45-browser-visibility)
+  - [4.6. Shell completion](#46-shell-completion)
+- [5. Return Codes](#5-return-codes)
+- [6. Environment Variables](#6-environment-variables)
+  - [6.1. Supported variables](#61-supported-variables)
+  - [6.2. Example usage](#62-example-usage)
+- [7. Configuration File Support](#7-configuration-file-support)
+- [8. See also](#8-see-also)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 The package installs two console scripts:
 
 - **`gamesheet-admin`** — CLI for the GameSheet admin dashboard (entry point: {func}`gamesheet_sdk.admin.cli.main.main`)

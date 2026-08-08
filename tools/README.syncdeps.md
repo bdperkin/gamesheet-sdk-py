@@ -1,5 +1,38 @@
 # syncdeps
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Overview](#1-overview)
+- [2. Architecture](#2-architecture)
+  - [2.1. Execution Pipeline](#21-execution-pipeline)
+- [3. Prerequisites](#3-prerequisites)
+  - [3.1. Python Version](#31-python-version)
+  - [3.2. Python Packages](#32-python-packages)
+- [4. Usage](#4-usage)
+  - [4.1. Basic Usage](#41-basic-usage)
+  - [4.2. Dry Run (Preview Only)](#42-dry-run-preview-only)
+  - [4.3. Debug Logging](#43-debug-logging)
+  - [4.4. CLI Options](#44-cli-options)
+- [5. Convergence Algorithm](#5-convergence-algorithm)
+  - [5.1. Shared Main Hooks](#51-shared-main-hooks)
+  - [5.2. Shared Additional Dependencies](#52-shared-additional-dependencies)
+  - [5.3. PyPI-Only Dependencies](#53-pypi-only-dependencies)
+  - [5.4. Pre-commit-Only Repos](#54-pre-commit-only-repos)
+  - [5.5. Pre-commit-Only Additional Dependencies](#55-pre-commit-only-additional-dependencies)
+  - [5.6. Version Prefix Preservation](#56-version-prefix-preservation)
+  - [5.7. Filtered Dependencies](#57-filtered-dependencies)
+- [6. Exception Hierarchy](#6-exception-hierarchy)
+- [7. Dependencies](#7-dependencies)
+- [8. Troubleshooting](#8-troubleshooting)
+- [9. Related Tools](#9-related-tools)
+- [10. Files](#10-files)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 ## 1. Overview
 
 `syncdeps` performs **bidirectional dependency convergence** between `pyproject.toml` and `.pre-commit-config.yaml`. It ensures that pinned versions in both

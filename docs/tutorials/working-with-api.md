@@ -1,5 +1,28 @@
 # Working with the API
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. What you will need](#1-what-you-will-need)
+- [2. Step 1 — Create a script file](#2-step-1--create-a-script-file)
+- [3. Step 2 — Import the SDK modules](#3-step-2--import-the-sdk-modules)
+- [4. Step 3 — Load the access token](#4-step-3--load-the-access-token)
+- [5. Step 4 — Create an authenticated session](#5-step-4--create-an-authenticated-session)
+- [6. Step 5 — Fetch and print associations](#6-step-5--fetch-and-print-associations)
+- [7. Step 6 — Run the script](#7-step-6--run-the-script)
+- [8. Step 7 — Fetch leagues for each association](#8-step-7--fetch-leagues-for-each-association)
+- [9. Step 8 — Fetch seasons for each league](#9-step-8--fetch-seasons-for-each-league)
+- [10. Step 9 — Access model attributes](#10-step-9--access-model-attributes)
+- [11. Step 10 — Handle errors](#11-step-10--handle-errors)
+- [12. Step 11 — Use the Config class](#12-step-11--use-the-config-class)
+- [13. You're done](#13-youre-done)
+- [14. Where to go next](#14-where-to-go-next)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 By the end of this tutorial you will have written a Python script that authenticates against GameSheet, retrieves data from multiple resources (associations,
 leagues, seasons), and processes the results programmatically.
 

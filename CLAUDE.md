@@ -1,5 +1,19 @@
 # CLAUDE.md
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Project nature](#1-project-nature)
+- [2. Common commands](#2-common-commands)
+  - [2.1. Makefile shortcuts](#21-makefile-shortcuts)
+  - [2.2. Tox](#22-tox)
+- [3. Architecture notes](#3-architecture-notes)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## 1. Project nature
@@ -268,17 +282,17 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 
   - `conf.py` — Sphinx configuration
   - `index.md` — documentation homepage
-  - `tutorials/` — learning-oriented guides (Diátaxis)
+  - `tutorials/` — learning-oriented guides (Diataxis)
   - `how-to/` — task-oriented guides (development-setup, release-process)
   - `reference/` — information-oriented reference (API, CLI, configuration)
-  - `explanation/` — understanding-oriented explanations (architecture, design decisions, Diátaxis primer)
+  - `explanation/` — understanding-oriented explanations (architecture, design decisions, Diataxis primer)
   - `security/` — security policies and guidelines
   - `_static/` — static assets (CSS, images)
   - `_templates/` — custom Sphinx templates
   - `generate_api_docs.py` — script to generate API documentation
   - `check_api_freshness.py` — script to check if API docs are up-to-date
 
-- **Documentation organization — Diátaxis.** Every doc page belongs to exactly one of four quadrants under `docs/`: `tutorials/` (learning-oriented), `how-to/`
+- **Documentation organization — Diataxis.** Every doc page belongs to exactly one of four quadrants under `docs/`: `tutorials/` (learning-oriented), `how-to/`
   (task-oriented), `reference/` (information-oriented), or `explanation/` (understanding-oriented). When adding a page, pick the quadrant by asking _what is the
   reader's need?_, not _what is the topic?_ — a topic may have a page in more than one quadrant (e.g. an "auth" how-to _and_ an "auth" reference page). The
   `docs/explanation/diataxis.md` page is the in-tree primer; the canonical source is [diataxis.fr](https://diataxis.fr/).

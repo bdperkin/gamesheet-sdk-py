@@ -1736,6 +1736,19 @@ number = true
 validate = true
 wrap = 160
 
+## ## markdown-toc-creator - Create table of contents for markdown files
+[tool.markdown_toc_creator]
+proactive = "True"
+style = "github"
+exclude = ".git|.tox|.pytest_cache|CHANGELOG.md"
+in-place = "True"
+quiet = "False"
+skip-first-n-lines = 1
+add-toc-title = "False"
+toc-title = "Table of Contents"
+add-horizontal-rules = "True"
+horizontal-rule-style = "mdformat"
+
 ## ---------------------------------------------------------------------------------------------------------------------
 ## Python
 ## ---------------------------------------------------------------------------------------------------------------------

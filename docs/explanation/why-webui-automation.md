@@ -1,5 +1,21 @@
 # Why the SDK automates the WebUI
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. The starting point: there is no public API](#1-the-starting-point-there-is-no-public-api)
+- [2. What we gain](#2-what-we-gain)
+- [3. What it costs](#3-what-it-costs)
+- [4. The HTTP-first, browser-only-when-required strategy](#4-the-http-first-browser-only-when-required-strategy)
+- [5. What this means for you, the user](#5-what-this-means-for-you-the-user)
+- [6. Alternatives we are not pursuing](#6-alternatives-we-are-not-pursuing)
+- [7. Further reading](#7-further-reading)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 The single most consequential design choice in `gamesheet-sdk-py` is that it does not call a GameSheet API — it drives the GameSheet web interface from the
 outside, like a very patient and very fast user would. This page explains why, what that costs, and the assumptions that follow from it.
 

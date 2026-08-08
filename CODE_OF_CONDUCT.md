@@ -1,5 +1,25 @@
 # Contributor Covenant Code of Conduct
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Our Pledge](#1-our-pledge)
+- [2. Our Standards](#2-our-standards)
+- [3. Enforcement Responsibilities](#3-enforcement-responsibilities)
+- [4. Scope](#4-scope)
+- [5. Enforcement](#5-enforcement)
+- [6. Enforcement Guidelines](#6-enforcement-guidelines)
+  - [6.1. Correction](#61-correction)
+  - [6.2. Warning](#62-warning)
+  - [6.3. Temporary Ban](#63-temporary-ban)
+  - [6.4. Permanent Ban](#64-permanent-ban)
+- [7. Attribution](#7-attribution)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 ## 1. Our Pledge
 
 We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone, regardless of age, body size,

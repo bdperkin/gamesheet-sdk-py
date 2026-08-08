@@ -1,8 +1,20 @@
 # Why these docs are organized into four quadrants
 
-This project's documentation is structured following the [Diátaxis framework](https://diataxis.fr/), authored by Daniele Procida.
+<!--TOC-->
 
-Diátaxis observes that effective technical documentation serves four _distinct_ user needs that cannot be merged without harm:
+______________________________________________________________________
+
+- [1. Why this matters](#1-why-this-matters)
+- [2. How to choose a quadrant](#2-how-to-choose-a-quadrant)
+- [3. Further reading](#3-further-reading)
+
+______________________________________________________________________
+
+<!--TOC-->
+
+This project's documentation is structured following the [Diataxis framework](https://diataxis.fr/), authored by Daniele Procida.
+
+Diataxis observes that effective technical documentation serves four _distinct_ user needs that cannot be merged without harm:
 
 |                      | **Practical steps** | **Theoretical knowledge** |
 | -------------------- | ------------------- | ------------------------- |

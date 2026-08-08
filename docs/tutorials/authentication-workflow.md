@@ -1,5 +1,23 @@
 # Authentication workflow
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. What you will need](#1-what-you-will-need)
+- [2. Step 1 — Run the login command](#2-step-1--run-the-login-command)
+- [3. Step 2 — Wait for the login to complete](#3-step-2--wait-for-the-login-to-complete)
+- [4. Step 3 — Verify the tokens were saved](#4-step-3--verify-the-tokens-were-saved)
+- [5. Step 4 — Use the access token from the CLI](#5-step-4--use-the-access-token-from-the-cli)
+- [6. Step 5 — Use the access token from Python](#6-step-5--use-the-access-token-from-python)
+- [7. Step 6 — Use environment variables instead of interactive prompts](#7-step-6--use-environment-variables-instead-of-interactive-prompts)
+- [8. You're done](#8-youre-done)
+- [9. Where to go next](#9-where-to-go-next)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 By the end of this tutorial you will have logged in to GameSheet using the SDK, stored your credentials securely, and verified that the authentication tokens
 work both from the CLI and from Python.
 

@@ -1,5 +1,20 @@
 # Configuration Reference
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Environment Variables](#1-environment-variables)
+- [2. Usage Examples](#2-usage-examples)
+  - [2.1. Python API](#21-python-api)
+  - [2.2. CLI](#22-cli)
+- [3. Session Storage](#3-session-storage)
+- [4. SSL/TLS Verification](#4-ssltls-verification)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 The `gamesheet-sdk-py` package uses `pydantic-settings` for configuration management. Values resolve in this order:
 
 1. Keyword arguments passed to `Config(...)` (or CLI flags like `--base-url`)

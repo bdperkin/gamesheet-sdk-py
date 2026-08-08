@@ -1,5 +1,28 @@
 # Getting Help with gamesheet-sdk-py
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Documentation](#1-documentation)
+- [2. Common Issues](#2-common-issues)
+  - [2.1. Authentication Problems](#21-authentication-problems)
+  - [2.2. Installation Issues](#22-installation-issues)
+  - [2.3. Import Errors](#23-import-errors)
+  - [2.4. Test Failures](#24-test-failures)
+- [3. Asking Questions](#3-asking-questions)
+  - [3.1. GitHub Discussions (Preferred)](#31-github-discussions-preferred)
+  - [3.2. GitHub Issues](#32-github-issues)
+- [4. Contributing](#4-contributing)
+- [5. Response Times](#5-response-times)
+- [6. Project Status](#6-project-status)
+- [7. Additional Resources](#7-additional-resources)
+- [8. Related Projects](#8-related-projects)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 This document provides resources for getting help with the GameSheet SDK for Python.
 
 ## 1. Documentation

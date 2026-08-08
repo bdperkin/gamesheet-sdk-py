@@ -1,5 +1,37 @@
 # Security Policy
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Project Status](#1-project-status)
+- [2. Supported Versions](#2-supported-versions)
+- [3. Reporting a Vulnerability](#3-reporting-a-vulnerability)
+  - [3.1. Reporting Channel](#31-reporting-channel)
+  - [3.2. What to Include](#32-what-to-include)
+  - [3.3. Response Timeline](#33-response-timeline)
+  - [3.4. Disclosure Policy](#34-disclosure-policy)
+  - [3.5. Security Advisory Process](#35-security-advisory-process)
+- [4. Scope](#4-scope)
+  - [4.1. In Scope](#41-in-scope)
+  - [4.2. Out of Scope](#42-out-of-scope)
+- [5. Security Best Practices](#5-security-best-practices)
+  - [5.1. Credential Storage](#51-credential-storage)
+  - [5.2. API Key Handling](#52-api-key-handling)
+  - [5.3. Dependency Updates](#53-dependency-updates)
+  - [5.4. Network Security](#54-network-security)
+- [6. Known Security Limitations](#6-known-security-limitations)
+  - [6.1. WebUI Automation Dependency](#61-webui-automation-dependency)
+  - [6.2. Alpha Status](#62-alpha-status)
+- [7. Security-Related CI/CD](#7-security-related-cicd)
+- [8. PGP Key for Encrypted Reports](#8-pgp-key-for-encrypted-reports)
+- [9. Vulnerability Acceptance](#9-vulnerability-acceptance)
+- [10. Contact](#10-contact)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 ## 1. Project Status
 
 This project is in **alpha** status. The API and internal implementation are subject to breaking changes without prior notice. Security fixes are prioritized,

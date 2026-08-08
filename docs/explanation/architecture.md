@@ -1,5 +1,55 @@
 # Architecture Overview
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. System Design](#1-system-design)
+- [2. Component Relationships](#2-component-relationships)
+  - [2.1. Core Components](#21-core-components)
+    - [2.1.1. Configuration (`common/config.py`)](#211-configuration--commonconfigpy)
+    - [2.1.2. Session Layer](#212-session-layer)
+    - [2.1.3. Authentication (`common/auth/`)](#213-authentication--commonauth)
+    - [2.1.4. Domain Modules (`admin/`)](#214-domain-modules--admin)
+    - [2.1.5. CLI Layer](#215-cli-layer)
+- [3. Data Flow](#3-data-flow)
+  - [3.1. Typical Read Operation (GET)](#31-typical-read-operation-get)
+  - [3.2. Authenticated Operation with Auto-Refresh](#32-authenticated-operation-with-auto-refresh)
+  - [3.3. Browser-Based Operation](#33-browser-based-operation)
+- [4. Design Decisions](#4-design-decisions)
+  - [4.1. Why Both HTTP and Browser?](#41-why-both-http-and-browser)
+  - [4.2. Why Three Pillars?](#42-why-three-pillars)
+  - [4.3. Why Pydantic Models?](#43-why-pydantic-models)
+  - [4.4. Why Click for CLI?](#44-why-click-for-cli)
+  - [4.5. Why src/ Layout?](#45-why-src-layout)
+  - [4.6. Why 100% Test Coverage?](#46-why-100-test-coverage)
+  - [4.7. Why Complexity Gate (Grade A)?](#47-why-complexity-gate-grade-a)
+- [5. Extension Points](#5-extension-points)
+  - [5.1. Adding a New Admin Domain Module](#51-adding-a-new-admin-domain-module)
+  - [5.2. Adding a New CLI Verb](#52-adding-a-new-cli-verb)
+  - [5.3. Adding Teams Domain Modules](#53-adding-teams-domain-modules)
+  - [5.4. Adding a New Output Format](#54-adding-a-new-output-format)
+- [6. Testing Strategy](#6-testing-strategy)
+  - [6.1. Test Organization](#61-test-organization)
+  - [6.2. Test Categories](#62-test-categories)
+  - [6.3. Test Markers](#63-test-markers)
+- [7. Security Considerations](#7-security-considerations)
+  - [7.1. Token Storage](#71-token-storage)
+  - [7.2. Browser State](#72-browser-state)
+  - [7.3. Secrets in Logs](#73-secrets-in-logs)
+- [8. Performance Characteristics](#8-performance-characteristics)
+  - [8.1. HTTP Operations](#81-http-operations)
+  - [8.2. Browser Operations](#82-browser-operations)
+  - [8.3. Token Refresh](#83-token-refresh)
+- [9. Future Directions](#9-future-directions)
+  - [9.1. Planned Features](#91-planned-features)
+  - [9.2. API Stability](#92-api-stability)
+- [10. Related Documentation](#10-related-documentation)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 This document describes the high-level architecture of `gamesheet-sdk-py`, explaining how the major components fit together and the design decisions behind
 them.
 

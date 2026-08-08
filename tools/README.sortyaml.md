@@ -1,5 +1,29 @@
 # sortyaml
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Overview](#1-overview)
+- [2. Prerequisites](#2-prerequisites)
+- [3. Usage](#3-usage)
+  - [3.1. Basic Usage](#31-basic-usage)
+  - [3.2. Schema-Specific Sorting](#32-schema-specific-sorting)
+  - [3.3. Command-Line Options](#33-command-line-options)
+  - [3.4. Exit Codes](#34-exit-codes)
+- [4. Sorting Behavior](#4-sorting-behavior)
+  - [4.1. Default (No Schema)](#41-default-no-schema)
+  - [4.2. Schema-Aware Sorting](#42-schema-aware-sorting)
+  - [4.3. Long String Folding](#43-long-string-folding)
+  - [4.4. Indent Detection](#44-indent-detection)
+- [5. Troubleshooting](#5-troubleshooting)
+- [6. Related Tools](#6-related-tools)
+- [7. Files](#7-files)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 Sort YAML file keys alphabetically while preserving comments, quoting style, and indentation.
 
 ## 1. Overview

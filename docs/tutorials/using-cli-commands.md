@@ -1,5 +1,27 @@
 # Using CLI commands
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. What you will need](#1-what-you-will-need)
+- [2. Step 1 — Understand the command structure](#2-step-1--understand-the-command-structure)
+- [3. Step 2 — List your associations](#3-step-2--list-your-associations)
+- [4. Step 3 — Use an alias for list](#4-step-3--use-an-alias-for-list)
+- [5. Step 4 — Change the output format](#5-step-4--change-the-output-format)
+- [6. Step 5 — List leagues under an association](#6-step-5--list-leagues-under-an-association)
+- [7. Step 6 — List seasons under a league](#7-step-6--list-seasons-under-a-league)
+- [8. Step 7 — Get detailed season information](#8-step-7--get-detailed-season-information)
+- [9. Step 8 — Retrieve iPad Scoring Access Keys](#9-step-8--retrieve-ipad-scoring-access-keys)
+- [10. Step 9 — Use verbose logging to debug](#10-step-9--use-verbose-logging-to-debug)
+- [11. Step 10 — Save output to a file](#11-step-10--save-output-to-a-file)
+- [12. You're done](#12-youre-done)
+- [13. Where to go next](#13-where-to-go-next)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 By the end of this tutorial you will have explored the `gamesheet-admin` CLI's resource-oriented command structure, retrieved data from multiple GameSheet
 resources, and formatted the output in different ways.
 

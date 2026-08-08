@@ -1,5 +1,37 @@
 # Release Process
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Overview](#1-overview)
+- [2. Workflow](#2-workflow)
+  - [2.1. Development and Commits](#21-development-and-commits)
+  - [2.2. Merge to Main - Fully Automated!](#22-merge-to-main---fully-automated)
+  - [2.3. When No Release is Needed](#23-when-no-release-is-needed)
+- [3. Version Strategy](#3-version-strategy)
+  - [3.1. Before 1.0.0 (Current)](#31-before-100-current)
+  - [3.2. After 1.0.0](#32-after-100)
+- [4. Publishing Targets](#4-publishing-targets)
+  - [4.1. TestPyPI](#41-testpypi)
+  - [4.2. PyPI (Production)](#42-pypi-production)
+- [5. Pre-commit Hooks](#5-pre-commit-hooks)
+- [6. Complete Release Example](#6-complete-release-example)
+- [7. Troubleshooting](#7-troubleshooting)
+  - [7.1. Commit rejected by conventional-pre-commit](#71-commit-rejected-by-conventional-pre-commit)
+  - [7.2. No release was created after merge](#72-no-release-was-created-after-merge)
+  - [7.3. Version mismatch error in release workflow](#73-version-mismatch-error-in-release-workflow)
+  - [7.4. TestPyPI or PyPI publish fails](#74-testpypi-or-pypi-publish-fails)
+- [8. Manual Intervention (Edge Cases)](#8-manual-intervention-edge-cases)
+  - [8.1. If PSR Gets Confused](#81-if-psr-gets-confused)
+  - [8.2. Testing PSR Locally](#82-testing-psr-locally)
+- [9. Workflow Files](#9-workflow-files)
+- [10. References](#10-references)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 This document describes the fully automated release workflow for `gamesheet-sdk-py`.
 
 ## 1. Overview

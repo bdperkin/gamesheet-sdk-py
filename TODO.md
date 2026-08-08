@@ -1,5 +1,26 @@
 # gamesheet-teams Implementation TODO
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Phase 1: Discovery (no code changes) — COMPLETE](#1-phase-1-discovery-no-code-changes--complete)
+- [2. Phase 2: Auth abstraction (`common/auth/`)](#2-phase-2-auth-abstraction--commonauth)
+- [3. Phase 3: Teams constants and shared utilities](#3-phase-3-teams-constants-and-shared-utilities)
+- [4. Phase 4: Teams domain modules](#4-phase-4-teams-domain-modules)
+  - [4.1. Phase 4a — Core resources (overlap with admin, most useful)](#41-phase-4a--core-resources-overlap-with-admin-most-useful)
+  - [4.2. CLI help harmonization (cross-cutting, applies to both CLIs)](#42-cli-help-harmonization-cross-cutting-applies-to-both-clis)
+  - [4.3. Phase 4b — Teams-unique features](#43-phase-4b--teams-unique-features)
+  - [4.4. Phase 4c — Complex features (may defer)](#44-phase-4c--complex-features-may-defer)
+- [5. Phase 5: ID abstraction — LIKELY UNNECESSARY](#5-phase-5-id-abstraction--likely-unnecessary)
+- [6. Phase 6: Cleanup and docs](#6-phase-6-cleanup-and-docs)
+- [7. Dependencies](#7-dependencies)
+- [8. Key architectural findings from Phase 1](#8-key-architectural-findings-from-phase-1)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 Tracking the next steps for bringing `gamesheet-teams` from stub to functional CLI. Derived from the dual-CLI refactor architecture decisions (branch:
 `feat/dual-cli-refactor`).
 

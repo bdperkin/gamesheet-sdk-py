@@ -1,5 +1,32 @@
 # How to cut a release of gamesheet-sdk-py
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. What you need](#1-what-you-need)
+  - [1.1. First-time setup: pending publisher](#11-first-time-setup-pending-publisher)
+  - [1.2. After the first release: per-project page](#12-after-the-first-release-per-project-page)
+- [2. Step 1 — Confirm the latest CI on `main` is green](#2-step-1--confirm-the-latest-ci-on-main-is-green)
+- [3. Step 2 — Create an annotated tag at the commit you want to release](#3-step-2--create-an-annotated-tag-at-the-commit-you-want-to-release)
+- [4. Step 3 — Push the tag](#4-step-3--push-the-tag)
+- [5. Step 4 — Watch the workflow finish](#5-step-4--watch-the-workflow-finish)
+- [6. Step 5 — Confirm the release landed on PyPI](#6-step-5--confirm-the-release-landed-on-pypi)
+- [7. What happens to the version on `main` after the release](#7-what-happens-to-the-version-on-main-after-the-release)
+- [8. Verify the GitHub Release](#8-verify-the-github-release)
+- [9. Pre-release versions](#9-pre-release-versions)
+- [10. Troubleshooting](#10-troubleshooting)
+  - [10.1. Build failures](#101-build-failures)
+  - [10.2. Version mismatch errors](#102-version-mismatch-errors)
+  - [10.3. PyPI upload failures](#103-pypi-upload-failures)
+  - [10.4. Partial release failures](#104-partial-release-failures)
+  - [10.5. Rollback procedure](#105-rollback-procedure)
+- [11. See also](#11-see-also)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 This recipe takes you from "main is at a state I want to release" to a published wheel on PyPI, a GitHub Release with auto-generated notes, and a fresh dev
 version on the next commit.
 

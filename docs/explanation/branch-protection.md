@@ -1,5 +1,26 @@
 # Why `main` is branch-protected the way it is
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. The shape of the protection](#1-the-shape-of-the-protection)
+- [2. Why `Build HTML for GitHub Pages` is now required](#2-why-build-html-for-github-pages-is-now-required)
+- [3. Why protect at all](#3-why-protect-at-all)
+- [4. Why these specific choices](#4-why-these-specific-choices)
+  - [4.1. `enforce_admins: false`](#41-enforce_admins-false)
+  - [4.2. `strict: false`](#42-strict-false)
+  - [4.3. No required PR reviews](#43-no-required-pr-reviews)
+  - [4.4. `required_linear_history: true`](#44-required_linear_history-true)
+  - [4.5. `allow_force_pushes: false` and `allow_deletions: false`](#45-allow_force_pushes-false-and-allow_deletions-false)
+  - [4.6. `required_conversation_resolution: true`](#46-required_conversation_resolution-true)
+- [5. How to inspect or change it](#5-how-to-inspect-or-change-it)
+- [6. See also](#6-see-also)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 The `main` branch on this repository has classic branch protection configured. This page documents what is enforced, what is deliberately _not_ enforced, and
 why each knob is set the way it is. The settings themselves live in repository configuration, not in the tree, so without a write-up like this the rationale is
 invisible to anyone reading the code.

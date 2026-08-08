@@ -1,5 +1,40 @@
 # Development Setup
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Prerequisites](#1-prerequisites)
+- [2. Initial Setup](#2-initial-setup)
+  - [2.1. Clone and Create Environment](#21-clone-and-create-environment)
+  - [2.2. Install Dependencies](#22-install-dependencies)
+  - [2.3. Install Playwright Browsers](#23-install-playwright-browsers)
+  - [2.4. Install Pre-commit Hooks](#24-install-pre-commit-hooks)
+- [3. Running Tests](#3-running-tests)
+- [4. Code Quality](#4-code-quality)
+  - [4.1. Pre-commit Hooks](#41-pre-commit-hooks)
+  - [4.2. Type Checking](#42-type-checking)
+  - [4.3. Linting](#43-linting)
+  - [4.4. Formatting](#44-formatting)
+  - [4.5. Complexity Gates](#45-complexity-gates)
+- [5. Documentation](#5-documentation)
+  - [5.1. Building Docs](#51-building-docs)
+  - [5.2. Live Preview](#52-live-preview)
+  - [5.3. Link Checking](#53-link-checking)
+- [6. Using Tox](#6-using-tox)
+- [7. Makefile Shortcuts](#7-makefile-shortcuts)
+- [8. Committing Changes](#8-committing-changes)
+- [9. Troubleshooting](#9-troubleshooting)
+  - [9.1. Pre-commit hook failures](#91-pre-commit-hook-failures)
+  - [9.2. Playwright browser issues](#92-playwright-browser-issues)
+  - [9.3. Tox environment issues](#93-tox-environment-issues)
+  - [9.4. Coverage failures](#94-coverage-failures)
+- [10. Next Steps](#10-next-steps)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 This guide covers setting up a local development environment for `gamesheet-sdk-py`.
 
 ## 1. Prerequisites

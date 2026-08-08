@@ -1,5 +1,37 @@
 # genprecommitconfig
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Overview](#1-overview)
+- [2. Architecture](#2-architecture)
+  - [2.1. Execution Pipeline](#21-execution-pipeline)
+- [3. Prerequisites](#3-prerequisites)
+- [4. Usage](#4-usage)
+  - [4.1. Basic Usage](#41-basic-usage)
+  - [4.2. Command-Line Options](#42-command-line-options)
+  - [4.3. Expected Runtime](#43-expected-runtime)
+- [5. Configuration File](#5-configuration-file)
+  - [5.1. Structure](#51-structure)
+  - [5.2. Category Configuration](#52-category-configuration)
+  - [5.3. Repository Configuration](#53-repository-configuration)
+  - [5.4. Hook Configuration](#54-hook-configuration)
+  - [5.5. Version Resolution](#55-version-resolution)
+  - [5.6. Hook Filtering](#56-hook-filtering)
+  - [5.7. Override vs. Append vs. Prepend](#57-override-vs-append-vs-prepend)
+- [6. Exception Hierarchy](#6-exception-hierarchy)
+- [7. Dependencies](#7-dependencies)
+- [8. Troubleshooting](#8-troubleshooting)
+  - [8.1. Common Issues](#81-common-issues)
+  - [8.2. Debug Mode](#82-debug-mode)
+- [9. Related Tools](#9-related-tools)
+- [10. Files](#10-files)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 Automated `.pre-commit-config.yaml` generator that fetches hook definitions from upstream repositories, applies declarative configuration overrides, and
 validates the result incrementally.
 

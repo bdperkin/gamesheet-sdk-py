@@ -1,5 +1,15 @@
 # Tutorials
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Authoring guidance](#1-authoring-guidance)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 > A tutorial is **a lesson that takes the reader by the hand** through a series of steps to complete a project of some kind.
 >
 > — [diataxis.fr/tutorials](https://diataxis.fr/tutorials/)

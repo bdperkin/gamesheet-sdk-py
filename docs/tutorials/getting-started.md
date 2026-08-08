@@ -1,5 +1,24 @@
 # Getting started
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. What you will need](#1-what-you-will-need)
+- [2. Step 1 — Create an isolated environment](#2-step-1--create-an-isolated-environment)
+- [3. Step 2 — Install the SDK](#3-step-2--install-the-sdk)
+- [4. Step 3 — Install the Playwright browser](#4-step-3--install-the-playwright-browser)
+- [5. Step 4 — Verify the CLI works](#5-step-4--verify-the-cli-works)
+- [6. Step 5 — Verify the Python API works](#6-step-5--verify-the-python-api-works)
+- [7. Step 6 — Authentication quickstart](#7-step-6--authentication-quickstart)
+- [8. Step 7 — Basic usage examples](#8-step-7--basic-usage-examples)
+- [9. You're done](#9-youre-done)
+- [10. Where to go next](#10-where-to-go-next)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 By the end of this tutorial you will have `gamesheet-sdk-py` installed into a fresh virtual environment, and you will have verified that it works both from the
 command line and from Python.
 

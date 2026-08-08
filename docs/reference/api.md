@@ -1,5 +1,24 @@
 # API Reference
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Module index](#1-module-index)
+- [2. Common infrastructure](#2-common-infrastructure)
+- [3. Authentication package](#3-authentication-package)
+- [4. Shared utilities](#4-shared-utilities)
+- [5. Common CLI infrastructure](#5-common-cli-infrastructure)
+- [6. Admin domain modules](#6-admin-domain-modules)
+- [7. Admin games package](#7-admin-games-package)
+- [8. Admin roster package](#8-admin-roster-package)
+- [9. Admin CLI](#9-admin-cli)
+- [10. Teams CLI](#10-teams-cli)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 The {mod}`gamesheet_sdk` package exposes Pythonic wrappers around the GameSheet platform. Complete API documentation for all modules, packages, and subpackages
 is generated automatically from source on every documentation build using `sphinx-apidoc`.
 

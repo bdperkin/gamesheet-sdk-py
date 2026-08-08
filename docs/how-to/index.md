@@ -1,5 +1,17 @@
 # How-to guides
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Authoring guidance](#1-authoring-guidance)
+- [2. Available guides](#2-available-guides)
+- [3. Planned guides](#3-planned-guides)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 > A how-to guide is a recipe; it serves a reader who **already has enough context to understand the problem and the solution**.
 >
 > — [diataxis.fr/how-to-guides](https://diataxis.fr/how-to-guides/)

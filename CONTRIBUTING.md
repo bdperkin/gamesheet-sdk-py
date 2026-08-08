@@ -1,5 +1,66 @@
 # Contributing to gamesheet-sdk-py
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Table of Contents](#1-table-of-contents)
+- [2. Code of Conduct](#2-code-of-conduct)
+- [3. Getting Started](#3-getting-started)
+- [4. Development Setup](#4-development-setup)
+  - [4.1. Prerequisites](#41-prerequisites)
+  - [4.2. Initial Setup](#42-initial-setup)
+  - [4.3. Verifying Your Setup](#43-verifying-your-setup)
+- [5. Development Workflow](#5-development-workflow)
+  - [5.1. Creating a Feature Branch](#51-creating-a-feature-branch)
+  - [5.2. Making Changes](#52-making-changes)
+  - [5.3. Project Structure](#53-project-structure)
+- [6. Code Style Guidelines](#6-code-style-guidelines)
+  - [6.1. Line Length](#61-line-length)
+    - [6.1.1. Python Version](#611-python-version)
+    - [6.1.2. Formatters (Auto-fix)](#612-formatters-auto-fix)
+    - [6.1.3. Linters](#613-linters)
+    - [6.1.4. Type Checking](#614-type-checking)
+- [7. Testing Requirements](#7-testing-requirements)
+  - [7.1. Coverage Requirement](#71-coverage-requirement)
+  - [7.2. Test Categories](#72-test-categories)
+  - [7.3. Network Isolation](#73-network-isolation)
+  - [7.4. Running Tests](#74-running-tests)
+  - [7.5. Writing Tests](#75-writing-tests)
+- [8. Documentation Requirements](#8-documentation-requirements)
+  - [8.1. Docstring Coverage](#81-docstring-coverage)
+  - [8.2. Docstring Style](#82-docstring-style)
+  - [8.3. Documentation Files](#83-documentation-files)
+  - [8.4. API Documentation](#84-api-documentation)
+- [9. Commit Message Conventions](#9-commit-message-conventions)
+  - [9.1. Format](#91-format)
+  - [9.2. Types](#92-types)
+  - [9.3. Scopes (Optional but Encouraged)](#93-scopes-optional-but-encouraged)
+  - [9.4. Breaking Changes](#94-breaking-changes)
+  - [9.5. Examples](#95-examples)
+  - [9.6. Commit Message Tips](#96-commit-message-tips)
+- [10. Pull Request Process](#10-pull-request-process)
+  - [10.1. Before Opening a PR](#101-before-opening-a-pr)
+  - [10.2. Opening a PR](#102-opening-a-pr)
+  - [10.3. PR Title](#103-pr-title)
+  - [10.4. PR Review Process](#104-pr-review-process)
+  - [10.5. After Your PR is Merged](#105-after-your-pr-is-merged)
+- [11. Complexity Requirements](#11-complexity-requirements)
+  - [11.1. Checking Complexity](#111-checking-complexity)
+  - [11.2. Reducing Complexity](#112-reducing-complexity)
+- [12. Common Tasks](#12-common-tasks)
+  - [12.1. Adding a New CLI Command](#121-adding-a-new-cli-command)
+  - [12.2. Adding a New Domain Module](#122-adding-a-new-domain-module)
+  - [12.3. Adding a New Dependency](#123-adding-a-new-dependency)
+  - [12.4. Running Specific Tox Environments](#124-running-specific-tox-environments)
+- [13. Getting Help](#13-getting-help)
+  - [13.1. Project Maintainers](#131-project-maintainers)
+- [14. Recognition](#14-recognition)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 Thank you for your interest in contributing to gamesheet-sdk-py! We welcome contributions from the community and are grateful for your time and effort.
 
 This document provides guidelines and information to help you contribute effectively. Whether you are fixing a bug, adding a feature, improving documentation,
@@ -149,7 +210,7 @@ The project uses a `src/` layout with the following structure:
   - `helpers/` - Test helper modules
   - `integration/` - Integration tests
   - `unit/` - Unit tests by domain
-- `docs/` - Sphinx documentation (follows Diátaxis framework)
+- `docs/` - Sphinx documentation (follows Diataxis framework)
 
 ## 6. Code Style Guidelines
 
@@ -310,7 +371,7 @@ def example_function(arg1: str, arg2: int) -> bool:
 
 ### 8.3. Documentation Files
 
-The project uses [Diátaxis](https://diataxis.fr/) for documentation organization under `docs/`:
+The project uses [Diataxis](https://diataxis.fr/) for documentation organization under `docs/`:
 
 - **tutorials/** - Learning-oriented guides
 - **how-to/** - Task-oriented guides

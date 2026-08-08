@@ -1,5 +1,15 @@
 # Explanation
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Authoring guidance](#1-authoring-guidance)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 > Explanation, or discussion, **clarifies and illuminates a particular topic**. It broadens the documentation's coverage of a topic.
 >
 > — [diataxis.fr/explanation](https://diataxis.fr/explanation/)

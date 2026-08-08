@@ -138,6 +138,9 @@ categories:
             overrides:
               exclude: ^CHANGELOG\.md$
 
+      - name: markdown-toc-creator
+        repo: https://github.com/jsh9/markdown-toc-creator
+
       - name: pymarkdown
         repo: https://github.com/jackdewinter/pymarkdown
 

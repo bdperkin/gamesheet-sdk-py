@@ -1,5 +1,24 @@
 # Supported configurations
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Python versions](#1-python-versions)
+- [2. Operating systems](#2-operating-systems)
+- [3. Bundled browser](#3-bundled-browser)
+- [4. Runtime dependencies](#4-runtime-dependencies)
+- [5. Optional dependency groups](#5-optional-dependency-groups)
+  - [5.1. Core extras](#51-core-extras)
+  - [5.2. Individual tool extras](#52-individual-tool-extras)
+  - [5.3. Install combinations](#53-install-combinations)
+- [6. Distribution](#6-distribution)
+- [7. How the package version is managed](#7-how-the-package-version-is-managed)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 This page enumerates the Python versions, operating systems, browsers, and dependencies that `gamesheet-sdk-py` officially supports. The authoritative source
 for everything below is `pyproject.toml`; this page mirrors it for lookup convenience.
 
