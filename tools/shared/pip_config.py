@@ -200,7 +200,10 @@ def resolve_verify(url: str, config: PipConfig | None = None) -> str | bool:
     Mirrors pip's ``--trusted-host`` semantics: hosts listed in pip's ``trusted-host`` config skip certificate
     validation. This is intentional for enterprise environments with internal package indexes that use self-
     signed or private CA certificates. CodeQL flags the resulting ``verify=False`` as ``py/request-without-
-    cert-validation``; dismiss those findings as false positives in the Security UI after merge.
+    cert-validation``; dismiss those findings as **won't fix** in the Security UI after merge, recording that
+    the host was explicitly trusted by the operator's own pip config. Do not dismiss them as false positives:
+    the alert is correct that validation is disabled, so this is an accepted risk, and mislabelling it hides a
+    real one from the audit trail that docs/security/vulnerability-acceptance-criteria.md exists to keep.
 
     Args:
         url (str): The URL being requested.
