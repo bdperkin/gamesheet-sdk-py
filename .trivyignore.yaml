@@ -543,6 +543,30 @@ vulnerabilities:
       dismissal; not individually re-triaged.
     expired_at: 2027-01-27
 
+  - id: CVE-2026-18477
+    statement: >-
+      UNKNOWN: tar — tar: TOCTOU race in incremental dumpdir "X" rename
+      handling lets a local attacker with write access to a directory being
+      backed up create, rename or overwrite files outside the extraction
+      directory at restore time. Debian trixie: affected, no fixed version.
+      Not reachable here: the runtime image performs no backup or restore, the
+      SDK never invokes tar, and the container runs as non-root. Triaged
+      2026-08-09; NVD has not rated it, so this expires on the MEDIUM
+      six-month schedule rather than the LOW twelve-month one.
+    expired_at: 2027-02-09
+
+  - id: CVE-2026-18508
+    statement: >-
+      UNKNOWN: tar — tar: with --one-top-level, hardlink targets are not
+      confined to the top-level directory and may resolve against the working
+      directory, so a crafted archive combined with a preexisting symlink can
+      write outside the intended boundary. Debian trixie: affected, no fixed
+      version. Not reachable here: the SDK extracts no archives and never
+      invokes tar, so no attacker-supplied archive reaches it. Triaged
+      2026-08-09; NVD has not rated it, so this expires on the MEDIUM
+      six-month schedule rather than the LOW twelve-month one.
+    expired_at: 2027-02-09
+
   - id: TEMP-0290435-0B57B5
     statement: >-
       LOW: tar — [tar's rmt command may have undesired side effects]. Debian
