@@ -188,10 +188,7 @@ def _list_seasons_bff(
         raise GameSheetError(_err_msg)
 
     data = body.get("data", [])
-    if isinstance(data, dict):
-        items = data.get("items", [])
-    else:
-        items = data
+    items = data.get("items", []) if isinstance(data, dict) else data
 
     return [_parse_bff_season(item, league_id) for item in items]
 

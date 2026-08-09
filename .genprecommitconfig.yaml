@@ -200,6 +200,9 @@ categories:
           - id: unimport
             overrides:
               language_version: python3.11
+            prepends:
+              args:
+                - --remove
 
       - name: autoflake
         repo: https://github.com/pycqa/autoflake

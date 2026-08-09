@@ -160,7 +160,7 @@ test-cov: ## Run pytest with coverage (fail_under threshold lives in pyproject)
 # =============================================================================
 
 .PHONY: lint
-lint: ## Run pre-commit across the whole repo (includes mypy --strict, ruff, xenon)
+lint: ## Run pre-commit across the whole repo (includes mypy --strict, xenon)
 	pre-commit run --all-files
 
 .PHONY: type

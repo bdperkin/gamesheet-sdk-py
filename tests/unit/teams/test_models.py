@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from gamesheet_sdk.admin.teams import Team
 from tests.helpers import SEASON_ID
@@ -18,8 +18,8 @@ def test_team_model_ignores_unknown_attributes() -> None:
         season_id=SEASON_ID,
         title="Raleigh Raptors",
         division_id="5001",
-        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        created_at=datetime(2024, 1, 1, tzinfo=UTC),
+        updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         unexpected_future_attr="ignored",
     )
     assert t.title == "Raleigh Raptors"

@@ -55,6 +55,7 @@ from gamesheet_sdk.common.auth.storage import (
 )
 from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
+from gamesheet_sdk.common.security import write_secure_text
 
 
 def load_access_token(config: Config) -> str | None:
@@ -190,8 +191,7 @@ def save_tokens(
         origin_entry.setdefault("localStorage", []),
         build_token_updates(access=access, refresh=refresh, roles=roles),
     )
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(state, indent=2, sort_keys=True))
+    write_secure_text(path, json.dumps(state, indent=2, sort_keys=True))
 
 
 def refresh_access_token(

@@ -13,7 +13,7 @@ import pytest
 from gamesheet_sdk import BrowserSession, Config
 from gamesheet_sdk.common.auth.constants import FIREBASE_AUTH_URL, TOKEN_EXCHANGE_URL
 
-__all__ = ["_make_response", "_FIREBASE_URL", "_TOKEN_URL", "fake_browser_session"]
+__all__ = ["_FIREBASE_URL", "_TOKEN_URL", "_make_response", "fake_browser_session"]
 
 
 def _make_response(url: str, status: int, body: Any = None) -> MagicMock:

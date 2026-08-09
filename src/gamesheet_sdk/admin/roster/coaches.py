@@ -63,8 +63,7 @@ def list_coaches(session: Session, season_id: str) -> list[Coach]:
     handle_response(response, endpoint, "GET coaches")
     body: dict[str, Any] = response.json()
     # Parse all coaches
-    all_coaches = [parse_coach(item) for item in body.get("data", [])]
-    return all_coaches
+    return [parse_coach(item) for item in body.get("data", [])]
 
 
 def create_coach(

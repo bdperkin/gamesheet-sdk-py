@@ -32,6 +32,7 @@ def jsonapi_payload(rows: list[dict[str, Any]]) -> dict[str, Any]:
 
     Returns:
         dict[str, Any]: API response dict with {"data": [...]}
+
     Examples:
         >>> jsonapi_payload(
         ...     [{"type": "associations", "id": "1", "attributes": {...}}]
@@ -49,6 +50,7 @@ def jsonapi_detail_payload(data: dict[str, Any]) -> dict[str, Any]:
 
     Returns:
         dict[str, Any]: API response dict with {"data": {...}}
+
     Examples:
         >>> jsonapi_detail_payload(
         ...     {"type": "associations", "id": "1", "attributes": {...}}
@@ -276,6 +278,7 @@ def invitation_relationship_and_included(
 
     Returns:
         tuple[dict[str, Any], list[dict[str, Any]]]: Tuple of (invitations relationship dict, included array)
+
     Examples:
         >>> rel, inc = invitation_relationship_and_included(
         ...     "inv-123", "RAPTORS2024"

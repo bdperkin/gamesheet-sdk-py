@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 import responses
@@ -85,8 +85,8 @@ def test_list_referees_parses_jsonapi_response(config: Config) -> None:
     assert result[0].last_name == DEFAULT_COACH_LAST_NAME
     assert result[0].email == "john.smith@example.com"
     assert result[0].season_id == SEASON_ID
-    assert result[0].created_at == datetime(2024, 9, 1, 10, tzinfo=timezone.utc)
-    assert result[0].updated_at == datetime(2024, 9, 15, 14, 30, tzinfo=timezone.utc)
+    assert result[0].created_at == datetime(2024, 9, 1, 10, tzinfo=UTC)
+    assert result[0].updated_at == datetime(2024, 9, 15, 14, 30, tzinfo=UTC)
     assert result[1].first_name == "Jane"
     assert result[1].last_name == DEFAULT_PLAYER_LAST_NAME
     assert result[1].email is None

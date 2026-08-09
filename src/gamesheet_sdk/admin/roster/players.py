@@ -68,8 +68,7 @@ def list_players(session: Session, season_id: str) -> list[Player]:
     handle_response(response, endpoint, "GET players")
     body: dict[str, Any] = response.json()
     # Parse all players
-    all_players = [parse_player(item) for item in body.get("data", [])]
-    return all_players
+    return [parse_player(item) for item in body.get("data", [])]
 
 
 def list_team_players(session: Session, season_id: str, team_id: str) -> list[Player]:

@@ -8,6 +8,7 @@ organizational unit in the GameSheet platform. An association corresponds to a l
 association, tournament series, district body, etc.). The command group provides sub-commands for listing
 associations accessible to the authenticated user. When invoked without a sub-command, it defaults to the
 ``list`` operation.
+
 Examples:
     List all associations in simple table format::
         $ gamesheet-admin associations

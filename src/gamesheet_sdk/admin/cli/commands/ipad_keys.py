@@ -8,6 +8,7 @@ credentials used by the GameSheet iPad app for live game scoring. Keys are scope
 enable authorized devices to submit scores, penalties, and other game events in real-time. The command group
 provides sub-commands for retrieving all iPad keys configured for a season. When invoked without a
 sub-command, it defaults to the ``get`` operation.
+
 Examples:
     Get all iPad keys for a season in simple table format::
         $ gamesheet-admin ipad-keys --season-id <season_id>

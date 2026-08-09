@@ -21,7 +21,7 @@ from importlib.metadata import PackageNotFoundError, version as _resolved_versio
 import json
 import logging
 from types import TracebackType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Self
 from urllib.parse import urljoin
 
 import requests
@@ -31,6 +31,7 @@ from urllib3.util.retry import Retry
 
 from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.common.constants import HTTP_RETRY_STATUSES
+from gamesheet_sdk.common.security import write_secure_text
 
 if TYPE_CHECKING:
     from http.cookiejar import Cookie
@@ -326,7 +327,6 @@ class Session:
         ``expires``) so that reloaded cookies are sent against the correct scopes.
         """
         path = self.config.session_path
-        path.parent.mkdir(parents=True, exist_ok=True)
         session_cookies: Iterator[Cookie] = iter(self._http.cookies)
         cookies: list[dict[str, Any]] = [
             {
@@ -339,7 +339,7 @@ class Session:
             }
             for cookie in session_cookies
         ]
-        path.write_text(json.dumps({"cookies": cookies}, indent=2, sort_keys=True))
+        write_secure_text(path, json.dumps({"cookies": cookies}, indent=2, sort_keys=True))
 
     def close(self: Session) -> None:
         """Persist cookies and release the underlying HTTP connection pool."""
@@ -350,11 +350,11 @@ class Session:
 
         self._http.close()
 
-    def __enter__(self: Session) -> Session:
+    def __enter__(self: Self) -> Self:
         """Enter the context manager, returning the Session instance.
 
         Returns:
-            Session: Return value.
+            Self: Return value.
         """
         return self
 

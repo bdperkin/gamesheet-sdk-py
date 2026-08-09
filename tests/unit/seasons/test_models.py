@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from gamesheet_sdk.admin.seasons import Season, SeasonDetail
 from tests.helpers import CLI_TEST_SEASON_ID, SEASON_ID
@@ -17,8 +17,8 @@ def test_season_model_ignores_unknown_attributes() -> None:
         id=CLI_TEST_SEASON_ID,
         league_id="1148580",
         title="2024-2025",
-        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        created_at=datetime(2024, 1, 1, tzinfo=UTC),
+        updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         unexpected_future_attr="ignored",
     )
     assert s.title == "2024-2025"
@@ -36,8 +36,8 @@ def test_season_detail_model_ignores_unknown_attributes() -> None:
         end_date="2026-12-31",
         sport="hockey",
         stats_year="2026",
-        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        created_at=datetime(2024, 1, 1, tzinfo=UTC),
+        updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         unexpected_future_attr="ignored",
     )
     assert sd.title == "Test"

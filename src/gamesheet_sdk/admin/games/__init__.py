@@ -69,26 +69,26 @@ __all__ = [
     "ScheduledGameRelationships",
     "Scorekeeper",
     "TeamInfo",
-    # Broadcaster operations
-    "list_broadcasters",
-    "validate_broadcaster_key",
-    # Bracket/list operations
-    "get_game",
-    "list_brackets",
-    "list_completed",
-    # Completed operations
-    "download_completed_game_pdf",
-    "get_completed_game",
-    # Helpers
-    "validate_game_type",
-    # Location operations
-    "get_location",
-    "list_locations",
-    "validate_location",
     # Scheduled operations
     "create_scheduled_game",
     "delete_scheduled_game",
+    # Completed operations
+    "download_completed_game_pdf",
+    "get_completed_game",
+    # Bracket/list operations
+    "get_game",
+    # Location operations
+    "get_location",
     "get_scheduled_game",
+    "list_brackets",
+    # Broadcaster operations
+    "list_broadcasters",
+    "list_completed",
+    "list_locations",
     "list_scheduled",
     "update_scheduled_game",
+    "validate_broadcaster_key",
+    # Helpers
+    "validate_game_type",
+    "validate_location",
 ]

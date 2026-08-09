@@ -7,6 +7,7 @@ This module provides the CLI interface for managing GameSheet leagues, which rep
 within an association. A league typically corresponds to a specific division, age group, or competition tier
 within the broader association structure. The command group provides sub-commands for listing leagues within a
 specified association. When invoked without a sub-command, it defaults to the ``list`` operation.
+
 Examples:
     List all leagues in an association in simple table format::
         $ gamesheet-admin leagues --association-id ABC123

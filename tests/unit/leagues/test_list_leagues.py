@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 import responses
@@ -60,8 +60,8 @@ def test_list_leagues_parses_jsonapi_response(config: Config) -> None:
     assert [lg.id for lg in result] == ["101", "102"]
     assert result[0].title == "18U AAA"
     assert result[0].association_id == _ASSOCIATION_ID
-    assert result[0].created_at == datetime(2023, 9, 1, 10, tzinfo=timezone.utc)
-    assert result[0].updated_at == datetime(2024, 1, 15, 14, 30, tzinfo=timezone.utc)
+    assert result[0].created_at == datetime(2023, 9, 1, 10, tzinfo=UTC)
+    assert result[0].updated_at == datetime(2024, 1, 15, 14, 30, tzinfo=UTC)
     assert result[1].title == "16U AA"
 
 

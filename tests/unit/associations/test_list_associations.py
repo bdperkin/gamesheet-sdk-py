@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 import responses
@@ -74,7 +74,7 @@ def test_list_associations_parses_jsonapi_response(config: Config) -> None:
         29,
         9,
         306_920,
-        tzinfo=timezone.utc,
+        tzinfo=UTC,
     )
     assert result[0].created_at == datetime(
         2023,
@@ -84,7 +84,7 @@ def test_list_associations_parses_jsonapi_response(config: Config) -> None:
         29,
         9,
         306_920,
-        tzinfo=timezone.utc,
+        tzinfo=UTC,
     )
     assert result[1].logo == "https://example/logo.png"
 

@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 from click.testing import CliRunner
@@ -28,8 +28,8 @@ def test_associations_get(runner: CliRunner) -> None:
             id="101",
             title=DEFAULT_ASSOCIATION_NAME,
             logo="",
-            created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-            updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            created_at=datetime(2024, 1, 1, tzinfo=UTC),
+            updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         )
         result = runner.invoke(cli, ["associations", "get", "--association-id", "101"])
         assert not result.exit_code
@@ -50,8 +50,8 @@ def test_associations_get_with_fields(runner: CliRunner) -> None:
             id="101",
             title=DEFAULT_ASSOCIATION_NAME,
             logo="",
-            created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-            updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            created_at=datetime(2024, 1, 1, tzinfo=UTC),
+            updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         )
         result = runner.invoke(
             cli,
@@ -74,8 +74,8 @@ def test_associations_get_json_format(runner: CliRunner) -> None:
             id="101",
             title=DEFAULT_ASSOCIATION_NAME,
             logo="",
-            created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-            updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            created_at=datetime(2024, 1, 1, tzinfo=UTC),
+            updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         )
         result = runner.invoke(
             cli,
@@ -98,8 +98,8 @@ def test_associations_get_empty_fields(runner: CliRunner) -> None:
             id="101",
             title=DEFAULT_ASSOCIATION_NAME,
             logo="",
-            created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-            updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            created_at=datetime(2024, 1, 1, tzinfo=UTC),
+            updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         )
         result = runner.invoke(
             cli,

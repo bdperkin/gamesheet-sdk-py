@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 from click.testing import CliRunner
@@ -29,8 +29,8 @@ def test_players_get(runner: CliRunner) -> None:
             season_id=SEASON_ID,
             first_name="John",
             last_name=DEFAULT_PLAYER_LAST_NAME,
-            created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-            updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            created_at=datetime(2024, 1, 1, tzinfo=UTC),
+            updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         )
         result = runner.invoke(
             cli,
@@ -63,8 +63,8 @@ def test_players_get_with_fields(runner: CliRunner) -> None:
             season_id=SEASON_ID,
             first_name="John",
             last_name=DEFAULT_PLAYER_LAST_NAME,
-            created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-            updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            created_at=datetime(2024, 1, 1, tzinfo=UTC),
+            updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         )
         result = runner.invoke(
             cli,
@@ -100,8 +100,8 @@ def test_players_get_empty_fields(runner: CliRunner) -> None:
             season_id=SEASON_ID,
             first_name="John",
             last_name=DEFAULT_PLAYER_LAST_NAME,
-            created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-            updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            created_at=datetime(2024, 1, 1, tzinfo=UTC),
+            updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         )
         result = runner.invoke(
             cli,

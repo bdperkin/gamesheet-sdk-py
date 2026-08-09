@@ -29,12 +29,9 @@ def brackets_group() -> None:
 @list_columns_option
 @common_output_options
 def brackets_list_command(
-    # pylint: disable-next=unused-argument
-    output_format: str,  # noqa: U100
-    # pylint: disable-next=unused-argument
-    output_path: str | None,  # noqa: U100
-    # pylint: disable-next=unused-argument
-    columns_spec: str | None,  # noqa: U100
+    output_format: str,
+    output_path: str | None,
+    columns_spec: str | None,
 ) -> None:
     r"""List all bracket games in the specified season.
 
@@ -48,6 +45,8 @@ def brackets_list_command(
     Raises:
         Exit: Always raised (exit code 1) because this command is not yet implemented.
     """
+    # Click binds these by their declared option names, so they cannot be underscore-prefixed.
+    _ = (output_format, output_path, columns_spec)
     click.secho(
         "Error: games brackets list is not yet implemented. "
         "Bracket games support is planned for a future release.",
