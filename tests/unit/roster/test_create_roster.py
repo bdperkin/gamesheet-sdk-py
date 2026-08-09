@@ -56,6 +56,7 @@ def test_create_player_minimal_fields(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = create_player(session, SEASON_ID, PLAYER_FIRST_NAME, PLAYER_LAST_NAME)
+
     assert result.id == PLAYER_ID
     assert result.first_name == PLAYER_FIRST_NAME
     assert result.last_name == PLAYER_LAST_NAME
@@ -84,6 +85,7 @@ def test_create_player_with_external_id(config: Config) -> None:
             PLAYER_LAST_NAME,
             external_id=PLAYER_EXTERNAL_ID,
         )
+
     assert result.external_id == PLAYER_EXTERNAL_ID
 
 
@@ -115,6 +117,7 @@ def test_create_player_with_all_profile_fields(config: Config) -> None:
             drafted_by="Toronto Maple Leafs",
             committed_to="University of Toronto",
         )
+
     assert result.id == PLAYER_ID
 
 
@@ -141,6 +144,7 @@ def test_create_player_with_optional_fields(config: Config) -> None:
             status="Regular",
             designation="Captain",
         )
+
     assert result.id == PLAYER_ID
 
 
@@ -163,6 +167,7 @@ def test_create_player_with_team_id(config: Config) -> None:
             PLAYER_LAST_NAME,
             team_id=TEAM_ID,
         )
+
     assert result.id == PLAYER_ID
 
 
@@ -214,6 +219,7 @@ def test_create_coach_minimal_fields(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         result = create_coach(session, SEASON_ID, COACH_FIRST_NAME, COACH_LAST_NAME)
+
     assert result.id == COACH_ID_PRIMARY
     assert result.first_name == COACH_FIRST_NAME
     assert result.last_name == COACH_LAST_NAME
@@ -242,6 +248,7 @@ def test_create_coach_with_external_id(config: Config) -> None:
             COACH_LAST_NAME,
             external_id=COACH_EXTERNAL_ID,
         )
+
     assert result.external_id == COACH_EXTERNAL_ID
 
 
@@ -264,6 +271,7 @@ def test_create_coach_with_position(config: Config) -> None:
             COACH_LAST_NAME,
             position="Head Coach",
         )
+
     assert result.id == COACH_ID_PRIMARY
 
 
@@ -286,6 +294,7 @@ def test_create_coach_with_team_id(config: Config) -> None:
             COACH_LAST_NAME,
             team_id=TEAM_ID,
         )
+
     assert result.id == COACH_ID_PRIMARY
 
 
@@ -343,6 +352,7 @@ def test_create_team_player_calls_create_player_with_team_id(config: Config) -> 
             PLAYER_FIRST_NAME,
             PLAYER_LAST_NAME,
         )
+
     assert result.id == PLAYER_ID
 
 
@@ -370,6 +380,7 @@ def test_create_team_coach_calls_create_coach_with_team_id(config: Config) -> No
             COACH_FIRST_NAME,
             COACH_LAST_NAME,
         )
+
     assert result.id == COACH_ID_PRIMARY
     assert result.status == "coaching"
 
@@ -401,6 +412,7 @@ def test_create_team_player_with_optional_fields(config: Config) -> None:
             status="Regular",
             designation="Captain",
         )
+
     assert result.id == PLAYER_ID
     assert result.number == "99"
     assert result.position == "Forward"
@@ -432,6 +444,7 @@ def test_create_team_player_with_affiliated_status(config: Config) -> None:
             PLAYER_LAST_NAME,
             status="Affiliated",
         )
+
     assert result.id == PLAYER_ID
 
 
@@ -459,6 +472,7 @@ def test_create_team_coach_with_position(config: Config) -> None:
             COACH_LAST_NAME,
             position="Head Coach",
         )
+
     assert result.id == COACH_ID_PRIMARY
     assert result.position == "Head Coach"
     assert result.status == "coaching"
@@ -491,6 +505,7 @@ def test_create_team_player_with_external_id(config: Config) -> None:
             PLAYER_LAST_NAME,
             external_id="TEST-EXT-123",
         )
+
     assert result.id == PLAYER_ID
     assert result.external_id == "TEST-EXT-123"
 
@@ -522,6 +537,7 @@ def test_create_team_coach_with_external_id(config: Config) -> None:
             COACH_LAST_NAME,
             external_id="TEST-EXT-456",
         )
+
     assert result.id == COACH_ID_PRIMARY
     assert result.external_id == "TEST-EXT-456"
 
@@ -569,6 +585,7 @@ def test_create_team_player_with_all_profile_fields(config: Config) -> None:
             drafted_by="Toronto Maple Leafs",
             committed_to="University of Toronto",
         )
+
     assert result.id == PLAYER_ID
     assert result.external_id == "TEST-PROFILE"
 
@@ -596,6 +613,7 @@ def test_create_player_with_photo(config: Config) -> None:
             PLAYER_LAST_NAME,
             photo_path=temp_path,
         )
+
     assert result.id == PLAYER_ID
 
 
@@ -638,4 +656,5 @@ def test_create_team_player_with_photo(config: Config) -> None:
             PLAYER_LAST_NAME,
             photo_path=team_temp_path,
         )
+
     assert result.id == PLAYER_ID

@@ -51,6 +51,7 @@ def test_get_team_returns_single_team(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_team(session, SEASON_ID, _team_id)
+
     assert result.id == _team_id
     assert result.season_id == SEASON_ID
     assert result.title == DEFAULT_TEAM_NAME
@@ -87,6 +88,7 @@ def test_get_team_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("test-token")
         get_team(session, SEASON_ID, _team_id)
+
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == TEST_AUTH_HEADER
@@ -205,6 +207,7 @@ def test_get_team_with_invitation_code(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_team(session, SEASON_ID, _team_id)
+
     assert result.id == _team_id
     assert result.season_id == SEASON_ID
     assert result.title == DEFAULT_TEAM_NAME
@@ -243,6 +246,7 @@ def test_get_team_without_invitation_code(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_team(session, SEASON_ID, _team_id)
+
     assert result.id == _team_id
     assert result.season_id == SEASON_ID
     assert result.title == "Test Team Without Code"

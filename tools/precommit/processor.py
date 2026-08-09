@@ -18,11 +18,16 @@ logger = logging.getLogger(__name__)
 def _discover_meta_hooks() -> list[str]:
     """Discover available meta hook IDs from the installed pre-commit package.
 
-    :returns: List of meta hook IDs in definition order.
-    :raises ProcessingError: If pre-commit is not installed.
+    Returns:
+        list[str]: List of meta hook IDs in definition order.
+
+    Raises:
+        ProcessingError: If pre-commit is not installed.
     """
     try:
-        from pre_commit.clientlib import _meta  # type: ignore[import-not-found,import-untyped,unused-ignore]
+        from pre_commit.clientlib import (
+            _meta,
+        )
     except ImportError as exc:
         msg = "pre-commit package not installed — cannot discover meta hooks"
         raise ProcessingError(msg) from exc
@@ -35,14 +40,16 @@ def _discover_meta_hooks() -> list[str]:
 def _apply_modifications(hook: dict[str, Any], cfg: HookConfig) -> None:
     """Apply overrides, appends, and prepends to a hook dict in-place.
 
-    :param hook: Hook dict to modify.
-    :param cfg: Hook configuration with overrides, appends, and prepends.
+    Args:
+        hook (dict[str, Any]): Hook dict to modify.
+        cfg (HookConfig): Hook configuration with overrides, appends, and prepends.
     """
     hook.update(cfg.overrides)
 
     for key, values in cfg.appends.items():
         if key not in hook:
             hook[key] = []
+
         if not isinstance(hook[key], list):
             logger.warning(
                 "Cannot append to non-list field '%s' on hook '%s'",
@@ -50,12 +57,14 @@ def _apply_modifications(hook: dict[str, Any], cfg: HookConfig) -> None:
                 hook["id"],
             )
             continue
+
         hook[key].extend(values)
 
     for key, values in cfg.prepends.items():
         if key not in hook:
             hook[key] = values.copy()
             continue
+
         if not isinstance(hook[key], list):
             logger.warning(
                 "Cannot prepend to non-list field '%s' on hook '%s'",
@@ -63,6 +72,7 @@ def _apply_modifications(hook: dict[str, Any], cfg: HookConfig) -> None:
                 hook["id"],
             )
             continue
+
         for i, val in enumerate(values):
             hook[key].insert(i, val)
 
@@ -77,12 +87,12 @@ def process_meta_hooks(
     hooks are listed, all available meta hooks are discovered from the installed pre-commit package and
     included unless blacklisted.
 
-    :param repo_config: Repository configuration with hook definitions.
-    :type repo_config: RepoConfig
-    :param blacklisted_hooks: Hook IDs to exclude.
-    :type blacklisted_hooks: list[str]
-    :returns: List of hook dicts ready for YAML output.
-    :rtype: list[dict[str, Any]]
+    Args:
+        repo_config (RepoConfig): Repository configuration with hook definitions.
+        blacklisted_hooks (list[str]): Hook IDs to exclude.
+
+    Returns:
+        list[dict[str, Any]]: List of hook dicts ready for YAML output.
     """
     overrides_map = {h.id: h for h in repo_config.hooks} if repo_config.hooks else {}
 
@@ -122,13 +132,18 @@ def _process_single_hook(
 ) -> dict[str, Any] | None:
     """Process a single hook definition.
 
-    :param hook: Raw hook definition dict.
-    :param repo_url: Repository URL for error messages.
-    :param override_cfg: Optional override/append configuration for this hook.
-    :param allowed_languages: Allowed hook languages.
-    :param blacklisted_hooks: Blacklisted hook IDs.
-    :returns: Processed hook dict or None if the hook should be excluded.
-    :raises ProcessingError: If required fields are missing.
+    Args:
+        hook (dict[str, Any]): Raw hook definition dict.
+        repo_url (str): Repository URL for error messages.
+        override_cfg (HookConfig | None): Optional override/append configuration for this hook.
+        allowed_languages (list[str]): Allowed hook languages.
+        blacklisted_hooks (list[str]): Blacklisted hook IDs.
+
+    Returns:
+        dict[str, Any] | None: Processed hook dict or None if the hook should be excluded.
+
+    Raises:
+        ProcessingError: If required fields are missing.
     """
     hook_id = hook.get("id")
     if not hook_id:
@@ -170,16 +185,14 @@ def process_remote_hooks(
 ) -> list[dict[str, Any]]:
     """Filter and configure hooks fetched from a remote repository.
 
-    :param fetched_hooks: Raw hook definitions from the remote .pre-commit-hooks.yaml.
-    :type fetched_hooks: list[dict[str, Any]]
-    :param repo_config: Repository configuration with overrides and appends.
-    :type repo_config: RepoConfig
-    :param allowed_languages: List of allowed hook languages.
-    :type allowed_languages: list[str]
-    :param blacklisted_hooks: List of hook IDs to exclude.
-    :type blacklisted_hooks: list[str]
-    :returns: List of processed hook dicts ready for YAML output.
-    :rtype: list[dict[str, Any]]
+    Args:
+        fetched_hooks (list[dict[str, Any]]): Raw hook definitions from the remote .pre-commit-hooks.yaml.
+        repo_config (RepoConfig): Repository configuration with overrides and appends.
+        allowed_languages (list[str]): List of allowed hook languages.
+        blacklisted_hooks (list[str]): List of hook IDs to exclude.
+
+    Returns:
+        list[dict[str, Any]]: List of processed hook dicts ready for YAML output.
     """
     overrides_map = {h.id: h for h in repo_config.hooks}
     processed: list[dict[str, Any]] = []
@@ -201,14 +214,15 @@ def process_remote_hooks(
 def get_hook_comment(repo_config: RepoConfig, hook_id: str) -> str | None:
     """Get the comment string for a specific hook if configured.
 
-    :param repo_config: Repository configuration.
-    :type repo_config: RepoConfig
-    :param hook_id: Hook identifier.
-    :type hook_id: str
-    :returns: Comment string or None.
-    :rtype: str | None
+    Args:
+        repo_config (RepoConfig): Repository configuration.
+        hook_id (str): Hook identifier.
+
+    Returns:
+        str | None: Comment string or None.
     """
     for hook_cfg in repo_config.hooks:
         if hook_cfg.id == hook_id and hook_cfg.comment:
             return hook_cfg.comment
+
     return None

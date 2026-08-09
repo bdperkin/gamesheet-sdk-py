@@ -3,9 +3,8 @@
 
 """gamesheet_sdk — unofficial Python SDK for the GameSheet Inc. platform.
 
-This package provides both a Python API and CLI for interacting with the
-GameSheet platform. GameSheet does not publish a public API, so this SDK
-automates the WebUI via HTTP requests and headless browser automation.
+This package provides both a Python API and CLI for interacting with the GameSheet platform. GameSheet does
+not publish a public API, so this SDK automates the WebUI via HTTP requests and headless browser automation.
 
 **Core modules:**
 
@@ -42,11 +41,9 @@ automates the WebUI via HTTP requests and headless browser automation.
 
 **Type safety:**
 
-This package ships with a ``py.typed`` marker and enforces ``mypy --strict``.
-All public APIs are fully type-annotated.
-**Version resolution:**
-The package version is managed in ``pyproject.toml`` by python-semantic-release
-and accessible via standard importlib.metadata.
+This package ships with a ``py.typed`` marker and enforces ``mypy --strict``. All public APIs are fully
+type-annotated. **Version resolution:** The package version is managed in ``pyproject.toml`` by
+python-semantic-release and accessible via standard importlib.metadata.
 """
 
 from __future__ import annotations
@@ -121,6 +118,7 @@ try:
     __version__ = version("gamesheet-sdk-py")
 except PackageNotFoundError:
     __version__ = "0+unknown"
+
 __all__ = [
     "ALL_FORMATS",
     "APP_GAMESHEET_COM",

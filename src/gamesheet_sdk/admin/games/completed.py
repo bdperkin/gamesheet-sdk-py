@@ -29,16 +29,17 @@ def get_completed_game(
     supplied :class:`Session` must already carry a bearer token (e.g. via :meth:`Session.set_bearer_token`);
     the call is otherwise unauthenticated and will 401.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The parent season identifier.
-    :type season_id: str
-    :param game_id: The game identifier to retrieve.
-    :type game_id: str
-    :returns: The full game data as a dictionary (JSON:API format with data/included/relationships).
-    :rtype: dict[str, Any]
-    :raises AuthenticationError: If the server returns 401.
-    :raises GameSheetError: For any other non-2xx response, including 404 if the game is not found.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The parent season identifier.
+        game_id (str): The game identifier to retrieve.
+
+    Returns:
+        dict[str, Any]: The full game data as a dictionary (JSON:API format with data/included/relationships).
+
+    Raises:
+        AuthenticationError: If the server returns 401.
+        GameSheetError: For any other non-2xx response, including 404 if the game is not found.
     """
     url = f"{DEFAULT_BASE_URL}{API_SEASONS_GAMES.format(season_id=season_id, game_id=game_id)}"
     params = {"include": "players,coaches,referees,teams,season,association,league"}
@@ -58,14 +59,14 @@ def download_completed_game_pdf(
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param game_id: The game identifier.
-    :type game_id: str
-    :param output_path: File path where the PDF will be saved.
-    :type output_path: str
-    :raises AuthenticationError: If the server returns 401.
-    :raises GameSheetError: For any other non-2xx response, including 404 if the game is not found.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        game_id (str): The game identifier.
+        output_path (str): File path where the PDF will be saved.
+
+    Raises:
+        AuthenticationError: If the server returns 401.
+        GameSheetError: For any other non-2xx response, including 404 if the game is not found.
     """
     url = f"{SCORESHEET_SERVICE_BASE_URL}{SCORESHEET_SERVICE_GAME.format(game_id=game_id)}"
     response = session.get(url)

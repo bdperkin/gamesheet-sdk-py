@@ -59,6 +59,7 @@ def test_create_referee_sends_correct_payload_with_all_fields(config: Config) ->
             email_address=TEST_EMAIL_REFEREE,
             external_id=REFEREE_EXTERNAL_ID_PRIMARY,
         )
+
     assert result.id == "1146197"
     assert result.first_name == "Wes"
     assert result.last_name == "McCauley"
@@ -106,6 +107,7 @@ def test_create_referee_sends_correct_payload_required_fields_only(
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = create_referee(session, SEASON_ID, "Jane", DEFAULT_PLAYER_LAST_NAME)
+
     assert result.id == "1146198"
     assert result.first_name == "Jane"
     assert result.last_name == DEFAULT_PLAYER_LAST_NAME
@@ -148,6 +150,7 @@ def test_create_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
     with Session(config) as session:
         session.set_bearer_token("test-token")
         create_referee(session, SEASON_ID, "Test", "Ref")
+
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == TEST_AUTH_HEADER

@@ -1,8 +1,20 @@
 # Why these docs are organized into four quadrants
 
-This project's documentation is structured following the [Diátaxis framework](https://diataxis.fr/), authored by Daniele Procida.
+<!--TOC-->
 
-Diátaxis observes that effective technical documentation serves four _distinct_ user needs that cannot be merged without harm:
+______________________________________________________________________
+
+- [1. Why this matters](#1-why-this-matters)
+- [2. How to choose a quadrant](#2-how-to-choose-a-quadrant)
+- [3. Further reading](#3-further-reading)
+
+______________________________________________________________________
+
+<!--TOC-->
+
+This project's documentation is structured following the [Diataxis framework](https://diataxis.fr/), authored by Daniele Procida.
+
+Diataxis observes that effective technical documentation serves four _distinct_ user needs that cannot be merged without harm:
 
 |                      | **Practical steps** | **Theoretical knowledge** |
 | -------------------- | ------------------- | ------------------------- |
@@ -12,14 +24,14 @@ Diátaxis observes that effective technical documentation serves four _distinct_
 When you sit down to write something for these docs, the first question is _which of the four quadrants does it belong in?_ — and if the answer is "more than
 one," that's usually a signal that the content needs to be split.
 
-## Why this matters
+## 1. Why this matters
 
 When a single page tries to teach, demonstrate, document, and explain all at once, it does each of those jobs badly. A user who came for a quick lookup has to
 wade through pedagogy; a learner gets dropped into reference material before they have context.
 
 Splitting by _user need_ keeps each page focused. The cross-references between quadrants then carry the cognitive load instead of the prose.
 
-## How to choose a quadrant
+## 2. How to choose a quadrant
 
 Ask yourself, _about the reader who will land on this page:_
 
@@ -30,7 +42,7 @@ Ask yourself, _about the reader who will land on this page:_
 
 If two of those are tied, the content probably needs to be two pages, one in each quadrant, cross-linking to the other.
 
-## Further reading
+## 3. Further reading
 
 - [diataxis.fr](https://diataxis.fr/) — the canonical introduction
 - [The four kinds of documentation, and why](https://docs.divio.com/documentation-system/) — an earlier write-up by the same author

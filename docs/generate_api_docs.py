@@ -14,7 +14,7 @@ import subprocess  # noqa: S404 # nosec B404
 import sys
 
 # pylint: disable-next=import-error
-from _constants import (  # type: ignore[import-not-found]
+from _constants import (
     AUTOSUMMARY_DIR,
     PACKAGE_DIR,
 )
@@ -27,8 +27,8 @@ OUTPUT_DIR = AUTOSUMMARY_DIR
 def main() -> int:
     """Run sphinx-apidoc to generate API documentation.
 
-    :returns: Integer exit code.
-    :rtype: int
+    Returns:
+        int: Integer exit code.
     """
     # Ensure output directory exists
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -57,6 +57,7 @@ def main() -> int:
             file=sys.stderr,
         )
         return result.returncode
+
     rprint(
         f"[bold green]✓[/bold green] API documentation generated in [cyan]{OUTPUT_DIR}[/cyan]",
     )

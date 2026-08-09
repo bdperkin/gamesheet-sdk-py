@@ -27,9 +27,12 @@ from tests.helpers.constants import (
 def jsonapi_payload(rows: list[dict[str, Any]]) -> dict[str, Any]:
     """Build a JSON:API response with data array.
 
-        :param rows: List of JSON:API resource objects
-    :returns: JSON:API response dict with {"data": [...]}
-    Example:
+    Args:
+        rows (list[dict[str, Any]]): List of JSON:API resource objects
+
+    Returns:
+        dict[str, Any]: API response dict with {"data": [...]}
+    Examples:
         >>> jsonapi_payload(
         ...     [{"type": "associations", "id": "1", "attributes": {...}}]
         ... )
@@ -41,9 +44,12 @@ def jsonapi_payload(rows: list[dict[str, Any]]) -> dict[str, Any]:
 def jsonapi_detail_payload(data: dict[str, Any]) -> dict[str, Any]:
     """Build a JSON:API response with single data object.
 
-        :param data: Single JSON:API resource object
-    :returns: JSON:API response dict with {"data": {...}}
-    Example:
+    Args:
+        data (dict[str, Any]): Single JSON:API resource object
+
+    Returns:
+        dict[str, Any]: API response dict with {"data": {...}}
+    Examples:
         >>> jsonapi_detail_payload(
         ...     {"type": "associations", "id": "1", "attributes": {...}}
         ... )
@@ -62,13 +68,16 @@ def roster_player_payload(
 ) -> dict[str, Any]:
     """Build a JSON:API player resource object for roster tests.
 
-        :param player_id: Player ID
-        :param season_id: Season ID
-        :param first_name: First name (defaults to "John")
-        :param last_name: Last name (defaults to "Doe")
-        :param external_id: External ID (optional, defaults to empty string)
-    :returns: JSON:API player resource object
-    Example:
+    Args:
+        player_id (str): Player ID
+        season_id (str): Season ID
+        first_name (str): First name (defaults to "John")
+        last_name (str): Last name (default=s to "Doe")
+        external_id (str | None): External ID (optional, defaults to empty string)
+
+    Returns:
+        dict[str, Any]: API player resource object
+    Examples:
         >>> roster_player_payload()
         {'type': 'players', 'id': '8043169', 'attributes': {...}}
     """
@@ -120,13 +129,16 @@ def roster_coach_payload(
 ) -> dict[str, Any]:
     """Build a JSON:API coach resource object for roster tests.
 
-        :param coach_id: Coach ID
-        :param season_id: Season ID
-        :param first_name: First name (defaults to "Coach")
-        :param last_name: Last name (defaults to "Smith")
-        :param external_id: External ID (optional, defaults to empty string)
-    :returns: JSON:API coach resource object
-    Example:
+    Args:
+        coach_id (str): Coach ID
+        season_id (str): Season ID
+        first_name (str): First name (defaults to "Coach")
+        last_name (str): Last name (default=s to "Smith")
+        external_id (str | None): External ID (optional, defaults to empty string)
+
+    Returns:
+        dict[str, Any]: API coach resource object
+    Examples:
         >>> roster_coach_payload()
         {'type': 'coaches', 'id': '1879938', 'attributes': {...}}
     """
@@ -158,10 +170,13 @@ def association_payload(
 ) -> dict[str, Any]:
     """Build a JSON:API association resource object.
 
-        :param association_id: Association ID
-        :param name: Association name
-    :returns: JSON:API association resource object
-    Example:
+    Args:
+        association_id (str): Association ID
+        name (str): Association name
+
+    Returns:
+        dict[str, Any]: API association resource object
+    Examples:
         >>> association_payload("1", "Hockey Canada")
         {'type': 'associations', 'id': '1', 'attributes': {'name': 'Hockey Canada'}}
     """
@@ -181,10 +196,13 @@ def league_payload(
 ) -> dict[str, Any]:
     """Build a JSON:API league resource object.
 
-    :param league_id: League ID
-    :param name: League name
-    :param association_id: Parent association ID
-    :returns: JSON:API league resource object
+    Args:
+        league_id (str): League ID
+        name (str): League name
+        association_id (str): Parent association ID
+
+    Returns:
+        dict[str, Any]: API league resource object
     """
     return {
         "type": "leagues",
@@ -211,11 +229,14 @@ def team_payload(
 ) -> dict[str, Any]:
     """Build a JSON:API team resource object for roster tests.
 
-        :param team_id: Team ID
-        :param players: List of player roster entries (defaults to empty list)
-        :param coaches: List of coach roster entries (defaults to empty list)
-    :returns: JSON:API team resource object with roster
-    Example:
+    Args:
+        team_id (str): Team ID
+        players (list[dict[str, Any]] | None): List of player roster entries (defaults to empty list)
+        coaches (list[dict[str, Any]] | None): List of coach roster entries (defaults to empty list)
+
+    Returns:
+        dict[str, Any]: API team resource object with roster
+    Examples:
         >>> team_payload()
         {'type': 'teams', 'id': '12345', 'attributes': {...}, 'relationships': {...}}
         >>> team_payload(players=[{"id": "123", "status": "playing"}])
@@ -246,13 +267,16 @@ def invitation_relationship_and_included(
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """Build invitation relationship and included data for team responses.
 
-    Returns a tuple of (relationship_data, included_array) that can be used
-    to add invitation data to team payloads.
+    Returns a tuple of (relationship_data, included_array) that can be used to add invitation data to team
+    payloads.
 
-        :param invitation_id: Invitation ID
-        :param code: Invitation code
-    :returns: Tuple of (invitations relationship dict, included array)
-    Example:
+    Args:
+        invitation_id (str): Invitation ID
+        code (str): Invitation code
+
+    Returns:
+        tuple[dict[str, Any], list[dict[str, Any]]]: Tuple of (invitations relationship dict, included array)
+    Examples:
         >>> rel, inc = invitation_relationship_and_included(
         ...     "inv-123", "RAPTORS2024"
         ... )

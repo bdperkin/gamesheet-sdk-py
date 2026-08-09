@@ -45,6 +45,7 @@ def test_get_league_returns_single_league(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_league(session, _ASSOCIATION_ID, _league_id)
+
     assert result.id == _league_id
     assert result.association_id == _ASSOCIATION_ID
     assert result.title == DEFAULT_LEAGUE_NAME
@@ -74,6 +75,7 @@ def test_get_league_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("test-token")
         get_league(session, _ASSOCIATION_ID, _league_id)
+
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == TEST_AUTH_HEADER

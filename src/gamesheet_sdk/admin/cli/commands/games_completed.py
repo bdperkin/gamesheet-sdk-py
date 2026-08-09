@@ -65,19 +65,16 @@ def completed_get_command(
     output_path: str | None,
     fields_spec: str | None,
 ) -> None:
-    """Get detailed information about a completed game.
+    r"""Get detailed information about a completed game.
 
     Returns full game details including rosters, goals, shots, penalties, and statistics.\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param game_id: The game identifier
-    :type game_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param fields_spec: Optional comma-separated list of fields to display
-    :type fields_spec: str | None
+
+    Args:
+        ctx (Context): Click context object containing config
+        game_id (str): The game identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        fields_spec (str | None): Optional comma-separated list of fields to display
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
@@ -97,17 +94,15 @@ def completed_list_command(
     output_path: str | None,
     columns_spec: str | None,
 ) -> None:
-    """List all completed games in the specified season.
+    r"""List all completed games in the specified season.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param columns_spec: Optional comma-separated list of columns to display
-    :type columns_spec: str | None
+
+    Args:
+        ctx (Context): Click context object containing config
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        columns_spec (str | None): Optional comma-separated list of columns to display
     """
     # Extract config and season_id from context (set by games_group)
     # ctx.obj is always a dict set by games_group with "config" and "season_id" keys
@@ -119,15 +114,16 @@ def completed_list_command(
 
 
 def _build_scoresheet_filename(game: Game) -> str:
-    """Build a descriptive filename for a scoresheet PDF from game data.
+    r"""Build a descriptive filename for a scoresheet PDF from game data.
 
-    Format: {date}-scoresheet-{id}-{visitor}-vs-{home}-{game_number}.pdf
-    All text is converted to lowercase and spaces/special chars are replaced with underscores.\f
+    Format: {date}-scoresheet-{id}-{visitor}-vs-{home}-{game_number}.pdf All text is converted to lowercase
+    and spaces/special chars are replaced with underscores.\f
 
-    :param game: The game object with details
-    :type game: Game
-    :returns: A filesystem-safe filename
-    :rtype: str
+    Args:
+        game (Game): The game object with details
+
+    Returns:
+        str: A filesystem-safe filename
     """
 
     def sanitize(text: str | None) -> str:
@@ -176,17 +172,16 @@ def completed_download_command(
     game_id: str,
     output_path: str | None,
 ) -> None:
-    """Download the PDF scoresheet for a completed game.
+    r"""Download the PDF scoresheet for a completed game.
 
-    Requires authentication (run 'gamesheet-admin login' first). If --output-path is not specified,
-    the filename is automatically generated from game details in the format:
+    Requires authentication (run 'gamesheet-admin login' first). If --output-path is not specified, the
+    filename is automatically generated from game details in the format:
     {date}-scoresheet-{id}-{visitor}-vs-{home}-{game_number}.pdf\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param game_id: The game identifier
-    :type game_id: str
-    :param output_path: File path where the PDF will be saved (optional)
-    :type output_path: str | None
+
+    Args:
+        ctx (Context): Click context object containing config
+        game_id (str): The game identifier
+        output_path (str | None): File path where the PDF will be saved (optional)
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]

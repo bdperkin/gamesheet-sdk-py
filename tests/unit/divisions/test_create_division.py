@@ -57,6 +57,7 @@ def test_create_division_sends_correct_payload(config: Config) -> None:
             DEFAULT_DIVISION_NAME,
             external_id="test-external-id",
         )
+
     assert result.id == "80997"
     assert result.title == DEFAULT_DIVISION_NAME
     assert result.season_id == SEASON_ID
@@ -106,6 +107,7 @@ def test_create_division_generates_uuid_if_external_id_not_provided(
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = create_division(session, SEASON_ID, "Test Division 2")
+
     assert result.id == "80998"
     assert result.title == "Test Division 2"
     # Verify a UUID was generated

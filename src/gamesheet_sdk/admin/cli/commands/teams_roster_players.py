@@ -77,18 +77,15 @@ def teams_roster_players_list_command(
     output_path: str | None,
     columns_spec: str | None,
 ) -> None:
-    """List all players for this team.
+    r"""List all players for this team.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param columns_spec: Optional comma-separated list of columns to display
-    :type columns_spec: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        columns_spec (str | None): Optional comma-separated list of columns to display
     """
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
@@ -116,22 +113,18 @@ def teams_roster_players_get_command(
     output_path: str | None,
     fields_spec: str | None,
 ) -> None:
-    """Get detailed information about a specific player on this team.
+    r"""Get detailed information about a specific player on this team.
 
     The player ID can be provided via --player-id or the GAMESHEET_PLAYER_ID environment variable. The season
     ID and team ID are inherited from the parent roster command. Requires authentication (run 'gamesheet-sdk-
     py login' first).\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param player_id: The player identifier
-    :type player_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param fields_spec: Optional comma-separated list of fields to display
-    :type fields_spec: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        player_id (str): The player identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        fields_spec (str | None): Optional comma-separated list of fields to display
     """
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
@@ -267,53 +260,35 @@ def teams_roster_players_create_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Add a player to this team.
+    r"""Add a player to this team.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param first_name: Optional updated first name
-    :type first_name: str
-    :param last_name: Optional updated last name
-    :type last_name: str
-    :param external_id: Optional updated external identifier
-    :type external_id: str | None
-    :param jersey: Optional jersey number
-    :type jersey: str | None
-    :param position: Optional position
-    :type position: str | None
-    :param status: Optional status
-    :type status: str | None
-    :param designation: Optional designation
-    :type designation: str | None
-    :param biography: Optional updated biography
-    :type biography: str | None
-    :param height: Optional updated height
-    :type height: str | None
-    :param weight: Optional updated weight
-    :type weight: str | None
-    :param shot_hand: Optional updated shooting hand
-    :type shot_hand: str | None
-    :param birthdate: Optional updated birthdate
-    :type birthdate: str | None
-    :param hometown: Optional updated hometown
-    :type hometown: str | None
-    :param country: Optional updated country
-    :type country: str | None
-    :param province: Optional updated province/state
-    :type province: str | None
-    :param drafted_by: Optional updated drafted by team
-    :type drafted_by: str | None
-    :param committed_to: Optional updated committed to team
-    :type committed_to: str | None
-    :param photo_path: Optional updated path to photo
-    :type photo_path: str | None
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :raises Exit: On authentication or API errors.
+    Args:
+        ctx (Context): Click context object containing config
+        first_name (str): Optional updated first name
+        last_name (str): Optional updated last name
+        external_id (str | None): Optional updated external identifier
+        jersey (str | None): Optional jersey number
+        position (str | None): Optional position
+        status (str | None): Optional status
+        designation (str | None): Optional designation
+        biography (str | None): Optional updated biography
+        height (str | None): Optional updated height
+        weight (str | None): Optional updated weight
+        shot_hand (str | None): Optional updated shooting hand
+        birthdate (str | None): Optional updated birthdate
+        hometown (str | None): Optional updated hometown
+        country (str | None): Optional updated country
+        province (str | None): Optional updated province/state
+        drafted_by (str | None): Optional updated drafted by team
+        committed_to (str | None): Optional updated committed to team
+        photo_path (str | None): Optional updated path to photo
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+
+    Raises:
+        Exit: On authentication or API errors.
     """
     from gamesheet_sdk.admin.cli.helpers import run_roster_create_with_output
 
@@ -463,50 +438,34 @@ def teams_roster_players_update_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Update a player on this team.
+    r"""Update a player on this team.
 
     Requires authentication (run 'gamesheet-admin login' first). At least one field must be provided for
     update.\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param player_id: The player identifier
-    :type player_id: str
-    :param first_name: Optional updated first name
-    :type first_name: str | None
-    :param last_name: Optional updated last name
-    :type last_name: str | None
-    :param external_id: Optional updated external identifier
-    :type external_id: str | None
-    :param biography: Optional updated biography
-    :type biography: str | None
-    :param height: Optional updated height
-    :type height: str | None
-    :param weight: Optional updated weight
-    :type weight: str | None
-    :param shot_hand: Optional updated shooting hand
-    :type shot_hand: str | None
-    :param birthdate: Optional updated birthdate
-    :type birthdate: str | None
-    :param hometown: Optional updated hometown
-    :type hometown: str | None
-    :param country: Optional updated country
-    :type country: str | None
-    :param province: Optional updated province/state
-    :type province: str | None
-    :param drafted_by: Optional updated drafted by team
-    :type drafted_by: str | None
-    :param committed_to: Optional updated committed to team
-    :type committed_to: str | None
-    :param photo_path: Optional updated path to photo
-    :type photo_path: str | None
-    :param remove_photo: Remove the photo
-    :type remove_photo: bool
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :raises Exit: On authentication or API errors.
+    Args:
+        ctx (Context): Click context object containing config
+        player_id (str): The player identifier
+        first_name (str | None): Optional updated first name
+        last_name (str | None): Optional updated last name
+        external_id (str | None): Optional updated external identifier
+        biography (str | None): Optional updated biography
+        height (str | None): Optional updated height
+        weight (str | None): Optional updated weight
+        shot_hand (str | None): Optional updated shooting hand
+        birthdate (str | None): Optional updated birthdate
+        hometown (str | None): Optional updated hometown
+        country (str | None): Optional updated country
+        province (str | None): Optional updated province/state
+        drafted_by (str | None): Optional updated drafted by team
+        committed_to (str | None): Optional updated committed to team
+        photo_path (str | None): Optional updated path to photo
+        remove_photo (bool): Remove the photo
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+
+    Raises:
+        Exit: On authentication or API errors.
     """
     from gamesheet_sdk.admin.cli.helpers import run_roster_update_with_output
 
@@ -554,16 +513,17 @@ def teams_roster_players_update_command(
 @confirm_destructive("player")
 @click.pass_context
 def teams_roster_players_delete_command(ctx: Context, player_id: str) -> None:
-    """Delete a player from the team's roster and the season.
+    r"""Delete a player from the team's roster and the season.
 
     Requires authentication (run 'gamesheet-admin login' first). This operation is destructive and cannot be
     undone. Use --force to skip confirmation prompt.\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param player_id: The player identifier to delete
-    :type player_id: str
-    :raises Exit: On authentication or API errors.
+    Args:
+        ctx (Context): Click context object containing config
+        player_id (str): The player identifier to delete
+
+    Raises:
+        Exit: On authentication or API errors.
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
@@ -577,6 +537,7 @@ def teams_roster_players_delete_command(ctx: Context, player_id: str) -> None:
     except Exception as exc:
         click.secho(f"Error deleting player: {exc}", fg="red", err=True)
         raise Exit(1) from exc
+
     click.secho(f"Player {player_id} deleted successfully.", fg="green")
 
 
@@ -596,18 +557,15 @@ def teams_roster_players_penalty_report_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Get penalty report for a player on this team.
+    r"""Get penalty report for a player on this team.
 
     Retrieves penalty statistics, incidents, and infraction history for the specified player.\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param player_id: Player ID to retrieve penalty report for
-    :type player_id: str
-    :param output_format: Output format (json, yaml, etc.)
-    :type output_format: str
-    :param output_path: Optional path to write output file
-    :type output_path: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        player_id (str): Player ID to retrieve penalty report for
+        output_format (str): Output format (json, yaml, etc.)
+        output_path (str | None): Optional path to write output file
     """
     ctx_data: dict[str, Any] = ctx.obj
     config: Config = ctx_data["config"]
@@ -666,24 +624,19 @@ def teams_roster_players_assign_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Assign an existing player to this team's roster.\f.
+    r"""Assign an existing player to this team's roster.
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param player_id: The player identifier
-    :type player_id: str
-    :param jersey: Optional jersey number
-    :type jersey: str | None
-    :param position: Optional position
-    :type position: str | None
-    :param status: Optional status
-    :type status: str | None
-    :param designation: Optional designation
-    :type designation: str | None
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
+    Requires authentication (run 'gamesheet-admin login' first).\f
+
+    Args:
+        ctx (Context): Click context object containing config
+        player_id (str): The player identifier
+        jersey (str | None): Optional jersey number
+        position (str | None): Optional position
+        status (str | None): Optional status
+        designation (str | None): Optional designation
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
     """
     config, season_id, team_id = (
         ctx.obj["config"],
@@ -720,12 +673,13 @@ def teams_roster_players_assign_command(
 )
 @click.pass_context
 def teams_roster_players_unassign_command(ctx: Context, player_id: str) -> None:
-    """Unassign a player from this team's roster.\f.
+    r"""Unassign a player from this team's roster.
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param player_id: The player identifier
-    :type player_id: str
+    Requires authentication (run 'gamesheet-admin login' first).\f
+
+    Args:
+        ctx (Context): Click context object containing config
+        player_id (str): The player identifier
     """
     config, season_id, team_id = (
         ctx.obj["config"],

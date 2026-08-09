@@ -52,33 +52,37 @@
 name: Security - Trivy Container Image Scan
 
 on:
+  workflow_dispatch:
   pull_request:
-    types: [opened, reopened, synchronize]
     paths:
       - "Dockerfile"
       - ".dockerignore"
       - ".trivyignore.yaml"
       - ".github/workflows/security-trivy-image.yml"
+    types:
+      - opened
+      - reopened
+      - synchronize
   schedule:
     # Run weekly on Mondays at 9:30 AM UTC, 30 minutes after the filesystem
     # scan, to pick up base-image CVEs published since the last run.
     - cron: "30 9 * * 1"
-  workflow_dispatch:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
 
 permissions:
   contents: read
 
+concurrency:
+  cancel-in-progress: true
+
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+
 jobs:
   trivy-image:
     name: Trivy container image scan
-    runs-on: ubuntu-latest
     permissions:
       contents: read # Checkout repository
       security-events: write # Upload SARIF (non-PR runs only)
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -92,12 +96,12 @@ jobs:
       - name: Run Trivy image scan (informational)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          scan-type: "image"
-          image-ref: "gamesheet-sdk-py:scan-candidate"
-          format: "table"
-          severity: "CRITICAL,HIGH,MEDIUM"
           exit-code: "0" # Report only; the gate below decides pass/fail
           # Required: Trivy auto-loads `.trivyignore` but not `.trivyignore.yaml`
+          format: "table"
+          image-ref: "gamesheet-sdk-py:scan-candidate"
+          scan-type: "image"
+          severity: "CRITICAL,HIGH,MEDIUM"
           trivyignores: ".trivyignore.yaml"
 
       # SARIF refresh runs BEFORE the gate so that a CRITICAL/HIGH failure still
@@ -106,33 +110,33 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          scan-type: "image"
-          image-ref: "gamesheet-sdk-py:scan-candidate"
-          format: "sarif"
-          output: "trivy-image-results.sarif"
           exit-code: "0"
           # Required: Trivy auto-loads `.trivyignore` but not `.trivyignore.yaml`
+          format: "sarif"
+          image-ref: "gamesheet-sdk-py:scan-candidate"
+          output: "trivy-image-results.sarif"
+          scan-type: "image"
           trivyignores: ".trivyignore.yaml"
 
       - name: Upload Trivy image results to GitHub Security
         if: github.event_name != 'pull_request'
         uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
         with:
+          category: "trivy-image"
           sarif_file: "trivy-image-results.sarif"
           # Shared with release.yml's image scan so both workflows write to one
           # analysis stream and refresh each other's findings. An omitted category
           # is NOT shared: GitHub derives ".github/workflows/<file>:<job>", which
           # yields two parallel alert sets for the same image.
-          category: "trivy-image"
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Trivy image scan (fail on CRITICAL/HIGH)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          scan-type: "image"
-          image-ref: "gamesheet-sdk-py:scan-candidate"
-          format: "table"
-          severity: "CRITICAL,HIGH"
           exit-code: "1" # Fail on unsuppressed critical/high findings
           # Required: Trivy auto-loads `.trivyignore` but not `.trivyignore.yaml`
+          format: "table"
+          image-ref: "gamesheet-sdk-py:scan-candidate"
+          scan-type: "image"
+          severity: "CRITICAL,HIGH"
           trivyignores: ".trivyignore.yaml"

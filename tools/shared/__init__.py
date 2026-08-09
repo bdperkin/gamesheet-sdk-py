@@ -5,10 +5,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from shared.toml import PROJECT_NAME
 
-from shared.toml import load_toml
-
-_PYPROJECT_PATH = Path(__file__).resolve().parents[2] / "pyproject.toml"
-
-PROJECT_NAME: str = load_toml(_PYPROJECT_PATH)["project"]["name"]
+__all__ = ["PROJECT_NAME"]

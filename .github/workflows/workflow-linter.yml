@@ -53,30 +53,34 @@
 name: Workflow Security Linter (zizmor)
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/**"
   pull_request:
-    branches: [main]
+    branches:
+      - main
     paths:
       - ".github/workflows/**"
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/**"
 
 permissions:
   contents: read
 
+concurrency:
+  cancel-in-progress: true
+
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+
 jobs:
   zizmor:
     name: Audit GitHub Actions workflows
-    runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write # Required for uploading SARIF results
 
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -104,12 +108,12 @@ jobs:
           zizmor --pedantic --format sarif .github/workflows/ > zizmor-results.sarif || true
 
       - name: Run zizmor audit (human-readable - all findings)
-        continue-on-error: true
         run: |
           # Show all findings in logs for visibility
           echo "=== All Security Findings ==="
           zizmor --pedantic .github/workflows/ || true
 
+        continue-on-error: true
       - name: Run zizmor audit (FAIL on HIGH severity only)
         run: |
           # This step FAILS the workflow if HIGH severity issues exist
@@ -121,16 +125,16 @@ jobs:
           # Exit code 13+: HIGH issues found (FAILS workflow)
 
       - name: Upload SARIF results
-        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
         if: always()
+        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
         with:
-          sarif_file: zizmor-results.sarif
           category: zizmor
+          sarif_file: zizmor-results.sarif
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload results as artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: zizmor-results
           path: zizmor-results.sarif

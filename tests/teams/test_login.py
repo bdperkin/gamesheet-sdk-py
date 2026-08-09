@@ -41,6 +41,7 @@ def _firebase_error(
         resp.json.return_value = body
     else:
         resp.json.side_effect = ValueError("no body")
+
     return resp
 
 
@@ -167,6 +168,7 @@ def test_teams_login_flow_surfaces_firebase_error(
         flow = TeamsLoginFlow(config)
         with pytest.raises(AuthenticationError) as exc_info:
             flow.authenticate(email=TEST_EMAIL_MINIMAL, password="x")
+
     assert firebase_message in str(exc_info.value)
     assert "Firebase" in str(exc_info.value)
 
@@ -180,6 +182,7 @@ def test_teams_login_flow_firebase_non_json_error(config: Config) -> None:
         flow = TeamsLoginFlow(config)
         with pytest.raises(AuthenticationError) as exc_info:
             flow.authenticate(email=TEST_EMAIL_MINIMAL, password="x")
+
     assert "HTTP 500" in str(exc_info.value)
 
 
@@ -194,6 +197,7 @@ def test_teams_login_flow_firebase_error_non_dict_error_field(
         flow = TeamsLoginFlow(config)
         with pytest.raises(AuthenticationError) as exc_info:
             flow.authenticate(email=TEST_EMAIL_MINIMAL, password="x")
+
     assert "HTTP 403" in str(exc_info.value)
 
 
@@ -208,6 +212,7 @@ def test_teams_login_flow_firebase_error_non_string_message(
         flow = TeamsLoginFlow(config)
         with pytest.raises(AuthenticationError) as exc_info:
             flow.authenticate(email=TEST_EMAIL_MINIMAL, password="x")
+
     assert "HTTP 403" in str(exc_info.value)
 
 

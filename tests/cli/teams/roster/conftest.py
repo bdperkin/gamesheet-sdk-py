@@ -47,21 +47,21 @@ def run_roster_delete_test(
     """Run a roster delete command test with given parameters.
 
     Args:
-        group: The click group to invoke (teams_roster_players_group or teams_roster_coaches_group)
-        resource_type: Type of resource ("player" or "coach")
-        resource_id: The resource ID to delete
-        action_path: Full import path to the action function to patch
-        season_id: Season ID for the test
-        team_id: Team ID for the test
-        session: Mock session fixture
-        config: Mock config fixture
-        with_force: Whether to include --force flag (default: True)
-        input_text: Input text for confirmation prompt (default: None)
-        should_fail: Whether the action should raise an exception (default: False)
-        error_message: Error message if should_fail is True (default: None)
+        group (Group): The click group to invoke (teams_roster_players_group or teams_roster_coaches_group)
+        resource_type (str): Type of resource ("player" or "coach")
+        resource_id (str): The resource ID to delete
+        action_path (str): Full import path to the action function to patch
+        season_id (str): Season ID for the test
+        team_id (str): Team ID for the test
+        session (MagicMock): Mock session fixture
+        config (MagicMock): Mock config fixture
+        with_force (bool): Whether to include --force flag (default=True)
+        input_text (str | None): Input text for confirmation prompt (default=None)
+        should_fail (bool): Whether the action should raise an exception (default=False)
+        error_message (str | None): Error message if should_fail is True (default=None)
 
     Returns:
-        Tuple of (exit_code, output, mock_action)
+        tuple[int, str, MagicMock]: Tuple of (exit_code, output, mock_action)
     """
     # Derive build_session_path from action_path module
     # e.g., "gamesheet_sdk.admin.cli.commands.teams_roster_players._delete..."

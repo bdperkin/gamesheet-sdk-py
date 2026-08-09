@@ -23,12 +23,12 @@ from gamesheet_sdk.common.auth.tokens import (
 def _get_origin_from_state(state: dict[str, Any], origin_url: str) -> dict[str, Any]:
     """Extract origin data from Playwright browser state for a given URL.
 
-    :param state: Playwright browser state dictionary.
-    :type state: dict[str, Any]
-    :param origin_url: The origin URL to search for.
-    :type origin_url: str
-    :returns: The origin dictionary containing localStorage and other data.
-    :rtype: dict[str, Any]
+    Args:
+        state (dict[str, Any]): Playwright browser state dictionary.
+        origin_url (str): The origin URL to search for.
+
+    Returns:
+        dict[str, Any]: The origin dictionary containing localStorage and other data.
     """
     return next(o for o in state["origins"] if o["origin"] == origin_url)
 
@@ -36,10 +36,11 @@ def _get_origin_from_state(state: dict[str, Any], origin_url: str) -> dict[str, 
 def _get_localstorage_as_dict(origin: dict[str, Any]) -> dict[str, str]:
     """Convert Playwright localStorage array to a name-to-value dictionary.
 
-    :param origin: Origin dictionary from Playwright browser state.
-    :type origin: dict[str, Any]
-    :returns: Dictionary mapping localStorage item names to their values.
-    :rtype: dict[str, str]
+    Args:
+        origin (dict[str, Any]): Origin dictionary from Playwright browser state.
+
+    Returns:
+        dict[str, str]: Dictionary mapping localStorage item names to their values.
     """
     return {kv["name"]: kv["value"] for kv in origin["localStorage"]}
 

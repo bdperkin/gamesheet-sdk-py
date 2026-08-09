@@ -3,36 +3,17 @@
 
 """Authentication-related constants and configuration values.
 
-This module defines all authentication constants used throughout the
-:mod:`gamesheet_sdk.common.auth` package, including URL paths, endpoints, and timing
-parameters for login flows and token operations.
-Constants
----------
-LOGIN_PATH : str
-    Path for the login form relative to the base URL.
-POST_LOGIN_PATH : str
-    Default destination after successful authentication.
-FIREBASE_AUTH_HOST : str
-    Firebase Authentication service hostname.
-FIREBASE_AUTH_PATH : str
-    Firebase Authentication endpoint path.
-TOKEN_EXCHANGE_PATH : str
-    GameSheet token exchange API endpoint.
-REFRESH_URL : str
-    Full URL for refreshing access tokens.
-REFRESH_TIMEOUT_S : float
-    Timeout in seconds for token refresh operations.
-DEFAULT_TIMEOUT_S : float
-    Default timeout in seconds for HTTP requests.
-POLL_INTERVAL_MS : int
-    Polling interval in milliseconds for browser state checks.
-POST_LOGIN_NAVIGATION_TIMEOUT_MS : int
-    Timeout in milliseconds for post-login navigation.
-FORM_DETECTION_TIMEOUT_MS : int
-    Timeout in milliseconds for detecting the login form.
-Examples
---------
-Using authentication constants in login flows:
+This module defines all authentication constants used throughout the :mod:`gamesheet_sdk.common.auth` package,
+including URL paths, endpoints, and timing parameters for login flows and token operations. Constants
+--------- LOGIN_PATH : str Path for the login form relative to the base URL. POST_LOGIN_PATH : str Default
+destination after successful authentication. FIREBASE_AUTH_HOST : str Firebase Authentication service
+hostname. FIREBASE_AUTH_PATH : str Firebase Authentication endpoint path. TOKEN_EXCHANGE_PATH : str GameSheet
+token exchange API endpoint. REFRESH_URL : str Full URL for refreshing access tokens. REFRESH_TIMEOUT_S :
+float Timeout in seconds for token refresh operations. DEFAULT_TIMEOUT_S : float Default timeout in seconds
+for HTTP requests. POLL_INTERVAL_MS : int Polling interval in milliseconds for browser state checks.
+POST_LOGIN_NAVIGATION_TIMEOUT_MS : int Timeout in milliseconds for post-login navigation.
+FORM_DETECTION_TIMEOUT_MS : int Timeout in milliseconds for detecting the login form. Examples -------- Using
+authentication constants in login flows:
 .. code-block:: python
     from gamesheet_sdk.common.auth.constants import (
         LOGIN_PATH,

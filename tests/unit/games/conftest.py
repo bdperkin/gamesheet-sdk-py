@@ -22,8 +22,8 @@ def add_mock_locations_response(location_id: str = "loc-1") -> None:
 
     Helper to reduce duplicate mock setup code across test files.
 
-    :param location_id: Location ID to use in mock data
-    :type location_id: str
+    Args:
+        location_id (str): Location ID to use in mock data
     """
     responses.add(
         responses.GET,

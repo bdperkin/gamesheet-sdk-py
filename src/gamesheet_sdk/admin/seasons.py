@@ -35,8 +35,8 @@ _ENDPOINT = "/api/seasons"
 class Season(BaseModel):
     """A single season.
 
-    Maps the ``data[*]`` items in the JSON:API response of ``GET /api/seasons?league_id={id}`` to a flat typed
-    model.
+    Maps the ``data[*]`` items in the JSON: API response of ``GET /api/seasons?league_id={id}`` to a flat
+    typed model.
     """
 
     id: str = Field(description="Season identifier (string in JSON:API).")
@@ -151,21 +151,28 @@ def _list_seasons_bff(
     }
     if starts_after:
         params["filter[starts_after]"] = starts_after
+
     if ends_before:
         params["filter[ends_before]"] = ends_before
+
     if status:
         params["filter[status]"] = status
+
     if stats_year:
         params["filter[stats_year]"] = stats_year
+
     if title:
         params["filter[title]"] = title
+
     url = f"{BFF_API_BASE_URL}/leagues/{league_id}/seasons"
     response = session.get(url, params=params)
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if response.status_code == 404:
         _err_msg = errors.ERROR_MSG_404_LEAGUE.format(league_id=league_id)
         raise GameSheetError(_err_msg)
+
     if response.status_code >= 400:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=url,
@@ -173,16 +180,19 @@ def _list_seasons_bff(
             text=repr(response.text[:200]),
         )
         raise GameSheetError(_err_msg)
+
     body: dict[str, Any] = response.json()
     if body.get("status") != "success":
         status = body.get("status")
         _err_msg = errors.ERROR_MSG_BFF_NON_SUCCESS_SIMPLE.format(status=status)
         raise GameSheetError(_err_msg)
+
     data = body.get("data", [])
     if isinstance(data, dict):
         items = data.get("items", [])
     else:
         items = data
+
     return [_parse_bff_season(item, league_id) for item in items]
 
 
@@ -202,26 +212,26 @@ def list_seasons(
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401. When filters are
     provided, the BFF API endpoint is used. Otherwise, the JSON:API endpoint is used and results are filtered
     client-side.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param league_id: The league identifier whose seasons to list.
-    :type league_id: str
-    :param starts_after: Optional filter for seasons starting after this date (ISO format: YYYY-MM-DD).
-    :type starts_after: str | None
-    :param ends_before: Optional filter for seasons ending before this date (ISO format: YYYY-MM-DD).
-    :type ends_before: str | None
-    :param status: Optional status filter (e.g., 'archived', 'active', 'all').
-    :type status: str | None
-    :param stats_year: Optional statistics year filter (e.g., '2026-2027').
-    :type stats_year: str | None
-    :param title: Optional title search filter (free-form text).
-    :type title: str | None
-    :returns: A list of :class:`Season`, in the order the server returned them. The list may be empty if the
-        league has no seasons.
-    :rtype: list[Season]
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-admin login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        league_id (str): The league identifier whose seasons to list.
+        starts_after (str | None): Optional filter for seasons starting after this date (ISO format:
+            YYYY-MM-DD).
+        ends_before (str | None): Optional filter for seasons ending before this date (ISO format:
+            YYYY-MM-DD).
+        status (str | None): Optional status filter (e.g., 'archived', 'active', 'all').
+        stats_year (str | None): Optional statistics year filter (e.g., '2026-2027').
+        title (str | None): Optional title search filter (free-form text).
+
+    Returns:
+        list[Season]: A list of :class:`Season`, in the order the server returned them. The list may be empty
+            if the league has no seasons.
+
+    Raises:
+        AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
+            ``gamesheet-admin login`` to refresh).
+        GameSheetError: For any other non-2xx response.
     """
     has_filters = any([starts_after, ends_before, status, stats_year, title])
     if has_filters:
@@ -234,12 +244,14 @@ def list_seasons(
             stats_year=stats_year,
             title=title,
         )
+
     response = session.get(
         _ENDPOINT,
         headers=JSONAPI_HEADERS,
     )
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if response.status_code >= 400:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=_ENDPOINT,
@@ -247,6 +259,7 @@ def list_seasons(
             text=repr(response.text[:200]),
         )
         raise GameSheetError(_err_msg)
+
     body: dict[str, Any] = response.json()
     # Parse all seasons and filter to only those belonging to the requested league
     all_seasons = [_parse(item) for item in body.get("data", [])]
@@ -258,15 +271,18 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier to retrieve.
-    :type season_id: str
-    :returns: A :class:`SeasonDetail` with complete season information.
-    :rtype: SeasonDetail
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-admin login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response (including 404 if the season doesn't exist).
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier to retrieve.
+
+    Returns:
+        SeasonDetail: A :class:`SeasonDetail` with complete season information.
+
+    Raises:
+        AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
+            ``gamesheet-admin login`` to refresh).
+        GameSheetError: For any other non-2xx response (including 404 if the season doesn't exist).
     """
     endpoint = f"{_ENDPOINT}/{season_id}"
     response = session.get(
@@ -275,9 +291,11 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
     )
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if response.status_code == 404:
         _err_msg = errors.ERROR_MSG_404_SEASON.format(season_id=season_id)
         raise GameSheetError(_err_msg)
+
     if response.status_code >= 400:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=endpoint,
@@ -285,5 +303,6 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
             text=repr(response.text[:200]),
         )
         raise GameSheetError(_err_msg)
+
     body: dict[str, Any] = response.json()
     return _parse_detail(body["data"])

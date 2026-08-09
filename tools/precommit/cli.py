@@ -22,8 +22,11 @@ console = Console()
 def _write_init_template(config_file: Path) -> None:
     """Write a minimal template configuration file.
 
-    :param config_file: Path to write the template to.
-    :raises SystemExit: If the file already exists.
+    Args:
+        config_file (Path): Path to write the template to.
+
+    Raises:
+        SystemExit: If the file already exists.
     """
     if config_file.exists():
         console.print(f"[bold red]Error:[/] {config_file} already exists")
@@ -107,23 +110,18 @@ def app(
     Fetches hook definitions from upstream repositories, applies overrides and filters from the configuration,
     and validates each repo incrementally with pre-commit.
 
-    :param config_file: Path to the YAML configuration file.
-    :type config_file: str
-    :param output_file: Override output file path from configuration.
-    :type output_file: str | None
-    :param log_level: Logging verbosity level.
-    :type log_level: str
-    :param max_downgrade_attempts: Max older revisions to try on validation failure.
-    :type max_downgrade_attempts: int | None
-    :param dry_run: Generate YAML only, do not run pre-commit validation.
-    :type dry_run: bool
-    :param no_validate: Skip per-repo incremental validation.
-    :type no_validate: bool
-    :param no_reset: Do not reset the working tree on validation failure.
-    :type no_reset: bool
-    :param init: Write a minimal template config file and exit.
-    :type init: bool
-    :raises SystemExit: If generation fails.
+    Args:
+        config_file (str): Path to the YAML configuration file.
+        output_file (str | None): Override output file path from configuration.
+        log_level (str): Logging verbosity level.
+        max_downgrade_attempts (int | None): Max older revisions to try on validation failure.
+        dry_run (bool): Generate YAML only, do not run pre-commit validation.
+        no_validate (bool): Skip per-repo incremental validation.
+        no_reset (bool): Do not reset the working tree on validation failure.
+        init (bool): Write a minimal template config file and exit.
+
+    Raises:
+        SystemExit: If generation fails.
     """
     configure_logging(log_level, console)
 

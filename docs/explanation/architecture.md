@@ -1,9 +1,59 @@
 # Architecture Overview
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. System Design](#1-system-design)
+- [2. Component Relationships](#2-component-relationships)
+  - [2.1. Core Components](#21-core-components)
+    - [2.1.1. Configuration (`common/config.py`)](#211-configuration--commonconfigpy)
+    - [2.1.2. Session Layer](#212-session-layer)
+    - [2.1.3. Authentication (`common/auth/`)](#213-authentication--commonauth)
+    - [2.1.4. Domain Modules (`admin/`)](#214-domain-modules--admin)
+    - [2.1.5. CLI Layer](#215-cli-layer)
+- [3. Data Flow](#3-data-flow)
+  - [3.1. Typical Read Operation (GET)](#31-typical-read-operation-get)
+  - [3.2. Authenticated Operation with Auto-Refresh](#32-authenticated-operation-with-auto-refresh)
+  - [3.3. Browser-Based Operation](#33-browser-based-operation)
+- [4. Design Decisions](#4-design-decisions)
+  - [4.1. Why Both HTTP and Browser?](#41-why-both-http-and-browser)
+  - [4.2. Why Three Pillars?](#42-why-three-pillars)
+  - [4.3. Why Pydantic Models?](#43-why-pydantic-models)
+  - [4.4. Why Click for CLI?](#44-why-click-for-cli)
+  - [4.5. Why src/ Layout?](#45-why-src-layout)
+  - [4.6. Why 100% Test Coverage?](#46-why-100-test-coverage)
+  - [4.7. Why Complexity Gate (Grade A)?](#47-why-complexity-gate-grade-a)
+- [5. Extension Points](#5-extension-points)
+  - [5.1. Adding a New Admin Domain Module](#51-adding-a-new-admin-domain-module)
+  - [5.2. Adding a New CLI Verb](#52-adding-a-new-cli-verb)
+  - [5.3. Adding Teams Domain Modules](#53-adding-teams-domain-modules)
+  - [5.4. Adding a New Output Format](#54-adding-a-new-output-format)
+- [6. Testing Strategy](#6-testing-strategy)
+  - [6.1. Test Organization](#61-test-organization)
+  - [6.2. Test Categories](#62-test-categories)
+  - [6.3. Test Markers](#63-test-markers)
+- [7. Security Considerations](#7-security-considerations)
+  - [7.1. Token Storage](#71-token-storage)
+  - [7.2. Browser State](#72-browser-state)
+  - [7.3. Secrets in Logs](#73-secrets-in-logs)
+- [8. Performance Characteristics](#8-performance-characteristics)
+  - [8.1. HTTP Operations](#81-http-operations)
+  - [8.2. Browser Operations](#82-browser-operations)
+  - [8.3. Token Refresh](#83-token-refresh)
+- [9. Future Directions](#9-future-directions)
+  - [9.1. Planned Features](#91-planned-features)
+  - [9.2. API Stability](#92-api-stability)
+- [10. Related Documentation](#10-related-documentation)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 This document describes the high-level architecture of `gamesheet-sdk-py`, explaining how the major components fit together and the design decisions behind
 them.
 
-## System Design
+## 1. System Design
 
 The SDK is organized into three pillars:
 
@@ -39,11 +89,11 @@ Each pillar has a clear responsibility:
 
 Dependencies flow inward: `admin/` and `teams/` depend on `common/`, but never on each other.
 
-## Component Relationships
+## 2. Component Relationships
 
-### Core Components
+### 2.1. Core Components
 
-#### 1. Configuration (`common/config.py`)
+#### 2.1.1. Configuration (`common/config.py`)
 
 Central configuration object that resolves settings from multiple sources:
 
@@ -63,7 +113,7 @@ Config(
 - Path configuration (tokens, sessions, browser state)
 - Timeout and retry settings
 
-#### 2. Session Layer
+#### 2.1.2. Session Layer
 
 **Base Session** (`common/session.py`):
 
@@ -86,7 +136,7 @@ Config(
 - Lazy initialization (only starts browser when needed)
 - Storage state persistence (cookies + localStorage)
 
-#### 3. Authentication (`common/auth/`)
+#### 2.1.3. Authentication (`common/auth/`)
 
 **Login Flow** (`common/auth/login.py`):
 
@@ -108,7 +158,7 @@ Config(
 - Directory creation with safe permissions
 - Path resolution
 
-#### 4. Domain Modules (`admin/`)
+#### 2.1.4. Domain Modules (`admin/`)
 
 Each domain module follows a consistent pattern:
 
@@ -116,14 +166,14 @@ Each domain module follows a consistent pattern:
 # Example: src/gamesheet_sdk/admin/associations.py
 
 
-# 1. Pydantic model for data validation
+# Pydantic model for data validation
 class Association(BaseModel):
     id: str
     title: str
     # ... other fields
 
 
-# 2. Action functions
+# Action functions
 def list_associations(config: Config | None = None) -> list[Association]:
     """Retrieve all associations."""
     # Implementation using Session or BrowserSession
@@ -141,7 +191,7 @@ def list_associations(config: Config | None = None) -> list[Association]:
 - `roster/` — Player and coach roster management
 - `ipad_keys.py` — iPad/Scoring access keys
 
-#### 5. CLI Layer
+#### 2.1.5. CLI Layer
 
 The CLI is split into two entry points with shared infrastructure:
 
@@ -184,9 +234,9 @@ Examples:
 - `update` (aliases: `set`, `edit`)
 - `delete` (aliases: `rm`, `remove`)
 
-## Data Flow
+## 3. Data Flow
 
-### Typical Read Operation (GET)
+### 3.1. Typical Read Operation (GET)
 
 ```text
 User Command
@@ -219,7 +269,7 @@ Output Formatter (JSON/YAML/table)
 User sees formatted output
 ```
 
-### Authenticated Operation with Auto-Refresh
+### 3.2. Authenticated Operation with Auto-Refresh
 
 ```text
 User Command
@@ -249,7 +299,7 @@ Retry original request with new token
 Success: process response
 ```
 
-### Browser-Based Operation
+### 3.3. Browser-Based Operation
 
 ```text
 User Command (e.g., login)
@@ -282,9 +332,9 @@ BrowserSession saves storage state
 Browser closes
 ```
 
-## Design Decisions
+## 4. Design Decisions
 
-### Why Both HTTP and Browser?
+### 4.1. Why Both HTTP and Browser?
 
 **HTTP (requests)** is used for:
 
@@ -300,7 +350,7 @@ Browser closes
 
 **Trade-off**: Complexity (two session types) vs. reliability (can handle any GameSheet workflow).
 
-### Why Three Pillars?
+### 4.2. Why Three Pillars?
 
 The admin and teams dashboards are separate GameSheet products with different URLs, different authentication flows, and potentially different data models (admin
 uses integer IDs, teams may use UUIDs). Splitting the codebase into `common/`, `admin/`, and `teams/` ensures:
@@ -310,7 +360,7 @@ uses integer IDs, teams may use UUIDs). Splitting the codebase into `common/`, `
 - Each CLI can evolve independently
 - The `gamesheet-admin` and `gamesheet-teams` entry points are distinct user experiences
 
-### Why Pydantic Models?
+### 4.3. Why Pydantic Models?
 
 **Benefits**:
 
@@ -321,7 +371,7 @@ uses integer IDs, teams may use UUIDs). Splitting the codebase into `common/`, `
 
 **Trade-off**: Tight coupling to API shape (breaking changes upstream require model updates).
 
-### Why Click for CLI?
+### 4.4. Why Click for CLI?
 
 **Benefits**:
 
@@ -332,7 +382,7 @@ uses integer IDs, teams may use UUIDs). Splitting the codebase into `common/`, `
 
 **Alternative considered**: `argparse` (stdlib, no deps), rejected because subcommand support is verbose.
 
-### Why src/ Layout?
+### 4.5. Why src/ Layout?
 
 **Benefits**:
 
@@ -342,7 +392,7 @@ uses integer IDs, teams may use UUIDs). Splitting the codebase into `common/`, `
 
 **Trade-off**: Slightly more setup (need `pip install -e .`), but worth it for packaging correctness.
 
-### Why 100% Test Coverage?
+### 4.6. Why 100% Test Coverage?
 
 **Benefits**:
 
@@ -352,7 +402,7 @@ uses integer IDs, teams may use UUIDs). Splitting the codebase into `common/`, `
 
 **Trade-off**: More upfront work, but pays dividends in maintenance.
 
-### Why Complexity Gate (Grade A)?
+### 4.7. Why Complexity Gate (Grade A)?
 
 **Benefits**:
 
@@ -363,9 +413,9 @@ uses integer IDs, teams may use UUIDs). Splitting the codebase into `common/`, `
 
 **Trade-off**: More functions, but each is simpler.
 
-## Extension Points
+## 5. Extension Points
 
-### Adding a New Admin Domain Module
+### 5.1. Adding a New Admin Domain Module
 
 1. Create `src/gamesheet_sdk/admin/<resource>.py`
 2. Define Pydantic model(s)
@@ -374,7 +424,7 @@ uses integer IDs, teams may use UUIDs). Splitting the codebase into `common/`, `
 5. Register CLI group in `admin/cli/main.py`
 6. Add tests under `tests/unit/<resource>/` and `tests/cli/<resource>/`
 
-### Adding a New CLI Verb
+### 5.2. Adding a New CLI Verb
 
 If the standard CRUD verbs (`create`, `get`, `list`, `update`, `delete`) are insufficient:
 
@@ -383,7 +433,7 @@ If the standard CRUD verbs (`create`, `get`, `list`, `update`, `delete`) are ins
 3. Add corresponding domain function
 4. Add tests
 
-### Adding Teams Domain Modules
+### 5.3. Adding Teams Domain Modules
 
 The teams pillar follows the same pattern as admin. When the teams authentication flow is implemented:
 
@@ -391,7 +441,7 @@ The teams pillar follows the same pattern as admin. When the teams authenticatio
 2. Create CLI commands under `src/gamesheet_sdk/teams/cli/commands/`
 3. Register commands in `teams/cli/main.py`
 
-### Adding a New Output Format
+### 5.4. Adding a New Output Format
 
 The SDK supports 15 output formats (see `src/gamesheet_sdk/common/output.py`). To add a new one:
 
@@ -400,9 +450,9 @@ The SDK supports 15 output formats (see `src/gamesheet_sdk/common/output.py`). T
 3. Update `--format` option help text
 4. Add integration test
 
-## Testing Strategy
+## 6. Testing Strategy
 
-### Test Organization
+### 6.1. Test Organization
 
 ```text
 tests/
@@ -423,7 +473,7 @@ tests/
 └── fixtures/               # Shared test fixtures
 ```
 
-### Test Categories
+### 6.2. Test Categories
 
 **Unit Tests**:
 
@@ -446,16 +496,16 @@ tests/
 - Configuration resolution
 - End-to-end smoke tests
 
-### Test Markers
+### 6.3. Test Markers
 
 - `@pytest.mark.vcr` — Replays HTTP from cassette
 - `@pytest.mark.browser` — Requires headless Chromium (slow, opt-in)
 
 Run fast tests: `pytest -m "not browser"`
 
-## Security Considerations
+## 7. Security Considerations
 
-### Token Storage
+### 7.1. Token Storage
 
 Tokens are stored in `~/.gamesheet/` with restrictive permissions (0600 on Unix). Tokens are:
 
@@ -466,7 +516,7 @@ Tokens are stored in `~/.gamesheet/` with restrictive permissions (0600 on Unix)
 
 **Mitigation**: Store tokens with restricted filesystem permissions, don't log token values.
 
-### Browser State
+### 7.2. Browser State
 
 Browser storage state (cookies + localStorage) is saved to `~/.gamesheet/browser-state.json`. This file contains session cookies that could be used to
 impersonate the user.
@@ -475,7 +525,7 @@ impersonate the user.
 
 **Mitigation**: Restrict file permissions, clear on logout.
 
-### Secrets in Logs
+### 7.3. Secrets in Logs
 
 The SDK uses `logging` with care to avoid logging sensitive values:
 
@@ -485,29 +535,29 @@ The SDK uses `logging` with care to avoid logging sensitive values:
 
 **Guideline**: Use `_LOGGER.debug()` for details, `_LOGGER.info()` for user-visible messages.
 
-## Performance Characteristics
+## 8. Performance Characteristics
 
-### HTTP Operations
+### 8.1. HTTP Operations
 
 - **Latency**: ~100–500ms per request (network-bound)
 - **Retries**: 3 retries on transient failures (configurable via `Config.request_retries`)
 - **Timeout**: 30s default (configurable via `Config.timeout`)
 
-### Browser Operations
+### 8.2. Browser Operations
 
 - **Startup**: ~500ms to launch Chromium (one-time per session)
 - **Page load**: ~1–3s for JavaScript-heavy pages
 - **Recommendation**: Minimize browser usage (use HTTP when possible)
 
-### Token Refresh
+### 8.3. Token Refresh
 
 - **Frequency**: Only on HTTP 401 (not proactive)
 - **Latency**: ~200–500ms (one HTTP request)
 - **Caching**: New access token is saved immediately (subsequent requests use it)
 
-## Future Directions
+## 9. Future Directions
 
-### Planned Features
+### 9.1. Planned Features
 
 - **Teams dashboard support**: Full domain modules and CLI commands for the teams dashboard
 - **Auth strategy pattern**: `LoginFlow` ABC to support different authentication flows per dashboard
@@ -515,7 +565,7 @@ The SDK uses `logging` with care to avoid logging sensitive values:
 - **Async support**: `async`/`await` variants of domain functions for concurrent operations
 - **Caching layer**: In-memory cache for frequently-accessed resources (leagues, associations)
 
-### API Stability
+### 9.2. API Stability
 
 The SDK is **alpha** (0.x.y versions). Breaking changes are possible until 1.0.0. After 1.0.0:
 
@@ -525,7 +575,7 @@ The SDK is **alpha** (0.x.y versions). Breaking changes are possible until 1.0.0
 
 See [Release Process](../how-to/release-process.md) for versioning details.
 
-## Related Documentation
+## 10. Related Documentation
 
 - {doc}`why-webui-automation` — Why we automate the WebUI instead of using a public API
 - {doc}`../how-to/development-setup` — Setting up a local development environment

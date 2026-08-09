@@ -73,6 +73,7 @@ def test_create_team_sends_correct_payload_without_logo(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = create_team(session, SEASON_ID, DEFAULT_TEAM_NAME, "80385")
+
     assert result["prototeam"]["title"] == DEFAULT_TEAM_NAME
     assert result["seasonTeam"]["divisionId"] == 80385
     assert result["invitation"]["code"] == "M9XnAHNBt5"
@@ -115,6 +116,7 @@ def test_create_team_with_external_id(config: Config) -> None:
             "80385",
             external_id="custom-external-id",
         )
+
     assert result["prototeam"]["id"] == "test-proto-id"
     # Verify external_id in payload
     import json
@@ -131,6 +133,7 @@ def test_create_team_with_logo(config: Config) -> None:
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
         logo_path = f.name
+
     try:
         # Step 1: Mock upload URL request
         responses.add(
@@ -186,6 +189,7 @@ def test_create_team_with_logo(config: Config) -> None:
                 "80385",
                 logo_path=logo_path,
             )
+
         assert result["prototeam"]["logo"] == f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/test-image-id"
         # Verify all three requests were made
         assert len(responses.calls) == 3
@@ -262,6 +266,7 @@ def test_upload_logo_non_image_file_raises_error(config: Config) -> None:
     with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as f:
         f.write(b"not an image")
         non_image_path = f.name
+
     try:
         with Session(config) as session:
             session.set_bearer_token("abc")
@@ -284,6 +289,7 @@ def test_upload_url_request_401_raises_authentication_error(config: Config) -> N
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
         logo_path = f.name
+
     try:
         responses.add(
             responses.POST,
@@ -312,6 +318,7 @@ def test_upload_url_request_failure_raises_gamesheet_error(config: Config) -> No
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
         logo_path = f.name
+
     try:
         responses.add(
             responses.POST,
@@ -340,6 +347,7 @@ def test_upload_url_failed_status_raises_gamesheet_error(config: Config) -> None
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
         logo_path = f.name
+
     try:
         responses.add(
             responses.POST,
@@ -368,6 +376,7 @@ def test_image_upload_failure_raises_gamesheet_error(config: Config) -> None:
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
         logo_path = f.name
+
     try:
         responses.add(
             responses.POST,
@@ -410,6 +419,7 @@ def test_image_upload_failed_success_flag_raises_gamesheet_error(
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         f.write(b"fake-image-data")
         logo_path = f.name
+
     try:
         responses.add(
             responses.POST,

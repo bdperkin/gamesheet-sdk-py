@@ -102,7 +102,7 @@ def test_session_path_explicit_override(tmp_path: Path) -> None:
 
 
 def test_extra_env_vars_are_ignored(monkeypatch: pytest.MonkeyPatch) -> None:
-    """`GAMESHEET_*` env vars that don't match a field should not raise."""
+    """``GAMESHEET_*`` env vars that don't match a field should not raise."""
     monkeypatch.setenv("GAMESHEET_NONEXISTENT_FIELD", "value")
     Config()  # Must not raise.
 

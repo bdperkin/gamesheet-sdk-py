@@ -58,6 +58,7 @@ def test_divisions_teams_create_coverage() -> None:
         # Call the function to ensure it's covered
         if callable(func):
             return func(session)
+
         return func
 
     with (
@@ -147,6 +148,7 @@ def test_divisions_teams_update_coverage() -> None:
         # Call the function to ensure it's covered
         if callable(func):
             return func(session)
+
         return func
 
     with (

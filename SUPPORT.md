@@ -1,8 +1,31 @@
 # Getting Help with gamesheet-sdk-py
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Documentation](#1-documentation)
+- [2. Common Issues](#2-common-issues)
+  - [2.1. Authentication Problems](#21-authentication-problems)
+  - [2.2. Installation Issues](#22-installation-issues)
+  - [2.3. Import Errors](#23-import-errors)
+  - [2.4. Test Failures](#24-test-failures)
+- [3. Asking Questions](#3-asking-questions)
+  - [3.1. GitHub Discussions (Preferred)](#31-github-discussions-preferred)
+  - [3.2. GitHub Issues](#32-github-issues)
+- [4. Contributing](#4-contributing)
+- [5. Response Times](#5-response-times)
+- [6. Project Status](#6-project-status)
+- [7. Additional Resources](#7-additional-resources)
+- [8. Related Projects](#8-related-projects)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 This document provides resources for getting help with the GameSheet SDK for Python.
 
-## Documentation
+## 1. Documentation
 
 Before opening an issue, please check our comprehensive documentation:
 
@@ -12,9 +35,9 @@ Before opening an issue, please check our comprehensive documentation:
 - **[How-To Guides](https://bdperkin.github.io/gamesheet-sdk-py/how-to/)** — Task-oriented recipes for common workflows
 - **[Explanation Guides](https://bdperkin.github.io/gamesheet-sdk-py/explanation/)** — Background on design decisions and architecture
 
-## Common Issues
+## 2. Common Issues
 
-### Authentication Problems
+### 2.1. Authentication Problems
 
 **Issue**: `gamesheet-admin login` fails or returns HTTP 401/403 errors.
 
@@ -28,7 +51,7 @@ Before opening an issue, please check our comprehensive documentation:
 
 See [Authentication Workflow Tutorial](https://bdperkin.github.io/gamesheet-sdk-py/tutorials/authentication-workflow.html) for details.
 
-### Installation Issues
+### 2.2. Installation Issues
 
 **Issue**: `pip install gamesheet-sdk-py` fails or Playwright browsers don't install.
 
@@ -39,7 +62,7 @@ See [Authentication Workflow Tutorial](https://bdperkin.github.io/gamesheet-sdk-
 3. Install Playwright browsers: `python -m playwright install chromium`
 4. Check [Installation Guide](https://github.com/bdperkin/gamesheet-sdk-py#installation) for platform-specific instructions
 
-### Import Errors
+### 2.3. Import Errors
 
 **Issue**: `ModuleNotFoundError: No module named 'gamesheet_sdk'`
 
@@ -49,7 +72,7 @@ See [Authentication Workflow Tutorial](https://bdperkin.github.io/gamesheet-sdk-
 2. Reinstall the package: `pip install --force-reinstall gamesheet-sdk-py`
 3. For development installs: `pip install -e ".[all]"` from the repo root
 
-### Test Failures
+### 2.4. Test Failures
 
 **Issue**: Tests fail locally or in CI.
 
@@ -60,9 +83,9 @@ See [Authentication Workflow Tutorial](https://bdperkin.github.io/gamesheet-sdk-
 3. Run subset of tests: `pytest -m "not browser"` (skips slow browser tests)
 4. Check [Development Setup](https://bdperkin.github.io/gamesheet-sdk-py/how-to/development-setup.html) for full guidance
 
-## Asking Questions
+## 3. Asking Questions
 
-### GitHub Discussions (Preferred)
+### 3.1. GitHub Discussions (Preferred)
 
 For general questions, usage help, and community discussion:
 
@@ -75,7 +98,7 @@ GitHub Discussions is the best place for:
 - Sharing workflows and scripts
 - Community support
 
-### GitHub Issues
+### 3.2. GitHub Issues
 
 For bug reports, security vulnerabilities, and confirmed issues:
 
@@ -92,7 +115,7 @@ For bug reports, security vulnerabilities, and confirmed issues:
 
 **For security vulnerabilities**, see [SECURITY.md](SECURITY.md) for responsible disclosure process.
 
-## Contributing
+## 4. Contributing
 
 If you'd like to contribute code, documentation, or bug fixes:
 
@@ -100,7 +123,7 @@ If you'd like to contribute code, documentation, or bug fixes:
 2. Follow the [Code of Conduct](CODE_OF_CONDUCT.md)
 3. Open a pull request following our [PR checklist](CONTRIBUTING.md#pull-request-process)
 
-## Response Times
+## 5. Response Times
 
 This is an **open-source project maintained by volunteers**. Response times vary based on maintainer availability:
 
@@ -109,14 +132,14 @@ This is an **open-source project maintained by volunteers**. Response times vary
 - **Feature requests**: Reviewed during planning cycles
 - **Questions/discussions**: Community-driven, response times vary
 
-## Project Status
+## 6. Project Status
 
 **Current Status**: Alpha
 
 This project is in active development. The API surface may change between releases until 1.0.0. See the [CHANGELOG](CHANGELOG.md) for version history and
 breaking changes.
 
-## Additional Resources
+## 7. Additional Resources
 
 - **GitHub Repository**: <https://github.com/bdperkin/gamesheet-sdk-py>
 - **PyPI Package**: <https://pypi.org/project/gamesheet-sdk-py/>
@@ -124,7 +147,7 @@ breaking changes.
 - **Issue Tracker**: <https://github.com/bdperkin/gamesheet-sdk-py/issues>
 - **Discussions**: <https://github.com/bdperkin/gamesheet-sdk-py/discussions>
 
-## Related Projects
+## 8. Related Projects
 
 - **GameSheet Platform**: <https://gamesheet.app/>
 - **Playwright Python**: <https://playwright.dev/python/>

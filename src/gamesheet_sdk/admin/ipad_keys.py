@@ -29,8 +29,8 @@ _ENDPOINT = "/api/api-keys"
 class IPadKey(BaseModel):
     """A single iPad / Scoring Access Key.
 
-    Maps the ``data[*]`` items in the JSON:API response of ``GET /api/api-keys?filter[season]={id}`` to a flat
-    typed model.
+    Maps the ``data[*]`` items in the JSON: API response of ``GET /api/api-keys?filter[season]={id}`` to a
+    flat typed model.
     """
 
     id: str = Field(description="API key identifier (string in JSON:API).")
@@ -62,16 +62,19 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier whose iPad keys to list.
-    :type season_id: str
-    :returns: A list of :class:`IPadKey`, in the order the server returned them. The list may be empty if the
-        season has no iPad keys configured.
-    :rtype: list[IPadKey]
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-admin login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier whose iPad keys to list.
+
+    Returns:
+        list[IPadKey]: A list of :class:`IPadKey`, in the order the server returned them. The list may be
+            empty if the season has no iPad keys configured.
+
+    Raises:
+        AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
+            ``gamesheet-admin login`` to refresh).
+        GameSheetError: For any other non-2xx response.
     """
     response = session.get(
         _ENDPOINT,
@@ -80,9 +83,11 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
     )
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if response.status_code == 404:
         _err_msg = errors.ERROR_MSG_404_IPAD_KEYS.format(season_id=season_id)
         raise GameSheetError(_err_msg)
+
     if response.status_code >= 400:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=_ENDPOINT,
@@ -90,5 +95,6 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
             text=repr(response.text[:200]),
         )
         raise GameSheetError(_err_msg)
+
     body: dict[str, Any] = response.json()
     return [_parse(item) for item in body.get("data", [])]

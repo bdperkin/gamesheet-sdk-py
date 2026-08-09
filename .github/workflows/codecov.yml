@@ -62,23 +62,27 @@
 name: Tests with Codecov
 
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - "CHANGELOG.md"
-      - "pyproject.toml"
   pull_request:
-    branches: [main]
+    branches:
+      - main
     paths-ignore:
       - "CHANGELOG.md"
       - "pyproject.toml"
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
 
 permissions:
   contents: read
+
+concurrency:
+  cancel-in-progress: true
+
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
   test:
@@ -88,15 +92,15 @@ jobs:
     strategy:
       matrix:
         include:
-          - python-version: "3.11"
-            py-flag: "py3-11"
-          - python-version: "3.12"
-            py-flag: "py3-12"
-          - python-version: "3.13"
-            py-flag: "py3-13"
-          - python-version: "3.14"
-            py-flag: "py3-14"
+          - py-flag: "py3-11"
+            python-version: "3.11"
+          - py-flag: "py3-12"
+            python-version: "3.12"
+          - py-flag: "py3-13"
+            python-version: "3.13"
+          - py-flag: "py3-14"
 
+            python-version: "3.14"
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -112,13 +116,13 @@ jobs:
       - name: Cache tool directories
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
+          key: >-
+            tools-${{ runner.os }}-py${{ matrix.python-version }}-
+            ${{ hashFiles('src/**/*.py', 'tests/**/*.py') }}
           path: |
             .pytest_cache
             .mypy_cache
             .ruff_cache
-          key: >-
-            tools-${{ runner.os }}-py${{ matrix.python-version }}-
-            ${{ hashFiles('src/**/*.py', 'tests/**/*.py') }}
           restore-keys: |
             tools-${{ runner.os }}-py${{ matrix.python-version }}-
             tools-${{ runner.os }}-
@@ -128,8 +132,6 @@ jobs:
           pip install -e ".[pytest]"
 
       - name: Run tests with coverage
-        env:
-          PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
           pytest --cov --cov-report=xml --cov-report=term \
             --junitxml=junit-py${PYTHON_VERSION}.xml
@@ -137,10 +139,12 @@ jobs:
       # Codecov requires one flag per upload. Upload the same coverage.xml
       # twice so the same data feeds both the `unittests` aggregate and
       # the per-Python-version (py3-XX) flag.
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
       - name: Upload coverage to Codecov (unittests)
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
           files: ./coverage.xml
           flags: unittests
           name: codecov-${{ matrix.python-version }}-unittests
@@ -148,27 +152,27 @@ jobs:
           # commit; attribute the upload to the PR head SHA instead so
           # the Codecov UI's commit page (which uses head SHA) shows it.
           override_commit: ${{ github.event.pull_request.head.sha || github.sha }}
-          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
 
       - name: Upload coverage to Codecov (${{ matrix.py-flag }})
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
           files: ./coverage.xml
           flags: ${{ matrix.py-flag }}
           name: codecov-${{ matrix.py-flag }}
           override_commit: ${{ github.event.pull_request.head.sha || github.sha }}
-          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
 
       - name: Upload test results to Codecov
         if: always()
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: junit-py${{ matrix.python-version }}.xml
-          report_type: test_results
-          override_commit: ${{ github.event.pull_request.head.sha || github.sha }}
           fail_ci_if_error: false
+          files: junit-py${{ matrix.python-version }}.xml
+          override_commit: ${{ github.event.pull_request.head.sha || github.sha }}
+          report_type: test_results
+          token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true

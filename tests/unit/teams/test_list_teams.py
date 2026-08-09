@@ -87,6 +87,7 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_teams(session, SEASON_ID)
+
     assert [t.id for t in result] == ["1001", "1002"]
     assert result[0].title == "Raleigh Raptors"
     assert result[0].season_id == SEASON_ID
@@ -104,6 +105,7 @@ def test_list_teams_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_teams(session, SEASON_ID)
+
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"
@@ -234,6 +236,7 @@ def test_list_teams_includes_optional_fields(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("test-token")
         result = list_teams(session, SEASON_ID)
+
     assert len(result) == 1
     team = result[0]
     assert team.logo == "https://example.com/logo.png"
@@ -279,6 +282,7 @@ def test_list_teams_without_invitations(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("test-token")
         result = list_teams(session, SEASON_ID)
+
     assert len(result) == 1
     assert result[0].invitation_code is None
 
@@ -322,6 +326,7 @@ def test_list_teams_with_invitation_as_single_object(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("test-token")
         result = list_teams(session, SEASON_ID)
+
     assert len(result) == 1
     assert result[0].invitation_code == "SINGLE2024"
 
@@ -391,6 +396,7 @@ def test_list_teams_with_malformed_invitation_data(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("test-token")
         result = list_teams(session, SEASON_ID)
+
     assert len(result) == 2
     # No valid invitation matched for either team
     assert result[0].invitation_code is None

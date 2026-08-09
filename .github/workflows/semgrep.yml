@@ -51,32 +51,36 @@
 name: Semgrep SAST
 
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - "CHANGELOG.md"
-      - "pyproject.toml"
   pull_request:
-    branches: [main]
+    branches:
+      - main
     paths-ignore:
       - "CHANGELOG.md"
       - "pyproject.toml"
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
 
 permissions:
   contents: read
 
+concurrency:
+  cancel-in-progress: true
+
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+
 jobs:
   semgrep:
     name: Semgrep Security Scan
-    runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write # Required for uploading SARIF results to GitHub Security tab
 
+    runs-on: ubuntu-latest
     container:
       # Semgrep OSS Docker image
       image: semgrep/semgrep:1.101.0@sha256:a2917a82fec40f4d165fd701abb3937677b900105f3e909861fa03844a8e00db
@@ -102,15 +106,15 @@ jobs:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
 
       - name: Upload SARIF results to GitHub Security
-        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
         if: always()
+        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
         with:
-          sarif_file: semgrep-results.sarif
           category: semgrep
 
+          sarif_file: semgrep-results.sarif
       - name: Upload SARIF as artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: semgrep-sarif
           path: semgrep-results.sarif

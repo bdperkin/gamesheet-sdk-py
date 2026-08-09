@@ -72,6 +72,7 @@ def test_get_referee_report_returns_complete_report(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         report = get_referee_report(session, SEASON_ID, _referee_id)
+
     assert report.external_id == _external_id
     assert report.first_name == "WES"
     assert report.last_name == "MCCAULEY"
@@ -122,6 +123,7 @@ def test_get_referee_report_with_minimal_data(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         report = get_referee_report(session, SEASON_ID, _referee_id)
+
     assert report.external_id == _external_id
     assert report.first_name == "Jane"
     assert report.last_name == DEFAULT_PLAYER_LAST_NAME

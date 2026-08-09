@@ -1,11 +1,32 @@
 # gamesheet-teams Implementation TODO
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Phase 1: Discovery (no code changes) — COMPLETE](#1-phase-1-discovery-no-code-changes--complete)
+- [2. Phase 2: Auth abstraction (`common/auth/`)](#2-phase-2-auth-abstraction--commonauth)
+- [3. Phase 3: Teams constants and shared utilities](#3-phase-3-teams-constants-and-shared-utilities)
+- [4. Phase 4: Teams domain modules](#4-phase-4-teams-domain-modules)
+  - [4.1. Phase 4a — Core resources (overlap with admin, most useful)](#41-phase-4a--core-resources-overlap-with-admin-most-useful)
+  - [4.2. CLI help harmonization (cross-cutting, applies to both CLIs)](#42-cli-help-harmonization-cross-cutting-applies-to-both-clis)
+  - [4.3. Phase 4b — Teams-unique features](#43-phase-4b--teams-unique-features)
+  - [4.4. Phase 4c — Complex features (may defer)](#44-phase-4c--complex-features-may-defer)
+- [5. Phase 5: ID abstraction — LIKELY UNNECESSARY](#5-phase-5-id-abstraction--likely-unnecessary)
+- [6. Phase 6: Cleanup and docs](#6-phase-6-cleanup-and-docs)
+- [7. Dependencies](#7-dependencies)
+- [8. Key architectural findings from Phase 1](#8-key-architectural-findings-from-phase-1)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 Tracking the next steps for bringing `gamesheet-teams` from stub to functional CLI. Derived from the dual-CLI refactor architecture decisions (branch:
 `feat/dual-cli-refactor`).
 
 ______________________________________________________________________
 
-## Phase 1: Discovery (no code changes) — COMPLETE
+## 1. Phase 1: Discovery (no code changes) — COMPLETE
 
 - [x] **Auth flow** — Both admin and teams use the same Firebase project:
 
@@ -31,7 +52,7 @@ ______________________________________________________________________
   scoring keys), Profile (account, notifications, photo), Billing (Teams+ $99 purchase, entitlement), Lookups (public endpoint, 15 enum categories). Four sports
   supported: hockey, soccer, boxla, field_lacrosse.
 
-## Phase 2: Auth abstraction (`common/auth/`)
+## 2. Phase 2: Auth abstraction (`common/auth/`)
 
 - [x] Define `LoginFlow` protocol in `common/auth/flow.py` — `@runtime_checkable` Protocol with `authenticate(email, password, *, timeout) -> dict[str, str]`.
   Exported from `common.auth`. Tests in `tests/common/auth/test_flow.py` (5 tests, 100% coverage). Committed `1363119`.
@@ -51,7 +72,7 @@ ______________________________________________________________________
   Committed `5c08ee1`.
 - [x] Verify 100% coverage still holds — 1013 tests pass, 100.00% coverage confirmed after `5c08ee1`. Now 1046 tests after Phase 4a Lookups + CLI harmonization.
 
-## Phase 3: Teams constants and shared utilities
+## 3. Phase 3: Teams constants and shared utilities
 
 - [x] Add teams API gateway URL and endpoint paths to `teams/shared/constants.py` — auth-related constants added in Phase 2 (`c5f54c3`). Domain endpoint paths
   to be added as Phase 4 modules are implemented.
@@ -65,11 +86,11 @@ ______________________________________________________________________
   admin domain module imports (`associations`, `divisions`, `leagues`, `teams`, `roster/models`). Updated `admin/shared/__init__.py` exports and removed jsonapi
   from `common/shared/__init__.py`. Committed `cbcf42d`.
 
-## Phase 4: Teams domain modules
+## 4. Phase 4: Teams domain modules
 
 SDK implementation priority based on discovery:
 
-### Phase 4a — Core resources (overlap with admin, most useful)
+### 4.1. Phase 4a — Core resources (overlap with admin, most useful)
 
 For each resource, repeat this pattern: pydantic model(s), action functions, CLI command module, register in `teams/cli/main.py`, tests, verify 100% coverage.
 
@@ -85,7 +106,7 @@ For each resource, repeat this pattern: pydantic model(s), action functions, CLI
 - [ ] **Divisions** — List by season, by team+season (`/api/divisions/*`)
 - [ ] **Leagues** — List by association (`GET /api/leagues/association/{id}`)
 
-### CLI help harmonization (cross-cutting, applies to both CLIs)
+### 4.2. CLI help harmonization (cross-cutting, applies to both CLIs)
 
 - [x] **Unified rich-click configuration** — Extracted shared rich-click defaults (11 settings: `TEXT_MARKUP`, `SHOW_ARGUMENTS`, `GROUP_ARGUMENTS_OPTIONS`,
   `STYLE_ERRORS_SUGGESTION`, `ERRORS_SUGGESTION`, `ERRORS_EPILOGUE`, `MAX_WIDTH`, `OPTIONS_TABLE_COLUMN_TYPES`, `OPTIONS_TABLE_HELP_SECTIONS`) into
@@ -101,7 +122,7 @@ For each resource, repeat this pattern: pydantic model(s), action functions, CLI
 - [x] **Tests** — Updated `test_command_groups_configured` for new group names. Added 3 teams rich-click config tests
   (`test_teams_rich_click_configuration_applied`, `test_teams_option_groups_configured`, `test_teams_command_groups_configured`). 1046 tests, 100% coverage.
 
-### Phase 4b — Teams-unique features
+### 4.3. Phase 4b — Teams-unique features
 
 - [ ] **Calendar events/practices** — CRUD with recurring support (`/api/calendar/events/*`, `/api/calendar/occurrences/*`)
 - [ ] **Availability** — Game/event/practice RSVP (`/api/availability/*`), batch view
@@ -110,20 +131,20 @@ For each resource, repeat this pattern: pydantic model(s), action functions, CLI
 - [ ] **Scoresheets** — Download PDF, bulk export (`/api/scoresheets/*`)
 - [ ] **User profile** — View/update account, subscriptions/notifications (`/api/users/*`)
 
-### Phase 4c — Complex features (may defer)
+### 4.4. Phase 4c — Complex features (may defer)
 
 - [ ] **Chat/Messages** — Conversations, messages, reactions, attachments, read status (13+ endpoints under `/api/chat/*`)
 - [ ] **Billing** — Entitlement check, checkout session (`/api/billing/*`)
 - [ ] **Registry import** — HCR/USAH import (`POST /api/registry-import/start`)
 
-## Phase 5: ID abstraction — LIKELY UNNECESSARY
+## 5. Phase 5: ID abstraction — LIKELY UNNECESSARY
 
 - [ ] ~~Decide on approach: generic `str` IDs validated per-pillar, or per-pillar ID types with a common protocol~~ → Phase 1 discovery recommends `str` for all
   IDs in both admin and teams models. Admin already does this (JSON:API returns string IDs). Teams returns integers for most resources but `str` works
   uniformly. The dual-ID pattern (integer `.id` + string `.prototeamId`) only affects the Team model. Re-evaluate after Phase 4a implementation — if `str` works
   everywhere, delete this phase.
 
-## Phase 6: Cleanup and docs
+## 6. Phase 6: Cleanup and docs
 
 - [ ] Update `CLAUDE.md` structure docs once teams modules exist
 - [ ] Decide `gamesheet_sdk.teams` public re-exports in `teams/__init__.py`
@@ -133,7 +154,7 @@ For each resource, repeat this pattern: pydantic model(s), action functions, CLI
 
 ______________________________________________________________________
 
-## Dependencies
+## 7. Dependencies
 
 ```text
 Phase 1 (discovery) ✅ COMPLETE
@@ -148,7 +169,7 @@ Phase 1 (discovery) ✅ COMPLETE
 
 ______________________________________________________________________
 
-## Key architectural findings from Phase 1
+## 8. Key architectural findings from Phase 1
 
 | Aspect       | Admin                                     | Teams                                      |
 | ------------ | ----------------------------------------- | ------------------------------------------ |

@@ -1,5 +1,34 @@
 # gamesheet-sdk-py
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. ⚠️ Disclaimer](#1--disclaimer)
+- [2. Quick Links](#2-quick-links)
+- [3. Features](#3-features)
+- [4. Requirements](#4-requirements)
+- [5. Installation](#5-installation)
+  - [5.1. Via PyPI](#51-via-pypi)
+  - [5.2. Via Docker](#52-via-docker)
+  - [5.3. From Source](#53-from-source)
+- [6. Available Resources](#6-available-resources)
+- [7. Quick Start](#7-quick-start)
+  - [7.1. CLI](#71-cli)
+  - [7.2. Python API](#72-python-api)
+- [8. Configuration](#8-configuration)
+- [9. Documentation](#9-documentation)
+- [10. Project Status](#10-project-status)
+- [11. Contributing](#11-contributing)
+- [12. Security](#12-security)
+- [13. License](#13-license)
+- [14. Support](#14-support)
+- [15. Links](#15-links)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 > **Unofficial** Python SDK and command-line interface for the [GameSheet Inc.](https://gamesheetinc.com) platform.
 
 <!-- Build & Quality -->
@@ -54,7 +83,7 @@
 
 ______________________________________________________________________
 
-## ⚠️ Disclaimer
+## 1. ⚠️ Disclaimer
 
 This project is **not affiliated with, endorsed by, or sponsored by GameSheet Inc.** GameSheet Inc. does not publish a public REST/GraphQL API for the
 operations this SDK covers. Where a native API is absent, this library **automates the GameSheet WebUI** (using HTTP requests, HTML parsing, and
@@ -67,7 +96,7 @@ Use of this software must comply with the GameSheet Inc. Terms of Service. You a
 
 ______________________________________________________________________
 
-## Quick Links
+## 2. Quick Links
 
 - **[Documentation](https://bdperkin.github.io/gamesheet-sdk-py/)** — Full documentation (tutorials, how-tos, API reference)
 - **[Installation](#installation)** — Get started quickly
@@ -80,7 +109,7 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-## Features
+## 3. Features
 
 - **Authentication** — Browser-driven login flow with persistent session storage
 - **Resource-oriented CLI** — Intuitive verb-noun command structure with aliases (`ls`, `rm`, `get`, etc.)
@@ -97,16 +126,16 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-## Requirements
+## 4. Requirements
 
 - **Python 3.11+** (3.11, 3.12, 3.13, or 3.14)
 - **Chromium** (managed by Playwright) — required for login flow
 
 ______________________________________________________________________
 
-## Installation
+## 5. Installation
 
-### Via PyPI
+### 5.1. Via PyPI
 
 ```bash
 pip install gamesheet-sdk-py
@@ -115,7 +144,7 @@ pip install gamesheet-sdk-py
 python -m playwright install chromium
 ```
 
-### Via Docker
+### 5.2. Via Docker
 
 Pre-built images include Playwright (Chromium) for seamless browser automation.
 
@@ -149,7 +178,7 @@ docker run --rm -v ~/.gamesheet:/home/gamesheet/.gamesheet \
 - `<version>` — specific version (e.g., `0.2.2`, `0.2`, `0`)
 - `<branch>-<sha>` — specific commit for traceability
 
-### From Source
+### 5.3. From Source
 
 ```bash
 git clone https://github.com/bdperkin/gamesheet-sdk-py.git
@@ -166,7 +195,7 @@ See [Development Setup](docs/how-to/development-setup.md) for detailed instructi
 
 ______________________________________________________________________
 
-## Available Resources
+## 6. Available Resources
 
 The CLI and Python API provide comprehensive coverage of GameSheet resources:
 
@@ -189,9 +218,9 @@ Each resource supports intuitive verbs: `list` (or `ls`), `get` (or `show`/`view
 
 ______________________________________________________________________
 
-## Quick Start
+## 7. Quick Start
 
-### CLI
+### 7.1. CLI
 
 ```bash
 # Authenticate (credentials can also come from env vars)
@@ -241,7 +270,7 @@ source ~/.gamesheet-admin-completion.bash
 
 See the [CLI Reference](docs/reference/cli.md) for complete usage.
 
-### Python API
+### 7.2. Python API
 
 ```python
 from gamesheet_sdk import (
@@ -306,7 +335,7 @@ All functions return fully typed pydantic models with comprehensive field valida
 
 ______________________________________________________________________
 
-## Configuration
+## 8. Configuration
 
 Configuration via environment variables or CLI flags. See [Configuration Reference](docs/reference/configuration.md) for details.
 
@@ -320,11 +349,11 @@ gamesheet-admin login
 
 ______________________________________________________________________
 
-## Documentation
+## 9. Documentation
 
 Full documentation is available at **<https://bdperkin.github.io/gamesheet-sdk-py/>**
 
-The docs follow the [Diátaxis](https://diataxis.fr/) framework:
+The docs follow the [Diataxis](https://diataxis.fr/) framework:
 
 - **[Tutorials](docs/tutorials/)** — Step-by-step learning guides
 - **[How-To Guides](docs/how-to/)** — Task-oriented recipes
@@ -333,7 +362,7 @@ The docs follow the [Diátaxis](https://diataxis.fr/) framework:
 
 ______________________________________________________________________
 
-## Project Status
+## 10. Project Status
 
 **Status:** Alpha — Active development, breaking changes possible before 1.0.0
 
@@ -348,7 +377,7 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-## Contributing
+## 11. Contributing
 
 Contributions are welcome! Before opening a PR:
 
@@ -363,7 +392,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines. We follow the [C
 
 ______________________________________________________________________
 
-## Security
+## 12. Security
 
 Security is a top priority. This project employs multiple layers of automated security scanning:
 
@@ -377,13 +406,13 @@ Security is a top priority. This project employs multiple layers of automated se
 
 ______________________________________________________________________
 
-## License
+## 13. License
 
 Distributed under the [MIT License](LICENSE). © 2026 bdperkin.
 
 ______________________________________________________________________
 
-## Support
+## 14. Support
 
 Need help? See [SUPPORT.md](SUPPORT.md) for:
 
@@ -394,7 +423,7 @@ Need help? See [SUPPORT.md](SUPPORT.md) for:
 
 ______________________________________________________________________
 
-## Links
+## 15. Links
 
 - **PyPI:** <https://pypi.org/project/gamesheet-sdk-py/>
 - **Documentation:** <https://bdperkin.github.io/gamesheet-sdk-py/>

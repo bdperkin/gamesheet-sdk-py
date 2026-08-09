@@ -22,6 +22,7 @@ def test_default_user_agent_is_version_stamped(config: Config) -> None:
         # Session.headers is typed `str | bytes` (matches the requests stub);
         # the SDK only ever stores a str, so narrow here for static checkers.
         ua = str(sess.headers["User-Agent"])
+
     assert ua.startswith("gamesheet-sdk-py/")
     assert "github.com/bdperkin/gamesheet-sdk-py" in ua
 
@@ -44,6 +45,7 @@ def test_relative_url_resolves_against_base(config: Config) -> None:
     )
     with Session(config) as sess:
         resp = sess.get("/api/leagues")
+
     assert resp.status_code == 200
     assert resp.json() == {"leagues": []}
 
@@ -59,6 +61,7 @@ def test_absolute_url_used_verbatim(config: Config) -> None:
     )
     with Session(config) as sess:
         resp = sess.get("https://other.example/foo")
+
     assert resp.text == "ok"
 
 
@@ -74,6 +77,7 @@ def test_post_put_delete_resolve_too(config: Config) -> None:
         post_response = sess.post("/a")
         put_response = sess.put("/b")
         delete_response = sess.delete("/c")
+
     assert post_response.status_code == 201
     assert put_response.status_code == 204
     assert delete_response.status_code == 204
@@ -91,6 +95,7 @@ def test_cookies_persist_across_session_lifecycles(config: Config) -> None:
     with Session(config) as sess:
         sess.get("/login")
         assert sess.cookies.get("auth") == "token123"
+
     assert config.session_path.exists()
     # A fresh Session against the same config picks the cookie back up.
     with Session(config) as sess2:
@@ -119,6 +124,7 @@ def test_corrupt_cookie_file_does_not_crash(
     config.session_path.write_text("{ this is not json")
     with caplog.at_level("WARNING"):
         sess = Session(config)
+
     assert "Failed to load session cookies" in caplog.text
     assert not sess.cookies
     sess.close()
@@ -154,6 +160,7 @@ def test_corrupt_browser_state_file_does_not_crash(
     config.browser_state_path.write_text("{ this is not json")
     with caplog.at_level("WARNING"):
         sess = Session(config)
+
     assert "Failed to load browser state cookies" in caplog.text
     assert not sess.cookies
     sess.close()
@@ -184,6 +191,7 @@ def test_unreadable_browser_state_file_does_not_crash(
         caplog.at_level("WARNING"),
     ):
         sess = Session(config)
+
     assert "Failed to load browser state cookies" in caplog.text
     assert TEST_ERROR_PERMISSION_DENIED in caplog.text
     sess.close()
@@ -215,6 +223,7 @@ def test_explicit_timeout_overrides_default(config: Config) -> None:
         # Explicit timeout is accepted; we cannot easily assert the value
         # reaches urllib3 without deeper plumbing, but the call must succeed.
         resp = sess.get("/timed", timeout=0.5)
+
     assert resp.status_code == 200
     assert captured["called"] is True
 
@@ -223,7 +232,7 @@ def test_default_config_when_none_passed(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    """`Session()` with no Config should construct a default Config."""
+    """``Session()`` with no Config should construct a default Config."""
     monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
     sess = Session()
     assert sess.config.base_url == DEFAULT_BASE_URL
@@ -256,6 +265,7 @@ def test_user_agent_falls_back_when_package_not_found() -> None:
 
         mock_version.side_effect = PackageNotFoundError("gamesheet-sdk-py")
         ua = _default_user_agent()
+
     assert ua == "gamesheet-sdk-py/0+unknown (+https://github.com/bdperkin/gamesheet-sdk-py)"
 
 
@@ -274,6 +284,7 @@ def test_close_handles_save_oserror_gracefully(
         caplog.at_level("WARNING"),
     ):
         sess.close()
+
     assert "Failed to save session cookies" in caplog.text
     assert TEST_ERROR_DISK_FULL in caplog.text
 
@@ -284,4 +295,5 @@ def test_patch_resolves_relative_urls(config: Config) -> None:
     responses.add(responses.PATCH, "https://test.example/resource", status=204)
     with Session(config) as sess:
         resp = sess.patch("/resource")
+
     assert resp.status_code == 204

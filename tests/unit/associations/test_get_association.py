@@ -45,6 +45,7 @@ def test_get_association_returns_single_association(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_association(session, _association_id)
+
     assert result.id == _association_id
     assert result.title == DEFAULT_ASSOCIATION_NAME
     assert result.logo == "https://example.com/logo.png"
@@ -75,6 +76,7 @@ def test_get_association_sends_bearer_and_jsonapi_accept(config: Config) -> None
     with Session(config) as session:
         session.set_bearer_token("test-token")
         get_association(session, _association_id)
+
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == TEST_AUTH_HEADER

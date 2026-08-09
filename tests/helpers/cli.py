@@ -14,8 +14,8 @@ def assert_no_session_error(result: Result) -> None:
     This is a common assertion pattern for CLI tests that verify behavior when authentication tokens are
     missing.
 
-    :param result: Click CLI test result to check.
-    :type result: Result
+    Args:
+        result (Result): Click CLI test result to check.
     """
     assert "No saved session" in result.output or "login" in result.output.lower()
 
@@ -26,7 +26,7 @@ def assert_output_contains_id(result: Result) -> None:
     This checks for the presence of an ID field in the output, accepting both "id:" and "id :" formats (with
     or without space after colon).
 
-    :param result: Click CLI test result to check.
-    :type result: Result
+    Args:
+        result (Result): Click CLI test result to check.
     """
     assert "id:" in result.output or "id :" in result.output

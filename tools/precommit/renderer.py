@@ -22,6 +22,7 @@ from precommit.config import (
 from precommit.exceptions import RenderError
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
+from shared.yaml_format import format_yaml
 
 logger = logging.getLogger(__name__)
 
@@ -31,29 +32,38 @@ _SUBSEP = "---------------------------------------------------------------------
 def _build_hook_map(hook: dict[str, Any]) -> CommentedMap:
     """Convert a plain hook dict to a CommentedMap with ``id`` first.
 
-    :param hook: Hook configuration dict.
-    :returns: CommentedMap with ordered keys.
+    Args:
+        hook (dict[str, Any]): Hook configuration dict.
+
+    Returns:
+        CommentedMap: CommentedMap with ordered keys.
     """
     hook_map = CommentedMap()
     if "id" in hook:
         hook_map["id"] = hook["id"]
+
     for key, value in hook.items():
         if key == "id":
             continue
+
         if isinstance(value, list):
             hook_map[key] = CommentedSeq(value)
         elif isinstance(value, dict):
             hook_map[key] = CommentedMap(value)
         else:
             hook_map[key] = value
+
     return hook_map
 
 
 def _build_ci_map(ci: dict[str, Any]) -> CommentedMap:
     """Convert the ci config dict to a CommentedMap with property comments.
 
-    :param ci: Raw ci configuration dict.
-    :returns: CommentedMap with description comments on documented properties.
+    Args:
+        ci (dict[str, Any]): Raw ci configuration dict.
+
+    Returns:
+        CommentedMap: CommentedMap with description comments on documented properties.
     """
     ci_map = CommentedMap()
     for key, value in ci.items():
@@ -77,8 +87,11 @@ def _build_ci_map(ci: dict[str, Any]) -> CommentedMap:
 def _build_repo_map(repo: dict[str, Any]) -> CommentedMap:
     """Convert a plain repo dict to a CommentedMap with proper structure.
 
-    :param repo: Repository dict with repo, rev, and hooks keys.
-    :returns: CommentedMap with ordered keys.
+    Args:
+        repo (dict[str, Any]): Repository dict with repo, rev, and hooks keys.
+
+    Returns:
+        CommentedMap: CommentedMap with ordered keys.
     """
     repo_map = CommentedMap()
     repo_map["repo"] = repo["repo"]
@@ -90,6 +103,7 @@ def _build_repo_map(repo: dict[str, Any]) -> CommentedMap:
         hooks_seq = CommentedSeq()
         for hook in repo["hooks"]:
             hooks_seq.append(_build_hook_map(hook))
+
         repo_map["hooks"] = hooks_seq
 
     return repo_map
@@ -98,8 +112,9 @@ def _build_repo_map(repo: dict[str, Any]) -> CommentedMap:
 def _add_global_comment(doc: CommentedMap, key: str) -> None:
     """Add a description comment before a top-level global key if one is defined.
 
-    :param doc: The document CommentedMap.
-    :param key: The key to annotate.
+    Args:
+        doc (CommentedMap): The document CommentedMap.
+        key (str): The key to annotate.
     """
     if key in GLOBALS_PROPERTY_DESCRIPTIONS:
         doc.yaml_set_comment_before_after_key(
@@ -120,13 +135,14 @@ def _add_globals_section(
 ) -> None:
     """Populate the globals section of the document with banner and property comments.
 
-    :param doc: The document CommentedMap to populate.
-    :param default_language_version: Default language version mapping.
-    :param default_stages: Default stages list.
-    :param fail_fast: Whether to fail fast.
-    :param files: Optional global files regex pattern.
-    :param exclude: Optional global exclude regex pattern.
-    :param minimum_pre_commit_version: Optional minimum pre-commit version.
+    Args:
+        doc (CommentedMap): The document CommentedMap to populate.
+        default_language_version (dict[str, str]): Default language version mapping.
+        default_stages (list[str]): Default stages list.
+        fail_fast (bool): Whether to fail fast.
+        files (str | None): Optional global files regex pattern.
+        exclude (str | None): Optional global exclude regex pattern.
+        minimum_pre_commit_version (str | None): Optional minimum pre-commit version.
     """
     if minimum_pre_commit_version is not None:
         doc["minimum_pre_commit_version"] = minimum_pre_commit_version
@@ -172,13 +188,15 @@ def _apply_hook_comments(
 ) -> None:
     """Attach per-hook comments to hooks inside a repo entry.
 
-    :param repo_map: The CommentedMap for a single repo.
-    :param repo_idx: Index of this repo in the repos sequence.
-    :param hook_comments: Mapping of (repo_index, hook_index) to comment text.
+    Args:
+        repo_map (CommentedMap): The CommentedMap for a single repo.
+        repo_idx (int): Index of this repo in the repos sequence.
+        hook_comments (dict[tuple[int, int], str]): Mapping of (repo_index, hook_index) to comment text.
     """
     hooks_list = repo_map.get("hooks")
     if not isinstance(hooks_list, CommentedSeq):
         return
+
     for hook_idx in range(len(hooks_list)):
         comment_key = (repo_idx, hook_idx)
         if comment_key in hook_comments:
@@ -195,10 +213,13 @@ def _build_repos_seq(
 ) -> CommentedSeq:
     """Build the repos CommentedSeq with hook and category comments.
 
-    :param repos: List of repo dicts.
-    :param hook_comments: Optional hook-level comments.
-    :param category_comments: Optional category description comments.
-    :returns: CommentedSeq ready for insertion into the document.
+    Args:
+        repos (list[dict[str, Any]]): List of repo dicts.
+        hook_comments (dict[tuple[int, int], str] | None): Optional hook-level comments.
+        category_comments (dict[int, str] | None): Optional category description comments.
+
+    Returns:
+        CommentedSeq: CommentedSeq ready for insertion into the document.
     """
     repos_seq = CommentedSeq()
     for repo_idx, repo in enumerate(repos):
@@ -234,17 +255,20 @@ def _build_document(
 ) -> CommentedMap:
     """Build the ruamel.yaml document structure with comments.
 
-    :param default_language_version: Default language version mapping.
-    :param default_stages: Default stages list.
-    :param fail_fast: Whether to fail fast.
-    :param repos: List of repo dicts.
-    :param ci: Optional pre-commit.ci service configuration.
-    :param files: Optional global files regex pattern.
-    :param exclude: Optional global exclude regex pattern.
-    :param minimum_pre_commit_version: Optional minimum pre-commit version.
-    :param hook_comments: Optional hook-level comments.
-    :param category_comments: Optional mapping of repo_index to category description.
-    :returns: CommentedMap ready for YAML serialization.
+    Args:
+        default_language_version (dict[str, str]): Default language version mapping.
+        default_stages (list[str]): Default stages list.
+        fail_fast (bool): Whether to fail fast.
+        repos (list[dict[str, Any]]): List of repo dicts.
+        ci (dict[str, Any] | None): Optional pre-commit.ci service configuration.
+        files (str | None): Optional global files regex pattern.
+        exclude (str | None): Optional global exclude regex pattern.
+        minimum_pre_commit_version (str | None): Optional minimum pre-commit version.
+        hook_comments (dict[tuple[int, int], str] | None): Optional hook-level comments.
+        category_comments (dict[int, str] | None): Optional mapping of repo_index to category description.
+
+    Returns:
+        CommentedMap: CommentedMap ready for YAML serialization.
     """
     doc = CommentedMap()
     doc.yaml_set_start_comment(HEADER_COMMENT)
@@ -270,7 +294,11 @@ def _build_document(
 
 
 def _add_repo_spacing(text: str) -> str:
-    """Insert a blank line before each ``- repo:`` entry that lacks one."""
+    """Insert a blank line before each ``- repo:`` entry that lacks one.
+
+    Returns:
+        str: Text with blank lines inserted before repo entries.
+    """
     lines = text.splitlines()
     result: list[str] = []
     for i, line in enumerate(lines):
@@ -281,7 +309,9 @@ def _add_repo_spacing(text: str) -> str:
             and not lines[i - 1].strip().startswith("repos:")
         ):
             result.append("")
+
         result.append(line)
+
     return "\n".join(result)
 
 
@@ -290,17 +320,22 @@ def _single_to_double_quotes(text: str) -> str:
 
     Strings containing backslashes are left single-quoted because YAML double-quoted strings interpret
     backslash escape sequences.
+
+    Returns:
+        str: Text with single quotes replaced by double quotes.
     """
 
     def _replace_match(m: re.Match[str]) -> str:
         inner = m.group(1)
         if "\\" in inner:
             return m.group(0)
+
         return '"' + inner + '"'
 
     def _replace_on_line(line: str) -> str:
         if line.lstrip().startswith("#"):
             return line
+
         return re.sub(r"'([^']*)'", _replace_match, line)
 
     return "\n".join(_replace_on_line(line) for line in text.splitlines())
@@ -309,8 +344,9 @@ def _single_to_double_quotes(text: str) -> str:
 def _write_yaml(output_path: Path, doc: CommentedMap) -> None:
     """Write a ruamel.yaml document to a file.
 
-    :param output_path: Path to write to.
-    :param doc: Document to serialize.
+    Args:
+        output_path (Path): Path to write to.
+        doc (CommentedMap): Document to serialize.
     """
     yml = YAML()
     yml.indent(mapping=2, sequence=4, offset=2)
@@ -321,8 +357,7 @@ def _write_yaml(output_path: Path, doc: CommentedMap) -> None:
     yml.dump(doc, buf)
     text = _add_repo_spacing(buf.getvalue())
     text = _single_to_double_quotes(text)
-    cleaned = "\n".join(line.rstrip() for line in text.splitlines()) + "\n"
-
+    cleaned = format_yaml("\n".join(line.rstrip() for line in text.splitlines()) + "\n")
     with output_path.open("w", encoding="utf-8") as fh:
         fh.write(cleaned)
 
@@ -343,29 +378,22 @@ def render_config(
 ) -> None:
     """Render the complete .pre-commit-config.yaml file.
 
-    :param output_path: Path to write the output file.
-    :type output_path: Path
-    :param default_language_version: Default language version mapping.
-    :type default_language_version: dict[str, str]
-    :param default_stages: Default stages list.
-    :type default_stages: list[str]
-    :param fail_fast: Whether to fail fast on first hook failure.
-    :type fail_fast: bool
-    :param repos: List of repository dicts with hooks.
-    :type repos: list[dict[str, Any]]
-    :param ci: Optional pre-commit.ci service configuration.
-    :type ci: dict[str, Any] | None
-    :param files: Optional global files regex pattern.
-    :type files: str | None
-    :param exclude: Optional global exclude regex pattern.
-    :type exclude: str | None
-    :param minimum_pre_commit_version: Optional minimum pre-commit version.
-    :type minimum_pre_commit_version: str | None
-    :param hook_comments: Optional mapping of (repo_index, hook_index) to comment.
-    :type hook_comments: dict[tuple[int, int], str] | None
-    :param category_comments: Optional mapping of repo_index to category description.
-    :type category_comments: dict[int, str] | None
-    :raises RenderError: If the file cannot be written.
+    Args:
+        output_path (Path): Path to write the output file.
+        default_language_version (dict[str, str]): Default language version mapping.
+        default_stages (list[str]): Default stages list.
+        fail_fast (bool): Whether to fail fast on first hook failure.
+        repos (list[dict[str, Any]]): List of repository dicts with hooks.
+        ci (dict[str, Any] | None): Optional pre-commit.ci service configuration.
+        files (str | None): Optional global files regex pattern.
+        exclude (str | None): Optional global exclude regex pattern.
+        minimum_pre_commit_version (str | None): Optional minimum pre- commit version.
+        hook_comments (dict[tuple[int, int], str] | None): Optional mapping of (repo_index, hook_index) to
+            comment.
+        category_comments (dict[int, str] | None): Optional mapping of repo_index to category description.
+
+    Raises:
+        RenderError: If the file cannot be written.
     """
     doc = _build_document(
         default_language_version=default_language_version,
@@ -388,4 +416,4 @@ def render_config(
         msg = f"Failed to render {output_path}: {exc}"
         raise RenderError(msg) from exc
 
-    logger.info("Wrote %s", output_path)
+    logger.debug("Wrote %s", output_path)

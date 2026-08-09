@@ -37,7 +37,8 @@ class PipConfig:
 def _pip_config_paths() -> list[Path]:
     """Return pip config file paths in precedence order (lowest first).
 
-    :returns: List of paths to check, lowest precedence first.
+    Returns:
+        list[Path]: List of paths to check, lowest precedence first.
     """
     paths: list[Path] = []
 
@@ -69,7 +70,8 @@ def _pip_config_paths() -> list[Path]:
 def _split_multi_value(value: str) -> list[str]:
     """Split a pip config multi-value string (newline or space separated).
 
-    :returns: Non-empty stripped values.
+    Returns:
+        list[str]: Non-empty stripped values.
     """
     parts = value.replace("\n", " ").split()
     return [p.strip() for p in parts if p.strip()]
@@ -78,7 +80,8 @@ def _split_multi_value(value: str) -> list[str]:
 def _read_config_files(paths: list[Path]) -> configparser.ConfigParser:
     """Read pip config files in precedence order (lowest first, later overrides).
 
-    :returns: Merged ConfigParser with all discovered settings.
+    Returns:
+        configparser.ConfigParser: Merged ConfigParser with all discovered settings.
     """
     parser = configparser.ConfigParser()
     for path in paths:
@@ -88,6 +91,7 @@ def _read_config_files(paths: list[Path]) -> configparser.ConfigParser:
                 logger.debug("Read pip config from %s", path)
             except (configparser.Error, OSError) as exc:
                 logger.debug("Skipping unreadable pip config %s: %s", path, exc)
+
     return parser
 
 
@@ -96,13 +100,16 @@ def _read_global_section(
 ) -> tuple[str | None, list[str], list[str], str | None, str | None]:
     """Extract pip settings from the [global] section of parsed config files.
 
-    :param parser: Merged config parser with all discovered pip config files.
-    :type parser: configparser.ConfigParser
-    :returns: Tuple of (index_url, extra_index_urls, trusted_hosts, cert, client_cert).
-    :rtype: tuple[str | None, list[str], list[str], str | None, str | None]
+    Args:
+        parser (configparser.ConfigParser): Merged config parser with all discovered pip config files.
+
+    Returns:
+        tuple[str | None, list[str], list[str], str | None, str | None]: Tuple of (index_url,
+            extra_index_urls, trusted_hosts, cert, client_cert).
     """
     if not parser.has_section("global"):
         return None, [], [], None, None
+
     index_url = parser.get("global", "index-url", fallback=None)
     extra_raw = parser.get("global", "extra-index-url", fallback=None)
     extra_index_urls = _split_multi_value(extra_raw) if extra_raw else []
@@ -119,8 +126,8 @@ def load_pip_config() -> PipConfig:
     Config files are read in standard pip precedence order (global → user → venv → explicit). Environment
     variables override file values.
 
-    :returns: Resolved pip configuration.
-    :rtype: PipConfig
+    Returns:
+        PipConfig: Resolved pip configuration.
     """
     paths = _pip_config_paths()
     parser = _read_config_files(paths)
@@ -173,14 +180,17 @@ def load_pip_config() -> PipConfig:
 def _get_system_ca_bundle() -> str | bool:
     """Resolve the system CA bundle path.
 
-    :returns: Path to the system CA file, or True to use the default certifi bundle.
+    Returns:
+        str | bool: Path to the system CA file, or True to use the default certifi bundle.
     """
     paths = ssl.get_default_verify_paths()
     if paths.cafile:
         return paths.cafile
+
     for ca_path in _SYSTEM_CA_PATHS:
         if Path(ca_path).is_file():
             return ca_path
+
     return True
 
 
@@ -192,17 +202,19 @@ def resolve_verify(url: str, config: PipConfig | None = None) -> str | bool:
     signed or private CA certificates. CodeQL flags the resulting ``verify=False`` as ``py/request-without-
     cert-validation``; dismiss those findings as false positives in the Security UI after merge.
 
-    :param url: The URL being requested.
-    :type url: str
-    :param config: Pip configuration, or None for defaults.
-    :type config: PipConfig | None
-    :returns: False for trusted hosts, cert path if configured, or system CA bundle.
-    :rtype: str | bool
+    Args:
+        url (str): The URL being requested.
+        config (PipConfig | None): Pip configuration, or None for defaults.
+
+    Returns:
+        str | bool: False for trusted hosts, cert path if configured, or system CA bundle.
     """
     if config and config.trusted_hosts:
         hostname = urlparse(url).hostname or ""
         if hostname in config.trusted_hosts:
             return False
+
     if config and config.cert:
         return config.cert
+
     return _get_system_ca_bundle()

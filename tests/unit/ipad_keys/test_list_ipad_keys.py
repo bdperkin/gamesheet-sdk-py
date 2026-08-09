@@ -62,6 +62,7 @@ def test_list_ipad_keys_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_ipad_keys(session, SEASON_ID)
+
     assert len(result) == 1
     assert result[0].id == "3567"
     assert result[0].value == "ipad-ncrr-kw"
@@ -99,6 +100,7 @@ def test_list_ipad_keys_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         list_ipad_keys(session, SEASON_ID)
+
     assert len(responses.calls) == 1
     req = responses.calls[0].request
     assert req.headers["Authorization"] == "Bearer abc"

@@ -14,10 +14,9 @@ from rich.logging import RichHandler
 def configure_logging(log_level: str, console: Console) -> None:
     """Configure the root logger with a Rich handler.
 
-    :param log_level: One of 'debug', 'info', 'warning', 'error'.
-    :type log_level: str
-    :param console: Rich Console instance for output.
-    :type console: Console
+    Args:
+        log_level (str): One of 'debug', 'info', 'warning', 'error'.
+        console (Console): Rich Console instance for output.
     """
     level_map = {
         "debug": logging.DEBUG,

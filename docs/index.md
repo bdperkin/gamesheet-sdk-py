@@ -1,5 +1,16 @@
 # gamesheet-sdk-py
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. The four documentation quadrants](#1-the-four-documentation-quadrants)
+- [2. Indices](#2-indices)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 ```{warning}
 This project is **not affiliated with, endorsed by, or sponsored by GameSheet Inc.**
 See the [README disclaimer](https://github.com/bdperkin/gamesheet-sdk-py#%EF%B8%8F-disclaimer)
@@ -9,9 +20,9 @@ is absent, and may break without warning when the UI changes.
 
 Unofficial Python SDK and command-line interface for the [GameSheet Inc.](https://gamesheetinc.com) platform.
 
-## The four documentation quadrants
+## 1. The four documentation quadrants
 
-This documentation is organized following the [Diátaxis](https://diataxis.fr/) framework, which separates technical writing into four kinds with distinct
+This documentation is organized following the [Diataxis](https://diataxis.fr/) framework, which separates technical writing into four kinds with distinct
 audiences and purposes. Pick the entry point that matches _your current need_, not the topic you're interested in. (For background on why we split things this
 way, see {doc}`explanation/diataxis`.)
 
@@ -45,7 +56,7 @@ reference/index
 explanation/index
 ```
 
-## Indices
+## 2. Indices
 
 - {ref}`genindex`
 - {ref}`modindex`

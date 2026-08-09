@@ -50,20 +50,18 @@ def locations_list_command(
     output_path: str | None,
     columns_spec: str | None,
 ) -> None:
-    """List all available locations.
+    r"""List all available locations.
 
     Returns the list of locations/venues from the GameSheet API. Each location includes the venue name,
     surface/rink name, and geographic information.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param columns_spec: Comma-separated list of columns to display
-    :type columns_spec: str | None
+
+    Args:
+        ctx (Context): Click context object containing config
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        columns_spec (str | None): Comma-separated list of columns to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -88,22 +86,19 @@ def locations_get_command(
     output_path: str | None,
     fields_spec: str | None,
 ) -> None:
-    """Get a specific location by ID.
+    r"""Get a specific location by ID.
 
     Retrieve detailed information about a specific location using its UUID. The location ID can be found using
     the 'list' command.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param location_id: The location UUID
-    :type location_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param fields_spec: Comma-separated list of fields to display
-    :type fields_spec: str | None
+
+    Args:
+        ctx (Context): Click context object containing config
+        location_id (str): The location UUID
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        fields_spec (str | None): Comma-separated list of fields to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

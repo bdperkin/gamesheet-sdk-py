@@ -3,25 +3,14 @@
 
 """Teams-specific constants and configuration values.
 
-This module defines URL constants and endpoint paths specific to the
-GameSheet teams dashboard API gateway.
+This module defines URL constants and endpoint paths specific to the GameSheet teams dashboard API gateway.
 
-Constants
----------
-TEAMS_API_GATEWAY : str
-    Base URL of the teams API gateway.
-FIREBASE_API_KEY : str
-    Firebase API key for the ``gamesheet-production`` project.
-TEAMS_TOKEN_EXCHANGE_PATH : str
-    Endpoint path for exchanging a Firebase ID token for app tokens.
-TEAMS_REFRESH_PATH : str
-    Endpoint path for refreshing an expired access token.
-TEAMS_LOOKUPS_PATH : str
-    Endpoint path for fetching public lookup data (no auth required).
+Constants --------- TEAMS_API_GATEWAY : str Base URL of the teams API gateway. FIREBASE_API_KEY : str Firebase
+API key for the ``gamesheet-production`` project. TEAMS_TOKEN_EXCHANGE_PATH : str Endpoint path for exchanging
+a Firebase ID token for app tokens. TEAMS_REFRESH_PATH : str Endpoint path for refreshing an expired access
+token. TEAMS_LOOKUPS_PATH : str Endpoint path for fetching public lookup data (no auth required).
 
-Examples
---------
-Building a token exchange URL:
+Examples -------- Building a token exchange URL:
 
 .. code-block:: python
 

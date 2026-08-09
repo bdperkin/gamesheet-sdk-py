@@ -1,16 +1,51 @@
 # Development Setup
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Prerequisites](#1-prerequisites)
+- [2. Initial Setup](#2-initial-setup)
+  - [2.1. Clone and Create Environment](#21-clone-and-create-environment)
+  - [2.2. Install Dependencies](#22-install-dependencies)
+  - [2.3. Install Playwright Browsers](#23-install-playwright-browsers)
+  - [2.4. Install Pre-commit Hooks](#24-install-pre-commit-hooks)
+- [3. Running Tests](#3-running-tests)
+- [4. Code Quality](#4-code-quality)
+  - [4.1. Pre-commit Hooks](#41-pre-commit-hooks)
+  - [4.2. Type Checking](#42-type-checking)
+  - [4.3. Linting](#43-linting)
+  - [4.4. Formatting](#44-formatting)
+  - [4.5. Complexity Gates](#45-complexity-gates)
+- [5. Documentation](#5-documentation)
+  - [5.1. Building Docs](#51-building-docs)
+  - [5.2. Live Preview](#52-live-preview)
+  - [5.3. Link Checking](#53-link-checking)
+- [6. Using Tox](#6-using-tox)
+- [7. Makefile Shortcuts](#7-makefile-shortcuts)
+- [8. Committing Changes](#8-committing-changes)
+- [9. Troubleshooting](#9-troubleshooting)
+  - [9.1. Pre-commit hook failures](#91-pre-commit-hook-failures)
+  - [9.2. Playwright browser issues](#92-playwright-browser-issues)
+  - [9.3. Tox environment issues](#93-tox-environment-issues)
+  - [9.4. Coverage failures](#94-coverage-failures)
+- [10. Next Steps](#10-next-steps)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 This guide covers setting up a local development environment for `gamesheet-sdk-py`.
 
-## Prerequisites
+## 1. Prerequisites
 
 - Python 3.11, 3.12, 3.13, or 3.14
 - Git
 - Modern Linux, macOS, or Windows system
 
-## Initial Setup
+## 2. Initial Setup
 
-### 1. Clone and Create Environment
+### 2.1. Clone and Create Environment
 
 ```bash
 git clone https://github.com/bdperkin/gamesheet-sdk-py.git
@@ -22,7 +57,7 @@ source .venv/bin/activate  # Linux/macOS
 # or: .venv\Scripts\activate  # Windows
 ```
 
-### 2. Install Dependencies
+### 2.2. Install Dependencies
 
 ```bash
 # Install everything (recommended for full development)
@@ -33,13 +68,13 @@ pip install -e ".[dev,pytest,docs]"  # dev tools + tests + docs
 pip install -e ".[dev,pytest]"        # minimal: dev tools + tests only
 ```
 
-### 3. Install Playwright Browsers
+### 2.3. Install Playwright Browsers
 
 ```bash
 python -m playwright install chromium
 ```
 
-### 4. Install Pre-commit Hooks
+### 2.4. Install Pre-commit Hooks
 
 ```bash
 # Install commit-msg hook for Conventional Commits enforcement
@@ -49,7 +84,7 @@ pre-commit install --hook-type commit-msg
 pre-commit install
 ```
 
-## Running Tests
+## 3. Running Tests
 
 ```bash
 # Full test suite
@@ -74,9 +109,9 @@ pytest -v
 pytest -x
 ```
 
-## Code Quality
+## 4. Code Quality
 
-### Pre-commit Hooks
+### 4.1. Pre-commit Hooks
 
 ```bash
 # Run all hooks on all files
@@ -90,7 +125,7 @@ pre-commit run black --all-files
 pre-commit autoupdate
 ```
 
-### Type Checking
+### 4.2. Type Checking
 
 ```bash
 # MyPy (strict mode)
@@ -104,7 +139,7 @@ tox -e mypy
 tox -e pyright
 ```
 
-### Linting
+### 4.3. Linting
 
 ```bash
 # Run all linters via pre-commit
@@ -123,7 +158,7 @@ tox -e bandit
 tox -e semgrep
 ```
 
-### Formatting
+### 4.4. Formatting
 
 ```bash
 # Auto-fix with make
@@ -138,7 +173,7 @@ mdformat docs/ *.md
 tox -e fix
 ```
 
-### Complexity Gates
+### 4.5. Complexity Gates
 
 ```bash
 # Check code metrics
@@ -149,9 +184,9 @@ tox -e metrics
 tox -e xenon
 ```
 
-## Documentation
+## 5. Documentation
 
-### Building Docs
+### 5.1. Building Docs
 
 ```bash
 # Build HTML docs
@@ -166,7 +201,7 @@ tox -e docs-man    # man pages
 tox -e docs-pdf    # PDF (requires LaTeX)
 ```
 
-### Live Preview
+### 5.2. Live Preview
 
 ```bash
 # Auto-rebuild on file changes
@@ -176,13 +211,13 @@ make docs-serve
 tox -e docs-serve
 ```
 
-### Link Checking
+### 5.3. Link Checking
 
 ```bash
 tox -e docs-linkcheck
 ```
 
-## Using Tox
+## 6. Using Tox
 
 Tox provides isolated environments for each tool:
 
@@ -208,7 +243,7 @@ tox -e docs
 tox -e pytest -- -v -k test_name
 ```
 
-## Makefile Shortcuts
+## 7. Makefile Shortcuts
 
 ```bash
 # Show all available targets
@@ -229,7 +264,7 @@ make clean         # remove build artifacts
 make clean-all     # aggressive clean (includes .tox, .venv)
 ```
 
-## Committing Changes
+## 8. Committing Changes
 
 All commits **must** follow [Conventional Commits](https://www.conventionalcommits.org/) format:
 
@@ -257,9 +292,9 @@ Common types:
 - `ci:` — CI/CD changes
 - `build:` — Build system changes
 
-## Troubleshooting
+## 9. Troubleshooting
 
-### Pre-commit hook failures
+### 9.1. Pre-commit hook failures
 
 If a hook modifies files (e.g., black, isort), stage the changes and commit again:
 
@@ -268,7 +303,7 @@ git add -u
 git commit -m "your message"
 ```
 
-### Playwright browser issues
+### 9.2. Playwright browser issues
 
 If Playwright fails to launch Chromium:
 
@@ -280,7 +315,7 @@ python -m playwright install --force chromium
 python -m playwright install --dry-run
 ```
 
-### Tox environment issues
+### 9.3. Tox environment issues
 
 Clean and rebuild tox environments:
 
@@ -291,7 +326,7 @@ rm -rf .tox
 tox -e pytest
 ```
 
-### Coverage failures
+### 9.4. Coverage failures
 
 If coverage drops below 100%:
 
@@ -302,7 +337,7 @@ open htmlcov/index.html  # macOS
 xdg-open htmlcov/index.html  # Linux
 ```
 
-## Next Steps
+## 10. Next Steps
 
 - Read [Release Process](release-process.md) to understand how releases work
 - Check [CLAUDE.md](../../CLAUDE.md) for architecture notes and project patterns

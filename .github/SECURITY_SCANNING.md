@@ -2,7 +2,7 @@
 
 This document describes the comprehensive security scanning pipeline implemented via GitHub Actions workflows.
 
-## Overview
+## 1. Overview
 
 Four specialized security scanning workflows have been implemented following strict CI/CD hardening best practices:
 
@@ -11,9 +11,9 @@ Four specialized security scanning workflows have been implemented following str
 3. **OSV Scanner** (`osv-scanner.yml`) - Dependency vulnerability scanning
 4. **GitGuardian** (`gitguardian.yml`) - Secret scanning
 
-## Security Hardening Principles
+## 2. Security Hardening Principles
 
-### 1. Commit SHA Pinning
+### 2.1. Commit SHA Pinning
 
 All third-party GitHub Actions are pinned to their full 40-character commit SHA instead of mutable version tags. This prevents supply chain attacks where a
 malicious actor could replace a tagged version.
@@ -24,7 +24,7 @@ malicious actor could replace a tagged version.
 uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 ```
 
-### 2. Least Privilege Permissions
+### 2.2. Least Privilege Permissions
 
 Every workflow explicitly defines a `permissions:` block at the workflow or job level. Default repository permissions are not relied upon.
 
@@ -34,9 +34,9 @@ Every workflow explicitly defines a `permissions:` block at the workflow or job 
 - `security-events: write` - Upload SARIF results to GitHub Security tab
 - No `write` permissions unless absolutely necessary
 
-## Workflow Details
+## 3. Workflow Details
 
-### 1. Semgrep SAST (`semgrep.yml`)
+### 3.1. Semgrep SAST (`semgrep.yml`)
 
 **Purpose:** Static analysis for security vulnerabilities, secrets, and code quality issues.
 
@@ -65,7 +65,7 @@ Every workflow explicitly defines a `permissions:` block at the workflow or job 
 
 - `SEMGREP_APP_TOKEN` (optional) - For Semgrep Cloud integration
 
-### 2. Workflow Linter (`workflow-linter.yml`)
+### 3.2. Workflow Linter (`workflow-linter.yml`)
 
 **Purpose:** Audit GitHub Actions workflows for security issues.
 
@@ -86,7 +86,7 @@ Every workflow explicitly defines a `permissions:` block at the workflow or job 
 
 **Installation:** Via `pipx` for reproducible tool versioning
 
-### 3. OSV Scanner (`osv-scanner.yml`)
+### 3.3. OSV Scanner (`osv-scanner.yml`)
 
 **Purpose:** Scan Python dependencies against the Open Source Vulnerabilities (OSV) database.
 
@@ -111,7 +111,7 @@ Every workflow explicitly defines a `permissions:` block at the workflow or job 
 
 **Action:** `google/osv-scanner-action` (official Google OSV Scanner)
 
-### 4. GitGuardian (`gitguardian.yml`)
+### 3.4. GitGuardian (`gitguardian.yml`)
 
 **Purpose:** Scan for leaked secrets in code, commit history, and pull request diffs.
 
@@ -147,7 +147,7 @@ Every workflow explicitly defines a `permissions:` block at the workflow or job 
 - `--exit-zero` - Don't fail the build on findings (for gradual adoption)
 - `--all-policies` - Apply all GitGuardian detection policies
 
-## GitHub Security Tab Integration
+## 4. GitHub Security Tab Integration
 
 All workflows upload results in SARIF (Static Analysis Results Interchange Format) to the GitHub Security tab via:
 
@@ -162,7 +162,7 @@ uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38
 - Code scanning alerts with inline annotations
 - Trend tracking over time
 
-## Required Secrets
+## 5. Required Secrets
 
 Configure the following secrets in repository settings (`Settings > Secrets and variables > Actions`):
 
@@ -171,7 +171,7 @@ Configure the following secrets in repository settings (`Settings > Secrets and 
 | `SEMGREP_APP_TOKEN`   | `semgrep.yml`     | Optional - Semgrep Cloud integration | [semgrep.dev](https://semgrep.dev)                             |
 | `GITGUARDIAN_API_KEY` | `gitguardian.yml` | Required - GitGuardian API auth      | [dashboard.gitguardian.com](https://dashboard.gitguardian.com) |
 
-## Action Version Reference
+## 6. Action Version Reference
 
 All actions are SHA-pinned. The following table maps SHAs to version tags for reference:
 
@@ -183,9 +183,9 @@ All actions are SHA-pinned. The following table maps SHAs to version tags for re
 | `github/codeql-action/upload-sarif` | `f205ea1`           | v4.37.4     | `f205ea1c3313d32999d8d6a48b4f6530d4437b38` |
 | `GitGuardian/ggshield-action`       | `2002482`           | v1.53.0     | `2002482fb5990b486be5598ebcf48a8eba393fce` |
 
-## Maintenance
+## 7. Maintenance
 
-### Updating Action SHAs
+### 7.1. Updating Action SHAs
 
 When a new version of an action is released:
 
@@ -205,13 +205,13 @@ uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 uses: actions/checkout@<new-40-char-sha> # v7.1.0
 ```
 
-### Monitoring
+### 7.2. Monitoring
 
 - Review GitHub Security tab weekly for new findings
 - Triage and remediate findings based on severity
 - Update security policies as needed
 
-### False Positives
+### 7.3. False Positives
 
 To suppress false positives:
 
@@ -219,7 +219,7 @@ To suppress false positives:
 - **GitGuardian:** Add to `.gitguardian.yaml` ignore list
 - **OSV Scanner:** Configure in `osv-scanner.toml`
 
-## References
+## 8. References
 
 - [GitHub Actions Security Hardening](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions)
 - [Semgrep Rules](https://semgrep.dev/explore)
@@ -227,7 +227,7 @@ To suppress false positives:
 - [GitGuardian Documentation](https://docs.gitguardian.com/)
 - [SARIF Specification](https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html)
 
-## Compliance
+## 9. Compliance
 
 This security scanning pipeline helps satisfy requirements for:
 

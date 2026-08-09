@@ -80,22 +80,18 @@ def coaches_get_command(
     output_path: str | None,
     fields_spec: str | None,
 ) -> None:
-    """Get detailed information about a specific coach.
+    r"""Get detailed information about a specific coach.
 
     The coach ID can be provided via --coach-id or the GAMESHEET_COACH_ID environment variable. The season ID
-    is inherited from the parent roster command. Requires a saved session from `gamesheet-admin login`. The
+    is inherited from the parent roster command. Requires a saved session from ``gamesheet-admin login``. The
     output displays coach metadata as key-value pairs, with each field on its own row.\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param coach_id: The coach identifier
-    :type coach_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param fields_spec: Optional comma-separated list of fields to display
-    :type fields_spec: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        coach_id (str): The coach identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        fields_spec (str | None): Optional comma-separated list of fields to display
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
@@ -115,18 +111,15 @@ def coaches_list_command(
     output_path: str | None,
     columns_spec: str | None,
 ) -> None:
-    """List all coaches in the specified season.
+    r"""List all coaches in the specified season.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param columns_spec: Optional comma-separated list of columns to display
-    :type columns_spec: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        columns_spec (str | None): Optional comma-separated list of columns to display
     """
     # Extract config and season_id from context (set by roster_group)
     # ctx.obj is always a dict set by roster_group with "config" and "season_id" keys
@@ -177,27 +170,22 @@ def coaches_create_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Create a new coach in the season.
+    r"""Create a new coach in the season.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param first_name: Optional updated first name
-    :type first_name: str
-    :param last_name: Optional updated last name
-    :type last_name: str
-    :param external_id: Optional updated external identifier
-    :type external_id: str | None
-    :param position: Optional position
-    :type position: str | None
-    :param team_id: The team identifier
-    :type team_id: str | None
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :raises Exit: Always raised (exit code 1) because this command is not yet implemented.
+    Args:
+        ctx (Context): Click context object containing config
+        first_name (str): Optional updated first name
+        last_name (str): Optional updated last name
+        external_id (str | None): Optional updated external identifier
+        position (str | None): Optional position
+        team_id (str | None): The team identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+
+    Raises:
+        Exit: Always raised (exit code 1) because this command is not yet implemented.
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
@@ -217,6 +205,7 @@ def coaches_create_command(
     except Exception as exc:
         click.secho(f"Error creating coach: {exc}", fg="red", err=True)
         raise Exit(1) from exc
+
     render_get_command(coach, output_format, output_path, None)
     click.secho(f"Coach {coach.id} created successfully.", fg="green")
 
@@ -261,28 +250,23 @@ def coaches_update_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Update an existing coach.
+    r"""Update an existing coach.
 
     Requires authentication (run 'gamesheet-admin login' first). At least one field must be provided for
     update.\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param coach_id: The coach identifier
-    :type coach_id: str
-    :param first_name: Optional updated first name
-    :type first_name: str | None
-    :param last_name: Optional updated last name
-    :type last_name: str | None
-    :param external_id: Optional updated external identifier
-    :type external_id: str | None
-    :param position: Optional position
-    :type position: str | None
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :raises Exit: Always raised (exit code 1) because this command is not yet implemented.
+    Args:
+        ctx (Context): Click context object containing config
+        coach_id (str): The coach identifier
+        first_name (str | None): Optional updated first name
+        last_name (str | None): Optional updated last name
+        external_id (str | None): Optional updated external identifier
+        position (str | None): Optional position
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+
+    Raises:
+        Exit: Always raised (exit code 1) because this command is not yet implemented.
     """
     from gamesheet_sdk.admin.cli.helpers import run_roster_update_with_output
 
@@ -317,16 +301,17 @@ def coaches_update_command(
 @confirm_destructive("coach")
 @click.pass_context
 def coaches_delete_command(ctx: Context, coach_id: str) -> None:
-    """Delete a coach from the season.
+    r"""Delete a coach from the season.
 
     Requires authentication (run 'gamesheet-admin login' first). This operation is destructive and cannot be
     undone. Use --force to skip confirmation prompt.\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param coach_id: The coach identifier to delete
-    :type coach_id: str
-    :raises Exit: On authentication or API errors.
+    Args:
+        ctx (Context): Click context object containing config
+        coach_id (str): The coach identifier to delete
+
+    Raises:
+        Exit: On authentication or API errors.
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
@@ -338,6 +323,7 @@ def coaches_delete_command(ctx: Context, coach_id: str) -> None:
     except Exception as exc:
         click.secho(f"Error deleting coach: {exc}", fg="red", err=True)
         raise Exit(1) from exc
+
     click.secho(f"Coach {coach_id} deleted successfully.", fg="green")
 
 
@@ -357,18 +343,15 @@ def coaches_penalty_report_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Get penalty report for a coach.
+    r"""Get penalty report for a coach.
 
     Retrieves penalty statistics, incidents, and infraction history for the specified coach.\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param coach_id: Coach ID to retrieve penalty report for
-    :type coach_id: str
-    :param output_format: Output format (json, yaml, etc.)
-    :type output_format: str
-    :param output_path: Optional path to write output file
-    :type output_path: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        coach_id (str): Coach ID to retrieve penalty report for
+        output_format (str): Output format (json, yaml, etc.)
+        output_path (str | None): Optional path to write output file
     """
     import json
 
@@ -386,6 +369,7 @@ def coaches_penalty_report_command(
             output_text = yaml.dump(report, default_flow_style=False)
         else:
             output_text = json.dumps(report, indent=2)
+
         from gamesheet_sdk.common.output import write_output
 
         write_output(output_text, output_path, fmt=output_format)
@@ -421,20 +405,17 @@ def coaches_assign_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Assign an existing coach to a team's roster.\f.
+    r"""Assign an existing coach to a team's roster.
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param coach_id: The coach identifier
-    :type coach_id: str
-    :param team_id: The team identifier
-    :type team_id: str
-    :param position: Optional position
-    :type position: str | None
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
+    Requires authentication (run 'gamesheet-admin login' first).\f
+
+    Args:
+        ctx (Context): Click context object containing config
+        coach_id (str): The coach identifier
+        team_id (str): The team identifier
+        position (str | None): Optional position
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
     """
     config, season_id = ctx.obj["config"], ctx.obj["season_id"]
     session = build_authenticated_session(config)
@@ -471,14 +452,14 @@ def coaches_assign_command(
 )
 @click.pass_context
 def coaches_unassign_command(ctx: Context, coach_id: str, team_id: str) -> None:
-    """Unassign a coach from a team's roster.\f.
+    r"""Unassign a coach from a team's roster.
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param coach_id: The coach identifier
-    :type coach_id: str
-    :param team_id: The team identifier
-    :type team_id: str
+    Requires authentication (run 'gamesheet-admin login' first).\f
+
+    Args:
+        ctx (Context): Click context object containing config
+        coach_id (str): The coach identifier
+        team_id (str): The team identifier
     """
     config, season_id = ctx.obj["config"], ctx.obj["season_id"]
     session = build_authenticated_session(config)

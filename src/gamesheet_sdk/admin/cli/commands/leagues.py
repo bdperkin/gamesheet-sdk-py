@@ -3,11 +3,10 @@
 
 """Leagues command group.
 
-This module provides the CLI interface for managing GameSheet leagues, which represent organizational
-units within an association. A league typically corresponds to a specific division, age group, or
-competition tier within the broader association structure.
-The command group provides sub-commands for listing leagues within a specified association. When invoked
-without a sub-command, it defaults to the ``list`` operation.
+This module provides the CLI interface for managing GameSheet leagues, which represent organizational units
+within an association. A league typically corresponds to a specific division, age group, or competition tier
+within the broader association structure. The command group provides sub-commands for listing leagues within a
+specified association. When invoked without a sub-command, it defaults to the ``list`` operation.
 Examples:
     List all leagues in an association in simple table format::
         $ gamesheet-admin leagues --association-id ABC123
@@ -93,23 +92,19 @@ def leagues_get_command(
     output_path: str | None,
     fields_spec: str | None,
 ) -> None:
-    """Get detailed information about a specific league.
+    r"""Get detailed information about a specific league.
 
     The league and association IDs can be provided via command-line options or environment variables
-    (GAMESHEET_LEAGUE_ID, GAMESHEET_ASSOCIATION_ID). Requires a saved session from `gamesheet-admin login`.
+    (GAMESHEET_LEAGUE_ID, GAMESHEET_ASSOCIATION_ID). Requires a saved session from ``gamesheet-admin login``.
     The output displays league metadata as key-value pairs, with each field on its own row.\f
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param association_id: The association identifier
-    :type association_id: str
-    :param league_id: The league identifier
-    :type league_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param fields_spec: Optional comma-separated list of fields to display
-    :type fields_spec: str | None
+
+    Args:
+        ctx (Context): Click context object containing config
+        association_id (str): The association identifier
+        league_id (str): The league identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        fields_spec (str | None): Optional comma-separated list of fields to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -135,14 +130,11 @@ def leagues_list_command(
     output_path: str | None,
     columns_spec: str | None,
 ) -> None:
-    """List all leagues in the specified association.
+    r"""List all leagues in the specified association.
 
-    Requires authentication (run 'gamesheet-admin login' first). Retrieves all
-    leagues belonging to the specified association and displays them in the
-    specified output format.
-    The association ID can be provided via --association-id or the
-    GAMESHEET_ASSOCIATION_ID environment variable.
-    .. rubric:: Examples
+    Requires authentication (run 'gamesheet-admin login' first). Retrieves all leagues belonging to the
+    specified association and displays them in the specified output format. The association ID can be provided
+    via --association-id or the GAMESHEET_ASSOCIATION_ID environment variable. .. rubric:: Examples
 
         List all leagues in an association in default format:
     .. code-block:: bash
@@ -173,16 +165,12 @@ def leagues_list_command(
 
         $ gamesheet-admin leagues list\f
 
-    :param ctx: Click context object containing config
-    :type ctx: Context
-    :param association_id: The association identifier
-    :type association_id: str
-    :param output_format: Output format for rendering
-    :type output_format: str
-    :param output_path: Optional output file path
-    :type output_path: str | None
-    :param columns_spec: Optional comma-separated list of columns to display
-    :type columns_spec: str | None
+    Args:
+        ctx (Context): Click context object containing config
+        association_id (str): The association identifier
+        output_format (str): Output format for rendering
+        output_path (str | None): Optional output file path
+        columns_spec (str | None): Optional comma-separated list of columns to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

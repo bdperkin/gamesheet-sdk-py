@@ -18,10 +18,12 @@ import sys
 try:
     from shared import PROJECT_NAME
     from shared.log_config import configure_logging
+    from shared.yaml_format import format_yaml
 except ModuleNotFoundError:
     sys.path.append(str(Path(__file__).resolve().parent))
     from shared import PROJECT_NAME
     from shared.log_config import configure_logging
+    from shared.yaml_format import format_yaml
 
 from rich.console import Console
 from rich.syntax import Syntax
@@ -44,7 +46,11 @@ _LOG_LEVELS = {True: "info", False: "warning"}
 
 
 def _has_lc(val: object, typ: type) -> bool:
-    """Check if *val* is a non-empty instance of *typ* with line/column data."""
+    """Check if *val* is a non-empty instance of *typ* with line/column data.
+
+    Returns:
+        bool: True if *val* matches *typ*, is non-empty, and has lc data.
+    """
     return isinstance(val, typ) and bool(val) and hasattr(val, "lc")
 
 
@@ -59,12 +65,15 @@ def _map_indents(node: object) -> Iterator[int]:
     if not _has_lc(node, CommentedMap):
         for item in _iter_children(node):
             yield from _map_indents(item)
+
         return
+
     for key in node:  # type: ignore[attr-defined]
         val = node[key]  # type: ignore[index]
         if _has_lc(val, CommentedMap):
             keys = list(val.keys())
             yield val.lc.key(keys[0])[1] - node.lc.key(key)[1]  # type: ignore[attr-defined]
+
         yield from _map_indents(val)
 
 
@@ -73,16 +82,23 @@ def _seq_indents(node: object) -> Iterator[int]:
     if not _has_lc(node, CommentedMap):
         for item in _iter_children(node):
             yield from _seq_indents(item)
+
         return
+
     for key in node:  # type: ignore[attr-defined]
         val = node[key]  # type: ignore[index]
         if _has_lc(val, CommentedSeq):
             yield val.lc.item(0)[1] - node.lc.key(key)[1]  # type: ignore[attr-defined]
+
         yield from _seq_indents(val)
 
 
 def _detect_indent(data: object) -> tuple[int, int, int]:
-    """Detect mapping indent, sequence indent, and dash offset from loaded YAML."""
+    """Detect mapping indent, sequence indent, and dash offset from loaded YAML.
+
+    Returns:
+        tuple[int, int, int]: ``(mapping_indent, sequence_indent, dash_offset)``.
+    """
     mi = next(_map_indents(data), 2)
     si = next(_seq_indents(data), 2)
     return mi, si, max(si - 2, 0)
@@ -105,8 +121,10 @@ def _type_order(value: object) -> int:
     """Return 0 for scalars, 1 for mappings, 2 for sequences."""
     if isinstance(value, CommentedMap):
         return 1
+
     if isinstance(value, (list, CommentedSeq)):
         return 2
+
     return 0
 
 
@@ -135,6 +153,7 @@ def _codecov_nested_sort_key(key: str, value: object) -> tuple[int, int, int, st
     """Return sort key for a nested codecov key (name first, scalars first)."""
     if key == "name":
         return (0, _type_order(value), 0, key)
+
     name_order = 0 if key.startswith("default") else 1
     return (1, _type_order(value), name_order, key)
 
@@ -148,6 +167,7 @@ def _codecov_sort_key(
     """Return sort key for a codecov key at the given depth."""
     if not depth:
         return _codecov_top_sort_key(key)
+
     return _codecov_nested_sort_key(key, value)
 
 
@@ -194,6 +214,7 @@ def _trivyignore_sort_key(
     """Return sort key for a trivyignore key at the given depth."""
     if not depth:
         return (_ordered_key_pos(key, _TRIVYIGNORE_TOP_LEVEL), key)
+
     return _trivyignore_nested_sort_key(key, value)
 
 
@@ -302,6 +323,7 @@ def _genprecommit_sort_key(
     """Return sort key for a genprecommitconfig key at the given depth."""
     if depth == 1 and key not in _GENPRECOMMIT_DEPTH1_KNOWN:
         return (pos,)
+
     order = _GENPRECOMMIT_DEPTH_KEYS.get(depth, ())
     return (_ordered_key_pos(key, order), _type_order(value), key)
 
@@ -410,6 +432,7 @@ def _is_job_value(value: object) -> bool:
     """Return True if *value* looks like a GitHub Actions job definition."""
     if not isinstance(value, CommentedMap):
         return False
+
     return "runs-on" in value or "steps" in value or "uses" in value
 
 
@@ -422,15 +445,85 @@ def _github_workflow_sort_key(
     """Return sort key for a GitHub Actions workflow key at the given depth."""
     if depth == 1 and _is_job_value(value):
         return (pos,)
+
     sort_key = "on" if key is True else key  # type: ignore[comparison-overlap]  # bare `on` is YAML boolean
     order = _GITHUB_WORKFLOW_DEPTH_KEYS.get(depth, ())
     return (_ordered_key_pos(sort_key, order), _type_order(value), sort_key)
+
+
+# -- GitLab CI --
+
+_GITLAB_CI_TOP_LEVEL = (
+    "include",
+    "workflow",
+    "default",
+    "variables",
+    "stages",
+)
+
+_GITLAB_CI_JOB_KEYS = (
+    # Execution Control & Meta
+    "extends",
+    "stage",
+    "image",
+    "services",
+    "tags",
+    "rules",
+    "needs",
+    "allow_failure",
+    "inherit",
+    "variables",
+    "parallel",
+    "trigger",
+    "resource_group",
+    "interruptible",
+    "timeout",
+    "retry",
+    # Pre-Execution Setup
+    "before_script",
+    # Primary Logic
+    "script",
+    # Post-Execution Cleanup
+    "after_script",
+    # State & Outputs
+    "cache",
+    "artifacts",
+    "dependencies",
+    "environment",
+    "release",
+    "coverage",
+    "secrets",
+)
+
+_GITLAB_CI_DEPTH_KEYS: dict[int, tuple[str, ...]] = {
+    1: _GITLAB_CI_JOB_KEYS,
+}
+
+
+def _gitlab_ci_sort_key(
+    key: str,
+    value: object,
+    depth: int,
+    pos: int,
+) -> tuple[object, ...]:
+    """Return sort key for a GitLab CI key at the given depth."""
+    if not depth:
+        idx = _ordered_key_pos(key, _GITLAB_CI_TOP_LEVEL)
+        if idx < len(_GITLAB_CI_TOP_LEVEL):
+            return (idx, 0, key)
+
+        group = len(_GITLAB_CI_TOP_LEVEL) if key.startswith(".") else len(_GITLAB_CI_TOP_LEVEL) + 1
+        return (group, pos, key)
+
+    order = _GITLAB_CI_DEPTH_KEYS.get(depth, ())
+    return (_ordered_key_pos(key, order), _type_order(value), key)
 
 
 _SCHEMA_SORT_KEYS: dict[str, SortKeyFn] = {
     "codecov": _codecov_sort_key,
     "dependabot": _dependabot_sort_key,
     "genprecommitconfig": _genprecommit_sort_key,
+    "gitlab-ci": _gitlab_ci_sort_key,
     "github-workflow": _github_workflow_sort_key,
     "pre-commit-config": _precommit_sort_key,
     "trivyignore": _trivyignore_sort_key,
@@ -475,7 +568,11 @@ def _identity_key_fn(
 
 
 def _save_comments(data: CommentedMap) -> dict[str, object]:
-    """Save comment associations from a CommentedMap."""
+    """Save comment associations from a CommentedMap.
+
+    Returns:
+        dict[str, object]: Mapping of key to comment data.
+    """
     return {k: data.ca.items[k] for k in data if k in data.ca.items}
 
 
@@ -494,7 +591,57 @@ def _sorted_pairs(
         key_fn = _identity_key_fn(data, sort_key_fn, depth)
     else:
         key_fn = str
+
     return [(k, data[k]) for k in sorted(data.keys(), key=key_fn)]
+
+
+# pylint: disable-next=too-many-branches
+def _walk_merge_ids(data: object, ids: set[int], visited: set[int]) -> bool:
+    """Return True if *data* is or contains a merge-involved map."""
+    if not isinstance(data, (CommentedMap, list, CommentedSeq)):
+        return False
+
+    obj_id = id(data)
+    if obj_id in visited:
+        return obj_id in ids
+
+    visited.add(obj_id)
+    if isinstance(data, CommentedMap):
+        merge = getattr(data, "merge", None)
+        if merge:
+            ids.add(obj_id)
+            for merged_map in merge:
+                if isinstance(merged_map, CommentedMap):
+                    ids.add(id(merged_map))
+
+        has_merge_child = False
+        for value in data.values():
+            if _walk_merge_ids(value, ids, visited):
+                has_merge_child = True
+
+        if has_merge_child:
+            ids.add(obj_id)
+
+        return obj_id in ids
+
+    for item in data:
+        _walk_merge_ids(item, ids, visited)
+
+    return False
+
+
+def _collect_merge_ids(data: object) -> set[int]:
+    """Pre-scan the tree for all CommentedMaps involved in merge-key relationships.
+
+    Returns ids of maps that use ``<<``, maps referenced as merge sources, and parent maps whose values
+    include any merge-involved map (reordering those parents would break anchor-before-reference ordering).
+
+    Returns:
+        set[int]: Object ids of merge-involved CommentedMaps.
+    """
+    ids: set[int] = set()
+    _walk_merge_ids(data, ids, set())
+    return ids
 
 
 def _sort_map_keys(
@@ -504,18 +651,28 @@ def _sort_map_keys(
     *,
     strict: bool = True,
     in_seq: bool = False,
+    merge_ids: set[int] | None = None,
 ) -> None:
     """Sort a single CommentedMap's keys in place and recurse into values."""
+    if merge_ids and id(data) in merge_ids:
+        logger.debug("Skipping sort of merge-involved map at depth %d", depth)
+        for value in data.values():
+            _sort_mapping(value, sort_key_fn, depth + 1, strict=strict, merge_ids=merge_ids)
+
+        return
+
     saved = _save_comments(data)
     pairs = _sorted_pairs(data, sort_key_fn, depth, in_seq=in_seq)
     for k in list(data.keys()):
         del data[k]
+
     data.ca.items.clear()
     for key, value in pairs:
         data[key] = value
         if key in saved:
             data.ca.items[key] = saved[key]
-        _sort_mapping(value, sort_key_fn, depth + 1, strict=strict)
+
+        _sort_mapping(value, sort_key_fn, depth + 1, strict=strict, merge_ids=merge_ids)
 
 
 def _sort_mapping(
@@ -525,21 +682,31 @@ def _sort_mapping(
     *,
     strict: bool = True,
     in_seq: bool = False,
+    merge_ids: set[int] | None = None,
 ) -> None:
     """Recursively sort CommentedMap keys, preserving attached comments."""
     if isinstance(data, CommentedMap):
-        _sort_map_keys(data, sort_key_fn, depth, strict=strict, in_seq=in_seq)
+        _sort_map_keys(data, sort_key_fn, depth, strict=strict, in_seq=in_seq, merge_ids=merge_ids)
     elif isinstance(data, (list, CommentedSeq)):
         for item in data:
-            _sort_mapping(item, sort_key_fn, depth, strict=strict, in_seq=not strict)
+            _sort_mapping(
+                item,
+                sort_key_fn,
+                depth,
+                strict=strict,
+                in_seq=not strict,
+                merge_ids=merge_ids,
+            )
 
 
 def _should_fold(value: object, key: str, indent: int, depth: int, width: int) -> bool:
     """Return True if a quoted string value would wrap when rendered inline."""
     if not isinstance(value, (DoubleQuotedScalarString, SingleQuotedScalarString)):
         return False
+
     if "\n" in str(value):
         return False
+
     inline_len = depth * indent + len(key) + 4 + len(str(value))
     return inline_len > width
 
@@ -555,6 +722,7 @@ def _fold_map_strings(
         value = data[key]
         if _should_fold(value, key, indent, depth, width):
             data[key] = FoldedScalarString(str(value))
+
         _fold_long_strings(value, indent, depth + 1, width)
 
 
@@ -572,18 +740,49 @@ def _fold_long_strings(
             _fold_long_strings(item, indent, depth, width)
 
 
+def _preserve_anchors(data: object, visited: set[int] | None = None) -> None:
+    """Force all YAML anchors to emit even when no alias references them."""
+    if visited is None:
+        visited = set()
+
+    obj_id = id(data)
+    if obj_id in visited:
+        return
+
+    visited.add(obj_id)
+    anchor = getattr(data, "anchor", None)
+    if anchor and anchor.value:
+        anchor.always_dump = True
+
+    if isinstance(data, CommentedMap):
+        for value in data.values():
+            _preserve_anchors(value, visited)
+    elif isinstance(data, (list, CommentedSeq)):
+        for item in data:
+            _preserve_anchors(item, visited)
+
+
 def _render(yml: YAML, data: object) -> str:
-    """Dump YAML data to a string, stripping trailing whitespace per line."""
+    """Dump YAML data to a string.
+
+    Returns:
+        str: Rendered YAML text.
+    """
+    _preserve_anchors(data)
     buf = io.StringIO()
     yml.dump(data, buf)
-    return re.sub(r"[ \t]+$", "", buf.getvalue(), flags=re.MULTILINE)
+    return buf.getvalue()
 
 
 # --- CLI helpers ---
 
 
 def _validate_args(*, backup: bool, is_stdin: bool) -> None:
-    """Reject invalid flag combinations."""
+    """Reject invalid flag combinations.
+
+    Raises:
+        SystemExit: If --backup is used with stdin.
+    """
     if backup and is_stdin:
         console.print("[bold red]Error:[/] --backup cannot be used with stdin")
         raise SystemExit(2)
@@ -592,21 +791,27 @@ def _validate_args(*, backup: bool, is_stdin: bool) -> None:
 def _load_yaml(file: io.TextIOWrapper) -> tuple[str, object, YAML]:
     """Read and parse YAML from *file*.
 
-    :param file: Input file handle.
-    :type file: io.TextIOWrapper
-    :returns: ``(original_text, parsed_data, yaml_instance)``.
-    :rtype: tuple[str, object, YAML]
+    Args:
+        file (io.TextIOWrapper): Input file handle.
+
+    Returns:
+        tuple[str, object, YAML]: ``(original_text, parsed_data, yaml_instance)``.
+
+    Raises:
+        SystemExit: If YAML parsing fails.
     """
     original = file.read()
     yml = YAML()
     yml.preserve_quotes = True
     if original.startswith("---"):
         yml.explicit_start = True
+
     try:
         data = yml.load(original)
     except Exception as exc:
         console.print(f"[bold red]Error:[/] Failed to parse YAML: {exc}")
         raise SystemExit(2) from exc
+
     return original, data, yml
 
 
@@ -624,19 +829,28 @@ def _sort_and_render(
     *,
     strict: bool = True,
 ) -> str:
-    """Detect indent, sort keys, and render to string."""
+    """Detect indent, sort keys, render to string, and format with yamlfix.
+
+    Returns:
+        str: Sorted, rendered, and yamlfix-formatted YAML text.
+    """
     mi, si, do = _detect_indent(data)
     yml.indent(mapping=mi, sequence=si, offset=do)
     logger.info("Detected indent: mapping=%d, sequence=%d, offset=%d", mi, si, do)
-    _sort_mapping(data, sort_key_fn, strict=strict)
+    merge_ids = _collect_merge_ids(data)
+    if merge_ids:
+        logger.info("Found %d merge-involved maps, skipping their key reorder", len(merge_ids))
+
+    _sort_mapping(data, sort_key_fn, strict=strict, merge_ids=merge_ids)
     _fold_long_strings(data, mi)
-    return _render(yml, data)
+    return format_yaml(_render(yml, data))
 
 
 def _show_diff(original: str, sorted_text: str, source: str) -> None:
     """Print colorized unified diff to stdout if content changed."""
     if original == sorted_text:
         return
+
     lines = difflib.unified_diff(
         original.splitlines(keepends=True),
         sorted_text.splitlines(keepends=True),
@@ -647,12 +861,18 @@ def _show_diff(original: str, sorted_text: str, source: str) -> None:
 
 
 def _run_check(original: str, sorted_text: str, source: str, *, showed_diff: bool) -> None:
-    """Exit 1 if content is not sorted."""
+    """Exit 1 if content is not sorted.
+
+    Raises:
+        SystemExit: If content is not already sorted.
+    """
     if original == sorted_text:
         logger.info("%s already sorted", source)
         return
+
     if not showed_diff:
         console.print(f"[bold yellow]{source}[/] would be resorted")
+
     raise SystemExit(1)
 
 
@@ -661,11 +881,13 @@ def _write_result(sorted_text: str, source: str, *, is_stdin: bool, backup: bool
     if is_stdin:
         sys.stdout.write(sorted_text)
         return
+
     path = Path(source)
     if backup:
         bak_path = path.with_suffix(path.suffix + ".bak")
         shutil.copy2(path, bak_path)
         logger.info("Backup: %s", bak_path)
+
     path.write_text(sorted_text, encoding="utf-8")
     logger.info("Sorted %s", source)
 
@@ -719,20 +941,14 @@ def app(
 
     FILE is the YAML file to sort. Use - or omit for stdin.
 
-    :param file: Input file handle (or stdin).
-    :type file: io.TextIOWrapper
-    :param verbose: Enable verbose output.
-    :type verbose: bool
-    :param backup: Create a .bak backup before modifying.
-    :type backup: bool
-    :param check: Check if already sorted; exit 1 if not.
-    :type check: bool
-    :param diff: Show unified diff of changes.
-    :type diff: bool
-    :param schema_type: Schema type for schema-specific sorting rules.
-    :type schema_type: str | None
-    :param strict: Disable identity-key-first sorting in sequence elements.
-    :type strict: bool
+    Args:
+        file (io.TextIOWrapper): Input file handle (or stdin).
+        verbose (bool): Enable verbose output.
+        backup (bool): Create a .bak backup before modifying.
+        check (bool): Check if already sorted; exit 1 if not.
+        diff (bool): Show unified diff of changes.
+        schema_type (str | None): Schema type for schema-specific sorting rules.
+        strict (bool): Disable identity-key-first sorting in sequence elements.
     """
     configure_logging(_LOG_LEVELS[verbose], console)
     is_stdin = file.name == "<stdin>"
@@ -742,15 +958,18 @@ def app(
     if data is None:
         _handle_empty(original, is_stdin=is_stdin, check=check, diff=diff)
         return
+
     sort_key_fn = _SCHEMA_SORT_KEYS.get(schema_type) if schema_type else None
     sorted_text = _sort_and_render(data, yml, sort_key_fn, strict=strict)
     if diff:
         _show_diff(original, sorted_text, file.name)
         if not check:
             return
+
     if check:
         _run_check(original, sorted_text, file.name, showed_diff=diff)
         return
+
     _write_result(sorted_text, file.name, is_stdin=is_stdin, backup=backup)
 
 

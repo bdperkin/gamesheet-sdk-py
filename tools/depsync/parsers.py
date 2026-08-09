@@ -52,6 +52,7 @@ def _parse_dep_string(
     dep = dep_raw.strip()
     if not dep or "@" in dep or "<" in dep or ">" in dep:
         return None
+
     if dep.startswith(f"{PROJECT_NAME}["):
         return None
 
@@ -81,12 +82,15 @@ def _parse_dep_string(
 def parse_pyproject(path: Path) -> dict[str, list[PyProjectDependency]]:
     """Parse dependencies from pyproject.toml.
 
-    :param path: Path to pyproject.toml.
-    :type path: Path
-    :returns: Dict mapping normalized package names to lists of PyProjectDependency (one per group the package
-        appears in).
-    :rtype: dict[str, list[PyProjectDependency]]
-    :raises ParseError: If the file cannot be read or parsed.
+    Args:
+        path (Path): Path to pyproject.toml.
+
+    Returns:
+        dict[str, list[PyProjectDependency]]: Dict mapping normalized package names to lists of
+            PyProjectDependency (one per group the package appears in).
+
+    Raises:
+        ParseError: If the file cannot be read or parsed.
     """
     try:
         data = load_toml(path)
@@ -130,6 +134,7 @@ def _parse_additional_dep(
                 original=dep_str,
                 hook_id=hook_id,
             )
+
         return None
 
     name_match = re.match(r"^([a-zA-Z0-9\-_]+)", dep_str)
@@ -140,6 +145,7 @@ def _parse_additional_dep(
             original=dep_str,
             hook_id=hook_id,
         )
+
     return None
 
 
@@ -148,9 +154,12 @@ def _parse_repo_hooks(
 ) -> tuple[list[str], list[PreCommitAdditionalDep]]:
     """Process hooks from a single repo entry.
 
-    :param repo_entry: A single repo mapping from .pre-commit-config.yaml.
-    :returns: Tuple of (hook_ids, additional_deps) extracted from the repo's hooks.
-    :rtype: tuple[list[str], list[PreCommitAdditionalDep]]
+    Args:
+        repo_entry (dict[str, Any]): A single repo mapping from .pre-commit-config.yaml.
+
+    Returns:
+        tuple[list[str], list[PreCommitAdditionalDep]]: Tuple of (hook_ids, additional_deps) extracted from
+            the repo's hooks.
     """
     hook_ids: list[str] = []
     additional_deps: list[PreCommitAdditionalDep] = []
@@ -166,6 +175,7 @@ def _parse_repo_hooks(
                 or _has_inequality_constraint(ad_str)
             ):
                 continue
+
             ad_parsed = _parse_additional_dep(ad_str, hook_id)
             if ad_parsed:
                 additional_deps.append(ad_parsed)
@@ -176,11 +186,14 @@ def _parse_repo_hooks(
 def parse_precommit_config(path: Path) -> list[PreCommitRepo]:
     """Parse repositories from .pre-commit-config.yaml.
 
-    :param path: Path to .pre-commit-config.yaml.
-    :type path: Path
-    :returns: List of PreCommitRepo entries (skipping 'meta' and 'local' repos).
-    :rtype: list[PreCommitRepo]
-    :raises ParseError: If the file cannot be read or parsed.
+    Args:
+        path (Path): Path to .pre-commit-config.yaml.
+
+    Returns:
+        list[PreCommitRepo]: List of PreCommitRepo entries (skipping 'meta' and 'local' repos).
+
+    Raises:
+        ParseError: If the file cannot be read or parsed.
     """
     yaml = YAML()
     try:
@@ -193,6 +206,7 @@ def parse_precommit_config(path: Path) -> list[PreCommitRepo]:
     repos: list[PreCommitRepo] = []
     if data is None:
         return repos
+
     for repo_entry in data.get("repos", []):
         url = repo_entry.get("repo", "")
         if url in {"meta", "local"} or not url.startswith("https://"):
@@ -217,25 +231,31 @@ def parse_precommit_config(path: Path) -> list[PreCommitRepo]:
 def _extract_pinned_from_data(data: dict[str, Any]) -> dict[str, str]:
     """Iterate category repos and build the pinned revs dict.
 
-    :param data: Parsed YAML data from .genprecommitconfig.yaml.
-    :returns: Dict mapping repo URL to pinned rev string.
-    :rtype: dict[str, str]
+    Args:
+        data (dict[str, Any]): Parsed YAML data from .genprecommitconfig.yaml.
+
+    Returns:
+        dict[str, str]: Dict mapping repo URL to pinned rev string.
     """
     pinned: dict[str, str] = {}
     for cat in (data.get("categories") or {}).values():
         if not cat:
             continue
+
         for repo_entry in cat.get("repos", []):
             url = repo_entry.get("repo", "")
             if not url.startswith("https://"):
                 continue
+
             rev = repo_entry.get("rev")
             if rev is not None and str(rev) != "installed":
                 pinned[url] = str(rev)
                 continue
+
             resolved_rev = repo_entry.get("resolved_rev")
             if resolved_rev is not None:
                 pinned[url] = str(resolved_rev)
+
     return pinned
 
 
@@ -245,11 +265,14 @@ def parse_genprecommit_pinned_revs(path: Path) -> dict[str, str]:
     Repos with an explicit ``rev:`` key take precedence. If ``rev`` is absent or ``installed``,
     ``resolved_rev`` is used as a fallback pin. Repos with neither are excluded.
 
-    :param path: Path to .genprecommitconfig.yaml.
-    :type path: Path
-    :returns: Dict mapping repo URL to pinned rev string.
-    :rtype: dict[str, str]
-    :raises ParseError: If the file cannot be read or parsed.
+    Args:
+        path (Path): Path to .genprecommitconfig.yaml.
+
+    Returns:
+        dict[str, str]: Dict mapping repo URL to pinned rev string.
+
+    Raises:
+        ParseError: If the file cannot be read or parsed.
     """
     yaml = YAML()
     try:
@@ -271,12 +294,15 @@ def parse_genprecommit_pinned_revs(path: Path) -> dict[str, str]:
 def parse_uv_lock(path: Path) -> tuple[set[str], set[str]]:
     """Parse all package names from uv.lock.
 
-    :param path: Path to uv.lock.
-    :type path: Path
-    :returns: Tuple of (base_packages, all_packages) where base_packages excludes types-* entries and
-        all_packages includes everything.
-    :rtype: tuple[set[str], set[str]]
-    :raises ParseError: If the file cannot be read or parsed.
+    Args:
+        path (Path): Path to uv.lock.
+
+    Returns:
+        tuple[set[str], set[str]]: Tuple of (base_packages, all_packages) where base_packages excludes types-*
+            entries and all_packages includes everything.
+
+    Raises:
+        ParseError: If the file cannot be read or parsed.
     """
     try:
         data = load_toml(path)
@@ -304,7 +330,8 @@ def parse_uv_lock(path: Path) -> tuple[set[str], set[str]]:
 def _parse_specifier_lower_bound(spec_str: str) -> Version | None:
     """Extract the lower-bound version from a PEP 440 specifier string.
 
-    :returns: The minimum Version from ``>=`` or ``~=``, or None on parse failure.
+    Returns:
+        Version | None: The minimum Version from ``>=`` or ``~=``, or None on parse failure.
     """
     try:
         spec_set = SpecifierSet(spec_str)
@@ -324,10 +351,11 @@ def parse_requires_python(path: Path) -> Version | None:
 
     Parses the ``>=`` or ``~=`` lower bound from the specifier set.
 
-    :param path: Path to pyproject.toml.
-    :type path: Path
-    :returns: The minimum Python Version, or None if not configured.
-    :rtype: Version | None
+    Args:
+        path (Path): Path to pyproject.toml.
+
+    Returns:
+        Version | None: The minimum Python Version, or None if not configured.
     """
     try:
         data = load_toml(path)
@@ -344,10 +372,11 @@ def parse_requires_python(path: Path) -> Version | None:
 def parse_index_url(path: Path) -> str | None:
     """Extract the package index URL from ``[tool.uv]`` in pyproject.toml.
 
-    :param path: Path to pyproject.toml.
-    :type path: Path
-    :returns: The ``index-url`` string, or None if not configured.
-    :rtype: str | None
+    Args:
+        path (Path): Path to pyproject.toml.
+
+    Returns:
+        str | None: The ``index-url`` string, or None if not configured.
     """
     try:
         data = load_toml(path)
@@ -357,4 +386,5 @@ def parse_index_url(path: Path) -> str | None:
     index_url = data.get("tool", {}).get("uv", {}).get("index-url")
     if isinstance(index_url, str) and index_url.strip():
         return index_url.strip()
+
     return None

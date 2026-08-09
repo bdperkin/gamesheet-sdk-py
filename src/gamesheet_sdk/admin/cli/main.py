@@ -104,25 +104,24 @@ def cli(
     no_headless: bool,
     verbose: int,
 ) -> None:
-    """Unofficial CLI for the GameSheet admin dashboard.
+    r"""Unofficial CLI for the GameSheet admin dashboard.
 
     Provides authentication, resource management, and utility commands.\f
 
-    :param ctx: Click context used to store the resolved :class:`~gamesheet_sdk.common.config.Config`.
-    :type ctx: Context
-    :param base_url: Override for the GameSheet base URL, or ``None`` to use the default.
-    :type base_url: str | None
-    :param no_headless: When ``True``, show the browser window during Playwright flows.
-    :type no_headless: bool
-    :param verbose: Logging verbosity level (0 = WARNING, 1 = INFO, 2 = DEBUG).
-    :type verbose: int
+    Args:
+        ctx (Context): Click context used to store the resolved :class:`~gamesheet_sdk.common.config.Config`.
+        base_url (str | None): Override for the GameSheet base URL, or ``None`` to use the default.
+        no_headless (bool): When ``True``, show the browser window during Playwright flows.
+        verbose (int): Logging verbosity level (0 = WARNING, 1 = INFO, 2 = DEBUG).
     """
     _configure_logging(verbose)
     overrides: dict[str, Any] = {}
     if base_url is not None:
         overrides["base_url"] = base_url
+
     if no_headless:
         overrides["browser_headless"] = False
+
     ctx.obj = Config(**overrides)
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
@@ -146,10 +145,11 @@ register_teams_roster_group(teams_group)
 def main(argv: list[str] | None = None) -> int:
     """Entry point for the ``gamesheet-admin`` console script.
 
-    :param argv: Command-line arguments, or ``None`` to use ``sys.argv``.
-    :type argv: list[str] | None
-    :returns: Process exit code.
-    :rtype: int
+    Args:
+        argv (list[str] | None): Command-line arguments, or ``None`` to use ``sys.argv``.
+
+    Returns:
+        int: Process exit code.
     """
     try:
         result = cli.main(
@@ -159,6 +159,7 @@ def main(argv: list[str] | None = None) -> int:
         )
     except (KeyboardInterrupt, SystemExit, Exit, UsageError, Abort) as exc:
         return resolve_exit(exc)
+
     return result if isinstance(result, int) else 0
 
 

@@ -138,7 +138,6 @@ tox.ini
 .codecov.yml
 .yamllint
 .trivyignore.yaml
-.docconvert.json
 
 # Other development configs
 .readthedocs.yml

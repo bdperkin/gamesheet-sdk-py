@@ -72,6 +72,7 @@ def test_get_team_player_returns_player_with_roster_metadata(config: Config) -> 
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_team_player(session, SEASON_ID, TEAM_ID, _player_id)
+
     assert result.id == _player_id
     assert result.season_id == SEASON_ID
     assert result.first_name == PLAYER_FIRST_NAME
@@ -193,6 +194,7 @@ def test_get_team_player_finds_player_after_skipping_others(config: Config) -> N
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_team_player(session, SEASON_ID, TEAM_ID, _player_id)
+
     assert result.id == _player_id
     assert result.first_name == PLAYER_FIRST_NAME
     assert result.last_name == PLAYER_LAST_NAME

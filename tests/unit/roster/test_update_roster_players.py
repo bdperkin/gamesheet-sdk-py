@@ -42,6 +42,7 @@ def test_update_player_updates_fields(config: Config) -> None:
             PLAYER_ID,
             last_name="UPDATED",
         )
+
     assert result.last_name == "UPDATED"
 
 
@@ -78,6 +79,7 @@ def test_update_player_with_photo_upload(config: Config) -> None:
             PLAYER_ID,
             photo_path=temp_path,
         )
+
     assert result.photo_url is not None
     assert result.photo_url.find("test-image-id") != -1
 
@@ -111,6 +113,7 @@ def test_update_player_remove_photo(config: Config) -> None:
             PLAYER_ID,
             remove_photo=True,
         )
+
     assert not result.photo_url
 
 
@@ -132,6 +135,7 @@ def test_update_player_photo_and_remove_photo_raises_error(config: Config) -> No
     with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
         f.write(b"fake-image-data")
         photo_path = f.name
+
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(
@@ -192,6 +196,7 @@ def test_update_team_player_updates_fields(config: Config) -> None:
             PLAYER_ID,
             last_name="UPDATED",
         )
+
     assert result.last_name == "UPDATED"
 
 
@@ -241,6 +246,7 @@ def test_update_player_with_all_profile_fields(config: Config) -> None:
             drafted_by="Team A",
             committed_to="Team B",
         )
+
     assert result.biography == "Test bio"
     assert result.height == "6'2\""
 
@@ -308,6 +314,7 @@ def test_update_team_player_with_all_profile_fields(config: Config) -> None:
             drafted_by="Team C",
             committed_to="Team D",
         )
+
     assert result.biography == "Test bio"
 
 
@@ -341,6 +348,7 @@ def test_update_player_preserves_existing_photo_url(config: Config) -> None:
             PLAYER_ID,
             last_name="UPDATED",
         )
+
     assert result.last_name == "UPDATED"
     assert result.photo_url == "https://example.com/photo.jpg"
 
@@ -363,6 +371,7 @@ def test_update_team_player_photo_and_remove_photo_raises_error(config: Config) 
     with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
         f.write(b"fake-image-data")
         photo_path = f.name
+
     with Session(config) as session:
         session.set_bearer_token("valid-token")
         with pytest.raises(
@@ -429,6 +438,7 @@ def test_update_team_player_with_photo_upload(config: Config) -> None:
             PLAYER_ID,
             photo_path=temp_path,
         )
+
     assert result.photo_url == "https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA/test-image-id"
 
 
@@ -529,5 +539,6 @@ def test_update_team_player_preserves_existing_photo_url(config: Config) -> None
             PLAYER_ID,
             last_name="UPDATED",
         )
+
     assert result.last_name == "UPDATED"
     assert result.photo_url == "https://example.com/photo.jpg"

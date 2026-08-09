@@ -3,15 +3,15 @@
 
 """Reusable HTTP session for talking to the GameSheet WebUI.
 
-Wraps :class:`requests.Session` with the bits every WebUI workflow
+Wraps: class:`requests.Session` with the bits every WebUI workflow
 needs and nobody wants to wire up by hand:
 - A pinned, version-stamped ``User-Agent``.
 - Configurable base URL so callers can hand in relative paths.
 - Cookie persistence to disk between process invocations.
 - Retries on 5xx and connection errors for idempotent methods.
 - POST is intentionally excluded from retries (no double-submission).
-Direct access to the cookie jar and default headers is via
-:attr:`Session.cookies` and :attr:`Session.headers`.
+Direct access to the cookie jar and default headers is via :attr:`Session.cookies` and
+:attr:`Session.headers`.
 """
 
 from __future__ import annotations
@@ -39,15 +39,17 @@ if TYPE_CHECKING:
 def _default_user_agent() -> str:
     """Build the SDK's default ``User-Agent`` from installed metadata.
 
-    Reads from the package's distribution metadata (which is set in `pyproject.toml` and managed by PSR)
+    Reads from the package's distribution metadata (which is set in ``pyproject.toml`` and managed by PSR)
     rather than importing ``__version__`` from the parent module, so this module stays free of cyclic imports.
-    :returns: String result.
-    :rtype: str
+
+    Returns:
+        str: String result.
     """
     try:
         ver = _resolved_version("gamesheet-sdk-py")
     except PackageNotFoundError:
         ver = "0+unknown"
+
     return f"gamesheet-sdk-py/{ver} (+https://github.com/bdperkin/gamesheet-sdk-py)"
 
 
@@ -68,19 +70,29 @@ class Session:
         with Session(Config()) as s:
             resp = s.get("/api/leagues")
             resp.raise_for_status()
-    The context-manager form persists cookies on exit. If you do not use
-    ``with``, call :meth:`Session.close` explicitly to save state.
+    The context-manager form persists cookies on exit. If you do not use ``with``, call :meth:`Session.close`
+    explicitly to save state.
+
+    Constructs a :class:`requests.Session` with automatic retry logic, a version-stamped User-Agent, and
+    restores any previously-saved cookies from disk. The session is ready for immediate use after
+    construction.
+
+    Args:
+        config (Config | None): Optional configuration object. If ``None``, a default
+            :class:`~gamesheet_sdk.common.config.Config` is created.
     """
 
     # -- internals --------------------------------------------------------
+
     def _build_http_session(self: Session) -> requests.Session:
         """Construct and configure the underlying :class:`requests.Session`.
 
         Attaches a User-Agent header and mounts an HTTPAdapter with retry logic for transient server-side and
         network errors. Retries apply only to idempotent methods (GET, HEAD, OPTIONS, PUT, DELETE); POST is
         excluded to avoid double-submission.
-        :returns: Return value.
-        :rtype: requests.Session
+
+        Returns:
+            requests.Session: Return value.
         """
         s = requests.Session()
         s.headers["User-Agent"] = self.config.user_agent or _default_user_agent()
@@ -104,10 +116,11 @@ class Session:
         Reads JSON-serialized cookie data from both session.json and browser-state.json (if they exist) and
         populates the underlying session's cookie jar. Browser state cookies are loaded first, then session
         cookies (which can override). If a file does not exist or cannot be parsed, the method logs a warning
-        and continues. This method is called automatically during :meth:`__init__` to restore session state
+        and continues. This method is called automatically during :meth:``__init__`` to restore session state
         from a previous run.
-        :returns: None
-        :rtype: None
+
+        Returns:
+            None: None
         """
         # Load from browser state file first (from login flow)
         browser_state_path = self.config.browser_state_path
@@ -134,11 +147,13 @@ class Session:
         path = self.config.session_path
         if not path.exists():
             return
+
         try:
             data = json.loads(path.read_text())
         except (OSError, json.JSONDecodeError) as exc:
             _LOGGER.warning("Failed to load session cookies from %s: %s", path, exc)
             return
+
         for raw in data.get("cookies", []):
             # Create a dictionary of the cookie attributes
             cookie_dict = {
@@ -153,16 +168,6 @@ class Session:
             self._http.cookies.set(**cookie_dict)
 
     def __init__(self: Session, config: Config | None = None) -> None:
-        """Initialize an HTTP session configured for GameSheet WebUI access.
-
-        Constructs a :class:`requests.Session` with automatic retry logic, a version-stamped User-Agent, and
-        restores any previously-saved cookies from disk. The session is ready for immediate use after
-        construction.
-
-        :param config: Optional configuration object. If ``None``, a default
-            :class:`~gamesheet_sdk.common.config.Config` is created.
-        :type config: Config | None
-        """
         self.config = config or Config()
         self._http = self._build_http_session()
         self._load_cookies()
@@ -173,8 +178,9 @@ class Session:
         """Underlying cookie jar.
 
         Mutating this affects subsequent requests.
-        :returns: Return value.
-        :rtype: RequestsCookieJar
+
+        Returns:
+            RequestsCookieJar: Return value.
         """
         return self._http.cookies
 
@@ -184,8 +190,9 @@ class Session:
 
         The underlying mapping is a case-insensitive dict (as supplied by :class:`requests.Session`), but the
         declared return type matches the stub for :attr:`requests.Session.headers`.
-        :returns: Return value.
-        :rtype: MutableMapping[str, str | bytes]
+
+        Returns:
+            MutableMapping[str, str | bytes]: Return value.
         """
         return self._http.headers  # pyright: ignore[reportReturnType]
 
@@ -193,8 +200,9 @@ class Session:
         """Attach ``Authorization: Bearer <token>`` to all subsequent requests.
 
         Convenience for ``s.headers["Authorization"] = f"Bearer {token}"``.
-        :param token: The bearer token to attach
-        :type token: str
+
+        Args:
+            token (str): The bearer token to attach
         """
         self._http.headers["Authorization"] = f"Bearer {token}"
 
@@ -203,13 +211,16 @@ class Session:
 
         Absolute URLs (starting with ``http://`` or ``https://``) are returned as-is. Relative paths are
         joined to :attr:`Config.base_url`.
-        :param url: An absolute URL or a path relative to the base URL.
-        :type url: str
-        :returns: String result.
-        :rtype: str
+
+        Args:
+            url (str): An absolute URL or a path relative to the base URL.
+
+        Returns:
+            str: String result.
         """
         if url.startswith(("http://", "https://")):
             return url
+
         return urljoin(self.config.base_url.rstrip("/") + "/", url.lstrip("/"))
 
     # -- request methods --------------------------------------------------
@@ -223,16 +234,15 @@ class Session:
     ) -> requests.Response:
         """Send an HTTP request, resolving ``url`` against the configured base URL.
 
-        :param method: HTTP verb (GET, POST, etc.).
-        :type method: str
-        :param url: Absolute URL, or a path relative to :attr:`Config.base_url`.
-        :type url: str
-        :param timeout: Per-request timeout override; falls back to :attr:`Config.timeout` if not supplied.
-        :type timeout: float | None
-        :param kwargs: Additional keyword arguments forwarded to :meth:`requests.Session.request`.
-        :type kwargs: Any
-        :returns: Return value.
-        :rtype: requests.Response
+        Args:
+            method (str): HTTP verb (GET, POST, etc.).
+            url (str): Absolute URL, or a path relative to :attr:`Config.base_url`.
+            timeout (float | None): Per-request timeout override; falls back to :attr:`Config.timeout` if not
+                supplied.
+            **kwargs (Any): Additional keyword arguments forwarded to :meth:`requests.Session.request`.
+
+        Returns:
+            requests.Response: Return value.
         """
         full_url = self._resolve(url)
         effective_timeout = timeout if timeout is not None else self.config.timeout
@@ -241,65 +251,70 @@ class Session:
     def get(self: Session, url: str, **kwargs: Any) -> requests.Response:
         """Send a GET request.
 
-        See :meth:`request`.
-        :param url: Absolute URL, or a path relative to :attr:`Config.base_url`.
-        :type url: str
-        :param kwargs: Additional keyword arguments forwarded to :meth:`request`.
-        :type kwargs: Any
-        :returns: Return value.
-        :rtype: requests.Response
+        See: meth:`request`.
+
+        Args:
+            url (str): Absolute URL, or a path relative to :attr:`Config.base_url`.
+            **kwargs (Any): Additional keyword arguments forwarded to :meth:`request`.
+
+        Returns:
+            requests.Response: Return value.
         """
         return self.request("GET", url, **kwargs)
 
     def post(self: Session, url: str, **kwargs: Any) -> requests.Response:
         """Send a POST request.
 
-        See :meth:`request`.
-        :param url: Absolute URL, or a path relative to :attr:`Config.base_url`.
-        :type url: str
-        :param kwargs: Additional keyword arguments forwarded to :meth:`request`.
-        :type kwargs: Any
-        :returns: Return value.
-        :rtype: requests.Response
+        See: meth:`request`.
+
+        Args:
+            url (str): Absolute URL, or a path relative to :attr:`Config.base_url`.
+            **kwargs (Any): Additional keyword arguments forwarded to :meth:`request`.
+
+        Returns:
+            requests.Response: Return value.
         """
         return self.request("POST", url, **kwargs)
 
     def put(self: Session, url: str, **kwargs: Any) -> requests.Response:
         """Send a PUT request.
 
-        See :meth:`request`.
-        :param url: Absolute URL, or a path relative to :attr:`Config.base_url`.
-        :type url: str
-        :param kwargs: Additional keyword arguments forwarded to :meth:`request`.
-        :type kwargs: Any
-        :returns: Return value.
-        :rtype: requests.Response
+        See: meth:`request`.
+
+        Args:
+            url (str): Absolute URL, or a path relative to :attr:`Config.base_url`.
+            **kwargs (Any): Additional keyword arguments forwarded to :meth:`request`.
+
+        Returns:
+            requests.Response: Return value.
         """
         return self.request("PUT", url, **kwargs)
 
     def patch(self: Session, url: str, **kwargs: Any) -> requests.Response:
         """Send a PATCH request.
 
-        See :meth:`request`.
-        :param url: Absolute URL, or a path relative to :attr:`Config.base_url`.
-        :type url: str
-        :param kwargs: Additional keyword arguments forwarded to :meth:`request`.
-        :type kwargs: Any
-        :returns: Return value.
-        :rtype: requests.Response
+        See: meth:`request`.
+
+        Args:
+            url (str): Absolute URL, or a path relative to :attr:`Config.base_url`.
+            **kwargs (Any): Additional keyword arguments forwarded to :meth:`request`.
+
+        Returns:
+            requests.Response: Return value.
         """
         return self.request("PATCH", url, **kwargs)
 
     def delete(self: Session, url: str, **kwargs: Any) -> requests.Response:
         """Send a DELETE request.
 
-        See :meth:`request`.
-        :param url: Absolute URL, or a path relative to :attr:`Config.base_url`.
-        :type url: str
-        :param kwargs: Additional keyword arguments forwarded to :meth:`request`.
-        :type kwargs: Any
-        :returns: Return value.
-        :rtype: requests.Response
+        See: meth:`request`.
+
+        Args:
+            url (str): Absolute URL, or a path relative to :attr:`Config.base_url`.
+            **kwargs (Any): Additional keyword arguments forwarded to :meth:`request`.
+
+        Returns:
+            requests.Response: Return value.
         """
         return self.request("DELETE", url, **kwargs)
 
@@ -332,13 +347,14 @@ class Session:
             self.save()
         except OSError as exc:
             _LOGGER.warning("Failed to save session cookies: %s", exc)
+
         self._http.close()
 
     def __enter__(self: Session) -> Session:
         """Enter the context manager, returning the Session instance.
 
-        :returns: Return value.
-        :rtype: Session
+        Returns:
+            Session: Return value.
         """
         return self
 
@@ -352,7 +368,8 @@ class Session:
 
         Called automatically at the end of a ``with`` block. Delegates to :meth:`close` to save state and
         release resources.
-        :returns: None
-        :rtype: None
+
+        Returns:
+            None: None
         """
         self.close()

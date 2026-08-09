@@ -59,7 +59,7 @@ dependencies = [
   "colorlog==6.12.0",
   "playwright==1.62.0",
   "pydantic==2.13.4",
-  "pydantic-settings==2.14.2",
+  "pydantic-settings==2.15.0",
   "python-dateutil==2.9.0.post0",
   "pyyaml==6.0.3",
   "requests==2.34.2",
@@ -112,9 +112,6 @@ optional-dependencies.deptry = [
 optional-dependencies.dev = [
   "pre-commit==4.6.1",
   "tox-workdir==0.1.0",
-]
-optional-dependencies.docconvert = [
-  "docconvert==2.2.0",
 ]
 optional-dependencies.docformatter = [
   "docformatter==1.7.8",
@@ -180,7 +177,7 @@ optional-dependencies.flake8-plugins = [
   "tryceratops==2.4.1",
 ]
 optional-dependencies.formatters = [
-  "gamesheet-sdk-py[editorconfig-checker,pyproject-fmt,pyroma,tox-ini-fmt,validate-pyproject,yamllint]",
+  "gamesheet-sdk-py[editorconfig-checker,pyproject-fmt,pyroma,tox-ini-fmt,validate-pyproject,yamlfix,yamllint]",
 ]
 optional-dependencies.interrogate = [
   "interrogate==1.7.0",
@@ -214,11 +211,11 @@ optional-dependencies.pyproject-fmt = [
   "pyproject-fmt==2.27.0",
 ]
 optional-dependencies.pyrefly = [
-  "gamesheet-sdk-py[pytest]",
+  "gamesheet-sdk-py[pytest,tools]",
   "pyrefly==1.2.0",
 ]
 optional-dependencies.pyright = [
-  "gamesheet-sdk-py[pytest]",
+  "gamesheet-sdk-py[pytest,tools]",
   "pyright==1.1.411",
 ]
 optional-dependencies.pyroma = [
@@ -249,11 +246,11 @@ optional-dependencies.static-analysis = [
   "gamesheet-sdk-py[blocklint,flake8,pylint,pyrefly,refurb]",
 ]
 optional-dependencies.tools = [
-  "gamesheet-sdk-py[dev]",
+  "gamesheet-sdk-py[dev,yamlfix]",
   "ruamel-yaml==0.19.1",
   "tomli==2.4.1",
   "tomlkit==0.15.1",
-  "uv==0.12.1",
+  "uv==0.12.3",
 ]
 optional-dependencies.tox-ini-fmt = [
   "tox-ini-fmt==1.8.1",
@@ -285,7 +282,7 @@ optional-dependencies.type-stubs = [
   "types-jsonschema==4.26.0.20260518",
   "types-markupsafe==1.1.10",
   "types-mypy-extensions==1.1.0.20260724",
-  "types-peewee==4.3.0.20260802",
+  "types-peewee==4.3.0.20260807",
   "types-pep8-naming==0.15.0.20260408",
   "types-pluggy==1.2.0.20240106",
   "types-polib==1.2.0.20260518",
@@ -293,13 +290,13 @@ optional-dependencies.type-stubs = [
   "types-pyflakes==3.4.0.20260724",
   "types-pygments==2.20.0.20260728",
   "types-pyjwt==1.7.1",
-  "types-python-dateutil==2.9.0.20260716",
+  "types-python-dateutil==2.9.0.20260807",
   "types-python-slugify==8.0.2.20240310",
   "types-pywin32==312.0.0.20260724",
   "types-pyyaml==6.0.12.20260724",
   "types-regex==2026.7.19.20260720",
   "types-requests==2.33.0.20260712",
-  "types-setuptools==83.0.0.20260724",
+  "types-setuptools==83.0.0.20260807",
   "types-six==1.17.0.20260724",
   "types-tabulate==0.10.0.20260508",
   "types-toml==0.10.8.20260518",
@@ -316,6 +313,9 @@ optional-dependencies.validate-pyproject = [
 ]
 optional-dependencies.vulture = [
   "vulture==2.16",
+]
+optional-dependencies.yamlfix = [
+  "yamlfix==1.19.1",
 ]
 optional-dependencies.yamllint = [
   "yamllint==1.38.0",
@@ -440,13 +440,13 @@ extend-ignore = [
 # ``--ignore`` and ``--select`` options.
 per-file-ignores = [
   "docs/*:INP001",
-  "tests/admin/*:DOC",
-  "tests/cli/*:DOC,SF01",
-  "tests/common/*:DOC",
-  "tests/helpers/*:DOC",
-  "tests/integration/*:DOC,SF01",
-  "tests/teams/*:DOC",
-  "tests/unit/*:DOC",
+  "tests/admin/*:DOC101,DOC103,DOC201,DOC203",
+  "tests/cli/*:DOC101,DOC103,DOC201,DOC203,SF01",
+  "tests/common/*:DOC101,DOC103,DOC201,DOC203",
+  "tests/helpers/*:DOC101,DOC103",
+  "tests/integration/*:DOC101,DOC103,SF01",
+  "tests/teams/*:DOC101,DOC103,DOC201,DOC203",
+  "tests/unit/*:DOC101,DOC103,DOC201,DOC203",
   "tools/*:INP001",
 ]
 # Maximum allowed line length for the entirety of this run. (Default: 79).
@@ -707,7 +707,7 @@ staticmethod-decorators = [
 ]
 # pydoclint #
 # Which style of docstring is your code base using.
-style = "sphinx"
+style = "google"
 # Whether to require argument type hints in function signatures.
 arg-type-hints-in-signature = true
 # Whether to require type hints in the argument list in docstrings.
@@ -864,6 +864,8 @@ main.py-version = "3.11"
 # root.
 # source-roots =
 main.source-roots = [
+  # Deliberately no "tests" entry: the test modules import each other as
+  # tests.helpers.*, so tests/ must stay a package rather than a source root.
   "src",
   "tools",
 ]
@@ -1254,7 +1256,7 @@ parameter_documentation.default-docstring-type = "default"
 [tool.codespell]
 builtin = "code,en-GB_to_en-US,informal,names,rare,usage"
 ignore-words = "custom-dictionary.txt"
-skip = "./docs/_build,./.local,./.pytest_cache,./.venv"
+skip = "./docs/_build,./.local,./.pytest_cache,./.venv,./uv.lock"
 
 ## ## docformatter - Docstring formatter
 [tool.docformatter]
@@ -1277,12 +1279,43 @@ exclude = [
   ".venv",
 ]
 blank = false
-style = "sphinx"
+style = "google"
+
+## ## pydoclint - Docstring linter that checks arguments, returns, yields, and raises sections
+[tool.pydoclint]
+quiet = "False"
+exclude = ".git|.tox|.pytest_cache|tests"
+style = "google"
+arg-type-hints-in-docstring = "True"
+arg-type-hints-in-signature = "True"
+check-arg-order = "True"
+skip-checking-short-docstrings = "False"
+skip-checking-raises = "True"
+skip-checking-private-functions = "True"
+allow-init-docstring = "True"
+require-return-section-when-returning-nothing = "False"
+check-return-types = "True"
+require-yield-section-when-yielding-nothing = "True"
+check-yield-types = "True"
+ignore-underscore-args = "True"
+ignore-private-args = "True"
+check-class-attributes = "False"
+should-document-private-class-attributes = "False"
+treat-property-methods-as-class-attributes = "False"
+only-attrs-with-ClassVar-are-treated-as-class-attrs = "False"
+require-inline-class-var-docs = "True"
+should-document-star-arguments = "True"
+omit-stars-when-documenting-varargs = "True"
+check-style-mismatch = "True"
+check-arg-defaults = "False"
+generate-baseline = "False"
+auto-regenerate-baseline = "True"
+show-filenames-in-every-violation-message = "True"
+native-mode-noqa-location = "definition"
 
 ## ## interrogate - Docstring coverage checker
 [tool.interrogate]
 fail-under = 100
-ignore-init-method = true
 ignore-magic = true
 ignore-semiprivate = true
 ignore-nested-functions = true
@@ -1295,7 +1328,7 @@ extend-exclude = [
 check = true
 diff = true
 recursive = true
-style = "sphinx"
+style = "google"
 
 ## ## deptry - Dependency analyzer
 [tool.deptry]
@@ -1325,7 +1358,6 @@ optional_dependencies_dev_groups = [
   "codespell",
   "deptry",
   "dev",
-  "docconvert",
   "docformatter",
   "docs",
   "editorconfig-checker",
@@ -1354,6 +1386,7 @@ optional_dependencies_dev_groups = [
   "unimport",
   "validate-pyproject",
   "vulture",
+  "yamlfix",
   "yamllint",
 ]
 
@@ -1486,16 +1519,28 @@ strict = true
 plugins = [
   "pydantic.mypy",
 ]
+overrides = [
+  # Third-party libraries: Ignore missing type stubs
+  { module = [
+    "_constants",
+    "pre_commit.clientlib",
+  ], ignore_missing_imports = true },
+]
 
 ## ## pyrefly - Code health and quality reviewer
 [tool.pyrefly]
 python_version = "3.11"
 project-includes = [
+  "docs",
   "src",
   "tests",
+  "tools",
 ]
 search-path = [
+  "docs",
   "src",
+  "tests",
+  "tools",
   ".",
 ]
 
@@ -1516,6 +1561,7 @@ include = [
   "docs",
   "src",
   "tests",
+  "tools",
 ]
 # Directories or files to exclude from type checking.
 exclude = [
@@ -1528,7 +1574,10 @@ exclude = [
 ignore = []
 extraPaths = [
   ".",
+  "docs",
   "src",
+  "tests",
+  "tools",
 ]
 reportGeneralTypeIssues = "error"
 # Override specific rules.
@@ -1645,23 +1694,21 @@ tag = true
 upload_to_pypi = false
 upload_to_release = false
 
+## ## format-docstring - Formatter for docstring line wrapping in Python files
+[tool.format_docstring]
+docstring_style = "google"
+line_length = 110
+fix_rst_backticks = true
+include_arg_types = true
+include_arg_defaults = false
+include_return_and_yield_types = true
+exclude = ".git|.tox|.pytest_cache"
+verbose = "diff"
+
 [tool.mypy-pydantic]
 init_forbid_extra = true
 init_typed = true
 warn_required_dynamic_aliases = true
-
-## ## docconvert - Docstring format
-[tool.docconvert]
-recursive = true
-black = true
-wrap-summaries = 110
-wrap-descriptions = 110
-extend-exclude = [
-  "docs/_build",
-  ".local",
-  ".pytest_cache",
-  ".venv",
-]
 
 ## ---------------------------------------------------------------------------------------------------------------------
 ## Non-Python Languages
@@ -1674,6 +1721,32 @@ extend-exclude = [
 check = true
 diff = true
 recursive = true
+
+## ## yamlfix - YAML file formatter
+[tool.yamlfix]
+check = true
+diff = true
+recursive = true
+allow_duplicate_keys = false
+comments_min_spaces_from_content = 1
+comments_require_starting_space = true
+whitelines = 1
+comments_whitelines = 1
+section_whitelines = 1
+explicit_start = true
+sequence_style = "block_style"
+indent_mapping = 2
+indent_offset = 2
+indent_sequence = 4
+line_length = 110
+none_representation = ""
+quote_basic_values = false
+quote_keys_and_basic_values = false
+quote_representation = '"'
+preserve_quotes = true
+preserve_block_scalars = true
+whitelines_adjusting = true
+exclude = [ "venv/*", ".git/*" ]
 
 ## ## yamllint - YAML file linter
 [tool.yamllint]
@@ -1716,6 +1789,19 @@ exclude = [
 number = true
 validate = true
 wrap = 160
+
+## ## markdown-toc-creator - Create table of contents for markdown files
+[tool.markdown_toc_creator]
+proactive = "True"
+style = "github"
+exclude = ".git|.tox|.pytest_cache|CHANGELOG.md"
+in-place = "True"
+quiet = "False"
+skip-first-n-lines = 1
+add-toc-title = "False"
+toc-title = "Table of Contents"
+add-horizontal-rules = "True"
+horizontal-rule-style = "mdformat"
 
 ## ---------------------------------------------------------------------------------------------------------------------
 ## Python

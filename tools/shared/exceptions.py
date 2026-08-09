@@ -10,21 +10,25 @@ class ToolError(Exception):
     """Base error for all CLI tools.
 
     Carries an ``exit_code`` so CLI entry points can translate caught exceptions into process exit codes.
+
+    Args:
+        *args (object): Exception arguments passed to the base class.
     """
 
     exit_code: int = 1
 
     def __init__(self: ToolError, *args: object) -> None:
-        """Initialize with exception arguments.
-
-        :param args: Exception arguments passed to the base class.
-        :type args: object
-        """
         super().__init__(*args)
 
 
 class SubprocessError(ToolError):
-    """A subprocess command failed."""
+    """A subprocess command failed.
+
+    Args:
+        command (str): The command string that failed.
+        exit_code (int): Process exit code from the failed command.
+        stderr (str): Captured standard error output.
+    """
 
     def __init__(
         self: SubprocessError,
@@ -32,15 +36,6 @@ class SubprocessError(ToolError):
         exit_code: int,
         stderr: str,
     ) -> None:
-        """Initialize with command details.
-
-        :param command: The command string that failed.
-        :type command: str
-        :param exit_code: Process exit code from the failed command.
-        :type exit_code: int
-        :param stderr: Captured standard error output.
-        :type stderr: str
-        """
         self.command = command
         self.exit_code = exit_code
         self.stderr = stderr

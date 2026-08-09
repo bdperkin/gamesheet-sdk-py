@@ -71,6 +71,7 @@ def test_update_division_updates_title(config: Config) -> None:
             _DIVISION_ID,
             title="Updated Division",
         )
+
     assert result.id == _DIVISION_ID
     assert result.title == "Updated Division"
     assert result.season_id == SEASON_ID
@@ -142,6 +143,7 @@ def test_update_division_updates_external_id(config: Config) -> None:
             _DIVISION_ID,
             external_id="new-external-id",
         )
+
     assert result.id == _DIVISION_ID
     assert result.external_id == "new-external-id"
     # Verify title was fetched and included in PATCH (required by API)
@@ -192,6 +194,7 @@ def test_update_division_updates_both_fields(config: Config) -> None:
             title="New Title",
             external_id="new-id",
         )
+
     assert result.title == "New Title"
     assert result.external_id == "new-id"
 

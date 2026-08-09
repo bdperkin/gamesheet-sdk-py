@@ -9,11 +9,11 @@ Games represent matchups between teams. This module provides access to three gam
 - **Completed games:** Finished games with results
 - **Bracket games:** Playoff/tournament games
 
-The games data is retrieved from the BFF (Backend For Frontend) API at
-the ``/games-list/v1`` endpoint with various filter parameters.
+The games data is retrieved from the BFF (Backend For Frontend) API at the ``/games-list/v1`` endpoint with
+various filter parameters.
 
-For scheduled game mutations (create/update/delete), the JSON:API-style
-``/api/seasons/{id}/schedule`` endpoint is used.
+For scheduled game mutations (create/update/delete), the JSON:API-style ``/api/seasons/{id}/schedule``
+endpoint is used.
 """
 
 from __future__ import annotations

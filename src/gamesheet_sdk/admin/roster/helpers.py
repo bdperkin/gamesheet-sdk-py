@@ -18,16 +18,18 @@ def get_team_for_roster_update(
 ) -> dict[str, Any]:
     """Fetch team data for roster update.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier.
-    :type season_id: str
-    :param team_id: The team identifier.
-    :type team_id: str
-    :returns: Dictionary containing the full team JSON:API response with data, attributes, and relationships.
-    :rtype: dict[str, Any]
-    :raises AuthenticationError: If the server returns 401.
-    :raises GameSheetError: For any other non-2xx response.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier.
+        team_id (str): The team identifier.
+
+    Returns:
+        dict[str, Any]: Dictionary containing the full team JSON:API response with data, attributes, and
+            relationships.
+
+    Raises:
+        AuthenticationError: If the server returns 401.
+        GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
     response = session.get(
@@ -50,20 +52,17 @@ def update_team_roster(
 ) -> None:
     """Update team's roster via PATCH to teams-v2 endpoint.
 
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier.
-    :type season_id: str
-    :param team_id: The team identifier.
-    :type team_id: str
-    :param roster: The updated roster dict containing players and coaches arrays.
-    :type roster: dict[str, Any]
-    :param current_attrs: Current team attributes to preserve unchanged fields.
-    :type current_attrs: dict[str, Any]
-    :param current_relationships: Current team relationships to preserve.
-    :type current_relationships: dict[str, Any]
-    :raises AuthenticationError: If the server returns 401.
-    :raises GameSheetError: For any other non-2xx response.
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier.
+        team_id (str): The team identifier.
+        roster (dict[str, Any]): The updated roster dict containing players and coaches arrays.
+        current_attrs (dict[str, Any]): Current team attributes to preserve unchanged fields.
+        current_relationships (dict[str, Any]): Current team relationships to preserve.
+
+    Raises:
+        AuthenticationError: If the server returns 401.
+        GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/teams-v2/{team_id}"
     payload = {

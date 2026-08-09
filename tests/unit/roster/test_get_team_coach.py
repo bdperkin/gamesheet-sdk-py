@@ -60,6 +60,7 @@ def test_get_team_coach_returns_coach_with_roster_metadata(config: Config) -> No
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_team_coach(session, SEASON_ID, TEAM_ID, _coach_id)
+
     assert result.id == _coach_id
     assert result.season_id == SEASON_ID
     assert result.first_name == "LOU"
@@ -152,6 +153,7 @@ def test_get_team_coach_finds_coach_after_skipping_others(config: Config) -> Non
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_team_coach(session, SEASON_ID, TEAM_ID, _coach_id)
+
     assert result.id == _coach_id
     assert result.first_name == "LOU"
     assert result.last_name == "LAMORIELLO"

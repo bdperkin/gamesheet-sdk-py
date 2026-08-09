@@ -10,10 +10,9 @@ import io
 import logging
 from pathlib import Path
 import subprocess  # noqa: S404 # nosec B404
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from depsync.parsers import parse_index_url, parse_requires_python
-from packaging.version import Version
 from precommit.config import (
     DEFAULT_ALLOWED_LANGUAGES,
     DEFAULT_FAIL_FAST,
@@ -42,6 +41,10 @@ from shared.concurrency import PARALLEL_WORKERS
 from shared.http_client import get_session
 from shared.pip_config import PipConfig, load_pip_config
 
+if TYPE_CHECKING:
+    from packaging.version import Version
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -50,6 +53,7 @@ def _reset_working_tree(*, exclude: str | None = None) -> None:
     cmd = ["git", "checkout", "--", "."]
     if exclude:
         cmd.append(f":(exclude){exclude}")
+
     try:
         subprocess.run(  # noqa: S603 # nosec B603
             cmd,
@@ -68,10 +72,13 @@ def _fix_resolved_rev_spacing(text: str) -> str:
         if not lines[i].strip() and i + 1 < len(lines) and lines[i + 1].strip().startswith("resolved_rev:"):
             i += 1
             continue
+
         result.append(lines[i])
         if lines[i].strip().startswith("resolved_rev:") and i + 1 < len(lines) and lines[i + 1].strip():
             result.append("")
+
         i += 1
+
     return "\n".join(result)
 
 
@@ -96,14 +103,12 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
         4. Build hook configuration (discovery + fetch + process)
         5. Per-repo incremental validation
         6. Final validation
+
+        Args:
+            run_config (RunConfig): Runtime configuration for the generation pipeline.
     """
 
-    def __init__(self: PreCommitGenerator, run_config: RunConfig) -> None:
-        """Initialize the generator with a run configuration.
-
-        :param run_config: Runtime configuration for the generation pipeline.
-        :type run_config: RunConfig
-        """
+    def __init__(self: PreCommitGenerator, run_config: RunConfig) -> None:  # noqa: DOC101, DOC103
         self.run_config = run_config
         self.tool_config: ToolConfig | None = None
         self.repos: list[dict[str, Any]] = []
@@ -120,9 +125,14 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
     def _validate_tool_config(raw: dict[str, Any]) -> ToolConfig:
         """Validate a raw config dict into a ToolConfig model.
 
-        :param raw: Parsed and merged configuration dictionary.
-        :returns: Validated ToolConfig instance.
-        :raises ConfigError: If the configuration data fails validation.
+        Args:
+            raw (dict[str, Any]): Parsed and merged configuration dictionary.
+
+        Returns:
+            ToolConfig: Validated ToolConfig instance.
+
+        Raises:
+            ConfigError: If the configuration data fails validation.
         """
         try:
             return ToolConfig.model_validate(raw)
@@ -163,6 +173,7 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
     ) -> Path:
         if self.run_config.output_file is not None:
             return self.run_config.output_file
+
         return Path(globals_cfg.output_file)
 
     def _prefetch_repos(self: PreCommitGenerator, tool_config: ToolConfig) -> None:
@@ -246,15 +257,18 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
         for cat in (data.get("categories") or {}).values():
             if not cat:
                 continue
+
             for repo_entry in cat.get("repos", []):
                 if repo_entry.get("repo") != repo_url:
                     continue
+
                 if resolved_rev is not None:
                     repo_entry["resolved_rev"] = resolved_rev
                     logger.info("Wrote resolved_rev: %s for %s", resolved_rev, repo_url)
                 elif "resolved_rev" in repo_entry:
                     del repo_entry["resolved_rev"]
                     logger.info("Cleared resolved_rev for %s", repo_url)
+
                 break
 
     def _write_resolved_rev(
@@ -378,6 +392,7 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
                 )
                 if self.run_config.reset_on_failure:
                     _reset_working_tree(exclude=str(self.run_config.config_file))
+
                 continue
 
             logger.info(
@@ -398,8 +413,10 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
     def _get_max_downgrade_attempts(self: PreCommitGenerator) -> int:
         if self.run_config.max_downgrade_attempts is not None:
             return self.run_config.max_downgrade_attempts
+
         if self.tool_config is not None:
             return self.tool_config.global_config.max_downgrade_attempts
+
         return 3
 
     def _validate_with_downgrade(
@@ -414,8 +431,8 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
         """Validate a repo, attempting older revisions on failure.
 
         Raises:
-            PreCommitValidationError: If validation fails and downgrade is
-                not possible or all candidates are exhausted.
+            PreCommitValidationError: If validation fails and downgrade is not possible or all candidates are
+                exhausted.
         """
         try:
             self._render_and_validate(
@@ -438,6 +455,7 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
             )
             if self.run_config.reset_on_failure:
                 _reset_working_tree(exclude=str(self.run_config.config_file))
+
             self._try_downgrade_candidates(
                 repo_config,
                 globals_cfg,
@@ -487,6 +505,7 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
                 rev_result.rev,
                 pip_config=self.pip_config,
             )
+
         hooks = process_remote_hooks(
             fetched_hooks=fetched,
             repo_config=repo_config,
@@ -512,6 +531,7 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
             repo_entry = self._build_meta_repo(repo_config, globals_cfg)
             if repo_entry is None:
                 return
+
             repo_idx = len(self.repos)
             self._collect_hook_comments(repo_idx, repo_config, repo_entry)
             self.repos.append(repo_entry)
@@ -528,7 +548,7 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
 
         if not self.run_config.dry_run and self.run_config.validate_incremental:
             hook_ids = [h["id"] for h in repo_entry.get("hooks", []) if "id" in h]
-            logger.info("Validating %s...", repo_config.name)
+            logger.debug("Validating %s...", repo_config.name)
             self._validate_with_downgrade(
                 repo_config,
                 globals_cfg,

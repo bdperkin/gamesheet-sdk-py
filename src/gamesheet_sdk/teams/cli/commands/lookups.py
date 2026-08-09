@@ -50,6 +50,7 @@ def _render_category(
             err=True,
         )
         raise Exit(1)
+
     rows = [v.model_dump(mode="json") for v in lookups[category]]
     rendered = render(rows, fmt=output_format)
     write_output(rendered, output_path, fmt=output_format)
@@ -67,6 +68,7 @@ def _render_summary(
     else:
         rows = [{"category": cat, "count": len(vals)} for cat, vals in sorted(lookups.items())]
         rendered = render(rows, fmt=output_format)
+
     write_output(rendered, output_path, fmt=output_format)
 
 
@@ -101,18 +103,15 @@ def get_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Get values for a specific lookup category.
+    r"""Get values for a specific lookup category.
 
     Fetches all lookup data and renders the values for the given category.\f
 
-    :param ctx: Click context carrying the :class:`~gamesheet_sdk.common.config.Config` instance.
-    :type ctx: Context
-    :param category: Category name to retrieve.
-    :type category: str
-    :param output_format: Output format (json, yaml, csv, tsv, or tabulate format).
-    :type output_format: str
-    :param output_path: Optional file path to write output to.
-    :type output_path: str | None
+    Args:
+        ctx (Context): Click context carrying the :class:`~gamesheet_sdk.common.config.Config` instance.
+        category (str): Category name to retrieve.
+        output_format (str): Output format (json, yaml, csv, tsv, or tabulate format).
+        output_path (str | None): Optional file path to write output to.
     """
     from gamesheet_sdk.common.config import Config
 
@@ -157,19 +156,16 @@ def list_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """List lookup categories or values within a category.
+    r"""List lookup categories or values within a category.
 
     Without ``--category``, shows a summary of all available categories and their value counts.  With
     ``--category``, shows every value in that category.\f
 
-    :param ctx: Click context carrying the :class:`~gamesheet_sdk.common.config.Config` instance.
-    :type ctx: Context
-    :param category: Optional category name to filter to.
-    :type category: str | None
-    :param output_format: Output format (json, yaml, csv, tsv, or tabulate format).
-    :type output_format: str
-    :param output_path: Optional file path to write output to.
-    :type output_path: str | None
+    Args:
+        ctx (Context): Click context carrying the :class:`~gamesheet_sdk.common.config.Config` instance.
+        category (str | None): Optional category name to filter to.
+        output_format (str): Output format (json, yaml, csv, tsv, or tabulate format).
+        output_path (str | None): Optional file path to write output to.
     """
     from gamesheet_sdk.common.config import Config
 

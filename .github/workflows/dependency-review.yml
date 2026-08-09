@@ -45,17 +45,15 @@
 name: "Dependency review"
 
 on:
-  push:
-    branches-ignore: ["**"]
   pull_request:
-    branches: [main]
+    branches:
+      - main
     paths-ignore:
       - "CHANGELOG.md"
       - "pyproject.toml"
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
+  push:
+    branches-ignore:
+      - "**"
 
 # If using a dependency submission action in this workflow this permission will need to be set to:
 #
@@ -66,13 +64,17 @@ concurrency:
 permissions:
   contents: read
 
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+
 jobs:
   dependency-review:
     name: Dependency Review
-    runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write # Required for comment-summary-in-pr option
+    runs-on: ubuntu-latest
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

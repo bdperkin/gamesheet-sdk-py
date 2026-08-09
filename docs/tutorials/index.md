@@ -1,5 +1,15 @@
 # Tutorials
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Authoring guidance](#1-authoring-guidance)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 > A tutorial is **a lesson that takes the reader by the hand** through a series of steps to complete a project of some kind.
 >
 > — [diataxis.fr/tutorials](https://diataxis.fr/tutorials/)
@@ -7,7 +17,7 @@
 Tutorials are **learning-oriented**. The reader is a beginner. They follow what the author tells them, step by step, and at the end they have built something
 they didn't know how to build before.
 
-## Authoring guidance
+## 1. Authoring guidance
 
 When adding a tutorial to this section:
 

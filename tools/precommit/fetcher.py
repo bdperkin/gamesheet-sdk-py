@@ -23,10 +23,15 @@ logger = logging.getLogger(__name__)
 def _build_raw_url(repo_url: str, rev: str) -> str:
     """Build a raw content URL for .pre-commit-hooks.yaml.
 
-    :param repo_url: Repository URL.
-    :param rev: Git revision.
-    :returns: URL to the raw .pre-commit-hooks.yaml file.
-    :raises FetchError: If the repository host is not supported.
+    Args:
+        repo_url (str): Repository URL.
+        rev (str): Git revision.
+
+    Returns:
+        str: URL to the raw .pre-commit-hooks.yaml file.
+
+    Raises:
+        FetchError: If the repository host is not supported.
     """
     normalized = repo_url.removesuffix(".git")
     hostname = urlparse(normalized).hostname or ""
@@ -49,11 +54,16 @@ def _parse_hooks_yaml(
 ) -> list[dict[str, Any]]:
     """Parse YAML hook definitions from raw response content.
 
-    :param content: Raw response body bytes.
-    :param raw_url: URL the content was fetched from (used in error messages).
-    :param response_text: Response text preview (used in error messages).
-    :returns: Parsed list of hook definition dicts.
-    :raises FetchError: If the YAML is unparseable or not a list.
+    Args:
+        content (bytes): Raw response body bytes.
+        raw_url (str): URL the content was fetched from (used in error messages).
+        response_text (str): Response text preview (used in error messages).
+
+    Returns:
+        list[dict[str, Any]]: Parsed list of hook definition dicts.
+
+    Raises:
+        FetchError: If the YAML is unparseable or not a list.
     """
     try:
         hooks = YAML().load(content)
@@ -78,15 +88,16 @@ def fetch_hooks(
 
     Constructs the raw content URL for GitHub or GitLab and downloads the hook definition file.
 
-    :param repo_url: Repository URL (GitHub or GitLab).
-    :type repo_url: str
-    :param rev: Git revision (tag or commit hash).
-    :type rev: str
-    :param pip_config: Optional pip configuration for SSL settings.
-    :type pip_config: PipConfig | None
-    :returns: List of hook definition dicts parsed from the YAML.
-    :rtype: list[dict[str, Any]]
-    :raises FetchError: If the URL cannot be determined, the request fails, or the YAML is unparseable.
+    Args:
+        repo_url (str): Repository URL (GitHub or GitLab).
+        rev (str): Git revision (tag or commit hash).
+        pip_config (PipConfig | None): Optional pip configuration for SSL settings.
+
+    Returns:
+        list[dict[str, Any]]: List of hook definition dicts parsed from the YAML.
+
+    Raises:
+        FetchError: If the URL cannot be determined, the request fails, or the YAML is unparseable.
     """
     raw_url = _build_raw_url(repo_url, rev)
     logger.debug("Fetching hooks from %s", raw_url)

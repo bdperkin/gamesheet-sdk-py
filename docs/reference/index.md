@@ -1,5 +1,15 @@
 # Reference
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Authoring guidance](#1-authoring-guidance)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 > Reference guides are **technical descriptions of the machinery and how to operate it**. They are information-oriented, austere, and to the point.
 >
 > — [diataxis.fr/reference](https://diataxis.fr/reference/)
@@ -9,7 +19,7 @@ while doing their work. It does not teach, it does not motivate, and it does not
 
 Most of this section is generated from source by `sphinx.ext.autodoc`, `sphinx.ext.autosummary`, and `sphinx_click`, so it cannot drift from the shipped binary.
 
-## Authoring guidance
+## 1. Authoring guidance
 
 Hand-written reference pages should:
 

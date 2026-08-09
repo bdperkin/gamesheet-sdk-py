@@ -60,6 +60,7 @@ def test_list_players_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_players(session, SEASON_ID)
+
     assert len(result) == 1
     assert result[0].id == PLAYER_ID
     assert result[0].first_name == PLAYER_FIRST_NAME
@@ -89,6 +90,7 @@ def test_list_coaches_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_coaches(session, SEASON_ID)
+
     assert len(result) == 1
     assert result[0].id == COACH_ID_PRIMARY
     assert result[0].first_name == COACH_FIRST_NAME
@@ -168,6 +170,7 @@ def test_list_players_handles_empty_data(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid")
         result = list_players(session, SEASON_ID)
+
     assert not result
 
 
@@ -183,6 +186,7 @@ def test_list_coaches_handles_empty_data(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid")
         result = list_coaches(session, SEASON_ID)
+
     assert not result
 
 
@@ -223,6 +227,7 @@ def test_list_team_players_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_team_players(session, SEASON_ID, TEAM_ID)
+
     assert len(result) == 1
     assert result[0].id == PLAYER_ID
     assert result[0].first_name == PLAYER_FIRST_NAME
@@ -267,6 +272,7 @@ def test_list_team_coaches_parses_jsonapi_response(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_team_coaches(session, SEASON_ID, TEAM_ID)
+
     assert len(result) == 1
     assert result[0].id == COACH_ID_PRIMARY
     assert result[0].first_name == COACH_FIRST_NAME
@@ -349,6 +355,7 @@ def test_list_team_players_handles_empty_data(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid")
         result = list_team_players(session, SEASON_ID, TEAM_ID)
+
     assert not result
 
 
@@ -366,6 +373,7 @@ def test_list_team_coaches_handles_empty_data(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("valid")
         result = list_team_coaches(session, SEASON_ID, TEAM_ID)
+
     assert not result
 
 
@@ -403,6 +411,7 @@ def test_list_team_players_with_empty_duty(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_team_players(session, SEASON_ID, TEAM_ID)
+
     assert len(result) == 1
     # Empty duty string results in empty designation, not None
     assert not result[0].designation
@@ -429,6 +438,7 @@ def test_list_team_players_without_roster_metadata(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_team_players(session, SEASON_ID, TEAM_ID)
+
     assert len(result) == 1
     assert result[0].id == PLAYER_ID
     assert result[0].first_name == PLAYER_FIRST_NAME
@@ -457,6 +467,7 @@ def test_list_team_coaches_without_roster_metadata(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("any-non-empty-token")
         result = list_team_coaches(session, SEASON_ID, TEAM_ID)
+
     assert len(result) == 1
     assert result[0].id == COACH_ID_PRIMARY
     assert result[0].first_name == COACH_FIRST_NAME

@@ -25,6 +25,7 @@ def _make_response(url: str, status: int, body: Any = None) -> MagicMock:
         r.json.return_value = body
     else:
         r.json.side_effect = ValueError("no body")
+
     return r
 
 

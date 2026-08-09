@@ -50,6 +50,7 @@ def test_get_game_returns_single_game(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_game(session, SEASON_ID, _game_id)
+
     assert result.id == _game_id
     assert result.status == "completed"
     assert result.visitor.title == "Team A"
@@ -96,6 +97,7 @@ def test_get_game_finds_game_in_list(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         result = get_game(session, SEASON_ID, _game_id)
+
     assert result.id == _game_id
     assert result.visitor.title == "Team A"
 

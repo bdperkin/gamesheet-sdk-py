@@ -1,6 +1,6 @@
 # Semgrep App Token Setup Guide
 
-## ⚠️ IMPORTANT: This Token is OPTIONAL
+## 1. ⚠️ IMPORTANT: This Token is OPTIONAL
 
 **The semgrep.yml workflow will work WITHOUT this token!**
 
@@ -11,7 +11,7 @@ The `SEMGREP_APP_TOKEN` provides additional features:
 
 **Recommendation:** Start without the token. Add it later if you need cloud features.
 
-## When to Use Semgrep Cloud Token
+## 2. When to Use Semgrep Cloud Token
 
 Use Semgrep Cloud (requires token) if you need:
 
@@ -26,9 +26,9 @@ For a single open-source project: **The free OSS version (no token) is sufficien
 
 ______________________________________________________________________
 
-## Step-by-Step Instructions (if you want the token)
+## 3. Step-by-Step Instructions (if you want the token)
 
-### 1. Sign Up for Semgrep
+### 3.1. Sign Up for Semgrep
 
 **URL:** [Semgrep Login](https://semgrep.dev/login)
 
@@ -44,7 +44,7 @@ ______________________________________________________________________
 - **Free Team Plan:** Up to 10 private repositories, 3 contributors
 - **Paid Plans:** Enterprise features (not needed for most projects)
 
-### 2. Complete Onboarding
+### 3.2. Complete Onboarding
 
 After signing in:
 
@@ -54,7 +54,7 @@ After signing in:
 4. Select the repository: `bdperkin/gamesheet-sdk-py`
 5. Semgrep will perform an initial scan
 
-### 3. Generate App Token
+### 3.3. Generate App Token
 
 **Navigation:** Settings → Tokens
 
@@ -74,7 +74,7 @@ After signing in:
      - Alternative: Never (less secure)
 6. Click **"Generate"** or **"Create token"**
 
-### 4. Copy and Save the Token
+### 3.4. Copy and Save the Token
 
 **IMPORTANT:** The token is shown only ONCE!
 
@@ -88,7 +88,7 @@ Example format: <random-string-of-alphanumeric-characters>
 2. Store temporarily in password manager
 3. Do NOT commit to git
 
-### 5. Add to GitHub Repository Secrets
+### 3.5. Add to GitHub Repository Secrets
 
 **GitHub Repository URL:**
 
@@ -110,7 +110,7 @@ gh secret list | grep SEMGREP
 # Should show: SEMGREP_APP_TOKEN
 ```
 
-### 6. Enable in Workflow (Already Configured)
+### 3.6. Enable in Workflow (Already Configured)
 
 The `semgrep.yml` workflow already includes:
 
@@ -133,9 +133,9 @@ If the token is missing:
 
 ______________________________________________________________________
 
-## Comparison: With vs Without Token
+## 4. Comparison: With vs Without Token
 
-### Without Token (Local Mode)
+### 4.1. Without Token (Local Mode)
 
 ```console
 ✅ Runs Semgrep Docker container locally
@@ -148,7 +148,7 @@ ______________________________________________________________________
 ❌ No historical trending
 ```
 
-### With Token (Cloud Mode)
+### 4.2. With Token (Cloud Mode)
 
 ```console
 ✅ Everything from local mode, PLUS:
@@ -163,7 +163,7 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-## Alternative: Semgrep CI without Token
+## 5. Alternative: Semgrep CI without Token
 
 If you don't want Semgrep Cloud, the workflow can use Semgrep OSS mode:
 
@@ -186,9 +186,9 @@ steps:
 
 ______________________________________________________________________
 
-## Free Tier Limits
+## 6. Free Tier Limits
 
-### Semgrep Cloud Free (Open Source)
+### 6.1. Semgrep Cloud Free (Open Source)
 
 - ✅ Unlimited public repositories
 - ✅ Unlimited scans
@@ -196,21 +196,21 @@ ______________________________________________________________________
 - ✅ SARIF export
 - ✅ GitHub integration
 
-### Semgrep Cloud Free (Team)
+### 6.2. Semgrep Cloud Free (Team)
 
 - Up to 10 private repositories
 - Up to 3 contributors
 - 100 custom rules
 - 30-day scan history
 
-### Paid Plans
+### 6.3. Paid Plans
 
 - Enterprise: Unlimited everything
 - Not needed for most projects
 
 ______________________________________________________________________
 
-## Security Best Practices
+## 7. Security Best Practices
 
 1. **Token Rotation:** Rotate every 90 days
 2. **Scope Limitation:** Only grant "CI" scope
@@ -219,19 +219,19 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-## Troubleshooting
+## 8. Troubleshooting
 
-### Workflow runs fine without token
+### 8.1. Workflow runs fine without token
 
 - This is expected! No token = local mode (still effective)
 
-### Error: "Invalid Semgrep token"
+### 8.2. Error: "Invalid Semgrep token"
 
 - Check token was copied correctly (no spaces/newlines)
 - Verify secret name is exactly `SEMGREP_APP_TOKEN`
 - Ensure token hasn't expired
 
-### Results not appearing in Semgrep Cloud
+### 8.3. Results not appearing in Semgrep Cloud
 
 - Verify token has "CI" or "Agent" scope
 - Check project is connected in Semgrep dashboard
@@ -239,7 +239,7 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-## Token Management
+## 9. Token Management
 
 **Dashboard:** [Semgrep Token Management](https://semgrep.dev/orgs/-/settings/tokens)
 
@@ -252,7 +252,7 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-## Recommendation for This Project
+## 10. Recommendation for This Project
 
 **For gamesheet-sdk-py (single open-source project):**
 
@@ -279,7 +279,7 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-## Support
+## 11. Support
 
 - Documentation: [Semgrep Docs](https://semgrep.dev/docs)
 - Community: [r2c Slack](https://r2c.dev/slack) (Slack)

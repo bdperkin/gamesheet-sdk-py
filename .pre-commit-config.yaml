@@ -32,18 +32,18 @@ ci:
   submodules: false
   # List of hook ids to skip only in CI (useful for heavy/slow local scripts).
   skip:
-    - editorconfig-checker
-    - mdformat
-    - pyroma
     - deptry
-    - yesqa
+    - editorconfig-checker
     - flake8
+    - mdformat
+    - mypy
     - pylint
     - pyrefly-check
     - pyright
-    - mypy
+    - pyroma
     - semgrep
     - semgrep-ci
+    - yesqa
 
 # ==============================================================================
 # Global Defaults
@@ -52,10 +52,12 @@ ci:
 # Maps languages to precise runtime versions (e.g., python: python3.11).
 default_language_version:
   python: python3.11
+
 # Restricts hooks to specific Git stages (e.g., [commit, push]).
 default_stages:
   - pre-commit
   - pre-push
+
 # If true, aborts the entire execution run after the first failed hook.
 fail_fast: true
 
@@ -122,16 +124,14 @@ repos:
           - python
       - id: check-builtin-literals
         name: check builtin type constructor use
-        description: requires literal syntax when initializing empty or zero
-          python builtin types.
+        description: requires literal syntax when initializing empty or zero python builtin types.
         entry: check-builtin-literals
         language: python
         types:
           - python
       - id: check-case-conflict
         name: check for case conflicts
-        description: checks for files that would conflict in case-insensitive
-          filesystems.
+        description: checks for files that would conflict in case-insensitive filesystems.
         entry: check-case-conflict
         language: python
       - id: check-docstring-first
@@ -158,8 +158,7 @@ repos:
         name: check illegal windows names
         entry: Illegal Windows filenames detected
         language: fail
-        files:
-          (?i)((^|/)(CON|PRN|AUX|NUL|COM[\d¹²³]|LPT[\d¹²³])(\.|/|$)|[<>:\"\\|?*\x00-\x1F]|/[^/]*[\.\s]/|[^/]*[\.\s]$)
+        files: (?i)((^|/)(CON|PRN|AUX|NUL|COM[\d¹²³]|LPT[\d¹²³])(\.|/|$)|[<>:\"\\|?*\x00-\x1F]|/[^/]*[\.\s]/|[^/]*[\.\s]$)
       - id: check-json
         name: check json
         description: checks json files for parseable syntax.
@@ -169,8 +168,7 @@ repos:
           - json
       - id: check-shebang-scripts-are-executable
         name: check that scripts with shebangs are executable
-        description: ensures that (non-binary) files with a shebang are
-          executable.
+        description: ensures that (non-binary) files with a shebang are executable.
         entry: check-shebang-scripts-are-executable
         language: python
         types:
@@ -220,16 +218,15 @@ repos:
           - yaml
       - id: debug-statements
         name: debug statements (python)
-        description: checks for debugger imports and py37+ `breakpoint()` calls
-          in python source.
+        description: checks for debugger imports and py37+ `breakpoint()` calls in python source.
         entry: debug-statement-hook
         language: python
         types:
           - python
       - id: destroyed-symlinks
         name: detect destroyed symlinks
-        description: detects symlinks which are changed to regular files with a
-          content of a path which that symlink was pointing to.
+        description: detects symlinks which are changed to regular files with a content of a path which that symlink
+          was pointing to.
         entry: destroyed-symlinks
         language: python
         types:
@@ -240,8 +237,7 @@ repos:
           - manual
       - id: detect-aws-credentials
         name: detect aws credentials
-        description: detects *your* aws credentials from the aws cli credentials
-          file.
+        description: detects *your* aws credentials from the aws cli credentials file.
         entry: detect-aws-credentials
         language: python
         types:
@@ -257,8 +253,7 @@ repos:
           - text
       - id: end-of-file-fixer
         name: fix end of files
-        description: ensures that a file is either empty, or ends with one
-          newline.
+        description: ensures that a file is either empty, or ends with one newline.
         entry: end-of-file-fixer
         language: python
         types:
@@ -270,9 +265,8 @@ repos:
         minimum_pre_commit_version: 3.2.0
       - id: file-contents-sorter
         name: file contents sorter
-        description: sorts the lines in specified files (defaults to
-          alphabetical). you must provide list of target files as input in your
-          .pre-commit-config.yaml file.
+        description: sorts the lines in specified files (defaults to alphabetical). you must provide list of target
+          files as input in your .pre-commit-config.yaml file.
         entry: file-contents-sorter
         language: python
         files: ^custom-dictionary\.txt$
@@ -303,8 +297,7 @@ repos:
         entry: name-tests-test
         language: python
         files: (^|/)tests/.+\.py$
-        exclude:
-          ^tests/.*(cli|conftest|constants|endpoints|mocks|payloads|roster_helpers)\.py$
+        exclude: ^tests/.*(cli|conftest|constants|endpoints|mocks|payloads|roster_helpers)\.py$
         args:
           - --pytest-test-first
       - id: no-commit-to-branch
@@ -331,17 +324,16 @@ repos:
     hooks:
       - id: python-check-blanket-noqa
         name: check blanket noqa
-        description: 'Enforce that `noqa` annotations always occur with specific codes.
-          Sample annotations: `# noqa: F401`, `# noqa: F401,W203`'
+        description: 'Enforce that `noqa` annotations always occur with specific codes. Sample annotations: `# noqa:
+          F401`, `# noqa: F401,W203`'
         entry: "(?i)# noqa(?!: )"
         language: pygrep
         types:
           - python
       - id: python-check-blanket-type-ignore
         name: check blanket type ignore
-        description: 'Enforce that `# type: ignore` annotations always occur with
-          specific codes. Sample annotations: `# type: ignore[attr-defined]`, `# type:
-          ignore[attr-defined, name-defined]`'
+        description: 'Enforce that `# type: ignore` annotations always occur with specific codes. Sample annotations:
+          `# type: ignore[attr-defined]`, `# type: ignore[attr-defined, name-defined]`'
         entry: '# type:? *ignore(?!\[|\w)'
         language: pygrep
         types:
@@ -381,32 +373,28 @@ repos:
           - python
       - id: python-no-log-warn
         name: use logger.warning(
-        description: A quick check for the deprecated `.warn()` method of python
-          loggers
+        description: A quick check for the deprecated `.warn()` method of python loggers
         entry: (?<!warnings)\.warn\(
         language: pygrep
         types:
           - python
       - id: python-use-type-annotations
         name: type annotations not comments
-        description: Enforce that python3.6+ type annotations are used instead
-          of type comments
+        description: Enforce that python3.6+ type annotations are used instead of type comments
         entry: "# type(?!: *ignore([^a-zA-Z0-9]|$))"
         language: pygrep
         types:
           - python
       - id: rst-backticks
         name: rst ``code`` is two backticks
-        description: Detect common mistake of using single backticks when
-          writing rst
+        description: Detect common mistake of using single backticks when writing rst
         entry: ^(?!    ).*(^| )`[^`]+`([^_]|$)
         language: pygrep
         types:
           - rst
       - id: rst-directive-colons
         name: rst directives end with two colons
-        description: Detect mistake of rst directive not ending with double
-          colon or space before the double colon
+        description: Detect mistake of rst directive not ending with double colon or space before the double colon
         entry: ^\s*\.\. [a-z]+(| | :):$
         language: pygrep
         types:
@@ -420,8 +408,7 @@ repos:
           - rst
       - id: text-unicode-replacement-char
         name: no unicode replacement chars
-        description: Forbid files which have a UTF-8 Unicode replacement
-          character
+        description: Forbid files which have a UTF-8 Unicode replacement character
         entry: �
         language: pygrep
         types:
@@ -437,13 +424,38 @@ repos:
     hooks:
       - id: editorconfig-checker
         name: Check .editorconfig rules
-        description: '`editorconfig-checker` is a tool to check if your files consider
-          your .editorconfig-rules.'
+        description: '`editorconfig-checker` is a tool to check if your files consider your .editorconfig-rules.'
         entry: ec
         language: python
         types:
           - text
         require_serial: true
+
+  - repo: https://github.com/jsh9/format-json
+    rev: 0.1.2
+    hooks:
+      - id: format-json
+        name: Format JSON files
+        description: Formats JSON files to some pre-configured style
+        entry: format-json
+        language: python
+        types:
+          - json
+        exclude_types:
+          - jupyter
+        args:
+          - --autofix
+
+  - repo: https://github.com/lyz-code/yamlfix
+    rev: 1.19.1
+    hooks:
+      - id: yamlfix
+        name: yamlfix
+        entry: yamlfix
+        language: python
+        language_version: python3
+        types:
+          - yaml
 
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.38.0
@@ -456,6 +468,7 @@ repos:
         types:
           - file
           - yaml
+        exclude: ^\.pre-commit-config\.yaml$
 
   - repo: https://github.com/tox-dev/tox-ini-fmt
     rev: 1.8.1
@@ -515,22 +528,7 @@ repos:
   # Documentation & Markdown Tools
   # ----------------------------------------------------------------------------
 
-  - repo: https://github.com/jackdewinter/pymarkdown
-    rev: v0.9.39
-    hooks:
-      - id: pymarkdown
-        name: PyMarkdown
-        description: PyMarkdown - GitHub Flavored Markdown and CommonMark
-          Compliant Linter
-        language: python
-        language_version: python3
-        entry: pymarkdown
-        args:
-          - scan
-        types:
-          - markdown
-
-  - repo: https://github.com/executablebooks/mdformat
+  - repo: https://github.com/hukkin/mdformat
     rev: 1.0.0
     hooks:
       - id: mdformat
@@ -545,6 +543,43 @@ repos:
         additional_dependencies:
           - gamesheet-sdk-py[mdformat]
 
+  - repo: https://github.com/jsh9/markdown-heading-numbering
+    rev: 0.1.1
+    hooks:
+      - id: markdown-heading-numbering
+        name: markdown heading numbering
+        description: Add hierarchical numbering to Markdown headings.
+        entry: markdown-heading-numbering
+        language: python
+        language_version: python3
+        types:
+          - markdown
+        exclude: ^CHANGELOG\.md$
+
+  - repo: https://github.com/jsh9/markdown-toc-creator
+    rev: 0.1.3
+    hooks:
+      - id: markdown-toc-creator
+        name: markdown-toc-creator
+        description: Create table of contents for markdown files
+        entry: markdown-toc-creator
+        language: python
+        files: \.(md|mdown|markdown)$
+
+  - repo: https://github.com/jackdewinter/pymarkdown
+    rev: v0.9.39
+    hooks:
+      - id: pymarkdown
+        name: PyMarkdown
+        description: PyMarkdown - GitHub Flavored Markdown and CommonMark Compliant Linter
+        language: python
+        language_version: python3
+        entry: pymarkdown
+        args:
+          - scan
+        types:
+          - markdown
+
   # ----------------------------------------------------------------------------
   # Code Style & Formatting (Automated Fixers)
   # ----------------------------------------------------------------------------
@@ -556,6 +591,17 @@ repos:
         name: Add trailing commas
         description: Automatically add trailing commas to calls and literals.
         entry: add-trailing-comma
+        language: python
+        types:
+          - python
+
+  - repo: https://github.com/jsh9/blank-line-after-blocks
+    rev: 0.1.4
+    hooks:
+      - id: blank-line-after-blocks
+        name: Add blank lines after code blocks (in .py files)
+        description: Automatically add blank lines after if/for/while/with/try blocks to improve code readability.
+        entry: blank-line-after-blocks
         language: python
         types:
           - python
@@ -623,8 +669,7 @@ repos:
     hooks:
       - id: autopep8
         name: autopep8
-        description: A tool that automatically formats Python code to conform to
-          the PEP 8 style guide.
+        description: A tool that automatically formats Python code to conform to the PEP 8 style guide.
         entry: autopep8
         language: python
         types:
@@ -645,43 +690,27 @@ repos:
         types_or:
           - python
           - pyi
-      - id: black-jupyter
-        name: black-jupyter
-        description: 'Black: The uncompromising Python code formatter (with Jupyter
-          Notebook support)'
-        entry: black
-        language: python
-        minimum_pre_commit_version: 2.9.2
-        require_serial: true
-        types_or:
-          - python
-          - pyi
-          - jupyter
-        additional_dependencies:
-          - .[jupyter]
 
   # ----------------------------------------------------------------------------
   # Code Cleaners & Dead Code Detectors
   # ----------------------------------------------------------------------------
 
-  - repo: https://github.com/Yelp/detect-secrets
+  - repo: https://github.com/yelp/detect-secrets
     rev: v1.5.0
     hooks:
       - id: detect-secrets
         name: Detect secrets
-        description: Detects high entropy strings that are likely to be
-          passwords.
+        description: Detects high entropy strings that are likely to be passwords.
         entry: detect-secrets-hook
         language: python
         files: .*
 
   - repo: https://github.com/hakancelikdev/unimport
-    rev: 1.4.0
+    rev: 0.11.1
     hooks:
       - id: unimport
         name: unimport
-        description: A linter, formatter for finding and removing unused import
-          statements
+        description: A linter, formatter for finding and removing unused import statements
         entry: unimport
         language: python
         language_version: python3.11
@@ -724,9 +753,8 @@ repos:
     hooks:
       - id: deptry
         name: deptry
-        description: deptry is a command line tool to check for issues with
-          dependencies in a Python project, such as unused or missing
-          dependencies.
+        description: deptry is a command line tool to check for issues with dependencies in a Python project, such
+          as unused or missing dependencies.
         entry: deptry .
         language: python
         always_run: true
@@ -786,13 +814,47 @@ repos:
         require_serial: true
         pass_filenames: false
 
+  - repo: https://github.com/jsh9/format-docstring
+    rev: 0.4.0
+    hooks:
+      - id: format-docstring
+        name: Wrap long docstring lines (in .py files)
+        description: Python formatter CLI for docstring line wrapping in Python files.
+        entry: format-docstring
+        language: python
+        types:
+          - python
+
+  - repo: https://github.com/jsh9/pydoclint
+    rev: 0.9.1
+    hooks:
+      - id: pydoclint
+        name: pydoclint
+        description: A Python docstring linter that checks arguments, returns, yields, and raises sections
+        entry: pydoclint
+        language: python
+        types:
+          - python
+        require_serial: true
+      - id: pydoclint-flake8
+        name: pydoclint-flake8
+        description: Run `pydoclint` as a `flake8` plugin
+        entry: flake8
+        args:
+          - --select=DOC
+        language: python
+        types:
+          - python
+        require_serial: true
+        additional_dependencies:
+          - flake8==7.3.0
+
   - repo: https://github.com/pycqa/pydocstyle
     rev: 6.3.0
     hooks:
       - id: pydocstyle
         name: pydocstyle
-        description: pydocstyle is a static analysis tool for checking
-          compliance with Python docstring conventions.
+        description: pydocstyle is a static analysis tool for checking compliance with Python docstring conventions.
         entry: pydocstyle
         language: python
         types:
@@ -807,8 +869,7 @@ repos:
     hooks:
       - id: blocklint
         name: blocklint
-        description: '`blocklint` is a command-line utility for inclusive language
-          highlighting.'
+        description: '`blocklint` is a command-line utility for inclusive language highlighting.'
         entry: blocklint
         language: python
         types:
@@ -832,8 +893,7 @@ repos:
     hooks:
       - id: flake8
         name: flake8
-        description: '`flake8` is a command-line utility for enforcing style consistency
-          across Python projects.'
+        description: '`flake8` is a command-line utility for enforcing style consistency across Python projects.'
         entry: flake8
         language: python
         types:
@@ -869,9 +929,8 @@ repos:
           - python
         require_serial: true
         additional_dependencies:
-          - gamesheet-sdk-py[pylint,tools]
-          - ruamel-yaml==0.19.1
-          - tomli==2.4.1
+          - gamesheet-sdk-py[dev,pylint,tools]
+          - yamlfix==1.19.1
 
   - repo: https://github.com/facebook/pyrefly-pre-commit
     rev: 1.2.0
@@ -892,7 +951,8 @@ repos:
           - pre-push
           - manual
         additional_dependencies:
-          - gamesheet-sdk-py[pyrefly]
+          - gamesheet-sdk-py[dev,pyrefly,tools]
+          - yamlfix==1.19.1
 
   # ----------------------------------------------------------------------------
   # Security, Metrics & Complexity
@@ -903,8 +963,7 @@ repos:
     hooks:
       - id: bandit
         name: bandit
-        description: Bandit is a tool for finding common security issues in
-          Python code
+        description: Bandit is a tool for finding common security issues in Python code
         entry: bandit
         language: python
         language_version: python3
@@ -924,11 +983,11 @@ repos:
         entry: semgrep
         language: python
         args:
+          - --jobs
+          - "1"
           - --disable-version-check
           - --quiet
           - --skip-unknown-extensions
-          - --jobs
-          - "1"
       - id: semgrep-ci
         name: semgrep
         entry: semgrep
@@ -960,8 +1019,7 @@ repos:
     hooks:
       - id: pyright
         name: pyright
-        description: Python command line wrapper for pyright, a static type
-          checker
+        description: Python command line wrapper for pyright, a static type checker
         entry: pyright
         language: python
         types_or:
@@ -969,10 +1027,8 @@ repos:
           - pyi
         require_serial: true
         additional_dependencies:
-          - gamesheet-sdk-py[pyright,tools]
-          - ruamel-yaml==0.19.1
-          - tomli==2.4.1
-          - tomlkit==0.15.1
+          - gamesheet-sdk-py[dev,pyright,tools]
+          - yamlfix==1.19.1
         minimum_pre_commit_version: 2.9.2
 
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -988,12 +1044,11 @@ repos:
           - pyi
         args:
           - --strict
+          - --ignore-missing-imports
+          - --scripts-are-modules
         require_serial: true
         additional_dependencies:
-          - gamesheet-sdk-py[mypy,tools]
-          - ruamel-yaml==0.19.1
-          - tomli==2.4.1
-          - tomlkit==0.15.1
+          - gamesheet-sdk-py[dev,mypy,tools]
         minimum_pre_commit_version: 2.9.2
         exclude: ^tools/(syncdeps|genprecommitconfig)$
 
@@ -1016,8 +1071,7 @@ repos:
     hooks:
       - id: sync-pre-commit-deps
         name: sync-pre-commit-deps
-        description: Sync pre-commit hook dependencies based on other installed
-          hooks
+        description: Sync pre-commit hook dependencies based on other installed hooks
         entry: sync-pre-commit-deps
         language: python
         language_version: python3

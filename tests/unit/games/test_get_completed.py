@@ -38,6 +38,7 @@ def test_get_completed_game() -> None:
     with Session(config) as session:
         session.set_bearer_token(TEST_BEARER_TOKEN)
         game = get_completed_game(session, "123", "game-1")
+
     assert game["data"]["id"] == "game-1"
     assert game["data"]["status"] == "completed"
 

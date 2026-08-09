@@ -38,6 +38,7 @@ def test_list_broadcasters() -> None:
     with Session(config) as session:
         session.set_bearer_token(TEST_BEARER_TOKEN)
         broadcasters = list_broadcasters(session)
+
     assert len(broadcasters) == 2
     assert broadcasters[0].key == "hockeyTV"
     assert broadcasters[1].key == "flosports"
@@ -65,6 +66,7 @@ def test_validate_broadcaster_key_valid() -> None:
         session.set_bearer_token(TEST_BEARER_TOKEN)
         # Test case-insensitive match
         result = validate_broadcaster_key(session, "hockeytv")
+
     assert result == "hockeyTV"  # Returns correct casing
 
 
@@ -74,6 +76,7 @@ def test_validate_broadcaster_key_empty() -> None:
     config = Config(base_url=DEFAULT_BASE_URL)
     with Session(config) as session:
         result = validate_broadcaster_key(session, "")
+
     assert not result
 
 

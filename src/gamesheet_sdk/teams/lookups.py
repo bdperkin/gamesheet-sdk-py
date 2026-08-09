@@ -27,8 +27,9 @@ class LookupValue(BaseModel):
     default to ``""``.  Category-specific fields (``abbr``, ``url``, ``sport``, ``scopes``, etc.) are
     preserved via ``extra="allow"`` and appear in :meth:`model_dump` output.
 
-    :var key: Machine-readable identifier.
-    :var title: Human-readable display name.
+    Attributes:
+        key (str): Machine-readable identifier.
+        title (str): Human-readable display name.
     """
 
     model_config = ConfigDict(extra="allow")
@@ -45,16 +46,21 @@ def list_lookups(
 
     This is a public endpoint — no authentication is required.
 
-    :param timeout: HTTP request timeout in seconds.
-    :type timeout: float
-    :returns: Dictionary mapping category names to lists of :class:`LookupValue` objects.
-    :rtype: dict[str, list[LookupValue]]
-    :raises GameSheetError: If the server returns a non-2xx status code.
+    Args:
+        timeout (float): HTTP request timeout in seconds.
+
+    Returns:
+        dict[str, list[LookupValue]]: Dictionary mapping category names to lists of :class:`LookupValue`
+            objects.
+
+    Raises:
+        GameSheetError: If the server returns a non-2xx status code.
     """
     url = f"{TEAMS_API_GATEWAY}{TEAMS_LOOKUPS_PATH}"
     response = requests.get(url, timeout=timeout)
     if response.status_code >= 400:
         msg = f"GET {TEAMS_LOOKUPS_PATH} returned HTTP {response.status_code}: {response.text}"
         raise GameSheetError(msg)
+
     data: dict[str, list[dict[str, Any]]] = response.json().get("data", {})
     return {category: [LookupValue(**item) for item in values] for category, values in data.items()}

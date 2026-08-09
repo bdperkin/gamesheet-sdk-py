@@ -1,17 +1,49 @@
 # Release Process
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Overview](#1-overview)
+- [2. Workflow](#2-workflow)
+  - [2.1. Development and Commits](#21-development-and-commits)
+  - [2.2. Merge to Main - Fully Automated!](#22-merge-to-main---fully-automated)
+  - [2.3. When No Release is Needed](#23-when-no-release-is-needed)
+- [3. Version Strategy](#3-version-strategy)
+  - [3.1. Before 1.0.0 (Current)](#31-before-100-current)
+  - [3.2. After 1.0.0](#32-after-100)
+- [4. Publishing Targets](#4-publishing-targets)
+  - [4.1. TestPyPI](#41-testpypi)
+  - [4.2. PyPI (Production)](#42-pypi-production)
+- [5. Pre-commit Hooks](#5-pre-commit-hooks)
+- [6. Complete Release Example](#6-complete-release-example)
+- [7. Troubleshooting](#7-troubleshooting)
+  - [7.1. Commit rejected by conventional-pre-commit](#71-commit-rejected-by-conventional-pre-commit)
+  - [7.2. No release was created after merge](#72-no-release-was-created-after-merge)
+  - [7.3. Version mismatch error in release workflow](#73-version-mismatch-error-in-release-workflow)
+  - [7.4. TestPyPI or PyPI publish fails](#74-testpypi-or-pypi-publish-fails)
+- [8. Manual Intervention (Edge Cases)](#8-manual-intervention-edge-cases)
+  - [8.1. If PSR Gets Confused](#81-if-psr-gets-confused)
+  - [8.2. Testing PSR Locally](#82-testing-psr-locally)
+- [9. Workflow Files](#9-workflow-files)
+- [10. References](#10-references)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 This document describes the fully automated release workflow for `gamesheet-sdk-py`.
 
-## Overview
+## 1. Overview
 
 The project uses [python-semantic-release](https://python-semantic-release.readthedocs.io/) (PSR) to **fully automate** version bumping, changelog generation,
 and releases based on [Conventional Commits](https://www.conventionalcommits.org/).
 
 **No manual tagging required!** Simply merge code to `main` and PSR handles everything.
 
-## Workflow
+## 2. Workflow
 
-### 1. Development and Commits
+### 2.1. Development and Commits
 
 All commits **must** follow the Conventional Commits format:
 
@@ -53,7 +85,7 @@ git commit -m "docs: update installation instructions"
 git commit -m "feat!: redesign authentication flow" -m "BREAKING CHANGE: authentication tokens now require v2 format"
 ```
 
-### 2. Merge to Main - Fully Automated!
+### 2.2. Merge to Main - Fully Automated!
 
 When code is merged to `main`:
 
@@ -70,7 +102,7 @@ When code is merged to `main`:
 
 **You don't do anything except merge!** 🎉
 
-### 3. When No Release is Needed
+### 2.3. When No Release is Needed
 
 If you merge commits that don't trigger a version bump (e.g., only `docs:`, `chore:`, `ci:`), PSR will:
 
@@ -81,9 +113,9 @@ If you merge commits that don't trigger a version bump (e.g., only `docs:`, `cho
 
 This is normal and expected!
 
-## Version Strategy
+## 3. Version Strategy
 
-### Before 1.0.0 (Current)
+### 3.1. Before 1.0.0 (Current)
 
 The project is in active development (0.x versions). Version bumps are:
 
@@ -98,7 +130,7 @@ minor_tags = []  # Empty - no minor bumps until 1.0.0
 patch_tags = ["feat", "fix", "perf"]  # All releasable commits trigger patch
 ```
 
-### After 1.0.0
+### 3.2. After 1.0.0
 
 Standard semantic versioning will apply. **To enable this**, remove the `[tool.semantic_release.commit_parser_options]` section from `pyproject.toml` to restore
 default behavior:
@@ -107,9 +139,9 @@ default behavior:
 - `feat:`: minor bump (`1.2.3` → `1.3.0`)
 - Breaking change: major bump (`1.2.3` → `2.0.0`)
 
-## Publishing Targets
+## 4. Publishing Targets
 
-### TestPyPI
+### 4.1. TestPyPI
 
 - URL: <https://test.pypi.org/p/gamesheet-sdk-py>
 - Purpose: Pre-release validation
@@ -117,7 +149,7 @@ default behavior:
 - Uses GitHub Trusted Publishing (OIDC)
 - Environment: `testpypi`
 
-### PyPI (Production)
+### 4.2. PyPI (Production)
 
 - URL: <https://pypi.org/p/gamesheet-sdk-py>
 - Purpose: Production distribution
@@ -125,7 +157,7 @@ default behavior:
 - Uses GitHub Trusted Publishing (OIDC)
 - Environment: `pypi`
 
-## Pre-commit Hooks
+## 5. Pre-commit Hooks
 
 The project enforces Conventional Commits via pre-commit hooks:
 
@@ -139,46 +171,46 @@ git commit -m "feat: add new feature"
 
 If your commit message doesn't follow Conventional Commits, the hook will reject it with an error message.
 
-## Complete Release Example
+## 6. Complete Release Example
 
 Here's what happens when you merge a feature:
 
 ```bash
-# 1. You create a feature branch
+# You create a feature branch
 git checkout -b feat/awesome-feature
 
-# 2. Make changes and commit (conventional commits enforced by hook)
+# Make changes and commit (conventional commits enforced by hook)
 git commit -m "feat: add awesome feature"
 git commit -m "docs: update README with awesome feature"
 
-# 3. Push and create PR
+# Push and create PR
 git push -u origin feat/awesome-feature
 gh pr create --fill
 
-# 4. Merge PR to main (via GitHub UI or CLI)
+# Merge PR to main (via GitHub UI or CLI)
 gh pr merge --squash
 
-# 5. AUTOMATIC - PSR runs on main:
-#    - Analyzes commits: "feat:" found → version bump needed
-#    - Current version: v0.0.8
-#    - Next version: v0.0.9 (patch bump)
-#    - Updates CHANGELOG.md with feature entry
-#    - Creates commit: "chore(release): 0.0.9"
-#    - Creates tag: v0.0.9
-#    - Pushes tag
+# AUTOMATIC - PSR runs on main:
+# - Analyzes commits: "feat:" found → version bump needed
+# - Current version: v0.0.8
+# - Next version: v0.0.9 (patch bump)
+# - Updates CHANGELOG.md with feature entry
+# - Creates commit: "chore(release): 0.0.9"
+# - Creates tag: v0.0.9
+# - Pushes tag
 
-# 6. AUTOMATIC - Tag push triggers release workflow:
-#    - Builds sdist + wheel
-#    - Publishes to TestPyPI
-#    - Publishes to PyPI
-#    - Creates GitHub Release with changelog
+# AUTOMATIC - Tag push triggers release workflow:
+# - Builds sdist + wheel
+# - Publishes to TestPyPI
+# - Publishes to PyPI
+# - Creates GitHub Release with changelog
 
-# 7. Done! New version is live on PyPI 🎉
+# Done! New version is live on PyPI 🎉
 ```
 
-## Troubleshooting
+## 7. Troubleshooting
 
-### Commit rejected by conventional-pre-commit
+### 7.1. Commit rejected by conventional-pre-commit
 
 **Problem:** Your commit message doesn't follow Conventional Commits format.
 
@@ -192,7 +224,7 @@ git commit -m "added a cool feature"
 git commit -m "feat: add cool feature"
 ```
 
-### No release was created after merge
+### 7.2. No release was created after merge
 
 **Problem:** Merged PR but no release happened.
 
@@ -203,14 +235,14 @@ git commit -m "feat: add cool feature"
 
 **Solution:** This is normal! Not every merge needs a release. Only commits with types `feat:`, `fix:`, `perf:`, or breaking changes trigger releases.
 
-### Version mismatch error in release workflow
+### 7.3. Version mismatch error in release workflow
 
 **Problem:** Build workflow fails with "Tag-vs-built version mismatch"
 
 **This should not happen** with full PSR automation, as PSR creates the tag from the exact commit where it updated the version. If this occurs, it's a bug in
 the automation.
 
-### TestPyPI or PyPI publish fails
+### 7.4. TestPyPI or PyPI publish fails
 
 **Problem:** Publishing step fails in workflow
 
@@ -226,9 +258,9 @@ the automation.
 - For Trusted Publishing: ensure GitHub environment names match PyPI configuration
 - Check workflow logs for specific error messages
 
-## Manual Intervention (Edge Cases)
+## 8. Manual Intervention (Edge Cases)
 
-### If PSR Gets Confused
+### 8.1. If PSR Gets Confused
 
 In rare cases, you might need to manually fix things:
 
@@ -244,7 +276,7 @@ semantic-release version
 git commit -m "chore(release): <message> [skip ci]"
 ```
 
-### Testing PSR Locally
+### 8.2. Testing PSR Locally
 
 ```bash
 # Install PSR
@@ -257,7 +289,7 @@ semantic-release version --noop
 semantic-release version --print-tag
 ```
 
-## Workflow Files
+## 9. Workflow Files
 
 The automation is implemented in:
 
@@ -265,7 +297,7 @@ The automation is implemented in:
 - `pyproject.toml` - `[tool.semantic_release]` configuration
 - `.pre-commit-config.yaml` - Conventional commits enforcement
 
-## References
+## 10. References
 
 - [Conventional Commits Specification](https://www.conventionalcommits.org/)
 - [python-semantic-release Documentation](https://python-semantic-release.readthedocs.io/)

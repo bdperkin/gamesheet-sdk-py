@@ -15,18 +15,30 @@ import tomli
 def load_toml(path: Path) -> dict[str, Any]:
     """Read and parse a TOML file.
 
-    :param path: Path-like object to the TOML file.
-    :type path: Path
-    :returns: Parsed TOML data as a dict.
-    :rtype: dict[str, Any]
-    :raises ToolError: If the file cannot be read or contains invalid TOML.
+    Args:
+        path (Path): Path-like object to the TOML file.
+
+    Returns:
+        dict[str, Any]: Parsed TOML data as a dict.
+
+    Raises:
+        ToolError: If the file cannot be read or contains invalid TOML.
     """
     try:
         with path.open("rb") as f:
-            return tomli.load(f)
+            # Annotated because tomli is absent from some hook envs, where
+            # tomli.load() would otherwise read as Any.
+            data: dict[str, Any] = tomli.load(f)
     except OSError as exc:
         msg = f"Cannot read {path}: {exc}"
         raise ToolError(msg) from exc
     except tomli.TOMLDecodeError as exc:
         msg = f"Invalid TOML in {path}: {exc}"
         raise ToolError(msg) from exc
+
+    return data
+
+
+PYPROJECT_PATH = Path(__file__).resolve().parents[2] / "pyproject.toml"
+
+PROJECT_NAME: str = load_toml(PYPROJECT_PATH)["project"]["name"]

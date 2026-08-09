@@ -29,6 +29,7 @@ def test_login_missing_email_raises(fake_browser_session: MagicMock) -> None:
     """Test that login raises AuthenticationError when email is missing."""
     with pytest.raises(AuthenticationError, match="requires an email"):
         login(fake_browser_session, password="hunter2")  # pragma: allowlist secret
+
     fake_browser_session.goto.assert_not_called()
 
 
@@ -36,6 +37,7 @@ def test_login_missing_password_raises(fake_browser_session: MagicMock) -> None:
     """Test that login raises AuthenticationError when password is missing."""
     with pytest.raises(AuthenticationError, match="requires a password"):
         login(fake_browser_session, email="alice@example.com")
+
     fake_browser_session.goto.assert_not_called()
 
 
@@ -46,6 +48,7 @@ def test_login_empty_string_credentials_raise(
     # Empty email is rejected before the (also empty) password is ever inspected.
     with pytest.raises(AuthenticationError, match="requires an email"):
         login(fake_browser_session, email="", password="")
+
     fake_browser_session.goto.assert_not_called()
 
 
@@ -178,6 +181,7 @@ def test_login_post_login_navigation_timeout_is_swallowed(
         if kwargs.get("wait_until") == "networkidle":
             _err_msg = "networkidle never fired"
             raise PlaywrightTimeoutError(_err_msg)
+
         del path
         return page
 
@@ -215,6 +219,7 @@ def test_login_surfaces_firebase_error_code(
             email=TEST_EMAIL_MINIMAL,
             password="bad",  # pragma: allowlist secret
         )
+
     assert firebase_message in str(exc_info.value)
     assert "Firebase" in str(exc_info.value)
 
@@ -227,6 +232,7 @@ def test_login_firebase_failure_without_parseable_body(
     page.staged_responses = [_make_response(_FIREBASE_URL, 500)]
     with pytest.raises(AuthenticationError) as exc_info:
         login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x")
+
     assert "HTTP 500" in str(exc_info.value)
 
 
@@ -364,6 +370,7 @@ def test_login_firebase_error_with_non_dict_error_field(
     ]
     with pytest.raises(AuthenticationError) as exc_info:
         login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x")
+
     assert "HTTP 403" in str(exc_info.value)
 
 
@@ -396,6 +403,7 @@ def test_firebase_error_message_with_non_string_message(
     ]
     with pytest.raises(AuthenticationError) as exc_info:
         login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x")
+
     assert "HTTP 403" in str(exc_info.value)
 
 

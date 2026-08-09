@@ -33,8 +33,8 @@ from gamesheet_sdk.common.shared.gamesheet_http import handle_season_scoped_resp
 class Referee(BaseModel):
     """A single referee.
 
-    Maps the ``data[*]`` items in the JSON:API response of ``GET /api/seasons/{season_id}/referees`` to a flat
-    typed model.
+    Maps the ``data[*]`` items in the JSON: API response of ``GET /api/seasons/{season_id}/referees`` to a
+    flat typed model.
     """
 
     id: str = Field(description="Referee identifier (string in JSON:API).")
@@ -83,8 +83,8 @@ class RefereeReport(BaseModel):
 def _parse(item: dict[str, Any]) -> Referee:
     """Flatten a JSON:API resource object into a :class:`Referee`.
 
-    :returns: Return value.
-    :rtype: Referee
+    Returns:
+        Referee: Return value.
     """
     attrs = item.get("attributes", {})
     # Extract season_id from relationships
@@ -106,17 +106,19 @@ def get_referee(session: Session, season_id: str, referee_id: str) -> Referee:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier containing the referee.
-    :type season_id: str
-    :param referee_id: The referee identifier to retrieve.
-    :type referee_id: str
-    :returns: The :class:`Referee` with the specified ID.
-    :rtype: Referee
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-admin login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier containing the referee.
+        referee_id (str): The referee identifier to retrieve.
+
+    Returns:
+        Referee: The :class:`Referee` with the specified ID.
+
+    Raises:
+        AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
+            ``gamesheet-admin login`` to refresh).
+        GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/referees/{referee_id}"
     response = session.get(
@@ -125,12 +127,14 @@ def get_referee(session: Session, season_id: str, referee_id: str) -> Referee:
     )
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if response.status_code == 404:
         _err_msg = errors.ERROR_MSG_404_REFEREE_IN_SEASON.format(
             referee_id=referee_id,
             season_id=season_id,
         )
         raise GameSheetError(_err_msg)
+
     if response.status_code >= 400:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=endpoint,
@@ -138,6 +142,7 @@ def get_referee(session: Session, season_id: str, referee_id: str) -> Referee:
             text=repr(response.text[:200]),
         )
         raise GameSheetError(_err_msg)
+
     body: dict[str, Any] = response.json()
     return _parse(body["data"])
 
@@ -153,17 +158,19 @@ def get_referee_report(
     retrieves the referee to get their external_id, then fetches the report. The supplied :class:`Session`
     must already carry a bearer token (e.g. via :meth:`Session.set_bearer_token`); the call is otherwise
     unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier containing the referee.
-    :type season_id: str
-    :param referee_id: The referee identifier to retrieve the report for.
-    :type referee_id: str
-    :returns: The :class:`RefereeReport` with statistics and games.
-    :rtype: RefereeReport
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-admin login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response, or if the referee has no external_id.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier containing the referee.
+        referee_id (str): The referee identifier to retrieve the report for.
+
+    Returns:
+        RefereeReport: The :class:`RefereeReport` with statistics and games.
+
+    Raises:
+        AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
+            ``gamesheet-admin login`` to refresh).
+        GameSheetError: For any other non-2xx response, or if the referee has no external_id.
     """
     # First, get the referee to obtain the external_id
     referee = get_referee(session, season_id, referee_id)
@@ -178,11 +185,13 @@ def get_referee_report(
     response = session.get(endpoint)
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if response.status_code == 404:
         _err_msg = errors.ERROR_MSG_404_REFEREE_REPORT.format(
             external_id=referee.external_id,
         )
         raise GameSheetError(_err_msg)
+
     if response.status_code >= 400:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=endpoint,
@@ -190,6 +199,7 @@ def get_referee_report(
             text=repr(response.text[:200]),
         )
         raise GameSheetError(_err_msg)
+
     body: dict[str, Any] = response.json()
     # Parse the report response
     # The structure may vary, so we'll extract what we can
@@ -218,20 +228,17 @@ def create_referee(
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier in which to create the referee.
-    :type season_id: str
-    :param first_name: Referee's first name.
-    :type first_name: str
-    :param last_name: Referee's last name.
-    :type last_name: str
-    :param email_address: Optional email address for the referee.
-    :type email_address: str | None
-    :param external_id: Optional external identifier for the referee.
-    :type external_id: str | None
-    :returns: Return value.
-    :rtype: Referee
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier in which to create the referee.
+        first_name (str): Referee's first name.
+        last_name (str): Referee's last name.
+        email_address (str | None): Optional email address for the referee.
+        external_id (str | None): Optional external identifier for the referee.
+
+    Returns:
+        Referee: Return value.
     """
     endpoint = f"/api/seasons/{season_id}/referees"
     attributes: dict[str, Any] = {
@@ -240,8 +247,10 @@ def create_referee(
     }
     if email_address is not None:
         attributes["email_address"] = email_address
+
     if external_id is not None:
         attributes["external_id"] = external_id
+
     payload = {"data": {"attributes": attributes}}
     response = session.post(
         endpoint,
@@ -272,25 +281,23 @@ def update_referee(
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401. At least one field
     must be provided to update. The API requires sending the full referee data, so this function first fetches
     the current referee to preserve unchanged fields.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier containing the referee.
-    :type season_id: str
-    :param referee_id: The referee identifier to update.
-    :type referee_id: str
-    :param first_name: Optional updated first name.
-    :type first_name: str | None
-    :param last_name: Optional updated last name.
-    :type last_name: str | None
-    :param email_address: Optional updated email address.
-    :type email_address: str | None
-    :param external_id: Optional updated external identifier.
-    :type external_id: str | None
-    :returns: The updated :class:`Referee`.
-    :rtype: Referee
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-admin login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier containing the referee.
+        referee_id (str): The referee identifier to update.
+        first_name (str | None): Optional updated first name.
+        last_name (str | None): Optional updated last name.
+        email_address (str | None): Optional updated email address.
+        external_id (str | None): Optional updated external identifier.
+
+    Returns:
+        Referee: The updated :class:`Referee`.
+
+    Raises:
+        AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
+            ``gamesheet-admin login`` to refresh).
+        GameSheetError: For any other non-2xx response.
     """
     # Fetch current referee data to get all fields
     get_endpoint = f"/api/seasons/{season_id}/referees/{referee_id}"
@@ -300,12 +307,14 @@ def update_referee(
     )
     if get_response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if get_response.status_code == 404:
         _err_msg = errors.ERROR_MSG_404_REFEREE_IN_SEASON.format(
             referee_id=referee_id,
             season_id=season_id,
         )
         raise GameSheetError(_err_msg)
+
     if get_response.status_code >= 400:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=get_endpoint,
@@ -313,6 +322,7 @@ def update_referee(
             text=repr(get_response.text[:200]),
         )
         raise GameSheetError(_err_msg)
+
     current_attrs = get_response.json().get("data", {}).get("attributes", {})
     # Build updated attributes, preserving current values for unchanged fields
     attributes: dict[str, Any] = {
@@ -324,6 +334,7 @@ def update_referee(
         attributes["email_address"] = email_address
     elif "email_address" in current_attrs:
         attributes["email_address"] = current_attrs["email_address"]
+
     if external_id is not None:
         attributes["external_id"] = external_id
     elif "external_id" in current_attrs:
@@ -347,12 +358,14 @@ def update_referee(
     )
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if response.status_code == 404:
         _err_msg = errors.ERROR_MSG_404_REFEREE_IN_SEASON.format(
             referee_id=referee_id,
             season_id=season_id,
         )
         raise GameSheetError(_err_msg)
+
     if response.status_code >= 400:
         _err_msg = errors.ERROR_MSG_HTTP_PATCH.format(
             endpoint=patch_endpoint,
@@ -360,6 +373,7 @@ def update_referee(
             text=repr(response.text[:200]),
         )
         raise GameSheetError(_err_msg)
+
     body: dict[str, Any] = response.json()
     return _parse(body["data"])
 
@@ -373,15 +387,16 @@ def delete_referee(
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier containing the referee.
-    :type season_id: str
-    :param referee_id: The referee identifier to delete.
-    :type referee_id: str
-    :raises AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired --
-        run ``gamesheet-admin login`` to refresh).
-    :raises GameSheetError: For any other non-2xx response.
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier containing the referee.
+        referee_id (str): The referee identifier to delete.
+
+    Raises:
+        AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
+            ``gamesheet-admin login`` to refresh).
+        GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/referees/{referee_id}"
     response = session.delete(
@@ -390,12 +405,14 @@ def delete_referee(
     )
     if response.status_code == 401:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
+
     if response.status_code == 404:
         _err_msg = (
             f"Referee '{referee_id}' not found in season '{season_id}' (HTTP 404). "
             f"Make sure you're using a valid referee ID and season ID."
         )
         raise GameSheetError(_err_msg)
+
     if response.status_code >= 400:
         _err_msg = errors.ERROR_MSG_HTTP_DELETE.format(
             endpoint=endpoint,
@@ -410,13 +427,14 @@ def list_referees(session: Session, season_id: str) -> list[Referee]:
 
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
-    :param session: An authenticated :class:`Session`.
-    :type session: Session
-    :param season_id: The season identifier whose referees to list.
-    :type season_id: str
-    :returns: A list of :class:`Referee`, in the order the server returned them. The list may be empty if the
-        season has no referees.
-    :rtype: list[Referee]
+
+    Args:
+        session (Session): An authenticated :class:`Session`.
+        season_id (str): The season identifier whose referees to list.
+
+    Returns:
+        list[Referee]: A list of :class:`Referee`, in the order the server returned them. The list may be
+            empty if the season has no referees.
     """
     endpoint = f"/api/seasons/{season_id}/referees"
     response = session.get(

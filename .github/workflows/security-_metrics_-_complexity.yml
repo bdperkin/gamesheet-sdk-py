@@ -30,23 +30,29 @@
 name: Security, Metrics & Complexity
 
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - "CHANGELOG.md"
-      - "pyproject.toml"
   pull_request:
-    types: [opened, reopened, synchronize]
     paths-ignore:
       - "CHANGELOG.md"
       - "pyproject.toml"
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
+    types:
+      - opened
+      - reopened
+      - synchronize
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
 
 permissions:
   contents: read
+
+concurrency:
+  cancel-in-progress: true
+
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
   bandit:
@@ -67,9 +73,9 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: pyproject.toml
+          python-version: ${{ matrix.python-version }}
       - name: Install tox
         run: pip install tox-workdir
       - name: Run bandit via tox
@@ -93,9 +99,9 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: pyproject.toml
+          python-version: ${{ matrix.python-version }}
       - name: Install tox
         run: pip install tox-workdir
       - name: Run semgrep via tox
@@ -107,16 +113,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
         analyzer:
           - "cc"
           - "raw"
           - "mi"
           - "hal"
+        python-version:
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -124,12 +130,12 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: pyproject.toml
+          python-version: ${{ matrix.python-version }}
       - name: Install tox
         run: pip install tox-workdir
       - name: Run radon-${{ matrix.analyzer }} via tox
+        run: tox -e radon-${ANALYZER}
         env:
           ANALYZER: ${{ matrix.analyzer }}
-        run: tox -e radon-${ANALYZER}

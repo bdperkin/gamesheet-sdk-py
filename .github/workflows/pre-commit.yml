@@ -31,23 +31,29 @@
 name: pre-commit
 
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - "CHANGELOG.md"
-      - "pyproject.toml"
   pull_request:
-    types: [opened, reopened, synchronize]
     paths-ignore:
       - "CHANGELOG.md"
       - "pyproject.toml"
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
+    types:
+      - opened
+      - reopened
+      - synchronize
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
 
 permissions:
   contents: read
+
+concurrency:
+  cancel-in-progress: true
+
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
   pre-commit:
@@ -60,14 +66,14 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
+          cache: pip
+          cache-dependency-path: pyproject.toml
           python-version: |
             3.11
             3.12
             3.13
             3.14
 
-          cache: pip
-          cache-dependency-path: pyproject.toml
       - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
         env:
           # On push events to main, GitHub Actions checks the branch out by

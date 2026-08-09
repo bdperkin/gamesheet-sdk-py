@@ -60,6 +60,7 @@ if Path(gitignore_path).exists():
             clean_pattern = line.strip("/")
             if clean_pattern and clean_pattern not in exclude_patterns:
                 exclude_patterns.append(clean_pattern)
+
 templates_path = ["_templates"]
 # -- Automatic API documentation --------------------------------------------
 autosummary_generate = True

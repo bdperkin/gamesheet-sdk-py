@@ -83,6 +83,7 @@ def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None
             email_address="McCauley.Wes@example.com",
             external_id=REFEREE_EXTERNAL_ID_SECONDARY,
         )
+
     assert result.id == _referee_id
     assert result.first_name == "WES"
     assert result.last_name == "MCCAULEY"
@@ -165,6 +166,7 @@ def test_update_referee_sends_correct_payload_partial_fields(
             _referee_id,
             first_name="Updated",
         )
+
     assert result.id == _referee_id
     assert result.first_name == "Updated"
     assert result.last_name == "Name"
@@ -217,6 +219,7 @@ def test_update_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
     with Session(config) as session:
         session.set_bearer_token("test-token")
         update_referee(session, SEASON_ID, _referee_id, first_name="Test")
+
     assert len(responses.calls) == 2
     get_req = responses.calls[0].request
     patch_req = responses.calls[1].request
@@ -337,6 +340,7 @@ def test_update_referee_preserves_existing_external_id(config: Config) -> None:
         session.set_bearer_token("abc")
         # Update only first name, should preserve existing external_id
         result = update_referee(session, SEASON_ID, _referee_id, first_name="New")
+
     assert result.first_name == "New"
     assert result.last_name == "Name"
     # Verify the PATCH payload preserved the external_id

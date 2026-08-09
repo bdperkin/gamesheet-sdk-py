@@ -51,6 +51,7 @@ def test_update_coach_with_empty_position_not_updated(config: Config) -> None:
             first_name="UPDATED",
             # position=None (not provided), and current is empty
         )
+
     assert result.first_name == "UPDATED"
 
 
@@ -80,6 +81,7 @@ def test_update_player_with_empty_biography_not_updated(config: Config) -> None:
             last_name="UPDATED",
             # biography=None (not provided), and current is empty
         )
+
     assert result.last_name == "UPDATED"
 
     # biography remains empty
@@ -110,6 +112,7 @@ def test_update_player_preserves_nonempty_biography(config: Config) -> None:
             last_name="UPDATED",
             # biography=None (not provided), current is non-empty, should be preserved
         )
+
     assert result.last_name == "UPDATED"
     # biography should be preserved
     assert result.biography == "Star forward with 10 years experience"

@@ -25,7 +25,7 @@ INIT_TEMPLATE = (
     "# .genprecommitconfig.yaml - Configuration for tools/genprecommitconfig\n"
     "#\n"
     "# Run: ./tools/genprecommitconfig\n"
-    "# See: tools/README.md\n\n"
+    "# See: tools/README.genprecommitconfig.md\n\n"
     "categories: {}\n"
 )
 

@@ -1,20 +1,20 @@
 # 🚀 Quick Start: API Keys Setup
 
-## TL;DR - What You Need
+## 1. TL;DR - What You Need
 
-### Required (Must Have)
+### 1.1. Required (Must Have)
 
 - ✅ **GitGuardian API Key** - For secret scanning
 
-### Optional (Nice to Have)
+### 1.2. Optional (Nice to Have)
 
 - ⭕ **Semgrep App Token** - For cloud dashboard (workflow works without it!)
 
 ______________________________________________________________________
 
-## ⚡ 5-Minute Setup (Minimum Required)
+## 2. ⚡ 5-Minute Setup (Minimum Required)
 
-### Step 1: GitGuardian API Key (REQUIRED)
+### 2.1. Step 1: GitGuardian API Key (REQUIRED)
 
 **Quick steps:**
 
@@ -49,7 +49,7 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-## ⏭️ Skip Semgrep Token (Recommended for Now)
+## 3. ⏭️ Skip Semgrep Token (Recommended for Now)
 
 **The Semgrep workflow works WITHOUT a token!**
 
@@ -69,7 +69,7 @@ You can skip this entirely and come back later if needed.
 
 ______________________________________________________________________
 
-## 📋 Verification Checklist
+## 4. 📋 Verification Checklist
 
 After setup, verify:
 
@@ -94,7 +94,7 @@ gh secret list
 
 ______________________________________________________________________
 
-## 🎯 Ready to Deploy?
+## 5. 🎯 Ready to Deploy?
 
 If you have `GITGUARDIAN_API_KEY` configured, you're ready!
 
@@ -116,9 +116,9 @@ After push, check results:
 
 ______________________________________________________________________
 
-## 🆘 Common Issues
+## 6. 🆘 Common Issues
 
-### "GitGuardian workflow failed - authentication error"
+### 6.1. "GitGuardian workflow failed - authentication error"
 
 **Fix:** Double-check you set `GITGUARDIAN_API_KEY` (exact name, case-sensitive)
 
@@ -130,7 +130,7 @@ gh secret list | grep GITGUARDIAN
 gh secret set GITGUARDIAN_API_KEY
 ```
 
-### "Semgrep workflow failed"
+### 6.2. "Semgrep workflow failed"
 
 **Fix:** Semgrep doesn't need a token! Check the actual error message.
 
@@ -140,7 +140,7 @@ If it says "missing SEMGREP_APP_TOKEN":
 - Workflow still runs and scans successfully
 - Ignore or add the token (optional)
 
-### "How do I know if it's working?"
+### 6.3. "How do I know if it's working?"
 
 **Check workflow runs:**
 
@@ -158,7 +158,7 @@ gh run view --web
 
 ______________________________________________________________________
 
-## 📞 Need Help?
+## 7. 📞 Need Help?
 
 **GitGuardian Support:**
 
@@ -177,7 +177,7 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-## 🎉 Summary
+## 8. 🎉 Summary
 
 **Absolute minimum to get started:**
 

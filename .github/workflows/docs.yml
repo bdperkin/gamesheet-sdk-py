@@ -64,23 +64,29 @@
 name: Docs
 
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - "CHANGELOG.md"
-      - "pyproject.toml"
   pull_request:
-    types: [opened, reopened, synchronize]
     paths-ignore:
       - "CHANGELOG.md"
       - "pyproject.toml"
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+    types:
+      - opened
+      - reopened
+      - synchronize
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "CHANGELOG.md"
+      - "pyproject.toml"
 
 permissions:
   contents: read
+
+concurrency:
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
   docs:
@@ -94,9 +100,9 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.11"
           cache: pip
           cache-dependency-path: pyproject.toml
+          python-version: "3.11"
       - name: Install tox
         run: pip install tox-workdir
       - name: Run docs via tox
@@ -113,9 +119,9 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.11"
           cache: pip
           cache-dependency-path: pyproject.toml
+          python-version: "3.11"
       - name: Install tox
         run: pip install tox-workdir
       - name: Run docs-epub via tox
@@ -132,9 +138,9 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.11"
           cache: pip
           cache-dependency-path: pyproject.toml
+          python-version: "3.11"
       - name: Install tox
         run: pip install tox-workdir
       - name: Run docs-man via tox
@@ -156,9 +162,9 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.11"
           cache: pip
           cache-dependency-path: pyproject.toml
+          python-version: "3.11"
       - name: Install tox
         run: pip install tox-workdir
       - name: Run docs-pdf via tox
@@ -175,9 +181,9 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.11"
           cache: pip
           cache-dependency-path: pyproject.toml
+          python-version: "3.11"
       - name: Install tox
         run: pip install tox-workdir
       - name: Run docs-lint via tox
@@ -194,9 +200,9 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.11"
           cache: pip
           cache-dependency-path: pyproject.toml
+          python-version: "3.11"
       - name: Install tox
         run: pip install tox-workdir
       - name: Run docs-linkcheck via tox
@@ -213,9 +219,9 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.11"
           cache: pip
           cache-dependency-path: pyproject.toml
+          python-version: "3.11"
       - name: Install tox
         run: pip install tox-workdir
       - name: Run docs-doctest via tox
@@ -232,9 +238,9 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.11"
           cache: pip
           cache-dependency-path: pyproject.toml
+          python-version: "3.11"
       - name: Install tox
         run: pip install tox-workdir
       - name: Run docs via tox
@@ -253,15 +259,15 @@ jobs:
 
   docs-deploy:
     name: Deploy to GitHub Pages
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: docs-build
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write # Deploy to GitHub Pages
-      id-token: write # Verify deployment target
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      id-token: write # Verify deployment target
+      pages: write # Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Deploy artifact to Pages
         id: deployment

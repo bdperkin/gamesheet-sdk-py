@@ -21,14 +21,11 @@ def render_get_command(
 ) -> None:
     """Render get command output (single object as key-value pairs).
 
-    :param data: The object to render (dict or pydantic model)
-    :type data: dict[str, Any] | BaseModel
-    :param output_format: Output format (json, yaml, csv, tsv, or tabulate format)
-    :type output_format: str
-    :param output_path: Optional file path to write output to
-    :type output_path: str | None
-    :param fields_spec: Optional comma-separated field names to include
-    :type fields_spec: str | None
+    Args:
+        data (dict[str, Any] | BaseModel): The object to render (dict or pydantic model)
+        output_format (str): Output format (json, yaml, csv, tsv, or tabulate format)
+        output_path (str | None): Optional file path to write output to
+        fields_spec (str | None): Optional comma-separated field names to include
     """
     # Convert pydantic model to dict if needed
     if isinstance(data, BaseModel):
@@ -46,6 +43,7 @@ def render_get_command(
         rendered = render(rows, fmt=output_format, columns=None)
     else:
         rendered = render([data_dict], fmt=output_format, columns=None)
+
     write_output(rendered, output_path, fmt=output_format)
 
 
@@ -57,14 +55,11 @@ def render_list_command(
 ) -> None:
     """Render list command output (table of objects).
 
-    :param items: List of objects to render (dicts or pydantic models)
-    :type items: list[Any]
-    :param output_format: Output format (json, yaml, csv, tsv, or tabulate format)
-    :type output_format: str
-    :param output_path: Optional file path to write output to
-    :type output_path: str | None
-    :param columns_spec: Optional comma-separated column names to include
-    :type columns_spec: str | None
+    Args:
+        items (list[Any]): List of objects to render (dicts or pydantic models)
+        output_format (str): Output format (json, yaml, csv, tsv, or tabulate format)
+        output_path (str | None): Optional file path to write output to
+        columns_spec (str | None): Optional comma-separated column names to include
     """
     # Convert pydantic models to dicts
     rows = [item.model_dump(mode="json") if hasattr(item, "model_dump") else item for item in items]
@@ -82,12 +77,10 @@ def render_penalty_report(
 ) -> None:
     """Render penalty report output.
 
-    :param report: The penalty report dictionary to render
-    :type report: dict[str, Any]
-    :param output_format: Output format (json or yaml)
-    :type output_format: str
-    :param output_path: Optional file path to write output to
-    :type output_path: str | None
+    Args:
+        report (dict[str, Any]): The penalty report dictionary to render
+        output_format (str): Output format (json or yaml)
+        output_path (str | None): Optional file path to write output to
     """
     import json
 
@@ -99,4 +92,5 @@ def render_penalty_report(
         output_text = yaml.dump(report, default_flow_style=False)
     else:
         output_text = json.dumps(report, indent=2)
+
     write_output(output_text, output_path, fmt=output_format)

@@ -25,6 +25,7 @@ def test_authenticated_session_passthrough_when_200(config: Config) -> None:
     )
     with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
         resp = session.get("/x")
+
     assert resp.status_code == 200
     sent = responses.calls[0].request
     assert sent.headers["Authorization"] == "Bearer A1"
@@ -55,6 +56,7 @@ def test_authenticated_session_refreshes_and_retries_on_401(config: Config) -> N
         on_refresh=persisted.append,
     ) as session:
         resp = session.get("/x")
+
     assert resp.status_code == 200
     assert resp.json() == {"ok": True}
     assert persisted == [{"access": "A2", "refresh": "R2", "roles": "Rol2"}]
@@ -93,6 +95,7 @@ def test_authenticated_session_does_not_retry_when_refresh_returns_500(
     responses.add(responses.POST, REFRESH_URL, status=500, body="boom")
     with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
         resp = session.get("/x")
+
     assert resp.status_code == 401  # original surfaces
     assert len(responses.calls) == 2  # no retry of /x
 
@@ -110,6 +113,7 @@ def test_authenticated_session_post_also_triggers_refresh(config: Config) -> Non
     responses.add(responses.POST, "https://test.example/mutate", status=201)
     with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
         resp = session.post("/mutate")
+
     assert resp.status_code == 201
 
 
@@ -184,6 +188,7 @@ def test_authenticated_session_refreshes_and_retries_on_403(config: Config) -> N
         on_refresh=persisted.append,
     ) as session:
         resp = session.get("/y")
+
     assert resp.status_code == 200
     assert resp.json() == {"ok": True}
     assert persisted == [{"access": "A2", "refresh": "R2", "roles": "Rol2"}]

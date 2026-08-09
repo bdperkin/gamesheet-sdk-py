@@ -1,8 +1,22 @@
 # CLAUDE.md
 
+<!--TOC-->
+
+______________________________________________________________________
+
+- [1. Project nature](#1-project-nature)
+- [2. Common commands](#2-common-commands)
+  - [2.1. Makefile shortcuts](#21-makefile-shortcuts)
+  - [2.2. Tox](#22-tox)
+- [3. Architecture notes](#3-architecture-notes)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project nature
+## 1. Project nature
 
 Unofficial Python SDK + CLI for the GameSheet Inc. platform. GameSheet does not publish a public API for the operations this library targets, so functionality
 is implemented by **automating the GameSheet WebUI** via a combination of:
@@ -68,7 +82,7 @@ The package is alpha. It uses a **three-pillar layout** under `src/gamesheet_sdk
 Future domain modules attach the same way: a thin action function in a domain module, a pydantic model, and a corresponding command module in the pillar's
 `cli/commands/`.
 
-## Common commands
+## 2. Common commands
 
 ```bash
 # Editable install with everything (run once after clone / when deps change).
@@ -101,7 +115,7 @@ pre-commit run --all-files
 mypy src
 ```
 
-### Makefile shortcuts
+### 2.1. Makefile shortcuts
 
 A `Makefile` wraps the most common workflows. `make help` lists every target. Highlights:
 
@@ -122,7 +136,7 @@ make clean         # caches + build artifacts (.tox, .venv, _build untouched)
 make clean-all     # + .tox, $(VENV), docs build dirs
 ```
 
-### Tox
+### 2.2. Tox
 
 Tox now ships ~60 envs — one per linter / formatter / type checker / doc builder — instead of the prior monolithic `lint` / `type` / `security` / `files-check`
 aggregates. Use **labels** for grouped runs:
@@ -150,7 +164,7 @@ venv with the minimum surface area.
 The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.admin.cli:main`) and `gamesheet-teams` (entry point:
 `gamesheet_sdk.teams.cli:main`).
 
-## Architecture notes
+## 3. Architecture notes
 
 - **`src/` layout.** Tests import via the installed package; `pyproject.toml` also sets `pythonpath = ["src"]` so `pytest` works without an install, but
   workflows that need the CLI or Playwright still require `pip install -e ".[all]"` (or at minimum `[dev,pytest]`).
@@ -236,8 +250,7 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   - **Type checkers:** mypy (`--strict`), pyright.
   - **Security / metrics / complexity:** bandit (`[tool.bandit]`), semgrep (`--config auto --error`), xenon (complexity gate — see below), radon (cc / raw / mi
     / hal as separate envs).
-  - **Docstring / doc tools:** codespell, blacken-docs, docformatter, interrogate, pydocstyle, mdformat (+ mdformat-gfm), pymarkdown. Note: `docconvert` is
-    available via tox and CI workflows but not in pre-commit hooks.
+  - **Docstring / doc tools:** codespell, blacken-docs, docformatter, interrogate, pydocstyle, mdformat (+ mdformat-gfm), pymarkdown.
   - **Configuration-file linters / formatters:** yamllint (`-d relaxed`), tox-ini-fmt, pyproject-fmt, validate-pyproject, editorconfig-checker (+ -system
     variant), pyroma.
   - **Meta:** sync-pre-commit-deps.
@@ -269,17 +282,17 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 
   - `conf.py` — Sphinx configuration
   - `index.md` — documentation homepage
-  - `tutorials/` — learning-oriented guides (Diátaxis)
+  - `tutorials/` — learning-oriented guides (Diataxis)
   - `how-to/` — task-oriented guides (development-setup, release-process)
   - `reference/` — information-oriented reference (API, CLI, configuration)
-  - `explanation/` — understanding-oriented explanations (architecture, design decisions, Diátaxis primer)
+  - `explanation/` — understanding-oriented explanations (architecture, design decisions, Diataxis primer)
   - `security/` — security policies and guidelines
   - `_static/` — static assets (CSS, images)
   - `_templates/` — custom Sphinx templates
   - `generate_api_docs.py` — script to generate API documentation
   - `check_api_freshness.py` — script to check if API docs are up-to-date
 
-- **Documentation organization — Diátaxis.** Every doc page belongs to exactly one of four quadrants under `docs/`: `tutorials/` (learning-oriented), `how-to/`
+- **Documentation organization — Diataxis.** Every doc page belongs to exactly one of four quadrants under `docs/`: `tutorials/` (learning-oriented), `how-to/`
   (task-oriented), `reference/` (information-oriented), or `explanation/` (understanding-oriented). When adding a page, pick the quadrant by asking _what is the
   reader's need?_, not _what is the topic?_ — a topic may have a page in more than one quadrant (e.g. an "auth" how-to _and_ an "auth" reference page). The
   `docs/explanation/diataxis.md` page is the in-tree primer; the canonical source is [diataxis.fr](https://diataxis.fr/).

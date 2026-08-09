@@ -17,8 +17,8 @@ from gamesheet_sdk import Config
 def _clear_gamesheet_env(monkeypatch: pytest.MonkeyPatch) -> None:
     """Strip any ambient ``GAMESHEET_*`` env vars so every test sees defaults.
 
-    :returns: None
-    :rtype: None
+    Returns:
+        None: None
     """
     for key in list(os.environ):
         if key.startswith("GAMESHEET_"):
@@ -31,10 +31,12 @@ def config(tmp_path: Path) -> Config:
 
     Single shared fixture for both HTTP-session and browser-session tests; using one definition avoids the
     pylint ``duplicate-code`` warning that fires when near- identical fixtures live in two test modules.
-    :param tmp_path: Temporary path.
-    :type tmp_path: Path
-    :returns: Return value.
-    :rtype: Config
+
+    Args:
+        tmp_path (Path): Temporary path.
+
+    Returns:
+        Config: Return value.
     """
     return Config(
         base_url="https://test.example",
@@ -51,8 +53,9 @@ def vcr_config() -> dict[str, object]:
 
     Sensitive headers and body fields are scrubbed before cassettes are written, so recordings can be
     committed without leaking credentials.
-    :returns: Dictionary of results.
-    :rtype: dict[str, object]
+
+    Returns:
+        dict[str, object]: Dictionary of results.
     """
     return {
         "filter_headers": [
@@ -78,11 +81,12 @@ def vcr_config() -> dict[str, object]:
 
 @pytest.fixture(scope="session")
 def browser_type_launch_args() -> dict[str, object]:
-    """Defaults for the pytest-playwright `browser` fixture.
+    """Defaults for the pytest-playwright ``browser`` fixture.
 
-    Tests opt in to a real browser by adding @pytest.mark.browser and requesting the `page` / `context` /
-    `browser` fixtures from pytest-playwright. They are skipped via `pytest -m 'not browser'`.
-    :returns: Dictionary of results.
-    :rtype: dict[str, object]
+    Tests opt in to a real browser by adding @pytest.mark.browser and requesting the ``page`` / ``context`` /
+    ``browser`` fixtures from pytest-playwright. They are skipped via ``pytest -m 'not browser'``.
+
+    Returns:
+        dict[str, object]: Dictionary of results.
     """
     return {"headless": True}

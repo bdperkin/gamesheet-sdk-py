@@ -31,20 +31,21 @@ def run_roster_delete_test_base(
     Base implementation shared between roster and teams_roster tests.
 
     Args:
-        group: The click group to invoke
-        resource_type: Type of resource ("player" or "coach")
-        resource_id: The resource ID to delete
-        action_path: Full import path to the action function to patch
-        build_session_path: Path to build_authenticated_session to patch
-        context_obj: Click context obj dict (must include config, season_id, optionally team_id)
-        session: Mock session fixture
-        with_force: Whether to include --force flag (default: True)
-        input_text: Input text for confirmation prompt (default: None)
-        should_fail: Whether the action should raise an exception (default: False)
-        error_message: Error message if should_fail is True (default: None)
+        group (Group): The click group to invoke
+        resource_type (str): Type of resource ("player" or "coach")
+        resource_id (str): The resource ID to delete
+        action_path (str): Full import path to the action function to patch
+        build_session_path (str): Path to build_authenticated_session to patch
+        context_obj (dict[str, Any]): Click context obj dict (must include config, season_id, optionally
+            team_id)
+        session (MagicMock): Mock session fixture
+        with_force (bool): Whether to include --force flag (default=True)
+        input_text (str | None): Input text for confirmation prompt (default=None)
+        should_fail (bool): Whether the action should raise an exception (default=False)
+        error_message (str | None): Error message if should_fail is True (default=None)
 
     Returns:
-        Tuple of (exit_code, output, mock_action)
+        tuple[int, str, MagicMock]: Tuple of (exit_code, output, mock_action)
     """
     runner = CliRunner()
     patches = [
