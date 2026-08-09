@@ -211,11 +211,11 @@ optional-dependencies.pyproject-fmt = [
   "pyproject-fmt==2.27.0",
 ]
 optional-dependencies.pyrefly = [
-  "gamesheet-sdk-py[pytest]",
+  "gamesheet-sdk-py[pytest,tools]",
   "pyrefly==1.2.0",
 ]
 optional-dependencies.pyright = [
-  "gamesheet-sdk-py[pytest]",
+  "gamesheet-sdk-py[pytest,tools]",
   "pyright==1.1.411",
 ]
 optional-dependencies.pyroma = [
@@ -246,12 +246,11 @@ optional-dependencies.static-analysis = [
   "gamesheet-sdk-py[blocklint,flake8,pylint,pyrefly,refurb]",
 ]
 optional-dependencies.tools = [
-  "gamesheet-sdk-py[dev]",
+  "gamesheet-sdk-py[dev,yamlfix]",
   "ruamel-yaml==0.19.1",
   "tomli==2.4.1",
   "tomlkit==0.15.1",
   "uv==0.12.3",
-  "yamlfix==1.19.1",
 ]
 optional-dependencies.tox-ini-fmt = [
   "tox-ini-fmt==1.8.1",
@@ -1257,7 +1256,7 @@ parameter_documentation.default-docstring-type = "default"
 [tool.codespell]
 builtin = "code,en-GB_to_en-US,informal,names,rare,usage"
 ignore-words = "custom-dictionary.txt"
-skip = "./docs/_build,./.local,./.pytest_cache,./.venv"
+skip = "./docs/_build,./.local,./.pytest_cache,./.venv,./uv.lock"
 
 ## ## docformatter - Docstring formatter
 [tool.docformatter]
@@ -1523,6 +1522,7 @@ plugins = [
 overrides = [
   # Third-party libraries: Ignore missing type stubs
   { module = [
+    "_constants",
     "pre_commit.clientlib",
   ], ignore_missing_imports = true },
 ]

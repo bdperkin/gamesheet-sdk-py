@@ -20,6 +20,7 @@ extends: default
 ignore: |
   /_build/
   /.local/
+  /.pre-commit-config.yaml
   /.pytest_cache/
   /.venv/
   /node_modules/
