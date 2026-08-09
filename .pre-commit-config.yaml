@@ -716,6 +716,8 @@ repos:
         language_version: python3.11
         types:
           - python
+        args:
+          - --remove
 
   - repo: https://github.com/pycqa/autoflake
     rev: v2.3.3
@@ -919,7 +921,7 @@ repos:
           - gamesheet-sdk-py[refurb]
 
   - repo: https://github.com/pylint-dev/pylint
-    rev: v4.0.6
+    rev: v4.0.7
     hooks:
       - id: pylint
         name: pylint

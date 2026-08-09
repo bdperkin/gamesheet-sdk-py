@@ -28,10 +28,7 @@ def render_get_command(
         fields_spec (str | None): Optional comma-separated field names to include
     """
     # Convert pydantic model to dict if needed
-    if isinstance(data, BaseModel):
-        data_dict = data.model_dump(mode="json")
-    else:
-        data_dict = data
+    data_dict = data.model_dump(mode="json") if isinstance(data, BaseModel) else data
     # Filter fields if specified
     if fields_spec:
         fields = parse_columns_spec(fields_spec)

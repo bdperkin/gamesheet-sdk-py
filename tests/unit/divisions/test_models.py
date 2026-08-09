@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from gamesheet_sdk.admin.divisions import Division
 from gamesheet_sdk.admin.teams import Team
@@ -18,15 +18,15 @@ def test_division_model_ignores_unknown_attributes() -> None:
         id=DIVISION_ID,
         season_id=SEASON_ID,
         title="U13 AAA",
-        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        created_at=datetime(2024, 1, 1, tzinfo=UTC),
+        updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         unexpected_future_attr="ignored",
     )
     assert d.id == DIVISION_ID
     assert d.season_id == SEASON_ID
     assert d.title == "U13 AAA"
-    assert d.created_at == datetime(2024, 1, 1, tzinfo=timezone.utc)
-    assert d.updated_at == datetime(2024, 1, 1, tzinfo=timezone.utc)
+    assert d.created_at == datetime(2024, 1, 1, tzinfo=UTC)
+    assert d.updated_at == datetime(2024, 1, 1, tzinfo=UTC)
 
 
 def test_team_model_accepts_optional_fields() -> None:
@@ -40,8 +40,8 @@ def test_team_model_accepts_optional_fields() -> None:
         invitation_code="ABC123",
         player_count=15,
         coach_count=3,
-        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        created_at=datetime(2024, 1, 1, tzinfo=UTC),
+        updated_at=datetime(2024, 1, 1, tzinfo=UTC),
     )
     assert t.id == "1001"
     assert t.season_id == SEASON_ID
@@ -51,5 +51,5 @@ def test_team_model_accepts_optional_fields() -> None:
     assert t.invitation_code == "ABC123"
     assert t.player_count == 15
     assert t.coach_count == 3
-    assert t.created_at == datetime(2024, 1, 1, tzinfo=timezone.utc)
-    assert t.updated_at == datetime(2024, 1, 1, tzinfo=timezone.utc)
+    assert t.created_at == datetime(2024, 1, 1, tzinfo=UTC)
+    assert t.updated_at == datetime(2024, 1, 1, tzinfo=UTC)

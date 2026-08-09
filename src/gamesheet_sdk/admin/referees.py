@@ -260,7 +260,13 @@ def create_referee(
             "Content-Type": JSONAPI_CONTENT_TYPE,
         },
     )
-    handle_season_scoped_response(response, endpoint, season_id)
+    handle_season_scoped_response(
+        response,
+        endpoint,
+        season_id,
+        method="POST",
+        resource_type="referee",
+    )
     body: dict[str, Any] = response.json()
     return _parse(body["data"])
 
@@ -441,6 +447,12 @@ def list_referees(session: Session, season_id: str) -> list[Referee]:
         endpoint,
         headers=JSONAPI_HEADERS,
     )
-    handle_season_scoped_response(response, endpoint, season_id)
+    handle_season_scoped_response(
+        response,
+        endpoint,
+        season_id,
+        method="GET",
+        resource_type="referee",
+    )
     body: dict[str, Any] = response.json()
     return [_parse(item) for item in body.get("data", [])]

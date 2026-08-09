@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from gamesheet_sdk.admin.ipad_keys import IPadKey
 
@@ -18,8 +18,8 @@ def test_ipad_key_model_ignores_unknown_attributes() -> None:
         description="Test Key",
         roles=[],
         live_scoring_scopes=["read"],
-        created_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+        created_at=datetime(2026, 1, 1, tzinfo=UTC),
+        updated_at=datetime(2026, 1, 1, tzinfo=UTC),
         unexpected_future_attr="ignored",
     )
     assert key.value == "ipad-test-key"

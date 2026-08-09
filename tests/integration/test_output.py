@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 import json
 from pathlib import Path
 import sys
@@ -221,6 +221,6 @@ def test_write_output_to_file_skips_rich_even_on_tty(
 # ---------- types / values regression checks -----------------------------
 def test_render_datetime_in_json_is_iso() -> None:
     """Test that datetime values are rendered as ISO format in JSON."""
-    rows = [{"when": datetime(2024, 1, 1, tzinfo=timezone.utc)}]
+    rows = [{"when": datetime(2024, 1, 1, tzinfo=UTC)}]
     out = render(rows, fmt="json")
     assert "2024-01-01" in out

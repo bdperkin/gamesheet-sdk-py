@@ -15,15 +15,13 @@ class _ConformingFlow:
 
     def authenticate(
         self: _ConformingFlow,
-        # pylint: disable-next=unused-argument
-        email: str | None = None,  # noqa: U100
-        # pylint: disable-next=unused-argument
-        password: str | None = None,  # noqa: U100
+        email: str | None = None,
+        password: str | None = None,
         *,
-        # pylint: disable-next=unused-argument
-        timeout: float | None = None,  # noqa: U100
+        timeout: float | None = None,
     ) -> dict[str, str]:
         """Return stub tokens."""
+        _ = (email, password, timeout)
         return {"access": "a", "refresh": "r"}
 
 

@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from gamesheet_sdk.admin.associations import Association
 
@@ -16,8 +16,8 @@ def test_association_model_ignores_unknown_attributes() -> None:
         id="11",
         title="X",
         logo="",
-        created_at=datetime(2023, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2023, 1, 1, tzinfo=timezone.utc),
+        created_at=datetime(2023, 1, 1, tzinfo=UTC),
+        updated_at=datetime(2023, 1, 1, tzinfo=UTC),
         unexpected_future_attr="ignored",
     )
     assert a.title == "X"

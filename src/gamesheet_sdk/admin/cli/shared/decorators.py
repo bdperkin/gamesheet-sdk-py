@@ -38,7 +38,7 @@ def common_output_options(func: F) -> F:
             "rst, mediawiki, html, latex, latex_raw, latex_booktabs, latex_longtable."
         ),
     )(func)
-    func = click.option(
+    return click.option(
         "--output",
         "-o",
         "output_path",
@@ -46,7 +46,6 @@ def common_output_options(func: F) -> F:
         default=None,
         help="Write to this file instead of stdout.",
     )(func)
-    return func
 
 
 def list_columns_option(func: F) -> F:
@@ -118,13 +117,12 @@ def team_update_options(func: F) -> F:
         type=Path(exists=True, dir_okay=False),
         help="Path to a new logo image file.",
     )(func)
-    func = click.option(
+    return click.option(
         "--remove-logo",
         is_flag=True,
         default=False,
         help="Remove the team's logo.",
     )(func)
-    return func
 
 
 def team_create_options(func: F) -> F:
@@ -142,10 +140,9 @@ def team_create_options(func: F) -> F:
         default=None,
         help="Optional external identifier for the team.",
     )(func)
-    func = click.option(
+    return click.option(
         "--logo",
         "logo_path",
         type=Path(exists=True, dir_okay=False),
         help="Optional path to a local logo image file.",
     )(func)
-    return func

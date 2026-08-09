@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from gamesheet_sdk.admin.referees import Referee
 from tests.helpers import SEASON_ID
@@ -19,8 +19,8 @@ def test_referee_model_ignores_unknown_attributes() -> None:
         first_name="John",
         last_name="Smith",
         email="john.smith@example.com",
-        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        created_at=datetime(2024, 1, 1, tzinfo=UTC),
+        updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         unexpected_future_attr="ignored",
     )
     assert r.first_name == "John"
@@ -35,7 +35,7 @@ def test_referee_model_handles_optional_email() -> None:
         first_name="Jane",
         last_name="Doe",
         email=None,
-        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        created_at=datetime(2024, 1, 1, tzinfo=UTC),
+        updated_at=datetime(2024, 1, 1, tzinfo=UTC),
     )
     assert r.email is None

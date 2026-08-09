@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 import responses
@@ -88,8 +88,8 @@ def test_list_seasons_parses_jsonapi_response(config: Config) -> None:
     assert [s.id for s in result] == [CLI_TEST_SEASON_ID, "502"]
     assert result[0].title == "2024-2025"
     assert result[0].league_id == _LEAGUE_ID
-    assert result[0].created_at == datetime(2024, 9, 1, 10, tzinfo=timezone.utc)
-    assert result[0].updated_at == datetime(2024, 9, 15, 14, 30, tzinfo=timezone.utc)
+    assert result[0].created_at == datetime(2024, 9, 1, 10, tzinfo=UTC)
+    assert result[0].updated_at == datetime(2024, 9, 15, 14, 30, tzinfo=UTC)
     assert result[1].title == "2023-2024"
 
 
@@ -262,7 +262,7 @@ def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:  #
         41,
         4,
         363363,
-        tzinfo=timezone.utc,
+        tzinfo=UTC,
     )
     assert result.updated_at == datetime(
         2026,
@@ -272,7 +272,7 @@ def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:  #
         24,
         22,
         122544,
-        tzinfo=timezone.utc,
+        tzinfo=UTC,
     )
 
 

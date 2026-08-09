@@ -9,8 +9,16 @@ from unittest.mock import Mock
 
 import pytest
 
-from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
-from gamesheet_sdk.common.shared.gamesheet_http import handle_response
+from gamesheet_sdk.common.exceptions import (
+    AuthenticationError,
+    GameSheetError,
+    GameSheetPermissionError,
+    GameSheetRateLimitError,
+)
+from gamesheet_sdk.common.shared.gamesheet_http import (
+    handle_response,
+    handle_season_scoped_response,
+)
 
 
 def test_handle_response_passes_on_200() -> None:
@@ -93,3 +101,40 @@ def test_handle_response_403_includes_cookie_expiry_message() -> None:
         match=r"session cookies may have expired",
     ):
         handle_response(response, "/api/test", "POST data")
+
+
+def test_handle_response_raises_on_429() -> None:
+    """Test that handle_response raises GameSheetRateLimitError for 429."""
+    response = Mock()
+    response.status_code = 429
+    response.text = "Too Many Requests"
+    with pytest.raises(
+        GameSheetRateLimitError,
+        match=r"Rate limit exceeded \(HTTP 429\) for /api/test",
+    ) as exc_info:
+        handle_response(response, "/api/test", "GET test")
+
+    assert exc_info.value.status_code == 429
+    assert exc_info.value.endpoint == "/api/test"
+    assert exc_info.value.response_body == "Too Many Requests"
+
+
+def test_handle_season_scoped_response_raises_on_403() -> None:
+    """Test that handle_season_scoped_response raises GameSheetPermissionError for 403."""
+    response = Mock()
+    response.status_code = 403
+    response.text = "Forbidden"
+    with pytest.raises(
+        GameSheetPermissionError,
+        match=r"Access forbidden \(HTTP 403\) for POST referee",
+    ) as exc_info:
+        handle_season_scoped_response(
+            response,
+            "/api/seasons/1/referees",
+            "1",
+            method="POST",
+            resource_type="referee",
+        )
+
+    assert exc_info.value.status_code == 403
+    assert exc_info.value.endpoint == "/api/seasons/1/referees"

@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 import responses
@@ -92,8 +92,8 @@ def test_list_teams_parses_jsonapi_response(config: Config) -> None:
     assert result[0].title == "Raleigh Raptors"
     assert result[0].season_id == SEASON_ID
     assert result[0].division_id == "5001"
-    assert result[0].created_at == datetime(2024, 9, 1, 10, tzinfo=timezone.utc)
-    assert result[0].updated_at == datetime(2024, 9, 15, 14, 30, tzinfo=timezone.utc)
+    assert result[0].created_at == datetime(2024, 9, 1, 10, tzinfo=UTC)
+    assert result[0].updated_at == datetime(2024, 9, 15, 14, 30, tzinfo=UTC)
     assert result[1].title == "Durham Bulls"
     assert result[1].division_id is None
 
@@ -174,8 +174,8 @@ def test_team_model_handles_optional_division_id() -> None:
         id="1002",
         season_id=SEASON_ID,
         title="Durham Bulls",
-        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        created_at=datetime(2024, 1, 1, tzinfo=UTC),
+        updated_at=datetime(2024, 1, 1, tzinfo=UTC),
     )
     assert t.title == "Durham Bulls"
     assert t.division_id is None

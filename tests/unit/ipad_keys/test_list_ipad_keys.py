@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 import responses
@@ -79,7 +79,7 @@ def test_list_ipad_keys_parses_jsonapi_response(config: Config) -> None:
         42,
         34,
         411627,
-        tzinfo=timezone.utc,
+        tzinfo=UTC,
     )
     assert result[0].updated_at == datetime(
         2026,
@@ -89,7 +89,7 @@ def test_list_ipad_keys_parses_jsonapi_response(config: Config) -> None:
         42,
         34,
         411627,
-        tzinfo=timezone.utc,
+        tzinfo=UTC,
     )
 
 

@@ -17,7 +17,7 @@ from __future__ import annotations
 import json
 import logging
 from types import TracebackType
-from typing import Any
+from typing import Any, Self
 from urllib.parse import urljoin
 
 from playwright.sync_api import (
@@ -30,6 +30,7 @@ from playwright.sync_api import (
 )
 
 from gamesheet_sdk.common.config import Config
+from gamesheet_sdk.common.security import write_secure_text
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -199,9 +200,8 @@ class BrowserSession:
             return
 
         path = self.config.browser_state_path
-        path.parent.mkdir(parents=True, exist_ok=True)
         state = self._context.storage_state()
-        path.write_text(json.dumps(state, indent=2, sort_keys=True))
+        write_secure_text(path, json.dumps(state, indent=2, sort_keys=True))
 
     def _safe_save(self: BrowserSession) -> None:
         """Persist storage state, demoting disk errors to a warning.
@@ -251,11 +251,11 @@ class BrowserSession:
         self._release_playwright()
         self._closed = True
 
-    def __enter__(self: BrowserSession) -> BrowserSession:
+    def __enter__(self: Self) -> Self:
         """Enter the context manager.
 
         Returns:
-            BrowserSession: Return value.
+            Self: Return value.
         """
         return self
 

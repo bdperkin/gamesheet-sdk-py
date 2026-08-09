@@ -45,9 +45,9 @@ def referee_response_data(referee_id: str) -> dict[str, Any]:
 
 
 __all__ = [
+    "SEASON_ID",
+    "TEST_BASE_URL",
+    "_ENDPOINT",
     "jsonapi_payload",
     "referee_response_data",
-    "TEST_BASE_URL",
-    "SEASON_ID",
-    "_ENDPOINT",
 ]

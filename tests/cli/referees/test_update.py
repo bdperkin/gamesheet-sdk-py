@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 from click.testing import CliRunner
@@ -36,8 +36,8 @@ def test_referees_update_with_all_fields(runner: CliRunner) -> None:
             first_name="WES",
             last_name="MCCAULEY",
             email="McCauley.Wes@example.com",
-            created_at=datetime(2026, 6, 15, 12, 1, 41, tzinfo=timezone.utc),
-            updated_at=datetime(2026, 6, 15, 12, 6, 46, tzinfo=timezone.utc),
+            created_at=datetime(2026, 6, 15, 12, 1, 41, tzinfo=UTC),
+            updated_at=datetime(2026, 6, 15, 12, 6, 46, tzinfo=UTC),
         )
         result = runner.invoke(
             cli,
@@ -89,8 +89,8 @@ def test_referees_update_partial_fields(runner: CliRunner) -> None:
             season_id=SEASON_ID,
             first_name="Updated",
             last_name="Original",
-            created_at=datetime(2026, 6, 15, 13, 0, 0, tzinfo=timezone.utc),
-            updated_at=datetime(2026, 6, 15, 14, 0, 0, tzinfo=timezone.utc),
+            created_at=datetime(2026, 6, 15, 13, 0, 0, tzinfo=UTC),
+            updated_at=datetime(2026, 6, 15, 14, 0, 0, tzinfo=UTC),
         )
         result = runner.invoke(
             cli,
@@ -136,8 +136,8 @@ def test_referees_update_alias_set(runner: CliRunner) -> None:
             season_id=SEASON_ID,
             first_name="Test",
             last_name="Ref",
-            created_at=datetime(2026, 6, 15, 15, 0, 0, tzinfo=timezone.utc),
-            updated_at=datetime(2026, 6, 15, 15, 30, 0, tzinfo=timezone.utc),
+            created_at=datetime(2026, 6, 15, 15, 0, 0, tzinfo=UTC),
+            updated_at=datetime(2026, 6, 15, 15, 30, 0, tzinfo=UTC),
         )
         result = runner.invoke(
             cli,
@@ -176,8 +176,8 @@ def test_referees_update_alias_edit(runner: CliRunner) -> None:
             season_id=SEASON_ID,
             first_name="Another",
             last_name="Test",
-            created_at=datetime(2026, 6, 15, 16, 0, 0, tzinfo=timezone.utc),
-            updated_at=datetime(2026, 6, 15, 16, 15, 0, tzinfo=timezone.utc),
+            created_at=datetime(2026, 6, 15, 16, 0, 0, tzinfo=UTC),
+            updated_at=datetime(2026, 6, 15, 16, 15, 0, tzinfo=UTC),
         )
         result = runner.invoke(
             cli,
@@ -251,8 +251,8 @@ def test_referees_update_json_output(runner: CliRunner) -> None:
             first_name="Json",
             last_name="Updated",
             email="updated@example.com",
-            created_at=datetime(2026, 6, 15, 17, 0, 0, tzinfo=timezone.utc),
-            updated_at=datetime(2026, 6, 15, 17, 30, 0, tzinfo=timezone.utc),
+            created_at=datetime(2026, 6, 15, 17, 0, 0, tzinfo=UTC),
+            updated_at=datetime(2026, 6, 15, 17, 30, 0, tzinfo=UTC),
         )
         result = runner.invoke(
             cli,

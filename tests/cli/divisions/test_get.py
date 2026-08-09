@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 from click.testing import CliRunner
@@ -28,8 +28,8 @@ def test_divisions_get(runner: CliRunner) -> None:
             id="301",
             season_id=SEASON_ID,
             title=DEFAULT_DIVISION_NAME,
-            created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-            updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            created_at=datetime(2024, 1, 1, tzinfo=UTC),
+            updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         )
         result = runner.invoke(cli, ["divisions", "get", "--division-id", "301"])
         assert not result.exit_code
@@ -50,8 +50,8 @@ def test_divisions_get_with_fields(runner: CliRunner) -> None:
             id="301",
             season_id=SEASON_ID,
             title=DEFAULT_DIVISION_NAME,
-            created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-            updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            created_at=datetime(2024, 1, 1, tzinfo=UTC),
+            updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         )
         result = runner.invoke(
             cli,
@@ -83,8 +83,8 @@ def test_divisions_get_empty_fields(runner: CliRunner) -> None:
             id="301",
             season_id=SEASON_ID,
             title=DEFAULT_DIVISION_NAME,
-            created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-            updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            created_at=datetime(2024, 1, 1, tzinfo=UTC),
+            updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         )
         result = runner.invoke(
             cli,

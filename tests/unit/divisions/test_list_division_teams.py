@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import pytest
@@ -99,8 +99,8 @@ def test_list_division_teams_parses_jsonapi_response(config: Config) -> None:
     assert result[0].invitation_code is None  # No invitations in this response
     assert result[0].player_count == 15
     assert result[0].coach_count == 3
-    assert result[0].created_at == datetime(2024, 9, 1, 10, tzinfo=timezone.utc)
-    assert result[0].updated_at == datetime(2024, 9, 15, 14, 30, tzinfo=timezone.utc)
+    assert result[0].created_at == datetime(2024, 9, 1, 10, tzinfo=UTC)
+    assert result[0].updated_at == datetime(2024, 9, 15, 14, 30, tzinfo=UTC)
     assert result[1].title == "Durham Bulls"
     assert result[1].logo is None
 
