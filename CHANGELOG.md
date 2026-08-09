@@ -2,6 +2,47 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.15 (2026-08-09)
+
+### Chores
+
+- **tooling**: Remove docconvert ([`987f804`](https://github.com/bdperkin/gamesheet-sdk-py/commit/987f804a2633f70e5bbc043d75496e594fbc66ef))
+
+- **tools**: Format all emitted YAML with yamlfix ([`7893159`](https://github.com/bdperkin/gamesheet-sdk-py/commit/78931595ff9a4030262ec7554a46263352d47969))
+
+- **tools**: Split tool docs, add sortyaml GitLab CI + merge-key support
+  ([`5dc1d9f`](https://github.com/bdperkin/gamesheet-sdk-py/commit/5dc1d9f300607e5d8dc40512115ae163cdc91cf9))
+
+- **tools**: Tidy extras wiring and linter config ([`10388ce`](https://github.com/bdperkin/gamesheet-sdk-py/commit/10388ce38209e8c9dfbea0b6931cefedd657f0a5))
+
+### Code Style
+
+- Add blank lines after code blocks ([`9e2a2ff`](https://github.com/bdperkin/gamesheet-sdk-py/commit/9e2a2ff18e4de479441a28faee51956450ffd6ce))
+
+- Add format-docstring hook and widen linter scope ([`4c05b78`](https://github.com/bdperkin/gamesheet-sdk-py/commit/4c05b787404890c36d20dc8d0cd07f217342af01))
+
+- Add format-json hook ([`6cd8566`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6cd85669201b0642850f98122be21f7d5ac4c722))
+
+- Add pydoclint hooks, move __init__ docs to class docstrings
+  ([`aa68bbb`](https://github.com/bdperkin/gamesheet-sdk-py/commit/aa68bbb85137d66f8d45bfaed512b07925e015c5))
+
+### Documentation
+
+- Add tables of contents to markdown files ([`4374d37`](https://github.com/bdperkin/gamesheet-sdk-py/commit/4374d37d24b1d2a11a552d4b29b9152d5f3fdc44))
+
+- Number markdown headings ([`efaaff7`](https://github.com/bdperkin/gamesheet-sdk-py/commit/efaaff7dc1dbd9bb0b4a5dd2c0cccb8a0d766f9f))
+
+- **docstrings**: Migrate from Sphinx to Google style
+  ([`0d051e3`](https://github.com/bdperkin/gamesheet-sdk-py/commit/0d051e33da074eb8cf245d48f00522b6cf343c4f))
+
+- **security**: Suppress two tar CVEs and correct dismissal guidance
+  ([`95973ab`](https://github.com/bdperkin/gamesheet-sdk-py/commit/95973ab45b183f4cbfb75e22689dd2bd475bbae3))
+
+### Features
+
+- **common**: Add structured API exceptions and secure credential file writes
+  ([`b5a5eeb`](https://github.com/bdperkin/gamesheet-sdk-py/commit/b5a5eebff5bc83c0fb4a87f3383ed8c82628d4f7))
+
 ## v0.4.14 (2026-08-04)
 
 ### Bug Fixes
