@@ -47,8 +47,7 @@ def validate_broadcaster_key(session: Session, broadcaster: str) -> str:
 
     Args:
         session (Session): An authenticated :class:`Session`.
-        broadcaster (str): The broadcaster key to validate (case-
-            insensitive).
+        broadcaster (str): The broadcaster key to validate (case- insensitive).
 
     Returns:
         str: The correctly-cased broadcaster key.

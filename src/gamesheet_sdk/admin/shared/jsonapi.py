@@ -1,7 +1,7 @@
 # Copyright (c) 2026 bdperkin
 # SPDX-License-Identifier: MIT
 
-"""JSON:API parsing utilities."""
+"""JSON: API parsing utilities."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ def extract_relationship_id(
 ) -> str:
     """Safely extract ID from JSON:API relationship.
 
-    JSON:API relationships follow the structure:
+    JSON: API relationships follow the structure:
 
     .. code-block:: json
 
@@ -45,10 +45,10 @@ def parse_jsonapi_resource(
 ) -> dict[str, Any]:
     """Parse a JSON:API resource into a flat dictionary.
 
-    Flattens a JSON:API resource object into a simple dict by merging
-    the id, attributes, and optionally extracting relationship IDs.
+    Flattens a JSON:API resource object into a simple dict by merging the id, attributes, and optionally
+    extracting relationship IDs.
 
-    **JSON:API structure:**
+    **JSON: API structure:**
 
     .. code-block:: json
 
@@ -59,7 +59,7 @@ def parse_jsonapi_resource(
             "relationships": {"association": {"data": {"id": "456"}}}
         }
 
-    **Result:**
+    **Result: **
 
     .. code-block:: python
 
@@ -67,13 +67,11 @@ def parse_jsonapi_resource(
 
     Args:
         item (dict[str, Any]): JSON:API resource object.
-        relationship_map (dict[str, str] | None): Maps relationship
-            names to attribute keys. Example: ``{"association":
-            "association_id"}``.
+        relationship_map (dict[str, str] | None): Maps relationship names to attribute keys. Example:
+            ``{"association": "association_id"}``.
 
     Returns:
-        dict[str, Any]: Flattened dict with id + attributes +
-        relationship IDs.
+        dict[str, Any]: Flattened dict with id + attributes + relationship IDs.
     """
     result: dict[str, Any] = {"id": item["id"]}
     result.update(item.get("attributes", {}))
@@ -90,12 +88,10 @@ def build_invitation_code_lookup(body: dict[str, Any]) -> dict[str, str]:
     Parses the included section of a JSON:API response to extract invitation codes keyed by invitation ID.
 
     Args:
-        body (dict[str, Any]): The JSON:API response body containing
-            included resources.
+        body (dict[str, Any]): The JSON:API response body containing included resources.
 
     Returns:
-        dict[str, str]: Dictionary mapping invitation IDs to invitation
-        codes.
+        dict[str, str]: Dictionary mapping invitation IDs to invitation codes.
     """
     invitation_codes: dict[str, str] = {}
     for item in body.get("included", []):
@@ -118,8 +114,7 @@ def get_invitation_code_from_relationship(
 
     Args:
         item (dict[str, Any]): The JSON:API team resource object.
-        invitation_codes (dict[str, str]): Lookup dictionary from
-            invitation IDs to codes.
+        invitation_codes (dict[str, str]): Lookup dictionary from invitation IDs to codes.
 
     Returns:
         str | None: The invitation code if found, otherwise None.

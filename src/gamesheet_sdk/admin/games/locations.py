@@ -71,8 +71,7 @@ def validate_location(session: Session, location: str) -> str:
 
     Args:
         session (Session): An authenticated :class:`Session`.
-        location (str): The location string to validate (case-
-            insensitive).
+        location (str): The location string to validate (case- insensitive).
 
     Returns:
         str: The correctly-cased location string.

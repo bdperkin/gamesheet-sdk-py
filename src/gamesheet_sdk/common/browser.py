@@ -8,8 +8,8 @@ Sibling of :mod:`gamesheet_sdk.common.session` with matching shape:
 - Storage state persisted via :attr:`Config.browser_state_path`.
 - Base-URL resolution against :attr:`Config.base_url`.
 - Context-manager that saves state on exit.
-Browsers are heavyweight, so :class:`BrowserSession` starts Playwright
-lazily on first reach for the browser; bare construction is free.
+Browsers are heavyweight, so :class:`BrowserSession` starts Playwright lazily on first reach for the browser;
+bare construction is free.
 """
 
 from __future__ import annotations
@@ -37,9 +37,8 @@ _LOGGER = logging.getLogger(__name__)
 class BrowserSession:
     """A Playwright-driven session for the JavaScript-heavy code path.
 
-    Mirror of :class:`gamesheet_sdk.Session` for flows where ``requests``
-    is not enough (single-page apps, anti-bot challenges, anything that
-    needs a real engine to render).
+    Mirror of :class:`gamesheet_sdk.Session` for flows where ``requests`` is not enough (single-page apps,
+    anti-bot challenges, anything that needs a real engine to render).
 
     Example::
 
@@ -50,13 +49,12 @@ class BrowserSession:
             page.fill("input[name='email']", "...")
 
     Stores the configuration and sets up internal state for lazy browser initialization. Playwright and
-    Chromium are only launched when :attr:`context` or :meth:`goto` is first accessed. This makes
-    construction cheap and allows sessions that never reach for the browser (e.g. configuration-only runs)
-    to avoid the startup overhead.
+    Chromium are only launched when :attr:`context` or :meth:`goto` is first accessed. This makes construction
+    cheap and allows sessions that never reach for the browser (e.g. configuration-only runs) to avoid the
+    startup overhead.
 
     Args:
-        config (Config | None): Optional configuration object. If
-            ``None``, a default
+        config (Config | None): Optional configuration object. If ``None``, a default
             :class:`~gamesheet_sdk.common.config.Config` is created.
     """
 
@@ -71,8 +69,8 @@ class BrowserSession:
         """Load browser storage state from disk if it exists.
 
         Returns:
-            A dictionary containing cookies and localStorage data, or
-            ``None`` if the file does not exist or cannot be parsed.
+            StorageState | None: A dictionary containing cookies and localStorage data, or ``None`` if the
+                file does not exist or cannot be parsed.
         """
         path = self.config.browser_state_path
         if not path.exists():
@@ -124,8 +122,7 @@ class BrowserSession:
 
         Raises:
             RuntimeError: If the session has already been closed.
-            ValueError: If the browser failed to start (defensive
-                check).
+            ValueError: If the browser failed to start (defensive check).
         """
         if self._closed:
             _err_msg = "BrowserSession has been closed"
@@ -171,8 +168,8 @@ class BrowserSession:
     def goto(self: BrowserSession, url: str, **kwargs: Any) -> Page:
         """Open a fresh tab navigated to ``url``.
 
-        ``url`` may be absolute or a path relative to :attr:`Config.base_url`.
-        Starts Playwright and Chromium on first call if not already running.
+        ``url`` may be absolute or a path relative to :attr:`Config.base_url`. Starts Playwright and Chromium
+        on first call if not already running.
 
         Example::
 
@@ -182,12 +179,10 @@ class BrowserSession:
 
         Args:
             url (str): An absolute or relative URL to navigate to.
-            **kwargs (Any): Additional keyword arguments passed to
-                :meth:`playwright.sync_api.Page.goto`.
+            **kwargs (Any): Additional keyword arguments passed to :meth:`playwright.sync_api.Page.goto`.
 
         Returns:
-            Page: A :class:`~playwright.sync_api.Page` navigated to the
-            resolved URL.
+            Page: A :class:`~playwright.sync_api.Page` navigated to the resolved URL.
         """
         page = self.new_page()
         page.goto(self._resolve(url), **kwargs)
@@ -211,7 +206,7 @@ class BrowserSession:
     def _safe_save(self: BrowserSession) -> None:
         """Persist storage state, demoting disk errors to a warning.
 
-        Calls :meth:`save` and logs any :exc:`OSError` as a warning instead of propagating it, ensuring
+        Calls: meth:`save` and logs any :exc:`OSError` as a warning instead of propagating it, ensuring
         cleanup can proceed even if state persistence fails.
 
         Returns:

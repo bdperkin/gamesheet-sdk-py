@@ -10,7 +10,7 @@ with the lightweight :class:`gamesheet_sdk.Session` path -- no Playwright needed
 bearer token has been obtained (typically by reading the SPA's ``accessToken`` from the saved browser storage
 state via :func:`gamesheet_sdk.common.auth.load_access_token`).
 
-**Example:**
+**Example: **
 
 Retrieve all leagues for a given association:
 .. code-block:: python
@@ -46,15 +46,15 @@ _ENDPOINT_TEMPLATE = "/api/associations/{association_id}/leagues"
 class League(BaseModel):
     """A single league.
 
-    Maps the ``data[*]`` items in the JSON:API response of ``GET /api/associations/{id}/leagues`` to a flat
+    Maps the ``data[*]`` items in the JSON: API response of ``GET /api/associations/{id}/leagues`` to a flat
     typed model.
 
     Attributes:
-        id: League identifier (string in JSON:API).
-        association_id: Parent association identifier.
-        title: Display name of the league.
-        created_at: When the league was created.
-        updated_at: Last time the league was updated.
+        id (str): League identifier (string in JSON:API).
+        association_id (str): Parent association identifier.
+        title (str): Display name of the league.
+        created_at (datetime): When the league was created.
+        updated_at (datetime): Last time the league was updated.
     """
 
     id: str = Field(description="League identifier (string in JSON:API).")
@@ -71,11 +71,9 @@ def _parse(item: dict[str, Any], association_id: str) -> League:
     pydantic model. Internal helper for :func:`list_leagues`.
 
     Args:
-        item (dict[str, Any]): A single JSON:API resource object from
-            the ``data`` array, with top-level ``id`` and nested
-            ``attributes``.
-        association_id (str): The parent association identifier to
-            attach to the resulting model.
+        item (dict[str, Any]): A single JSON:API resource object from the ``data`` array, with top-level
+            ``id`` and nested ``attributes``.
+        association_id (str): The parent association identifier to attach to the resulting model.
 
     Returns:
         League: Return value.
@@ -114,13 +112,11 @@ def list_leagues(session: Session, association_id: str) -> list[League]:
 
     Args:
         session (Session): An authenticated :class:`Session`.
-        association_id (str): The association identifier whose leagues
-            to list.
+        association_id (str): The association identifier whose leagues to list.
 
     Returns:
-        list[League]: A list of :class:`League`, in the order the server
-        returned them. The list may be empty if the association has no
-        leagues.
+        list[League]: A list of :class:`League`, in the order the server returned them. The list may be empty
+            if the association has no leagues.
     """
     endpoint = _ENDPOINT_TEMPLATE.format(association_id=association_id)
     response = session.get(endpoint, headers=JSONAPI_HEADERS)

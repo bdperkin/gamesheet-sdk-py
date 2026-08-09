@@ -23,7 +23,7 @@ def _write_init_template(config_file: Path) -> None:
     """Write a minimal template configuration file.
 
     Args:
-        config_file: Path to write the template to.
+        config_file (Path): Path to write the template to.
 
     Raises:
         SystemExit: If the file already exists.
@@ -112,16 +112,12 @@ def app(
 
     Args:
         config_file (str): Path to the YAML configuration file.
-        output_file (str | None): Override output file path from
-            configuration.
+        output_file (str | None): Override output file path from configuration.
         log_level (str): Logging verbosity level.
-        max_downgrade_attempts (int | None): Max older revisions to try
-            on validation failure.
-        dry_run (bool): Generate YAML only, do not run pre-commit
-            validation.
+        max_downgrade_attempts (int | None): Max older revisions to try on validation failure.
+        dry_run (bool): Generate YAML only, do not run pre-commit validation.
         no_validate (bool): Skip per-repo incremental validation.
-        no_reset (bool): Do not reset the working tree on validation
-            failure.
+        no_reset (bool): Do not reset the working tree on validation failure.
         init (bool): Write a minimal template config file and exit.
 
     Raises:

@@ -75,7 +75,7 @@ def teams_roster_coaches_list_command(
     output_path: str | None,
     columns_spec: str | None,
 ) -> None:
-    """List all coaches for this team.
+    r"""List all coaches for this team.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
@@ -83,8 +83,7 @@ def teams_roster_coaches_list_command(
         ctx (Context): Click context object containing config
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        columns_spec (str | None): Optional comma-separated list of
-            columns to display
+        columns_spec (str | None): Optional comma-separated list of columns to display
     """
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
@@ -112,7 +111,7 @@ def teams_roster_coaches_get_command(
     output_path: str | None,
     fields_spec: str | None,
 ) -> None:
-    """Get detailed information about a specific coach on this team.
+    r"""Get detailed information about a specific coach on this team.
 
     The coach ID can be provided via --coach-id or the GAMESHEET_COACH_ID environment variable. The season ID
     and team ID are inherited from the parent roster command. Requires authentication (run 'gamesheet-admin
@@ -123,8 +122,7 @@ def teams_roster_coaches_get_command(
         coach_id (str): The coach identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        fields_spec (str | None): Optional comma-separated list of
-            fields to display
+        fields_spec (str | None): Optional comma-separated list of fields to display
     """
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
@@ -174,7 +172,7 @@ def teams_roster_coaches_create_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Add a coach to this team.
+    r"""Add a coach to this team.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
@@ -188,8 +186,7 @@ def teams_roster_coaches_create_command(
         output_path (str | None): Optional output file path
 
     Raises:
-        Exit: Always raised (exit code 1) because this command is not
-            yet implemented.
+        Exit: Always raised (exit code 1) because this command is not yet implemented.
     """
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
@@ -254,7 +251,7 @@ def teams_roster_coaches_update_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Update a coach on this team.
+    r"""Update a coach on this team.
 
     Requires authentication (run 'gamesheet-admin login' first). At least one field must be provided for
     update.\f
@@ -270,8 +267,7 @@ def teams_roster_coaches_update_command(
         output_path (str | None): Optional output file path
 
     Raises:
-        Exit: Always raised (exit code 1) because this command is not
-            yet implemented.
+        Exit: Always raised (exit code 1) because this command is not yet implemented.
     """
     from gamesheet_sdk.admin.cli.helpers import run_roster_update_with_output
 
@@ -307,7 +303,7 @@ def teams_roster_coaches_update_command(
 @confirm_destructive("coach")
 @click.pass_context
 def teams_roster_coaches_delete_command(ctx: Context, coach_id: str) -> None:
-    """Delete a coach from the team's roster and the season.
+    r"""Delete a coach from the team's roster and the season.
 
     Requires authentication (run 'gamesheet-admin login' first). This operation is destructive and cannot be
     undone. Use --force to skip confirmation prompt.\f
@@ -350,7 +346,7 @@ def teams_roster_coaches_penalty_report_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Get penalty report for a coach on this team.
+    r"""Get penalty report for a coach on this team.
 
     Retrieves penalty statistics, incidents, and infraction history for the specified coach.\f
 
@@ -392,7 +388,9 @@ def teams_roster_coaches_assign_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Assign an existing coach to this team's roster.\f.
+    r"""Assign an existing coach to this team's roster.
+
+    Requires authentication (run 'gamesheet-admin login' first).\f
 
     Args:
         ctx (Context): Click context object containing config
@@ -433,7 +431,9 @@ def teams_roster_coaches_assign_command(
 )
 @click.pass_context
 def teams_roster_coaches_unassign_command(ctx: Context, coach_id: str) -> None:
-    """Unassign a coach from this team's roster.\f.
+    r"""Unassign a coach from this team's roster.
+
+    Requires authentication (run 'gamesheet-admin login' first).\f
 
     Args:
         ctx (Context): Click context object containing config

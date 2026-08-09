@@ -81,19 +81,18 @@ def divisions_get_command(
     output_path: str | None,
     fields_spec: str | None,
 ) -> None:
-    """Get detailed information about a specific division.
+    r"""Get detailed information about a specific division.
 
     The division ID can be provided via --division-id or the GAMESHEET_DIVISION_ID environment variable.
-    Requires a saved session from `gamesheet-admin login`. The output displays division metadata as key-value
-    pairs, with each field on its own row.\f
+    Requires a saved session from ``gamesheet-admin login``. The output displays division metadata as
+    key-value pairs, with each field on its own row.\f
 
     Args:
         ctx (Context): Click context object containing config
         division_id (str): The division identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        fields_spec (str | None): Optional comma-separated list of
-            fields to display
+        fields_spec (str | None): Optional comma-separated list of fields to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -119,7 +118,7 @@ def divisions_list_command(
     output_path: str | None,
     columns_spec: str | None,
 ) -> None:
-    """List all divisions in the specified season.
+    r"""List all divisions in the specified season.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
@@ -128,8 +127,7 @@ def divisions_list_command(
         season_id (str): The season identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        columns_spec (str | None): Optional comma-separated list of
-            columns to display
+        columns_spec (str | None): Optional comma-separated list of columns to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -171,7 +169,7 @@ def divisions_create_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Create a new division in the specified season.
+    r"""Create a new division in the specified season.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
@@ -239,7 +237,7 @@ def divisions_update_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Update an existing division.
+    r"""Update an existing division.
 
     At least one of --title or --external-id must be provided. Requires authentication (run 'gamesheet-admin
     login' first).\f
@@ -320,7 +318,7 @@ def divisions_teams_list_command(
     output_path: str | None,
     columns_spec: str | None,
 ) -> None:
-    """List all teams in the specified division.
+    r"""List all teams in the specified division.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
@@ -329,8 +327,7 @@ def divisions_teams_list_command(
         division_id (str): The division identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        columns_spec (str | None): Optional comma-separated list of
-            columns to display
+        columns_spec (str | None): Optional comma-separated list of columns to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -362,7 +359,7 @@ def divisions_teams_get_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Get detailed information about a specific team.
+    r"""Get detailed information about a specific team.
 
     Delegates to teams get functionality.\f
 
@@ -415,7 +412,7 @@ def divisions_teams_create_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Create a new team in the specified division.
+    r"""Create a new team in the specified division.
 
     Delegates to teams create functionality.\f
 
@@ -473,7 +470,7 @@ def divisions_teams_update_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Update an existing team.
+    r"""Update an existing team.
 
     Delegates to teams update functionality.\f
 
@@ -526,7 +523,7 @@ def divisions_teams_delete_command(
     season_id: str,
     team_id: str,
 ) -> None:
-    """Delete a team.
+    r"""Delete a team.
 
     Delegates to teams delete functionality.\f
 
@@ -559,7 +556,7 @@ def divisions_delete_command(
     season_id: str,
     division_id: str,
 ) -> None:
-    """Delete a division.
+    r"""Delete a division.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 

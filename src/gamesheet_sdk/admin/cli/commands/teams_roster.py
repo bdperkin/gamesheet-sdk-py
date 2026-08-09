@@ -40,7 +40,7 @@ from gamesheet_sdk.common.cli.core import ResourceGroup
 )
 @click.pass_context
 def teams_roster_group(ctx: Context, season_id: str, team_id: str) -> None:
-    """Manage roster (players and coaches) for a specific team.
+    r"""Manage roster (players and coaches) for a specific team.
 
     Invoking ``roster`` with no sub-command runs ``players`` by default. The --season-id and --team-id options
     are required and apply to all sub-commands.\f
@@ -58,8 +58,7 @@ def register_teams_roster_group(teams_group: click.Group) -> None:
     """Register the teams roster sub-group with the teams group.
 
     Args:
-        teams_group (click.Group): The main teams group to attach roster
-            commands to.
+        teams_group (click.Group): The main teams group to attach roster commands to.
     """
     teams_group.add_command(teams_roster_group)
 

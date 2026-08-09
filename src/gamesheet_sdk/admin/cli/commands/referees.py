@@ -81,7 +81,7 @@ def referees_get_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Get a single referee by ID.
+    r"""Get a single referee by ID.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
@@ -121,7 +121,7 @@ def referees_report_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Get a comprehensive referee report with statistics and games.
+    r"""Get a comprehensive referee report with statistics and games.
 
     Retrieves career statistics, games officiated, and penalty details. Requires authentication (run
     'gamesheet-admin login' first).\f
@@ -188,7 +188,7 @@ def referees_create_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Create a new referee in the specified season.
+    r"""Create a new referee in the specified season.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
@@ -197,10 +197,8 @@ def referees_create_command(
         season_id (str): The season identifier
         first_name (str): Referee's first name
         last_name (str): Referee's last name
-        email_address (str | None): Optional email address for the
-            referee
-        external_id (str | None): Optional external identifier for the
-            referee
+        email_address (str | None): Optional email address for the referee
+        external_id (str | None): Optional external identifier for the referee
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
     """
@@ -269,7 +267,7 @@ def referees_update_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Update an existing referee in the specified season.
+    r"""Update an existing referee in the specified season.
 
     At least one field must be provided to update. Requires authentication (run 'gamesheet-admin login'
     first).\f
@@ -332,7 +330,7 @@ def referees_delete_command(
     season_id: str,
     referee_id: str,
 ) -> None:
-    """Delete a referee.
+    r"""Delete a referee.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
@@ -365,7 +363,7 @@ def referees_list_command(
     output_path: str | None,
     columns_spec: str | None,
 ) -> None:
-    """List all referees in the specified season.
+    r"""List all referees in the specified season.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
@@ -374,8 +372,7 @@ def referees_list_command(
         season_id (str): The season identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        columns_spec (str | None): Optional comma-separated list of
-            columns to display
+        columns_spec (str | None): Optional comma-separated list of columns to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

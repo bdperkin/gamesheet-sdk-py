@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+import datetime
 import logging
 
 from dateutil import parser as dateutil_parser
@@ -72,18 +72,18 @@ def get_local_timezone_offset() -> int:
     return offset_seconds // 60
 
 
-def parse_flexible_datetime(raw: str) -> datetime:
-    """Parse a flexible datetime string into a naive datetime preserving face values.
+def parse_flexible_datetime(raw: str) -> datetime.datetime:
+    """Parse a flexible datetime string into a naive datetime.datetime preserving face values.
 
     Uses ``dateutil.parser.parse`` for flexible input. Any timezone information is stripped — the returned
-    datetime contains the literal hour/minute/second the user typed. This matches GameSheet's API behavior,
-    which stores and displays time values as-is without timezone conversion.
+    datetime.datetime contains the literal hour/minute/second the user typed. This matches GameSheet's API
+    behavior, which stores and displays time values as-is without timezone conversion.
 
     Args:
         raw (str): A human-readable datetime string
 
     Returns:
-        datetime: A timezone-naive datetime with the face-value time
+        datetime.datetime: A timezone-naive datetime.datetime with the face-value time
 
     Raises:
         click.UsageError: If the string cannot be parsed
@@ -97,14 +97,14 @@ def parse_flexible_datetime(raw: str) -> datetime:
     return dt.replace(tzinfo=None)
 
 
-def _format_utc_iso(dt: datetime) -> str:
-    """Format a datetime as ISO 8601 with trailing Z for the GameSheet API.
+def _format_utc_iso(dt: datetime.datetime) -> str:
+    """Format a datetime.datetime as ISO 8601 with trailing Z for the GameSheet API.
 
     The trailing ``Z`` is required by the API format but does **not** imply UTC — GameSheet displays the face-
     value time as-is.
 
     Args:
-        dt (datetime): A datetime (typically naive, face-value)
+        dt (datetime.datetime): A datetime.datetime (typically naive, face-value)
 
     Returns:
         str: ISO 8601 string like ``2026-07-04T12:00:00Z``
@@ -121,12 +121,9 @@ def validate_no_input_conflict(
     """Raise if combined and split inputs are both provided.
 
     Args:
-        combined (str | None): The ``--start-datetime`` or ``--end-
-            datetime`` value
-        date_part (str | None): The ``--start-date`` or ``--end-date``
-            value
-        time_part (str | None): The ``--start-time`` or ``--end-time``
-            value
+        combined (str | None): The ``--start-datetime`` or ``--end-datetime`` value
+        date_part (str | None): The ``--start-date`` or ``--end-date`` value
+        time_part (str | None): The ``--start-time`` or ``--end-time`` value
         label (str): ``"start"`` or ``"end"``, for error messages
 
     Raises:
@@ -146,12 +143,9 @@ def resolve_datetime_input(
     """Merge split date+time inputs into one string, or return combined.
 
     Args:
-        combined (str | None): The ``--start-datetime`` or ``--end-
-            datetime`` value
-        date_part (str | None): The ``--start-date`` or ``--end-date``
-            value
-        time_part (str | None): The ``--start-time`` or ``--end-time``
-            value
+        combined (str | None): The ``--start-datetime`` or ``--end-datetime`` value
+        date_part (str | None): The ``--start-date`` or ``--end-date`` value
+        time_part (str | None): The ``--start-time`` or ``--end-time`` value
         label (str): ``"start"`` or ``"end"``, for error messages
 
     Returns:
@@ -173,12 +167,12 @@ def resolve_datetime_input(
     return None
 
 
-def validate_end_after_start(start_dt: datetime, end_dt: datetime) -> None:
+def validate_end_after_start(start_dt: datetime.datetime, end_dt: datetime.datetime) -> None:
     """Raise if end is not strictly after start.
 
     Args:
-        start_dt (datetime): Start datetime (UTC)
-        end_dt (datetime): End datetime (UTC)
+        start_dt (datetime.datetime): Start datetime.datetime (UTC)
+        end_dt (datetime.datetime): End datetime.datetime (UTC)
 
     Raises:
         click.UsageError: If end <= start
@@ -204,13 +198,12 @@ def _resolve_all_three(
         tuple[str, str]: ``(start_utc_iso, end_utc_iso)`` tuple
 
     Raises:
-        click.UsageError: If start + duration != end (within 59s
-            tolerance)
+        click.UsageError: If start + duration != end (within 59s tolerance)
     """
     start_dt = parse_flexible_datetime(start_raw)
     end_dt = parse_flexible_datetime(end_raw)
     validate_end_after_start(start_dt, end_dt)
-    expected_end = start_dt + timedelta(minutes=duration)
+    expected_end = start_dt + datetime.timedelta(minutes=duration)
     if abs((end_dt - expected_end).total_seconds()) > 59:
         msg = f"Inconsistent inputs: start ({start_raw}) + duration ({duration}min) != end ({end_raw})."
         raise click.UsageError(msg)
@@ -251,7 +244,7 @@ def _resolve_start_and_duration(
         tuple[str, str]: ``(start_utc_iso, end_utc_iso)`` tuple
     """
     start_dt = parse_flexible_datetime(start_raw)
-    end_dt = start_dt + timedelta(minutes=duration)
+    end_dt = start_dt + datetime.timedelta(minutes=duration)
     return _format_utc_iso(start_dt), _format_utc_iso(end_dt)
 
 
@@ -269,7 +262,7 @@ def _resolve_end_and_duration(
         tuple[str, str]: ``(start_utc_iso, end_utc_iso)`` tuple
     """
     end_dt = parse_flexible_datetime(end_raw)
-    start_dt = end_dt - timedelta(minutes=duration)
+    start_dt = end_dt - datetime.timedelta(minutes=duration)
     return _format_utc_iso(start_dt), _format_utc_iso(end_dt)
 
 
@@ -316,8 +309,7 @@ def resolve_create_times(
         tuple[str, str]: ``(start_utc_iso, end_utc_iso)`` tuple
 
     Raises:
-        click.UsageError: If fewer than 2 of 3 are provided, or if all 3
-            are inconsistent, or end <= start
+        click.UsageError: If fewer than 2 of 3 are provided, or if all 3 are inconsistent, or end <= start
     """
     given = (start_raw is not None) + (end_raw is not None) + (duration is not None)
     if given < 2:
@@ -359,7 +351,7 @@ def _resolve_single_update(
         return current_start, _format_utc_iso(end_dt)
 
     start_dt = parse_flexible_datetime(current_start)
-    end_dt = start_dt + timedelta(minutes=duration)  # type: ignore[arg-type]
+    end_dt = start_dt + datetime.timedelta(minutes=duration)  # type: ignore[arg-type]
     return _format_utc_iso(start_dt), _format_utc_iso(end_dt)
 
 

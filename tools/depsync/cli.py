@@ -54,7 +54,7 @@ def _snapshot_files(paths: list[Path]) -> dict[Path, bytes]:
     """Read and store the content of each file that exists.
 
     Returns:
-        Mapping of path to original bytes for files that exist.
+        dict[Path, bytes]: Mapping of path to original bytes for files that exist.
     """
     snapshots: dict[Path, bytes] = {}
     for path in paths:
@@ -82,7 +82,7 @@ def _print_colored_diff(diff_lines: list[str]) -> None:
     """Print diff lines with colorized output based on line prefix.
 
     Args:
-        diff_lines: Lines from a unified diff.
+        diff_lines (list[str]): Lines from a unified diff.
     """
     for line in diff_lines:
         text = line.rstrip("\n")
@@ -218,7 +218,7 @@ def _apply_convergence(
     """Apply or preview convergence results.
 
     Returns:
-        True if actual file changes are needed.
+        bool: True if actual file changes are needed.
     """
     _display_results(results)
 
@@ -276,11 +276,10 @@ def _check_lockfile_staleness(config: RunConfig) -> str | None:
     """Check whether the lockfile is missing or stale relative to pyproject.toml.
 
     Args:
-        config: Run configuration containing file paths.
+        config (RunConfig): Run configuration containing file paths.
 
     Returns:
-        str | None: A reason string if the lockfile needs regeneration,
-        or None if it is up to date.
+        str | None: A reason string if the lockfile needs regeneration, or None if it is up to date.
 
     Raises:
         LockfileError: If stat calls fail unexpectedly.
@@ -305,8 +304,8 @@ def _ensure_uv_lock(config: RunConfig) -> None:
     """Regenerate uv.lock if it is missing or stale relative to pyproject.toml.
 
     Raises:
-        LockfileError: If uv is not found, the subprocess fails, times
-            out, or the lockfile is still absent after generation.
+        LockfileError: If uv is not found, the subprocess fails, times out, or the lockfile is still absent
+            after generation.
     """
     reason = _check_lockfile_staleness(config)
 
@@ -379,7 +378,7 @@ def _run_types_sync(
     """Run the types-* stub synchronization phase.
 
     Returns:
-        True if changes are needed (or were applied), False otherwise.
+        bool: True if changes are needed (or were applied), False otherwise.
     """
     console.print("\n[bold]Syncing types-* stub packages...[/]")
 
@@ -532,7 +531,7 @@ def _run_dependabot_sync(
     """Sync dependabot.yml ignore list with pinned revs.
 
     Returns:
-        True if changes are needed (or were applied), False otherwise.
+        bool: True if changes are needed (or were applied), False otherwise.
     """
     pinned_packages = resolve_pinned_packages(pinned_revs)
 

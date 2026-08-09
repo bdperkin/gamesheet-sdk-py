@@ -68,15 +68,13 @@ def _render_json(
     """Render rows as indented, sorted JSON.
 
     Args:
-        rows (list[dict[str, Any]]): List of row dictionaries to
-            serialize.
-        _columns (list[str]): Column names list (unused for JSON
-            format).
+        rows (list[dict[str, Any]]): List of row dictionaries to serialize.
+        _columns (list[str]): Column names list (unused for JSON format).
 
     Returns:
         str: JSON string with 2-space indentation and sorted keys.
 
-    Example output::
+    str: Example output: :
 
         [{"id": 123, "name": "Example"}]
     """
@@ -90,16 +88,13 @@ def _render_yaml(
     """Render rows as block-style YAML.
 
     Args:
-        rows (list[dict[str, Any]]): List of row dictionaries to
-            serialize.
-        _columns (list[str]): Column names list (unused for YAML
-            format).
+        rows (list[dict[str, Any]]): List of row dictionaries to serialize.
+        _columns (list[str]): Column names list (unused for YAML format).
 
     Returns:
-        str: YAML string in block style with sorted keys, trailing
-        whitespace stripped.
+        str: YAML string in block style with sorted keys, trailing whitespace stripped.
 
-    Example output::
+    str: Example output: :
 
         - id: 123
             name: Example
@@ -118,22 +113,17 @@ def _render_dsv(
     r"""Render rows as delimiter-separated values (CSV, TSV, etc.).
 
     Args:
-        rows (list[dict[str, Any]]): List of row dictionaries to
-            serialize.
-        columns (list[str]): Column names in display order; keys not in
-            this list are ignored.
-        delimiter (str): Single-character separator (e.g. ``,`` for CSV,
-            ``\t`` for TSV).
+        rows (list[dict[str, Any]]): List of row dictionaries to serialize.
+        columns (list[str]): Column names in display order; keys not in this list are ignored.
+        delimiter (str): Single-character separator (e.g. ``,`` for CSV, ``\t`` for TSV).
 
     Returns:
-        DSV string with header row, LF line endings, trailing newline
-        stripped.
-    None values are converted to empty strings. Extra keys in each row beyond
-    ``columns`` are silently ignored (``extrasaction="ignore"``).
-    Example (delimiter=``,``)::
-        id, name
-        123, Example
-        456, Another
+        str: DSV string with header row, LF line endings, trailing newline stripped.
+    str: None values are converted to empty strings. Extra keys in each row beyond ``columns`` are silently
+        ignored (``extrasaction="ignore"``). Example (delimiter=``,``)::
+            id, name
+            123, Example
+            456, Another
     """
     buf = io.StringIO()
     writer = csv.DictWriter(
@@ -158,8 +148,7 @@ def _render_csv(rows: list[dict[str, Any]], columns: list[str]) -> str:
     Thin wrapper around :func:`_render_dsv` with ``delimiter=","``.
 
     Args:
-        rows (list[dict[str, Any]]): List of row dictionaries to
-            serialize.
+        rows (list[dict[str, Any]]): List of row dictionaries to serialize.
         columns (list[str]): Column names in display order.
 
     Returns:
@@ -174,8 +163,7 @@ def _render_tsv(rows: list[dict[str, Any]], columns: list[str]) -> str:
     Thin wrapper around :func:`_render_dsv` with ``delimiter="\t"``.
 
     Args:
-        rows (list[dict[str, Any]]): List of row dictionaries to
-            serialize.
+        rows (list[dict[str, Any]]): List of row dictionaries to serialize.
         columns (list[str]): Column names in display order.
 
     Returns:
@@ -192,12 +180,9 @@ def _render_tabulate(rows: list[dict[str, Any]], columns: list[str], fmt: str) -
 
     Args:
         rows (list[dict[str, Any]]): List of row dictionaries to render.
-        columns (list[str]): Column names in display order; used as
-            table headers.
-        fmt (str): A ``tablefmt`` value tabulate accepts (e.g.
-            ``"simple"``, ``"grid"``, ``"rst"``). See
-            :data:`TABULATE_FORMATS` for the full list of accepted
-            formats.
+        columns (list[str]): Column names in display order; used as table headers.
+        fmt (str): A ``tablefmt`` value tabulate accepts (e.g. ``"simple"``, ``"grid"``, ``"rst"``). See
+            :data:`TABULATE_FORMATS` for the full list of accepted formats.
 
     Returns:
         str: Formatted table string.
@@ -227,8 +212,7 @@ def _derive_columns(rows: list[dict[str, Any]]) -> list[str]:
         rows (list[dict[str, Any]]): List of row dictionaries.
 
     Returns:
-        list[str]: Keys from the first row, or an empty list if ``rows``
-        is empty.
+        list[str]: Keys from the first row, or an empty list if ``rows`` is empty.
     """
     if not rows:
         return []
@@ -245,13 +229,10 @@ def render(
     """Render ``rows`` as a string in the requested format.
 
     Args:
-        rows (list[dict[str, Any]]): A list of mappings -- each becomes
-            one row.
-        fmt (str): One of :data:`ALL_FORMATS`. Defaults to
-            :data:`DEFAULT_FORMAT` (``"simple"``).
-        columns (list[str] | None): Restrict and order the column set.
-            If ``None`` and ``rows`` is non-empty, the first row's keys
-            are used in their natural order.
+        rows (list[dict[str, Any]]): A list of mappings -- each becomes one row.
+        fmt (str): One of :data:`ALL_FORMATS`. Defaults to :data:`DEFAULT_FORMAT` (``"simple"``).
+        columns (list[str] | None): Restrict and order the column set. If ``None`` and ``rows`` is non-empty,
+            the first row's keys are used in their natural order.
 
     Returns:
         str: Rendered string in the requested format.
@@ -357,10 +338,10 @@ def write_output(
 
     Args:
         text (str): Rendered output string to write.
-        path (str | Path | None): Destination file path (str or
-            :class:`pathlib.Path`), or ``None`` for stdout.
-        fmt (str): Format name (e.g. ``"json"``, ``"yaml"``, ``"csv"``);
-            controls syntax highlighting on TTY stdout.
+        path (str | Path | None): Destination file path (str or :class:`pathlib.Path`), or ``None`` for
+            stdout.
+        fmt (str): Format name (e.g. ``"json"``, ``"yaml"``, ``"csv"``); controls syntax highlighting on TTY
+            stdout.
     """
     if path is not None:
         Path(path).write_text(_ensure_trailing_newline(text), encoding=ENCODING_UTF8)

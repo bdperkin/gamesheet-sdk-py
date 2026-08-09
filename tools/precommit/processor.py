@@ -19,7 +19,7 @@ def _discover_meta_hooks() -> list[str]:
     """Discover available meta hook IDs from the installed pre-commit package.
 
     Returns:
-        List of meta hook IDs in definition order.
+        list[str]: List of meta hook IDs in definition order.
 
     Raises:
         ProcessingError: If pre-commit is not installed.
@@ -41,8 +41,8 @@ def _apply_modifications(hook: dict[str, Any], cfg: HookConfig) -> None:
     """Apply overrides, appends, and prepends to a hook dict in-place.
 
     Args:
-        hook: Hook dict to modify.
-        cfg: Hook configuration with overrides, appends, and prepends.
+        hook (dict[str, Any]): Hook dict to modify.
+        cfg (HookConfig): Hook configuration with overrides, appends, and prepends.
     """
     hook.update(cfg.overrides)
 
@@ -88,8 +88,7 @@ def process_meta_hooks(
     included unless blacklisted.
 
     Args:
-        repo_config (RepoConfig): Repository configuration with hook
-            definitions.
+        repo_config (RepoConfig): Repository configuration with hook definitions.
         blacklisted_hooks (list[str]): Hook IDs to exclude.
 
     Returns:
@@ -134,15 +133,14 @@ def _process_single_hook(
     """Process a single hook definition.
 
     Args:
-        hook: Raw hook definition dict.
-        repo_url: Repository URL for error messages.
-        override_cfg: Optional override/append configuration for this
-            hook.
-        allowed_languages: Allowed hook languages.
-        blacklisted_hooks: Blacklisted hook IDs.
+        hook (dict[str, Any]): Raw hook definition dict.
+        repo_url (str): Repository URL for error messages.
+        override_cfg (HookConfig | None): Optional override/append configuration for this hook.
+        allowed_languages (list[str]): Allowed hook languages.
+        blacklisted_hooks (list[str]): Blacklisted hook IDs.
 
     Returns:
-        Processed hook dict or None if the hook should be excluded.
+        dict[str, Any] | None: Processed hook dict or None if the hook should be excluded.
 
     Raises:
         ProcessingError: If required fields are missing.
@@ -188,16 +186,13 @@ def process_remote_hooks(
     """Filter and configure hooks fetched from a remote repository.
 
     Args:
-        fetched_hooks (list[dict[str, Any]]): Raw hook definitions from
-            the remote .pre-commit-hooks.yaml.
-        repo_config (RepoConfig): Repository configuration with
-            overrides and appends.
+        fetched_hooks (list[dict[str, Any]]): Raw hook definitions from the remote .pre-commit-hooks.yaml.
+        repo_config (RepoConfig): Repository configuration with overrides and appends.
         allowed_languages (list[str]): List of allowed hook languages.
         blacklisted_hooks (list[str]): List of hook IDs to exclude.
 
     Returns:
-        list[dict[str, Any]]: List of processed hook dicts ready for
-        YAML output.
+        list[dict[str, Any]]: List of processed hook dicts ready for YAML output.
     """
     overrides_map = {h.id: h for h in repo_config.hooks}
     processed: list[dict[str, Any]] = []

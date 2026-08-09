@@ -4,10 +4,10 @@
 """IPad keys command group.
 
 This module provides the CLI interface for managing GameSheet iPad / Scoring Access Keys, which are
-credentials used by the GameSheet iPad app for live game scoring. Keys are scoped to a specific season
-and enable authorized devices to submit scores, penalties, and other game events in real-time.
-The command group provides sub-commands for retrieving all iPad keys configured for a season.
-When invoked without a sub-command, it defaults to the ``get`` operation.
+credentials used by the GameSheet iPad app for live game scoring. Keys are scoped to a specific season and
+enable authorized devices to submit scores, penalties, and other game events in real-time. The command group
+provides sub-commands for retrieving all iPad keys configured for a season. When invoked without a
+sub-command, it defaults to the ``get`` operation.
 Examples:
     Get all iPad keys for a season in simple table format::
         $ gamesheet-admin ipad-keys --season-id <season_id>
@@ -78,14 +78,11 @@ def ipad_keys_get_command(
     output_path: str | None,
     columns_spec: str | None,
 ) -> None:
-    """Get iPad / Scoring Access Keys for a specific season.
+    r"""Get iPad / Scoring Access Keys for a specific season.
 
-    Requires authentication (run 'gamesheet-admin login' first). Retrieves all
-    iPad keys configured for the specified season. These keys are used by the
-    GameSheet iPad app for live game scoring.
-    The season ID can be provided via --season-id or the GAMESHEET_SEASON_ID
-    environment variable.
-    .. rubric:: Examples
+    Requires authentication (run 'gamesheet-admin login' first). Retrieves all iPad keys configured for the
+    specified season. These keys are used by the GameSheet iPad app for live game scoring. The season ID can
+    be provided via --season-id or the GAMESHEET_SEASON_ID environment variable. .. rubric:: Examples
 
         Get all iPad keys for a season in default format:
     .. code-block:: bash
@@ -121,8 +118,7 @@ def ipad_keys_get_command(
         season_id (str): The season identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        columns_spec (str | None): Optional comma-separated list of
-            columns to display
+        columns_spec (str | None): Optional comma-separated list of columns to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

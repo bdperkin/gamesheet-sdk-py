@@ -24,8 +24,8 @@ def get_team_for_roster_update(
         team_id (str): The team identifier.
 
     Returns:
-        dict[str, Any]: Dictionary containing the full team JSON:API
-        response with data, attributes, and relationships.
+        dict[str, Any]: Dictionary containing the full team JSON:API response with data, attributes, and
+            relationships.
 
     Raises:
         AuthenticationError: If the server returns 401.
@@ -56,12 +56,9 @@ def update_team_roster(
         session (Session): An authenticated :class:`Session`.
         season_id (str): The season identifier.
         team_id (str): The team identifier.
-        roster (dict[str, Any]): The updated roster dict containing
-            players and coaches arrays.
-        current_attrs (dict[str, Any]): Current team attributes to
-            preserve unchanged fields.
-        current_relationships (dict[str, Any]): Current team
-            relationships to preserve.
+        roster (dict[str, Any]): The updated roster dict containing players and coaches arrays.
+        current_attrs (dict[str, Any]): Current team attributes to preserve unchanged fields.
+        current_relationships (dict[str, Any]): Current team relationships to preserve.
 
     Raises:
         AuthenticationError: If the server returns 401.

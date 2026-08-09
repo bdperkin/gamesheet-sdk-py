@@ -23,7 +23,7 @@ def _find_pre_commit() -> str | None:
     """Locate the pre-commit executable.
 
     Returns:
-        Path to pre-commit or None if not found.
+        str | None: Path to pre-commit or None if not found.
     """
     return shutil.which("pre-commit")
 
@@ -37,13 +37,12 @@ def _run_pre_commit(
     """Execute pre-commit run --all-files, optionally for a single hook.
 
     Args:
-        pre_commit: Path to pre-commit executable.
-        hook_id: Optional specific hook ID to run.
-        print_output: Whether to print stdout.
+        pre_commit (str): Path to pre-commit executable.
+        hook_id (str | None): Optional specific hook ID to run.
+        print_output (bool): Whether to print stdout.
 
     Raises:
-        PreCommitValidationError: If the run reports failures or skipped
-            hooks.
+        PreCommitValidationError: If the run reports failures or skipped hooks.
         SubprocessError: If pre-commit cannot be executed.
     """
     cmd = [pre_commit, "run"]
@@ -96,7 +95,7 @@ def _clear_backup(backup_path: Path) -> None:
     """Clear the backup file content so the next run always validates.
 
     Args:
-        backup_path: Path to the backup file.
+        backup_path (Path): Path to the backup file.
     """
     try:
         backup_path.write_text("", encoding="utf-8")
@@ -108,11 +107,11 @@ def _config_unchanged(backup_path: Path, output_path: Path) -> bool:
     """Check whether the config file is identical to the backup.
 
     Args:
-        backup_path: Path to the backup of the previous config.
-        output_path: Path to the current config file.
+        backup_path (Path): Path to the backup of the previous config.
+        output_path (Path): Path to the current config file.
 
     Returns:
-        True if the files are identical, False otherwise.
+        bool: True if the files are identical, False otherwise.
     """
     if not (backup_path.exists() and output_path.exists()):
         return False
@@ -141,11 +140,11 @@ def _diff_and_run(
     """Compare current and previous configs, run pre-commit if they differ.
 
     Args:
-        pre_commit: Path to pre-commit executable.
-        output_path: Path to the current config file.
-        backup_path: Path to the backup of the previous config.
-        hook_ids: Optional hook IDs to run individually.
-        print_output: Whether to print pre-commit stdout.
+        pre_commit (str): Path to pre-commit executable.
+        output_path (Path): Path to the current config file.
+        backup_path (Path): Path to the backup of the previous config.
+        hook_ids (list[str] | None): Optional hook IDs to run individually.
+        print_output (bool): Whether to print pre-commit stdout.
     """
     if _config_unchanged(backup_path, output_path):
         logger.debug("Config unchanged, skipping validation")
@@ -182,13 +181,12 @@ def validate_config(
 
     Args:
         output_path (Path): Path to the .pre-commit-config.yaml file.
-        hook_ids (list[str] | None): Optional list of hook IDs to
-            validate individually. When None, all hooks are run.
+        hook_ids (list[str] | None): Optional list of hook IDs to validate individually. When None, all hooks
+            are run.
         print_output (bool): Whether to print pre-commit stdout.
 
     Raises:
-        PreCommitValidationError: If pre-commit reports failures or
-            errors.
+        PreCommitValidationError: If pre-commit reports failures or errors.
     """
     pre_commit = _find_pre_commit()
     if pre_commit is None:

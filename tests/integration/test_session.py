@@ -232,7 +232,7 @@ def test_default_config_when_none_passed(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    """`Session()` with no Config should construct a default Config."""
+    """``Session()`` with no Config should construct a default Config."""
     monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
     sess = Session()
     assert sess.config.base_url == DEFAULT_BASE_URL

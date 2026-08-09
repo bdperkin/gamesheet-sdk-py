@@ -13,7 +13,7 @@ This module provides the foundational infrastructure for building resource-orien
 - Column specification parsing for tabular output
 - Exit code resolution for click exceptions
 
-**Example:**
+**Example: **
 
 .. code-block:: python
 
@@ -65,40 +65,33 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 
 class ResourceGroup(click.RichGroup):
-    """A :class:`click.RichGroup` for resource-oriented sub-command trees.
+    """A: class:`click.RichGroup` for resource-oriented sub-command trees.
 
     Adds two pieces of architectural plumbing on top of the stock group:
 
-    **Aliases:**
-        Pass ``aliases={"list": ("ls",), "delete": ("rm", "remove")}`` and ``ls`` resolves to the
-        same callback as ``list`` without re-binding it. The canonical name is what shows up in tracebacks and
+    **Aliases: **
+        Pass ``aliases={"list": ("ls",), "delete": ("rm", "remove")}`` and ``ls`` resolves to the same
+        callback as ``list`` without re-binding it. The canonical name is what shows up in tracebacks and
         ``--help`` output; aliases appear in parentheses next to it.
 
     **Default sub-command:**
-        Pass ``default="list"`` and a bare invocation of the group implicitly runs
-        ``list``. Explicit sub-command calls still flow through normally.
+        Pass ``default="list"`` and a bare invocation of the group implicitly runs ``list``. Explicit
+        sub-command calls still flow through normally.
 
-    Constructs a :class:`click.RichGroup` and configures command aliases and a default sub-command
-    behavior. The alias mapping is flattened at construction time from ``{canonical: (alias1, alias2,
-    ...)}`` into ``{alias1: canonical, alias2: canonical, ...}`` for O(1) lookup during command
-    resolution.
+    Constructs a :class:`click.RichGroup` and configures command aliases and a default sub-command behavior.
+    The alias mapping is flattened at construction time from ``{canonical: (alias1, alias2, ...)}`` into
+    ``{alias1: canonical, alias2: canonical, ...}`` for O(1) lookup during command resolution.
 
     Args:
-        *args (Any): Positional arguments forwarded to the decorated
-            function.
-        default (str | None): Name of the sub-command to invoke when
-            the group is called with no arguments. For example,
-            ``default="list"`` makes a bare ``gamesheet-admin
-            associations`` implicitly run ``associations list``.
-        aliases (Mapping[str, Iterable[str]] | None): Mapping of
-            canonical command names to their aliases. For example,
-            ``{"list": ("ls",), "delete": ("rm", "remove")}`` allows
-            ``ls`` to resolve to ``list`` and both ``rm`` and
-            ``remove`` to resolve to ``delete``. Aliases appear in
-            parentheses next to the canonical name in ``--help``
-            output and are included in tab-completion results.
-        **kwargs (Any): Keyword arguments forwarded to the decorated
-            function.
+        *args (Any): Positional arguments forwarded to the decorated function.
+        default (str | None): Name of the sub-command to invoke when the group is called with no arguments.
+            For example, ``default="list"`` makes a bare ``gamesheet-admin associations`` implicitly run
+            ``associations list``.
+        aliases (Mapping[str, Iterable[str]] | None): Mapping of canonical command names to their aliases. For
+            example, ``{"list": ("ls",), "delete": ("rm", "remove")}`` allows ``ls`` to resolve to ``list``
+            and both ``rm`` and ``remove`` to resolve to ``delete``. Aliases appear in parentheses next to the
+            canonical name in ``--help`` output and are included in tab-completion results.
+        **kwargs (Any): Keyword arguments forwarded to the decorated function.
     """
 
     def __init__(
@@ -128,8 +121,7 @@ class ResourceGroup(click.RichGroup):
             cmd_name (str): The command name to resolve.
 
         Returns:
-            Command | None: The resolved Command object, or ``None`` if
-            not found.
+            Command | None: The resolved Command object, or ``None`` if not found.
         """
         cmd = super().get_command(ctx, cmd_name)
         if cmd is not None:
@@ -188,10 +180,9 @@ class ResourceGroup(click.RichGroup):
     ) -> Iterable[tuple[str, str]]:
         """Yield ``(label, short_help)`` for each non-hidden canonical command.
 
-                :param ctx: The click context for resolving commands.
-            Yields:
-                tuple[str, str]: Tuples of (label, short_help) for visible commands.
-                :returns: Return value.
+        Args:
+            ctx (Context): The click context for resolving commands. Yields: Iterable[tuple[str, str]]: Tuples
+                of (label, short_help) for visible commands. :returns: Return value.
 
         Returns:
             Iterable[tuple[str, str]]
@@ -230,11 +221,8 @@ class ResourceGroup(click.RichGroup):
 
         Args:
             alias (str): The alias name to check.
-            target (str): The canonical command name that the alias
-                points to.
-            incomplete (str already-seen completion values to avoid duplicates.):
-                The partial command string being completed. :param
-                set[str] seen: Set of
+            target (str): The canonical command name that the alias points to.
+            incomplete (str): The partial command string being completed. :param set[str] seen: Set of
 
         Returns:
             CompletionItem | None: Return value.
@@ -258,9 +246,7 @@ class ResourceGroup(click.RichGroup):
         """Build the alias-only completion items not already in ``seen``.
 
         Args:
-            incomplete (str already-seen completion values; mutated in-place to track new aliases.):
-                The partial command string being completed. :param
-                set[str] seen: Set of
+            incomplete (str): The partial command string being completed. :param set[str] seen: Set of
 
         Returns:
             list[CompletionItem]: List of results.
@@ -310,9 +296,8 @@ class ResourceGroup(click.RichGroup):
 def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
     """Add ``--force/-f`` flag and confirmation prompt to destructive commands.
 
-    Decorated commands gain a ``--force`` flag. When not set, the user is prompted
-    ``"Delete {target}? [y/N]"``. Answering anything other than ``y`` or ``yes`` aborts with ``Exit(1)``.
-    Example::
+    Decorated commands gain a ``--force`` flag. When not set, the user is prompted ``"Delete {target}?
+    [y/N]"``. Answering anything other than ``y`` or ``yes`` aborts with ``Exit(1)``. Example::
         @cli.command("delete")
         @click.argument("resource_id")
         @confirm_destructive("this association")
@@ -321,12 +306,10 @@ def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
             pass
 
     Args:
-        target (str): The resource name shown in the prompt (e.g.,
-            ``"this association"``).
+        target (str): The resource name shown in the prompt (e.g., ``"this association"``).
 
     Returns:
-        Callable[[F], F]: A decorator that wraps the command function
-        with confirmation logic.
+        Callable[[F], F]: A decorator that wraps the command function with confirmation logic.
     """
 
     def decorator(f: F) -> Any:
@@ -350,12 +333,9 @@ def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
             """Execute the decorated function with optional confirmation.
 
             Args:
-                *args (Any): Positional arguments forwarded to the
-                    decorated function.
-                force (bool): If True, skip confirmation and proceed
-                    immediately.
-                **kwargs (Any): Keyword arguments forwarded to the
-                    decorated function.
+                *args (Any): Positional arguments forwarded to the decorated function.
+                force (bool): If True, skip confirmation and proceed immediately.
+                **kwargs (Any): Keyword arguments forwarded to the decorated function.
 
             Returns:
                 Any: Boolean result.
@@ -382,8 +362,7 @@ def _should_color(handler: logging.StreamHandler[Any]) -> bool:
     Checks for the ``NO_COLOR`` environment variable and whether the stream is a TTY.
 
     Args:
-        handler (logging.StreamHandler[Any]): The logging StreamHandler
-            to check.
+        handler (logging.StreamHandler[Any]): The logging StreamHandler to check.
 
     Returns:
         bool: Boolean result.
@@ -403,7 +382,7 @@ def _configure_logging(verbose: int) -> None:
     """Configure colored logging based on verbosity level.
 
     Args:
-        verbose (int :returns: None): 0 = WARNING, 1 = INFO, 2+ = DEBUG.
+        verbose (int): 0 = WARNING, 1 = INFO, 2+ = DEBUG.
 
     Returns:
         None
@@ -447,12 +426,12 @@ def parse_columns_spec(spec: str | None) -> list[str] | None:
         None
 
     Args:
-        spec (str | None): A comma-separated string of column names
-            (e.g., ``"id,title,created_at"``) or ``None``.
+        spec (str | None): A comma-separated string of column names (e.g., ``"id,title,created_at"``) or
+            ``None``.
 
     Returns:
-        list[str] | None: A list of column names, or ``None`` if
-        ``spec`` is ``None`` or contains only whitespace.
+        list[str] | None: A list of column names, or ``None`` if ``spec`` is ``None`` or contains only
+            whitespace.
     """
     if spec is None:
         return None
@@ -503,8 +482,8 @@ def resolve_exit(exc: BaseException) -> int:
         exc (BaseException): The exception to resolve.
 
     Returns:
-        int: An integer exit code following Unix conventions (0 =
-        success, 1 = general error, 2 = usage error).
+        int: An integer exit code following Unix conventions (0 = success, 1 = general error, 2 = usage
+            error).
     """
     if isinstance(exc, Exit):
         return int(exc.exit_code)

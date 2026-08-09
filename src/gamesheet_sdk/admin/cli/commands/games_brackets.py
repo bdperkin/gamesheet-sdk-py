@@ -36,21 +36,17 @@ def brackets_list_command(
     # pylint: disable-next=unused-argument
     columns_spec: str | None,  # noqa: U100
 ) -> None:
-    """List all bracket games in the specified season.
+    r"""List all bracket games in the specified season.
 
     NOT YET IMPLEMENTED - Bracket games support is planned for a future release.\f
 
     Args:
-        output_format (str): Output format (ignored - command not
-            implemented).
-        output_path (str | None): Output file path (ignored - command
-            not implemented).
-        columns_spec (str | None): Columns specification (ignored -
-            command not implemented).
+        output_format (str): Output format (ignored - command not implemented).
+        output_path (str | None): Output file path (ignored - command not implemented).
+        columns_spec (str | None): Columns specification (ignored - command not implemented).
 
     Raises:
-        Exit: Always raised (exit code 1) because this command is not
-            yet implemented.
+        Exit: Always raised (exit code 1) because this command is not yet implemented.
     """
     click.secho(
         "Error: games brackets list is not yet implemented. "

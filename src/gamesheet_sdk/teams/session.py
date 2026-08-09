@@ -12,8 +12,8 @@ from gamesheet_sdk.teams.login import refresh_access_token
 class TeamsAuthenticatedSession(BaseAuthenticatedSession):
     """Teams-pillar session that refreshes via the teams API gateway.
 
-    Delegates to :func:`~gamesheet_sdk.teams.login.refresh_access_token`, which POSTs to the teams
-    gateway's ``/api/auth/refresh`` endpoint.
+    Delegates to :func:`~gamesheet_sdk.teams.login.refresh_access_token`, which POSTs to the teams gateway's
+    ``/api/auth/refresh`` endpoint.
 
     Example::
 

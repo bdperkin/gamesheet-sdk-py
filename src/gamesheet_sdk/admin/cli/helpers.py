@@ -63,20 +63,17 @@ def run_action_or_exit(session: AuthenticatedSession, action: Any, *args: Any) -
     success or failure.
 
     Args:
-        session (AuthenticatedSession): The authenticated session to use
-            as a context manager.
-        action (Any): A callable that takes ``session`` and ``*args``
-            and returns a result. Typically a domain action function
-            (e.g., ``list_associations``, ``list_leagues``).
-        *args (Any): Positional arguments forwarded to ``action`` after
-            ``session``.
+        session (AuthenticatedSession): The authenticated session to use as a context manager.
+        action (Any): A callable that takes ``session`` and ``*args`` and returns a result. Typically a domain
+            action function (e.g., ``list_associations``, ``list_leagues``).
+        *args (Any): Positional arguments forwarded to ``action`` after ``session``.
 
     Returns:
         Any: The result of ``action(session, *args)`` on success.
 
     Raises:
-        Exit: If ``action`` raises :exc:`AuthenticationError` or
-            :exc:`GameSheetError`. Exit code is 1 in both cases.
+        Exit: If ``action`` raises :exc:`AuthenticationError` or :exc:`GameSheetError`. Exit code is 1 in both
+            cases.
     """
     try:
         with session:
@@ -247,8 +244,7 @@ def run_roster_assign_with_output(
     Args:
         action (Any): The assign action function to call.
         session (AuthenticatedSession): Authenticated session.
-        resource_type (str): Type of resource being assigned
-            (player/coach).
+        resource_type (str): Type of resource being assigned (player/coach).
         resource_id (str): ID of the resource being assigned.
         target_id (str): ID of the target team.
         output_format (str): Output format for rendering.
@@ -288,8 +284,7 @@ def run_roster_unassign(
     Args:
         action (Any): The unassign action function to call.
         session (AuthenticatedSession): Authenticated session.
-        resource_type (str): Type of resource being unassigned
-            (player/coach).
+        resource_type (str): Type of resource being unassigned (player/coach).
         resource_id (str): ID of the resource being unassigned.
         target_id (str): ID of the target team.
         *args (Any): Positional arguments forwarded to ``action``.
@@ -324,8 +319,7 @@ def run_roster_update_with_output(
     Args:
         action (Any): The update action function to call.
         session (AuthenticatedSession): Authenticated session.
-        resource_type (str): Type of resource being updated
-            (player/coach).
+        resource_type (str): Type of resource being updated (player/coach).
         output_format (str): Output format for rendering.
         output_path (str | None): Optional output file path.
         *args (Any): Positional arguments forwarded to ``action``.
@@ -368,13 +362,12 @@ def run_roster_create_with_output(
     Args:
         action (Any): The create action function to call.
         session (AuthenticatedSession): Authenticated session.
-        resource_type (str): Type of resource being created
-            (player/coach).
+        resource_type (str): Type of resource being created (player/coach).
         output_format (str): Output format for rendering.
         output_path (str | None): Optional output file path.
         *args (Any): Positional arguments forwarded to ``action``.
-        success_message (str | None): Optional custom success message
-            (uses result.id formatting if contains {id}).
+        success_message (str | None): Optional custom success message (uses result.id formatting if contains
+            {id}).
         **kwargs (Any): Keyword arguments forwarded to ``action``.
 
     Raises:

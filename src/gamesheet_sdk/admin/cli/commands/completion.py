@@ -18,7 +18,7 @@ from gamesheet_sdk.common.cli.constants import SHELL_TYPES
     type=Choice(SHELL_TYPES, case_sensitive=False),
 )
 def completion_command(shell: str) -> None:
-    """Emit shell completion script for the specified shell.
+    r"""Emit shell completion script for the specified shell.
 
     Source the output to enable tab-completion::
 

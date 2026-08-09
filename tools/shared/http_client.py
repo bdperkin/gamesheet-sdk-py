@@ -23,12 +23,10 @@ def get_session(pip_config: PipConfig | None = None) -> requests.Session:
     """Return a shared requests Session with retry-on-transient-error.
 
     Args:
-        pip_config (PipConfig | None): Optional pip configuration for
-            SSL settings.
+        pip_config (PipConfig | None): Optional pip configuration for SSL settings.
 
     Returns:
-        requests.Session: A shared requests Session with retry-on-
-        transient-error.
+        requests.Session: A shared requests Session with retry-on- transient-error.
     """
     if "session" not in _state:
         retry = Retry(

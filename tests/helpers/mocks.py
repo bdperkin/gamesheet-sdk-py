@@ -25,10 +25,9 @@ def setup_photo_upload_mocks(
     Cloudflare upload endpoint.
 
     Args:
-        upload_status (int): HTTP status code for the upload request
-            (default 200).
-        upload_response (dict[str, Any] | None): JSON response for the
-            upload request (default {"success": True}).
+        upload_status (int): HTTP status code for the upload request (default 200).
+        upload_response (dict[str, Any] | None): JSON response for the upload request (default {"success":
+            True}).
 
     Returns:
         str: Path to the temporary image file.
@@ -168,10 +167,8 @@ def setup_get_team_roster_mocks(
     Args:
         endpoint (str): Team GET endpoint URL.
         team_id (str): Team ID.
-        roster_data (dict[str, Any]): Team roster attributes (players
-            and coaches arrays).
-        included (list[dict[str, Any]]): List of included player/coach
-            resource objects.
+        roster_data (dict[str, Any]): Team roster attributes (players and coaches arrays).
+        included (list[dict[str, Any]]): List of included player/coach resource objects.
     """
     responses.add(
         responses.GET,

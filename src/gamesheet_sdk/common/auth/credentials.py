@@ -22,14 +22,11 @@ from gamesheet_sdk.common.exceptions import AuthenticationError
 def resolve_email(cfg: Config, email: str | None) -> str:
     """Resolve the login email from explicit argument or config.
 
-    Falls through: explicit ``email`` argument → ``GAMESHEET_USERNAME``
-    env var → ``Config.username``.
+    Falls through: explicit ``email`` argument → ``GAMESHEET_USERNAME`` env var → ``Config.username``.
 
     Args:
-        cfg (Config): Configuration object containing username from
-            env/defaults.
-        email (str | None): Explicit email address, or ``None`` to fall
-            back to config.
+        cfg (Config): Configuration object containing username from env/defaults.
+        email (str | None): Explicit email address, or ``None`` to fall back to config.
 
     Returns:
         str: The resolved email address.
@@ -50,21 +47,17 @@ def resolve_email(cfg: Config, email: str | None) -> str:
 def resolve_password(cfg: Config, password: str | None) -> str:
     """Resolve the login password from explicit argument or config.
 
-    Falls through: explicit ``password`` argument → ``GAMESHEET_PASSWORD``
-    env var → ``Config.password``.
+    Falls through: explicit ``password`` argument → ``GAMESHEET_PASSWORD`` env var → ``Config.password``.
 
     Args:
-        cfg (Config): Configuration object containing password from
-            env/defaults.
-        password (str | None): Explicit password, or ``None`` to fall
-            back to config.
+        cfg (Config): Configuration object containing password from env/defaults.
+        password (str | None): Explicit password, or ``None`` to fall back to config.
 
     Returns:
         str: The resolved password string.
 
     Raises:
-        AuthenticationError: If no password is available from any
-            source.
+        AuthenticationError: If no password is available from any source.
     """
     if password is None and cfg.password is not None:
         password = cfg.password.get_secret_value()

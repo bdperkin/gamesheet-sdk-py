@@ -104,19 +104,15 @@ def cli(
     no_headless: bool,
     verbose: int,
 ) -> None:
-    """Unofficial CLI for the GameSheet admin dashboard.
+    r"""Unofficial CLI for the GameSheet admin dashboard.
 
     Provides authentication, resource management, and utility commands.\f
 
     Args:
-        ctx (Context): Click context used to store the resolved
-            :class:`~gamesheet_sdk.common.config.Config`.
-        base_url (str | None): Override for the GameSheet base URL, or
-            ``None`` to use the default.
-        no_headless (bool): When ``True``, show the browser window
-            during Playwright flows.
-        verbose (int): Logging verbosity level (0 = WARNING, 1 = INFO, 2
-            = DEBUG).
+        ctx (Context): Click context used to store the resolved :class:`~gamesheet_sdk.common.config.Config`.
+        base_url (str | None): Override for the GameSheet base URL, or ``None`` to use the default.
+        no_headless (bool): When ``True``, show the browser window during Playwright flows.
+        verbose (int): Logging verbosity level (0 = WARNING, 1 = INFO, 2 = DEBUG).
     """
     _configure_logging(verbose)
     overrides: dict[str, Any] = {}
@@ -150,8 +146,7 @@ def main(argv: list[str] | None = None) -> int:
     """Entry point for the ``gamesheet-admin`` console script.
 
     Args:
-        argv (list[str] | None): Command-line arguments, or ``None`` to
-            use ``sys.argv``.
+        argv (list[str] | None): Command-line arguments, or ``None`` to use ``sys.argv``.
 
     Returns:
         int: Process exit code.

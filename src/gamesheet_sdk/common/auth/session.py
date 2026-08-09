@@ -33,17 +33,12 @@ class BaseAuthenticatedSession(Session, ABC):
     for expired tokens. If the refresh itself fails the original response propagates to the caller.
 
     Args:
-        config (Config | None): Optional configuration object. If
-            ``None``, a default
+        config (Config | None): Optional configuration object. If ``None``, a default
             :class:`~gamesheet_sdk.common.config.Config` is created.
-        access_token (str): Current access token to use as the
-            bearer in the ``Authorization`` header.
-        refresh_token (str): Refresh token used to renew the access
-            token on 401/403 responses.
-        on_refresh (OnRefreshCallback | None): Optional callback
-            invoked with a token dict after a successful token
-            refresh. Use this to persist the new tokens to disk
-            (e.g. via
+        access_token (str): Current access token to use as the bearer in the ``Authorization`` header.
+        refresh_token (str): Refresh token used to renew the access token on 401/403 responses.
+        on_refresh (OnRefreshCallback | None): Optional callback invoked with a token dict after a successful
+            token refresh. Use this to persist the new tokens to disk (e.g. via
             :func:`~gamesheet_sdk.common.auth.tokens.save_tokens`).
     """
 
@@ -67,12 +62,10 @@ class BaseAuthenticatedSession(Session, ABC):
         Subclasses call their own ``refresh_access_token()`` variant here and return the resulting token dict.
 
         Returns:
-            dict[str, str]: Dictionary with at least ``access`` and
-            ``refresh`` keys.
+            dict[str, str]: Dictionary with at least ``access`` and ``refresh`` keys.
 
         Raises:
-            GameSheetError: On any refresh failure (propagated to
-                :meth:`_try_refresh`).
+            GameSheetError: On any refresh failure (propagated to :meth:`_try_refresh`).
         """
 
     def _notify_refresh(
@@ -118,16 +111,13 @@ class BaseAuthenticatedSession(Session, ABC):
         Args:
             method (str): HTTP method (GET, POST, PUT, DELETE, etc.).
             url (str): Target URL for the request.
-            timeout (float | None): Request timeout in seconds. If None,
-                uses the timeout from
+            timeout (float | None): Request timeout in seconds. If None, uses the timeout from
                 :attr:`~gamesheet_sdk.common.session.Session.config`.
-            **kwargs (Any): Additional keyword arguments forwarded to
-                the parent :meth:`request`.
+            **kwargs (Any): Additional keyword arguments forwarded to the parent :meth:`request`.
 
         Returns:
-            requests.Response: HTTP response object from the request. If
-            token refresh fails, returns the original 401/403 response
-            without raising an exception.
+            requests.Response: HTTP response object from the request. If token refresh fails, returns the
+                original 401/403 response without raising an exception.
         """
         response = super().request(method, url, timeout=timeout, **kwargs)
         if response.status_code not in (401, 403):
@@ -147,8 +137,8 @@ class BaseAuthenticatedSession(Session, ABC):
 class AuthenticatedSession(BaseAuthenticatedSession):
     """Admin-pillar session that refreshes via the admin token endpoint.
 
-    Delegates to :func:`~gamesheet_sdk.common.auth.tokens.refresh_access_token`, forwarding the
-    session's ``User-Agent`` header so the admin gateway can log the calling client.
+    Delegates to :func:`~gamesheet_sdk.common.auth.tokens.refresh_access_token`, forwarding the session's
+    ``User-Agent`` header so the admin gateway can log the calling client.
 
     Example::
 

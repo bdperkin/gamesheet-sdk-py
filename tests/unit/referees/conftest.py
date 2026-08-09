@@ -22,10 +22,10 @@ def referee_response_data(referee_id: str) -> dict[str, Any]:
     """Build standard referee response payload for tests.
 
     Args:
-        referee_id: The referee ID to use in the response
+        referee_id (str): The referee ID to use in the response
 
     Returns:
-        A dict representing a JSON:API referee response
+        dict[str, Any]: A dict representing a JSON: API referee response
     """
     return {
         "data": {

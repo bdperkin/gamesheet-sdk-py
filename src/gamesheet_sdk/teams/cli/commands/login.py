@@ -45,18 +45,15 @@ def login_command(
     password: str | None,
     timeout: float,
 ) -> None:
-    """Authenticate with the GameSheet teams dashboard and save session tokens.
+    r"""Authenticate with the GameSheet teams dashboard and save session tokens.
 
     Sends credentials to Firebase Auth, exchanges the ID token for application tokens via the teams API
     gateway, and saves the result to disk so subsequent commands can authenticate automatically.\f
 
     Args:
-        ctx (Context): Click context carrying the
-            :class:`~gamesheet_sdk.common.config.Config` instance.
-        email (str | None): Email address for login, or ``None`` to use
-            the environment variable.
-        password (str | None): Password for login, or ``None`` to prompt
-            interactively.
+        ctx (Context): Click context carrying the :class:`~gamesheet_sdk.common.config.Config` instance.
+        email (str | None): Email address for login, or ``None`` to use the environment variable.
+        password (str | None): Password for login, or ``None`` to prompt interactively.
         timeout (float): HTTP request timeout in seconds.
     """
     config: Config = ctx.obj

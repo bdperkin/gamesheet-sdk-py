@@ -64,7 +64,7 @@ def _version_from_filename(filename: str) -> str | None:
     """Extract a version string from a wheel or sdist filename.
 
     Returns:
-        Version string, or None if the filename cannot be parsed.
+        str | None: Version string, or None if the filename cannot be parsed.
     """
     try:
         if filename.endswith(".whl"):
@@ -84,7 +84,7 @@ def _extract_versions_from_simple_html(html_content: str) -> dict[str, str | Non
     """Extract version strings and requires-python from Simple API HTML.
 
     Returns:
-        Dict mapping version string to requires_python (or None).
+        dict[str, str | None]: Dict mapping version string to requires_python (or None).
     """
     parser = _SimpleIndexParser()
     parser.feed(html_content)
@@ -107,7 +107,7 @@ def _extract_versions_from_simple_json(data: dict) -> dict[str, str | None]:  # 
     """Extract versions and requires-python from a PEP 691 JSON response.
 
     Returns:
-        Dict mapping version string to requires_python (or None).
+        dict[str, str | None]: Dict mapping version string to requires_python (or None).
     """
     req_py_map: dict[str, str | None] = {}
 
@@ -133,8 +133,7 @@ def _parse_simple_response(
     """Parse a Simple API response into a version dict.
 
     Returns:
-        Dict mapping version string to requires_python (or None), empty
-        on failure.
+        dict[str, str | None]: Dict mapping version string to requires_python (or None), empty on failure.
     """
     try:
         if "json" in content_type:
@@ -164,8 +163,7 @@ def _fetch_simple_versions(
     listings.
 
     Returns:
-        Dict mapping version string to requires_python (or None), empty
-        on failure.
+        dict[str, str | None]: Dict mapping version string to requires_python (or None), empty on failure.
     """
     normalized = re.sub(r"[-_.]+", "-", package_name).lower()
     base = index_url.rstrip("/")
@@ -216,10 +214,8 @@ def check_package_exists(
     Args:
         package_name (str): The package name to look up.
         index_url (str | None): Optional PEP 503 Simple API base URL.
-        extra_index_urls (Sequence[str]): Additional PEP 503 index URLs
-            to try.
-        pip_config (PipConfig | None): Optional pip configuration for
-            SSL settings.
+        extra_index_urls (Sequence[str]): Additional PEP 503 index URLs to try.
+        pip_config (PipConfig | None): Optional pip configuration for SSL settings.
 
     Returns:
         bool: True if the package exists, False otherwise.
@@ -259,8 +255,7 @@ def _extract_requires_python(files: list[dict[str, str | None]]) -> str | None:
     """Extract the first non-empty requires_python from a list of release file entries.
 
     Args:
-        files (list[dict[str, str | None]]): Release file metadata dicts
-            from the PyPI JSON API.
+        files (list[dict[str, str | None]]): Release file metadata dicts from the PyPI JSON API.
 
     Returns:
         str | None: The first requires_python string found, or None.
@@ -280,8 +275,7 @@ def _fetch_pypi_json_versions(package_name: str) -> dict[str, str | None]:
         package_name (str): The PyPI package name.
 
     Returns:
-        dict[str, str | None]: Dict mapping version string to
-        requires_python (or None).
+        dict[str, str | None]: Dict mapping version string to requires_python (or None).
 
     Raises:
         FetchError: If the request fails.
@@ -318,14 +312,11 @@ def fetch_pypi_versions(
     Args:
         package_name (str): The PyPI package name.
         index_url (str | None): Optional PEP 503 Simple API base URL.
-        extra_index_urls (Sequence[str]): Additional PEP 503 index URLs
-            to try.
-        pip_config (PipConfig | None): Optional pip configuration for
-            SSL settings.
+        extra_index_urls (Sequence[str]): Additional PEP 503 index URLs to try.
+        pip_config (PipConfig | None): Optional pip configuration for SSL settings.
 
     Returns:
-        dict[str, str | None]: Dict mapping version string to
-        requires_python (or None).
+        dict[str, str | None]: Dict mapping version string to requires_python (or None).
 
     Raises:
         FetchError: If all fetch attempts fail.
@@ -366,8 +357,7 @@ def fetch_git_tags(repo_url: str) -> list[str]:
         repo_url (str): The HTTPS git repository URL.
 
     Returns:
-        list[str]: List of tag strings (deduplicated, without ^{}
-        suffixes).
+        list[str]: List of tag strings (deduplicated, without ^{} suffixes).
 
     Raises:
         FetchError: If the git command fails.
@@ -400,14 +390,11 @@ def clean_and_sort_versions(
     """Filter and sort version strings.
 
     Args:
-        version_list (list[str]): Raw version strings (may include 'v'
-            prefix).
-        include_prerelease (bool): If True, include pre-release and dev
-            versions.
+        version_list (list[str]): Raw version strings (may include 'v' prefix).
+        include_prerelease (bool): If True, include pre-release and dev versions.
 
     Returns:
-        list[tuple[str, Version]]: Sorted list of (original_string,
-        parsed_Version) tuples, ascending.
+        list[tuple[str, Version]]: Sorted list of (original_string, parsed_Version) tuples, ascending.
     """
     valid: list[tuple[str, Version]] = []
     for v in version_list:
@@ -436,10 +423,8 @@ def filter_python_compatible(
     """Filter versions to those compatible with the minimum Python version.
 
     Args:
-        versions (dict[str, str | None]): Dict mapping version string to
-            requires_python (or None).
-        min_python (Version | None): Minimum Python version the project
-            supports, or None to skip filtering.
+        versions (dict[str, str | None]): Dict mapping version string to requires_python (or None).
+        min_python (Version | None): Minimum Python version the project supports, or None to skip filtering.
 
     Returns:
         list[str]: List of compatible version strings.
@@ -479,10 +464,8 @@ def resolve_latest_version(
     *min_python* when set.
 
     Args:
-        versions (dict[str, str | None]): Mapping of version string to
-            requires_python (or None).
-        min_python (Version | None): Minimum Python version to filter
-            against.
+        versions (dict[str, str | None]): Mapping of version string to requires_python (or None).
+        min_python (Version | None): Minimum Python version to filter against.
 
     Returns:
         str | None: The latest version string, or None if none found.
@@ -507,16 +490,13 @@ def find_highest_common_version(
     """Find the highest version present in both PyPI releases and git tags.
 
     Args:
-        pypi_versions (dict[str, str | None]): Dict mapping version
-            string to requires_python.
+        pypi_versions (dict[str, str | None]): Dict mapping version string to requires_python.
         git_tags (list[str]): Tag strings from git ls-remote.
-        min_python (Version | None): Minimum Python version to filter
-            against.
+        min_python (Version | None): Minimum Python version to filter against.
 
     Returns:
-        tuple[str, str] | None: Tuple of (git_tag_string,
-        normalized_version) for the highest common stable version, or
-        None if no overlap.
+        tuple[str, str] | None: Tuple of (git_tag_string, normalized_version) for the highest common stable
+            version, or None if no overlap.
     """
     compatible = filter_python_compatible(pypi_versions, min_python)
     pypi_sorted = clean_and_sort_versions(compatible)

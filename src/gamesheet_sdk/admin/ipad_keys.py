@@ -29,8 +29,8 @@ _ENDPOINT = "/api/api-keys"
 class IPadKey(BaseModel):
     """A single iPad / Scoring Access Key.
 
-    Maps the ``data[*]`` items in the JSON:API response of ``GET /api/api-keys?filter[season]={id}`` to a flat
-    typed model.
+    Maps the ``data[*]`` items in the JSON: API response of ``GET /api/api-keys?filter[season]={id}`` to a
+    flat typed model.
     """
 
     id: str = Field(description="API key identifier (string in JSON:API).")
@@ -68,14 +68,12 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
         season_id (str): The season identifier whose iPad keys to list.
 
     Returns:
-        list[IPadKey]: A list of :class:`IPadKey`, in the order the
-        server returned them. The list may be empty if the season has no
-        iPad keys configured.
+        list[IPadKey]: A list of :class:`IPadKey`, in the order the server returned them. The list may be
+            empty if the season has no iPad keys configured.
 
     Raises:
-        AuthenticationError: If the server returns 401 (the bearer is
-            missing, malformed, or expired -- run ``gamesheet-admin
-            login`` to refresh).
+        AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
+            ``gamesheet-admin login`` to refresh).
         GameSheetError: For any other non-2xx response.
     """
     response = session.get(

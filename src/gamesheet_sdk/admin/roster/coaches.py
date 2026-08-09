@@ -51,9 +51,8 @@ def list_coaches(session: Session, season_id: str) -> list[Coach]:
         season_id (str): The season identifier whose coaches to list.
 
     Returns:
-        list[Coach]: A list of :class:`Coach`, in the order the server
-        returned them. The list may be empty if the season has no
-        coaches.
+        list[Coach]: A list of :class:`Coach`, in the order the server returned them. The list may be empty if
+            the season has no coaches.
     """
     endpoint = f"/api/seasons/{season_id}/coaches"
     response = session.get(
@@ -88,12 +87,9 @@ def create_coach(
         season_id (str): The season identifier to create the coach in.
         first_name (str): Coach's first name.
         last_name (str): Coach's last name.
-        external_id (str | None): Optional external identifier for the
-            coach.
-        position (str | None): Optional position (Head Coach, Assistant
-            Coach, etc.).
-        team_id (str | None): Optional team identifier to associate the
-            coach with.
+        external_id (str | None): Optional external identifier for the coach.
+        position (str | None): Optional position (Head Coach, Assistant Coach, etc.).
+        team_id (str | None): Optional team identifier to associate the coach with.
 
     Returns:
         Coach: Return value.
@@ -201,8 +197,8 @@ def list_team_coaches(session: Session, season_id: str, team_id: str) -> list[Co
         team_id (str): The team identifier whose coaches to list.
 
     Returns:
-        list[Coach]: A list of :class:`Coach`, in the order the server
-        returned them. The list may be empty if the team has no coaches.
+        list[Coach]: A list of :class:`Coach`, in the order the server returned them. The list may be empty if
+            the team has no coaches.
     """
     endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
     response = session.get(
@@ -281,12 +277,10 @@ def _build_coach_roster_entry(
 
     Args:
         coach_id (str): The coach identifier.
-        position (str | None): Optional position (Head Coach, Assistant
-            Coach, etc.).
+        position (str | None): Optional position (Head Coach, Assistant Coach, etc.).
 
     Returns:
-        dict[str, Any]: Dictionary containing roster entry data ready
-        for team roster update.
+        dict[str, Any]: Dictionary containing roster entry data ready for team roster update.
     """
     entry: dict[str, Any] = {
         "id": coach_id,
@@ -309,8 +303,7 @@ def _populate_coach_metadata(
 
     Args:
         coach (Coach): The Coach instance to populate.
-        position (str | None): Optional position (Head Coach, Assistant
-            Coach, etc.).
+        position (str | None): Optional position (Head Coach, Assistant Coach, etc.).
     """
     if position:
         coach.position = position
@@ -330,10 +323,10 @@ def create_team_coach(
 ) -> Coach:
     """Create a new coach and add to the specified team's roster.
 
-    This function performs two operations: (1) creates the coach at the season level, (2) updates the
-    team's roster to include the new coach with position and other metadata.  The supplied
-    :class:`Session` must already carry a bearer token (e.g. via :meth:`Session.set_bearer_token`);
-    the call is otherwise unauthenticated and will 401.
+    This function performs two operations: (1) creates the coach at the season level, (2) updates the team's
+    roster to include the new coach with position and other metadata.  The supplied :class:`Session` must
+    already carry a bearer token (e.g. via :meth:`Session.set_bearer_token`); the call is otherwise
+    unauthenticated and will 401.
 
     Args:
         session (Session): An authenticated :class:`Session`.
@@ -341,10 +334,8 @@ def create_team_coach(
         team_id (str): The team identifier to add the coach to.
         first_name (str): Coach's first name.
         last_name (str): Coach's last name.
-        external_id (str | None): Optional external identifier for the
-            coach.
-        position (str | None): Optional position (Head Coach, Assistant
-            Coach, etc.).
+        external_id (str | None): Optional external identifier for the coach.
+        position (str | None): Optional position (Head Coach, Assistant Coach, etc.).
 
     Returns:
         Coach: Return value.
@@ -535,8 +526,8 @@ def delete_team_coach(
 
     This function performs two operations: (1) removes the coach from the team's roster,
     (2) deletes the coach at the season level. The supplied :class:`Session` must already
-    carry a bearer token (e.g. via :meth:`Session.set_bearer_token`); the call is otherwise
-    unauthenticated and will 401.
+    carry a bearer token (e.g. via :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated
+    and will 401.
 
     Args:
         session (Session): An authenticated :class:`Session`.
@@ -569,8 +560,7 @@ def assign_coach(
         season_id (str): The season identifier.
         coach_id (str): The coach identifier to assign.
         team_id (str): The team identifier to assign the coach to.
-        position (str | None): Optional position (Head Coach, Assistant
-            Coach, etc.).
+        position (str | None): Optional position (Head Coach, Assistant Coach, etc.).
 
     Returns:
         Coach: The :class:`Coach` with roster metadata populated.
@@ -629,8 +619,7 @@ def assign_team_coach(
         season_id (str): The season identifier.
         team_id (str): The team identifier to assign the coach to.
         coach_id (str): The coach identifier to assign.
-        position (str | None): Optional position (Head Coach, Assistant
-            Coach, etc.).
+        position (str | None): Optional position (Head Coach, Assistant Coach, etc.).
 
     Returns:
         Coach: Return value.
@@ -676,8 +665,8 @@ def get_coach_penalty_report(
         coach_id (str): The coach identifier.
 
     Returns:
-        dict[str, Any]: Penalty report data including coach_games,
-        coach_penalties, rostered_coaches, and season_coaches.
+        dict[str, Any]: Penalty report data including coach_games, coach_penalties, rostered_coaches, and
+            season_coaches.
     """
     coach = get_coach(session, season_id, coach_id)
     external_id = coach.external_id

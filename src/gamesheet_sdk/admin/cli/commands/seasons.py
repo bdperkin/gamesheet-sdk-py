@@ -102,29 +102,26 @@ def seasons_list_command(
     output_path: str | None,
     columns_spec: str | None,
 ) -> None:
-    """List the seasons in the specified league.
+    r"""List the seasons in the specified league.
 
     The league ID can be provided via --league-id or the GAMESHEET_LEAGUE_ID environment variable. Requires a
-    saved session from `gamesheet-admin login` -- the bearer token is read out of the browser storage state
+    saved session from ``gamesheet-admin login`` -- the bearer token is read out of the browser storage state
     on disk and attached to the HTTP request. No browser is launched.
 
-    Optional filters can be applied to narrow the results:
-    --starts-after, --ends-before, --status, --stats-year, and --title.\f
+    Optional filters can be applied to narrow the results: --starts-after, --ends-before, --status,
+    --stats-year, and --title.\f
 
     Args:
         ctx (Context): Click context object containing config
         league_id (str): The league identifier
-        starts_after (str | None): Optional filter for seasons starting
-            after this date
-        ends_before (str | None): Optional filter for seasons ending
-            before this date
+        starts_after (str | None): Optional filter for seasons starting after this date
+        ends_before (str | None): Optional filter for seasons ending before this date
         status (str | None): Optional filter for season status
         stats_year (str | None): Optional filter for statistics year
         title (str | None): Optional filter for season title
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        columns_spec (str | None): Optional comma-separated list of
-            columns to display
+        columns_spec (str | None): Optional comma-separated list of columns to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -161,21 +158,20 @@ def seasons_get_command(
     output_path: str | None,
     fields_spec: str | None,
 ) -> None:
-    """Get detailed information about a specific season.
+    r"""Get detailed information about a specific season.
 
     The season ID can be provided via --season-id or the GAMESHEET_SEASON_ID environment variable. Requires a
-    saved session from `gamesheet-admin login` -- the bearer token is read out of the browser storage state on
-    disk and attached to the HTTP request. No browser is launched. The output displays season metadata as key-
-    value pairs, with each field on its own row. Complex nested fields (like settings, flagging_criteria) are
-    displayed as JSON.\f
+    saved session from ``gamesheet-admin login`` -- the bearer token is read out of the browser storage state
+    on disk and attached to the HTTP request. No browser is launched. The output displays season metadata as
+    key- value pairs, with each field on its own row. Complex nested fields (like settings, flagging_criteria)
+    are displayed as JSON.\f
 
     Args:
         ctx (Context): Click context object containing config
         season_id (str): The season identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        fields_spec (str | None): Optional comma-separated list of
-            fields to display
+        fields_spec (str | None): Optional comma-separated list of fields to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

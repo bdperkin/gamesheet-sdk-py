@@ -28,8 +28,8 @@ class LookupValue(BaseModel):
     preserved via ``extra="allow"`` and appear in :meth:`model_dump` output.
 
     Attributes:
-        key: Machine-readable identifier.
-        title: Human-readable display name.
+        key (str): Machine-readable identifier.
+        title (str): Human-readable display name.
     """
 
     model_config = ConfigDict(extra="allow")
@@ -50,8 +50,8 @@ def list_lookups(
         timeout (float): HTTP request timeout in seconds.
 
     Returns:
-        dict[str, list[LookupValue]]: Dictionary mapping category names
-        to lists of :class:`LookupValue` objects.
+        dict[str, list[LookupValue]]: Dictionary mapping category names to lists of :class:`LookupValue`
+            objects.
 
     Raises:
         GameSheetError: If the server returns a non-2xx status code.

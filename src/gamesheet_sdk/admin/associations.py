@@ -10,7 +10,7 @@ module talks to the GameSheet JSON:API at ``/api/associations`` directly with th
 obtained (typically by reading the SPA's ``accessToken`` from the saved browser storage state via
 :func:`gamesheet_sdk.common.auth.load_access_token`).
 
-**Examples:**
+**Examples: **
 
 Retrieve all associations accessible by the authenticated user:
 
@@ -50,14 +50,14 @@ _ENDPOINT = "/api/associations"
 class Association(BaseModel):
     """A single association.
 
-    Maps the ``data[*]`` items in the JSON:API response of ``GET /api/associations`` to a flat typed model.
+    Maps the ``data[*]`` items in the JSON: API response of ``GET /api/associations`` to a flat typed model.
 
     Attributes:
-        id: Association identifier (string in JSON:API).
-        title: Display name of the association.
-        logo: Logo asset URL, possibly empty string.
-        created_at: When the association was created.
-        updated_at: Last time the association was updated.
+        id (str): Association identifier (string in JSON:API).
+        title (str): Display name of the association.
+        logo (str): Logo asset URL, possibly empty string.
+        created_at (datetime): When the association was created.
+        updated_at (datetime): Last time the association was updated.
     """
 
     id: str = Field(description="Association identifier (string in JSON:API).")
@@ -71,8 +71,7 @@ def _parse(item: dict[str, Any]) -> Association:
     """Flatten a JSON:API resource object into an :class:`Association`.
 
     Args:
-        item (dict[str, Any]): A JSON:API resource object with ``id``
-            and ``attributes`` keys.
+        item (dict[str, Any]): A JSON:API resource object with ``id`` and ``attributes`` keys.
 
     Returns:
         Association: Parsed Association model instance.
@@ -94,10 +93,8 @@ def get_association(session: Session, association_id: str) -> Association:
         Association: The requested Association model instance.
 
     Raises:
-        AuthenticationError: If the server returns 401 (bearer missing
-            or expired).
-        GameSheetError: For any other non-2xx response (including 404 if
-            not found).
+        AuthenticationError: If the server returns 401 (bearer missing or expired).
+        GameSheetError: For any other non-2xx response (including 404 if not found).
     """
     endpoint = f"{_ENDPOINT}/{association_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -116,9 +113,8 @@ def list_associations(session: Session) -> list[Association]:
         session (Session): An authenticated :class:`Session`.
 
     Returns:
-        list[Association]: A list of :class:`Association`, in the order
-        the server returned them. The list may be empty if the user has
-        access to no associations.
+        list[Association]: A list of :class:`Association`, in the order the server returned them. The list may
+            be empty if the user has access to no associations.
     """
     response = session.get(_ENDPOINT, headers=JSONAPI_HEADERS)
     handle_response(response, _ENDPOINT, "GET associations")

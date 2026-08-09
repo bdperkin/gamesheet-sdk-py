@@ -37,7 +37,7 @@ from gamesheet_sdk.common.cli.core import ResourceGroup
 )
 @click.pass_context
 def roster_group(ctx: Context, season_id: str) -> None:
-    """Manage roster (players and coaches) within a season.
+    r"""Manage roster (players and coaches) within a season.
 
     Invoking ``roster`` with no sub-command runs ``players`` by default. The --season-id option is required
     and applies to all sub-commands.\f

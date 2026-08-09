@@ -25,15 +25,13 @@ def upload_image(session: Session, image_path: str, image_type: str = "image") -
     Args:
         session (Session): An authenticated :class:`Session`.
         image_path (str): Path to a local image file.
-        image_type (str): Type of image for error messages (e.g.,
-            "photo", "logo").
+        image_type (str): Type of image for error messages (e.g., "photo", "logo").
 
     Returns:
         str: The Cloudflare CDN URL for the uploaded image.
 
     Raises:
-        GameSheetError: If the file is not found, is not a valid image,
-            or the upload fails.
+        GameSheetError: If the file is not found, is not a valid image, or the upload fails.
         AuthenticationError: If the server returns 401.
     """
     image_file_path = Path(image_path)

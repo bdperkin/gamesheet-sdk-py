@@ -26,13 +26,11 @@ def list_scheduled(session: Session, season_id: str) -> list[Game]:
 
     Args:
         session (Session): An authenticated :class:`Session`.
-        season_id (str): The season identifier whose scheduled games to
-            list.
+        season_id (str): The season identifier whose scheduled games to list.
 
     Returns:
-        list[Game]: A list of :class:`Game`, in the order the server
-        returned them. The list may be empty if the season has no
-        scheduled games.
+        list[Game]: A list of :class:`Game`, in the order the server returned them. The list may be empty if
+            the season has no scheduled games.
     """
     return _make_request(session, season_id, completed=False, scheduled=True)
 
@@ -65,39 +63,32 @@ def create_scheduled_game(
     Args:
         session (Session): An authenticated :class:`Session`.
         season_id (str): The parent season identifier.
-        scheduled_start_time (str): Scheduled start time (ISO 8601
-            format).
+        scheduled_start_time (str): Scheduled start time (ISO 8601 format).
         scheduled_end_time (str): Scheduled end time (ISO 8601 format).
         home_team_id (str): Home team identifier.
         home_division_id (str): Home team division identifier.
         visitor_team_id (str): Visitor team identifier.
         visitor_division_id (str): Visitor team division identifier.
-        location (str): Game location/venue (default: empty string).
-            Must match format '<location_name> <surface_name>' from the
-            API (case-insensitive match, but stored with correct
-            casing).
+        location (str): Game location/venue (default: empty string). Must match format '<location_name>
+            <surface_name>' from the API (case-insensitive match, but stored with correct casing).
         scorekeeper_name (str): Scorekeeper's full name.
         scorekeeper_phone (str): Scorekeeper's phone number.
-        game_type (str): Game type. Must be one of: playoff, exhibition,
-            tournament, regular_season.
+        game_type (str): Game type. Must be one of: playoff, exhibition, tournament, regular_season.
         time_zone_name (str): IANA time zone name.
         time_zone_offset (int): Time zone offset in minutes.
         number (str): Game number.
-        broadcaster (str): Broadcast provider name (default: empty
-            string). Must match a valid broadcaster key from the API
-            (case-insensitive match, but stored with correct casing).
-        home_label (str): Home team label override (default: empty
-            string).
-        visitor_label (str): Visitor team label override (default: empty
-            string).
+        broadcaster (str): Broadcast provider name (default: empty string). Must match a valid broadcaster key
+            from the API (case-insensitive match, but stored with correct casing).
+        home_label (str): Home team label override (default: empty string).
+        visitor_label (str): Visitor team label override (default: empty string).
 
     Returns:
         ScheduledGame: The created :class:`ScheduledGame`.
 
     Raises:
         AuthenticationError: If the server returns 401.
-        GameSheetError: If the game_type, location, or broadcaster is
-            invalid, or for any other non-2xx response.
+        GameSheetError: If the game_type, location, or broadcaster is invalid, or for any other non-2xx
+            response.
     """
     # Import here to avoid circular dependency
     from gamesheet_sdk.admin.games.broadcasters import validate_broadcaster_key
@@ -165,8 +156,7 @@ def get_scheduled_game(session: Session, season_id: str, game_id: str) -> Schedu
 
     Raises:
         AuthenticationError: If the server returns 401.
-        GameSheetError: For any other non-2xx response, including 404 if
-            the game is not found.
+        GameSheetError: For any other non-2xx response, including 404 if the game is not found.
     """
     url = f"{DEFAULT_BASE_URL}{API_SEASONS_SCHEDULE_GAME.format(season_id=season_id, game_id=game_id)}"
     response = session.get(url)
@@ -207,40 +197,33 @@ def update_scheduled_game(
         session (Session): An authenticated :class:`Session`.
         season_id (str): The parent season identifier.
         game_id (str): The game identifier to update.
-        scheduled_start_time (str): Scheduled start time (ISO 8601
-            format).
+        scheduled_start_time (str): Scheduled start time (ISO 8601 format).
         scheduled_end_time (str): Scheduled end time (ISO 8601 format).
         home_team_id (str): Home team identifier.
         home_division_id (str): Home team division identifier.
         visitor_team_id (str): Visitor team identifier.
         visitor_division_id (str): Visitor team division identifier.
-        location (str): Game location/venue. Must match format
-            '<location_name> <surface_name>' from the API (case-
-            insensitive match, but stored with correct casing).
+        location (str): Game location/venue. Must match format '<location_name> <surface_name>' from the API
+            (case- insensitive match, but stored with correct casing).
         scorekeeper_name (str): Scorekeeper's full name.
         scorekeeper_phone (str): Scorekeeper's phone number.
-        game_type (str): Game type. Must be one of: playoff, exhibition,
-            tournament, regular_season.
+        game_type (str): Game type. Must be one of: playoff, exhibition, tournament, regular_season.
         time_zone_name (str): IANA time zone name.
         time_zone_offset (int): Time zone offset in minutes.
         number (str): Game number.
         status (str): Game status.
-        broadcaster (str): Broadcast provider name (default: empty
-            string). Must match a valid broadcaster key from the API
-            (case-insensitive match, but stored with correct casing).
-        home_label (str): Home team label override (default: empty
-            string).
-        visitor_label (str): Visitor team label override (default: empty
-            string).
+        broadcaster (str): Broadcast provider name (default: empty string). Must match a valid broadcaster key
+            from the API (case-insensitive match, but stored with correct casing).
+        home_label (str): Home team label override (default: empty string).
+        visitor_label (str): Visitor team label override (default: empty string).
 
     Returns:
         ScheduledGame: The updated :class:`ScheduledGame`.
 
     Raises:
         AuthenticationError: If the server returns 401.
-        GameSheetError: If the game_type, location, or broadcaster is
-            invalid, or for any other non-2xx response, including 404 if
-            the game is not found.
+        GameSheetError: If the game_type, location, or broadcaster is invalid, or for any other non-2xx
+            response, including 404 if the game is not found.
     """
     # Import here to avoid circular dependency
     from gamesheet_sdk.admin.games.broadcasters import validate_broadcaster_key
@@ -309,8 +292,7 @@ def delete_scheduled_game(session: Session, season_id: str, game_id: str) -> Non
 
     Raises:
         AuthenticationError: If the server returns 401.
-        GameSheetError: For any other non-2xx response, including 404 if
-            the game is not found.
+        GameSheetError: For any other non-2xx response, including 404 if the game is not found.
     """
     url = f"{DEFAULT_BASE_URL}{API_SEASONS_SCHEDULE_GAME.format(season_id=season_id, game_id=game_id)}"
     response = session.delete(url)

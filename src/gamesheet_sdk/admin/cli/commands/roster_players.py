@@ -82,19 +82,18 @@ def players_get_command(
     output_path: str | None,
     fields_spec: str | None,
 ) -> None:
-    """Get detailed information about a specific player.
+    r"""Get detailed information about a specific player.
 
     The player ID can be provided via --player-id or the GAMESHEET_PLAYER_ID environment variable. The season
-    ID is inherited from the parent roster command. Requires a saved session from `gamesheet-admin login`. The
-    output displays player metadata as key-value pairs, with each field on its own row.\f
+    ID is inherited from the parent roster command. Requires a saved session from ``gamesheet-admin login``.
+    The output displays player metadata as key-value pairs, with each field on its own row.\f
 
     Args:
         ctx (Context): Click context object containing config
         player_id (str): The player identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        fields_spec (str | None): Optional comma-separated list of
-            fields to display
+        fields_spec (str | None): Optional comma-separated list of fields to display
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
@@ -114,7 +113,7 @@ def players_list_command(
     output_path: str | None,
     columns_spec: str | None,
 ) -> None:
-    """List all players in the specified season.
+    r"""List all players in the specified season.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
@@ -122,8 +121,7 @@ def players_list_command(
         ctx (Context): Click context object containing config
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        columns_spec (str | None): Optional comma-separated list of
-            columns to display
+        columns_spec (str | None): Optional comma-separated list of columns to display
     """
     # Extract config and season_id from context (set by roster_group)
     # ctx.obj is always a dict set by roster_group with "config" and "season_id" keys
@@ -260,7 +258,7 @@ def players_create_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Create a new player in the season.
+    r"""Create a new player in the season.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
@@ -438,7 +436,7 @@ def players_update_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Update an existing player.
+    r"""Update an existing player.
 
     Requires authentication (run 'gamesheet-admin login' first). At least one field must be provided for
     update.\f
@@ -512,7 +510,7 @@ def players_update_command(
 @confirm_destructive("player")
 @click.pass_context
 def players_delete_command(ctx: Context, player_id: str) -> None:
-    """Delete a player from the season.
+    r"""Delete a player from the season.
 
     Requires authentication (run 'gamesheet-admin login' first). This operation is destructive and cannot be
     undone. Use --force to skip confirmation prompt.\f
@@ -555,7 +553,7 @@ def players_penalty_report_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Get penalty report for a player.
+    r"""Get penalty report for a player.
 
     Retrieves penalty statistics, incidents, and infraction history for the specified player.\f
 
@@ -642,7 +640,9 @@ def players_assign_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Assign an existing player to a team's roster.\f.
+    r"""Assign an existing player to a team's roster.
+
+    Requires authentication (run 'gamesheet-admin login' first).\f
 
     Args:
         ctx (Context): Click context object containing config
@@ -693,7 +693,9 @@ def players_assign_command(
 )
 @click.pass_context
 def players_unassign_command(ctx: Context, player_id: str, team_id: str) -> None:
-    """Unassign a player from a team's roster.\f.
+    r"""Unassign a player from a team's roster.
+
+    Requires authentication (run 'gamesheet-admin login' first).\f
 
     Args:
         ctx (Context): Click context object containing config

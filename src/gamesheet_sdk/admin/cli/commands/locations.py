@@ -50,7 +50,7 @@ def locations_list_command(
     output_path: str | None,
     columns_spec: str | None,
 ) -> None:
-    """List all available locations.
+    r"""List all available locations.
 
     Returns the list of locations/venues from the GameSheet API. Each location includes the venue name,
     surface/rink name, and geographic information.
@@ -61,8 +61,7 @@ def locations_list_command(
         ctx (Context): Click context object containing config
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        columns_spec (str | None): Comma-separated list of columns to
-            display
+        columns_spec (str | None): Comma-separated list of columns to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -87,7 +86,7 @@ def locations_get_command(
     output_path: str | None,
     fields_spec: str | None,
 ) -> None:
-    """Get a specific location by ID.
+    r"""Get a specific location by ID.
 
     Retrieve detailed information about a specific location using its UUID. The location ID can be found using
     the 'list' command.
@@ -99,8 +98,7 @@ def locations_get_command(
         location_id (str): The location UUID
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        fields_spec (str | None): Comma-separated list of fields to
-            display
+        fields_spec (str | None): Comma-separated list of fields to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

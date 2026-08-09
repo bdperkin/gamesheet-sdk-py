@@ -38,10 +38,8 @@ def _resolve_email(cfg: Config, email: str | None) -> str:
     Delegates to :func:`~gamesheet_sdk.common.auth.credentials.resolve_email`.
 
     Args:
-        cfg (Config): Configuration object containing username from
-            env/defaults.
-        email (str | None): Explicit email address, or None to fall back
-            to config.
+        cfg (Config): Configuration object containing username from env/defaults.
+        email (str | None): Explicit email address, or None to fall back to config.
 
     Returns:
         str: The resolved email address.
@@ -58,17 +56,14 @@ def _resolve_password(cfg: Config, password: str | None) -> str:
     Delegates to :func:`~gamesheet_sdk.common.auth.credentials.resolve_password`.
 
     Args:
-        cfg (Config): Configuration object containing password from
-            env/defaults.
-        password (str | None): Explicit password, or None to fall back
-            to config.
+        cfg (Config): Configuration object containing password from env/defaults.
+        password (str | None): Explicit password, or None to fall back to config.
 
     Returns:
         str: The resolved password string.
 
     Raises:
-        AuthenticationError: If no password is available from any
-            source.
+        AuthenticationError: If no password is available from any source.
     """
     return resolve_password(cfg, password)
 
@@ -82,8 +77,7 @@ def _wait_for_login_form(page: Any, cfg: Config) -> bool:
 
     Args:
         page (Any): Playwright page object currently at the login URL.
-        cfg (Config): Configuration object containing browser state path
-            for logging.
+        cfg (Config): Configuration object containing browser state path for logging.
 
     Returns:
         bool: Boolean result.
@@ -124,13 +118,10 @@ def _attach_response_capture(page: Any) -> dict[str, Response | None]:
     of the page, but only the first match for each key is stored.
 
     Args:
-        page (Any): Playwright page object on which to register the
-            response listener.
+        page (Any): Playwright page object on which to register the response listener.
 
     Returns:
-        A dict with keys ``"firebase"`` and ``"token"``, both initially
-        None. The registered handler populates them as matching
-        responses arrive.
+        dict[str, Response | None]: None. The registered handler populates them as matching responses arrive.
     """
     captured: dict[str, Response | None] = {"firebase": None, "token": None}  # noqa: S105 # nosec B105
 
@@ -138,12 +129,11 @@ def _attach_response_capture(page: Any) -> dict[str, Response | None]:
         """Capture Firebase Auth and token exchange responses as they arrive.
 
         Populates the ``captured`` dict with the first Firebase signInWithPassword response and the first
-        GameSheet token exchange response encountered. Subsequent responses of the same type are ignored.
-        Side effect: mutates the enclosing ``captured`` dict.
+        GameSheet token exchange response encountered. Subsequent responses of the same type are ignored. Side
+        effect: mutates the enclosing ``captured`` dict.
 
         Args:
-            response (Response): A Playwright Response object
-                intercepted by the page listener.
+            response (Response): A Playwright Response object intercepted by the page listener.
         """
         if _is_firebase_signin(response.url) and captured["firebase"] is None:
             captured["firebase"] = response
@@ -163,8 +153,8 @@ def _submit_login_form(page: Any, email: str, password: str) -> None:
         password (str): Password to enter into the ``#password`` input.
 
     Returns:
-        None. The form submission triggers background network calls
-        captured by :func:`_attach_response_capture`.
+        None: None. The form submission triggers background network calls captured by
+            :func:`_attach_response_capture`.
     """
     page.fill("#email", email)
     page.fill("#password", password)
@@ -178,8 +168,7 @@ def _firebase_error_message(response: Response) -> str:
     :func:`~gamesheet_sdk.common.auth.firebase.extract_firebase_error`.
 
     Args:
-        response (Response): Playwright Response object from Firebase
-            Auth endpoint.
+        response (Response): Playwright Response object from Firebase Auth endpoint.
 
     Returns:
         str: Extracted error message or HTTP status fallback.
@@ -196,16 +185,14 @@ def _raise_for_firebase_error(response: Response) -> None:
     """Raise AuthenticationError if the Firebase Auth response indicates failure.
 
     Args:
-        response (Response): Playwright Response object from the
-            Firebase signInWithPassword call.
+        response (Response): Playwright Response object from the Firebase signInWithPassword call.
 
     Returns:
         None: None on success (HTTP 200).
 
     Raises:
-        AuthenticationError: If the response status is not 200. The
-            exception message includes the Firebase error code extracted
-            by :func:`_firebase_error_message`.
+        AuthenticationError: If the response status is not 200. The exception message includes the Firebase
+            error code extracted by :func:`_firebase_error_message`.
     """
     if response.status != 200:
         _err_msg = f"Login rejected by Firebase: {_firebase_error_message(response)}"
@@ -216,8 +203,7 @@ def _raise_for_token_error(response: Response) -> None:
     """Raise AuthenticationError if the GameSheet token exchange response indicates failure.
 
     Args:
-        response (Response): Playwright Response object from the
-            /api/token exchange call.
+        response (Response): Playwright Response object from the /api/token exchange call.
 
     Returns:
         None: None on success (HTTP 200).
@@ -234,20 +220,16 @@ def _auth_round_trip_complete(captured: dict[str, Response | None], email: str) 
     """Check whether both Firebase Auth and token exchange have completed successfully.
 
     Args:
-        captured (dict[str, Response | None]): Dict populated by
-            :func:`_attach_response_capture` containing ``"firebase"``
-            and ``"token"`` response objects.
-        email (str): Email address being logged in, used for success
-            logging.
+        captured (dict[str, Response | None]): Dict populated by :func:`_attach_response_capture` containing
+            ``"firebase"`` and ``"token"`` response objects.
+        email (str): Email address being logged in, used for success logging.
 
     Returns:
         bool: Boolean result.
 
     Raises:
-        AuthenticationError: If Firebase Auth or token exchange
-            responses indicate failure (via
-            :func:`_raise_for_firebase_error` or
-            :func:`_raise_for_token_error`).
+        AuthenticationError: If Firebase Auth or token exchange responses indicate failure (via
+            :func:`_raise_for_firebase_error` or :func:`_raise_for_token_error`).
     """
     fb = captured["firebase"]
     if fb is None:
@@ -273,27 +255,24 @@ def _await_auth_outcome(
 ) -> None:
     """Poll until both Firebase Auth and token exchange responses arrive, or timeout expires.
 
-    Checks :func:`_auth_round_trip_complete` in a loop with :data:`POLL_INTERVAL_MS` sleeps. Raises on
+    Checks: func:`_auth_round_trip_complete` in a loop with :data:`POLL_INTERVAL_MS` sleeps. Raises on
     explicit auth failure (via ``_auth_round_trip_complete``) or if the deadline passes with no response.
 
     Args:
         page (Any): Playwright page object used for polling waits.
-        captured (dict[str, Response | None]): Dict populated by
-            :func:`_attach_response_capture`, checked each iteration.
-        deadline (float): Absolute time (from ``time.monotonic()``) at
-            which to give up.
-        email (str): Email address being logged in, passed through to
-            :func:`_auth_round_trip_complete` for logging.
-        timeout_s (float): Total timeout in seconds, used only in the
-            timeout error message.
+        captured (dict[str, Response | None]): Dict populated by :func:`_attach_response_capture`, checked
+            each iteration.
+        deadline (float): Absolute time (from ``time.monotonic()``) at which to give up.
+        email (str): Email address being logged in, passed through to :func:`_auth_round_trip_complete` for
+            logging.
+        timeout_s (float): Total timeout in seconds, used only in the timeout error message.
 
     Returns:
         None: None on success (both responses landed with HTTP 200).
 
     Raises:
-        AuthenticationError: If auth responses indicate failure (via
-            :func:`_auth_round_trip_complete`), or if the deadline
-            passes with no responses.
+        AuthenticationError: If auth responses indicate failure (via :func:`_auth_round_trip_complete`), or if
+            the deadline passes with no responses.
     """
     while time.monotonic() < deadline:
         if _auth_round_trip_complete(captured, email):
@@ -311,12 +290,11 @@ def _await_auth_outcome(
 def _settle_post_login(session: BrowserSession, path: str) -> None:
     """Navigate to ``path`` and wait for the SPA to settle.
 
-    The auth round-trip is only the first half of a real login: the SPA needs to actually route to a
-    real page (e.g. ``/associations``) for its permissions and association data to load, which is what
-    populates the cookies and localStorage that subsequent runs will reuse. Without this step the saved
-    storage state looks "logged in" but the SPA's React state has never finished initializing --
-    subsequent loads of the same state surface as "Insufficient Privileges" because the permissions cache
-    was never populated.
+    The auth round-trip is only the first half of a real login: the SPA needs to actually route to a real page
+    (e.g. ``/associations``) for its permissions and association data to load, which is what populates the
+    cookies and localStorage that subsequent runs will reuse. Without this step the saved storage state looks
+    "logged in" but the SPA's React state has never finished initializing -- subsequent loads of the same
+    state surface as "Insufficient Privileges" because the permissions cache was never populated.
 
     Failures here are *not* fatal: auth itself already succeeded, and long-polling endpoints can prevent
     ``networkidle`` from ever firing.
@@ -364,24 +342,18 @@ def login(
 
     Args:
         session (BrowserSession): An open :class:`BrowserSession`.
-        email (str | None): Login email; falls back to
-            ``session.config.username``.
-        password (str | None): Login password; falls back to
-            ``session.config.password.get_secret_value()``.
-        timeout (float | None): Seconds to wait for the auth backend
-            round-trip (default 15).
-        post_login_path (str | None): Path to navigate to after the auth
-            round-trip succeeds. The SPA performs its real routing and
-            post-login data fetches when it reaches this page, so the
-            saved storage state afterwards captures a fully-settled
-            session (cookies + any SPA-cached state) rather than just
-            the bare auth cookie. Pass ``None`` to skip the post-login
-            navigation entirely. Default is :data:`POST_LOGIN_PATH`.
+        email (str | None): Login email; falls back to ``session.config.username``.
+        password (str | None): Login password; falls back to ``session.config.password.get_secret_value()``.
+        timeout (float | None): Seconds to wait for the auth backend round-trip (default 15).
+        post_login_path (str | None): Path to navigate to after the auth round-trip succeeds. The SPA performs
+            its real routing and post-login data fetches when it reaches this page, so the saved storage state
+            afterwards captures a fully-settled session (cookies + any SPA-cached state) rather than just the
+            bare auth cookie. Pass ``None`` to skip the post-login navigation entirely. Default is
+            :data:`POST_LOGIN_PATH`.
 
     Raises:
-        AuthenticationError: If authentication fails (missing
-            credentials, Firebase rejection, token exchange failure, or
-            timeout).
+        AuthenticationError: If authentication fails (missing credentials, Firebase rejection, token exchange
+            failure, or timeout).
     """
     email = _resolve_email(session.config, email)
     password = _resolve_password(session.config, password)
@@ -409,15 +381,14 @@ def login(
 
 # pylint: disable-next=too-few-public-methods
 class AdminLoginFlow:
-    """Browser-based :class:`~gamesheet_sdk.common.auth.flow.LoginFlow` for the admin dashboard.
+    """Browser-based: class:`~gamesheet_sdk.common.auth.flow.LoginFlow` for the admin dashboard.
 
     Wraps the headless-browser :func:`login` flow in a class that conforms to the
-    :class:`~gamesheet_sdk.common.auth.flow.LoginFlow` protocol.  After the browser
-    session closes (persisting localStorage to disk), the access and refresh tokens
-    are read back and returned so callers can use them without touching the state
-    file directly.
+    :class:`~gamesheet_sdk.common.auth.flow.LoginFlow` protocol.  After the browser session closes (persisting
+    localStorage to disk), the access and refresh tokens are read back and returned so callers can use them
+    without touching the state file directly.
 
-    **Example:**
+    **Example: **
 
     .. code-block:: python
 
@@ -432,8 +403,7 @@ class AdminLoginFlow:
     Store the configuration for later browser-session creation.
 
     Args:
-        config (Config): SDK configuration (credentials, URLs,
-            storage paths).
+        config (Config): SDK configuration (credentials, URLs, storage paths).
     """
 
     def __init__(self: AdminLoginFlow, config: Config) -> None:
@@ -448,26 +418,20 @@ class AdminLoginFlow:
     ) -> dict[str, str]:
         """Run the browser-based admin login and return tokens.
 
-        Opens a :class:`~gamesheet_sdk.common.browser.BrowserSession`, drives the
-        Firebase login form via :func:`login`, and reads the persisted tokens from
-        the saved browser state file.
+        Opens a :class:`~gamesheet_sdk.common.browser.BrowserSession`, drives the Firebase login form via
+        :func:`login`, and reads the persisted tokens from the saved browser state file.
 
         Args:
-            email (str | None): Login email, or ``None`` to resolve from
-                config/env.
-            password (str | None): Login password, or ``None`` to
-                resolve from config/env.
-            timeout (float | None): Auth round-trip timeout in seconds,
-                or ``None`` for the default.
+            email (str | None): Login email, or ``None`` to resolve from config/env.
+            password (str | None): Login password, or ``None`` to resolve from config/env.
+            timeout (float | None): Auth round-trip timeout in seconds, or ``None`` for the default.
 
         Returns:
-            dict[str, str]: Token bundle with ``"access"`` and
-            ``"refresh"`` keys.
+            dict[str, str]: Token bundle with ``"access"`` and ``"refresh"`` keys.
 
         Raises:
-            ~gamesheet_sdk.common.exceptions.AuthenticationError: If
-                credentials are missing, the auth backend rejects them,
-                or tokens are not found in the saved state after login.
+            ~gamesheet_sdk.common.exceptions.AuthenticationError: If credentials are missing, the auth backend
+                rejects them, or tokens are not found in the saved state after login.
         """
         with BrowserSession(self._config) as session:
             login(session, email=email, password=password, timeout=timeout)

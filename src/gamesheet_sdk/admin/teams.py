@@ -34,20 +34,20 @@ from gamesheet_sdk.common.shared.gamesheet_http import handle_season_scoped_resp
 class Team(BaseModel):
     """A single team.
 
-    Maps the ``data[*]`` items in the JSON:API response of ``GET /api/seasons/{season_id}/teams`` to a flat
+    Maps the ``data[*]`` items in the JSON: API response of ``GET /api/seasons/{season_id}/teams`` to a flat
     typed model.
 
     Attributes:
-        id: Team identifier (string in JSON:API).
-        season_id: Parent season identifier.
-        title: Team name/title.
-        division_id: Division identifier if team belongs to a division.
-        logo: URL to the team logo image.
-        invitation_code: Invitation code for joining the team.
-        player_count: Number of players on the team.
-        coach_count: Number of coaches on the team.
-        created_at: When the team was created.
-        updated_at: Last time the team was updated.
+        id (str): Team identifier (string in JSON:API).
+        season_id (str): Parent season identifier.
+        title (str): Team name/title.
+        division_id (str | None): Division identifier if team belongs to a division.
+        logo (str | None): URL to the team logo image.
+        invitation_code (str | None): Invitation code for joining the team.
+        player_count (int | None): Number of players on the team.
+        coach_count (int | None): Number of coaches on the team.
+        created_at (datetime): When the team was created.
+        updated_at (datetime): Last time the team was updated.
     """
 
     id: str = Field(description="Team identifier (string in JSON:API).")
@@ -81,8 +81,8 @@ def _parse(item: dict[str, Any]) -> Team:
     """Flatten a JSON:API resource object into a :class:`Team`.
 
     Args:
-        item (dict[str, Any]): A JSON:API resource object with ``id``,
-            ``attributes``, and ``relationships`` keys.
+        item (dict[str, Any]): A JSON:API resource object with ``id``, ``attributes``, and ``relationships``
+            keys.
 
     Returns:
         Team: Parsed Team model instance.
@@ -127,8 +127,8 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
         season_id (str): The season identifier whose teams to list.
 
     Returns:
-        list[Team]: A list of :class:`Team`, in the order the server
-        returned them. The list may be empty if the season has no teams.
+        list[Team]: A list of :class:`Team`, in the order the server returned them. The list may be empty if
+            the season has no teams.
     """
     endpoint = f"/api/seasons/{season_id}/teams"
     # Request sparse fieldset including logo_url and roster (for player/coach counts)
@@ -176,13 +176,12 @@ def get_team(session: Session, season_id: str, team_id: str) -> Team:
         Team: The :class:`Team` with the specified ID.
 
     Raises:
-        GameSheetError: If the team is not found or for any other
-            non-2xx response from the API.
+        GameSheetError: If the team is not found or for any other non-2xx response from the API.
 
-    Note:
-        The single-team GET endpoint doesn't support including related invitations,
-        so this function fetches all teams in the season (which does include invitations)
-        and filters to the requested team. This ensures invitation_code is populated.
+    Notes:
+        The single-team GET endpoint doesn't support including related invitations, so this function fetches
+        all teams in the season (which does include invitations) and filters to the requested team. This
+        ensures invitation_code is populated.
     """
     # The single-team endpoint (/api/seasons/{season_id}/teams/{team_id}) doesn't
     # honor the include=invitations parameter, so we use the list endpoint instead
@@ -211,8 +210,7 @@ def _upload_logo(session: Session, logo_path: str) -> str:
         str: The Cloudflare CDN URL for the uploaded logo.
 
     Raises:
-        GameSheetError: If the file is not found, is not a valid image,
-            or the upload fails.
+        GameSheetError: If the file is not found, is not a valid image, or the upload fails.
         AuthenticationError: If the server returns 401.
     """
     from gamesheet_sdk.common.shared import upload_image
@@ -405,14 +403,11 @@ def create_team(
         season_id (str): The season identifier to create the team in.
         title (str): The team name/title.
         division_id (str): The division identifier the team belongs to.
-        external_id (str | None): Optional external identifier for the
-            team.
-        logo_path (str | None): Optional path to a local logo image
-            file.
+        external_id (str | None): Optional external identifier for the team.
+        logo_path (str | None): Optional path to a local logo image file.
 
     Returns:
-        dict[str, Any]: The server's response containing prototeam,
-        seasonTeam, member, and invitation data.
+        dict[str, Any]: The server's response containing prototeam, seasonTeam, member, and invitation data.
 
     Raises:
         AuthenticationError: If the server returns 401.
@@ -470,9 +465,8 @@ def delete_team(
         team_id (str): The team identifier to delete.
 
     Raises:
-        AuthenticationError: If the server returns 401 (the bearer is
-            missing, malformed, or expired -- run ``gamesheet-admin
-            login`` to refresh).
+        AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
+            ``gamesheet-admin login`` to refresh).
         GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/teams/{team_id}"

@@ -12,8 +12,7 @@ class ToolError(Exception):
     Carries an ``exit_code`` so CLI entry points can translate caught exceptions into process exit codes.
 
     Args:
-        *args (object): Exception arguments passed to the base
-            class.
+        *args (object): Exception arguments passed to the base class.
     """
 
     exit_code: int = 1

@@ -42,19 +42,16 @@ def login_command(
     password: str | None,
     timeout: int,
 ) -> None:
-    """Authenticate with the GameSheet admin dashboard and save session tokens.
+    r"""Authenticate with the GameSheet admin dashboard and save session tokens.
 
     Opens a headless browser, navigates to the admin login page, submits credentials, and extracts
     authentication tokens. Tokens are saved to disk so subsequent commands can authenticate without launching
     a browser.\f
 
     Args:
-        ctx (Context): Click context carrying the
-            :class:`~gamesheet_sdk.common.config.Config` instance.
-        email (str | None): Email address for login, or ``None`` to use
-            the environment variable.
-        password (str | None): Password for login, or ``None`` to prompt
-            interactively.
+        ctx (Context): Click context carrying the :class:`~gamesheet_sdk.common.config.Config` instance.
+        email (str | None): Email address for login, or ``None`` to use the environment variable.
+        password (str | None): Password for login, or ``None`` to prompt interactively.
         timeout (int): Page-load timeout in milliseconds.
     """
     config: Config = ctx.obj

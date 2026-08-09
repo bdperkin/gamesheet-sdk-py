@@ -86,9 +86,8 @@ def parse_pyproject(path: Path) -> dict[str, list[PyProjectDependency]]:
         path (Path): Path to pyproject.toml.
 
     Returns:
-        dict[str, list[PyProjectDependency]]: Dict mapping normalized
-        package names to lists of PyProjectDependency (one per group the
-        package appears in).
+        dict[str, list[PyProjectDependency]]: Dict mapping normalized package names to lists of
+            PyProjectDependency (one per group the package appears in).
 
     Raises:
         ParseError: If the file cannot be read or parsed.
@@ -156,11 +155,11 @@ def _parse_repo_hooks(
     """Process hooks from a single repo entry.
 
     Args:
-        repo_entry: A single repo mapping from .pre-commit-config.yaml.
+        repo_entry (dict[str, Any]): A single repo mapping from .pre-commit-config.yaml.
 
     Returns:
-        tuple[list[str], list[PreCommitAdditionalDep]]: Tuple of
-        (hook_ids, additional_deps) extracted from the repo's hooks.
+        tuple[list[str], list[PreCommitAdditionalDep]]: Tuple of (hook_ids, additional_deps) extracted from
+            the repo's hooks.
     """
     hook_ids: list[str] = []
     additional_deps: list[PreCommitAdditionalDep] = []
@@ -191,8 +190,7 @@ def parse_precommit_config(path: Path) -> list[PreCommitRepo]:
         path (Path): Path to .pre-commit-config.yaml.
 
     Returns:
-        list[PreCommitRepo]: List of PreCommitRepo entries (skipping
-        'meta' and 'local' repos).
+        list[PreCommitRepo]: List of PreCommitRepo entries (skipping 'meta' and 'local' repos).
 
     Raises:
         ParseError: If the file cannot be read or parsed.
@@ -234,7 +232,7 @@ def _extract_pinned_from_data(data: dict[str, Any]) -> dict[str, str]:
     """Iterate category repos and build the pinned revs dict.
 
     Args:
-        data: Parsed YAML data from .genprecommitconfig.yaml.
+        data (dict[str, Any]): Parsed YAML data from .genprecommitconfig.yaml.
 
     Returns:
         dict[str, str]: Dict mapping repo URL to pinned rev string.
@@ -300,9 +298,8 @@ def parse_uv_lock(path: Path) -> tuple[set[str], set[str]]:
         path (Path): Path to uv.lock.
 
     Returns:
-        tuple[set[str], set[str]]: Tuple of (base_packages,
-        all_packages) where base_packages excludes types-* entries and
-        all_packages includes everything.
+        tuple[set[str], set[str]]: Tuple of (base_packages, all_packages) where base_packages excludes types-*
+            entries and all_packages includes everything.
 
     Raises:
         ParseError: If the file cannot be read or parsed.
@@ -334,8 +331,7 @@ def _parse_specifier_lower_bound(spec_str: str) -> Version | None:
     """Extract the lower-bound version from a PEP 440 specifier string.
 
     Returns:
-        The minimum Version from ``>=`` or ``~=``, or None on parse
-        failure.
+        Version | None: The minimum Version from ``>=`` or ``~=``, or None on parse failure.
     """
     try:
         spec_set = SpecifierSet(spec_str)
@@ -359,8 +355,7 @@ def parse_requires_python(path: Path) -> Version | None:
         path (Path): Path to pyproject.toml.
 
     Returns:
-        Version | None: The minimum Python Version, or None if not
-        configured.
+        Version | None: The minimum Python Version, or None if not configured.
     """
     try:
         data = load_toml(path)

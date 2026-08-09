@@ -690,19 +690,6 @@ repos:
         types_or:
           - python
           - pyi
-      - id: black-jupyter
-        name: black-jupyter
-        description: 'Black: The uncompromising Python code formatter (with Jupyter Notebook support)'
-        entry: black
-        language: python
-        minimum_pre_commit_version: 2.9.2
-        require_serial: true
-        types_or:
-          - python
-          - pyi
-          - jupyter
-        additional_dependencies:
-          - .[jupyter]
 
   # ----------------------------------------------------------------------------
   # Code Cleaners & Dead Code Detectors
@@ -826,6 +813,17 @@ repos:
           - python
         require_serial: true
         pass_filenames: false
+
+  - repo: https://github.com/jsh9/format-docstring
+    rev: 0.4.0
+    hooks:
+      - id: format-docstring
+        name: Wrap long docstring lines (in .py files)
+        description: Python formatter CLI for docstring line wrapping in Python files.
+        entry: format-docstring
+        language: python
+        types:
+          - python
 
   - repo: https://github.com/jsh9/pydoclint
     rev: 0.9.1
@@ -953,7 +951,8 @@ repos:
           - pre-push
           - manual
         additional_dependencies:
-          - gamesheet-sdk-py[pyrefly]
+          - gamesheet-sdk-py[dev,pyrefly,tools]
+          - yamlfix==1.19.1
 
   # ----------------------------------------------------------------------------
   # Security, Metrics & Complexity

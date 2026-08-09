@@ -33,10 +33,10 @@ def _build_hook_map(hook: dict[str, Any]) -> CommentedMap:
     """Convert a plain hook dict to a CommentedMap with ``id`` first.
 
     Args:
-        hook: Hook configuration dict.
+        hook (dict[str, Any]): Hook configuration dict.
 
     Returns:
-        CommentedMap with ordered keys.
+        CommentedMap: CommentedMap with ordered keys.
     """
     hook_map = CommentedMap()
     if "id" in hook:
@@ -60,10 +60,10 @@ def _build_ci_map(ci: dict[str, Any]) -> CommentedMap:
     """Convert the ci config dict to a CommentedMap with property comments.
 
     Args:
-        ci: Raw ci configuration dict.
+        ci (dict[str, Any]): Raw ci configuration dict.
 
     Returns:
-        CommentedMap with description comments on documented properties.
+        CommentedMap: CommentedMap with description comments on documented properties.
     """
     ci_map = CommentedMap()
     for key, value in ci.items():
@@ -88,10 +88,10 @@ def _build_repo_map(repo: dict[str, Any]) -> CommentedMap:
     """Convert a plain repo dict to a CommentedMap with proper structure.
 
     Args:
-        repo: Repository dict with repo, rev, and hooks keys.
+        repo (dict[str, Any]): Repository dict with repo, rev, and hooks keys.
 
     Returns:
-        CommentedMap with ordered keys.
+        CommentedMap: CommentedMap with ordered keys.
     """
     repo_map = CommentedMap()
     repo_map["repo"] = repo["repo"]
@@ -113,8 +113,8 @@ def _add_global_comment(doc: CommentedMap, key: str) -> None:
     """Add a description comment before a top-level global key if one is defined.
 
     Args:
-        doc: The document CommentedMap.
-        key: The key to annotate.
+        doc (CommentedMap): The document CommentedMap.
+        key (str): The key to annotate.
     """
     if key in GLOBALS_PROPERTY_DESCRIPTIONS:
         doc.yaml_set_comment_before_after_key(
@@ -136,13 +136,13 @@ def _add_globals_section(
     """Populate the globals section of the document with banner and property comments.
 
     Args:
-        doc: The document CommentedMap to populate.
-        default_language_version: Default language version mapping.
-        default_stages: Default stages list.
-        fail_fast: Whether to fail fast.
-        files: Optional global files regex pattern.
-        exclude: Optional global exclude regex pattern.
-        minimum_pre_commit_version: Optional minimum pre-commit version.
+        doc (CommentedMap): The document CommentedMap to populate.
+        default_language_version (dict[str, str]): Default language version mapping.
+        default_stages (list[str]): Default stages list.
+        fail_fast (bool): Whether to fail fast.
+        files (str | None): Optional global files regex pattern.
+        exclude (str | None): Optional global exclude regex pattern.
+        minimum_pre_commit_version (str | None): Optional minimum pre-commit version.
     """
     if minimum_pre_commit_version is not None:
         doc["minimum_pre_commit_version"] = minimum_pre_commit_version
@@ -189,10 +189,9 @@ def _apply_hook_comments(
     """Attach per-hook comments to hooks inside a repo entry.
 
     Args:
-        repo_map: The CommentedMap for a single repo.
-        repo_idx: Index of this repo in the repos sequence.
-        hook_comments: Mapping of (repo_index, hook_index) to comment
-            text.
+        repo_map (CommentedMap): The CommentedMap for a single repo.
+        repo_idx (int): Index of this repo in the repos sequence.
+        hook_comments (dict[tuple[int, int], str]): Mapping of (repo_index, hook_index) to comment text.
     """
     hooks_list = repo_map.get("hooks")
     if not isinstance(hooks_list, CommentedSeq):
@@ -215,12 +214,12 @@ def _build_repos_seq(
     """Build the repos CommentedSeq with hook and category comments.
 
     Args:
-        repos: List of repo dicts.
-        hook_comments: Optional hook-level comments.
-        category_comments: Optional category description comments.
+        repos (list[dict[str, Any]]): List of repo dicts.
+        hook_comments (dict[tuple[int, int], str] | None): Optional hook-level comments.
+        category_comments (dict[int, str] | None): Optional category description comments.
 
     Returns:
-        CommentedSeq ready for insertion into the document.
+        CommentedSeq: CommentedSeq ready for insertion into the document.
     """
     repos_seq = CommentedSeq()
     for repo_idx, repo in enumerate(repos):
@@ -257,20 +256,19 @@ def _build_document(
     """Build the ruamel.yaml document structure with comments.
 
     Args:
-        default_language_version: Default language version mapping.
-        default_stages: Default stages list.
-        fail_fast: Whether to fail fast.
-        repos: List of repo dicts.
-        ci: Optional pre-commit.ci service configuration.
-        files: Optional global files regex pattern.
-        exclude: Optional global exclude regex pattern.
-        minimum_pre_commit_version: Optional minimum pre-commit version.
-        hook_comments: Optional hook-level comments.
-        category_comments: Optional mapping of repo_index to category
-            description.
+        default_language_version (dict[str, str]): Default language version mapping.
+        default_stages (list[str]): Default stages list.
+        fail_fast (bool): Whether to fail fast.
+        repos (list[dict[str, Any]]): List of repo dicts.
+        ci (dict[str, Any] | None): Optional pre-commit.ci service configuration.
+        files (str | None): Optional global files regex pattern.
+        exclude (str | None): Optional global exclude regex pattern.
+        minimum_pre_commit_version (str | None): Optional minimum pre-commit version.
+        hook_comments (dict[tuple[int, int], str] | None): Optional hook-level comments.
+        category_comments (dict[int, str] | None): Optional mapping of repo_index to category description.
 
     Returns:
-        CommentedMap ready for YAML serialization.
+        CommentedMap: CommentedMap ready for YAML serialization.
     """
     doc = CommentedMap()
     doc.yaml_set_start_comment(HEADER_COMMENT)
@@ -347,8 +345,8 @@ def _write_yaml(output_path: Path, doc: CommentedMap) -> None:
     """Write a ruamel.yaml document to a file.
 
     Args:
-        output_path: Path to write to.
-        doc: Document to serialize.
+        output_path (Path): Path to write to.
+        doc (CommentedMap): Document to serialize.
     """
     yml = YAML()
     yml.indent(mapping=2, sequence=4, offset=2)
@@ -382,22 +380,17 @@ def render_config(
 
     Args:
         output_path (Path): Path to write the output file.
-        default_language_version (dict[str, str]): Default language
-            version mapping.
+        default_language_version (dict[str, str]): Default language version mapping.
         default_stages (list[str]): Default stages list.
         fail_fast (bool): Whether to fail fast on first hook failure.
-        repos (list[dict[str, Any]]): List of repository dicts with
-            hooks.
-        ci (dict[str, Any] | None): Optional pre-commit.ci service
-            configuration.
+        repos (list[dict[str, Any]]): List of repository dicts with hooks.
+        ci (dict[str, Any] | None): Optional pre-commit.ci service configuration.
         files (str | None): Optional global files regex pattern.
         exclude (str | None): Optional global exclude regex pattern.
-        minimum_pre_commit_version (str | None): Optional minimum pre-
-            commit version.
-        hook_comments (dict[tuple[int, int], str] | None): Optional
-            mapping of (repo_index, hook_index) to comment.
-        category_comments (dict[int, str] | None): Optional mapping of
-            repo_index to category description.
+        minimum_pre_commit_version (str | None): Optional minimum pre- commit version.
+        hook_comments (dict[tuple[int, int], str] | None): Optional mapping of (repo_index, hook_index) to
+            comment.
+        category_comments (dict[int, str] | None): Optional mapping of repo_index to category description.
 
     Raises:
         RenderError: If the file cannot be written.

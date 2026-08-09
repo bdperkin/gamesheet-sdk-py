@@ -51,7 +51,7 @@ def _read_toml(path: Path) -> tuple[TOMLFile, TOMLDocument]:
     """Read a TOML file and return the file handle and parsed document.
 
     Returns:
-        Tuple of (TOMLFile, parsed document).
+        tuple[TOMLFile, TOMLDocument]: Tuple of (TOMLFile, parsed document).
 
     Raises:
         WriteError: If the file cannot be read.
@@ -83,7 +83,7 @@ def _read_yaml_file(path: Path, yml: YAML) -> CommentedMap:
     """Read a YAML file and return the parsed data.
 
     Returns:
-        Parsed YAML data.
+        CommentedMap: Parsed YAML data.
 
     Raises:
         WriteError: If the file cannot be read.
@@ -113,7 +113,7 @@ def _get_toml_key(doc: TOMLDocument, keys: list[str], path: Path) -> object:
     """Traverse nested keys in a TOML document.
 
     Returns:
-        The value at the nested key path.
+        object: The value at the nested key path.
 
     Raises:
         WriteError: If any key in the path is missing.
@@ -134,7 +134,7 @@ def _normalize_dep_name(dep_lower: str) -> str:
     """Extract and normalize the package name from a dependency string.
 
     Returns:
-        Normalized name with separators replaced by hyphens.
+        str: Normalized name with separators replaced by hyphens.
     """
     name = dep_lower.split("==", maxsplit=1)[0].split("[", maxsplit=1)[0]
     return re.sub(r"[-_.]+", "-", name)
@@ -170,8 +170,7 @@ def update_pyproject(
 
     Args:
         path (Path): Path to pyproject.toml.
-        results (list[ConvergenceResult]): Convergence results targeting
-            pyproject.toml.
+        results (list[ConvergenceResult]): Convergence results targeting pyproject.toml.
 
     Returns:
         int: Number of dependencies updated.
@@ -268,8 +267,7 @@ def update_genprecommit_additional_deps(
 
     Args:
         path (Path): Path to .genprecommitconfig.yaml.
-        results (list[ConvergenceResult]): Convergence results targeting
-            additional_dependencies.
+        results (list[ConvergenceResult]): Convergence results targeting additional_dependencies.
 
     Returns:
         int: Number of additional_dependencies updated.
@@ -424,8 +422,7 @@ def update_dependabot_ignores(
 
     Args:
         path (Path): Path to dependabot.yml.
-        pinned_packages (dict[str, str]): Dict mapping PyPI package name
-            to pinned version.
+        pinned_packages (dict[str, str]): Dict mapping PyPI package name to pinned version.
 
     Returns:
         tuple[int, int]: Tuple of (added_count, removed_count).
@@ -487,7 +484,7 @@ def _apply_removes_and_updates(
     """Remove and update entries in the type-stubs dependency list (reverse iteration).
 
     Returns:
-        Number of entries changed.
+        int: Number of entries changed.
     """
     change_count = 0
     i = len(type_stubs_list) - 1
@@ -519,11 +516,9 @@ def apply_types_sync(
 
     Args:
         path (Path): Path to pyproject.toml.
-        to_add (list[tuple[str, str]]): (package_name, version) pairs to
-            add.
+        to_add (list[tuple[str, str]]): (package_name, version) pairs to add.
         to_remove (list[str]): Package names to remove.
-        to_update (list[tuple[str, str, str]]): (package_name,
-            old_version, new_version) tuples.
+        to_update (list[tuple[str, str, str]]): (package_name, old_version, new_version) tuples.
 
     Returns:
         int: Total number of changes applied.

@@ -43,7 +43,7 @@ def _repo_url_to_package(url: str) -> str | None:
     """Map a git repo URL to a PyPI package name via REVERSE_MAPPING or URL basename.
 
     Returns:
-        Package name, or None if the URL has no usable basename.
+        str | None: Package name, or None if the URL has no usable basename.
     """
     if url in REVERSE_MAPPING:
         return REVERSE_MAPPING[url]
@@ -56,7 +56,7 @@ def _normalize_rev(rev: str) -> str | None:
     """Normalize a rev string to a comparable version, or None if unparseable.
 
     Returns:
-        Normalized version string, or None for non-version revs.
+        str | None: Normalized version string, or None for non-version revs.
     """
     stripped = rev.lstrip("v")
     try:
@@ -72,12 +72,10 @@ def resolve_pinned_packages(pinned_revs: dict[str, str]) -> dict[str, str]:
     """Map repo-URL-keyed pins to PyPI-package-name-keyed versions.
 
     Args:
-        pinned_revs (dict[str, str]): Dict mapping repo URL to pinned
-            rev string.
+        pinned_revs (dict[str, str]): Dict mapping repo URL to pinned rev string.
 
     Returns:
-        dict[str, str]: Dict mapping PyPI package name to normalized
-        version string.
+        dict[str, str]: Dict mapping PyPI package name to normalized version string.
     """
     result: dict[str, str] = {}
     for url, rev in pinned_revs.items():
@@ -107,15 +105,15 @@ def _prefetch_versions(
     """Fetch PyPI versions and git tags in parallel.
 
     Args:
-        package_names: PyPI package names to look up.
-        repo_urls: Git repository URLs to fetch tags from.
-        index_url: Optional PEP 503 index URL.
-        extra_index_urls: Additional PEP 503 index URLs to try.
-        pip_config: Optional pip configuration for SSL settings.
+        package_names (set[str]): PyPI package names to look up.
+        repo_urls (set[str]): Git repository URLs to fetch tags from.
+        index_url (str | None): Optional PEP 503 index URL.
+        extra_index_urls (Sequence[str]): Additional PEP 503 index URLs to try.
+        pip_config (PipConfig | None): Optional pip configuration for SSL settings.
 
     Returns:
-        Tuple of (pypi_cache, git_cache) where pypi_cache maps package
-        name to versions dict and git_cache maps repo URL to tag list.
+        tuple[dict[str, dict[str, str | None]], dict[str, list[str]]]: Tuple of (pypi_cache, git_cache) where
+            pypi_cache maps package name to versions dict and git_cache maps repo URL to tag list.
     """
     logger.info(
         "Prefetching %d PyPI packages and %d git repos in parallel",
@@ -176,15 +174,13 @@ def _log_convergence_result(
     """Log the convergence outcome for a shared main-hook package.
 
     Args:
-        pkg_name: Normalized package name.
-        target_version: The version chosen as the convergence target.
-        is_pinned: Whether the repo rev is explicitly pinned.
-        pyproject_changed: Whether the pyproject version differs from
-            target.
-        needs_regen: Whether the pre-commit rev needs regeneration.
-        repo_rev: The current rev string from .pre-commit-config.yaml.
-        current_pyproject_version: The current version in
-            pyproject.toml.
+        pkg_name (str): Normalized package name.
+        target_version (str): The version chosen as the convergence target.
+        is_pinned (bool): Whether the repo rev is explicitly pinned.
+        pyproject_changed (bool): Whether the pyproject version differs from target.
+        needs_regen (bool): Whether the pre-commit rev needs regeneration.
+        repo_rev (str): The current rev string from .pre-commit-config.yaml.
+        current_pyproject_version (str | None): The current version in pyproject.toml.
     """
     if pyproject_changed:
         logger.info(
@@ -221,7 +217,7 @@ def _converge_shared_main_hooks(
     """Converge packages that appear as both pyproject deps and pre-commit main hooks.
 
     Returns:
-        List of convergence results for shared main-hook packages.
+        list[ConvergenceResult]: List of convergence results for shared main-hook packages.
     """
     results: list[ConvergenceResult] = []
 
@@ -319,8 +315,7 @@ def _converge_shared_additional_deps(
     """Converge packages shared between pyproject deps and pre-commit additional_dependencies.
 
     Returns:
-        List of convergence results for shared additional-dependency
-        packages.
+        list[ConvergenceResult]: List of convergence results for shared additional-dependency packages.
     """
     results: list[ConvergenceResult] = []
 
@@ -377,7 +372,7 @@ def _converge_pypi_only(
     """Update pyproject-only packages to their latest stable PyPI version.
 
     Returns:
-        List of convergence results for pyproject-only packages.
+        list[ConvergenceResult]: List of convergence results for pyproject-only packages.
     """
     results: list[ConvergenceResult] = []
 
@@ -429,8 +424,7 @@ def _converge_precommit_only_additional(
     """Update additional_dependencies that only appear in pre-commit config.
 
     Returns:
-        List of convergence results for pre-commit-only additional
-        dependencies.
+        list[ConvergenceResult]: List of convergence results for pre-commit-only additional dependencies.
     """
     results: list[ConvergenceResult] = []
 
@@ -487,15 +481,13 @@ def _detect_stale_precommit_revs(
     the pinned value or the latest stable git tag.
 
     Args:
-        precommit_repos: All parsed pre-commit repos.
-        pinned_revs: Repo URL → pinned rev from
-            .genprecommitconfig.yaml.
-        processed_urls: URLs already handled by
-            _converge_shared_main_hooks.
-        git_cache: Pre-fetched git tags keyed by repo URL.
+        precommit_repos (list[PreCommitRepo]): All parsed pre-commit repos.
+        pinned_revs (dict[str, str]): Repo URL → pinned rev from .genprecommitconfig.yaml.
+        processed_urls (set[str]): URLs already handled by _converge_shared_main_hooks.
+        git_cache (dict[str, list[str]]): Pre-fetched git tags keyed by repo URL.
 
     Returns:
-        List of ConvergenceResult for repos with stale revs.
+        list[ConvergenceResult]: List of ConvergenceResult for repos with stale revs.
     """
     results: list[ConvergenceResult] = []
 
@@ -562,13 +554,12 @@ def _build_repo_mappings(
     """Build bidirectional repo-URL-to-package mappings and additional-dep index.
 
     Args:
-        pyproject_deps: Parsed dependencies from pyproject.toml.
-        precommit_repos: Parsed repositories from .pre-commit-
-            config.yaml.
+        pyproject_deps (dict[str, list[PyProjectDependency]]): Parsed dependencies from pyproject.toml.
+        precommit_repos (list[PreCommitRepo]): Parsed repositories from .pre-commit- config.yaml.
 
     Returns:
-        Tuple of (repo_url_to_pkg, pkg_to_repo_url,
-        precommit_additional_names).
+        tuple[dict[str, str], dict[str, str], dict[str, list[PreCommitRepo]]]: Tuple of (repo_url_to_pkg,
+            pkg_to_repo_url, precommit_additional_names).
     """
     repo_url_to_pkg: dict[str, str] = {}
     pkg_to_repo_url: dict[str, str] = {}
@@ -598,17 +589,15 @@ def _collect_prefetch_candidates(
     """Determine which PyPI package names and git URLs need prefetching.
 
     Args:
-        pyproject_deps: Parsed dependencies from pyproject.toml.
-        precommit_repos: Parsed repositories from .pre-commit-
-            config.yaml.
-        repo_url_to_pkg: Mapping of repo URL to package name.
-        pkg_to_repo_url: Mapping of package name to repo URL.
-        precommit_additional_names: Mapping of additional-dep name to
-            repos.
-        pinned_revs: Repo URL to rev string for explicitly pinned repos.
+        pyproject_deps (dict[str, list[PyProjectDependency]]): Parsed dependencies from pyproject.toml.
+        precommit_repos (list[PreCommitRepo]): Parsed repositories from .pre-commit- config.yaml.
+        repo_url_to_pkg (dict[str, str]): Mapping of repo URL to package name.
+        pkg_to_repo_url (dict[str, str]): Mapping of package name to repo URL.
+        precommit_additional_names (dict[str, list[PreCommitRepo]]): Mapping of additional-dep name to repos.
+        pinned_revs (dict[str, str]): Repo URL to rev string for explicitly pinned repos.
 
     Returns:
-        Tuple of (pypi_names, git_urls) to prefetch.
+        tuple[set[str], set[str]]: Tuple of (pypi_names, git_urls) to prefetch.
     """
     pypi_names: set[str] = set()
     git_urls: set[str] = set()
@@ -648,24 +637,18 @@ def converge(
     updated to match.  Only ``additional_dependencies`` are updated in the genprecommit config.
 
     Args:
-        pyproject_deps (dict[str, list[PyProjectDependency]]): Parsed
-            dependencies from pyproject.toml.
-        precommit_repos (list[PreCommitRepo]): Parsed repositories from
-            .pre-commit-config.yaml.
-        pinned_revs (dict[str, str]): Repo URL → rev string for
-            explicitly pinned repos in .genprecommitconfig.yaml.
-        index_url (str | None): Optional PEP 503 package index URL to
-            query before falling back to public PyPI.
-        extra_index_urls (Sequence[str]): Additional PEP 503 index URLs
-            to try.
-        pip_config (PipConfig | None): Optional pip configuration for
-            SSL settings.
-        min_python (Version | None): Minimum Python version to filter
-            compatible releases.
+        pyproject_deps (dict[str, list[PyProjectDependency]]): Parsed dependencies from pyproject.toml.
+        precommit_repos (list[PreCommitRepo]): Parsed repositories from .pre-commit-config.yaml.
+        pinned_revs (dict[str, str]): Repo URL → rev string for explicitly pinned repos in
+            .genprecommitconfig.yaml.
+        index_url (str | None): Optional PEP 503 package index URL to query before falling back to public
+            PyPI.
+        extra_index_urls (Sequence[str]): Additional PEP 503 index URLs to try.
+        pip_config (PipConfig | None): Optional pip configuration for SSL settings.
+        min_python (Version | None): Minimum Python version to filter compatible releases.
 
     Returns:
-        list[ConvergenceResult]: List of ConvergenceResult describing
-        all updates needed.
+        list[ConvergenceResult]: List of ConvergenceResult describing all updates needed.
     """
     results: list[ConvergenceResult] = []
 
@@ -754,8 +737,8 @@ def _parse_type_stubs_types(pyproject_path: Path) -> dict[str, str | None]:
     """Extract types-* entries from the type-stubs optional-dependency group.
 
     Returns:
-        Dict mapping normalized types-* package name to its pinned
-        version (or None if unpinned).
+        dict[str, str | None]: Dict mapping normalized types-* package name to its pinned version (or None if
+            unpinned).
 
     Raises:
         ParseError: If the file cannot be read or contains invalid TOML.
@@ -793,13 +776,13 @@ def _discover_available_types(
     """Check which candidate packages have types-* stubs available.
 
     Args:
-        to_check: Base package names to check.
-        index_url: Optional PEP 503 index URL.
-        extra_index_urls: Additional PEP 503 index URLs to try.
-        pip_config: Optional pip configuration for SSL settings.
+        to_check (set[str]): Base package names to check.
+        index_url (str | None): Optional PEP 503 index URL.
+        extra_index_urls (Sequence[str]): Additional PEP 503 index URLs to try.
+        pip_config (PipConfig | None): Optional pip configuration for SSL settings.
 
     Returns:
-        Set of base package names whose types-* stub exists.
+        set[str]: Set of base package names whose types-* stub exists.
     """
     available: set[str] = set()
 
@@ -885,8 +868,8 @@ def _find_stale_stubs(
     """Identify types-* stubs to remove or update.
 
     Returns:
-        tuple[list[str], list[tuple[str, str, str]]]: Removed names and
-        updated (name, old_version, new_version) triples.
+        tuple[list[str], list[tuple[str, str, str]]]: Removed names and updated (name, old_version,
+            new_version) triples.
     """
     removed: list[str] = []
     updated: list[tuple[str, str, str]] = []
@@ -919,16 +902,12 @@ def sync_types(
 
     Args:
         base_packages (set[str]): Non-types package names from uv.lock.
-        all_packages (set[str]): All package names from uv.lock
-            (including types-*).
+        all_packages (set[str]): All package names from uv.lock (including types-*).
         pyproject_path (Path): Path to pyproject.toml.
         index_url (str | None): Optional PEP 503 index URL.
-        extra_index_urls (Sequence[str]): Additional PEP 503 index URLs
-            to try.
-        pip_config (PipConfig | None): Optional pip configuration for
-            SSL settings.
-        min_python (Version | None): Minimum Python version to filter
-            compatible releases.
+        extra_index_urls (Sequence[str]): Additional PEP 503 index URLs to try.
+        pip_config (PipConfig | None): Optional pip configuration for SSL settings.
+        min_python (Version | None): Minimum Python version to filter compatible releases.
 
     Returns:
         TypesSyncResult: TypesSyncResult describing all changes.

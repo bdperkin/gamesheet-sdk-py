@@ -23,12 +23,10 @@ def handle_response(
     Args:
         response (requests.Response): The HTTP response object.
         endpoint (str): The endpoint that was called.
-        context_msg (str): Context message for error reporting (e.g.,
-            ``"GET associations"``).
+        context_msg (str): Context message for error reporting (e.g., ``"GET associations"``).
 
     Raises:
-        AuthenticationError: If response status is 401 (Unauthorized) or
-            403 (Forbidden).
+        AuthenticationError: If response status is 401 (Unauthorized) or 403 (Forbidden).
         GameSheetError: If response status is 404 or any other >= 400.
     """
     if response.status_code == 401:

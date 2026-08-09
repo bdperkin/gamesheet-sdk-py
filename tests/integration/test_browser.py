@@ -244,10 +244,9 @@ def test_goto_resolves_url_and_returns_page(config: Config) -> None:
 def test_context_raises_when_start_leaves_context_none(config: Config) -> None:
     """Accessing context when _start somehow completes without setting _context should raise ValueError.
 
-    This is a defensive check for an edge case that shouldn't happen in normal
-    operation - _start() will either succeed (setting _context) or raise an
-    exception. This test directly manipulates internal state to exercise the
-    safety check.
+    This is a defensive check for an edge case that shouldn't happen in normal operation - _start() will
+    either succeed (setting _context) or raise an exception. This test directly manipulates internal state to
+    exercise the safety check.
     """
     bs = BrowserSession(config)
     # Bypass _start() entirely and directly access the property with _context=None

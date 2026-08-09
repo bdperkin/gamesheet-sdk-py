@@ -3,22 +3,12 @@
 
 """SDK-wide constants and configuration values.
 
-This module defines all URL constants and endpoints used throughout the GameSheet SDK.
-Constants
----------
-DEFAULT_BASE_URL : str
-    Default GameSheet web application base URL.
-APP_GAMESHEET_COM : str
-    Legacy GameSheet domain (used for browser storage).
-BFF_API_BASE_URL : str
-    Backend-for-Frontend API base URL.
-SCORESHEET_SERVICE_BASE_URL : str
-    Scoresheet service base URL (for PDF downloads).
-CLOUDFLARE_IMAGE_DELIVERY_BASE : str
-    Cloudflare image delivery CDN base URL with account hash.
-Examples
---------
-Using base URLs in session configuration:
+This module defines all URL constants and endpoints used throughout the GameSheet SDK. Constants ---------
+DEFAULT_BASE_URL : str Default GameSheet web application base URL. APP_GAMESHEET_COM : str Legacy GameSheet
+domain (used for browser storage). BFF_API_BASE_URL : str Backend-for-Frontend API base URL.
+SCORESHEET_SERVICE_BASE_URL : str Scoresheet service base URL (for PDF downloads).
+CLOUDFLARE_IMAGE_DELIVERY_BASE : str Cloudflare image delivery CDN base URL with account hash. Examples
+-------- Using base URLs in session configuration:
 .. code-block:: python
     from gamesheet_sdk.common.constants import DEFAULT_BASE_URL
     from gamesheet_sdk import Session

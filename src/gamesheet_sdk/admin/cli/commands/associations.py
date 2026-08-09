@@ -3,11 +3,11 @@
 
 """Associations command group.
 
-This module provides the CLI interface for managing GameSheet associations, which represent the
-top-level organizational unit in the GameSheet platform. An association corresponds to a league
-operator (hockey association, tournament series, district body, etc.).
-The command group provides sub-commands for listing associations accessible to the authenticated user.
-When invoked without a sub-command, it defaults to the ``list`` operation.
+This module provides the CLI interface for managing GameSheet associations, which represent the top-level
+organizational unit in the GameSheet platform. An association corresponds to a league operator (hockey
+association, tournament series, district body, etc.). The command group provides sub-commands for listing
+associations accessible to the authenticated user. When invoked without a sub-command, it defaults to the
+``list`` operation.
 Examples:
     List all associations in simple table format::
         $ gamesheet-admin associations
@@ -83,10 +83,10 @@ def associations_get_command(
     output_path: str | None,
     fields_spec: str | None,
 ) -> None:
-    """Get detailed information about a specific association.
+    r"""Get detailed information about a specific association.
 
     The association ID can be provided via --association-id or the GAMESHEET_ASSOCIATION_ID environment
-    variable. Requires a saved session from `gamesheet-admin login` -- the bearer token is read out of the
+    variable. Requires a saved session from ``gamesheet-admin login`` -- the bearer token is read out of the
     browser storage state on disk and attached to the HTTP request. No browser is launched. The output
     displays association metadata as key-value pairs, with each field on its own row.\f
 
@@ -95,8 +95,7 @@ def associations_get_command(
         association_id (str): The association identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        fields_spec (str | None): Optional comma-separated list of
-            fields to display
+        fields_spec (str | None): Optional comma-separated list of fields to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -114,12 +113,10 @@ def associations_list_command(
     output_path: str | None,
     columns_spec: str | None,
 ) -> None:
-    """List all associations on your GameSheet account.
+    r"""List all associations on your GameSheet account.
 
-    Requires authentication (run 'gamesheet-admin login' first). Retrieves all
-    associations accessible by your account and displays them in the specified
-    output format.
-    .. rubric:: Examples
+    Requires authentication (run 'gamesheet-admin login' first). Retrieves all associations accessible by your
+    account and displays them in the specified output format. .. rubric:: Examples
 
         List all associations in default format:
     .. code-block:: bash
@@ -145,8 +142,7 @@ def associations_list_command(
         ctx (Context): Click context object containing config
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        columns_spec (str | None): Optional comma-separated list of
-            columns to display
+        columns_spec (str | None): Optional comma-separated list of columns to display
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

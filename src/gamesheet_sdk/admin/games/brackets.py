@@ -19,13 +19,11 @@ def list_completed(session: Session, season_id: str) -> list[Game]:
 
     Args:
         session (Session): An authenticated :class:`Session`.
-        season_id (str): The season identifier whose completed games to
-            list.
+        season_id (str): The season identifier whose completed games to list.
 
     Returns:
-        list[Game]: A list of :class:`Game`, in the order the server
-        returned them. The list may be empty if the season has no
-        completed games.
+        list[Game]: A list of :class:`Game`, in the order the server returned them. The list may be empty if
+            the season has no completed games.
     """
     return _make_request(session, season_id, completed=True, scheduled=False)
 
@@ -36,20 +34,17 @@ def list_brackets(session: Session, season_id: str) -> list[Game]:
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
 
-    Note:
-        The brackets filter is based on the expected API pattern but has not been verified
-        with real bracket data. If this returns unexpected results, the filter parameters may
-        need adjustment.
+    Notes:
+        The brackets filter is based on the expected API pattern but has not been verified with real bracket
+        data. If this returns unexpected results, the filter parameters may need adjustment.
 
     Args:
         session (Session): An authenticated :class:`Session`.
-        season_id (str): The season identifier whose bracket games to
-            list.
+        season_id (str): The season identifier whose bracket games to list.
 
     Returns:
-        list[Game]: A list of :class:`Game`, in the order the server
-        returned them. The list may be empty if the season has no
-        bracket games.
+        list[Game]: A list of :class:`Game`, in the order the server returned them. The list may be empty if
+            the season has no bracket games.
 
     Raises:
         AuthenticationError: If the server returns 401.
@@ -74,8 +69,7 @@ def get_game(session: Session, season_id: str, game_id: int) -> Game:
         Game: The :class:`Game` with the specified ID.
 
     Raises:
-        GameSheetError: For any other non-2xx response, including 404 if
-            the game is not found.
+        GameSheetError: For any other non-2xx response, including 404 if the game is not found.
     """
     # Get all games for the season and filter by ID
     # The BFF API doesn't have a single-game endpoint, so we filter client-side

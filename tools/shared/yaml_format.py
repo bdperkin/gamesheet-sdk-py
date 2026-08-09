@@ -18,10 +18,9 @@ logger = logging.getLogger(__name__)
 def _load_yamlfix_config() -> YamlfixConfig:
     """Build a :class:`YamlfixConfig` from ``[tool.yamlfix]`` in pyproject.toml.
 
-    Keys that are not ``YamlfixConfig`` fields are dropped: the table also
-    carries settings for the yamlfix CLI (``check``, ``diff``, ``recursive``,
-    ``exclude``) and options this yamlfix release does not define, none of
-    which the formatter accepts.
+    Keys that are not ``YamlfixConfig`` fields are dropped: the table also carries settings for the yamlfix
+    CLI (``check``, ``diff``, ``recursive``, ``exclude``) and options this yamlfix release does not define,
+    none of which the formatter accepts.
 
     Returns:
         YamlfixConfig: Formatter configuration for :func:`yamlfix.fix_code`.
@@ -74,9 +73,8 @@ def _postprocess(text: str) -> str:
 def format_yaml(text: str) -> str:
     """Run yamlfix over rendered YAML, then repair what it breaks.
 
-    The post-pass has to run after yamlfix, not before: both ruamel and
-    yamlfix push a comment that trails a ``<<:`` merge key down onto its own
-    line, where it reads as a comment on the following key instead.
+    The post-pass has to run after yamlfix, not before: both ruamel and yamlfix push a comment that trails a
+    ``<<:`` merge key down onto its own line, where it reads as a comment on the following key instead.
 
     Args:
         text (str): Rendered YAML to format.

@@ -33,8 +33,8 @@ from gamesheet_sdk.common.shared.gamesheet_http import handle_season_scoped_resp
 class Referee(BaseModel):
     """A single referee.
 
-    Maps the ``data[*]`` items in the JSON:API response of ``GET /api/seasons/{season_id}/referees`` to a flat
-    typed model.
+    Maps the ``data[*]`` items in the JSON: API response of ``GET /api/seasons/{season_id}/referees`` to a
+    flat typed model.
     """
 
     id: str = Field(description="Referee identifier (string in JSON:API).")
@@ -116,9 +116,8 @@ def get_referee(session: Session, season_id: str, referee_id: str) -> Referee:
         Referee: The :class:`Referee` with the specified ID.
 
     Raises:
-        AuthenticationError: If the server returns 401 (the bearer is
-            missing, malformed, or expired -- run ``gamesheet-admin
-            login`` to refresh).
+        AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
+            ``gamesheet-admin login`` to refresh).
         GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/referees/{referee_id}"
@@ -163,19 +162,15 @@ def get_referee_report(
     Args:
         session (Session): An authenticated :class:`Session`.
         season_id (str): The season identifier containing the referee.
-        referee_id (str): The referee identifier to retrieve the report
-            for.
+        referee_id (str): The referee identifier to retrieve the report for.
 
     Returns:
-        RefereeReport: The :class:`RefereeReport` with statistics and
-        games.
+        RefereeReport: The :class:`RefereeReport` with statistics and games.
 
     Raises:
-        AuthenticationError: If the server returns 401 (the bearer is
-            missing, malformed, or expired -- run ``gamesheet-admin
-            login`` to refresh).
-        GameSheetError: For any other non-2xx response, or if the
-            referee has no external_id.
+        AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
+            ``gamesheet-admin login`` to refresh).
+        GameSheetError: For any other non-2xx response, or if the referee has no external_id.
     """
     # First, get the referee to obtain the external_id
     referee = get_referee(session, season_id, referee_id)
@@ -236,14 +231,11 @@ def create_referee(
 
     Args:
         session (Session): An authenticated :class:`Session`.
-        season_id (str): The season identifier in which to create the
-            referee.
+        season_id (str): The season identifier in which to create the referee.
         first_name (str): Referee's first name.
         last_name (str): Referee's last name.
-        email_address (str | None): Optional email address for the
-            referee.
-        external_id (str | None): Optional external identifier for the
-            referee.
+        email_address (str | None): Optional email address for the referee.
+        external_id (str | None): Optional external identifier for the referee.
 
     Returns:
         Referee: Return value.
@@ -303,9 +295,8 @@ def update_referee(
         Referee: The updated :class:`Referee`.
 
     Raises:
-        AuthenticationError: If the server returns 401 (the bearer is
-            missing, malformed, or expired -- run ``gamesheet-admin
-            login`` to refresh).
+        AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
+            ``gamesheet-admin login`` to refresh).
         GameSheetError: For any other non-2xx response.
     """
     # Fetch current referee data to get all fields
@@ -403,9 +394,8 @@ def delete_referee(
         referee_id (str): The referee identifier to delete.
 
     Raises:
-        AuthenticationError: If the server returns 401 (the bearer is
-            missing, malformed, or expired -- run ``gamesheet-admin
-            login`` to refresh).
+        AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
+            ``gamesheet-admin login`` to refresh).
         GameSheetError: For any other non-2xx response.
     """
     endpoint = f"/api/seasons/{season_id}/referees/{referee_id}"
@@ -443,9 +433,8 @@ def list_referees(session: Session, season_id: str) -> list[Referee]:
         season_id (str): The season identifier whose referees to list.
 
     Returns:
-        list[Referee]: A list of :class:`Referee`, in the order the
-        server returned them. The list may be empty if the season has no
-        referees.
+        list[Referee]: A list of :class:`Referee`, in the order the server returned them. The list may be
+            empty if the season has no referees.
     """
     endpoint = f"/api/seasons/{season_id}/referees"
     response = session.get(

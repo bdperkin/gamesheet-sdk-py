@@ -28,8 +28,7 @@ def _get_origin_from_state(state: dict[str, Any], origin_url: str) -> dict[str, 
         origin_url (str): The origin URL to search for.
 
     Returns:
-        dict[str, Any]: The origin dictionary containing localStorage
-        and other data.
+        dict[str, Any]: The origin dictionary containing localStorage and other data.
     """
     return next(o for o in state["origins"] if o["origin"] == origin_url)
 
@@ -38,12 +37,10 @@ def _get_localstorage_as_dict(origin: dict[str, Any]) -> dict[str, str]:
     """Convert Playwright localStorage array to a name-to-value dictionary.
 
     Args:
-        origin (dict[str, Any]): Origin dictionary from Playwright
-            browser state.
+        origin (dict[str, Any]): Origin dictionary from Playwright browser state.
 
     Returns:
-        dict[str, str]: Dictionary mapping localStorage item names to
-        their values.
+        dict[str, str]: Dictionary mapping localStorage item names to their values.
     """
     return {kv["name"]: kv["value"] for kv in origin["localStorage"]}
 

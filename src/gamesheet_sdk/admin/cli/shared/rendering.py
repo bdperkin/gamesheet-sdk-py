@@ -22,13 +22,10 @@ def render_get_command(
     """Render get command output (single object as key-value pairs).
 
     Args:
-        data (dict[str, Any] | BaseModel): The object to render (dict or
-            pydantic model)
-        output_format (str): Output format (json, yaml, csv, tsv, or
-            tabulate format)
+        data (dict[str, Any] | BaseModel): The object to render (dict or pydantic model)
+        output_format (str): Output format (json, yaml, csv, tsv, or tabulate format)
         output_path (str | None): Optional file path to write output to
-        fields_spec (str | None): Optional comma-separated field names
-            to include
+        fields_spec (str | None): Optional comma-separated field names to include
     """
     # Convert pydantic model to dict if needed
     if isinstance(data, BaseModel):
@@ -59,13 +56,10 @@ def render_list_command(
     """Render list command output (table of objects).
 
     Args:
-        items (list[Any]): List of objects to render (dicts or pydantic
-            models)
-        output_format (str): Output format (json, yaml, csv, tsv, or
-            tabulate format)
+        items (list[Any]): List of objects to render (dicts or pydantic models)
+        output_format (str): Output format (json, yaml, csv, tsv, or tabulate format)
         output_path (str | None): Optional file path to write output to
-        columns_spec (str | None): Optional comma-separated column names
-            to include
+        columns_spec (str | None): Optional comma-separated column names to include
     """
     # Convert pydantic models to dicts
     rows = [item.model_dump(mode="json") if hasattr(item, "model_dump") else item for item in items]

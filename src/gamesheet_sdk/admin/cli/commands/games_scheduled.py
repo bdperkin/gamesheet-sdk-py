@@ -71,7 +71,7 @@ def scheduled_get_command(
     output_path: str | None,
     fields_spec: str | None,
 ) -> None:
-    """Get detailed information about a scheduled game.
+    r"""Get detailed information about a scheduled game.
 
     Uses the JSON:API /api/seasons/{id}/schedule/{game_id} endpoint for richer structured data.\f
 
@@ -80,8 +80,7 @@ def scheduled_get_command(
         game_id (str): The game identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        fields_spec (str | None): Optional comma-separated list of
-            fields to display
+        fields_spec (str | None): Optional comma-separated list of fields to display
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
@@ -101,7 +100,7 @@ def scheduled_list_command(
     output_path: str | None,
     columns_spec: str | None,
 ) -> None:
-    """List all scheduled games in the specified season.
+    r"""List all scheduled games in the specified season.
 
     Requires authentication (run 'gamesheet-admin login' first).\f
 
@@ -109,8 +108,7 @@ def scheduled_list_command(
         ctx (Context): Click context object containing config
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        columns_spec (str | None): Optional comma-separated list of
-            columns to display
+        columns_spec (str | None): Optional comma-separated list of columns to display
     """
     # Extract config and season_id from context (set by games_group)
     # ctx.obj is always a dict set by games_group with "config" and "season_id" keys
@@ -288,18 +286,16 @@ def scheduled_create_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Create a new scheduled game.
+    r"""Create a new scheduled game.
 
-    Requires authentication (run 'gamesheet-admin login' first). Provide any two of
-    ``--start-datetime`` (or ``--start-date`` + ``--start-time``), ``--end-datetime``
-    (or ``--end-date`` + ``--end-time``), and ``--duration`` to automatically calculate
-    the third. If time zone options are not specified, they default to the local system
-    timezone.\f
+    Requires authentication (run 'gamesheet-admin login' first). Provide any two of ``--start-datetime`` (or
+    ``--start-date`` + ``--start-time``), ``--end-datetime`` (or ``--end-date`` + ``--end-time``), and
+    ``--duration`` to automatically calculate the third. If time zone options are not specified, they default
+    to the local system timezone.\f
 
     Args:
         ctx (Context): Click context object containing config
-        start_datetime (str | None): Start date and time (flexible
-            format)
+        start_datetime (str | None): Start date and time (flexible format)
         end_datetime (str | None): End date and time (flexible format)
         start_date (str | None): Start date component
         start_time_str (str | None): Start time component
@@ -314,10 +310,8 @@ def scheduled_create_command(
         scorekeeper_name (str): Scorekeeper's full name
         scorekeeper_phone (str): Scorekeeper's phone number
         game_type (str): Game type
-        time_zone_name (str | None): IANA time zone name (optional,
-            defaults to system)
-        time_zone_offset (int | None): Time zone offset in minutes
-            (optional, defaults to system)
+        time_zone_name (str | None): IANA time zone name (optional, defaults to system)
+        time_zone_offset (int | None): Time zone offset in minutes (optional, defaults to system)
         number (str): Game number
         broadcaster (str): Broadcast provider name
         home_label (str): Home team label override
@@ -537,19 +531,17 @@ def scheduled_update_command(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Update a scheduled game.
+    r"""Update a scheduled game.
 
     Requires authentication (run 'gamesheet-admin login' first). Only specified fields are updated;
-    unspecified fields retain their current values. You may provide any combination of
-    ``--start-datetime`` (or ``--start-date`` + ``--start-time``), ``--end-datetime``
-    (or ``--end-date`` + ``--end-time``), and ``--duration`` to automatically calculate
-    missing time fields.\f
+    unspecified fields retain their current values. You may provide any combination of ``--start-datetime``
+    (or ``--start-date`` + ``--start-time``), ``--end-datetime`` (or ``--end-date`` + ``--end-time``), and
+    ``--duration`` to automatically calculate missing time fields.\f
 
     Args:
         ctx (Context): Click context object containing config
         game_id (str): Game identifier
-        start_datetime (str | None): Start date and time (flexible
-            format)
+        start_datetime (str | None): Start date and time (flexible format)
         end_datetime (str | None): End date and time (flexible format)
         start_date (str | None): Start date component
         start_time_str (str | None): Start time component
@@ -559,8 +551,7 @@ def scheduled_update_command(
         home_team_id (str | None): Home team identifier
         home_division_id (str | None): Home team division identifier
         visitor_team_id (str | None): Visitor team identifier
-        visitor_division_id (str | None): Visitor team division
-            identifier
+        visitor_division_id (str | None): Visitor team division identifier
         location (str | None): Game location/venue
         scorekeeper_name (str | None): Scorekeeper's full name
         scorekeeper_phone (str | None): Scorekeeper's phone number
@@ -645,7 +636,7 @@ def scheduled_delete_command(
     ctx: Context,
     game_id: str,
 ) -> None:
-    """Delete a scheduled game.
+    r"""Delete a scheduled game.
 
     Requires authentication (run 'gamesheet-admin login' first). This operation is destructive and requires
     confirmation unless --force is specified.\f

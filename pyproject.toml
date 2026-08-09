@@ -441,13 +441,13 @@ extend-ignore = [
 # ``--ignore`` and ``--select`` options.
 per-file-ignores = [
   "docs/*:INP001",
-  "tests/admin/*:DOC",
-  "tests/cli/*:DOC,SF01",
-  "tests/common/*:DOC",
-  "tests/helpers/*:DOC",
-  "tests/integration/*:DOC,SF01",
-  "tests/teams/*:DOC",
-  "tests/unit/*:DOC",
+  "tests/admin/*:DOC101,DOC103,DOC201,DOC203",
+  "tests/cli/*:DOC101,DOC103,DOC201,DOC203,SF01",
+  "tests/common/*:DOC101,DOC103,DOC201,DOC203",
+  "tests/helpers/*:DOC101,DOC103",
+  "tests/integration/*:DOC101,DOC103,SF01",
+  "tests/teams/*:DOC101,DOC103,DOC201,DOC203",
+  "tests/unit/*:DOC101,DOC103,DOC201,DOC203",
   "tools/*:INP001",
 ]
 # Maximum allowed line length for the entirety of this run. (Default: 79).
@@ -865,6 +865,8 @@ main.py-version = "3.11"
 # root.
 # source-roots =
 main.source-roots = [
+  # Deliberately no "tests" entry: the test modules import each other as
+  # tests.helpers.*, so tests/ must stay a package rather than a source root.
   "src",
   "tools",
 ]
@@ -1529,11 +1531,16 @@ overrides = [
 [tool.pyrefly]
 python_version = "3.11"
 project-includes = [
+  "docs",
   "src",
   "tests",
+  "tools",
 ]
 search-path = [
+  "docs",
   "src",
+  "tests",
+  "tools",
   ".",
 ]
 
@@ -1554,6 +1561,7 @@ include = [
   "docs",
   "src",
   "tests",
+  "tools",
 ]
 # Directories or files to exclude from type checking.
 exclude = [
@@ -1566,7 +1574,10 @@ exclude = [
 ignore = []
 extraPaths = [
   ".",
+  "docs",
   "src",
+  "tests",
+  "tools",
 ]
 reportGeneralTypeIssues = "error"
 # Override specific rules.
@@ -1682,6 +1693,17 @@ tag = true
 # production publish.
 upload_to_pypi = false
 upload_to_release = false
+
+## ## format-docstring - Formatter for docstring line wrapping in Python files
+[tool.format_docstring]
+docstring_style = "google"
+line_length = 110
+fix_rst_backticks = true
+include_arg_types = true
+include_arg_defaults = false
+include_return_and_yield_types = true
+exclude = ".git|.tox|.pytest_cache"
+verbose = "diff"
 
 [tool.mypy-pydantic]
 init_forbid_extra = true

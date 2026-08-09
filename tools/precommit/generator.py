@@ -105,8 +105,7 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
         6. Final validation
 
         Args:
-            run_config (RunConfig): Runtime configuration for the
-                generation pipeline.
+            run_config (RunConfig): Runtime configuration for the generation pipeline.
     """
 
     def __init__(self: PreCommitGenerator, run_config: RunConfig) -> None:  # noqa: DOC101, DOC103
@@ -127,10 +126,10 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
         """Validate a raw config dict into a ToolConfig model.
 
         Args:
-            raw: Parsed and merged configuration dictionary.
+            raw (dict[str, Any]): Parsed and merged configuration dictionary.
 
         Returns:
-            Validated ToolConfig instance.
+            ToolConfig: Validated ToolConfig instance.
 
         Raises:
             ConfigError: If the configuration data fails validation.
@@ -432,8 +431,8 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
         """Validate a repo, attempting older revisions on failure.
 
         Raises:
-            PreCommitValidationError: If validation fails and downgrade is
-                not possible or all candidates are exhausted.
+            PreCommitValidationError: If validation fails and downgrade is not possible or all candidates are
+                exhausted.
         """
         try:
             self._render_and_validate(

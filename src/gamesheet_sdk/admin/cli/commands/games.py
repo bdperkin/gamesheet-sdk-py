@@ -36,7 +36,7 @@ from gamesheet_sdk.common.cli.core import ResourceGroup
 )
 @click.pass_context
 def games_group(ctx: Context, season_id: str) -> None:
-    """Manage games (scheduled, completed, brackets) within a season.
+    r"""Manage games (scheduled, completed, brackets) within a season.
 
     Invoking ``games`` with no sub-command runs ``scheduled`` by default. The --season-id option is required
     and applies to all sub-commands.\f

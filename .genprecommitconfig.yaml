@@ -6,6 +6,7 @@
 
 globals:
   blacklisted_hooks:
+    - black-jupyter
     - blank-line-after-blocks-jupyter
     - check-byte-order-marker
     - check-symlinks
@@ -14,6 +15,7 @@ globals:
     - editorconfig-checker-system
     - fix-encoding-pragma
     - forbid-new-submodules
+    - format-docstring-jupyter
     - requirements-txt-fixer
     - sort-simple-yaml
 
@@ -240,6 +242,9 @@ categories:
             overrides:
               pass_filenames: false
 
+      - name: format-docstring
+        repo: https://github.com/jsh9/format-docstring
+
       - name: pydoclint
         repo: https://github.com/jsh9/pydoclint
 
@@ -297,7 +302,9 @@ categories:
           - id: pyrefly-check
             appends:
               additional_dependencies:
-                - gamesheet-sdk-py[pyrefly]
+                - gamesheet-sdk-py[dev,pyrefly,tools]
+                # Drop once a release ships yamlfix in the published tools extra.
+                - yamlfix==1.19.1
 
   security-_metrics_-_complexity:
     description: Security, Metrics & Complexity

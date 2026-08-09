@@ -81,10 +81,10 @@ def vcr_config() -> dict[str, object]:
 
 @pytest.fixture(scope="session")
 def browser_type_launch_args() -> dict[str, object]:
-    """Defaults for the pytest-playwright `browser` fixture.
+    """Defaults for the pytest-playwright ``browser`` fixture.
 
-    Tests opt in to a real browser by adding @pytest.mark.browser and requesting the `page` / `context` /
-    `browser` fixtures from pytest-playwright. They are skipped via `pytest -m 'not browser'`.
+    Tests opt in to a real browser by adding @pytest.mark.browser and requesting the ``page`` / ``context`` /
+    ``browser`` fixtures from pytest-playwright. They are skipped via ``pytest -m 'not browser'``.
 
     Returns:
         dict[str, object]: Dictionary of results.

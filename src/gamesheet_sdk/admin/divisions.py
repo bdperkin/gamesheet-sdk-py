@@ -33,19 +33,18 @@ _ENDPOINT = "/api/divisions"
 class Division(BaseModel):
     """A single division.
 
-    Maps the ``data[*]`` items in the JSON:API response of ``GET /api/divisions?season_id={id}`` to a flat
+    Maps the ``data[*]`` items in the JSON: API response of ``GET /api/divisions?season_id={id}`` to a flat
     typed model.
 
     Attributes:
-        id: Division identifier (string in JSON:API).
-        season_id: Parent season identifier.
-        title: Display name of the division.
-        external_id: External identifier for integration with third-
-            party systems.
-        team_count: Number of teams in this division (populated when
-            fetched with include_team_counts=True).
-        created_at: When the division was created.
-        updated_at: Last time the division was updated.
+        id (str): Division identifier (string in JSON:API).
+        season_id (str): Parent season identifier.
+        title (str): Display name of the division.
+        external_id (str | None): External identifier for integration with third- party systems.
+        team_count (int | None): Number of teams in this division (populated when fetched with
+            include_team_counts=True).
+        created_at (datetime): When the division was created.
+        updated_at (datetime): Last time the division was updated.
     """
 
     id: str = Field(description="Division identifier (string in JSON:API).")
@@ -69,8 +68,7 @@ def _parse(item: dict[str, Any]) -> Division:
     """Flatten a JSON:API resource object into a :class:`Division`.
 
     Args:
-        item (dict[str, Any]): A JSON:API resource object with ``id``
-            and ``attributes`` keys.
+        item (dict[str, Any]): A JSON:API resource object with ``id`` and ``attributes`` keys.
 
     Returns:
         Division: Parsed Division model instance.
@@ -90,9 +88,8 @@ def list_division_teams(session: Session, division_id: str) -> list[Team]:
         division_id (str): The division identifier whose teams to list.
 
     Returns:
-        list[Team]: A list of :class:`Team`, in the order the server
-        returned them. The list may be empty if the division has no
-        teams.
+        list[Team]: A list of :class:`Team`, in the order the server returned them. The list may be empty if
+            the division has no teams.
     """
     from gamesheet_sdk.admin.teams import _parse as parse_team
 
@@ -137,9 +134,8 @@ def get_division(
     Args:
         session (Session): An authenticated :class:`Session`.
         division_id (str): The division identifier to retrieve.
-        include_team_count (bool): If ``True`` (default), fetch and
-            populate ``team_count`` for the division (requires an
-            additional API call).
+        include_team_count (bool): If ``True`` (default), fetch and populate ``team_count`` for the division
+            (requires an additional API call).
 
     Returns:
         Division: The requested Division model instance.
@@ -172,22 +168,19 @@ def list_divisions(
     The supplied :class:`Session` must already carry a bearer token (e.g. via
     :meth:`Session.set_bearer_token`); the call is otherwise unauthenticated and will 401.
 
-    Note:
-        The GameSheet API returns all divisions, so this function filters client-side to only
-        include divisions that belong to the specified season (via the
-        ``relationships.season.data.id`` field).
+    Notes:
+        The GameSheet API returns all divisions, so this function filters client-side to only include
+        divisions that belong to the specified season (via the ``relationships.season.data.id`` field).
 
     Args:
         session (Session): An authenticated :class:`Session`.
         season_id (str): The season identifier whose divisions to list.
-        include_team_counts (bool): If ``True``, fetch and populate
-            ``team_count`` for each division (requires an additional API
-            call per division).
+        include_team_counts (bool): If ``True``, fetch and populate ``team_count`` for each division (requires
+            an additional API call per division).
 
     Returns:
-        list[Division]: A list of :class:`Division`, in the order the
-        server returned them. The list may be empty if the season has no
-        divisions.
+        list[Division]: A list of :class:`Division`, in the order the server returned them. The list may be
+            empty if the season has no divisions.
 
     Raises:
         AuthenticationError: If the server returns 401.
@@ -222,12 +215,10 @@ def create_division(
 
     Args:
         session (Session): An authenticated :class:`Session`.
-        season_id (str): The season identifier in which to create the
-            division.
+        season_id (str): The season identifier in which to create the division.
         title (str): The display name of the division.
-        external_id (str | None): Optional external identifier for
-            integration with third-party systems. If not provided, a
-            UUID will be generated automatically.
+        external_id (str | None): Optional external identifier for integration with third-party systems. If
+            not provided, a UUID will be generated automatically.
 
     Returns:
         Division: The newly created Division model instance.

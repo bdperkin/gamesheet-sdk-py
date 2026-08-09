@@ -24,11 +24,11 @@ def _build_raw_url(repo_url: str, rev: str) -> str:
     """Build a raw content URL for .pre-commit-hooks.yaml.
 
     Args:
-        repo_url: Repository URL.
-        rev: Git revision.
+        repo_url (str): Repository URL.
+        rev (str): Git revision.
 
     Returns:
-        URL to the raw .pre-commit-hooks.yaml file.
+        str: URL to the raw .pre-commit-hooks.yaml file.
 
     Raises:
         FetchError: If the repository host is not supported.
@@ -55,13 +55,12 @@ def _parse_hooks_yaml(
     """Parse YAML hook definitions from raw response content.
 
     Args:
-        content: Raw response body bytes.
-        raw_url: URL the content was fetched from (used in error
-            messages).
-        response_text: Response text preview (used in error messages).
+        content (bytes): Raw response body bytes.
+        raw_url (str): URL the content was fetched from (used in error messages).
+        response_text (str): Response text preview (used in error messages).
 
     Returns:
-        Parsed list of hook definition dicts.
+        list[dict[str, Any]]: Parsed list of hook definition dicts.
 
     Raises:
         FetchError: If the YAML is unparseable or not a list.
@@ -92,16 +91,13 @@ def fetch_hooks(
     Args:
         repo_url (str): Repository URL (GitHub or GitLab).
         rev (str): Git revision (tag or commit hash).
-        pip_config (PipConfig | None): Optional pip configuration for
-            SSL settings.
+        pip_config (PipConfig | None): Optional pip configuration for SSL settings.
 
     Returns:
-        list[dict[str, Any]]: List of hook definition dicts parsed from
-        the YAML.
+        list[dict[str, Any]]: List of hook definition dicts parsed from the YAML.
 
     Raises:
-        FetchError: If the URL cannot be determined, the request fails,
-            or the YAML is unparseable.
+        FetchError: If the URL cannot be determined, the request fails, or the YAML is unparseable.
     """
     raw_url = _build_raw_url(repo_url, rev)
     logger.debug("Fetching hooks from %s", raw_url)
