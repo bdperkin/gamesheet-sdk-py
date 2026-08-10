@@ -40,6 +40,7 @@ ci:
     - pyroma
     - semgrep
     - semgrep-ci
+    - uv-lock
     - yesqa
 
 categories:
