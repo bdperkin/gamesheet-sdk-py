@@ -95,6 +95,7 @@ categories:
 
       - name: uv-pre-commit
         repo: https://github.com/astral-sh/uv-pre-commit
+        rev: installed
         hooks:
           - id: uv-audit
             overrides:
@@ -147,8 +148,6 @@ categories:
         repo: https://github.com/hukkin/mdformat
         hooks:
           - id: mdformat
-            overrides:
-              language_version: python3.13
             appends:
               additional_dependencies:
                 - gamesheet-sdk-py[mdformat]

@@ -25,7 +25,6 @@ TOOL_MAPPING: dict[str, str] = {
     "black": "https://github.com/psf/black-pre-commit-mirror",
     "editorconfig-checker": "https://github.com/editorconfig-checker/editorconfig-checker.python",
     "mypy": "https://github.com/pre-commit/mirrors-mypy",
-    "pre-commit-uv": "https://github.com/astral-sh/uv-pre-commit",
     "pymarkdownlnt": "https://github.com/jackdewinter/pymarkdown",
     "pyrefly": "https://github.com/facebook/pyrefly-pre-commit",
     "pyright": "https://github.com/robertcraigie/pyright-python",

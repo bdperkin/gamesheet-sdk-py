@@ -110,7 +110,7 @@ optional-dependencies.deptry = [
 ]
 optional-dependencies.dev = [
   "pre-commit==4.6.1",
-  "pre-commit-uv",
+  "pre-commit-uv==4.3.0",
   "uv==0.12.3",
 ]
 optional-dependencies.docformatter = [
@@ -1788,12 +1788,6 @@ stack-trace = false
 ## ## mdformat - Markdown formatter
 [tool.mdformat]
 end_of_line = "lf"
-exclude = [
-  "docs/_build/**",
-  ".local/**",
-  ".pytest_cache/**",
-  ".venv/**",
-]
 number = true
 validate = true
 wrap = 160

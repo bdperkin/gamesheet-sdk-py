@@ -585,7 +585,6 @@ repos:
         types:
           - markdown
         minimum_pre_commit_version: 1.0.0
-        language_version: python3.13
         additional_dependencies:
           - gamesheet-sdk-py[mdformat]
 
