@@ -1073,7 +1073,7 @@ repos:
           - pyi
         require_serial: true
         additional_dependencies:
-          - gamesheet-sdk-py[pyright]
+          - gamesheet-sdk-py[pyright,tools]
         minimum_pre_commit_version: 2.9.2
 
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -1093,7 +1093,7 @@ repos:
           - --scripts-are-modules
         require_serial: true
         additional_dependencies:
-          - gamesheet-sdk-py[mypy]
+          - gamesheet-sdk-py[mypy,tools]
         minimum_pre_commit_version: 2.9.2
         exclude: ^tools/(syncdeps|genprecommitconfig)$
 
