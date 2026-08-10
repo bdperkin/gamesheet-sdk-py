@@ -236,10 +236,10 @@ optional-dependencies.refurb = [
   "refurb==2.3.1",
 ]
 optional-dependencies.release = [
-  "python-semantic-release==9.21.0",
+  "python-semantic-release==10.6.1",
 ]
 optional-dependencies.semantic-release = [
-  "python-semantic-release==9.21.0",
+  "python-semantic-release==10.6.1",
 ]
 optional-dependencies.semgrep = [
   "semgrep==1.172.0",
