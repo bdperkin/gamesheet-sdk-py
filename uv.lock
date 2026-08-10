@@ -838,9 +838,9 @@ wheels = [
 
 [[package]]
 name = "editorconfig-checker"
-version = "3.8.0"
+version = "3.11.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ab/c2/c339599dc6bdf9fdd3eb21789ddd979d7cf38b46925e358fe7868fb8e44b/editorconfig_checker-3.8.0.tar.gz", hash = "sha256:aad0e967cf9e72399ff862188e36b43dbfc480918c36e21d2751dd0e32b1e6fb", size = 4771, upload-time = "2026-08-02T14:25:47.861Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c3/2d/d19e303795e994d02864b1ecbeefcecc125ba3a04a3458b4478f597fd0eb/editorconfig_checker-3.11.1.tar.gz", hash = "sha256:043b5ae504bc2e6d4497ac4e3058f143339eb3cffd56abb7a215c44ebfd73a1b", size = 4763, upload-time = "2026-08-10T20:05:33.484Z" }
 
 [[package]]
 name = "eradicate"
@@ -1331,7 +1331,7 @@ wheels = [
 
 [[package]]
 name = "gamesheet-sdk-py"
-version = "0.4.16"
+version = "0.4.17"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
@@ -1915,7 +1915,7 @@ requires-dist = [
     { name = "colorlog", specifier = "==6.12.0" },
     { name = "deptry", marker = "extra == 'deptry'", specifier = "==0.25.1" },
     { name = "docformatter", marker = "extra == 'docformatter'", specifier = "==1.7.8" },
-    { name = "editorconfig-checker", marker = "extra == 'editorconfig-checker'", specifier = "==3.8.0" },
+    { name = "editorconfig-checker", marker = "extra == 'editorconfig-checker'", specifier = "==3.11.1" },
     { name = "eradicate", marker = "extra == 'flake8-plugins'", specifier = "==3.0.1" },
     { name = "fastapi", marker = "extra == 'flake8-plugins'", specifier = "==0.141.1" },
     { name = "flake8-2020", marker = "extra == 'flake8-plugins'", specifier = "==1.8.1" },
@@ -1976,7 +1976,7 @@ requires-dist = [
     { name = "packaging", marker = "extra == 'tools'", specifier = "==26.3" },
     { name = "pep8-naming", marker = "extra == 'flake8-plugins'", specifier = "==0.15.1" },
     { name = "playwright", specifier = "==1.62.0" },
-    { name = "pre-commit", marker = "extra == 'dev'", specifier = "==4.6.1" },
+    { name = "pre-commit", marker = "extra == 'dev'", specifier = "==4.6.2" },
     { name = "pre-commit-uv", marker = "extra == 'dev'", specifier = "==4.3.0" },
     { name = "pydantic", specifier = "==2.13.4" },
     { name = "pydantic-settings", specifier = "==2.15.0" },
@@ -3035,7 +3035,7 @@ wheels = [
 
 [[package]]
 name = "pre-commit"
-version = "4.6.1"
+version = "4.6.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cfgv" },
@@ -3044,9 +3044,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "virtualenv" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/25/3a/ddb78f32a0814e66b18a099377a106a2dcdce92d86a034d69d65df9b256e/pre_commit-4.6.1.tar.gz", hash = "sha256:03e809865c7d178b9979d06c761fcbfe6808fdaded8581a745bb110e52050421", size = 198646, upload-time = "2026-07-21T20:56:58.225Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/74/89/1f3e8e1fc3e97de0fa963495832f581f025f29471602a309e48808244292/pre_commit-4.6.2.tar.gz", hash = "sha256:8f5d7bfb021ecdbcd9d49d89847082dd24172ccde534390081a679ad046e2441", size = 198670, upload-time = "2026-08-10T22:07:18.421Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fb/49/bc925106abcdac498074f2cbe6137e94e09f418dd2b7775df5b577dc0313/pre_commit-4.6.1-py2.py3-none-any.whl", hash = "sha256:0e3b2942510d1fb34eec167a3ec57331bf8442122f1153a9fb8b58f5c49b2717", size = 226186, upload-time = "2026-07-21T20:56:57.064Z" },
+    { url = "https://files.pythonhosted.org/packages/45/e2/bbb7129c9e7999a6b8ee9cca3b66486c25c423ab5a75f34071798b74ce94/pre_commit-4.6.2-py2.py3-none-any.whl", hash = "sha256:e2dde9a75d3bce11bd3831c26d134df00a2803c1d818be6a0383c3dcda25dc4e", size = 226202, upload-time = "2026-08-10T22:07:16.942Z" },
 ]
 
 [[package]]
