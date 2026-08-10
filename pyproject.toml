@@ -88,7 +88,7 @@ optional-dependencies.bandit = [
   "bandit==1.9.4",
 ]
 optional-dependencies.black = [
-  "black==25.12.0",
+  "black==26.5.1",
 ]
 optional-dependencies.blacken-docs = [
   "blacken-docs==1.20.0",
@@ -304,7 +304,6 @@ optional-dependencies.type-stubs = [
   "types-urllib3==1.26.25.14",
 ]
 optional-dependencies.unimport = [
-  "setuptools==84.0.0",
   "unimport==0.11.1",
 ]
 optional-dependencies.validate-pyproject = [
