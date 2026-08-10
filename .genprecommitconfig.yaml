@@ -352,7 +352,7 @@ categories:
           - id: pyright
             appends:
               additional_dependencies:
-                - gamesheet-sdk-py[pyright]
+                - gamesheet-sdk-py[pyright,tools]
 
       - name: mirrors-mypy
         repo: https://github.com/pre-commit/mirrors-mypy
@@ -365,7 +365,7 @@ categories:
                 - --strict
             appends:
               additional_dependencies:
-                - gamesheet-sdk-py[mypy]
+                - gamesheet-sdk-py[mypy,tools]
 
   pre-commit-hook-sync:
     description: Pre-Commit Hook Sync
