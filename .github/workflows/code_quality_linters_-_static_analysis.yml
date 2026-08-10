@@ -70,16 +70,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run blocklint via tox
-        run: tox -e blocklint
+          enable-cache: true
+      - name: Run blocklint via uv
+        run: uv run --extra blocklint blocklint .
 
   flake8:
     name: flake8 (py${{ matrix.python-version }})
@@ -96,16 +93,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run flake8 via tox
-        run: tox -e flake8
+          enable-cache: true
+      - name: Run flake8 via uv
+        run: uv run --extra flake8 flake8 .
 
   refurb:
     name: refurb (py${{ matrix.python-version }})
@@ -122,16 +116,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run refurb via tox
-        run: tox -e refurb
+          enable-cache: true
+      - name: Run refurb via uv
+        run: uv run --extra refurb refurb .
 
   pylint:
     name: pylint (py${{ matrix.python-version }})
@@ -148,16 +139,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run pylint via tox
-        run: tox -e pylint
+          enable-cache: true
+      - name: Run pylint via uv
+        run: uv run --extra pylint pylint src/ tests/ tools/
 
   pyrefly:
     name: pyrefly (py${{ matrix.python-version }})
@@ -174,13 +162,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run pyrefly via tox
-        run: tox -e pyrefly
+          enable-cache: true
+      - name: Run pyrefly via uv
+        run: uv run --extra pyrefly pyrefly check

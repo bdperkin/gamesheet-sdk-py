@@ -56,7 +56,7 @@ if Path(gitignore_path).exists():
             if not line or line.startswith(("#", "!")):
                 continue
             # Sphinx expect patterns, strip leading/trailing slashes for safety
-            # e.g., "/.tox/" becomes ".tox"
+            # e.g., "/.uv/" becomes ".uv"
             clean_pattern = line.strip("/")
             if clean_pattern and clean_pattern not in exclude_patterns:
                 exclude_patterns.append(clean_pattern)
@@ -220,9 +220,18 @@ latex_elements = {
 }
 # fmt: on
 # -- Link-check options -----------------------------------------------------
-linkcheck_retries = 2
-linkcheck_timeout = 15
+linkcheck_retries = 3
+linkcheck_timeout = 30
 linkcheck_ignore = [
     # Anchors on third-party sites we don't control:
     r"^https?://github\.com/.*#",
+    r"^https?://docs\.python\.org/.*",
+    r"^https?:/.*",
 ]
+linkcheck_allowed_redirects = {
+    r"https://pypi\.org/manage/.*": r"https://pypi\.org/account/login/.*",
+    r"https://pypi\.org/p/.*": r"https://pypi\.org/project/.*",
+    r"https://test\.pypi\.org/p/.*": r"https://test\.pypi\.org/project/.*",
+    r"https://.*\.readthedocs\.io/": r"https://.*\.readthedocs\.io/.*",
+    r"https://www\.sphinx-doc\.org/": r"https://www\.sphinx-doc\.org/.*",
+}

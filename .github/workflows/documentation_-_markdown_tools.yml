@@ -64,16 +64,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run pymarkdown via tox
-        run: tox -e pymarkdown
+          enable-cache: true
+      - name: Run pymarkdown via uv
+        run: uv run --extra pymarkdown pymarkdown --config pyproject.toml scan $(git ls-files '*.md')
 
   mdformat:
     name: mdformat
@@ -82,13 +79,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python 3.13
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: "3.13"
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run mdformat via tox
-        run: tox -e mdformat
+          enable-cache: true
+      - name: Run mdformat via uv
+        run: uv run --extra mdformat mdformat --check docs/ README.md CONTRIBUTING.md

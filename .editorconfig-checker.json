@@ -6,7 +6,7 @@
     "\\.pytest_cache",
     "\\.mypy_cache",
     "\\.ruff_cache",
-    "\\.tox",
+    "\\.uv",
     "__pycache__",
     "node_modules",
     "docs/_build",

@@ -63,16 +63,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run codespell via tox
-        run: tox -e codespell
+          enable-cache: true
+      - name: Run codespell via uv
+        run: uv run --extra codespell codespell
 
   blacken-docs:
     name: blacken-docs (py${{ matrix.python-version }})
@@ -89,16 +86,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run blacken-docs via tox
-        run: tox -e blacken-docs
+          enable-cache: true
+      - name: Run blacken-docs via uv
+        run: uv run --extra blacken-docs blacken-docs --target-version py311 $(git ls-files '*.md' '*.rst')
 
   docformatter:
     name: docformatter (py${{ matrix.python-version }})
@@ -115,16 +109,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run docformatter via tox
-        run: tox -e docformatter
+          enable-cache: true
+      - name: Run docformatter via uv
+        run: uv run --extra docformatter docformatter --check --recursive src/ tests/ tools/
 
   interrogate:
     name: interrogate (py${{ matrix.python-version }})
@@ -141,16 +132,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run interrogate via tox
-        run: tox -e interrogate
+          enable-cache: true
+      - name: Run interrogate via uv
+        run: uv run --extra interrogate interrogate src/
 
   pydocstyle:
     name: pydocstyle (py${{ matrix.python-version }})
@@ -167,13 +155,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run pydocstyle via tox
-        run: tox -e pydocstyle
+          enable-cache: true
+      - name: Run pydocstyle via uv
+        run: uv run --extra pydocstyle pydocstyle src/

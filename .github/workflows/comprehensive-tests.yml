@@ -113,27 +113,14 @@ jobs:
         with:
           fetch-depth: 0 # Full history for comprehensive testing
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Cache tool directories
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          key: >-
-            tools-${{ runner.os }}-py${{ matrix.python-version }}-
-            ${{ hashFiles('src/**/*.py', 'tests/**/*.py') }}
-          path: |
-            .pytest_cache
-            .mypy_cache
-          restore-keys: |
-            tools-${{ runner.os }}-py${{ matrix.python-version }}-
-            tools-${{ runner.os }}-
-      - name: Install dependencies
-        run: pip install -e ".[pytest]"
+          enable-cache: true
       - name: Run full test suite
         run: |
-          pytest -v --cov --cov-report=xml --cov-report=term
+          uv run --extra pytest pytest -v --cov --cov-report=xml --cov-report=term
       - name: Compute Codecov per-version flag
         id: pyflag
         if: success()

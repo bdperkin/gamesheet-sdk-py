@@ -390,7 +390,7 @@ uses integer IDs, teams may use UUIDs). Splitting the codebase into `common/`, `
 - Prevents accidentally importing from source instead of installed version
 - Clear separation between source and tests
 
-**Trade-off**: Slightly more setup (need `pip install -e .`), but worth it for packaging correctness.
+**Trade-off**: Slightly more setup (need `uv sync`), but worth it for packaging correctness.
 
 ### 4.6. Why 100% Test Coverage?
 

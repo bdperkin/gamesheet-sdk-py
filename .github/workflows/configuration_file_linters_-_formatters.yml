@@ -69,16 +69,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run editorconfig-checker via tox
-        run: tox -e editorconfig-checker
+          enable-cache: true
+      - name: Run editorconfig-checker via uv
+        run: uv run --extra editorconfig-checker ec
 
   yamllint:
     name: yamllint (py${{ matrix.python-version }})
@@ -95,42 +92,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run yamllint via tox
-        run: tox -e yamllint
-
-  tox-ini-fmt:
-    name: tox-ini-fmt (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
-          python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run tox-ini-fmt via tox
-        run: tox -e tox-ini-fmt
+          enable-cache: true
+      - name: Run yamllint via uv
+        run: uv run --extra yamllint yamllint -d relaxed .
 
   pyproject-fmt:
     name: pyproject-fmt (py${{ matrix.python-version }})
@@ -147,16 +115,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run pyproject-fmt via tox
-        run: tox -e pyproject-fmt
+          enable-cache: true
+      - name: Run pyproject-fmt via uv
+        run: uv run --extra pyproject-fmt pyproject-fmt --check pyproject.toml
 
   validate-pyproject:
     name: validate-pyproject (py${{ matrix.python-version }})
@@ -173,16 +138,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run validate-pyproject via tox
-        run: tox -e validate-pyproject
+          enable-cache: true
+      - name: Run validate-pyproject via uv
+        run: uv run --extra validate-pyproject validate-pyproject pyproject.toml
 
   pyroma:
     name: pyroma (py${{ matrix.python-version }})
@@ -199,13 +161,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run pyroma via tox
-        run: tox -e pyroma
+          enable-cache: true
+      - name: Run pyroma via uv
+        run: uv run --extra pyroma pyroma .

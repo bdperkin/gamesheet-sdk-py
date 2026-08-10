@@ -84,7 +84,7 @@ Every workflow explicitly defines a `permissions:` block at the workflow or job 
 - Credential exposure in workflow files
 - Dangerous workflow patterns
 
-**Installation:** Via `pipx` for reproducible tool versioning
+**Installation:** Via `uv tool` for reproducible tool versioning
 
 ### 3.3. OSV Scanner (`osv-scanner.yml`)
 
@@ -180,6 +180,7 @@ All actions are SHA-pinned. The following table maps SHAs to version tags for re
 | `actions/checkout`                  | `3d3c42e`           | v7.0.1      | `3d3c42e5aac5ba805825da76410c181273ba90b1` |
 | `actions/setup-python`              | `5fda3b9`           | v7.0.0      | `5fda3b95a4ea91299a34e894583c3862153e4b97` |
 | `actions/upload-artifact`           | `043fb46`           | v7.0.1      | `043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` |
+| `astral-sh/setup-uv`                | `1edb525`           | v5.3.0      | `1edb52594c857e2b5b13128931090f0640537287` |
 | `github/codeql-action/upload-sarif` | `f205ea1`           | v4.37.4     | `f205ea1c3313d32999d8d6a48b4f6530d4437b38` |
 | `GitGuardian/ggshield-action`       | `2002482`           | v1.53.0     | `2002482fb5990b486be5598ebcf48a8eba393fce` |
 

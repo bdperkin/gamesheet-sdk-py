@@ -90,7 +90,7 @@ $ git push origin vX.Y.Z
 
 This triggers `.github/workflows/release.yml`, which:
 
-- Builds an sdist and a wheel via `python -m build`.
+- Builds an sdist and a wheel via `uv build`.
 - Verifies the built wheel's version matches the tag name.
 - Publishes both artifacts to PyPI via Trusted Publishing (OIDC; no tokens leave the runner).
 - Creates a GitHub Release with notes auto-generated from the commit history since the previous tag, and attaches the sdist + wheel as release assets.
@@ -104,7 +104,7 @@ $ gh run watch
 ## 6. Step 5 — Confirm the release landed on PyPI
 
 ```console
-$ pip index versions gamesheet-sdk-py
+$ uv pip index versions gamesheet-sdk-py
 ```
 
 ## 7. What happens to the version on `main` after the release
@@ -143,13 +143,13 @@ Examples:
 - `v0.2.0rc1` — release candidate 1
 
 The workflow and PyPI treat these identically to stable releases, but pip's dependency resolver will not select pre-release versions unless explicitly requested
-(`pip install gamesheet-sdk-py==0.2.0a1`) or the user opts in to pre-releases globally.
+(`uv pip install gamesheet-sdk-py==0.2.0a1`) or the user opts in to pre-releases globally.
 
 ## 10. Troubleshooting
 
 ### 10.1. Build failures
 
-**Symptom:** The `Build sdist + wheel` job fails during `python -m build`.
+**Symptom:** The `Build sdist + wheel` job fails during `uv build`.
 
 **Causes and fixes:**
 

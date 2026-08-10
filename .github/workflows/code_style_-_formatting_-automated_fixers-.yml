@@ -70,16 +70,15 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run add-trailing-comma via tox
-        run: tox -e add-trailing-comma
+          enable-cache: true
+      - name: Run add-trailing-comma via uv
+        run: |
+          uv run --extra add-trailing-comma \
+            add-trailing-comma --exit-zero-even-if-changed $(git ls-files '*.py')
 
   absolufy-imports:
     name: absolufy-imports (py${{ matrix.python-version }})
@@ -96,16 +95,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run absolufy-imports via tox
-        run: tox -e absolufy-imports
+          enable-cache: true
+      - name: Run absolufy-imports via uv
+        run: uv run --extra absolufy-imports absolufy-imports $(git ls-files 'src/*.py')
 
   pyupgrade:
     name: pyupgrade (py${{ matrix.python-version }})
@@ -122,16 +118,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run pyupgrade via tox
-        run: tox -e pyupgrade
+          enable-cache: true
+      - name: Run pyupgrade via uv
+        run: uv run --extra pyupgrade pyupgrade --py311-plus $(git ls-files '*.py')
 
   isort:
     name: isort (py${{ matrix.python-version }})
@@ -148,16 +141,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run isort via tox
-        run: tox -e isort
+          enable-cache: true
+      - name: Run isort via uv
+        run: uv run --extra isort isort --check .
 
   ssort:
     name: ssort (py${{ matrix.python-version }})
@@ -174,16 +164,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run ssort via tox
-        run: tox -e ssort
+          enable-cache: true
+      - name: Run ssort via uv
+        run: uv run --extra ssort ssort --check src/ tests/ tools/
 
   autopep8:
     name: autopep8 (py${{ matrix.python-version }})
@@ -200,16 +187,15 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run autopep8 via tox
-        run: tox -e autopep8
+          enable-cache: true
+      - name: Run autopep8 via uv
+        run: |
+          uv run --extra autopep8 \
+            autopep8 --exit-code --diff --recursive src/ tests/ tools/
 
   black:
     name: black (py${{ matrix.python-version }})
@@ -226,13 +212,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run black via tox
-        run: tox -e black
+          enable-cache: true
+      - name: Run black via uv
+        run: uv run --extra black black --check .

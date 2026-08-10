@@ -97,16 +97,15 @@ jobs:
         with:
           fetch-depth: 0 # Full history for version detection
           persist-credentials: false
-      - name: Set up Python 3.11
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: "3.11"
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run docs via tox
-        run: tox -e docs
+          enable-cache: true
+      - name: Run docs via uv
+        run: |
+          uv run --extra docs python docs/generate_api_docs.py
+          uv run --extra docs sphinx-build -b html docs docs/_build/html
 
   docs-epub:
     name: EPUB documentation build
@@ -116,16 +115,15 @@ jobs:
         with:
           fetch-depth: 0 # Full history for version detection
           persist-credentials: false
-      - name: Set up Python 3.11
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: "3.11"
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run docs-epub via tox
-        run: tox -e docs-epub
+          enable-cache: true
+      - name: Run docs-epub via uv
+        run: |
+          uv run --extra docs python docs/generate_api_docs.py
+          uv run --extra docs sphinx-build -b epub docs docs/_build/epub
 
   docs-man:
     name: man-page documentation build
@@ -135,16 +133,15 @@ jobs:
         with:
           fetch-depth: 0 # Full history for version detection
           persist-credentials: false
-      - name: Set up Python 3.11
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: "3.11"
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run docs-man via tox
-        run: tox -e docs-man
+          enable-cache: true
+      - name: Run docs-man via uv
+        run: |
+          uv run --extra docs python docs/generate_api_docs.py
+          uv run --extra docs sphinx-build -b man docs docs/_build/man
 
   docs-pdf:
     name: PDF documentation build
@@ -159,16 +156,16 @@ jobs:
         with:
           fetch-depth: 0 # Full history for version detection
           persist-credentials: false
-      - name: Set up Python 3.11
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: "3.11"
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run docs-pdf via tox
-        run: tox -e docs-pdf
+          enable-cache: true
+      - name: Run docs-pdf via uv
+        run: |
+          uv run --extra docs python docs/generate_api_docs.py
+          uv run --extra docs sphinx-build -b latex docs docs/_build/latex
+          make -C docs/_build/latex all-pdf
 
   docs-lint:
     name: Python documentation issues check
@@ -178,16 +175,16 @@ jobs:
         with:
           fetch-depth: 0 # Full history for version detection
           persist-credentials: false
-      - name: Set up Python 3.11
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: "3.11"
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run docs-lint via tox
-        run: tox -e docs-lint
+          enable-cache: true
+      - name: Run docs-lint via uv
+        run: |
+          uv run --extra docs python docs/generate_api_docs.py
+          uv run python docs/check_api_freshness.py
+          uv run --extra docs sphinx-lint docs
 
   docs-linkcheck:
     name: Broken external link check
@@ -197,16 +194,15 @@ jobs:
         with:
           fetch-depth: 0 # Full history for version detection
           persist-credentials: false
-      - name: Set up Python 3.11
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: "3.11"
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run docs-linkcheck via tox
-        run: tox -e docs-linkcheck
+          enable-cache: true
+      - name: Run docs-linkcheck via uv
+        run: |
+          uv run --extra docs python docs/generate_api_docs.py
+          uv run --extra docs sphinx-build -b linkcheck docs docs/_build/linkcheck
 
   docs-doctest:
     name: Embedded doctest examples tests
@@ -216,16 +212,15 @@ jobs:
         with:
           fetch-depth: 0 # Full history for version detection
           persist-credentials: false
-      - name: Set up Python 3.11
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: "3.11"
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run docs-doctest via tox
-        run: tox -e docs-doctest
+          enable-cache: true
+      - name: Run docs-doctest via uv
+        run: |
+          uv run --extra docs python docs/generate_api_docs.py
+          uv run --extra docs sphinx-build -b doctest docs docs/_build/doctest
 
   docs-build:
     name: Build HTML for GitHub Pages
@@ -235,16 +230,15 @@ jobs:
         with:
           fetch-depth: 0 # Full history for version detection
           persist-credentials: false
-      - name: Set up Python 3.11
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: "3.11"
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run docs via tox
-        run: tox -e docs
+          enable-cache: true
+      - name: Run docs via uv
+        run: |
+          uv run --extra docs python docs/generate_api_docs.py
+          uv run --extra docs sphinx-build -b html docs docs/_build/html
       - name: Upload HTML as regular artifact (PR review / debug)
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
