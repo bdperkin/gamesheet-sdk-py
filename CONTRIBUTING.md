@@ -52,7 +52,7 @@ ______________________________________________________________________
   - [12.1. Adding a New CLI Command](#121-adding-a-new-cli-command)
   - [12.2. Adding a New Domain Module](#122-adding-a-new-domain-module)
   - [12.3. Adding a New Dependency](#123-adding-a-new-dependency)
-  - [12.4. Running Specific Tox Environments](#124-running-specific-tox-environments)
+  - [12.4. Running Tools via uv](#124-running-tools-via-uv)
 - [13. Getting Help](#13-getting-help)
   - [13.1. Project Maintainers](#131-project-maintainers)
 - [14. Recognition](#14-recognition)
@@ -117,10 +117,10 @@ cd gamesheet-sdk-py
 
 ```bash
 # Option 1: Install everything (recommended for contributors)
-pip install -e ".[all]"
+uv sync --all-extras
 
 # Option 2: Leaner install (just tests + docs)
-pip install -e ".[dev,pytest,docs]"
+uv sync --extra dev --extra pytest --extra docs
 
 # Option 3: Use the Makefile shortcut
 make install
@@ -260,10 +260,10 @@ All code must pass strict type checking:
 
 ```bash
 # mypy (strict mode)
-mypy src
+uv run mypy --strict src
 
 # pyright
-tox -e pyright
+uv run --extra pyright pyright
 
 # Or use the Makefile
 make type
@@ -343,7 +343,7 @@ Enforced via `interrogate` with `fail-under = 100`:
 
 ```bash
 # Check docstring coverage
-tox -e interrogate
+uv run --extra interrogate interrogate src
 ```
 
 ### 8.2. Docstring Style
@@ -544,8 +544,8 @@ xenon --max-absolute=A --max-modules=A --max-average=B src/
 # Check complexity metrics
 make metrics
 
-# Or use tox
-tox -e radon-cc
+# Or use uv
+uv run --extra radon radon cc --show-complexity --average .
 ```
 
 ### 11.2. Reducing Complexity
@@ -600,31 +600,18 @@ def login(config, email, password):
 1. Add to `[project] dependencies` in `pyproject.toml` for runtime dependencies
 2. Or add to `optional-dependencies.<group>` for dev/test dependencies
 3. Update the `[all]` extra if needed
-4. Run `pip install -e ".[all]"` to install
+4. Run `uv sync --all-extras` to install
 5. Consider adding type stubs to `optional-dependencies.type-stubs` if available
 
-### 12.4. Running Specific Tox Environments
+### 12.4. Running Tools via uv
 
-The project has ~60 tox environments for isolated tool runs:
+Run specific tools in isolated environments with `uv run`:
 
 ```bash
-# List all environments
-tox -l
-
-# Run pytest across Python versions
-tox -m tests
-
-# Run documentation tasks
-tox -m docs
-
-# Run pre-commit in isolated venv
-tox -m pre-commit
-
-# Run specific tool
-tox -e mypy
-tox -e pylint
-tox -e flake8
-tox -e bandit
+uv run --extra mypy mypy --config-file pyproject.toml src/
+uv run --extra pylint pylint src/
+uv run --extra flake8 flake8 .
+uv run --extra bandit bandit -c pyproject.toml -r src/
 ```
 
 ## 13. Getting Help

@@ -9,7 +9,7 @@ ______________________________________________________________________
 - [3. Features](#3-features)
 - [4. Requirements](#4-requirements)
 - [5. Installation](#5-installation)
-  - [5.1. Via PyPI](#51-via-pypi)
+  - [5.1. Via PyPI / uv](#51-via-pypi--uv)
   - [5.2. Via Docker](#52-via-docker)
   - [5.3. From Source](#53-from-source)
 - [6. Available Resources](#6-available-resources)
@@ -135,13 +135,13 @@ ______________________________________________________________________
 
 ## 5. Installation
 
-### 5.1. Via PyPI
+### 5.1. Via PyPI / uv
 
 ```bash
-pip install gamesheet-sdk-py
+uv add gamesheet-sdk-py
 
 # Install Playwright browser (required for login)
-python -m playwright install chromium
+uv run playwright install chromium
 ```
 
 ### 5.2. Via Docker
@@ -183,8 +183,8 @@ docker run --rm -v ~/.gamesheet:/home/gamesheet/.gamesheet \
 ```bash
 git clone https://github.com/bdperkin/gamesheet-sdk-py.git
 cd gamesheet-sdk-py
-pip install -e ".[all]"
-python -m playwright install chromium
+uv sync --all-extras
+uv run playwright install chromium
 
 # Or build the Docker image locally
 make docker-build

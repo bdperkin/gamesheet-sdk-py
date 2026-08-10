@@ -25,28 +25,26 @@ jobs:
   smoke:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
-          cache: pip
-          cache-dependency-path: pyproject.toml
+          enable-cache: true
 
       - name: Install gamesheet-sdk-py
-        run: pip install gamesheet-sdk-py
+        run: uv add gamesheet-sdk-py
 
       - name: Verify CLI
-        run: gamesheet-admin --version
+        run: uv run gamesheet-admin --version
 
       - name: Verify Python import
-        run: python -c "from gamesheet_sdk import __version__; print(__version__)"
+        run: uv run python -c "from gamesheet_sdk import __version__; print(__version__)"
 ```
 
 ## 2. What each step is doing for you
 
-- **`cache: pip`** on `setup-python` caches the pip download cache. Combined with `cache-dependency-path: pyproject.toml`, it keys the cache on the package's
-  dependency specification. The SDK reinstalls quickly on subsequent runs.
+- **`setup-uv@v5`** sets up Astral `uv` with automatic dependency caching. Combined with `enable-cache: true`, the SDK reinstalls quickly on subsequent runs.
 - **`pull_request: types: [opened, reopened]`** scopes PR triggers to only when a PR is first opened or reopened. This prevents duplicate runs on every push to
   a PR branch (which would already fire via the `push:` trigger).
 - **`concurrency` with `cancel-in-progress: true`** ensures that if a new push arrives while a workflow is running, the older run is canceled. This saves CI
@@ -68,7 +66,7 @@ add Playwright installation:
 
 - name: Install Playwright Chromium
   if: steps.playwright-cache.outputs.cache-hit != 'true'
-  run: python -m playwright install --with-deps chromium
+  run: uv run playwright install --with-deps chromium
 ```
 
 - **`actions/cache` on `~/.cache/ms-playwright`** saves real time: Chromium is ~150 MB and would otherwise be re-downloaded on every run. The cache key includes
@@ -92,23 +90,22 @@ jobs:
       matrix:
         python-version: ["3.11", "3.12", "3.13", "3.14"]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: pyproject.toml
+          enable-cache: true
 
       - name: Install gamesheet-sdk-py
-        run: pip install gamesheet-sdk-py
+        run: uv add gamesheet-sdk-py
 
       - name: Verify CLI
-        run: gamesheet-admin --version
+        run: uv run gamesheet-admin --version
 
       - name: Verify Python import
-        run: python -c "from gamesheet_sdk import __version__; print(__version__)"
+        run: uv run python -c "from gamesheet_sdk import __version__; print(__version__)"
 ```
 
 - **`fail-fast: false`** ensures that if one Python version fails, the others still run to completion — useful for spotting version-specific issues.

@@ -91,7 +91,7 @@ When code is merged to `main`:
 
 1. **PSR analyzes commits** since the last release
 2. **Determines next version** based on conventional commits
-3. **Updates CHANGELOG.md** with new entries
+3. **Updates `CHANGELOG.md`** with new entries
 4. **Creates version commit** with message `chore(release): <version>`
 5. **Creates and pushes tag** (e.g., `v0.0.9`)
 6. **Tag push triggers release workflow:**

@@ -65,18 +65,14 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
-
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
+          enable-cache: true
 
-      - name: Run mypy via tox
-        run: tox -e mypy
+      - name: Run mypy via uv
+        run: uv run --extra mypy mypy --config-file pyproject.toml src/
 
   pyright:
     name: pyright (py${{ matrix.python-version }})
@@ -94,15 +90,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
-
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
+          enable-cache: true
 
-      - name: Run pyright via tox
-        run: tox -e pyright
+      - name: Run pyright via uv
+        run: uv run --extra pyright pyright

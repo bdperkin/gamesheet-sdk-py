@@ -63,22 +63,21 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python
+      - name: Set up Python 3.11, 3.12, 3.13, 3.14
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: |
             3.11
             3.12
             3.13
             3.14
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
+        with:
+          python-version: "3.11"
+          enable-cache: true
 
-      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+      - name: Run pre-commit via uv
+        run: uv run --extra dev pre-commit run --all-files
         env:
-          # On push events to main, GitHub Actions checks the branch out by
-          # name, so HEAD is on main and `no-commit-to-branch` would always
-          # fail in CI. The guard already ran locally on pre-commit/pre-push
-          # — skipping it here keeps every other hook active without
-          # blocking pushes that have legitimately reached main.
           SKIP: no-commit-to-branch

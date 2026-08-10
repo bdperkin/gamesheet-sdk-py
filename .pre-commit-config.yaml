@@ -115,6 +115,7 @@ repos:
           - pre-push
           - manual
         minimum_pre_commit_version: 3.2.0
+        exclude: ^uv\.lock$
       - id: check-ast
         name: check python ast
         description: simply checks whether the files parse as valid python.
@@ -415,6 +416,61 @@ repos:
           - text
         exclude: ^\.pre-commit-config\.yaml$
 
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.12.3
+    hooks:
+      - id: uv-lock
+        name: uv-lock
+        description: Automatically run "uv lock" on your project dependencies
+        entry: uv lock
+        language: python
+        files: ^(uv\.lock|pyproject\.toml|uv\.toml)$
+        args: []
+        pass_filenames: false
+        additional_dependencies: []
+        minimum_pre_commit_version: 2.9.2
+      - id: uv-export
+        name: uv-export
+        description: Automatically run "uv export" on your project dependencies
+        entry: uv export
+        language: python
+        files: ^uv\.lock$
+        args:
+          - --frozen
+          - --output-file=requirements.txt
+          - --quiet
+        pass_filenames: false
+        additional_dependencies: []
+        minimum_pre_commit_version: 2.9.2
+        stages:
+          - manual
+      - id: uv-sync
+        name: uv-sync
+        description: Automatically run "uv sync" on your repository after a checkout, pull or rebase
+        entry: uv sync --no-active
+        args:
+          - --locked
+        language: python
+        always_run: true
+        pass_filenames: false
+        stages:
+          - post-checkout
+          - post-merge
+          - post-rewrite
+        minimum_pre_commit_version: 2.9.2
+      - id: uv-audit
+        name: uv-audit
+        description: Automatically run "uv audit" on your project dependencies
+        entry: uv audit
+        language: python
+        files: ^(uv\.lock|pyproject\.toml|uv\.toml)$
+        args: []
+        pass_filenames: false
+        additional_dependencies: []
+        minimum_pre_commit_version: 2.9.2
+        stages:
+          - manual
+
   # ----------------------------------------------------------------------------
   # Configuration File Linters & Formatters
   # ----------------------------------------------------------------------------
@@ -469,17 +525,6 @@ repos:
           - file
           - yaml
         exclude: ^\.pre-commit-config\.yaml$
-
-  - repo: https://github.com/tox-dev/tox-ini-fmt
-    rev: 1.8.1
-    hooks:
-      - id: tox-ini-fmt
-        name: tox-ini-fmt
-        description: apply a consistent format to `tox.ini` files
-        entry: tox-ini-fmt
-        language: python
-        language_version: python3
-        files: (^|/)tox\.ini$
 
   - repo: https://github.com/tox-dev/pyproject-fmt
     rev: v2.27.0

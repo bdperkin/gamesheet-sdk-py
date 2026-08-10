@@ -70,16 +70,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run bandit via tox
-        run: tox -e bandit
+          enable-cache: true
+      - name: Run bandit via uv
+        run: uv run --extra bandit bandit -c pyproject.toml -r src/
 
   semgrep:
     name: semgrep (py${{ matrix.python-version }})
@@ -96,16 +93,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run semgrep via tox
-        run: tox -e semgrep
+          enable-cache: true
+      - name: Run semgrep via uv
+        run: uv run --extra semgrep semgrep --config auto .
 
   radon:
     name: radon ${{ matrix.analyzer }} analysis (py${{ matrix.python-version }})
@@ -127,15 +121,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
         with:
-          cache: pip
-          cache-dependency-path: pyproject.toml
           python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: pip install tox-workdir
-      - name: Run radon-${{ matrix.analyzer }} via tox
-        run: tox -e radon-${ANALYZER}
+          enable-cache: true
+      - name: Run radon-${{ matrix.analyzer }} via uv
         env:
-          ANALYZER: ${{ matrix.analyzer }}
+          RADON_ANALYZER: ${{ matrix.analyzer }}
+        run: uv run --extra radon radon "$RADON_ANALYZER" .

@@ -16,6 +16,7 @@ globals:
     - fix-encoding-pragma
     - forbid-new-submodules
     - format-docstring-jupyter
+    - pip-compile
     - requirements-txt-fixer
     - sort-simple-yaml
 
@@ -62,6 +63,9 @@ categories:
       - name: pre-commit-hooks
         repo: https://github.com/pre-commit/pre-commit-hooks
         hooks:
+          - id: check-added-large-files
+            overrides:
+              exclude: ^uv\.lock$
           - id: detect-aws-credentials
             prepends:
               args:
@@ -88,6 +92,19 @@ categories:
             overrides:
               exclude: ^\.pre-commit-config\.yaml$
 
+      - name: uv-pre-commit
+        repo: https://github.com/astral-sh/uv-pre-commit
+        rev: installed
+        hooks:
+          - id: uv-audit
+            overrides:
+              stages:
+                - manual
+          - id: uv-export
+            overrides:
+              stages:
+                - manual
+
   configuration_file_linters_-_formatters:
     description: Configuration File Linters & Formatters
     repos:
@@ -112,9 +129,6 @@ categories:
           - id: yamllint
             overrides:
               exclude: ^\.pre-commit-config\.yaml$
-
-      - name: tox-ini-fmt
-        repo: https://github.com/tox-dev/tox-ini-fmt
 
       - name: pyproject-fmt
         repo: https://github.com/tox-dev/pyproject-fmt

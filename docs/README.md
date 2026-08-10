@@ -16,7 +16,7 @@ ______________________________________________________________________
 - [4. Diataxis framework](#4-diataxis-framework)
 - [5. Building documentation](#5-building-documentation)
   - [5.1. Local builds](#51-local-builds)
-  - [5.2. Using tox](#52-using-tox)
+  - [5.2. Using uv](#52-using-uv)
 - [6. CI/CD](#6-cicd)
 - [7. Configuration](#7-configuration)
 - [8. Troubleshooting](#8-troubleshooting)
@@ -163,32 +163,32 @@ make docs-pdf
 make docs-linkcheck
 ```
 
-### 5.2. Using tox
+### 5.2. Using uv
 
 ```bash
 # HTML documentation
-tox -e docs
+uv run --extra docs sphinx-build -b html docs docs/_build/html
 
 # Live-reload server
-tox -e docs-serve
+uv run --extra docs sphinx-autobuild docs docs/_build/html
 
 # EPUB format
-tox -e docs-epub
+uv run --extra docs sphinx-build -b epub docs docs/_build/epub
 
 # Man page format
-tox -e docs-man
+uv run --extra docs sphinx-build -b man docs docs/_build/man
 
 # PDF format
-tox -e docs-pdf
+uv run --extra docs sphinx-build -b latex docs docs/_build/latex && make -C docs/_build/latex all-pdf
 
 # Lint documentation
-tox -e docs-lint
+uv run --extra docs sphinx-lint docs
 
 # Check external links
-tox -e docs-linkcheck
+uv run --extra docs sphinx-build -b linkcheck docs docs/_build/linkcheck
 
 # Run doctests
-tox -e docs-doctest
+uv run --extra docs sphinx-build -b doctest docs docs/_build/doctest
 ```
 
 ## 6. CI/CD
@@ -267,7 +267,7 @@ sphinx-build -b html -v docs docs/_build/html
 Ensure the package is installed in editable mode:
 
 ```bash
-pip install -e ".[docs]"
+uv sync --extra docs
 ```
 
 ## 9. References
