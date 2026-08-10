@@ -1345,7 +1345,7 @@ extend_exclude = [
   "tools",
 ]
 ignore = []
-per_rule_ignores.DEP002 = [ "gamesheet-sdk-py" ]
+per_rule_ignores.DEP002 = [ "gamesheet-sdk-py", "python-semantic-release" ]
 known_first_party = [
   "gamesheet_sdk",
 ]
@@ -1382,6 +1382,8 @@ optional_dependencies_dev_groups = [
   "pyupgrade",
   "radon",
   "refurb",
+  "release",
+  "semantic-release",
   "semgrep",
   "ssort",
   "tools",

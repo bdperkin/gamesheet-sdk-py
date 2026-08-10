@@ -1526,6 +1526,30 @@ vulnerabilities:
       condition applies to a Linux container image. Not exploitable here.
     expired_at: 2027-02-02
 
+  # ----------------------------------------------------------------------------
+  # mcp — Model Context Protocol Python SDK (transitive via semgrep)
+  # ----------------------------------------------------------------------------
+  - id: CVE-2026-52869
+    statement: >-
+      HIGH: mcp HTTP transport unauthenticated session requests. mcp 1.23.3 is
+      hard-pinned by semgrep 1.172.0 (dev/linter extra). The SDK never runs or
+      exposes an MCP HTTP server.
+    expired_at: 2026-11-09
+
+  - id: CVE-2026-52870
+    statement: >-
+      HIGH: mcp experimental task handlers access control. mcp 1.23.3 is
+      hard-pinned by semgrep 1.172.0 (dev/linter extra). The SDK never runs or
+      exposes an MCP task handler.
+    expired_at: 2026-11-09
+
+  - id: CVE-2026-59950
+    statement: >-
+      HIGH: mcp WebSocket transport Host/Origin validation. mcp 1.23.3 is
+      hard-pinned by semgrep 1.172.0 (dev/linter extra). The SDK never runs or
+      exposes an MCP WebSocket server.
+    expired_at: 2026-11-09
+
 # ==============================================================================
 # Review Schedule
 # ==============================================================================
