@@ -2,6 +2,23 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.17 (2026-08-10)
+
+### Bug Fixes
+
+- **ci**: Pin pre-commit-uv and drop its bogus repo mapping
+  ([#197](https://github.com/bdperkin/gamesheet-sdk-py/pull/197),
+  [`8f73ff8`](https://github.com/bdperkin/gamesheet-sdk-py/commit/8f73ff8efc1dfa9416953de9d728e62bc93b765e))
+
+- **deps**: Delegate version resolution to uv so pins are lockable
+  ([#197](https://github.com/bdperkin/gamesheet-sdk-py/pull/197),
+  [`8f73ff8`](https://github.com/bdperkin/gamesheet-sdk-py/commit/8f73ff8efc1dfa9416953de9d728e62bc93b765e))
+
+- **security**: Pin unimport instead of black to clear CVE-2026-32274
+  ([#197](https://github.com/bdperkin/gamesheet-sdk-py/pull/197),
+  [`8f73ff8`](https://github.com/bdperkin/gamesheet-sdk-py/commit/8f73ff8efc1dfa9416953de9d728e62bc93b765e))
+
+
 ## v0.4.16 (2026-08-10)
 
 ### Bug Fixes
