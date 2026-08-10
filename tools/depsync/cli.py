@@ -19,8 +19,8 @@ from depsync.config import (
     UV_LOCK,
     UV_LOCK_TIMEOUT,
 )
-from depsync.engine import converge, resolve_pinned_packages, sync_types
-from depsync.exceptions import LockfileError, SyncDepsError
+from depsync.engine import converge, resolve_pinned_packages
+from depsync.exceptions import LockfileError, ResolveError, SyncDepsError
 from depsync.models import ConvergenceResult, RunConfig, TypesSyncResult, UpdateTarget
 from depsync.parsers import (
     parse_genprecommit_pinned_revs,
@@ -30,6 +30,7 @@ from depsync.parsers import (
     parse_requires_python,
     parse_uv_lock,
 )
+from depsync.typestubs import sync_types
 from depsync.writers import (
     apply_types_sync,
     update_dependabot_ignores,
@@ -45,6 +46,7 @@ from shared import PROJECT_NAME
 from shared.http_client import get_session
 from shared.log_config import configure_logging
 from shared.pip_config import PipConfig, load_pip_config
+from shared.uv_resolve import UvResolveError, resolve_project_versions
 
 console = Console()
 logger = logging.getLogger(__name__)
@@ -211,6 +213,88 @@ def _display_results(results: list[ConvergenceResult]) -> None:
     console.print(table)
 
 
+def _write_all_convergence(
+    config: RunConfig,
+    results: list,  # type: ignore[type-arg]
+) -> int:
+    """Write convergence results to all three managed files.
+
+    Args:
+        config (RunConfig): Run configuration containing file paths.
+        results (list): Convergence results to apply.
+
+    Returns:
+        int: Total number of entries written across all files.
+    """
+    pyproject_count = update_pyproject(config.pyproject_path, results)
+    genprecommit_ad_count = update_genprecommit_additional_deps(
+        config.genprecommit_config_path,
+        results,
+    )
+    precommit_count = update_precommit_config(config.precommit_config_path, results)
+
+    return pyproject_count + genprecommit_ad_count + precommit_count
+
+
+def _commit_convergence(
+    config: RunConfig,
+    results: list,  # type: ignore[type-arg]
+    target_files: list[Path],
+) -> None:
+    """Apply convergence results to disk for real.
+
+    Args:
+        config (RunConfig): Run configuration containing file paths and flags.
+        results (list): Convergence results to apply.
+        target_files (list[Path]): Files the results may touch.
+    """
+    snapshots = _snapshot_files(target_files)
+    if config.backup:
+        _create_backups(snapshots)
+
+    console.print("\n[bold]Applying updates...[/]")
+    pyproject_count = update_pyproject(config.pyproject_path, results)
+    genprecommit_ad_count = update_genprecommit_additional_deps(
+        config.genprecommit_config_path,
+        results,
+    )
+    precommit_count = update_precommit_config(config.precommit_config_path, results)
+
+    console.print(f"  Updated [cyan]{pyproject_count}[/] entries in pyproject.toml")
+    console.print(
+        f"  Updated [cyan]{genprecommit_ad_count}[/] additional_deps in .genprecommitconfig.yaml",
+    )
+    console.print(
+        f"  Updated [cyan]{precommit_count}[/] entries in .pre-commit-config.yaml",
+    )
+
+    if config.diff:
+        _show_diffs(snapshots, target_files)
+
+
+def _preview_convergence(
+    config: RunConfig,
+    results: list,  # type: ignore[type-arg]
+    target_files: list[Path],
+) -> None:
+    """Show the diff convergence would produce, then roll the files back.
+
+    Previewing a diff means really writing the files and undoing them, so the restore has to survive an
+    exception or a SIGPIPE from a truncated pager — otherwise a preview silently becomes a commit.
+
+    Args:
+        config (RunConfig): Run configuration containing file paths.
+        results (list): Convergence results to preview.
+        target_files (list[Path]): Files the results may touch.
+    """
+    snapshots = _snapshot_files(target_files)
+    try:
+        _write_all_convergence(config, results)
+        _show_diffs(snapshots, target_files)
+    finally:
+        _restore_files(snapshots)
+
+
 def _apply_convergence(
     config: RunConfig,
     results: list,  # type: ignore[type-arg]
@@ -226,43 +310,16 @@ def _apply_convergence(
     if not actual_changes:
         return False
 
-    should_write = not (config.dry_run or config.check)
     target_files = [
         config.pyproject_path,
         config.genprecommit_config_path,
         config.precommit_config_path,
     ]
 
-    if should_write:
-        snapshots = _snapshot_files(target_files)
-        if config.backup:
-            _create_backups(snapshots)
-
-        console.print("\n[bold]Applying updates...[/]")
-        pyproject_count = update_pyproject(config.pyproject_path, results)
-        genprecommit_ad_count = update_genprecommit_additional_deps(
-            config.genprecommit_config_path,
-            results,
-        )
-        precommit_count = update_precommit_config(config.precommit_config_path, results)
-
-        console.print(f"  Updated [cyan]{pyproject_count}[/] entries in pyproject.toml")
-        console.print(
-            f"  Updated [cyan]{genprecommit_ad_count}[/] additional_deps in .genprecommitconfig.yaml",
-        )
-        console.print(
-            f"  Updated [cyan]{precommit_count}[/] entries in .pre-commit-config.yaml",
-        )
-
-        if config.diff:
-            _show_diffs(snapshots, target_files)
+    if not (config.dry_run or config.check):
+        _commit_convergence(config, results, target_files)
     elif config.diff:
-        snapshots = _snapshot_files(target_files)
-        update_pyproject(config.pyproject_path, results)
-        update_genprecommit_additional_deps(config.genprecommit_config_path, results)
-        update_precommit_config(config.precommit_config_path, results)
-        _show_diffs(snapshots, target_files)
-        _restore_files(snapshots)
+        _preview_convergence(config, results, target_files)
 
     if config.check:
         console.print("\n[bold yellow]Check mode — files would be modified.[/]")
@@ -368,6 +425,61 @@ def _display_types_results(types_result: TypesSyncResult) -> None:
     console.print(table)
 
 
+def _commit_types_sync(
+    config: RunConfig,
+    types_result: TypesSyncResult,
+    target_files: list[Path],
+) -> None:
+    """Apply types-* stub changes to disk for real.
+
+    Args:
+        config (RunConfig): Run configuration containing file paths and flags.
+        types_result (TypesSyncResult): Stub additions, removals, and updates to apply.
+        target_files (list[Path]): Files the changes may touch.
+    """
+    snapshots = _snapshot_files(target_files)
+    if config.backup:
+        _create_backups(snapshots)
+
+    change_count = apply_types_sync(
+        config.pyproject_path,
+        types_result.added,
+        types_result.removed,
+        types_result.updated,
+    )
+    console.print(
+        f"  Applied [cyan]{change_count}[/] types-* changes in pyproject.toml",
+    )
+
+    if config.diff:
+        _show_diffs(snapshots, target_files)
+
+
+def _preview_types_sync(
+    config: RunConfig,
+    types_result: TypesSyncResult,
+    target_files: list[Path],
+) -> None:
+    """Show the diff the types-* sync would produce, then roll the file back.
+
+    Args:
+        config (RunConfig): Run configuration containing file paths.
+        types_result (TypesSyncResult): Stub additions, removals, and updates to preview.
+        target_files (list[Path]): Files the changes may touch.
+    """
+    snapshots = _snapshot_files(target_files)
+    try:
+        apply_types_sync(
+            config.pyproject_path,
+            types_result.added,
+            types_result.removed,
+            types_result.updated,
+        )
+        _show_diffs(snapshots, target_files)
+    finally:
+        _restore_files(snapshots)
+
+
 def _run_types_sync(
     config: RunConfig,
     index_url: str | None,
@@ -403,36 +515,12 @@ def _run_types_sync(
 
     _display_types_results(types_result)
 
-    should_write = not (config.dry_run or config.check)
     target_files = [config.pyproject_path]
 
-    if should_write:
-        snapshots = _snapshot_files(target_files)
-        if config.backup:
-            _create_backups(snapshots)
-
-        change_count = apply_types_sync(
-            config.pyproject_path,
-            types_result.added,
-            types_result.removed,
-            types_result.updated,
-        )
-        console.print(
-            f"  Applied [cyan]{change_count}[/] types-* changes in pyproject.toml",
-        )
-
-        if config.diff:
-            _show_diffs(snapshots, target_files)
+    if not (config.dry_run or config.check):
+        _commit_types_sync(config, types_result, target_files)
     elif config.diff:
-        snapshots = _snapshot_files(target_files)
-        apply_types_sync(
-            config.pyproject_path,
-            types_result.added,
-            types_result.removed,
-            types_result.updated,
-        )
-        _show_diffs(snapshots, target_files)
-        _restore_files(snapshots)
+        _preview_types_sync(config, types_result, target_files)
     elif config.check:
         console.print("\n[bold yellow]Check mode — types-* stubs would be modified.[/]")
     else:
@@ -506,22 +594,37 @@ def _run_dependabot_preview(
     config: RunConfig,
     pinned_packages: dict[str, str],
 ) -> bool:
+    """Report what the dependabot ignore sync would change, leaving the file untouched.
+
+    There is no pure "would change" query for the ignore list, so the write is performed and then rolled back
+    unconditionally — a preview must never outlive the process that ran it.
+
+    Args:
+        config (RunConfig): Run configuration containing file paths and flags.
+        pinned_packages (dict[str, str]): PyPI package name to pinned version.
+
+    Returns:
+        bool: True if the file would be modified, False otherwise.
+    """
     target_files = [config.dependabot_path]
+    snapshots = _snapshot_files(target_files)
+    added, removed = 0, 0
 
-    if config.diff:
-        snapshots = _snapshot_files(target_files)
+    try:
         added, removed = update_dependabot_ignores(config.dependabot_path, pinned_packages)
-        _show_diffs(snapshots, target_files)
+        if config.diff:
+            _show_diffs(snapshots, target_files)
+    finally:
         _restore_files(snapshots)
-        return bool(added or removed)
 
-    added, removed = update_dependabot_ignores(config.dependabot_path, pinned_packages)
-    if added or removed:
+    if not (added or removed):
+        return False
+
+    if not config.diff:
         label = "Check mode" if config.check else "Dry run"
         console.print(f"  [bold yellow]{label} — dependabot.yml would be modified.[/]")
-        return True
 
-    return False
+    return True
 
 
 def _run_dependabot_sync(
@@ -550,6 +653,47 @@ def _run_dependabot_sync(
         console.print("  [green]Dependabot ignore list already in sync.[/]")
 
     return changed
+
+
+def _resolve_versions(
+    config: RunConfig,
+    pinned_revs: dict[str, str],
+) -> dict[str, str]:
+    """Ask uv which versions of the project's dependencies can co-exist.
+
+    Revs pinned in ``.genprecommitconfig.yaml`` are passed through as hard constraints so the resolution bends
+    around them instead of proposing versions that contradict the pre-commit config.
+
+    Args:
+        config (RunConfig): Run configuration containing file paths and flags.
+        pinned_revs (dict[str, str]): Repo URL → pinned rev from .genprecommitconfig.yaml.
+
+    Returns:
+        dict[str, str]: Package name → resolved version, or an empty dict when uv resolution is disabled.
+
+    Raises:
+        ResolveError: If uv is unavailable or finds no valid resolution.
+    """
+    if config.no_uv_resolve:
+        console.print(
+            "\n[bold yellow]uv resolution disabled[/] — using latest index release per package",
+        )
+        return {}
+
+    console.print("\n[bold]Resolving co-installable versions with uv...[/]")
+
+    pins = resolve_pinned_packages(pinned_revs)
+    try:
+        resolved = resolve_project_versions(config.pyproject_path, pins=pins)
+    except UvResolveError as exc:
+        raise ResolveError(str(exc)) from exc
+
+    console.print(f"  uv resolved [cyan]{len(resolved)}[/] packages")
+    if pins:
+        pins_str = ", ".join(f"{name}=={ver}" for name, ver in sorted(pins.items()))
+        console.print(f"  Held fixed by pre-commit pins: [magenta]{pins_str}[/]")
+
+    return resolved
 
 
 def _run(config: RunConfig) -> None:
@@ -585,11 +729,14 @@ def _run(config: RunConfig) -> None:
         min_python,
     )
 
+    resolved = _resolve_versions(config, pinned_revs)
+
     console.print("\n[bold]Running convergence analysis...[/]")
     results = converge(
         pyproject_deps,
         precommit_repos,
         pinned_revs,
+        resolved=resolved,
         index_url=index_url,
         extra_index_urls=extra_index_urls,
         pip_config=pip_config,
@@ -680,6 +827,12 @@ def _run(config: RunConfig) -> None:
     help="Sync types-* stub packages in the type-stubs group against the dependency tree.",
 )
 @click.option(
+    "--no-uv-resolve",
+    is_flag=True,
+    default=False,
+    help="Skip uv resolution and pin each package to its latest index release (may not lock).",
+)
+@click.option(
     "--backup",
     is_flag=True,
     default=False,
@@ -710,6 +863,7 @@ def app(  # pylint: disable=redefined-outer-name
     *,
     dry_run: bool,
     sync_types: bool,
+    no_uv_resolve: bool,
     backup: bool,
     check_mode: bool,
     show_diff: bool,
@@ -728,6 +882,7 @@ def app(  # pylint: disable=redefined-outer-name
         log_level (str): Logging level string.
         dry_run (bool): If True, report changes without writing files.
         sync_types (bool): If True, synchronize types-* stub packages.
+        no_uv_resolve (bool): If True, skip uv resolution and use the latest index release per package.
         backup (bool): If True, create backup files before writing.
         check_mode (bool): If True, exit 1 when changes would be made.
         show_diff (bool): If True, show unified diff of changes.
@@ -746,6 +901,7 @@ def app(  # pylint: disable=redefined-outer-name
         log_level=log_level,
         dry_run=dry_run,
         sync_types=sync_types,
+        no_uv_resolve=no_uv_resolve,
         backup=backup,
         check=check_mode,
         diff=show_diff,

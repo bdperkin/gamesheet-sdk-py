@@ -12,6 +12,7 @@ from pathlib import Path
 import subprocess  # noqa: S404 # nosec B404
 from typing import TYPE_CHECKING, Any
 
+from depsync.config import UV_LOCK
 from depsync.parsers import parse_index_url, parse_requires_python
 from precommit.config import (
     DEFAULT_ALLOWED_LANGUAGES,
@@ -40,6 +41,7 @@ from ruamel.yaml.error import YAMLError
 from shared.concurrency import PARALLEL_WORKERS
 from shared.http_client import get_session
 from shared.pip_config import PipConfig, load_pip_config
+from shared.uv_resolve import UvResolveError, versions_from_lock
 
 if TYPE_CHECKING:
     from packaging.version import Version
@@ -119,6 +121,7 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
         self.extra_index_urls: tuple[str, ...] = ()
         self.pip_config: PipConfig | None = None
         self.min_python: Version | None = None
+        self.resolved: dict[str, str] = {}
         self._repo_cache: dict[str, tuple[RevisionResult, list[dict[str, Any]]]] = {}
 
     @staticmethod
@@ -190,6 +193,7 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
             rev_result = resolve_revision(
                 rc.repo,
                 rc.rev,
+                resolved=self.resolved,
                 index_url=self.index_url,
                 extra_index_urls=self.extra_index_urls,
                 pip_config=self.pip_config,
@@ -495,6 +499,7 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
             rev_result = resolve_revision(
                 repo_config.repo,
                 repo_config.rev,
+                resolved=self.resolved,
                 index_url=self.index_url,
                 extra_index_urls=self.extra_index_urls,
                 pip_config=self.pip_config,
@@ -575,6 +580,32 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
             if cat.description and len(self.repos) > first_repo_idx:
                 self.category_comments[first_repo_idx] = cat.description
 
+    @staticmethod
+    def _load_locked_versions(lock_path: Path) -> dict[str, str]:
+        """Read the project's locked versions, tolerating a missing or unreadable lockfile.
+
+        The lockfile is an optimization for rev selection, not a prerequisite: without it the generator falls
+        back to pure tag and index discovery, so a failure here must not abort generation.
+
+        Args:
+            lock_path (Path): Path to uv.lock.
+
+        Returns:
+            dict[str, str]: Package name to locked version, empty if unavailable.
+        """
+        if not lock_path.exists():
+            logger.info("%s not found — using tag/index discovery only", lock_path)
+            return {}
+
+        try:
+            locked = versions_from_lock(lock_path)
+        except UvResolveError as exc:
+            logger.warning("Could not read %s (%s) — using tag/index discovery only", lock_path, exc)
+            return {}
+
+        logger.info("Read %d locked versions from %s", len(locked), lock_path)
+        return locked
+
     def generate(self: PreCommitGenerator) -> None:
         """Execute the full generation pipeline."""
         pip_config = load_pip_config()
@@ -598,6 +629,7 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
             self.index_url = pip_config.index_url
 
         self.extra_index_urls = pip_config.extra_index_urls
+        self.resolved = self._load_locked_versions(Path(UV_LOCK))
 
         output_path = self._resolve_output_path(globals_cfg)
 

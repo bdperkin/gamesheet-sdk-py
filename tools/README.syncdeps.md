@@ -10,19 +10,21 @@ ______________________________________________________________________
 - [3. Prerequisites](#3-prerequisites)
   - [3.1. Python Version](#31-python-version)
   - [3.2. Python Packages](#32-python-packages)
+  - [3.3. External Tools](#33-external-tools)
 - [4. Usage](#4-usage)
   - [4.1. Basic Usage](#41-basic-usage)
   - [4.2. Dry Run (Preview Only)](#42-dry-run-preview-only)
   - [4.3. Debug Logging](#43-debug-logging)
   - [4.4. CLI Options](#44-cli-options)
 - [5. Convergence Algorithm](#5-convergence-algorithm)
-  - [5.1. Shared Main Hooks](#51-shared-main-hooks)
-  - [5.2. Shared Additional Dependencies](#52-shared-additional-dependencies)
-  - [5.3. PyPI-Only Dependencies](#53-pypi-only-dependencies)
-  - [5.4. Pre-commit-Only Repos](#54-pre-commit-only-repos)
-  - [5.5. Pre-commit-Only Additional Dependencies](#55-pre-commit-only-additional-dependencies)
-  - [5.6. Version Prefix Preservation](#56-version-prefix-preservation)
-  - [5.7. Filtered Dependencies](#57-filtered-dependencies)
+  - [5.1. Version targets](#51-version-targets)
+  - [5.2. Shared Main Hooks](#52-shared-main-hooks)
+  - [5.3. Shared Additional Dependencies](#53-shared-additional-dependencies)
+  - [5.4. PyPI-Only Dependencies](#54-pypi-only-dependencies)
+  - [5.5. Pre-commit-Only Repos](#55-pre-commit-only-repos)
+  - [5.6. Pre-commit-Only Additional Dependencies](#56-pre-commit-only-additional-dependencies)
+  - [5.7. Version Prefix Preservation](#57-version-prefix-preservation)
+  - [5.8. Filtered Dependencies](#58-filtered-dependencies)
 - [6. Exception Hierarchy](#6-exception-hierarchy)
 - [7. Dependencies](#7-dependencies)
 - [8. Troubleshooting](#8-troubleshooting)
@@ -51,29 +53,32 @@ Unlike the legacy `cideps` script, `syncdeps` is a modular package that:
 
 The tool follows the same modular package pattern as `tools/precommit/`.
 
-| Component   | File                          | Purpose                                                     |
-| ----------- | ----------------------------- | ----------------------------------------------------------- |
-| Entry point | `tools/syncdeps`              | Thin wrapper that imports and runs `depsync.cli.app`        |
-| CLI         | `tools/depsync/cli.py`        | Click/rich-click command with options and output formatting |
-| Config      | `tools/depsync/config.py`     | Constants, default paths, PyPI↔git repo mapping table       |
-| Models      | `tools/depsync/models.py`     | Pydantic v2 models for dependencies, repos, and results     |
-| Exceptions  | `tools/depsync/exceptions.py` | Exception hierarchy with exit codes                         |
-| Parsers     | `tools/depsync/parsers.py`    | Parse `pyproject.toml` and `.pre-commit-config.yaml`        |
-| Fetchers    | `tools/depsync/fetchers.py`   | Query PyPI JSON API and `git ls-remote` for versions        |
-| Engine      | `tools/depsync/engine.py`     | Core convergence algorithm                                  |
-| Writers     | `tools/depsync/writers.py`    | Style-preserving file updates                               |
-| Shared      | `tools/shared/`               | Shared utilities (HTTP, git, logging, TOML, exceptions)     |
+| Component   | File                          | Purpose                                                             |
+| ----------- | ----------------------------- | ------------------------------------------------------------------- |
+| Entry point | `tools/syncdeps`              | Thin wrapper that imports and runs `depsync.cli.app`                |
+| CLI         | `tools/depsync/cli.py`        | Click/rich-click command with options and output formatting         |
+| Config      | `tools/depsync/config.py`     | Constants, default paths, PyPI↔git repo mapping table               |
+| Models      | `tools/depsync/models.py`     | Pydantic v2 models for dependencies, repos, and results             |
+| Exceptions  | `tools/depsync/exceptions.py` | Exception hierarchy with exit codes                                 |
+| Parsers     | `tools/depsync/parsers.py`    | Parse `pyproject.toml` and `.pre-commit-config.yaml`                |
+| Fetchers    | `tools/depsync/fetchers.py`   | Query PyPI JSON API and `git ls-remote` for versions                |
+| Engine      | `tools/depsync/engine.py`     | Core convergence algorithm                                          |
+| Type stubs  | `tools/depsync/typestubs.py`  | `types-*` stub discovery and synchronization                        |
+| Writers     | `tools/depsync/writers.py`    | Style-preserving file updates                                       |
+| Resolver    | `tools/shared/uv_resolve.py`  | Delegates resolution to `uv lock`; shared with `genprecommitconfig` |
+| Shared      | `tools/shared/`               | Shared utilities (HTTP, git, logging, TOML, exceptions)             |
 
 ### 2.1. Execution Pipeline
 
-| Phase       | Description                                         |
-| ----------- | --------------------------------------------------- |
-| 1. Parse    | Read `pyproject.toml` and `.pre-commit-config.yaml` |
-| 2. Map      | Build bidirectional PyPI↔git repo mappings          |
-| 3. Prefetch | Fetch all PyPI versions and git tags in parallel    |
-| 4. Converge | Determine updates for each dependency category      |
-| 5. Display  | Show results table                                  |
-| 6. Write    | Apply updates to all three files directly           |
+| Phase       | Description                                                                            |
+| ----------- | -------------------------------------------------------------------------------------- |
+| 1. Parse    | Read `pyproject.toml` and `.pre-commit-config.yaml`                                    |
+| 2. Resolve  | Ask `uv lock` which versions can co-exist (see [Version targets](#51-version-targets)) |
+| 3. Map      | Build bidirectional PyPI↔git repo mappings                                             |
+| 4. Prefetch | Fetch all PyPI versions and git tags in parallel                                       |
+| 5. Converge | Determine updates for each dependency category                                         |
+| 6. Display  | Show results table                                                                     |
+| 7. Write    | Apply updates to all three files directly                                              |
 
 ## 3. Prerequisites
 
@@ -94,6 +99,11 @@ Installed via the `syncdeps` optional-dependency group in `pyproject.toml`:
 Core dependencies (already installed):
 
 - `rich` — Terminal UI (tables, logging)
+
+### 3.3. External Tools
+
+- `uv` — performs dependency resolution (see [Version targets](#51-version-targets)). Required unless `--no-uv-resolve` is passed.
+- `git` — tag discovery via `git ls-remote`.
 
 ## 4. Usage
 
@@ -117,53 +127,90 @@ Core dependencies (already installed):
 
 ### 4.4. CLI Options
 
-| Option                  | Default                    | Description                                     |
-| ----------------------- | -------------------------- | ----------------------------------------------- |
-| `--pyproject`           | `pyproject.toml`           | Path to pyproject.toml                          |
-| `--precommit-config`    | `.pre-commit-config.yaml`  | Path to .pre-commit-config.yaml                 |
-| `--genprecommit-config` | `.genprecommitconfig.yaml` | Path to .genprecommitconfig.yaml                |
-| `--log-level`           | `info`                     | Logging verbosity (debug, info, warning, error) |
-| `--dry-run`             | off                        | Show changes without modifying files            |
-| `--version`             | —                          | Show version and exit                           |
-| `--help`                | —                          | Show help and exit                              |
+| Option                  | Default                    | Description                                                  |
+| ----------------------- | -------------------------- | ------------------------------------------------------------ |
+| `--pyproject`           | `pyproject.toml`           | Path to pyproject.toml                                       |
+| `--precommit-config`    | `.pre-commit-config.yaml`  | Path to .pre-commit-config.yaml                              |
+| `--genprecommit-config` | `.genprecommitconfig.yaml` | Path to .genprecommitconfig.yaml                             |
+| `--dependabot`          | `.github/dependabot.yml`   | Path to dependabot.yml (ignore list synced with pinned revs) |
+| `--uv-lock`             | `uv.lock`                  | Path to uv.lock (used with `--sync-types`)                   |
+| `--log-level`           | `info`                     | Logging verbosity (debug, info, warning, error)              |
+| `--dry-run`             | off                        | Show changes without modifying files                         |
+| `--sync-types`          | off                        | Sync `types-*` stub packages in the `type-stubs` group       |
+| `--no-uv-resolve`       | off                        | Skip uv resolution; pin each package to its latest release   |
+| `--backup`              | off                        | Write `.bak` copies before modifying any file                |
+| `--check`               | off                        | Exit 1 if any file would be modified (writes nothing)        |
+| `--diff`                | off                        | Show a unified diff of the changes                           |
+| `--version`             | —                          | Show version and exit                                        |
+| `--help`                | —                          | Show help and exit                                           |
+
+`--dry-run`, `--check`, and `--diff` never leave changes behind. Producing a diff requires really writing the files, so the rollback runs in a `finally` block —
+an exception, a `SIGPIPE` from a truncated pager, or a `Ctrl-C` mid-render cannot turn a preview into a commit.
 
 ## 5. Convergence Algorithm
 
-Dependencies are categorized and handled differently based on where they appear:
+### 5.1. Version targets
 
-### 5.1. Shared Main Hooks
+**Resolution is delegated to `uv`.** Choosing the newest release of each package independently produces pins that cannot co-exist — one package's own
+requirements may cap a sibling below its latest release. For example, `python-semantic-release==10.6.1` requires `rich~=14.0` and `tomlkit>=0.13,<0.14`, so
+pinning `rich` and `tomlkit` to their newest releases yields a `pyproject.toml` that `uv lock` rejects as unsatisfiable.
 
-Packages that exist in both `pyproject.toml` and as a pre-commit repo (mapped via `TOOL_MAPPING`). The tool finds the **highest version common to both** PyPI
-releases and git tags, then updates both files to that version.
+Rather than reimplement a resolver, the tool asks `uv` for the answer:
 
-### 5.2. Shared Additional Dependencies
+1. Copy `pyproject.toml` to a scratch directory, rewriting each managed `==` pin to a bare requirement. No lockfile is copied in, so the resolution is unbiased
+   by previous choices. The real project directory is never touched.
+2. Revs pinned in `.genprecommitconfig.yaml` are **kept as exact pins** instead of relaxed, so the resolution bends around them rather than proposing versions
+   that contradict the pre-commit config.
+3. Run `uv lock` there and harvest the chosen versions.
 
-Packages in both `pyproject.toml` and as `additional_dependencies` in pre-commit hooks. Updated to the latest stable PyPI version in both files.
+Whatever `uv` resolved is authoritative for every package it covers, which makes the pins written back **lockable by construction**. Packages outside the
+project graph — chiefly pre-commit-only `additional_dependencies`, which install into their own isolated hook environments — fall back to the latest index
+release compatible with `requires-python`.
 
-### 5.3. PyPI-Only Dependencies
+If `uv lock` finds no solution even with the pins relaxed, that is a genuine pre-existing conflict and the tool surfaces uv's own error rather than writing
+something broken. Pass `--no-uv-resolve` to fall back to the legacy latest-release-per-package behavior (which may produce a `pyproject.toml` that will not
+lock).
 
-Packages only in `pyproject.toml` (not referenced by pre-commit). Updated to the latest stable PyPI version.
+**Yanked releases** are excluded from candidates everywhere, since PEP 592 makes them reachable only through an exact pin — a pin the tool could never later
+relax to discover an upgrade. If an existing pin turns out to be the *only* non-yanked option for a package, relaxing it would make the resolution
+unsatisfiable, so the tool restores that pin verbatim and retries.
 
-### 5.4. Pre-commit-Only Repos
+Dependencies are then categorized and handled differently based on where they appear:
+
+### 5.2. Shared Main Hooks
+
+Packages that exist in both `pyproject.toml` and as a pre-commit repo (mapped via `TOOL_MAPPING`). The target is the uv-resolved version, and the rev becomes
+the git tag carrying it. If the repo ships no tag for that version, the tool falls back to the **highest version common to both** PyPI releases and git tags.
+
+### 5.3. Shared Additional Dependencies
+
+Packages in both `pyproject.toml` and as `additional_dependencies` in pre-commit hooks. Updated to the uv-resolved version in both files.
+
+### 5.4. PyPI-Only Dependencies
+
+Packages only in `pyproject.toml` (not referenced by pre-commit). Updated to the uv-resolved version.
+
+### 5.5. Pre-commit-Only Repos
 
 Repos only in `.pre-commit-config.yaml` (no matching pyproject.toml entry). Updated to the latest stable git tag.
 
-### 5.5. Pre-commit-Only Additional Dependencies
+### 5.6. Pre-commit-Only Additional Dependencies
 
-`additional_dependencies` not in `pyproject.toml`. Updated to the latest stable PyPI version.
+`additional_dependencies` not in `pyproject.toml`. Updated to the latest stable PyPI version — these are outside the project's resolution.
 
-### 5.6. Version Prefix Preservation
+### 5.7. Version Prefix Preservation
 
 The tool preserves `v` prefixes on git tags. If the current rev is `v1.2.3`, the updated rev will also use the `v` prefix (e.g., `v1.3.0`).
 
-### 5.7. Filtered Dependencies
+### 5.8. Filtered Dependencies
 
-The following are explicitly skipped during parsing:
+The following are explicitly skipped during parsing, in both `pyproject.toml` dependencies and pre-commit `additional_dependencies`:
 
 - Local path references (e.g., `.[all]`, `./gitlint-core[trusted-deps]`)
 - URL-based dependencies (containing `@`)
 - Inequality constraints (containing `<` or `>`)
-- Self-referencing gamesheet-sdk-py extras (e.g., `gamesheet-sdk-py[common]`)
+- Self-referencing gamesheet-sdk-py extras (e.g., `gamesheet-sdk-py[common]`) — these carry no version to converge, and treating one as a package produces a
+  phantom "update" that never lands and a permanent `--check` exit 1
 
 ## 6. Exception Hierarchy
 
@@ -172,8 +219,11 @@ SyncDepsError (base)
 ├── ParseError        — File parsing failures
 ├── FetchError        — PyPI/git tag fetch failures
 ├── WriteError        — File write failures
-└── LockfileError     — uv.lock generation/validation failures
+├── LockfileError     — uv.lock generation/validation failures
+└── ResolveError      — uv-delegated version resolution failures
 ```
+
+`ResolveError` wraps `shared.uv_resolve.UvResolveError` so the CLI keeps a single exit-code contract.
 
 ## 7. Dependencies
 
@@ -191,12 +241,15 @@ syncdeps = [
 
 ## 8. Troubleshooting
 
-| Issue                          | Cause                               | Solution                                |
-| ------------------------------ | ----------------------------------- | --------------------------------------- |
-| `ParseError` on pyproject.toml | Malformed TOML syntax               | Validate with `tox -e pyprojectfmt`     |
-| `FetchError` for PyPI          | Network issue or package not found  | Check network, verify package name      |
-| `FetchError` for git tags      | Repository URL unreachable          | Check URL, verify git access            |
-| No common version found        | PyPI and git tag sets don't overlap | Check if repo uses different versioning |
+| Issue                                     | Cause                                    | Solution                                  |
+| ----------------------------------------- | ---------------------------------------- | ----------------------------------------- |
+| `ParseError` on pyproject.toml            | Malformed TOML syntax                    | Validate with `tox -e pyprojectfmt`       |
+| `FetchError` for PyPI                     | Network issue or package not found       | Check network, verify package name        |
+| `FetchError` for git tags                 | Repository URL unreachable               | Check URL, verify git access              |
+| No common version found                   | PyPI and git tag sets don't overlap      | Check if repo uses different versioning   |
+| `ResolveError: 'uv' is not on PATH`       | uv missing                               | Install uv, or use `--no-uv-resolve`      |
+| `ResolveError: found no valid resolution` | Real conflict that survives pin relaxing | Read uv's message; loosen the requirement |
+| `uv lock` fails after a successful sync   | A pin was written without uv resolution  | Re-run without `--no-uv-resolve`          |
 
 ## 9. Related Tools
 
@@ -216,5 +269,7 @@ syncdeps = [
 | `tools/depsync/parsers.py`    | File parsers             |
 | `tools/depsync/fetchers.py`   | Version fetchers         |
 | `tools/depsync/engine.py`     | Convergence algorithm    |
+| `tools/depsync/typestubs.py`  | `types-*` stub sync      |
 | `tools/depsync/writers.py`    | Style-preserving writers |
+| `tools/shared/uv_resolve.py`  | uv-delegated resolution  |
 | `tools/README.syncdeps.md`    | This documentation       |

@@ -31,6 +31,7 @@ ci:
     - deptry
     - editorconfig-checker
     - flake8
+    - identity
     - mdformat
     - mypy
     - pylint
@@ -94,7 +95,6 @@ categories:
 
       - name: uv-pre-commit
         repo: https://github.com/astral-sh/uv-pre-commit
-        rev: installed
         hooks:
           - id: uv-audit
             overrides:
@@ -196,6 +196,7 @@ categories:
 
       - name: black-pre-commit-mirror
         repo: https://github.com/psf/black-pre-commit-mirror
+        rev: 25.12.0
 
   code_cleaners_-_dead_code_detectors:
     description: Code Cleaners & Dead Code Detectors
@@ -206,17 +207,14 @@ categories:
 
       - name: unimport
         repo: https://github.com/hakancelikdev/unimport
-        rev: 0.11.1
         hooks:
-          # 0.11.1 imports distutils, dropped in Python 3.12. Keep this hook on
-          # 3.11 rather than the default python3, which resolves to the newest
-          # interpreter on PATH.
           - id: unimport
-            overrides:
-              language_version: python3.11
             prepends:
               args:
                 - --remove
+            appends:
+              additional_dependencies:
+                - gamesheet-sdk-py[unimport]
 
       - name: autoflake
         repo: https://github.com/pycqa/autoflake
@@ -309,9 +307,7 @@ categories:
           - id: pylint
             appends:
               additional_dependencies:
-                - gamesheet-sdk-py[dev,pylint,tools]
-                # Drop once a release ships yamlfix in the published tools extra.
-                - yamlfix==1.19.1
+                - gamesheet-sdk-py[pylint]
 
       - name: pyrefly-pre-commit
         repo: https://github.com/facebook/pyrefly-pre-commit
@@ -319,9 +315,7 @@ categories:
           - id: pyrefly-check
             appends:
               additional_dependencies:
-                - gamesheet-sdk-py[dev,pyrefly,tools]
-                # Drop once a release ships yamlfix in the published tools extra.
-                - yamlfix==1.19.1
+                - gamesheet-sdk-py[pyrefly]
 
   security-_metrics_-_complexity:
     description: Security, Metrics & Complexity
@@ -359,9 +353,7 @@ categories:
           - id: pyright
             appends:
               additional_dependencies:
-                - gamesheet-sdk-py[dev,pyright,tools]
-                # Drop once a release ships yamlfix in the published tools extra.
-                - yamlfix==1.19.1
+                - gamesheet-sdk-py[pyright]
 
       - name: mirrors-mypy
         repo: https://github.com/pre-commit/mirrors-mypy
@@ -374,10 +366,7 @@ categories:
                 - --strict
             appends:
               additional_dependencies:
-                # Deliberately no yamlfix pin here: adding one makes pip
-                # backtrack gamesheet-sdk-py to 0.4.6, which has no tools
-                # extra, silently dropping tomli and ruamel from this env.
-                - gamesheet-sdk-py[dev,mypy,tools]
+                - gamesheet-sdk-py[mypy]
 
   pre-commit-hook-sync:
     description: Pre-Commit Hook Sync

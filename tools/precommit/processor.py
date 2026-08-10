@@ -25,7 +25,7 @@ def _discover_meta_hooks() -> list[str]:
         ProcessingError: If pre-commit is not installed.
     """
     try:
-        from pre_commit.clientlib import (
+        from pre_commit.clientlib import (  # pyright: ignore[reportMissingTypeStubs]
             _meta,
         )
     except ImportError as exc:

@@ -118,8 +118,10 @@ def _get_toml_key(doc: TOMLDocument, keys: list[str], path: Path) -> object:
     Raises:
         WriteError: If any key in the path is missing.
     """
+    # Annotated because indexing a TOMLDocument narrows to `Item | Container`, which is not assignable back
+    # to the loop variable; the traversal is heterogeneous by nature.
+    current: Any = doc
     try:
-        current = doc
         for key in keys:
             current = current[key]
     except KeyError as exc:

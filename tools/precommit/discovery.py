@@ -5,15 +5,19 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 import importlib.metadata
 import logging
 import operator
 import re
 
-from depsync.config import REVERSE_MAPPING
-from depsync.fetchers import fetch_pypi_versions, find_highest_common_version
+from depsync.config import REVERSE_MAPPING, repo_url_to_package
+from depsync.fetchers import (
+    fetch_pypi_versions,
+    find_highest_common_version,
+    find_tag_for_version,
+)
 from packaging.version import InvalidVersion, Version
 from precommit.exceptions import DiscoveryError
 from shared.git import GitCommandError, run_ls_remote
@@ -35,23 +39,35 @@ _PRERELEASE_PATTERN = re.compile(r"\d[ab]\d")
 _MIN_PARTS = 2
 
 
-def _resolve_installed_version(repo_url: str) -> str:
-    """Resolve version from the installed package matching the repo name.
+def _resolve_installed_version(repo_url: str, resolved: Mapping[str, str]) -> str:
+    """Resolve the version of the package a repo ships, for ``rev: installed`` repos.
+
+    Prefers the project's locked version, which is deterministic and does not require the package to be
+    present in the interpreter running this tool. Falls back to ``importlib.metadata`` when the package is
+    outside the lockfile (or no lockfile was found).
 
     Args:
         repo_url (str): Repository URL to extract package name from.
+        resolved (Mapping[str, str]): Package name to version from uv.lock.
 
     Returns:
-        str: Installed package version string.
+        str: Resolved package version string.
 
     Raises:
-        DiscoveryError: If the package is not installed.
+        DiscoveryError: If the package is neither locked nor installed.
     """
     package_name = repo_url.rsplit("/", maxsplit=1)[-1].replace("-pre-commit", "")
+
+    for candidate in (repo_url_to_package(repo_url), package_name):
+        locked = resolved.get(candidate) if candidate else None
+        if locked:
+            logger.info("%s : %s (from uv.lock %s)", repo_url, locked, candidate)
+            return locked
+
     try:
         version = importlib.metadata.version(package_name)
     except importlib.metadata.PackageNotFoundError as exc:
-        msg = f"Package '{package_name}' is not installed (from {repo_url})"
+        msg = f"Package '{package_name}' is neither in uv.lock nor installed (from {repo_url})"
         raise DiscoveryError(msg) from exc
 
     logger.info("%s : %s (from installed %s)", repo_url, version, package_name)
@@ -209,30 +225,71 @@ def _resolve_head_commit(repo_url: str) -> str:
     raise DiscoveryError(msg)
 
 
+def _resolve_locked_tag(
+    repo_url: str,
+    tags: list[str],
+    resolved: Mapping[str, str],
+) -> str | None:
+    """Find the tag matching the version this repo's package is locked at.
+
+    Keeps a generated ``rev`` in step with the pin ``pyproject.toml`` carries for the same tool, so the hook
+    that runs in CI is the version the project actually resolves to. Returns None when the package is not in
+    the lockfile or ships no tag for that version, leaving the caller on its normal discovery path.
+
+    Args:
+        repo_url (str): Remote repository URL.
+        tags (list[str]): Release tag names from the repo.
+        resolved (Mapping[str, str]): Package name to version from uv.lock.
+
+    Returns:
+        str | None: The matching tag, or None if there is no confident match.
+    """
+    package_name = repo_url_to_package(repo_url)
+    locked = resolved.get(package_name) if package_name else None
+    if not locked:
+        return None
+
+    tag = find_tag_for_version(tags, locked)
+    if tag:
+        logger.info("%s : %s (matches locked %s==%s)", repo_url, tag, package_name, locked)
+        return tag
+
+    logger.debug(
+        "%s is locked at %s==%s but ships no matching tag; falling back to tag discovery",
+        repo_url,
+        package_name,
+        locked,
+    )
+    return None
+
+
 def _resolve_latest_tag(
     repo_url: str,
     *,
+    resolved: Mapping[str, str],
     index_url: str | None = None,
     extra_index_urls: Sequence[str] = (),
     pip_config: PipConfig | None = None,
     min_python: Version | None = None,
 ) -> RevisionResult:
-    """Resolve the latest release tag from a remote git repository.
+    """Resolve the release tag to use for a repository.
 
     Runs ``git ls-remote --tags`` and parses the output in Python, filtering out pre-release tags and
-    annotated-tag dereferences.  When the repository URL maps to a known PyPI package, cross-references git
-    tags against available versions on the configured package index and falls back through tags until an
-    available version is found.
+    annotated-tag dereferences.  When the repo's package appears in ``uv.lock``, the tag matching that locked
+    version wins, so the pre-commit rev cannot drift from the project's own pin.  Otherwise, for repos that
+    map to a known PyPI package, git tags are cross-referenced against the configured index and older tags are
+    tried until an available version is found.
 
     Args:
         repo_url (str): Remote repository URL.
+        resolved (Mapping[str, str]): Package name to version from uv.lock.
         index_url (str | None): Optional PEP 503 index URL for availability checks.
         extra_index_urls (Sequence[str]): Additional PEP 503 index URLs to try.
         pip_config (PipConfig | None): Optional pip configuration for SSL settings.
         min_python (Version | None): Minimum Python version to filter compatible releases.
 
     Returns:
-        RevisionResult: RevisionResult with the latest tag and all sorted candidates.
+        RevisionResult: RevisionResult with the chosen tag and all sorted candidates.
 
     Raises:
         DiscoveryError: If no tags are found or the git command fails.
@@ -249,6 +306,10 @@ def _resolve_latest_tag(
         return RevisionResult(rev=rev)
 
     sorted_tags = _sort_tags_descending(tags)
+
+    locked_tag = _resolve_locked_tag(repo_url, tags, resolved)
+    if locked_tag:
+        return RevisionResult(rev=locked_tag, candidates=sorted_tags)
 
     pypi_name = REVERSE_MAPPING.get(repo_url)
     if pypi_name:
@@ -280,6 +341,7 @@ def resolve_revision(
     repo_url: str,
     rev_spec: str | None,
     *,
+    resolved: Mapping[str, str] | None = None,
     index_url: str | None = None,
     extra_index_urls: Sequence[str] = (),
     pip_config: PipConfig | None = None,
@@ -289,8 +351,10 @@ def resolve_revision(
 
     Args:
         repo_url (str): Repository URL.
-        rev_spec (str | None): Revision specification: None for latest tag, "installed" for installed package
-            version, or an exact version string.
+        rev_spec (str | None): Revision specification: None for latest tag, "installed" for the version the
+            project resolves to, or an exact version string.
+        resolved (Mapping[str, str] | None): Package name to version from uv.lock. None or empty restores pure
+            tag/index discovery.
         index_url (str | None): Optional PEP 503 package index URL to cross-reference tag availability.
         extra_index_urls (Sequence[str]): Additional PEP 503 index URLs to try.
         pip_config (PipConfig | None): Optional pip configuration for SSL settings.
@@ -299,16 +363,19 @@ def resolve_revision(
     Returns:
         RevisionResult: RevisionResult with the resolved revision and candidate tags.
     """
+    locked: Mapping[str, str] = resolved or {}
+
     if rev_spec is not None and rev_spec != "installed":
         logger.info("%s : %s (pinned)", repo_url, rev_spec)
         return RevisionResult(rev=rev_spec)
 
     if rev_spec == "installed":
-        rev = _resolve_installed_version(repo_url)
+        rev = _resolve_installed_version(repo_url, locked)
         return RevisionResult(rev=rev)
 
     return _resolve_latest_tag(
         repo_url,
+        resolved=locked,
         index_url=index_url,
         extra_index_urls=extra_index_urls,
         pip_config=pip_config,

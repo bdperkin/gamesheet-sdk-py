@@ -45,6 +45,21 @@ def _normalize_name(name: str) -> str:
     return re.sub(r"[-_.]+", "-", name).lower()
 
 
+def _is_self_reference(dep_string: str) -> bool:
+    """Check whether a dependency string refers to this project itself.
+
+    Self-references like ``gamesheet-sdk-py[mypy,tools]`` exist so a hook environment picks up the project's
+    own extras. They carry no version to converge, and the writers refuse to touch them, so treating one as a
+    convergeable package produces a phantom "update" that never lands — and, in ``--check`` mode, a permanent
+    exit 1.
+
+    Returns:
+        bool: True if the string names this project.
+    """
+    name = dep_string.strip().split("==", maxsplit=1)[0].split("[", maxsplit=1)[0]
+    return _normalize_name(name) == _normalize_name(PROJECT_NAME)
+
+
 def _parse_dep_string(
     dep_raw: str,
     group: str,
@@ -173,6 +188,7 @@ def _parse_repo_hooks(
                 _is_local_dependency(ad_str)
                 or _is_url_dependency(ad_str)
                 or _has_inequality_constraint(ad_str)
+                or _is_self_reference(ad_str)
             ):
                 continue
 

@@ -6,39 +6,33 @@
 
 ### Bug Fixes
 
-- **release**: Add --extra dev to uv run in release workflow for pre-commit tools
-  ([#192](https://github.com/bdperkin/gamesheet-sdk-py/pull/192),
+- **release**: Add --extra dev to uv run in release workflow for pre-commit tools ([#192](https://github.com/bdperkin/gamesheet-sdk-py/pull/192),
   [`f9fdc06`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f9fdc0625b8aed31c80690c6c25d983708187f1e))
 
 - **release**: Add release extra with python-semantic-release to pyproject.toml and release workflow
   ([#191](https://github.com/bdperkin/gamesheet-sdk-py/pull/191),
   [`c8848a1`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c8848a1ff82e87fac5d9ec1fec9ccc74558ca0c1))
 
-* fix(release): add release extra with python-semantic-release to pyproject.toml and release
-  workflow
+- fix(release): add release extra with python-semantic-release to pyproject.toml and release workflow
 
-* fix(security): add mcp CVE suppressions to .trivyignore.yaml
+- fix(security): add mcp CVE suppressions to .trivyignore.yaml
 
-- **release**: Simplify semantic-release build_command to uv build
-  ([#196](https://github.com/bdperkin/gamesheet-sdk-py/pull/196),
+- **release**: Simplify semantic-release build_command to uv build ([#196](https://github.com/bdperkin/gamesheet-sdk-py/pull/196),
   [`130766b`](https://github.com/bdperkin/gamesheet-sdk-py/commit/130766b27fdd72a0d63b155ecbfebca532c2788d))
 
-* fix(release): add --extra dev to uv run in release workflow for pre-commit tools
+- fix(release): add --extra dev to uv run in release workflow for pre-commit tools
 
-* fix(release): simplify semantic-release build_command to uv build
+- fix(release): simplify semantic-release build_command to uv build
 
 ### Refactoring
 
 - **build**: Migrate project packaging, workflows, and tooling to uv
   ([`47c1a4c`](https://github.com/bdperkin/gamesheet-sdk-py/commit/47c1a4ccc1d85ced55334534f9516317444e5dad))
 
-- Replace legacy packaging tooling (poetry, pdm, pip, pip-tools, pipx, pyenv, twine, virtualenv,
-  tox) with Astral uv. - Update pyproject.toml to PEP 621 / PEP 517 standard build system using
-  uv_build. - Define explicit dependency extras (dev, docs, linters, static-analysis, tests, etc.)
-  in pyproject.toml. - Update GitHub Actions workflows to use setup-uv, uv run, and pinned action
-  commit SHAs. - Update pre-commit hooks, local developer tools, and project documentation for uv
-  workflows.
-
+- Replace legacy packaging tooling (poetry, pdm, pip, pip-tools, pipx, pyenv, twine, virtualenv, tox) with Astral uv. - Update pyproject.toml to PEP 621 / PEP
+  517 standard build system using uv_build. - Define explicit dependency extras (dev, docs, linters, static-analysis, tests, etc.) in pyproject.toml. - Update
+  GitHub Actions workflows to use setup-uv, uv run, and pinned action commit SHAs. - Update pre-commit hooks, local developer tools, and project documentation
+  for uv workflows.
 
 ## v0.4.15 (2026-08-09)
 

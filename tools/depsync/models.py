@@ -121,6 +121,7 @@ class RunConfig(BaseModel):
     log_level: str = Field(default="info", pattern=r"^(debug|info|warning|error)$")
     dry_run: bool = False
     sync_types: bool = False
+    no_uv_resolve: bool = False
     backup: bool = False
     check: bool = False
     diff: bool = False
