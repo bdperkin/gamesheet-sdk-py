@@ -40,7 +40,7 @@ license = { file = "LICENSE" }
 authors = [
   { name = "bdperkin", email = "bdperkin@gmail.com" },
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.15"
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -63,7 +63,7 @@ dependencies = [
   "python-dateutil==2.9.0.post0",
   "pyyaml==6.0.3",
   "requests==2.34.2",
-  "rich>=13.9.0",
+  "rich==14.3.4",
   "rich-click==1.9.8",
   "tabulate==0.10.0",
   "tzlocal==5.4.4",
@@ -107,10 +107,11 @@ optional-dependencies.dead-code-detectors = [
 ]
 optional-dependencies.deptry = [
   "deptry==0.25.1",
-  "gamesheet-sdk-py[]",
 ]
 optional-dependencies.dev = [
   "pre-commit==4.6.1",
+  "pre-commit-uv==4.3.0",
+  "uv==0.12.3",
 ]
 optional-dependencies.docformatter = [
   "docformatter==1.7.8",
@@ -140,7 +141,6 @@ optional-dependencies.flake8-plugins = [
   "flake8-2020==1.8.1",
   "flake8-annotations==3.2.0",
   "flake8-assertive==2.2.0",
-  "flake8-async==27.7.1",
   "flake8-bandit==4.1.1",
   "flake8-blind-except==0.2.1",
   "flake8-boolean-trap==1.0.1",
@@ -199,7 +199,7 @@ optional-dependencies.pydocstyle = [
   "pydocstyle==6.3.0",
 ]
 optional-dependencies.pylint = [
-  "gamesheet-sdk-py[pytest,tools]",
+  "gamesheet-sdk-py[dev,pytest,tools]",
   "pylint-per-file-ignores==3.2.1",
   "pylint-pydantic==0.4.1",
 ]
@@ -210,11 +210,11 @@ optional-dependencies.pyproject-fmt = [
   "pyproject-fmt==2.27.0",
 ]
 optional-dependencies.pyrefly = [
-  "gamesheet-sdk-py[pytest,tools]",
+  "gamesheet-sdk-py[dev,pytest,tools]",
   "pyrefly==1.2.0",
 ]
 optional-dependencies.pyright = [
-  "gamesheet-sdk-py[pytest,tools]",
+  "gamesheet-sdk-py[dev,pytest,tools]",
   "pyright==1.1.411",
 ]
 optional-dependencies.pyroma = [
@@ -222,9 +222,12 @@ optional-dependencies.pyroma = [
 ]
 optional-dependencies.pytest = [
   "pytest-cov==7.1.0",
-  "pytest-playwright==0.8.0",
+  "pytest-playwright==0.9.0",
   "pytest-recording==0.13.4",
   "responses==0.26.2",
+]
+optional-dependencies.python-semantic-release = [
+  "python-semantic-release==10.6.1",
 ]
 optional-dependencies.pyupgrade = [
   "pyupgrade==3.21.2",
@@ -234,12 +237,6 @@ optional-dependencies.radon = [
 ]
 optional-dependencies.refurb = [
   "refurb==2.3.1",
-]
-optional-dependencies.release = [
-  "python-semantic-release==9.21.0",
-]
-optional-dependencies.semantic-release = [
-  "python-semantic-release==9.21.0",
 ]
 optional-dependencies.semgrep = [
   "semgrep==1.172.0",
@@ -252,10 +249,10 @@ optional-dependencies.static-analysis = [
 ]
 optional-dependencies.tools = [
   "gamesheet-sdk-py[dev,yamlfix]",
+  "packaging==26.3",
   "ruamel-yaml==0.19.1",
   "tomli==2.4.1",
-  "tomlkit==0.15.1",
-  "uv==0.12.3",
+  "tomlkit==0.13.3",
 ]
 optional-dependencies.type-checkers = [
   "gamesheet-sdk-py[mypy,pyright]",
@@ -270,6 +267,7 @@ optional-dependencies.type-stubs = [
   "types-click==7.1.8",
   "types-colorama==0.4.15.20260508",
   "types-cryptography==3.3.23.2",
+  "types-deprecated==1.3.1.20260728",
   "types-docutils==0.22.3.20260724",
   "types-filelock==3.2.7",
   "types-flake8==7.3.0.20260508",
@@ -301,10 +299,9 @@ optional-dependencies.type-stubs = [
   "types-six==1.17.0.20260724",
   "types-tabulate==0.10.0.20260508",
   "types-toml==0.10.8.20260518",
-  "types-typing-extensions==3.7.3",
   "types-tzdata==2026.0.0.20260408",
   "types-tzlocal==5.1.0.1",
-  "types-urllib3==1.26.25.14"
+  "types-urllib3==1.26.25.14",
 ]
 optional-dependencies.unimport = [
   "unimport==0.11.1",
@@ -516,7 +513,6 @@ respect-type-ignore = false
 assertive-snakecase = true
 # fnmatch() pattern for identifying unittest test files.
 # assertive-test-pattern = []
-# flake8-async #
 # Comma-separated list of error codes to enable, similar to flake8 --select but is additionally more performant as it
 # will disable non-enabled visitors from running instead of just silencing their errors.
 # enable = []
@@ -1345,7 +1341,7 @@ extend_exclude = [
   "tools",
 ]
 ignore = []
-per_rule_ignores.DEP002 = [ "gamesheet-sdk-py", "python-semantic-release" ]
+per_rule_ignores.DEP002 = [ "gamesheet-sdk-py" ]
 known_first_party = [
   "gamesheet_sdk",
 ]
@@ -1354,21 +1350,27 @@ optional_dependencies_dev_groups = [
   "absolufy-imports",
   "add-trailing-comma",
   "autoflake",
+  "automated-fixers",
   "autopep8",
   "bandit",
   "black",
   "blacken-docs",
   "blocklint",
   "codespell",
+  "complexity",
+  "dead-code-detectors",
   "deptry",
   "dev",
   "docformatter",
   "docs",
+  "docstring-tools",
   "editorconfig-checker",
   "flake8",
   "flake8-plugins",
+  "formatters",
   "interrogate",
   "isort",
+  "markdown-tools",
   "mdformat",
   "mypy",
   "pydocstyle",
@@ -1379,14 +1381,15 @@ optional_dependencies_dev_groups = [
   "pyright",
   "pyroma",
   "pytest",
+  "python-semantic-release",
   "pyupgrade",
   "radon",
   "refurb",
-  "release",
-  "semantic-release",
   "semgrep",
   "ssort",
+  "static-analysis",
   "tools",
+  "type-checkers",
   "type-stubs",
   "unimport",
   "validate-pyproject",
@@ -1785,12 +1788,6 @@ stack-trace = false
 ## ## mdformat - Markdown formatter
 [tool.mdformat]
 end_of_line = "lf"
-exclude = [
-  "docs/_build/**",
-  ".local/**",
-  ".pytest_cache/**",
-  ".venv/**",
-]
 number = true
 validate = true
 wrap = 160

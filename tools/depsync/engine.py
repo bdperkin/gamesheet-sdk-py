@@ -5,51 +5,31 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
-from pathlib import Path
-import re
 
-from depsync.config import REVERSE_MAPPING
-from depsync.exceptions import FetchError, ParseError
+from depsync.config import repo_url_to_package
+from depsync.exceptions import FetchError
 from depsync.fetchers import (
-    check_package_exists,
     clean_and_sort_versions,
     fetch_git_tags,
     fetch_pypi_versions,
     find_highest_common_version,
+    find_tag_for_version,
     resolve_latest_version,
 )
 from depsync.models import (
     ConvergenceResult,
     PreCommitRepo,
     PyProjectDependency,
-    TypesSyncResult,
     UpdateTarget,
 )
 from packaging.version import InvalidVersion, Version
-import requests
-from shared import PROJECT_NAME
 from shared.concurrency import PARALLEL_WORKERS
-from shared.exceptions import ToolError
 from shared.pip_config import PipConfig
-from shared.toml import load_toml
 
 logger = logging.getLogger(__name__)
-
-
-def _repo_url_to_package(url: str) -> str | None:
-    """Map a git repo URL to a PyPI package name via REVERSE_MAPPING or URL basename.
-
-    Returns:
-        str | None: Package name, or None if the URL has no usable basename.
-    """
-    if url in REVERSE_MAPPING:
-        return REVERSE_MAPPING[url]
-
-    last_segment = url.rstrip("/").rsplit("/", 1)[-1]
-    return last_segment.lower() if last_segment else None
 
 
 def _normalize_rev(rev: str) -> str | None:
@@ -79,7 +59,7 @@ def resolve_pinned_packages(pinned_revs: dict[str, str]) -> dict[str, str]:
     """
     result: dict[str, str] = {}
     for url, rev in pinned_revs.items():
-        pkg = _repo_url_to_package(url)
+        pkg = repo_url_to_package(url)
         if pkg is None:
             logger.debug("Cannot resolve package name for %s, skipping", url)
             continue
@@ -94,7 +74,7 @@ def resolve_pinned_packages(pinned_revs: dict[str, str]) -> dict[str, str]:
     return result
 
 
-def _prefetch_versions(
+def prefetch_versions(
     package_names: set[str],
     repo_urls: set[str],
     *,
@@ -161,6 +141,80 @@ def _prefetch_versions(
     return pypi_cache, git_cache
 
 
+def _target_version(
+    pkg_name: str,
+    pypi_versions: dict[str, str | None],
+    resolved: Mapping[str, str],
+    min_python: Version | None,
+) -> str | None:
+    """Pick the convergence target for a single package.
+
+    Prefers the version ``uv`` resolved for the project, so the pin written back is guaranteed to lock. Falls
+    back to the latest index release for packages outside the project graph — chiefly pre-commit-only
+    ``additional_dependencies``, which install into their own isolated hook environments and are therefore not
+    constrained by the project's resolution.
+
+    Args:
+        pkg_name (str): Normalized package name.
+        pypi_versions (dict[str, str | None]): Prefetched version to requires_python mapping.
+        resolved (Mapping[str, str]): Package name to version as resolved by uv.
+        min_python (Version | None): Minimum Python version used for the fallback path.
+
+    Returns:
+        str | None: Target version string, or None if no candidate could be determined.
+    """
+    uv_version = resolved.get(pkg_name)
+    if uv_version:
+        logger.debug("  %s: using uv-resolved %s", pkg_name, uv_version)
+        return uv_version
+
+    return resolve_latest_version(pypi_versions, min_python)
+
+
+def _resolve_hook_target(
+    pkg_name: str,
+    repo_url: str,
+    resolved: Mapping[str, str],
+    *,
+    pypi_cache: dict[str, dict[str, str | None]],
+    git_cache: dict[str, list[str]],
+    min_python: Version | None = None,
+) -> tuple[str, str] | None:
+    """Resolve the (git tag, version) target for an unpinned shared main hook.
+
+    Args:
+        pkg_name (str): Normalized package name.
+        repo_url (str): Pre-commit repository URL.
+        resolved (Mapping[str, str]): Package name to version as resolved by uv.
+        pypi_cache (dict[str, dict[str, str | None]]): Prefetched PyPI versions keyed by package name.
+        git_cache (dict[str, list[str]]): Prefetched git tags keyed by repo URL.
+        min_python (Version | None): Minimum Python version used for the fallback path.
+
+    Returns:
+        tuple[str, str] | None: Tuple of (git_tag, normalized_version), or None if no target exists.
+    """
+    git_tags = git_cache.get(repo_url, [])
+    uv_version = resolved.get(pkg_name)
+
+    if uv_version:
+        tag = find_tag_for_version(git_tags, uv_version)
+        if tag:
+            return tag, uv_version
+
+        logger.warning(
+            "uv resolved %s==%s but %s has no matching tag; falling back to highest common version",
+            pkg_name,
+            uv_version,
+            repo_url,
+        )
+
+    return find_highest_common_version(
+        pypi_cache.get(pkg_name, {}),
+        git_tags,
+        min_python=min_python,
+    )
+
+
 def _log_convergence_result(
     pkg_name: str,
     target_version: str,
@@ -209,6 +263,7 @@ def _converge_shared_main_hooks(
     pinned_revs: dict[str, str],
     processed_packages: set[str],
     processed_urls: set[str],
+    resolved: Mapping[str, str],
     *,
     pypi_cache: dict[str, dict[str, str | None]],
     git_cache: dict[str, list[str]],
@@ -238,11 +293,12 @@ def _converge_shared_main_hooks(
             target_version = tag_str.lstrip("v")
             logger.debug("  Using pinned rev %s → %s", tag_str, target_version)
         else:
-            pypi_versions = pypi_cache.get(pkg_name, {})
-            git_tags = git_cache.get(repo.url, [])
-            common = find_highest_common_version(
-                pypi_versions,
-                git_tags,
+            common = _resolve_hook_target(
+                pkg_name,
+                repo.url,
+                resolved,
+                pypi_cache=pypi_cache,
+                git_cache=git_cache,
                 min_python=min_python,
             )
             if not common:
@@ -308,6 +364,7 @@ def _converge_shared_additional_deps(
     pyproject_deps: dict[str, list[PyProjectDependency]],
     precommit_additional_names: dict[str, list[PreCommitRepo]],
     processed_packages: set[str],
+    resolved: Mapping[str, str],
     *,
     pypi_cache: dict[str, dict[str, str | None]],
     min_python: Version | None = None,
@@ -328,7 +385,7 @@ def _converge_shared_additional_deps(
 
         logger.info("Converging shared additional_dep: %s", ad_name)
 
-        latest = resolve_latest_version(pypi_cache.get(ad_name, {}), min_python)
+        latest = _target_version(ad_name, pypi_cache.get(ad_name, {}), resolved, min_python)
         if not latest:
             logger.warning("No stable PyPI version for %s", ad_name)
             processed_packages.add(ad_name)
@@ -365,11 +422,12 @@ def _converge_pypi_only(
     processed_packages: set[str],
     pkg_to_repo_url: dict[str, str],
     precommit_additional_names: dict[str, list[PreCommitRepo]],
+    resolved: Mapping[str, str],
     *,
     pypi_cache: dict[str, dict[str, str | None]],
     min_python: Version | None = None,
 ) -> list[ConvergenceResult]:
-    """Update pyproject-only packages to their latest stable PyPI version.
+    """Update pyproject-only packages to their uv-resolved version.
 
     Returns:
         list[ConvergenceResult]: List of convergence results for pyproject-only packages.
@@ -394,7 +452,7 @@ def _converge_pypi_only(
             f"=={current_version}" if current_version else "",
         )
 
-        latest = resolve_latest_version(pypi_cache.get(pkg_name, {}), min_python)
+        latest = _target_version(pkg_name, pypi_cache.get(pkg_name, {}), resolved, min_python)
         if not latest or latest == current_version:
             processed_packages.add(pkg_name)
             continue
@@ -417,6 +475,7 @@ def _converge_pypi_only(
 def _converge_precommit_only_additional(
     precommit_additional_names: dict[str, list[PreCommitRepo]],
     processed_packages: set[str],
+    resolved: Mapping[str, str],
     *,
     pypi_cache: dict[str, dict[str, str | None]],
     min_python: Version | None = None,
@@ -442,7 +501,7 @@ def _converge_precommit_only_additional(
                     current_version = current_version or ad.version
                     hook_ids.append(ad.hook_id)
 
-        latest = resolve_latest_version(pypi_cache.get(ad_name, {}), min_python)
+        latest = _target_version(ad_name, pypi_cache.get(ad_name, {}), resolved, min_python)
         if not latest or latest == current_version:
             processed_packages.add(ad_name)
             continue
@@ -565,7 +624,7 @@ def _build_repo_mappings(
     pkg_to_repo_url: dict[str, str] = {}
 
     for repo in precommit_repos:
-        pkg_name = _repo_url_to_package(repo.url)
+        pkg_name = repo_url_to_package(repo.url)
         if pkg_name and pkg_name in pyproject_deps:
             repo_url_to_pkg[repo.url] = pkg_name
             pkg_to_repo_url[pkg_name] = repo.url
@@ -625,6 +684,7 @@ def converge(
     precommit_repos: list[PreCommitRepo],
     pinned_revs: dict[str, str],
     *,
+    resolved: Mapping[str, str] | None = None,
     index_url: str | None = None,
     extra_index_urls: Sequence[str] = (),
     pip_config: PipConfig | None = None,
@@ -636,11 +696,17 @@ def converge(
     the pinned (or latest-resolved) rev is treated as the authoritative version and ``pyproject.toml`` is
     updated to match.  Only ``additional_dependencies`` are updated in the genprecommit config.
 
+    When *resolved* is supplied it is authoritative for every package it covers, so the pins written back are
+    guaranteed to satisfy each other. Packages absent from it fall back to the latest compatible index
+    release.
+
     Args:
         pyproject_deps (dict[str, list[PyProjectDependency]]): Parsed dependencies from pyproject.toml.
         precommit_repos (list[PreCommitRepo]): Parsed repositories from .pre-commit-config.yaml.
         pinned_revs (dict[str, str]): Repo URL → rev string for explicitly pinned repos in
             .genprecommitconfig.yaml.
+        resolved (Mapping[str, str] | None): Package name → version as resolved by ``uv``. None or empty
+            restores the legacy latest-release-per-package behavior.
         index_url (str | None): Optional PEP 503 package index URL to query before falling back to public
             PyPI.
         extra_index_urls (Sequence[str]): Additional PEP 503 index URLs to try.
@@ -651,6 +717,7 @@ def converge(
         list[ConvergenceResult]: List of ConvergenceResult describing all updates needed.
     """
     results: list[ConvergenceResult] = []
+    uv_resolved: Mapping[str, str] = resolved or {}
 
     repo_url_to_pkg, pkg_to_repo_url, precommit_additional_names = _build_repo_mappings(
         pyproject_deps,
@@ -666,7 +733,7 @@ def converge(
         pinned_revs,
     )
 
-    pypi_cache, git_cache = _prefetch_versions(
+    pypi_cache, git_cache = prefetch_versions(
         pypi_names,
         git_urls,
         index_url=index_url,
@@ -685,6 +752,7 @@ def converge(
             pinned_revs,
             processed_packages,
             processed_urls,
+            uv_resolved,
             pypi_cache=pypi_cache,
             git_cache=git_cache,
             min_python=min_python,
@@ -696,6 +764,7 @@ def converge(
             pyproject_deps,
             precommit_additional_names,
             processed_packages,
+            uv_resolved,
             pypi_cache=pypi_cache,
             min_python=min_python,
         ),
@@ -707,6 +776,7 @@ def converge(
             processed_packages,
             pkg_to_repo_url,
             precommit_additional_names,
+            uv_resolved,
             pypi_cache=pypi_cache,
             min_python=min_python,
         ),
@@ -716,6 +786,7 @@ def converge(
         _converge_precommit_only_additional(
             precommit_additional_names,
             processed_packages,
+            uv_resolved,
             pypi_cache=pypi_cache,
             min_python=min_python,
         ),
@@ -731,225 +802,3 @@ def converge(
     )
 
     return results
-
-
-def _parse_type_stubs_types(pyproject_path: Path) -> dict[str, str | None]:
-    """Extract types-* entries from the type-stubs optional-dependency group.
-
-    Returns:
-        dict[str, str | None]: Dict mapping normalized types-* package name to its pinned version (or None if
-            unpinned).
-
-    Raises:
-        ParseError: If the file cannot be read or contains invalid TOML.
-    """
-    try:
-        data = load_toml(pyproject_path)
-    except ToolError as exc:
-        raise ParseError(str(exc)) from exc
-
-    type_stubs_deps = data.get("project", {}).get("optional-dependencies", {}).get("type-stubs", [])
-    types_map: dict[str, str | None] = {}
-    for dep_str in type_stubs_deps:
-        dep = dep_str.strip()
-        if not dep.lower().startswith("types-"):
-            continue
-
-        if "==" in dep:
-            name_part, version = dep.split("==", 1)
-        else:
-            name_part, version = dep, None
-
-        normalized = re.sub(r"[-_.]+", "-", name_part.strip()).lower()
-        types_map[normalized] = version
-
-    return types_map
-
-
-def _discover_available_types(
-    to_check: set[str],
-    *,
-    index_url: str | None = None,
-    extra_index_urls: Sequence[str] = (),
-    pip_config: PipConfig | None = None,
-) -> set[str]:
-    """Check which candidate packages have types-* stubs available.
-
-    Args:
-        to_check (set[str]): Base package names to check.
-        index_url (str | None): Optional PEP 503 index URL.
-        extra_index_urls (Sequence[str]): Additional PEP 503 index URLs to try.
-        pip_config (PipConfig | None): Optional pip configuration for SSL settings.
-
-    Returns:
-        set[str]: Set of base package names whose types-* stub exists.
-    """
-    available: set[str] = set()
-
-    def _check(name: str) -> tuple[str, bool]:
-        types_name = f"types-{name}"
-        return name, check_package_exists(
-            types_name,
-            index_url=index_url,
-            extra_index_urls=extra_index_urls,
-            pip_config=pip_config,
-        )
-
-    with ThreadPoolExecutor(max_workers=PARALLEL_WORKERS) as pool:
-        futures = {pool.submit(_check, name): name for name in to_check}
-        for future in as_completed(futures):
-            try:
-                name, exists = future.result()
-            except (FetchError, requests.RequestException):
-                pkg = futures[future]
-                logger.warning("Failed to check types-%s availability; skipping", pkg)
-                continue
-
-            if exists:
-                available.add(name)
-                logger.debug("  types-%s exists on index", name)
-
-    return available
-
-
-def _collect_types_to_fetch(
-    available: set[str],
-    current_types: dict[str, str | None],
-    all_packages: set[str],
-) -> set[str]:
-    """Build the set of types-* package names whose versions need fetching.
-
-    Returns:
-        set[str]: Package names to fetch version data for.
-    """
-    types_to_fetch: set[str] = set()
-    for name in available:
-        types_name = f"types-{name}"
-        if types_name not in current_types:
-            types_to_fetch.add(types_name)
-
-    for types_name in current_types:
-        base_name = types_name.removeprefix("types-")
-        if base_name in all_packages:
-            types_to_fetch.add(types_name)
-
-    return types_to_fetch
-
-
-def _find_new_stubs(
-    available: set[str],
-    current_types: dict[str, str | None],
-    types_cache: dict[str, dict[str, str | None]],
-    min_python: Version | None,
-) -> list[tuple[str, str]]:
-    """Identify types-* stubs to add.
-
-    Returns:
-        list[tuple[str, str]]: List of (package_name, version) pairs.
-    """
-    added: list[tuple[str, str]] = []
-    for name in sorted(available):
-        types_name = f"types-{name}"
-        if types_name not in current_types:
-            latest = resolve_latest_version(types_cache.get(types_name, {}), min_python)
-            if latest:
-                added.append((types_name, latest))
-                logger.info("  Add %s==%s", types_name, latest)
-
-    return added
-
-
-def _find_stale_stubs(
-    current_types: dict[str, str | None],
-    all_packages: set[str],
-    types_cache: dict[str, dict[str, str | None]],
-    min_python: Version | None,
-) -> tuple[list[str], list[tuple[str, str, str]]]:
-    """Identify types-* stubs to remove or update.
-
-    Returns:
-        tuple[list[str], list[tuple[str, str, str]]]: Removed names and updated (name, old_version,
-            new_version) triples.
-    """
-    removed: list[str] = []
-    updated: list[tuple[str, str, str]] = []
-    for types_name, current_version in sorted(current_types.items()):
-        base_name = types_name.removeprefix("types-")
-        if base_name not in all_packages:
-            removed.append(types_name)
-            logger.info("  Remove %s (base package not in dependency tree)", types_name)
-            continue
-
-        latest = resolve_latest_version(types_cache.get(types_name, {}), min_python)
-        if latest and latest != current_version:
-            updated.append((types_name, current_version or "", latest))
-            logger.info("  Update %s: %s → %s", types_name, current_version, latest)
-
-    return removed, updated
-
-
-def sync_types(
-    base_packages: set[str],
-    all_packages: set[str],
-    pyproject_path: Path,
-    *,
-    index_url: str | None = None,
-    extra_index_urls: Sequence[str] = (),
-    pip_config: PipConfig | None = None,
-    min_python: Version | None = None,
-) -> TypesSyncResult:
-    """Compute types-* stub additions, removals, and updates.
-
-    Args:
-        base_packages (set[str]): Non-types package names from uv.lock.
-        all_packages (set[str]): All package names from uv.lock (including types-*).
-        pyproject_path (Path): Path to pyproject.toml.
-        index_url (str | None): Optional PEP 503 index URL.
-        extra_index_urls (Sequence[str]): Additional PEP 503 index URLs to try.
-        pip_config (PipConfig | None): Optional pip configuration for SSL settings.
-        min_python (Version | None): Minimum Python version to filter compatible releases.
-
-    Returns:
-        TypesSyncResult: TypesSyncResult describing all changes.
-    """
-    current_types = _parse_type_stubs_types(pyproject_path)
-
-    candidates = {
-        name for name in base_packages if not name.startswith(PROJECT_NAME) and name != "type-stubs"
-    }
-
-    already_known = {name.removeprefix("types-") for name in current_types}
-    to_check = candidates - already_known
-
-    logger.info(
-        "Checking %d candidates for types-* stubs (%d already in type-stubs group)",
-        len(to_check),
-        len(already_known),
-    )
-
-    available = _discover_available_types(
-        to_check,
-        index_url=index_url,
-        extra_index_urls=extra_index_urls,
-        pip_config=pip_config,
-    )
-
-    types_to_fetch = _collect_types_to_fetch(available, current_types, all_packages)
-    types_cache, _ = _prefetch_versions(
-        types_to_fetch,
-        set(),
-        index_url=index_url,
-        extra_index_urls=extra_index_urls,
-        pip_config=pip_config,
-    )
-
-    result = TypesSyncResult()
-    result.added = _find_new_stubs(available, current_types, types_cache, min_python)
-    result.removed, result.updated = _find_stale_stubs(
-        current_types,
-        all_packages,
-        types_cache,
-        min_python,
-    )
-
-    return result

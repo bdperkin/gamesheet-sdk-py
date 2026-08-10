@@ -169,7 +169,7 @@ jobs:
           # 4. Update CHANGELOG.md
           # 5. Commit changes
           # 6. Create and push tag
-          uv run --extra release --extra dev semantic-release version --changelog
+          uv run --extra python-semantic-release --extra dev semantic-release version --changelog
 
           # Check if a release was created
           if git describe --exact-match HEAD 2>/dev/null; then

@@ -26,3 +26,7 @@ class WriteError(SyncDepsError):
 
 class LockfileError(SyncDepsError):
     """uv.lock generation or validation failed."""
+
+
+class ResolveError(SyncDepsError):
+    """Version resolution delegated to uv failed."""

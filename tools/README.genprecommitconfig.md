@@ -40,7 +40,7 @@ validates the result incrementally.
 `genprecommitconfig` replaces manual maintenance of `.pre-commit-config.yaml` with a reproducible, configuration-driven workflow. Instead of editing the
 pre-commit config directly, you declare repositories and hook customizations in `.genprecommitconfig.yaml` and the tool:
 
-1. Resolves the latest version tag for each repository (or uses a pinned/installed version)
+1. Resolves the version tag for each repository — preferring the version the project locks in `uv.lock`, else the latest tag (or a pinned/installed version)
 2. Fetches the upstream `.pre-commit-hooks.yaml` hook definitions
 3. Filters hooks by allowed languages and a blacklist
 4. Applies overrides, appends, and prepends from the configuration
@@ -241,11 +241,20 @@ Each hook entry (within `hooks`) supports:
 
 The `rev` field controls how the tool resolves the repository version:
 
-- **`null` or omitted**: Queries `git ls-remote --tags` and selects the latest release tag using PEP 440 version sorting. Pre-release tags (containing `a` or
-  `b` between digits) are excluded.
-- **`"installed"`**: Uses `importlib.metadata.version()` to match the locally installed package version. The package name is derived from the repository URL
-  (e.g., `uv-pre-commit` → `uv`).
+- **`null` or omitted**: If the repo's package appears in `uv.lock`, the tag matching that locked version wins — so a generated `rev` cannot drift from the pin
+  `pyproject.toml` carries for the same tool. Otherwise (package absent from the lockfile, or it ships no tag for that version) the tool falls back to
+  `git ls-remote --tags` and selects the latest release tag using PEP 440 version sorting, cross-referenced against the configured package index for repos in
+  `TOOL_MAPPING`. Pre-release tags (containing `a` or `b` between digits) are excluded.
+- **`"installed"`**: Uses the version from `uv.lock`, falling back to `importlib.metadata.version()` when the package is outside the lockfile. Reading the
+  lockfile first makes the result deterministic and removes the requirement that the package be importable by whichever interpreter runs this tool. The package
+  name comes from `TOOL_MAPPING`, or is derived from the repository URL (e.g., `uv-pre-commit` → `uv`).
 - **Exact string** (e.g., `"v1.7.7"`): Used as-is without any resolution.
+
+A missing or unreadable `uv.lock` is not an error — the lockfile only informs rev selection, so the tool logs the fact and continues with tag/index discovery.
+
+> **Why the lockfile leads.** Choosing the newest tag independently of the project's own resolution is how `.pre-commit-config.yaml` and `pyproject.toml` drift
+> apart: the hook runs one version while the project pins another. `syncdeps` is the tool that *discovers* upgrades; `genprecommitconfig` mirrors whatever the
+> project currently resolves to.
 
 ### 5.6. Hook Filtering
 
@@ -296,14 +305,14 @@ These are included transitively via `gamesheet-sdk-py[dev]`.
 
 ### 8.1. Common Issues
 
-| Problem                                         | Solution                                                                   |
-| ----------------------------------------------- | -------------------------------------------------------------------------- |
-| `ConfigError: Configuration file not found`     | Create `.genprecommitconfig.yaml` or use `--config-file`                   |
-| `DiscoveryError: git ls-remote failed`          | Check network access to repository URL                                     |
-| `DiscoveryError: Package 'X' is not installed`  | Install the package or change `rev` from `"installed"` to a version string |
-| `FetchError: Unsupported repository host`       | Only GitHub and GitLab URLs are supported                                  |
-| `ValidationError: pre-commit validation failed` | Check pre-commit output for hook failures; fix and re-run                  |
-| `pre-commit executable not found`               | Install pre-commit: `pip install pre-commit`                               |
+| Problem                                                           | Solution                                                    |
+| ----------------------------------------------------------------- | ----------------------------------------------------------- |
+| `ConfigError: Configuration file not found`                       | Create `.genprecommitconfig.yaml` or use `--config-file`    |
+| `DiscoveryError: git ls-remote failed`                            | Check network access to repository URL                      |
+| `DiscoveryError: Package 'X' is neither in uv.lock nor installed` | Run `uv lock`, install it, or set `rev` to a version string |
+| `FetchError: Unsupported repository host`                         | Only GitHub and GitLab URLs are supported                   |
+| `ValidationError: pre-commit validation failed`                   | Check pre-commit output for hook failures; fix and re-run   |
+| `pre-commit executable not found`                                 | Install pre-commit: `pip install pre-commit`                |
 
 ### 8.2. Debug Mode
 

@@ -34,11 +34,11 @@ logger = logging.getLogger(__name__)
 
 
 class _SimpleIndexParser(HTMLParser):
-    """Parse filenames and requires-python from PEP 503 Simple Repository API HTML."""
+    """Parse filenames, requires-python, and yank status from PEP 503 Simple API HTML."""
 
     def __init__(self: _SimpleIndexParser) -> None:
         super().__init__()
-        self.files: list[tuple[str, str | None]] = []
+        self.files: list[tuple[str, str | None, bool]] = []
 
     def handle_starttag(
         self: _SimpleIndexParser,
@@ -50,14 +50,18 @@ class _SimpleIndexParser(HTMLParser):
 
         href = None
         req_py = None
+        yanked = False
         for attr, value in attrs:
             if attr == "href" and value:
                 href = value.rsplit("#", 1)[0].rsplit("/", 1)[-1]
             elif attr == "data-requires-python" and value:
                 req_py = value
+            elif attr == "data-yanked":
+                # PEP 592: the attribute's presence marks the file yanked; its value is only a reason.
+                yanked = True
 
         if href:
-            self.files.append((href, req_py))
+            self.files.append((href, req_py, yanked))
 
 
 def _version_from_filename(filename: str) -> str | None:
@@ -80,22 +84,55 @@ def _version_from_filename(filename: str) -> str | None:
     return None
 
 
+def _drop_yanked(
+    versions: dict[str, str | None],
+    yanked: dict[str, bool],
+) -> dict[str, str | None]:
+    """Remove releases whose every distribution is yanked.
+
+    A yanked release is only installable when a requirement pins it exactly (PEP 592), so proposing one as a
+    convergence target produces a pin that resolvers refuse to reach — and that cannot later be relaxed to
+    discover an upgrade.
+
+    Args:
+        versions (dict[str, str | None]): Version string to requires_python.
+        yanked (dict[str, bool]): Version string to whether every file for it is yanked.
+
+    Returns:
+        dict[str, str | None]: The input with fully-yanked releases removed.
+    """
+    kept = {ver: req_py for ver, req_py in versions.items() if not yanked.get(ver)}
+
+    dropped = len(versions) - len(kept)
+    if dropped:
+        logger.debug("Excluded %d yanked release(s) from candidates", dropped)
+
+    return kept
+
+
 def _extract_versions_from_simple_html(html_content: str) -> dict[str, str | None]:
     """Extract version strings and requires-python from Simple API HTML.
 
     Returns:
-        dict[str, str | None]: Dict mapping version string to requires_python (or None).
+        dict[str, str | None]: Dict mapping version string to requires_python (or None), yanked releases
+            excluded.
     """
     parser = _SimpleIndexParser()
     parser.feed(html_content)
 
     versions: dict[str, str | None] = {}
-    for filename, req_py in parser.files:
+    yanked: dict[str, bool] = {}
+    for filename, req_py, is_yanked in parser.files:
         ver = _version_from_filename(filename)
-        if ver and ver not in versions:
+        if not ver:
+            continue
+
+        if ver not in versions:
             versions[ver] = req_py
 
-    return versions
+        yanked[ver] = yanked.get(ver, True) and is_yanked
+
+    return _drop_yanked(versions, yanked)
 
 
 _SIMPLE_ACCEPT = (
@@ -107,21 +144,28 @@ def _extract_versions_from_simple_json(data: dict) -> dict[str, str | None]:  # 
     """Extract versions and requires-python from a PEP 691 JSON response.
 
     Returns:
-        dict[str, str | None]: Dict mapping version string to requires_python (or None).
+        dict[str, str | None]: Dict mapping version string to requires_python (or None), yanked releases
+            excluded.
     """
     req_py_map: dict[str, str | None] = {}
+    yanked: dict[str, bool] = {}
 
     for file_entry in data.get("files", []):
         ver = _version_from_filename(file_entry.get("filename", ""))
-        if ver and ver not in req_py_map:
+        if not ver:
+            continue
+
+        if ver not in req_py_map:
             req_py_map[ver] = file_entry.get("requires-python")
+
+        yanked[ver] = yanked.get(ver, True) and bool(file_entry.get("yanked"))
 
     if "versions" in data:
         for ver in data["versions"]:
             if ver not in req_py_map:
                 req_py_map[ver] = None
 
-    return req_py_map
+    return _drop_yanked(req_py_map, yanked)
 
 
 def _parse_simple_response(
@@ -275,7 +319,8 @@ def _fetch_pypi_json_versions(package_name: str) -> dict[str, str | None]:
         package_name (str): The PyPI package name.
 
     Returns:
-        dict[str, str | None]: Dict mapping version string to requires_python (or None).
+        dict[str, str | None]: Dict mapping version string to requires_python (or None), yanked releases
+            excluded.
 
     Raises:
         FetchError: If the request fails.
@@ -294,7 +339,11 @@ def _fetch_pypi_json_versions(package_name: str) -> dict[str, str | None]:
         msg = f"Failed to fetch PyPI versions for {package_name}: {exc}"
         raise FetchError(msg) from exc
 
-    return {ver: _extract_requires_python(files) for ver, files in data.get("releases", {}).items()}
+    releases = data.get("releases", {})
+    versions = {ver: _extract_requires_python(files) for ver, files in releases.items()}
+    yanked = {ver: bool(files) and all(f.get("yanked") for f in files) for ver, files in releases.items()}
+
+    return _drop_yanked(versions, yanked)
 
 
 def fetch_pypi_versions(
@@ -479,6 +528,26 @@ def resolve_latest_version(
         return None
 
     return str(sorted_versions[-1][1])
+
+
+def find_tag_for_version(git_tags: list[str], version: str) -> str | None:
+    """Find the git tag whose normalized version equals *version*.
+
+    Used to translate a ``uv``-resolved version back into the tag a pre-commit ``rev`` must carry, preserving
+    whatever prefix style the upstream repo uses (``1.2.3`` vs ``v1.2.3``).
+
+    Args:
+        git_tags (list[str]): Tag strings from git ls-remote.
+        version (str): Normalized version string to match.
+
+    Returns:
+        str | None: The original tag string, or None if no tag matches.
+    """
+    for orig_tag, parsed in clean_and_sort_versions(git_tags, include_prerelease=True):
+        if str(parsed) == version:
+            return orig_tag
+
+    return None
 
 
 def find_highest_common_version(
