@@ -63,7 +63,7 @@ dependencies = [
   "python-dateutil==2.9.0.post0",
   "pyyaml==6.0.3",
   "requests==2.34.2",
-  "rich==15.0.0",
+  "rich>=13.9.0",
   "rich-click==1.9.8",
   "tabulate==0.10.0",
   "tzlocal==5.4.4",
@@ -234,6 +234,12 @@ optional-dependencies.radon = [
 ]
 optional-dependencies.refurb = [
   "refurb==2.3.1",
+]
+optional-dependencies.release = [
+  "python-semantic-release==9.21.0",
+]
+optional-dependencies.semantic-release = [
+  "python-semantic-release==9.21.0",
 ]
 optional-dependencies.semgrep = [
   "semgrep==1.172.0",
@@ -1339,7 +1345,7 @@ extend_exclude = [
   "tools",
 ]
 ignore = []
-per_rule_ignores.DEP002 = [ "gamesheet-sdk-py" ]
+per_rule_ignores.DEP002 = [ "gamesheet-sdk-py", "python-semantic-release" ]
 known_first_party = [
   "gamesheet_sdk",
 ]
@@ -1376,6 +1382,8 @@ optional_dependencies_dev_groups = [
   "pyupgrade",
   "radon",
   "refurb",
+  "release",
+  "semantic-release",
   "semgrep",
   "ssort",
   "tools",
