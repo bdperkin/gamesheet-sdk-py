@@ -21,6 +21,7 @@ from shared.log_config import configure_logging
 from shared.pip_config import PipConfig, load_pip_config
 from shared.uv_resolve import UvResolveError, resolve_project_versions
 
+from depsync.caps import detect_capped_pins
 from depsync.config import (
     DEPENDABOT_CONFIG,
     GENPRECOMMIT_CONFIG,
@@ -36,6 +37,7 @@ from depsync.models import (
     ConvergenceResult,
     OverridePolicy,
     OverrideResult,
+    PyProjectDependency,
     RunConfig,
     TypesSyncResult,
     UpdateTarget,
@@ -65,6 +67,8 @@ from depsync.writers import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from packaging.version import Version
 
 console = Console()
@@ -646,27 +650,74 @@ def _run_dependabot_preview(
     return True
 
 
+def _find_capped_pins(
+    pyproject_deps: dict[str, list[PyProjectDependency]],
+    resolved: dict[str, str],
+    index_url: str | None,
+    extra_index_urls: Sequence[str],
+    pip_config: PipConfig,
+    min_python: Version | None,
+) -> dict[str, str]:
+    """Identify managed pins that another dependency holds below the newest release.
+
+    Args:
+        pyproject_deps (dict[str, list[PyProjectDependency]]): Parsed pyproject dependencies by group.
+        resolved (dict[str, str]): Package name to the version uv resolved. Empty when uv resolution is off,
+            in which case there is nothing to compare against and the check is skipped.
+        index_url (str | None): Optional PEP 503 index URL.
+        extra_index_urls (Sequence[str]): Additional PEP 503 index URLs.
+        pip_config (PipConfig): Pip configuration for SSL settings.
+        min_python (Version | None): Minimum Python version to filter candidate releases against.
+
+    Returns:
+        dict[str, str]: Package name to resolved version for capped pins, empty when none are capped.
+    """
+    if not resolved:
+        return {}
+
+    names = {dep.name for deps in pyproject_deps.values() for dep in deps}
+    capped = detect_capped_pins(
+        names,
+        resolved,
+        index_url=index_url,
+        extra_index_urls=extra_index_urls,
+        pip_config=pip_config,
+        min_python=min_python,
+    )
+    if capped:
+        listed = ", ".join(f"{name}=={version}" for name, version in sorted(capped.items()))
+        console.print(f"  Capped by another dependency: [magenta]{listed}[/]")
+
+    return capped
+
+
 def _run_dependabot_sync(
     config: RunConfig,
     pinned_revs: dict[str, str],
     override_pins: dict[str, str] | None = None,
+    capped_pins: dict[str, str] | None = None,
 ) -> bool:
-    """Sync dependabot.yml ignore list with pinned revs and transitive override pins.
+    """Sync dependabot.yml ignore list with pinned revs, override pins, and capped pins.
 
     An overridden package needs the same protection as a rev-pinned one, and arguably more: syncdeps owns its
     version, and for a security override an unattended Dependabot bump past the declared ceiling is the very
     breakage the ceiling exists to prevent. Overrides win over a rev pin for the same package, since the
     override is what actually governs what gets installed.
 
+    Capped pins are those another dependency holds below the newest release, so a Dependabot proposal for that
+    release could never be installed. Suppressing them stops a weekly PR that is unmergeable by construction.
+
     Args:
         config (RunConfig): Run configuration containing file paths and flags.
         pinned_revs (dict[str, str]): Repo URL to pinned rev from .genprecommitconfig.yaml.
         override_pins (dict[str, str] | None): Package name to target version for transitive overrides.
+        capped_pins (dict[str, str] | None): Package name to resolved version for pins another
+            dependency holds below the newest release.
 
     Returns:
         bool: True if changes are needed (or were applied), False otherwise.
     """
-    pinned_packages = resolve_pinned_packages(pinned_revs) | (override_pins or {})
+    pinned_packages = resolve_pinned_packages(pinned_revs) | (capped_pins or {}) | (override_pins or {})
 
     if not config.dependabot_path.exists():
         logger.debug("dependabot.yml not found at %s, skipping", config.dependabot_path)
@@ -984,7 +1035,11 @@ def _run(config: RunConfig) -> None:
     if overrides_changed:
         has_changes = True
 
-    dependabot_changed = _run_dependabot_sync(config, pinned_revs, override_pins)
+    capped_pins = _find_capped_pins(
+        pyproject_deps, resolved, index_url, extra_index_urls, pip_config, min_python
+    )
+
+    dependabot_changed = _run_dependabot_sync(config, pinned_revs, override_pins, capped_pins)
     if dependabot_changed:
         has_changes = True
 
