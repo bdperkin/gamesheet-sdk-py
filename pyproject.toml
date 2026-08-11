@@ -247,6 +247,22 @@ build.targets.sdist.include = [
 ]
 
 [tool.uv]
+# Transitive-dependency override. semgrep hard-pins mcp==1.23.3 (every release
+# to date does, including the latest), and that version carries three HIGH
+# advisories: CVE-2026-52869, CVE-2026-52870, CVE-2026-59950. A constraint
+# cannot fix this — constraints only narrow, and >=1.28.1 conflicts with an
+# exact ==1.23.3 — so the requirement is overridden outright.
+#
+# Must stay an exact pin bounded below 2. A floor alone resolves to mcp 2.0.0,
+# which drops mcp.server.fastmcp; semgrep/cli.py imports semgrep.commands.mcp
+# unconditionally, so the semgrep binary fails to start at all. Verified that
+# semgrep 1.172.0 scans normally against mcp 1.29.0.
+#
+# Bounds: >=1.28.1 (advisories), <2 (compatibility). Review 2026-11-09, or drop
+# this entirely once semgrep loosens its pin. To be managed by tools/syncdeps.
+override-dependencies = [
+  "mcp==1.29.0",
+]
 package = true
 
 ## ## ruff - An extremely fast Python linter and code formatter

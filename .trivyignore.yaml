@@ -1526,30 +1526,6 @@ vulnerabilities:
       condition applies to a Linux container image. Not exploitable here.
     expired_at: 2027-02-02
 
-  # ----------------------------------------------------------------------------
-  # mcp — Model Context Protocol Python SDK (transitive via semgrep)
-  # ----------------------------------------------------------------------------
-  - id: CVE-2026-52869
-    statement: >-
-      HIGH: mcp HTTP transport unauthenticated session requests. mcp 1.23.3 is
-      hard-pinned by semgrep 1.172.0 (dev/linter extra). The SDK never runs or
-      exposes an MCP HTTP server.
-    expired_at: 2026-11-09
-
-  - id: CVE-2026-52870
-    statement: >-
-      HIGH: mcp experimental task handlers access control. mcp 1.23.3 is
-      hard-pinned by semgrep 1.172.0 (dev/linter extra). The SDK never runs or
-      exposes an MCP task handler.
-    expired_at: 2026-11-09
-
-  - id: CVE-2026-59950
-    statement: >-
-      HIGH: mcp WebSocket transport Host/Origin validation. mcp 1.23.3 is
-      hard-pinned by semgrep 1.172.0 (dev/linter extra). The SDK never runs or
-      exposes an MCP WebSocket server.
-    expired_at: 2026-11-09
-
 # ==============================================================================
 # Review Schedule
 # ==============================================================================
@@ -1576,6 +1552,16 @@ vulnerabilities:
 #     suppression mechanism in use. 81 resolved straight to "fixed" (their CVEs
 #     are no longer in the image); the remaining 256 close on the next image
 #     scan that uploads SARIF.
+#
+# Reviewed: 2026-08-11  —  169 rules total
+#   - Removed 3 rules that no longer match anything (CVE-2026-52869,
+#     CVE-2026-52870, CVE-2026-59950, all in mcp). They were accepted on the
+#     grounds that semgrep hard-pinned mcp==1.23.3 and nothing here runs an MCP
+#     server. That pin is now overridden in pyproject.toml
+#     (`[tool.uv] override-dependencies = ["mcp==1.29.0"]`), so the CVEs are
+#     fixed rather than accepted and the rules are dead. Kept as an exact pin
+#     below 2 deliberately: mcp 2.x removes `mcp.server.fastmcp`, which
+#     `semgrep/cli.py` imports unconditionally.
 #
 # Expiry tiers in force: 25 rules due 2026-10-27 or 2026-11-02,
 #                        72 due 2027-01-27 or 2027-02-02, 70 due 2027-07-27.
