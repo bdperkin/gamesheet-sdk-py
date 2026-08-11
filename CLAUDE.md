@@ -87,7 +87,7 @@ Future domain modules attach the same way: a thin action function in a domain mo
 ```bash
 # Editable install with everything (run once after clone / when deps change).
 # `[dev]` is minimal (pre-commit, pre-commit-uv, uv). `[all]` pulls every
-# per-tool extra declared in pyproject.toml — pytest, mypy, lint suite, docs, …
+# per-tool extra declared in pyproject.toml — pytest, lint suite, docs, …
 pip install -e ".[all]"
 
 # Or a leaner combo for just tests + docs:
@@ -225,8 +225,7 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   `security-_metrics_-_complexity.yml`, and `comprehensive-tests.yml` (nightly, multi-OS; also uploads to Codecov). Plus the GitHub-supplied `codeql.yml`,
   `dependency-review.yml`, security scanning workflows (`gitguardian.yml`, `semgrep.yml`, `security-trivy.yml`, `security-trivy-image.yml`, `osv-scanner.yml`,
   `workflow-linter.yml`), and `release.yml`. Each tool runs as its own matrixed job (py3.11–3.14) invoking `uv run --extra <extra> <tool>` directly, so the
-  extra is the only dependency declaration involved. Job display names are the bare tool name (e.g. `mypy (py3.11)`, `pytest (py3.12)`) so the Checks UI stays
-  scannable.
+  extra is the only dependency declaration involved. Job display names are the bare tool name (e.g. `pytest (py3.12)`) so the Checks UI stays scannable.
 
   **Trigger layout (uniform across most workflows):** `push:` is scoped to `branches: [main]` — CI runs on main branch pushes and when PRs are opened/updated
   against main. `pull_request:` uses either `types: [opened, reopened, synchronize]` (default behavior, runs on every PR push) or `branches: [main]` depending
@@ -237,9 +236,8 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   `push: branches: [main]`), and `comprehensive-tests.yml` (nightly `schedule` trigger plus manual `workflow_dispatch`).
 
   **Keep required status checks in sync with job names (gotcha worth preserving):** `main`'s branch protection pins a list of required status-check contexts by
-  *exact job name* (`pytest (py3.11)`, `mypy (py3.12)`, `bandit (py3.13)`, `pre-commit (py)`, …). That list lives in **repo settings, not in the tree**, so
-  nothing in a PR diff reveals it and no hook validates it. Renaming, removing, or re-matrixing a job therefore desynchronizes it silently, and it fails in both
-  directions:
+  *exact job name* (`pytest (py3.11)`, `bandit (py3.13)`, `pre-commit (py)`, …). That list lives in **repo settings, not in the tree**, so nothing in a PR diff
+  reveals it and no hook validates it. Renaming, removing, or re-matrixing a job therefore desynchronizes it silently, and it fails in both directions:
 
   - **Required but never reported** — the context can never turn green, so *every* PR sits at `mergeStateStatus: BLOCKED` with all its checks passing and no
     hint as to why.

@@ -100,15 +100,3 @@ categories:
     repos:
       - name: ruff
         repo: https://github.com/astral-sh/ruff-pre-commit
-
-  quality:
-    description: Type Checkers
-    repos:
-      - name: mypy
-        repo: https://github.com/pre-commit/mirrors-mypy
-        hooks:
-          - id: mypy
-            appends:
-              args:
-                - --install-types
-                - --non-interactive

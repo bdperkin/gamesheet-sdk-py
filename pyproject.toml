@@ -108,17 +108,23 @@ optional-dependencies.editorconfig-checker = [
   "editorconfig-checker==3.11.1",
 ]
 optional-dependencies.formatters = [
-  "gamesheet-sdk-py[editorconfig-checker,pyroma,validate-pyproject,yamlfix,yamllint]",
+  "gamesheet-sdk-py[editorconfig-checker,pyproject-fmt,pyroma,validate-pyproject,yamlfix,yamllint]",
 ]
 optional-dependencies.interrogate = [
   "interrogate==1.7.0",
 ]
 optional-dependencies.markdown-tools = [
-  "gamesheet-sdk-py[mdformat]",
+  "gamesheet-sdk-py[mdformat,pymarkdown]",
 ]
 optional-dependencies.mdformat = [
   "mdformat-gfm==1.0.0",
   "mdformat-pyproject==0.1.1",
+]
+optional-dependencies.pymarkdown = [
+  "pymarkdownlnt==0.9.39",
+]
+optional-dependencies.pyproject-fmt = [
+  "pyproject-fmt==2.27.0",
 ]
 optional-dependencies.pyroma = [
   "pyroma==5.0.1",
