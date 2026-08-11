@@ -121,7 +121,7 @@ optional-dependencies.mdformat = [
   "mdformat-pyproject==0.1.1",
 ]
 optional-dependencies.mypy = [
-  "gamesheet-sdk-py[dev,pytest,tools,type-stubs]",
+  "gamesheet-sdk-py[pytest,type-stubs]",
   "mypy==2.3.0",
 ]
 optional-dependencies.pymarkdown = [
@@ -131,17 +131,18 @@ optional-dependencies.pyproject-fmt = [
   "pyproject-fmt==2.27.0",
 ]
 optional-dependencies.pyrefly = [
-  "gamesheet-sdk-py[dev,pytest,tools]",
+  "gamesheet-sdk-py[pytest]",
   "pyrefly==1.2.0",
 ]
 optional-dependencies.pyright = [
-  "gamesheet-sdk-py[dev,pytest,tools]",
+  "gamesheet-sdk-py[pytest]",
   "pyright==1.1.411",
 ]
 optional-dependencies.pyroma = [
   "pyroma==5.0.1",
 ]
 optional-dependencies.pytest = [
+  "gamesheet-sdk-py[tools]",
   "pytest==9.1.1",
   "pytest-cov==7.1.0",
   "pytest-playwright==0.9.0",

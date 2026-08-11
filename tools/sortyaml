@@ -373,6 +373,40 @@ def _dependabot_sort_key(
     return (_ordered_key_pos(key, order), _type_order(value), key)
 
 
+# -- Syncdeps overrides --
+
+_SYNCDEPSOVERRIDES_TOP_LEVEL = ("overrides",)
+
+# Reads as the argument the entry is making: what is overridden, on whose behalf, which versions are
+# acceptable, why, how that is proven, and when to look again. `review` sits last for the same reason
+# `expired_at` does in trivyignore — it is the entry's expiry metadata, not part of its substance.
+_SYNCDEPSOVERRIDES_ENTRY_KEYS = (
+    "package",
+    "pinned_by",
+    "floor",
+    "ceiling",
+    "reason",
+    "verify",
+    "review",
+)
+
+_SYNCDEPSOVERRIDES_DEPTH_KEYS: dict[int, tuple[str, ...]] = {
+    0: _SYNCDEPSOVERRIDES_TOP_LEVEL,
+    1: _SYNCDEPSOVERRIDES_ENTRY_KEYS,
+}
+
+
+def _syncdepsoverrides_sort_key(
+    key: str,
+    value: object,
+    depth: int,
+    _pos: int,
+) -> tuple[object, ...]:
+    """Return sort key for a syncdeps overrides key at the given depth."""
+    order = _SYNCDEPSOVERRIDES_DEPTH_KEYS.get(depth, ())
+    return (_ordered_key_pos(key, order), _type_order(value), key)
+
+
 # -- GitHub workflow --
 
 _GITHUB_WORKFLOW_TOP_LEVEL = (
@@ -526,6 +560,7 @@ _SCHEMA_SORT_KEYS: dict[str, SortKeyFn] = {
     "gitlab-ci": _gitlab_ci_sort_key,
     "github-workflow": _github_workflow_sort_key,
     "pre-commit-config": _precommit_sort_key,
+    "syncdepsoverrides": _syncdepsoverrides_sort_key,
     "trivyignore": _trivyignore_sort_key,
 }
 

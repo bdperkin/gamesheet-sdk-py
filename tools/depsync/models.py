@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from enum import StrEnum
 from pathlib import Path
 
@@ -110,6 +111,53 @@ class TypesSyncResult(BaseModel):
     )
 
 
+class OverridePolicy(BaseModel):
+    """One transitive-dependency override declared in ``.syncdepsoverrides.yaml``.
+
+    Carries the *policy* — why the override exists and what versions are acceptable — as distinct from the
+    resolved exact pin, which lives in ``pyproject.toml``.
+    """
+
+    package: str = Field(description="PyPI name of the transitive package to override")
+    pinned_by: str = Field(description="Dependency whose requirement is being overridden")
+    floor: str = Field(description="Lowest acceptable version as a PEP 440 specifier")
+    ceiling: str | None = Field(
+        default=None,
+        description="Upper bound as a PEP 440 specifier, or None to float",
+    )
+    reason: str = Field(description="Why the override exists and why the bounds are what they are")
+    verify: str | None = Field(
+        default=None,
+        description="Shell command that must exit 0 with the override applied",
+    )
+    review: date = Field(description="ISO date for the next review")
+
+    def specifier(self) -> str:
+        """Render the bounds as a single PEP 440 requirement for uv to resolve within.
+
+        Returns:
+            str: Requirement string such as ``mcp>=1.28.1,<2``.
+        """
+        bounds = self.floor if self.ceiling is None else f"{self.floor},{self.ceiling}"
+        return f"{self.package}{bounds}"
+
+
+class OverrideResult(BaseModel):
+    """Outcome of converging one override policy."""
+
+    package: str = Field(description="Package the override applies to")
+    old_version: str | None = Field(description="Version currently pinned, or None if not yet overridden")
+    new_version: str = Field(description="Version resolved within the declared bounds")
+    retirable: bool = Field(
+        default=False,
+        description="True if a resolution without the override already satisfies the floor",
+    )
+    unpinned_version: str | None = Field(
+        default=None,
+        description="Version resolved without the override, for reporting retirement",
+    )
+
+
 class RunConfig(BaseModel):
     """CLI runtime configuration."""
 
@@ -117,6 +165,7 @@ class RunConfig(BaseModel):
     precommit_config_path: Path = Field(default=Path(".pre-commit-config.yaml"))
     genprecommit_config_path: Path = Field(default=Path(".genprecommitconfig.yaml"))
     dependabot_path: Path = Field(default=Path(".github/dependabot.yml"))
+    overrides_path: Path = Field(default=Path(".syncdepsoverrides.yaml"))
     uv_lock_path: Path = Field(default=Path("uv.lock"))
     log_level: str = Field(default="info", pattern=r"^(debug|info|warning|error)$")
     dry_run: bool = False

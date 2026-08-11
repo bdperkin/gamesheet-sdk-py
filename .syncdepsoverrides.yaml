@@ -1,0 +1,59 @@
+---
+# .syncdepsoverrides.yaml — transitive-dependency override policy for tools/syncdeps
+#
+# Run: ./tools/syncdeps
+# See: tools/README.syncdeps.md
+#
+# ==============================================================================
+# What this file is for
+# ==============================================================================
+# syncdeps converges *declared* dependencies: `==` pins in pyproject.toml, `rev:`
+# values in .pre-commit-config.yaml, and pre-commit `additional_dependencies`. A
+# transitive package pinned by an upstream requirement is none of those, so there
+# is nowhere to express "hold this forward" — bumping the parent cannot move it.
+#
+# Each entry here declares such an override. syncdeps resolves the newest release
+# inside [floor, ceiling], writes it as an exact pin to `[tool.uv]
+# override-dependencies` in pyproject.toml, runs `verify` to prove the override
+# did not break the package that pins it, and reports the entry as retirable once
+# a resolution *without* the override already satisfies `floor`.
+#
+# A constraint cannot substitute for an override: `constraint-dependencies` only
+# narrows existing requirements, so a floor above an upstream exact pin is
+# unsatisfiable rather than winning.
+#
+# ==============================================================================
+# Fields
+# ==============================================================================
+#   package    (required) PyPI name of the transitive package to override.
+#   pinned_by  (required) The dependency whose requirement is being overridden.
+#              Recorded so the entry explains itself and so retirement has a
+#              subject.
+#   floor      (required) Lowest acceptable version, as a PEP 440 specifier.
+#              This is the reason the override exists.
+#   ceiling    (optional) Upper bound, as a PEP 440 specifier. Omit only when the
+#              package is known to be safe to float to its newest release.
+#   reason     (required) Why the override exists and why the bounds are what
+#              they are. Read by humans at review time.
+#   verify     (optional) Shell command that must exit 0 with the override
+#              applied. Skipped under --check / --dry-run, which never write.
+#   review     (required) ISO date for the next look. Not an expiry: nothing is
+#              auto-removed, because silently dropping an override would
+#              reintroduce the vulnerability it exists to fix.
+# ==============================================================================
+
+overrides:
+  - package: mcp
+    pinned_by: semgrep
+    floor: ">=1.28.1"
+    ceiling: "<2"
+    reason: >-
+      semgrep hard-pins mcp==1.23.3 — every release published to date does,
+      including the latest — and that version carries three HIGH advisories:
+      CVE-2026-52869, CVE-2026-52870 and CVE-2026-59950. Bumping semgrep cannot
+      move mcp, so the requirement is overridden outright. The ceiling is not
+      cosmetic: mcp 2.x removes mcp.server.fastmcp, and semgrep/cli.py imports
+      semgrep.commands.mcp unconditionally, so an unbounded floor resolves to
+      2.0.0 and the semgrep binary fails to start at all.
+    verify: uv run --extra semgrep --no-dev python -c "import semgrep.cli"
+    review: 2026-11-09

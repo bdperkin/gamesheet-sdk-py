@@ -13,6 +13,8 @@ GENPRECOMMIT_CONFIG = ".genprecommitconfig.yaml"
 
 DEPENDABOT_CONFIG = ".github/dependabot.yml"
 
+OVERRIDES_CONFIG = ".syncdepsoverrides.yaml"
+
 UV_LOCK = "uv.lock"
 
 PYPI_API_URL = "https://pypi.org/pypi/{package}/json"
