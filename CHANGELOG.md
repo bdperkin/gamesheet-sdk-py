@@ -2,6 +2,21 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.20 (2026-08-11)
+
+### Chores
+
+- Remove stale tox references and correct the docs they misstated ([#208](https://github.com/bdperkin/gamesheet-sdk-py/pull/208),
+  [`523e1bc`](https://github.com/bdperkin/gamesheet-sdk-py/commit/523e1bc066b9aba111807ad9acfb570097b6d733))
+
+- **deps)(deps**: Bump the actions group across 1 directory with 3 updates ([#203](https://github.com/bdperkin/gamesheet-sdk-py/pull/203),
+  [`ff27078`](https://github.com/bdperkin/gamesheet-sdk-py/commit/ff270780f32892be1939826a8a967fd118b6d5b0))
+
+### Features
+
+- **tools**: Suppress Dependabot PRs for pins capped by another dependency ([#209](https://github.com/bdperkin/gamesheet-sdk-py/pull/209),
+  [`cb7f9d8`](https://github.com/bdperkin/gamesheet-sdk-py/commit/cb7f9d8846dc0d51d4e14b08ce17d7064f50b131))
+
 ## v0.4.19 (2026-08-11)
 
 ### Bug Fixes
