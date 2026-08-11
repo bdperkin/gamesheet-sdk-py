@@ -7,14 +7,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import rich_click as click
+from rich.console import Console
+from shared import PROJECT_NAME
+from shared.log_config import configure_logging
+
 from precommit.config import DEFAULT_CONFIG_FILE, INIT_TEMPLATE
 from precommit.exceptions import GenPreCommitConfigError
 from precommit.generator import PreCommitGenerator
 from precommit.models import RunConfig
-from rich.console import Console
-import rich_click as click
-from shared import PROJECT_NAME
-from shared.log_config import configure_logging
 
 console = Console()
 

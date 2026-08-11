@@ -16,17 +16,15 @@ Direct access to the cookie jar and default headers is via :attr:`Session.cookie
 
 from __future__ import annotations
 
-from collections.abc import Iterator, MutableMapping
-from importlib.metadata import PackageNotFoundError, version as _resolved_version
 import json
 import logging
-from types import TracebackType
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as _resolved_version
 from typing import TYPE_CHECKING, Any, Self
 from urllib.parse import urljoin
 
 import requests
 from requests.adapters import HTTPAdapter
-from requests.cookies import RequestsCookieJar
 from urllib3.util.retry import Retry
 
 from gamesheet_sdk.common.config import Config
@@ -34,7 +32,11 @@ from gamesheet_sdk.common.constants import HTTP_RETRY_STATUSES
 from gamesheet_sdk.common.security import write_secure_text
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, MutableMapping
     from http.cookiejar import Cookie
+    from types import TracebackType
+
+    from requests.cookies import RequestsCookieJar
 
 
 def _default_user_agent() -> str:
@@ -62,7 +64,6 @@ _DEFAULT_RETRY_STATUSES = HTTP_RETRY_STATUSES
 _DEFAULT_RETRY_METHODS = frozenset({"GET", "HEAD", "OPTIONS", "PUT", "DELETE"})
 
 
-# pylint: disable-next=too-many-public-methods
 class Session:
     """A ``requests.Session`` wrapper configured for GameSheet WebUI access.
 

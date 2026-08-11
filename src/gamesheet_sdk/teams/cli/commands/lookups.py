@@ -9,8 +9,10 @@ is required.
 
 from __future__ import annotations
 
-from click.exceptions import Exit
+from typing import TYPE_CHECKING
+
 import rich_click as click
+from click.exceptions import Exit
 from rich_click import Choice, Context, Path
 
 from gamesheet_sdk.common.cli.core import ResourceGroup
@@ -22,6 +24,9 @@ from gamesheet_sdk.common.output import (
     write_output,
 )
 from gamesheet_sdk.teams.lookups import LookupValue, list_lookups
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 
 @click.group(
@@ -113,8 +118,6 @@ def get_command(
         output_format (str): Output format (json, yaml, csv, tsv, or tabulate format).
         output_path (str | None): Optional file path to write output to.
     """
-    from gamesheet_sdk.common.config import Config
-
     config: Config = ctx.obj
     try:
         lookups = list_lookups(timeout=config.timeout)
@@ -167,8 +170,6 @@ def list_command(
         output_format (str): Output format (json, yaml, csv, tsv, or tabulate format).
         output_path (str | None): Optional file path to write output to.
     """
-    from gamesheet_sdk.common.config import Config
-
     config: Config = ctx.obj
     try:
         lookups = list_lookups(timeout=config.timeout)

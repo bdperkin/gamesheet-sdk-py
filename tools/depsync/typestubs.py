@@ -5,23 +5,28 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
-from pathlib import Path
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import TYPE_CHECKING
+
+import requests
+from shared import PROJECT_NAME
+from shared.concurrency import PARALLEL_WORKERS
+from shared.exceptions import ToolError
+from shared.toml import load_toml
 
 from depsync.engine import prefetch_versions
 from depsync.exceptions import FetchError, ParseError
 from depsync.fetchers import check_package_exists, resolve_latest_version
 from depsync.models import TypesSyncResult
-from packaging.version import Version
-import requests
-from shared import PROJECT_NAME
-from shared.concurrency import PARALLEL_WORKERS
-from shared.exceptions import ToolError
-from shared.pip_config import PipConfig
-from shared.toml import load_toml
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from pathlib import Path
+
+    from packaging.version import Version
+    from shared.pip_config import PipConfig
 
 logger = logging.getLogger(__name__)
 

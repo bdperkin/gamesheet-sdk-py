@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-from click.exceptions import Exit
 import rich_click as click
+from click.exceptions import Exit
 
 from gamesheet_sdk.admin.cli.shared import common_output_options, list_columns_option
 from gamesheet_sdk.common.cli.core import ResourceGroup

@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import rich_click as click
 from rich_click import Choice, Context
 
@@ -22,10 +24,14 @@ from gamesheet_sdk.admin.cli.shared import (
 )
 from gamesheet_sdk.admin.seasons import (
     get_season as _get_season_action,
+)
+from gamesheet_sdk.admin.seasons import (
     list_seasons as _list_seasons_action,
 )
 from gamesheet_sdk.common.cli.core import ResourceGroup
-from gamesheet_sdk.common.config import Config
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 
 @click.group(

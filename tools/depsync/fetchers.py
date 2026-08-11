@@ -5,18 +5,14 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
-from html.parser import HTMLParser
 import http
 import logging
 import operator
 import re
+from html.parser import HTMLParser
+from typing import TYPE_CHECKING
 
-from depsync.config import (
-    PYPI_API_URL,
-    PYPI_TIMEOUT,
-)
-from depsync.exceptions import FetchError
+import requests
 from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.utils import (
     InvalidSdistFilename,
@@ -25,10 +21,18 @@ from packaging.utils import (
     parse_wheel_filename,
 )
 from packaging.version import InvalidVersion, Version
-import requests
 from shared.git import GitCommandError, run_ls_remote
 from shared.http_client import get_session
 from shared.pip_config import PipConfig, resolve_verify
+
+from depsync.config import (
+    PYPI_API_URL,
+    PYPI_TIMEOUT,
+)
+from depsync.exceptions import FetchError
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 logger = logging.getLogger(__name__)
 

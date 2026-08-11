@@ -9,12 +9,16 @@ persists session tokens to disk.
 
 from __future__ import annotations
 
-from click.exceptions import Exit
+from typing import TYPE_CHECKING
+
 import rich_click as click
+from click.exceptions import Exit
 from rich_click import Context
 
-from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.teams.login import TeamsLoginFlow
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 
 @click.command("login")

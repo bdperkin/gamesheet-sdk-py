@@ -11,18 +11,22 @@ requirements may cap a sibling below its newest release. Rather than reimplement
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 import logging
-from pathlib import Path
 import re
 import shutil
-import subprocess  # noqa: S404 # nosec B404
+import subprocess
 import tempfile
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+import tomlkit
+from tomlkit.exceptions import TOMLKitError
 
 from shared.exceptions import ToolError
 from shared.toml import PROJECT_NAME, load_toml
-import tomlkit
-from tomlkit.exceptions import TOMLKitError
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 logger = logging.getLogger(__name__)
 
@@ -197,7 +201,7 @@ def _run_uv_lock(directory: Path, timeout: int) -> str:
         raise UvResolveError(msg)
 
     try:
-        result = subprocess.run(  # noqa: S603, S607 # nosec B603, B607
+        result = subprocess.run(
             ["uv", "lock"],
             capture_output=True,
             text=True,

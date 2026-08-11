@@ -12,8 +12,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
 import requests
+from pydantic import BaseModel, ConfigDict, Field
 
 from gamesheet_sdk.common.auth.constants import DEFAULT_TIMEOUT_S
 from gamesheet_sdk.common.exceptions import GameSheetError

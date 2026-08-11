@@ -43,6 +43,7 @@ Load existing tokens and refresh if needed:
 from __future__ import annotations
 
 import json
+from typing import TYPE_CHECKING
 
 import requests
 
@@ -53,9 +54,11 @@ from gamesheet_sdk.common.auth.storage import (
     origin_entry_for,
     read_state_or_empty,
 )
-from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.common.security import write_secure_text
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 
 def load_access_token(config: Config) -> str | None:

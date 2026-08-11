@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from gamesheet_sdk.admin.roster.helpers import (
     get_team_for_roster_update,
@@ -15,8 +15,10 @@ from gamesheet_sdk.admin.roster.helpers import (
 from gamesheet_sdk.admin.roster.models import Coach, parse_coach
 from gamesheet_sdk.common import errors
 from gamesheet_sdk.common.exceptions import GameSheetError
-from gamesheet_sdk.common.session import Session
 from gamesheet_sdk.common.shared import JSONAPI_HEADERS, handle_response
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.session import Session
 
 
 def get_coach(session: Session, season_id: str, coach_id: str) -> Coach:

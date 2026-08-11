@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock
+from typing import TYPE_CHECKING
 
 from gamesheet_sdk.admin.roster import (
     delete_coach,
@@ -21,6 +21,9 @@ from tests.helpers import (
     SEASON_ID,
     TEAM_ID_SECONDARY,
 )
+
+if TYPE_CHECKING:
+    from unittest.mock import MagicMock
 
 
 def test_delete_coach_success(mock_session: MagicMock) -> None:

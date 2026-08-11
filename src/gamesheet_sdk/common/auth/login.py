@@ -7,9 +7,10 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from playwright.sync_api import Response, TimeoutError as PlaywrightTimeoutError
+from playwright.sync_api import Response
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from gamesheet_sdk.common.auth.constants import (
     DEFAULT_TIMEOUT_S,
@@ -26,8 +27,10 @@ from gamesheet_sdk.common.auth.credentials import resolve_email, resolve_passwor
 from gamesheet_sdk.common.auth.firebase import extract_firebase_error
 from gamesheet_sdk.common.auth.tokens import load_access_token, load_refresh_token
 from gamesheet_sdk.common.browser import BrowserSession
-from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.common.exceptions import AuthenticationError
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -123,7 +126,7 @@ def _attach_response_capture(page: Any) -> dict[str, Response | None]:
     Returns:
         dict[str, Response | None]: None. The registered handler populates them as matching responses arrive.
     """
-    captured: dict[str, Response | None] = {"firebase": None, "token": None}  # noqa: S105 # nosec B105
+    captured: dict[str, Response | None] = {"firebase": None, "token": None}
 
     def on_response(response: Response) -> None:
         """Capture Firebase Auth and token exchange responses as they arrive.
@@ -379,7 +382,6 @@ def login(
         _settle_post_login(session, post_login_path)
 
 
-# pylint: disable-next=too-few-public-methods
 class AdminLoginFlow:
     """Browser-based: class:`~gamesheet_sdk.common.auth.flow.LoginFlow` for the admin dashboard.
 

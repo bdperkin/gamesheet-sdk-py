@@ -8,8 +8,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, cast
 from unittest.mock import MagicMock, patch
 
-from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 import pytest
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from gamesheet_sdk import AuthenticationError, Config, login
 from gamesheet_sdk.common.auth.constants import LOGIN_PATH, POST_LOGIN_PATH
@@ -19,7 +19,6 @@ from tests.helpers import TEST_EMAIL_MINIMAL
 
 if TYPE_CHECKING:
     # Imported for typing only, and referenced as a string in cast() below:
-    # flake8-type-checking's TC006 requires cast() annotations to be string
     # literals, so CodeQL reports this as py/unused-import. Do not remove it.
     from pydantic import SecretStr
 # ---------- credential validation ----------------------------------------

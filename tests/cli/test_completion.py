@@ -5,10 +5,13 @@
 
 from __future__ import annotations
 
-from click.testing import CliRunner
+from typing import TYPE_CHECKING
 
 from gamesheet_sdk.admin.cli.commands import completion_command
 from gamesheet_sdk.admin.cli.main import cli
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner
 
 
 def test_completion_command_exists(runner: CliRunner) -> None:

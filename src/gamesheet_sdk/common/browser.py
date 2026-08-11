@@ -16,8 +16,7 @@ from __future__ import annotations
 
 import json
 import logging
-from types import TracebackType
-from typing import Any, Self
+from typing import TYPE_CHECKING, Any, Self
 from urllib.parse import urljoin
 
 from playwright.sync_api import (
@@ -31,6 +30,9 @@ from playwright.sync_api import (
 
 from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.common.security import write_secure_text
+
+if TYPE_CHECKING:
+    from types import TracebackType
 
 _LOGGER = logging.getLogger(__name__)
 

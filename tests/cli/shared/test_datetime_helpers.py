@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-from datetime import datetime
 import sys
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -47,7 +47,6 @@ def test_timezone_name_tzlocal_with_key() -> None:
 def test_timezone_name_tzlocal_without_key() -> None:
     """Test get_local_timezone_name with tzlocal library (no .key attribute)."""
 
-    # pylint: disable-next=too-few-public-methods
     class MockTZ:
         """Mock timezone object without .key attribute."""
 
@@ -66,12 +65,12 @@ def test_timezone_name_etc_localtime_symlink() -> None:
     """Test get_local_timezone_name reading /etc/localtime symlink."""
     mock_path = MagicMock()
     mock_path.is_symlink.return_value = True
+    mock_path.readlink.return_value = "/usr/share/zoneinfo/America/Los_Angeles"
 
     with (
         patch.dict(sys.modules, {"tzlocal": None}),
         patch("os.name", "posix"),
         patch("pathlib.Path", return_value=mock_path),
-        patch("os.readlink", return_value="/usr/share/zoneinfo/America/Los_Angeles"),
     ):
         result = get_local_timezone_name()
         assert result == "America/Los_Angeles"

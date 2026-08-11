@@ -5,12 +5,12 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, field
 import importlib.metadata
 import logging
 import operator
 import re
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from depsync.config import REVERSE_MAPPING, repo_url_to_package
 from depsync.fetchers import (
@@ -19,9 +19,14 @@ from depsync.fetchers import (
     find_tag_for_version,
 )
 from packaging.version import InvalidVersion, Version
-from precommit.exceptions import DiscoveryError
 from shared.git import GitCommandError, run_ls_remote
-from shared.pip_config import PipConfig
+
+from precommit.exceptions import DiscoveryError
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+
+    from shared.pip_config import PipConfig
 
 logger = logging.getLogger(__name__)
 

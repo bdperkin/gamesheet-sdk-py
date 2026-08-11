@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import rich_click as click
 from rich_click import Context
 
@@ -28,13 +30,23 @@ from gamesheet_sdk.admin.cli.shared import (
 )
 from gamesheet_sdk.admin.games import (
     create_scheduled_game as _create_scheduled_game_action,
+)
+from gamesheet_sdk.admin.games import (
     delete_scheduled_game as _delete_scheduled_game_action,
+)
+from gamesheet_sdk.admin.games import (
     get_scheduled_game as _get_scheduled_game_action,
+)
+from gamesheet_sdk.admin.games import (
     list_scheduled as _list_scheduled_action,
+)
+from gamesheet_sdk.admin.games import (
     update_scheduled_game as _update_scheduled_game_action,
 )
 from gamesheet_sdk.common.cli.core import ResourceGroup, confirm_destructive
-from gamesheet_sdk.common.config import Config
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 
 @click.group(
@@ -259,7 +271,6 @@ def scheduled_list_command(
 )
 @common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-arguments,too-many-locals,too-many-positional-arguments
 def scheduled_create_command(
     ctx: Context,
     start_datetime: str | None,
@@ -503,7 +514,6 @@ def scheduled_create_command(
 )
 @common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-arguments,too-many-locals,too-many-positional-arguments
 def scheduled_update_command(
     ctx: Context,
     game_id: str,

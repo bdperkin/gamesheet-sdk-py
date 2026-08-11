@@ -5,10 +5,10 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from click.exceptions import Exit
 import rich_click as click
+from click.exceptions import Exit
 from rich_click import Context
 
 from gamesheet_sdk.common import errors
@@ -18,8 +18,10 @@ from gamesheet_sdk.common.auth.tokens import (
     load_refresh_token,
     save_tokens,
 )
-from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 
 def build_authenticated_session(
@@ -121,7 +123,8 @@ def run_team_update(
     Returns:
         None: None
     """
-    from gamesheet_sdk.admin.teams import Team, update_team as _update_team_action
+    from gamesheet_sdk.admin.teams import Team
+    from gamesheet_sdk.admin.teams import update_team as _update_team_action
 
     # Validate that at least one field is provided for update
     if all(v is None or v is False for v in (title, division_id, external_id, logo_path, remove_logo)):

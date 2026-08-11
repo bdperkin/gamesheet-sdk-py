@@ -22,6 +22,8 @@ Examples:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import rich_click as click
 from rich_click import Context
 
@@ -36,7 +38,9 @@ from gamesheet_sdk.admin.cli.shared import (
 )
 from gamesheet_sdk.admin.ipad_keys import list_ipad_keys as _list_ipad_keys_action
 from gamesheet_sdk.common.cli.core import ResourceGroup
-from gamesheet_sdk.common.config import Config
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 
 @click.group(

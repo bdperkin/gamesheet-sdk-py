@@ -5,13 +5,17 @@
 
 from __future__ import annotations
 
-from click.exceptions import Exit
+from typing import TYPE_CHECKING
+
 import rich_click as click
+from click.exceptions import Exit
 from rich_click import Context
 
 from gamesheet_sdk.common.auth.login import login as _login_action
 from gamesheet_sdk.common.browser import BrowserSession
-from gamesheet_sdk.common.config import Config
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 
 @click.command("login")

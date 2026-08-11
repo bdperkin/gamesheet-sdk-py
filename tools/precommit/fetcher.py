@@ -9,13 +9,14 @@ import logging
 from typing import Any
 from urllib.parse import urlparse
 
-from precommit.config import FETCH_HOOKS_TIMEOUT
-from precommit.exceptions import FetchError
 import requests
 from ruamel.yaml import YAML
 from ruamel.yaml.error import YAMLError
 from shared.http_client import get_session
 from shared.pip_config import PipConfig, resolve_verify
+
+from precommit.config import FETCH_HOOKS_TIMEOUT
+from precommit.exceptions import FetchError
 
 logger = logging.getLogger(__name__)
 

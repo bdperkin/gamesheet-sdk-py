@@ -6,13 +6,15 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 from unittest.mock import patch
-
-from click.testing import CliRunner
 
 from gamesheet_sdk.admin.associations import Association
 from gamesheet_sdk.admin.cli.main import cli
 from tests.helpers import DEFAULT_ASSOCIATION_NAME
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner
 
 
 def test_associations_get(runner: CliRunner) -> None:

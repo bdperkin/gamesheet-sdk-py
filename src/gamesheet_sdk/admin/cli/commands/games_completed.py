@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import rich_click as click
 from rich_click import Context
 
@@ -21,13 +23,23 @@ from gamesheet_sdk.admin.cli.shared import (
 )
 from gamesheet_sdk.admin.games import (
     Game,
+)
+from gamesheet_sdk.admin.games import (
     download_completed_game_pdf as _download_completed_game_pdf_action,
+)
+from gamesheet_sdk.admin.games import (
     get_completed_game as _get_completed_game_action,
+)
+from gamesheet_sdk.admin.games import (
     get_game as _get_game_action,
+)
+from gamesheet_sdk.admin.games import (
     list_completed as _list_completed_action,
 )
 from gamesheet_sdk.common.cli.core import ResourceGroup
-from gamesheet_sdk.common.config import Config
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 
 @click.group(

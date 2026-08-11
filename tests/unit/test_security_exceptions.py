@@ -7,9 +7,7 @@ from __future__ import annotations
 
 import copy
 import os
-from pathlib import Path
-
-import pytest
+from typing import TYPE_CHECKING
 
 from gamesheet_sdk.common.exceptions import (
     AuthenticationError,
@@ -21,6 +19,11 @@ from gamesheet_sdk.common.exceptions import (
     GameSheetValidationError,
 )
 from gamesheet_sdk.common.security import write_secure_text
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    import pytest
 
 
 def test_write_secure_text_creates_file_and_parent_dirs(tmp_path: Path) -> None:

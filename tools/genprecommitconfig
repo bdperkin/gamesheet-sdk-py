@@ -4,9 +4,9 @@
 
 """Pre-commit configuration generation tool."""
 
-from pathlib import Path
 import re
 import sys
+from pathlib import Path
 
 try:
     from precommit.cli import app
@@ -19,4 +19,4 @@ except ModuleNotFoundError:
 
 if __name__ == "__main__":
     sys.argv[0] = re.sub(r"(-script\.pyw|\.exe)?$", "", sys.argv[0])
-    sys.exit(app())  # pylint: disable=no-value-for-parameter,missing-kwoa
+    sys.exit(app())

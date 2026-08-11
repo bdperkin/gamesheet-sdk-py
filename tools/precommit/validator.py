@@ -5,11 +5,11 @@
 
 from __future__ import annotations
 
-from contextlib import suppress
 import logging
-from pathlib import Path
 import shutil
-import subprocess  # noqa: S404 # nosec B404
+import subprocess
+from contextlib import suppress
+from pathlib import Path
 
 from precommit.config import PRE_COMMIT_RUN_TIMEOUT
 from precommit.exceptions import PreCommitValidationError, SubprocessError
@@ -52,7 +52,7 @@ def _run_pre_commit(
     cmd.extend(["--all-files", "--verbose"])
 
     try:
-        result = subprocess.run(  # noqa: S603 # nosec B603
+        result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
@@ -117,7 +117,7 @@ def _config_unchanged(backup_path: Path, output_path: Path) -> bool:
         return False
 
     with suppress(FileNotFoundError):
-        result = subprocess.run(  # noqa: S603, S607 # nosec B603, B607
+        result = subprocess.run(
             ["diff", "-q", str(backup_path), str(output_path)],
             capture_output=True,
             text=True,

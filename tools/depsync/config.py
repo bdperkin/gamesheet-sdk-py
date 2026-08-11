@@ -22,7 +22,6 @@ PYPI_TIMEOUT = 10
 UV_LOCK_TIMEOUT = 120
 
 TOOL_MAPPING: dict[str, str] = {
-    "black": "https://github.com/psf/black-pre-commit-mirror",
     "editorconfig-checker": "https://github.com/editorconfig-checker/editorconfig-checker.python",
     "mypy": "https://github.com/pre-commit/mirrors-mypy",
     "pymarkdownlnt": "https://github.com/jackdewinter/pymarkdown",
@@ -30,7 +29,6 @@ TOOL_MAPPING: dict[str, str] = {
     "pyright": "https://github.com/robertcraigie/pyright-python",
     "ruff": "https://github.com/astral-sh/ruff-pre-commit",
     "semgrep": "https://github.com/semgrep/pre-commit",
-    "shfmt-py": "https://github.com/scop/pre-commit-shfmt",
 }
 
 REVERSE_MAPPING: dict[str, str] = {url: pkg for pkg, url in TOOL_MAPPING.items()}

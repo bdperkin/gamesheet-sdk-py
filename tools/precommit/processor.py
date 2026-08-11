@@ -6,11 +6,13 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from precommit.config import HOOK_TARGETING_KEYS
 from precommit.exceptions import ProcessingError
-from precommit.models import HookConfig, RepoConfig
+
+if TYPE_CHECKING:
+    from precommit.models import HookConfig, RepoConfig
 
 logger = logging.getLogger(__name__)
 

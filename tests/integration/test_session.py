@@ -7,13 +7,15 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-import pytest
 import responses
 
 from gamesheet_sdk import DEFAULT_BASE_URL, Config, Session
 from tests.fixtures.constants import TEST_ERROR_DISK_FULL, TEST_ERROR_PERMISSION_DENIED
+
+if TYPE_CHECKING:
+    import pytest
 
 
 def test_default_user_agent_is_version_stamped(config: Config) -> None:

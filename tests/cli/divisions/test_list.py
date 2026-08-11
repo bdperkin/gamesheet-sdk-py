@@ -5,14 +5,15 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
-
-from click.testing import CliRunner
 
 from gamesheet_sdk.admin.cli.main import cli
 from gamesheet_sdk.admin.divisions import Division
 from tests.helpers import CLI_TEST_SEASON_ID, TIMESTAMP_2024_01_01
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner
 
 
 def test_divisions_list_alias_works(runner: CliRunner) -> None:

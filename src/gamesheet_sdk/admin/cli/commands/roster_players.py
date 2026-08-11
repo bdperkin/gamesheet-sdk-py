@@ -5,8 +5,10 @@
 
 from __future__ import annotations
 
-from click.exceptions import Exit
+from typing import TYPE_CHECKING
+
 import rich_click as click
+from click.exceptions import Exit
 from rich_click import Context
 
 from gamesheet_sdk.admin.cli.constants import (
@@ -34,15 +36,29 @@ from gamesheet_sdk.admin.cli.shared import (
 )
 from gamesheet_sdk.admin.roster import (
     assign_player as _assign_player_action,
+)
+from gamesheet_sdk.admin.roster import (
     create_player as _create_player_action,
+)
+from gamesheet_sdk.admin.roster import (
     delete_player as _delete_player_action,
+)
+from gamesheet_sdk.admin.roster import (
     get_player as _get_player_action,
+)
+from gamesheet_sdk.admin.roster import (
     list_players as _list_players_action,
+)
+from gamesheet_sdk.admin.roster import (
     unassign_player as _unassign_player_action,
+)
+from gamesheet_sdk.admin.roster import (
     update_player as _update_player_action,
 )
 from gamesheet_sdk.common.cli.core import ResourceGroup, confirm_destructive
-from gamesheet_sdk.common.config import Config
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 
 # Players sub-group
@@ -233,7 +249,6 @@ def players_list_command(
 )
 @common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments
 def players_create_command(
     ctx: Context,
     first_name: str,
@@ -311,7 +326,6 @@ def players_create_command(
         status=status,
         designation=designation,
         team_id=team_id,
-        # pylint: disable=duplicate-code
         biography=biography,
         height=height,
         weight=weight,
@@ -323,7 +337,6 @@ def players_create_command(
         drafted_by=drafted_by,
         committed_to=committed_to,
         photo_path=photo_path,
-        # pylint: enable=duplicate-code
     )
 
 
@@ -479,7 +492,6 @@ def players_update_command(
         output_path,
         session,
         season_id,
-        # pylint: disable=duplicate-code
         player_id,
         first_name=first_name,
         last_name=last_name,
@@ -525,7 +537,6 @@ def players_delete_command(ctx: Context, player_id: str) -> None:
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
-    # pylint: enable=duplicate-code
     session = build_authenticated_session(config)
     try:
         with session:

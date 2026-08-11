@@ -5,10 +5,10 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from click.exceptions import Exit
 import rich_click as click
+from click.exceptions import Exit
 from rich_click import Context
 
 from gamesheet_sdk.admin.cli.constants import (
@@ -35,15 +35,29 @@ from gamesheet_sdk.admin.cli.shared import (
 )
 from gamesheet_sdk.admin.roster import (
     assign_team_coach as _assign_team_coach_action,
+)
+from gamesheet_sdk.admin.roster import (
     create_team_coach as _create_team_coach_action,
+)
+from gamesheet_sdk.admin.roster import (
     delete_team_coach as _delete_team_coach_action,
+)
+from gamesheet_sdk.admin.roster import (
     get_team_coach as _get_team_coach_action,
+)
+from gamesheet_sdk.admin.roster import (
     list_team_coaches as _list_team_coaches_action,
+)
+from gamesheet_sdk.admin.roster import (
     unassign_team_coach as _unassign_team_coach_action,
+)
+from gamesheet_sdk.admin.roster import (
     update_team_coach as _update_team_coach_action,
 )
 from gamesheet_sdk.common.cli.core import ResourceGroup, confirm_destructive
-from gamesheet_sdk.common.config import Config
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 
 # Teams roster coaches sub-group

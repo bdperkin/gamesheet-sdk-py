@@ -7,9 +7,19 @@ from __future__ import annotations
 
 import difflib
 import logging
-from pathlib import Path
 import shutil
-import subprocess  # noqa: S404 # nosec B404
+import subprocess
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+import rich_click as click
+from rich.console import Console
+from rich.table import Table
+from shared import PROJECT_NAME
+from shared.http_client import get_session
+from shared.log_config import configure_logging
+from shared.pip_config import PipConfig, load_pip_config
+from shared.uv_resolve import UvResolveError, resolve_project_versions
 
 from depsync.config import (
     DEPENDABOT_CONFIG,
@@ -38,15 +48,9 @@ from depsync.writers import (
     update_precommit_config,
     update_pyproject,
 )
-from packaging.version import Version
-from rich.console import Console
-from rich.table import Table
-import rich_click as click
-from shared import PROJECT_NAME
-from shared.http_client import get_session
-from shared.log_config import configure_logging
-from shared.pip_config import PipConfig, load_pip_config
-from shared.uv_resolve import UvResolveError, resolve_project_versions
+
+if TYPE_CHECKING:
+    from packaging.version import Version
 
 console = Console()
 logger = logging.getLogger(__name__)
@@ -378,7 +382,7 @@ def _ensure_uv_lock(config: RunConfig) -> None:
     )
 
     try:
-        subprocess.run(  # noqa: S603, S607 # nosec B603, B607
+        subprocess.run(
             ["uv", "lock"],
             capture_output=True,
             text=True,
@@ -853,7 +857,7 @@ def _run(config: RunConfig) -> None:
     help="Show unified diff of changes.",
 )
 @click.version_option(package_name=PROJECT_NAME)
-def app(  # pylint: disable=redefined-outer-name
+def app(
     pyproject: str,
     precommit_config: str,
     genprecommit_config: str,

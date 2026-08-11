@@ -136,11 +136,11 @@ type: ## Run mypy --strict against src/ via uv run
 	uv run mypy --strict $(PKG)
 
 .PHONY: fix
-fix: ## Apply formatters in place (isort, black, mdformat) via uv run
-	@printf "$(CYAN)→$(RESET) applying formatters (isort, black, mdformat)\n"
-	uv run isort .
-	uv run black .
-	uv run mdformat .
+fix: ## Apply formatters and linters in place (ruff check --fix, ruff format, mdformat) via uv run
+	@printf "$(CYAN)→$(RESET) applying formatters (ruff, mdformat)\n"
+	uv run --extra ruff ruff check --fix .
+	uv run --extra ruff ruff format .
+	uv run --extra mdformat mdformat .
 	@printf "$(GREEN)✓$(RESET) formatting complete\n"
 
 # =============================================================================

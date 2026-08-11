@@ -14,14 +14,16 @@ Playwright needed for read-only access once a bearer token has been obtained (ty
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
 from gamesheet_sdk.common import errors
 from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
-from gamesheet_sdk.common.session import Session
 from gamesheet_sdk.common.shared import JSONAPI_HEADERS
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.session import Session
 
 _ENDPOINT = "/api/api-keys"
 

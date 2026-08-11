@@ -6,13 +6,15 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 from unittest.mock import patch
-
-from click.testing import CliRunner
 
 from gamesheet_sdk.admin.cli.main import cli
 from gamesheet_sdk.admin.roster import Player
 from tests.helpers import CLI_TEST_SEASON_ID, DEFAULT_PLAYER_LAST_NAME, SEASON_ID
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner
 
 
 def test_players_get(runner: CliRunner) -> None:

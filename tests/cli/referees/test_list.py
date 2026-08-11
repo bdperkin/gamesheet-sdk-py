@@ -5,10 +5,8 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
-
-from click.testing import CliRunner
 
 from gamesheet_sdk.admin.cli.main import cli
 from gamesheet_sdk.admin.referees import Referee
@@ -18,6 +16,9 @@ from tests.helpers import (
     TEST_EMAIL_GENERIC,
     TIMESTAMP_2024_01_01,
 )
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner
 
 
 def test_referees_list_alias_works(runner: CliRunner) -> None:

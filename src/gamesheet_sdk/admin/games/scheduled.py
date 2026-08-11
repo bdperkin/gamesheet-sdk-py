@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from gamesheet_sdk.admin.games.helpers import _make_request, validate_game_type
 from gamesheet_sdk.admin.games.models import Game, ScheduledGame
@@ -14,8 +14,10 @@ from gamesheet_sdk.common.constants import (
     API_SEASONS_SCHEDULE_GAME,
     DEFAULT_BASE_URL,
 )
-from gamesheet_sdk.common.session import Session
 from gamesheet_sdk.common.shared import handle_response
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.session import Session
 
 
 def list_scheduled(session: Session, season_id: str) -> list[Game]:
@@ -165,7 +167,6 @@ def get_scheduled_game(session: Session, season_id: str, game_id: str) -> Schedu
     return ScheduledGame(**body)
 
 
-# pylint: disable-next=too-many-positional-arguments
 def update_scheduled_game(
     session: Session,
     season_id: str,

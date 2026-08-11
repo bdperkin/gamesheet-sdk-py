@@ -28,7 +28,6 @@ from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable
-# pylint: disable-next=too-few-public-methods
 class LoginFlow(Protocol):
     """Structural interface for authentication flows.
 

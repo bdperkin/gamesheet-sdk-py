@@ -5,15 +5,22 @@
 
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import io
 import logging
+import subprocess
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-import subprocess  # noqa: S404 # nosec B404
 from typing import TYPE_CHECKING, Any
 
 from depsync.config import UV_LOCK
 from depsync.parsers import parse_index_url, parse_requires_python
+from ruamel.yaml import YAML
+from ruamel.yaml.error import YAMLError
+from shared.concurrency import PARALLEL_WORKERS
+from shared.http_client import get_session
+from shared.pip_config import PipConfig, load_pip_config
+from shared.uv_resolve import UvResolveError, versions_from_lock
+
 from precommit.config import (
     DEFAULT_ALLOWED_LANGUAGES,
     DEFAULT_FAIL_FAST,
@@ -36,12 +43,6 @@ from precommit.processor import (
 )
 from precommit.renderer import render_config
 from precommit.validator import validate_config
-from ruamel.yaml import YAML
-from ruamel.yaml.error import YAMLError
-from shared.concurrency import PARALLEL_WORKERS
-from shared.http_client import get_session
-from shared.pip_config import PipConfig, load_pip_config
-from shared.uv_resolve import UvResolveError, versions_from_lock
 
 if TYPE_CHECKING:
     from packaging.version import Version
@@ -57,7 +58,7 @@ def _reset_working_tree(*, exclude: str | None = None) -> None:
         cmd.append(f":(exclude){exclude}")
 
     try:
-        subprocess.run(  # noqa: S603 # nosec B603
+        subprocess.run(
             cmd,
             capture_output=True,
             check=True,
@@ -95,7 +96,7 @@ def _merge_globals(raw_globals: dict[str, Any]) -> dict[str, Any]:
     return defaults
 
 
-class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-instance-attributes
+class PreCommitGenerator:
     """Orchestrates the full generation pipeline.
 
     Phases:
@@ -106,11 +107,11 @@ class PreCommitGenerator:  # pylint: disable=too-few-public-methods,too-many-ins
         5. Per-repo incremental validation
         6. Final validation
 
-        Args:
+    Args:
             run_config (RunConfig): Runtime configuration for the generation pipeline.
     """
 
-    def __init__(self: PreCommitGenerator, run_config: RunConfig) -> None:  # noqa: DOC101, DOC103
+    def __init__(self: PreCommitGenerator, run_config: RunConfig) -> None:
         self.run_config = run_config
         self.tool_config: ToolConfig | None = None
         self.repos: list[dict[str, Any]] = []

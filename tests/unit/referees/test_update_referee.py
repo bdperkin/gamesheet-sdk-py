@@ -21,7 +21,7 @@ from tests.unit.referees.conftest import SEASON_ID, TEST_BASE_URL, referee_respo
 
 
 @responses.activate
-def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None:  # noqa: R701
+def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None:
     """Test that update_referee sends correct payload when updating all fields."""
     _referee_id = "1146196"
     _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"

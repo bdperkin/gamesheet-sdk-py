@@ -3,29 +3,12 @@
 # Code Style & Formatting (Automated Fixers)
 # ==============================================================================
 # Purpose: Enforces consistent code style, formatting, and modern Python syntax
-# across the codebase. All tools in this workflow can automatically fix issues,
-# ensuring uniform appearance and reducing style bikeshedding.
+# across the codebase using Ruff.
 #
 # Triggers:
 #   - push to main branch (skip if only CHANGELOG/version changes)
 #   - pull_request (opened, reopened, synchronize)
 #   - Concurrency: Cancels previous runs for the same branch
-#
-# Jobs: 8 tools × 4 Python versions = 32 total runs
-#   - add-trailing-comma: Enforces trailing commas in multi-line collections
-#   - absolufy-imports: Converts relative imports to absolute (src/ layout)
-#   - pyupgrade: Modernizes syntax for Python 3.11+ (--py311-plus)
-#   - isort: Sorts and organizes imports (profile = "black" for compatibility)
-#   - ssort: Sorts class members and top-level definitions intelligently
-#   - autopep8: Automatically fixes PEP 8 style violations
-#   - black: Opinionated formatter (line-length 88, the uncompromising code formatter)
-#
-# Tools run in check mode in CI. To apply fixes locally, use:
-#   - make fix (runs isort, black, mdformat in write mode)
-#   - tox -e fix (runs all formatters with --check removed)
-#   - pre-commit run --all-files (auto-fixes then stages changes)
-#
-# Each job runs: tox -e [tool]
 # ==============================================================================
 name: Code Style & Formatting (Automated Fixers)
 
@@ -55,8 +38,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
-  add-trailing-comma:
-    name: add-trailing-comma (py${{ matrix.python-version }})
+  ruff-check:
+    name: ruff check (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -75,13 +58,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
-      - name: Run add-trailing-comma via uv
-        run: |
-          uv run --extra add-trailing-comma \
-            add-trailing-comma --exit-zero-even-if-changed $(git ls-files '*.py')
+      - name: Run ruff check via uv
+        run: uv run --extra ruff ruff check .
 
-  absolufy-imports:
-    name: absolufy-imports (py${{ matrix.python-version }})
+  ruff-format:
+    name: ruff format (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -100,122 +81,5 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
-      - name: Run absolufy-imports via uv
-        run: uv run --extra absolufy-imports absolufy-imports $(git ls-files 'src/*.py')
-
-  pyupgrade:
-    name: pyupgrade (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          enable-cache: true
-      - name: Run pyupgrade via uv
-        run: uv run --extra pyupgrade pyupgrade --py311-plus $(git ls-files '*.py')
-
-  isort:
-    name: isort (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          enable-cache: true
-      - name: Run isort via uv
-        run: uv run --extra isort isort --check .
-
-  ssort:
-    name: ssort (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          enable-cache: true
-      - name: Run ssort via uv
-        run: uv run --extra ssort ssort --check src/ tests/ tools/
-
-  autopep8:
-    name: autopep8 (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          enable-cache: true
-      - name: Run autopep8 via uv
-        run: |
-          uv run --extra autopep8 \
-            autopep8 --exit-code --diff --recursive src/ tests/ tools/
-
-  black:
-    name: black (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          enable-cache: true
-      - name: Run black via uv
-        run: uv run --extra black black --check .
+      - name: Run ruff format via uv
+        run: uv run --extra ruff ruff format --check .

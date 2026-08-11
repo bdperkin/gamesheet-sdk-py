@@ -14,7 +14,7 @@ Playwright needed for read-only access once a bearer token has been obtained (ty
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
@@ -25,10 +25,12 @@ from gamesheet_sdk.admin.shared import (
 from gamesheet_sdk.common import errors
 from gamesheet_sdk.common.constants import BFF_API_BASE_URL
 from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
-from gamesheet_sdk.common.session import Session
 from gamesheet_sdk.common.shared import JSONAPI_CONTENT_TYPE, JSONAPI_HEADERS
 from gamesheet_sdk.common.shared.constants import FIELD_DESC_PARENT_SEASON_ID
 from gamesheet_sdk.common.shared.gamesheet_http import handle_season_scoped_response
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.session import Session
 
 
 class Team(BaseModel):

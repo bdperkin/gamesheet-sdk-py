@@ -5,11 +5,13 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock, patch
 
-from click import Group
 from click.testing import CliRunner
+
+if TYPE_CHECKING:
+    from click import Group
 
 
 def run_roster_delete_test_base(

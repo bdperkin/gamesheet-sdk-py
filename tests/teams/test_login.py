@@ -17,12 +17,11 @@ from tests.helpers import TEST_EMAIL_MINIMAL
 
 if TYPE_CHECKING:
     # Imported for typing only, and referenced as a string in cast() below:
-    # flake8-type-checking's TC006 requires cast() annotations to be string
     # literals, so CodeQL reports this as py/unused-import. Do not remove it.
     from pydantic import SecretStr
 
 
-def _firebase_ok(id_token: str = "firebase-id-tok") -> MagicMock:  # noqa: S107 # nosec B107
+def _firebase_ok(id_token: str = "firebase-id-tok") -> MagicMock:
     """Build a mock response for a successful Firebase sign-in."""
     resp = MagicMock()
     resp.status_code = 200

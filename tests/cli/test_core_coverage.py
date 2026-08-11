@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from click.exceptions import Abort, Exit, UsageError
 import rich_click as click
+from click.exceptions import Abort, Exit, UsageError
 
 from gamesheet_sdk.common.cli.core import (
     ResourceGroup,

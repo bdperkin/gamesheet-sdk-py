@@ -22,11 +22,15 @@ Examples:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import rich_click as click
 from rich_click import Context
 
 from gamesheet_sdk.admin.associations import (
     get_association as _get_association_action,
+)
+from gamesheet_sdk.admin.associations import (
     list_associations as _list_associations_action,
 )
 from gamesheet_sdk.admin.cli.helpers import (
@@ -41,7 +45,9 @@ from gamesheet_sdk.admin.cli.shared import (
     render_list_command,
 )
 from gamesheet_sdk.common.cli.core import ResourceGroup
-from gamesheet_sdk.common.config import Config
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 
 @click.group(

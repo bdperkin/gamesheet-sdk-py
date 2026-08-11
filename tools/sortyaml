@@ -6,14 +6,14 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterator
 import difflib
 import io
 import logging
-from pathlib import Path
 import re
 import shutil
 import sys
+from collections.abc import Callable, Iterator
+from pathlib import Path
 
 try:
     from shared import PROJECT_NAME
@@ -25,9 +25,9 @@ except ModuleNotFoundError:
     from shared.log_config import configure_logging
     from shared.yaml_format import format_yaml
 
+import rich_click as click
 from rich.console import Console
 from rich.syntax import Syntax
-import rich_click as click
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from ruamel.yaml.scalarstring import (
@@ -595,7 +595,6 @@ def _sorted_pairs(
     return [(k, data[k]) for k in sorted(data.keys(), key=key_fn)]
 
 
-# pylint: disable-next=too-many-branches
 def _walk_merge_ids(data: object, ids: set[int], visited: set[int]) -> bool:
     """Return True if *data* is or contains a merge-involved map."""
     if not isinstance(data, (CommentedMap, list, CommentedSeq)):
@@ -975,4 +974,4 @@ def app(
 
 if __name__ == "__main__":
     sys.argv[0] = re.sub(r"(-script\.pyw|\.exe)?$", "", sys.argv[0])
-    app()  # pylint: disable=no-value-for-parameter,missing-kwoa
+    app()

@@ -5,7 +5,8 @@
 
 from __future__ import annotations
 
-from shared.exceptions import SubprocessError as _SubprocessError, ToolError
+from shared.exceptions import SubprocessError as _SubprocessError
+from shared.exceptions import ToolError
 
 
 class GenPreCommitConfigError(ToolError):

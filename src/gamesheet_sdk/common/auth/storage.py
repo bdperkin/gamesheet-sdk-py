@@ -54,10 +54,12 @@ from __future__ import annotations
 
 import json
 import logging
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from gamesheet_sdk.common.config import Config
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from gamesheet_sdk.common.config import Config
 
 _LOGGER = logging.getLogger(__name__)
 
