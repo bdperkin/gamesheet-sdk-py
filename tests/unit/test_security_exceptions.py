@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import copy
 import os
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from gamesheet_sdk.common.exceptions import (
@@ -21,8 +22,6 @@ from gamesheet_sdk.common.exceptions import (
 from gamesheet_sdk.common.security import write_secure_text
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     import pytest
 
 
@@ -43,6 +42,32 @@ def test_write_secure_text_creates_file_and_parent_dirs(tmp_path: Path) -> None:
         # Verify 0700 dir permissions
         dir_mode = target_file.parent.stat().st_mode & 0o777
         assert dir_mode == 0o700
+
+
+def test_write_secure_text_chmods_parent_dir_on_posix(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Test that the parent directory is chmod'ed to 0700 when os.name is 'posix'.
+
+    ``os.name`` is forced rather than inferred so the POSIX branch is exercised on every host OS. Leaving it
+    to the real value makes the branch unreachable on Windows, which fails the 100% coverage gate there.
+    """
+    modes: list[int] = []
+    real_chmod = Path.chmod
+
+    def _spy_chmod(self: Path, mode: int) -> None:
+        modes.append(mode)
+        real_chmod(self, mode)
+
+    monkeypatch.setattr(Path, "chmod", _spy_chmod)
+    monkeypatch.setattr(os, "name", "posix")
+    target_file = tmp_path / "posix_dir" / "secret.json"
+
+    write_secure_text(target_file, "data")
+
+    assert modes == [0o700]
+    assert target_file.read_text(encoding="utf-8") == "data"
 
 
 def test_write_secure_text_skips_chmod_on_non_posix(
