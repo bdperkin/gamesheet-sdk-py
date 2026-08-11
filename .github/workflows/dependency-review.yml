@@ -10,7 +10,7 @@
 # ║ Source    │ GitHub-supplied workflow (actions/dependency-review-action)                  ║
 # ║ Docs      │ https://docs.github.com/en/code-security/supply-chain-security/              ║
 # ║           │ understanding-your-software-supply-chain/about-dependency-review             ║
-# ║ Trigger   │ pull_request: branches=[main] (paths-ignore: CHANGELOG.md, pyproject.toml)  ║
+# ║ Trigger   │ pull_request: branches=[main] (paths-ignore: CHANGELOG.md, pyproject.toml)   ║
 # ║           │ push: branches-ignore=["**"] (effectively disabled for push events)          ║
 # ║ Runs on   │ ubuntu-latest                                                                ║
 # ║ Scope     │ Python dependencies declared in pyproject.toml and lock files                ║
@@ -38,8 +38,15 @@
 # ╟──────────────────────────────────────────────────────────────────────────────────────────╢
 # ║ • GitHub-supplied workflow kept on original trigger pattern (PR-only)                    ║
 # ║ • push trigger is explicitly disabled (branches-ignore: ["**"])                          ║
+# ║ • Because it never runs on main, the README badge MUST carry                             ║
+# ║   ?event=pull_request — a bare badge.svg reports the default branch, finds no run        ║
+# ║   there, and renders "failing". Do not add a push trigger to satisfy the badge:          ║
+# ║   dependency-review diffs a base against a head, so it needs explicit base-ref/          ║
+# ║   head-ref off a pull_request, and a push to main has no meaningful base.                ║
 # ║ • Complements pip-audit (this checks manifest changes, pip-audit scans installed pkgs)   ║
 # ║ • Optional configurations (fail-on-severity, deny-licenses) are commented out            ║
+# ║ • No allow-ghsas: suppress an advisory only while no patched version is reachable, and   ║
+# ║   delete the entry once it is — a dead allowance silently re-opens the hole              ║
 # ╚══════════════════════════════════════════════════════════════════════════════════════════╝
 
 name: "Dependency review"
@@ -86,7 +93,12 @@ jobs:
         # https://github.com/actions/dependency-review-action#configuration-options for all available options.
         with:
           comment-summary-in-pr: always
-          allow-ghsas: GHSA-hvrp-rf83-w775, GHSA-jpw9-pfvf-9f58, GHSA-vj7q-gjh5-988w
+          # allow-ghsas is intentionally absent. It previously allowed
+          # GHSA-hvrp-rf83-w775, GHSA-jpw9-pfvf-9f58 and GHSA-vj7q-gjh5-988w — the three mcp
+          # advisories — while semgrep's hard pin held mcp at 1.23.3 and no patched version was
+          # reachable. All three are now state=fixed: pyproject.toml overrides that pin to
+          # mcp==1.29.0. The allowances therefore matched nothing, and a dead allowance is worse
+          # than none: it would silently re-open the hole if a vulnerable mcp ever came back.
           #   fail-on-severity: moderate
           #   deny-licenses: GPL-1.0-or-later, LGPL-2.0-or-later
           #   retry-on-snapshot-warnings: true

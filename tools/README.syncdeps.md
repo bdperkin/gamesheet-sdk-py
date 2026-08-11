@@ -265,13 +265,26 @@ matches every workflow's `paths-ignore`, so almost no checks run and it **looks 
 After convergence, syncdeps therefore compares each managed pin's resolved version against the newest release the index offers. Anything resolved *below* the
 newest release is capped by something in the graph, and joins the `ignore` list in `.github/dependabot.yml` alongside rev-pinned and overridden packages.
 
-The suppression is deliberately narrow, because **a Dependabot `ignore` rule also applies to security updates**. Suppressing a package that is not genuinely
-capped would hide a future security bump for no benefit, so a pin is reported only when the index actually offers something newer — precisely the case where a
-Dependabot proposal could not be installed anyway. A fetch failure omits the package rather than guessing, and an unparseable version never manufactures a
-suppression.
+The suppression is deliberately narrow, because **a Dependabot `ignore` rule also applies to security updates** — GitHub's documentation is explicit that you
+can "configure Dependabot to ignore those dependencies when it opens pull requests for version updates *and security updates*". Suppressing a package that is
+not genuinely capped would hide a future security bump for no benefit, so a pin is reported only when the index actually offers something newer — precisely the
+case where a Dependabot proposal could not be installed anyway. A fetch failure omits the package rather than guessing, and an unparseable version never
+manufactures a suppression.
 
 Because the entry is keyed on the resolved version (`> 14.3.4`), it maintains itself: once the cap lifts and `uv` resolves higher the entry follows, and it
 disappears once the pin reaches the newest release.
+
+**Caveat — the rule is slightly broader than "versions that cannot be installed".** It ignores everything *above* the resolved version, which includes releases
+that sit **inside** the cap and therefore would install fine. Today that distinction is empty: the only release above `rich==14.3.4` is `15.0.0`, and the only
+ones above `tomlkit==0.13.3` are `0.14.0`/`0.15.x` — every one of them outside its cap, so the rules currently suppress exactly the unmergeable versions and
+nothing else. The gap is prospective: if `rich 14.3.5` shipped a security fix, `rich~=14.0` would permit it, yet `> 14.3.4` would suppress Dependabot's security
+PR for it until the next syncdeps run advanced the entry.
+
+That window is bounded by the syncdeps cadence rather than open-ended, and it is not the only net — `pip-audit` and OSV-Scanner both scan dependencies
+independently of Dependabot and would still report the vulnerability. The precise alternative is to ignore from the **cap boundary** up (`>= 15` for `rich`)
+instead of from the resolved version up, which would let in-cap security releases through. That needs the boundary discovered, either by probing candidates with
+`uv lock` or by parsing the capping requirement out of the resolver's error, and was judged not worth the cost given the bounded exposure. Revisit it if a
+capped package ever starts shipping security fixes within its cap.
 
 Notes on the design, each of which is load-bearing:
 
