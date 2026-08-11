@@ -237,6 +237,26 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   latest run continues. The exceptions are `codeql.yml`/`dependency-review.yml` (kept on their original GitHub-supplied triggers), `release.yml` (only
   `push: branches: [main]`), and `comprehensive-tests.yml` (nightly `schedule` trigger plus manual `workflow_dispatch`).
 
+  **Keep required status checks in sync with job names (gotcha worth preserving):** `main`'s branch protection pins a list of required status-check contexts by
+  *exact job name* (`pytest (py3.11)`, `mypy (py3.12)`, `bandit (py3.13)`, `pre-commit (py)`, …). That list lives in **repo settings, not in the tree**, so
+  nothing in a PR diff reveals it and no hook validates it. Renaming, removing, or re-matrixing a job therefore desynchronizes it silently, and it fails in both
+  directions:
+
+  - **Required but never reported** — the context can never turn green, so *every* PR sits at `mergeStateStatus: BLOCKED` with all its checks passing and no
+    hint as to why.
+  - **Reported but no longer required** — the gate quietly stops enforcing, and a red job no longer blocks a merge.
+
+  This bit us once: #200 (`refactor(tools): migrate code style, formatting, and linting to ruff`) deleted the pylint jobs, but `pylint (py3.11)` … `(py3.14)`
+  stayed in the required contexts. Every subsequent PR was unmergeable-by-default until those four were dropped on 2026-08-11 (17 contexts → 13). **After any
+  change to a workflow's job names or matrix, diff the two lists:**
+
+  ```bash
+  gh api repos/bdperkin/gamesheet-sdk-py/branches/main/protection --jq '.required_status_checks.contexts[]' | sort > /tmp/required
+  gh pr checks <pr> --json name --jq '.[].name' | sort > /tmp/actual
+  comm -23 /tmp/required /tmp/actual   # required but never reported → blocks every PR
+  comm -13 /tmp/required /tmp/actual   # reported but unguarded → candidates to add
+  ```
+
 - **Python 3.11–3.14.** Use modern syntax (`from __future__ import annotations`, `X | None`, etc.) as the `cli` and `auth` packages already do.
 
 - **Formatting/lint pipeline.** The suite is broken out tool-per-hook in `.pre-commit-config.yaml`, tool-per-env in `tox.ini`, and tool-per-job in the
