@@ -17,7 +17,7 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import tomlkit
 from tomlkit.exceptions import TOMLKitError
@@ -26,7 +26,10 @@ from shared.exceptions import ToolError
 from shared.toml import PROJECT_NAME, load_toml
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sequence
+
+    from tomlkit import TOMLDocument
+    from tomlkit.items import Table
 
 logger = logging.getLogger(__name__)
 
@@ -147,15 +150,59 @@ def _relax_dep_list(
         dep_list[i] = relaxed
 
 
+def _ensure_uv_table(doc: TOMLDocument) -> Table:
+    """Return the ``[tool.uv]`` table, creating it and its parent if absent.
+
+    Args:
+        doc (TOMLDocument): Parsed pyproject document.
+
+    Returns:
+        Table: The ``[tool.uv]`` table, ready to mutate.
+    """
+    tool = doc.get("tool")
+    if tool is None:
+        tool = tomlkit.table()
+        doc["tool"] = tool
+
+    uv_table = tool.get("uv")
+    if uv_table is None:
+        uv_table = tomlkit.table()
+        tool["uv"] = uv_table
+
+    return cast("Table", uv_table)
+
+
+def _apply_overrides(doc: TOMLDocument, overrides: Sequence[str] | None) -> None:
+    """Rewrite ``[tool.uv] override-dependencies`` in the scratch copy.
+
+    Args:
+        doc (TOMLDocument): Parsed pyproject document, mutated in place.
+        overrides (Sequence[str] | None): Requirement strings to install as the override list. ``None`` leaves
+            whatever the file already declares untouched; an *empty* sequence removes the overrides entirely,
+            which is how a caller asks what the resolution looks like without them.
+    """
+    if overrides is None:
+        return
+
+    uv_table = _ensure_uv_table(doc)
+    if overrides:
+        uv_table["override-dependencies"] = list(overrides)
+    else:
+        uv_table.pop("override-dependencies", None)
+
+
 def _relaxed_pyproject(
     pyproject_path: Path,
     pins: Mapping[str, str],
+    overrides: Sequence[str] | None = None,
 ) -> tuple[str, dict[str, str]]:
     """Render ``pyproject.toml`` with managed pins relaxed.
 
     Args:
         pyproject_path (Path): Path to the real ``pyproject.toml``.
         pins (Mapping[str, str]): Normalized package name to version that must be held fixed.
+        overrides (Sequence[str] | None): Override requirements for the scratch copy. See
+            :func:`_apply_overrides` for the None-versus-empty distinction.
 
     Returns:
         tuple[str, dict[str, str]]: Serialized TOML for the relaxed copy, and the package name to original
@@ -179,6 +226,8 @@ def _relaxed_pyproject(
     _relax_dep_list(project.get("dependencies") or [], pins, loosened)
     for group in (project.get("optional-dependencies") or {}).values():
         _relax_dep_list(group, pins, loosened)
+
+    _apply_overrides(doc, overrides)
 
     return tomlkit.dumps(doc), loosened
 
@@ -268,6 +317,7 @@ def resolve_project_versions(
     pyproject_path: Path,
     *,
     pins: Mapping[str, str] | None = None,
+    overrides: Sequence[str] | None = None,
     timeout: int = UV_RESOLVE_TIMEOUT,
 ) -> dict[str, str]:
     """Resolve every project dependency to the version ``uv`` would lock.
@@ -280,6 +330,10 @@ def resolve_project_versions(
         pyproject_path (Path): Path to the project's ``pyproject.toml``.
         pins (Mapping[str, str] | None): Normalized package name to version that must be held fixed (typically
             revs pinned in ``.genprecommitconfig.yaml``).
+        overrides (Sequence[str] | None): Override requirements to apply to the scratch copy instead of the
+            ones the file declares. Passing the declared *bounds* lets uv pick the newest release inside them,
+            which is how override pins are discovered; passing an empty sequence strips the overrides and
+            answers what the resolution would be without them.
         timeout (int): Subprocess timeout in seconds.
 
     Returns:
@@ -293,7 +347,7 @@ def resolve_project_versions(
     with tempfile.TemporaryDirectory(prefix="uv-resolve-") as tmp:
         tmp_dir = Path(tmp)
         for _attempt in range(_MAX_RESOLVE_ATTEMPTS):
-            content, loosened = _relaxed_pyproject(pyproject_path, effective_pins)
+            content, loosened = _relaxed_pyproject(pyproject_path, effective_pins, overrides)
             _stage_pyproject(tmp_dir, content)
 
             stderr = _run_uv_lock(tmp_dir, timeout)

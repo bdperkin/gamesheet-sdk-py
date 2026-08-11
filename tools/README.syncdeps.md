@@ -25,6 +25,7 @@ ______________________________________________________________________
   - [5.6. Pre-commit-Only Additional Dependencies](#56-pre-commit-only-additional-dependencies)
   - [5.7. Version Prefix Preservation](#57-version-prefix-preservation)
   - [5.8. Filtered Dependencies](#58-filtered-dependencies)
+  - [5.9. Transitive-Dependency Overrides](#59-transitive-dependency-overrides)
 - [6. Exception Hierarchy](#6-exception-hierarchy)
 - [7. Dependencies](#7-dependencies)
 - [8. Troubleshooting](#8-troubleshooting)
@@ -133,6 +134,7 @@ Core dependencies (already installed):
 | `--precommit-config`    | `.pre-commit-config.yaml`  | Path to .pre-commit-config.yaml                              |
 | `--genprecommit-config` | `.genprecommitconfig.yaml` | Path to .genprecommitconfig.yaml                             |
 | `--dependabot`          | `.github/dependabot.yml`   | Path to dependabot.yml (ignore list synced with pinned revs) |
+| `--overrides`           | `.syncdepsoverrides.yaml`  | Path to the transitive-dependency override policy file       |
 | `--uv-lock`             | `uv.lock`                  | Path to uv.lock (used with `--sync-types`)                   |
 | `--log-level`           | `info`                     | Logging verbosity (debug, info, warning, error)              |
 | `--dry-run`             | off                        | Show changes without modifying files                         |
@@ -212,6 +214,54 @@ The following are explicitly skipped during parsing, in both `pyproject.toml` de
 - Self-referencing gamesheet-sdk-py extras (e.g., `gamesheet-sdk-py[common]`) — these carry no version to converge, and treating one as a package produces a
   phantom "update" that never lands and a permanent `--check` exit 1
 
+### 5.9. Transitive-Dependency Overrides
+
+Everything above converges **declared** dependencies. A transitive package whose version is dictated by an upstream requirement is declared nowhere, so there is
+no pin to converge and bumping the parent cannot move it. The motivating case: `semgrep` hard-pins `mcp==1.23.3` — every release to date does — and that version
+carries three HIGH advisories, so no reachable `semgrep` version yields a patched `mcp`.
+
+Such packages are declared in **`.syncdepsoverrides.yaml`**, which holds the *policy* (why the override exists, and which versions are acceptable) while
+`pyproject.toml` holds the *result* (the resolved exact pin):
+
+```yaml
+overrides:
+  - package: mcp
+    pinned_by: semgrep
+    floor: ">=1.28.1" # the reason the override exists
+    ceiling: "<2" # compatibility bound
+    reason: >-
+      semgrep hard-pins mcp==1.23.3, which carries three HIGH advisories.
+    verify: uv run --extra semgrep --no-dev python -c "import semgrep.cli"
+    review: 2026-11-09
+```
+
+Per run, for each policy:
+
+| Step       | Behavior                                                                                                                       |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| 1. Resolve | `uv` resolves the project with `override-dependencies` set to the declared **bounds**, so it picks the newest release in range |
+| 2. Probe   | `uv` resolves again with overrides **stripped**, to learn what upstream would give on its own                                  |
+| 3. Write   | The bounded result is written to `pyproject.toml` as an **exact** `==` pin, appending the entry if absent                      |
+| 4. Lock    | `uv.lock` is regenerated                                                                                                       |
+| 5. Verify  | The policy's `verify` command must exit 0; on failure the pin **and** the lockfile are rolled back and the run exits non-zero  |
+| 6. Retire  | If the stripped resolution already satisfies `floor`, the override is reported as retirable                                    |
+
+Notes on the design, each of which is load-bearing:
+
+- **Resolution is delegated to `uv`,** as everywhere else in the tool — "newest release within bounds" is just what `uv` picks when handed those bounds, so the
+  pin is lockable by construction.
+- **`constraint-dependencies` cannot substitute for `override-dependencies`.** Constraints only *narrow* existing requirements, so a floor above an upstream
+  exact pin is unsatisfiable rather than winning.
+- **The pin is exact, and a ceiling matters.** Left as a bare floor, `mcp>=1.28.1` resolves to `2.0.0`, which removes `mcp.server.fastmcp`; since
+  `semgrep/cli.py` imports `semgrep.commands.mcp` unconditionally, the `semgrep` binary then fails to start at all. That is exactly the class of breakage
+  `verify` exists to catch.
+- **Nothing is retired automatically.** Silently dropping an override would reintroduce whatever it was added to fix, so retirement is reported and left to a
+  human.
+- **`verify` does not run under `--check` / `--dry-run`,** because those modes never leave changes behind and the command needs the new pin actually on disk to
+  mean anything. Both modes say so rather than implying the override was validated.
+- **A project with no policy file pays nothing** — the stage is skipped before any resolution work. `--no-uv-resolve` also skips it, since the whole mechanism
+  depends on uv.
+
 ## 6. Exception Hierarchy
 
 ```text
@@ -220,7 +270,8 @@ SyncDepsError (base)
 ├── FetchError        — PyPI/git tag fetch failures
 ├── WriteError        — File write failures
 ├── LockfileError     — uv.lock generation/validation failures
-└── ResolveError      — uv-delegated version resolution failures
+├── ResolveError      — uv-delegated version resolution failures
+└── VerifyError       — an override's verify command failed with the new pin applied
 ```
 
 `ResolveError` wraps `shared.uv_resolve.UvResolveError` so the CLI keeps a single exit-code contract.
@@ -258,18 +309,20 @@ syncdeps = [
 
 ## 10. Files
 
-| File                          | Purpose                  |
-| ----------------------------- | ------------------------ |
-| `tools/syncdeps`              | Executable entry point   |
-| `tools/depsync/__init__.py`   | Package initialization   |
-| `tools/depsync/cli.py`        | CLI interface            |
-| `tools/depsync/config.py`     | Constants and mappings   |
-| `tools/depsync/models.py`     | Pydantic v2 data models  |
-| `tools/depsync/exceptions.py` | Exception hierarchy      |
-| `tools/depsync/parsers.py`    | File parsers             |
-| `tools/depsync/fetchers.py`   | Version fetchers         |
-| `tools/depsync/engine.py`     | Convergence algorithm    |
-| `tools/depsync/typestubs.py`  | `types-*` stub sync      |
-| `tools/depsync/writers.py`    | Style-preserving writers |
-| `tools/shared/uv_resolve.py`  | uv-delegated resolution  |
-| `tools/README.syncdeps.md`    | This documentation       |
+| File                          | Purpose                                  |
+| ----------------------------- | ---------------------------------------- |
+| `tools/syncdeps`              | Executable entry point                   |
+| `tools/depsync/__init__.py`   | Package initialization                   |
+| `tools/depsync/cli.py`        | CLI interface                            |
+| `tools/depsync/config.py`     | Constants and mappings                   |
+| `tools/depsync/models.py`     | Pydantic v2 data models                  |
+| `tools/depsync/exceptions.py` | Exception hierarchy                      |
+| `tools/depsync/parsers.py`    | File parsers                             |
+| `tools/depsync/fetchers.py`   | Version fetchers                         |
+| `tools/depsync/engine.py`     | Convergence algorithm                    |
+| `tools/depsync/overrides.py`  | Transitive-dependency override subsystem |
+| `tools/depsync/typestubs.py`  | `types-*` stub sync                      |
+| `tools/depsync/writers.py`    | Style-preserving writers                 |
+| `tools/shared/uv_resolve.py`  | uv-delegated resolution                  |
+| `.syncdepsoverrides.yaml`     | Transitive-dependency override policy    |
+| `tools/README.syncdeps.md`    | This documentation                       |

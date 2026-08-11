@@ -30,3 +30,7 @@ class LockfileError(SyncDepsError):
 
 class ResolveError(SyncDepsError):
     """Version resolution delegated to uv failed."""
+
+
+class VerifyError(SyncDepsError):
+    """An override's verify command failed with the new pin applied."""

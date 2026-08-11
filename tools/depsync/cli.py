@@ -24,14 +24,29 @@ from shared.uv_resolve import UvResolveError, resolve_project_versions
 from depsync.config import (
     DEPENDABOT_CONFIG,
     GENPRECOMMIT_CONFIG,
+    OVERRIDES_CONFIG,
     PRECOMMIT_CONFIG,
     PYPROJECT_TOML,
     UV_LOCK,
     UV_LOCK_TIMEOUT,
 )
 from depsync.engine import converge, resolve_pinned_packages
-from depsync.exceptions import LockfileError, ResolveError, SyncDepsError
-from depsync.models import ConvergenceResult, RunConfig, TypesSyncResult, UpdateTarget
+from depsync.exceptions import LockfileError, ResolveError, SyncDepsError, VerifyError
+from depsync.models import (
+    ConvergenceResult,
+    OverridePolicy,
+    OverrideResult,
+    RunConfig,
+    TypesSyncResult,
+    UpdateTarget,
+)
+from depsync.overrides import (
+    converge_overrides,
+    current_overrides,
+    parse_overrides,
+    run_verify,
+    update_pyproject_overrides,
+)
 from depsync.parsers import (
     parse_genprecommit_pinned_revs,
     parse_index_url,
@@ -659,6 +674,192 @@ def _run_dependabot_sync(
     return changed
 
 
+def _display_override_results(results: list[OverrideResult]) -> None:
+    """Render converged override pins as a table.
+
+    Args:
+        results (list[OverrideResult]): Override results to display.
+    """
+    table = Table(title="Transitive Overrides", show_lines=False)
+    table.add_column("Package", style="cyan")
+    table.add_column("Current", style="yellow")
+    table.add_column("Target", style="green")
+    table.add_column("Without override", style="magenta")
+
+    for result in results:
+        table.add_row(
+            result.package,
+            result.old_version or "—",
+            result.new_version,
+            result.unpinned_version or "—",
+        )
+
+    console.print()
+    console.print(table)
+
+
+def _report_retirable(results: list[OverrideResult]) -> None:
+    """Point out overrides that are no longer doing any work.
+
+    Nothing is removed automatically: dropping an override silently would reintroduce whatever it was added to
+    fix, so retirement stays a human decision.
+
+    Args:
+        results (list[OverrideResult]): Override results to inspect.
+    """
+    for result in (r for r in results if r.retirable):
+        console.print(
+            f"  [bold yellow]{result.package}[/] resolves to "
+            f"[green]{result.unpinned_version}[/] without the override — "
+            "the override is retirable and can be deleted from .syncdepsoverrides.yaml",
+        )
+
+
+def _resolve_override_versions(
+    config: RunConfig,
+    policies: list[OverridePolicy],
+    pins: dict[str, str],
+) -> tuple[dict[str, str], dict[str, str]]:
+    """Resolve each override twice: within its bounds, and with overrides stripped.
+
+    The bounded resolution supplies the target pin. The stripped resolution answers whether the override is
+    still needed, which is the only way to tell that upstream has loosened its requirement.
+
+    Args:
+        config (RunConfig): Run configuration containing file paths.
+        policies (list[OverridePolicy]): Declared override policies.
+        pins (dict[str, str]): Packages held fixed by pre-commit pins.
+
+    Returns:
+        tuple[dict[str, str], dict[str, str]]: Versions resolved with bounds applied, and without overrides.
+
+    Raises:
+        ResolveError: If either resolution fails.
+    """
+    specifiers = [policy.specifier() for policy in policies]
+    console.print(
+        f"\n[bold]Resolving {len(specifiers)} transitive override(s) within declared bounds...[/]",
+    )
+
+    try:
+        bounded = resolve_project_versions(config.pyproject_path, pins=pins, overrides=specifiers)
+        unpinned = resolve_project_versions(config.pyproject_path, pins=pins, overrides=[])
+    except UvResolveError as exc:
+        raise ResolveError(str(exc)) from exc
+
+    return bounded, unpinned
+
+
+def _commit_overrides(
+    config: RunConfig,
+    policies: list[OverridePolicy],
+    results: list[OverrideResult],
+) -> None:
+    """Write override pins, relock, and verify — rolling back if verification fails.
+
+    A failed verify must not leave the new pin behind, or the next run would treat a broken state as the
+    starting point.
+
+    Args:
+        config (RunConfig): Run configuration containing file paths and flags.
+        policies (list[OverridePolicy]): Declared policies, for their verify commands.
+        results (list[OverrideResult]): Override results to write.
+
+    Raises:
+        VerifyError: If a verify command fails once the new pin is in place.
+    """
+    target_files = [config.pyproject_path, config.uv_lock_path]
+    snapshots = _snapshot_files(target_files)
+    if config.backup:
+        _create_backups(snapshots)
+
+    console.print("\n[bold]Applying override pins...[/]")
+    written = update_pyproject_overrides(config.pyproject_path, results)
+    console.print(f"  Updated [cyan]{written}[/] override pin(s) in pyproject.toml")
+
+    changed = {r.package for r in results if r.old_version != r.new_version}
+    try:
+        _ensure_uv_lock(config)
+        for policy in (p for p in policies if p.package in changed):
+            run_verify(policy)
+    except (LockfileError, VerifyError):
+        _restore_files(snapshots)
+        console.print("  [bold red]Verification failed — override pins rolled back.[/]")
+        raise
+
+    if config.diff:
+        _show_diffs(snapshots, target_files)
+
+
+def _apply_overrides_stage(
+    config: RunConfig,
+    policies: list[OverridePolicy],
+    results: list[OverrideResult],
+) -> bool:
+    """Apply or preview override pins.
+
+    Args:
+        config (RunConfig): Run configuration containing file paths and flags.
+        policies (list[OverridePolicy]): Declared policies.
+        results (list[OverrideResult]): Converged override results.
+
+    Returns:
+        bool: True if actual file changes are needed.
+    """
+    _display_override_results(results)
+    _report_retirable(results)
+
+    if not [r for r in results if r.old_version != r.new_version]:
+        console.print("  [green]All override pins are already current.[/]")
+        return False
+
+    if config.dry_run or config.check:
+        console.print(
+            "\n[bold yellow]Override pins would be updated — verify commands not run "
+            "(they need the new pin on disk).[/]",
+        )
+        return True
+
+    _commit_overrides(config, policies, results)
+    return True
+
+
+def _run_overrides(config: RunConfig, pins: dict[str, str]) -> bool:
+    """Converge transitive-dependency overrides declared in .syncdepsoverrides.yaml.
+
+    Skipped entirely when no policies are declared, so a project without overrides pays nothing for this
+    stage.
+
+    Args:
+        config (RunConfig): Run configuration containing file paths and flags.
+        pins (dict[str, str]): Packages held fixed by pre-commit pins.
+
+    Returns:
+        bool: True if actual file changes are needed.
+    """
+    policies = parse_overrides(config.overrides_path)
+    if not policies:
+        return False
+
+    if config.no_uv_resolve:
+        console.print(
+            "\n[bold yellow]uv resolution disabled[/] — transitive overrides left untouched",
+        )
+        return False
+
+    bounded, unpinned = _resolve_override_versions(config, policies, pins)
+    results = converge_overrides(
+        policies,
+        current_overrides(config.pyproject_path),
+        bounded,
+        unpinned,
+    )
+    if not results:
+        return False
+
+    return _apply_overrides_stage(config, policies, results)
+
+
 def _resolve_versions(
     config: RunConfig,
     pinned_revs: dict[str, str],
@@ -765,6 +966,9 @@ def _run(config: RunConfig) -> None:
         if types_changed:
             has_changes = True
 
+    if _run_overrides(config, resolve_pinned_packages(pinned_revs)):
+        has_changes = True
+
     dependabot_changed = _run_dependabot_sync(config, pinned_revs)
     if dependabot_changed:
         has_changes = True
@@ -803,6 +1007,13 @@ def _run(config: RunConfig) -> None:
     default=DEPENDABOT_CONFIG,
     show_default=True,
     help="Path to dependabot.yml (ignore list synced with pinned revs).",
+)
+@click.option(
+    "--overrides",
+    type=click.Path(),
+    default=OVERRIDES_CONFIG,
+    show_default=True,
+    help="Path to the transitive-dependency override policy file.",
 )
 @click.option(
     "--uv-lock",
@@ -862,6 +1073,7 @@ def app(
     precommit_config: str,
     genprecommit_config: str,
     dependabot: str,
+    overrides: str,
     uv_lock: str,
     log_level: str,
     *,
@@ -901,6 +1113,7 @@ def app(
         precommit_config_path=Path(precommit_config),
         genprecommit_config_path=Path(genprecommit_config),
         dependabot_path=Path(dependabot),
+        overrides_path=Path(overrides),
         uv_lock_path=Path(uv_lock),
         log_level=log_level,
         dry_run=dry_run,
