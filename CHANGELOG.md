@@ -2,6 +2,29 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.22 (2026-08-11)
+
+### Bug Fixes
+
+- **deps**: Pre-commit in ci fix ([#211](https://github.com/bdperkin/gamesheet-sdk-py/pull/211),
+  [`cf50286`](https://github.com/bdperkin/gamesheet-sdk-py/commit/cf502860a287ff051fe17c133356cc9690e09371))
+
+- **deps**: Restore optional-dependencies for pymarkdown and pyproject-fmt ([#211](https://github.com/bdperkin/gamesheet-sdk-py/pull/211),
+  [`cf50286`](https://github.com/bdperkin/gamesheet-sdk-py/commit/cf502860a287ff051fe17c133356cc9690e09371))
+
+### Refactoring
+
+- **deps**: Remove bandit, restore type-stubs extra, update docs ([#211](https://github.com/bdperkin/gamesheet-sdk-py/pull/211),
+  [`cf50286`](https://github.com/bdperkin/gamesheet-sdk-py/commit/cf502860a287ff051fe17c133356cc9690e09371))
+
+- **typing**: Migrate static type checking to Astral ty ([#211](https://github.com/bdperkin/gamesheet-sdk-py/pull/211),
+  [`cf50286`](https://github.com/bdperkin/gamesheet-sdk-py/commit/cf502860a287ff051fe17c133356cc9690e09371))
+
+### Testing
+
+- **cli**: Add unit tests to restore 100% coverage for datetime_helpers.py ([#211](https://github.com/bdperkin/gamesheet-sdk-py/pull/211),
+  [`cf50286`](https://github.com/bdperkin/gamesheet-sdk-py/commit/cf502860a287ff051fe17c133356cc9690e09371))
+
 ## v0.4.21 (2026-08-11)
 
 ### Bug Fixes
