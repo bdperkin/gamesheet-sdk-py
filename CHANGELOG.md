@@ -2,6 +2,24 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.19 (2026-08-11)
+
+### Bug Fixes
+
+- **deps**: Give the pytest extra the tools deps its tests import ([#207](https://github.com/bdperkin/gamesheet-sdk-py/pull/207),
+  [`c046943`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c046943fa5d1fec166893d5ea522ced953f6365f))
+
+### Features
+
+- **tools**: Guard override pins in dependabot and sort them in sortyaml ([#207](https://github.com/bdperkin/gamesheet-sdk-py/pull/207),
+  [`c046943`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c046943fa5d1fec166893d5ea522ced953f6365f))
+
+- **tools**: Manage transitive-dependency overrides in syncdeps ([#207](https://github.com/bdperkin/gamesheet-sdk-py/pull/207),
+  [`c046943`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c046943fa5d1fec166893d5ea522ced953f6365f))
+
+- **tools**: Teach syncdeps to manage transitive-dependency overrides ([#207](https://github.com/bdperkin/gamesheet-sdk-py/pull/207),
+  [`c046943`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c046943fa5d1fec166893d5ea522ced953f6365f))
+
 ## v0.4.18 (2026-08-11)
 
 ### Bug Fixes
