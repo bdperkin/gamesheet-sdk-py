@@ -804,8 +804,7 @@ repos:
         pass_filenames: false
         always_run: true
         require_serial: true
-        additional_dependencies:
-          - gamesheet-sdk-py[tools,ty]
+        additional_dependencies: []
         minimum_pre_commit_version: 2.9.2
 
   # ----------------------------------------------------------------------------

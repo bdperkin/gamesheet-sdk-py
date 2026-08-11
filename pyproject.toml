@@ -117,6 +117,7 @@ optional-dependencies.mdformat = [
   "mdformat-gfm==1.0.0",
   "mdformat-pyproject==0.1.1",
 ]
+optional-dependencies.pre-commit-ci = [ "gamesheet-sdk-py[deptry,mdformat,ty]" ]
 optional-dependencies.pymarkdown = [
   "pymarkdownlnt==0.9.39",
 ]

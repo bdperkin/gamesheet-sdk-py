@@ -76,6 +76,6 @@ jobs:
           enable-cache: true
 
       - name: Run pre-commit via uv
-        run: uv run --extra dev pre-commit run --all-files
+        run: uv run --extra pre-commit-ci pre-commit run --all-files
         env:
           SKIP: no-commit-to-branch

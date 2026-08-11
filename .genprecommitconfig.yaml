@@ -248,9 +248,6 @@ categories:
               args:
                 - --project
                 - .
-            appends:
-              additional_dependencies:
-                - gamesheet-sdk-py[tools,ty]
 
   pre-commit-hook-sync:
     description: Pre-Commit Hook Sync
