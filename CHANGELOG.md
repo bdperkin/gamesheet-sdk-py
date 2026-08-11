@@ -2,6 +2,53 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.18 (2026-08-11)
+
+### Bug Fixes
+
+- **deps**: Override semgrep's mcp pin to close three HIGH advisories ([#206](https://github.com/bdperkin/gamesheet-sdk-py/pull/206),
+  [`cc50765`](https://github.com/bdperkin/gamesheet-sdk-py/commit/cc50765611fb789d3858bb39a5c36607f9fd93dd))
+
+### Chores
+
+- **deps**: Update pre-commit hooks ([#199](https://github.com/bdperkin/gamesheet-sdk-py/pull/199),
+  [`9593097`](https://github.com/bdperkin/gamesheet-sdk-py/commit/9593097483062b7d6d556b481f912f2199645500))
+
+- **deps)(deps**: Bump astral-sh/setup-uv from 5.3.0 to 9.0.0 ([#194](https://github.com/bdperkin/gamesheet-sdk-py/pull/194),
+  [`89855de`](https://github.com/bdperkin/gamesheet-sdk-py/commit/89855de554d408ddb92133510077e5fb2aeda0d1))
+
+- **deps)(deps**: Bump the actions group with 3 updates ([#193](https://github.com/bdperkin/gamesheet-sdk-py/pull/193),
+  [`6bb5145`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6bb51455ce3b5a0e82d6f1fd8146c8f5f5393360))
+
+### Continuous Integration
+
+- Format CHANGELOG during release and skip uv-lock on pre-commit.ci ([#198](https://github.com/bdperkin/gamesheet-sdk-py/pull/198),
+  [`cf2e7b3`](https://github.com/bdperkin/gamesheet-sdk-py/commit/cf2e7b32b23379e5849ba7324aa832477a90843e))
+
+- Regenerate pre-commit config over the autoupdate drift ([#199](https://github.com/bdperkin/gamesheet-sdk-py/pull/199),
+  [`9593097`](https://github.com/bdperkin/gamesheet-sdk-py/commit/9593097483062b7d6d556b481f912f2199645500))
+
+- **workflows**: Matrixize mdformat across python 3.11-3.14 ([#200](https://github.com/bdperkin/gamesheet-sdk-py/pull/200),
+  [`8f8ae0a`](https://github.com/bdperkin/gamesheet-sdk-py/commit/8f8ae0ad070e7a26c084b0a0458500d1f6e045e3))
+
+### Documentation
+
+- **claude**: Note keeping required status checks in sync with job names ([#205](https://github.com/bdperkin/gamesheet-sdk-py/pull/205),
+  [`71d9e59`](https://github.com/bdperkin/gamesheet-sdk-py/commit/71d9e59725861764e2eac951f45bb36efe2a3046))
+
+- **tools**: Update documentation and tooling references for ruff migration ([#200](https://github.com/bdperkin/gamesheet-sdk-py/pull/200),
+  [`8f8ae0a`](https://github.com/bdperkin/gamesheet-sdk-py/commit/8f8ae0ad070e7a26c084b0a0458500d1f6e045e3))
+
+### Refactoring
+
+- **tools**: Migrate code style, formatting, and linting to ruff ([#200](https://github.com/bdperkin/gamesheet-sdk-py/pull/200),
+  [`8f8ae0a`](https://github.com/bdperkin/gamesheet-sdk-py/commit/8f8ae0ad070e7a26c084b0a0458500d1f6e045e3))
+
+### Testing
+
+- **security**: Cover posix chmod branch on non-posix hosts ([#204](https://github.com/bdperkin/gamesheet-sdk-py/pull/204),
+  [`85cba8c`](https://github.com/bdperkin/gamesheet-sdk-py/commit/85cba8cbed4376c2534468136590830b0ffe7ee5))
+
 ## v0.4.17 (2026-08-10)
 
 ### Bug Fixes
