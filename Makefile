@@ -82,9 +82,9 @@ install-all: ## Editable install with [all] extras + Playwright Chromium via uv
 
 .PHONY: clean
 clean: ## Remove caches and build artifacts (preserves Git state)
-	@printf "$(CYAN)→$(RESET) clean: __pycache__ .pytest_cache .mypy_cache .ruff_cache .coverage dist coverage.xml\n"
+	@printf "$(CYAN)→$(RESET) clean: __pycache__ .pytest_cache .ty_cache .ruff_cache .coverage dist coverage.xml\n"
 	@find . -type d -name '__pycache__' -prune -exec rm -rf {} +
-	@rm -rf .pytest_cache .mypy_cache .ruff_cache .pyright .coverage dist coverage.xml
+	@rm -rf .pytest_cache .ty_cache .ruff_cache .coverage dist coverage.xml
 
 .PHONY: clean-all
 clean-all: clean ## clean + remove .uv, $(VENV), and docs build dirs
@@ -131,9 +131,16 @@ test-cov: ## Run pytest with coverage via uv run
 lint: ## Run pre-commit across the whole repo via uv run
 	uv run pre-commit run --all-files
 
+.PHONY: typecheck
+typecheck: ## Run ty check against codebase via uv run
+	uv run --extra ty ty check
+
+.PHONY: typecheck-watch
+typecheck-watch: ## Run ty check in watch mode via uv run
+	uv run --extra ty ty check --watch
+
 .PHONY: type
-type: ## Run mypy --strict against src/ via uv run
-	uv run mypy --strict $(PKG)
+type: typecheck ## Alias for typecheck
 
 .PHONY: fix
 fix: ## Apply formatters and linters in place (ruff check --fix, ruff format, mdformat) via uv run

@@ -51,7 +51,7 @@ def _normalize_name(name: str) -> str:
 def _is_self_reference(dep_string: str) -> bool:
     """Check whether a dependency string refers to this project itself.
 
-    Self-references like ``gamesheet-sdk-py[mypy,tools]`` exist so a hook environment picks up the project's
+    Self-references like ``gamesheet-sdk-py[tools]`` exist so a hook environment picks up the project's
     own extras. They carry no version to converge, and the writers refuse to touch them, so treating one as a
     convergeable package produces a phantom "update" that never lands — and, in ``--check`` mode, a permanent
     exit 1.

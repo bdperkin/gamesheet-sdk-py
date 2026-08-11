@@ -30,12 +30,10 @@ ci:
     - editorconfig-checker
     - identity
     - mdformat
-    - mypy
-    - pyrefly-check
-    - pyright
     - pyroma
     - semgrep
     - semgrep-ci
+    - ty
     - uv-lock
 
 categories:
@@ -222,27 +220,9 @@ categories:
       - name: blocklint
         repo: https://github.com/princetonuniversity/blocklint
 
-      - name: pyrefly-pre-commit
-        repo: https://github.com/facebook/pyrefly-pre-commit
-        hooks:
-          - id: pyrefly-check
-            appends:
-              additional_dependencies:
-                - gamesheet-sdk-py[pyrefly]
-
   security-_metrics_-_complexity:
     description: Security, Metrics & Complexity
     repos:
-
-      - name: bandit
-        repo: https://github.com/pycqa/bandit
-        hooks:
-          - id: bandit
-            prepends:
-              args:
-                - --configfile
-                - pyproject.toml
-                - --recursive
 
       - name: semgrep
         repo: https://github.com/semgrep/pre-commit
@@ -260,26 +240,14 @@ categories:
     description: Type Checkers
     repos:
 
-      - name: pyright-python
-        repo: https://github.com/robertcraigie/pyright-python
+      - name: ty-pre-commit
+        repo: https://github.com/astral-sh/ty-pre-commit
         hooks:
-          - id: pyright
-            appends:
-              additional_dependencies:
-                - gamesheet-sdk-py[pyright,tools]
-
-      - name: mirrors-mypy
-        repo: https://github.com/pre-commit/mirrors-mypy
-        hooks:
-          - id: mypy
-            overrides:
-              exclude: ^tools/(syncdeps|genprecommitconfig)$
+          - id: ty
             prepends:
               args:
-                - --strict
-            appends:
-              additional_dependencies:
-                - gamesheet-sdk-py[mypy,tools]
+                - --project
+                - .
 
   pre-commit-hook-sync:
     description: Pre-Commit Hook Sync

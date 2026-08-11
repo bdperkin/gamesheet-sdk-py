@@ -87,7 +87,7 @@ Future domain modules attach the same way: a thin action function in a domain mo
 ```bash
 # Editable install with everything (run once after clone / when deps change).
 # `[dev]` is minimal (pre-commit, pre-commit-uv, uv). `[all]` pulls every
-# per-tool extra declared in pyproject.toml — pytest, mypy, lint suite, docs, …
+# per-tool extra declared in pyproject.toml — pytest, lint suite, docs, …
 pip install -e ".[all]"
 
 # Or a leaner combo for just tests + docs:
@@ -111,8 +111,8 @@ pytest --cov
 # Lint / format / hooks across the whole repo
 pre-commit run --all-files
 
-# Type check (strict mode is on)
-mypy src
+# Type check (Astral ty)
+ty check
 ```
 
 ### 2.1. Makefile shortcuts
@@ -125,7 +125,7 @@ make test          # full pytest suite
 make test-fast     # pytest -m "not browser"
 make test-cov      # pytest --cov
 make lint          # pre-commit run --all-files
-make type          # mypy --strict src
+make typecheck     # ty check
 make fix           # apply formatters in place (ruff, mdformat)
 make metrics       # radon complexity + maintainability report
 make docs          # Sphinx HTML build (two-pass strict)
@@ -144,10 +144,7 @@ project plus only that extra. Each `pyproject.toml` `optional-dependencies.*` gr
 
 ```bash
 uv run --extra pytest pytest --cov            # tests + coverage gate
-uv run --extra mypy mypy --config-file pyproject.toml src/
-uv run --extra pyright pyright
-uv run --extra pyrefly pyrefly check
-uv run --extra bandit bandit -c pyproject.toml -r src/
+uv run --extra ty ty check
 uv run --extra radon radon cc --show-complexity --average .
 uv run --extra docs sphinx-build -b html docs docs/_build/html
 uv run --extra dev pre-commit run --all-files
@@ -168,7 +165,7 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 - **`src/` layout.** Tests import via the installed package; `pyproject.toml` also sets `pythonpath = ["src"]` so `pytest` works without an install, but
   workflows that need the CLI or Playwright still require `pip install -e ".[all]"` (or at minimum `[dev,pytest]`).
 
-- **Typed package.** `py.typed` is shipped (PEP 561) and `[tool.mypy] strict = true` is enabled — all new code must be fully annotated and pass `mypy --strict`.
+- **Typed package.** `py.typed` is shipped (PEP 561) and `[tool.ty]` is configured — all new code must be fully annotated and pass `ty check`.
 
 - **Automated versioning and changelog.** The project uses `python-semantic-release` (PSR) to fully automate version bumping, CHANGELOG generation, and releases
   based on Conventional Commits. **No manual tagging required** — simply merge to `main` and PSR handles everything:
@@ -210,8 +207,8 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   in `ci.skip` — they still run in GitHub Actions where there is no 250 MiB tier limit and `python -m venv` works. The three main reasons a hook lands in the
   skip list:
 
-  - **Deps exceed the 250 MiB tier** — `pyright`, `deptry`,
-  - **Requires runtime deps via `additional_dependencies`** — `mypy`, `pyrefly-check`, `semgrep`.
+  - **Deps exceed the 250 MiB tier** — `deptry`.
+  - **Requires runtime deps via `additional_dependencies`** — `ty`, `semgrep`.
   - **Needs `python -m venv`** — `pyroma` (introspects via `python -m build`; pre-commit.ci's bundled Python lacks `ensurepip`).
 
   Also skipped: `editorconfig-checker`, `mdformat`.
@@ -227,8 +224,7 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   `security-_metrics_-_complexity.yml`, and `comprehensive-tests.yml` (nightly, multi-OS; also uploads to Codecov). Plus the GitHub-supplied `codeql.yml`,
   `dependency-review.yml`, security scanning workflows (`gitguardian.yml`, `semgrep.yml`, `security-trivy.yml`, `security-trivy-image.yml`, `osv-scanner.yml`,
   `workflow-linter.yml`), and `release.yml`. Each tool runs as its own matrixed job (py3.11–3.14) invoking `uv run --extra <extra> <tool>` directly, so the
-  extra is the only dependency declaration involved. Job display names are the bare tool name (e.g. `mypy (py3.11)`, `pytest (py3.12)`) so the Checks UI stays
-  scannable.
+  extra is the only dependency declaration involved. Job display names are the bare tool name (e.g. `pytest (py3.12)`) so the Checks UI stays scannable.
 
   **Trigger layout (uniform across most workflows):** `push:` is scoped to `branches: [main]` — CI runs on main branch pushes and when PRs are opened/updated
   against main. `pull_request:` uses either `types: [opened, reopened, synchronize]` (default behavior, runs on every PR push) or `branches: [main]` depending
@@ -239,9 +235,8 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   `push: branches: [main]`), and `comprehensive-tests.yml` (nightly `schedule` trigger plus manual `workflow_dispatch`).
 
   **Keep required status checks in sync with job names (gotcha worth preserving):** `main`'s branch protection pins a list of required status-check contexts by
-  *exact job name* (`pytest (py3.11)`, `mypy (py3.12)`, `bandit (py3.13)`, `pre-commit (py)`, …). That list lives in **repo settings, not in the tree**, so
-  nothing in a PR diff reveals it and no hook validates it. Renaming, removing, or re-matrixing a job therefore desynchronizes it silently, and it fails in both
-  directions:
+  *exact job name* (`pytest (py3.11)`, `pre-commit (py)`, …). That list lives in **repo settings, not in the tree**, so nothing in a PR diff reveals it and no
+  hook validates it. Renaming, removing, or re-matrixing a job therefore desynchronizes it silently, and it fails in both directions:
 
   - **Required but never reported** — the context can never turn green, so *every* PR sits at `mergeStateStatus: BLOCKED` with all its checks passing and no
     hint as to why.
@@ -265,20 +260,20 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 
   - **Code style / formatters (auto-fix):** ruff (110).
   - **Code cleaners / dead-code:** vulture, deptry.
-  - **Code-quality linters / static analysis:** pyrefly, blocklint.
-  - **Type checkers:** mypy (`--strict`), pyright.
-  - **Security / metrics / complexity:** bandit (`[tool.bandit]`), semgrep (`--config auto --error`), xenon (complexity gate — see below), radon (cc / raw / mi
-    / hal as separate subcommands).
+  - **Code-quality linters / static analysis:** blocklint.
+  - **Type checkers:** ty (`[tool.ty]`).
+  - **Security / metrics / complexity:** semgrep (`--config auto --error`), xenon (complexity gate — see below), radon (cc / raw / mi / hal as separate
+    subcommands).
   - **Docstring / doc tools:** codespell, interrogate, mdformat (+ mdformat-gfm), pymarkdown.
   - **Configuration-file linters / formatters:** yamllint (`-d relaxed`), yamlfix, pyproject-fmt, validate-pyproject, editorconfig-checker (+ -system variant),
     pyroma.
   - **Meta:** sync-pre-commit-deps.
 
   Several hooks need the project's runtime deps or tool-specific plugins to resolve imports inside the isolated hook venv. Every such hook's
-  `additional_dependencies` is consolidated to a single `gamesheet-sdk-py[<extras>]` self-reference (e.g. `gamesheet-sdk-py[mypy,tools]`,
-  `gamesheet-sdk-py[pyright,tools]`, `gamesheet-sdk-py[pyrefly]`, `gamesheet-sdk-py[deptry]`, `gamesheet-sdk-py[mdformat]`) so `pyproject.toml`'s
-  `optional-dependencies.*` groups are the single source of truth for what each tool needs. Pyroma is skipped on pre-commit.ci (see above) and runs locally / in
-  GitHub Actions where the project's build backend (`hatchling`) is already present.
+  `additional_dependencies` is consolidated to a single `gamesheet-sdk-py[<extras>]` self-reference (e.g. `gamesheet-sdk-py[tools,ty]`,
+  `gamesheet-sdk-py[deptry]`, `gamesheet-sdk-py[mdformat]`) so `pyproject.toml`'s `optional-dependencies.*` groups are the single source of truth for what each
+  tool needs. Pyroma is skipped on pre-commit.ci (see above) and runs locally / in GitHub Actions where the project's build backend (`hatchling`) is already
+  present.
 
 - **Complexity gate.** A `xenon` pre-commit hook enforces `--max-absolute=A --max-modules=A --max-average=B` against `src/` on every commit
   (`pass_filenames: false`, runs the whole package as one analysis). Translation: **every block (function / method / class) must stay at cyclomatic-complexity
@@ -368,7 +363,6 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 
 - **Security scanning.** The project uses multiple security tools in CI:
 
-  - **bandit** — Python code security scanner (via pre-commit and dedicated workflow)
   - **GitGuardian** — secret scanning in commits
   - **Semgrep** — SAST (static application security testing)
   - **Trivy** — container vulnerability scanning with `.trivyignore.yaml` for suppressed CVEs

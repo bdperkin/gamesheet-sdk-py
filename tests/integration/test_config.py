@@ -81,7 +81,7 @@ def test_zero_timeout_rejected() -> None:
 def test_negative_retries_rejected() -> None:
     """Test that negative request_retries value raises ValueError."""
     with pytest.raises(ValueError, match=r"Input should be greater than or equal to 0"):
-        Config(request_retries=-1)  # pyrefly: ignore[bad-argument-type]  # intentional invalid value
+        Config(request_retries=-1)  # intentional invalid value
 
 
 def test_session_path_default_uses_xdg_cache_home(

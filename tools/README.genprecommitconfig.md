@@ -188,21 +188,6 @@ categories:                    # Repos grouped by function
           - id: detect-private-key
             overrides:         # Replace fields entirely
               exclude: "^path/to/allowed/key$"
-
-  lint:
-    description: Code Quality Linters
-    repos:
-      - name: mypy
-        repo: https://github.com/pre-commit/mirrors-mypy
-        rev: v2.1.0           # Pinned version
-        hooks:
-          - id: mypy
-            comment: "Type checking with extra deps"
-            appends:
-              args: [--install-types, --non-interactive]
-              additional_dependencies: [pydantic]
-            overrides:
-              exclude: "^(bin|docs)/.*$"
 ```
 
 ### 5.2. Category Configuration

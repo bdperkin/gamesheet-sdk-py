@@ -225,16 +225,14 @@ def create_player(
         photo_url = _upload_photo(session, photo_path)
 
     endpoint = f"/api/seasons/{season_id}/players"
-    payload: dict[str, Any] = {
-        "data": {
-            "type": "players",
-            "attributes": {
-                "first_name": first_name,
-                "last_name": last_name,
-            },
+    data: dict[str, Any] = {
+        "type": "players",
+        "attributes": {
+            "first_name": first_name,
+            "last_name": last_name,
         },
     }
-    attrs = payload["data"]["attributes"]
+    attrs = data["attributes"]
     # Add optional fields using helper to reduce complexity
     _add_optional_field(attrs, "external_id", external_id)
     _add_optional_field(attrs, "jersey", jersey)
@@ -253,9 +251,11 @@ def create_player(
     _add_optional_field(attrs, "committed_to", committed_to)
     _add_optional_field(attrs, "photo_url", photo_url)
     if team_id:
-        payload["data"]["relationships"] = {
+        data["relationships"] = {
             "teams": {"data": [{"type": "teams", "id": team_id}]},
         }
+
+    payload: dict[str, Any] = {"data": data}
 
     response = session.post(endpoint, headers=JSONAPI_HEADERS, json=payload)
     handle_response(response, endpoint, "POST player")

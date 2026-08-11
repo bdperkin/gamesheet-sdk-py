@@ -8,8 +8,8 @@ from __future__ import annotations
 import logging
 import re
 
-from yamlfix import fix_code  # pyright: ignore[reportMissingImports]
-from yamlfix.model import YamlfixConfig  # pyright: ignore[reportMissingImports]
+from yamlfix import fix_code
+from yamlfix.model import YamlfixConfig
 
 from shared.toml import PYPROJECT_PATH, load_toml
 
@@ -46,8 +46,6 @@ def _apply_yamlfix(text: str) -> str:
         SystemExit: If yamlfix cannot format the text.
     """
     try:
-        # Annotated because yamlfix is absent from the mypy hook env, where
-        # fix_code() would otherwise read as Any.
         formatted: str = fix_code(text, _load_yamlfix_config())
     except Exception as exc:
         logger.exception("yamlfix failed to format output")

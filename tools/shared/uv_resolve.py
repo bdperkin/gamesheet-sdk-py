@@ -17,7 +17,7 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import tomlkit
 from tomlkit.exceptions import TOMLKitError
@@ -125,7 +125,7 @@ def _relax_entry(entry: str, pins: Mapping[str, str]) -> str | None:
 
 
 def _relax_dep_list(
-    dep_list: list,  # type: ignore[type-arg]
+    dep_list: list[Any],
     pins: Mapping[str, str],
     loosened: dict[str, str],
 ) -> None:

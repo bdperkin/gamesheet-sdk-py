@@ -147,7 +147,7 @@ def _normalize_dep_name(dep_lower: str) -> str:
 
 
 def _update_dep_in_list(
-    dep_list: list,  # type: ignore[type-arg]
+    dep_list: list[Any],
     result: ConvergenceResult,
 ) -> None:
     for i, entry in enumerate(dep_list):
@@ -220,7 +220,7 @@ def update_pyproject(
 
 
 def _update_additional_dep_list(
-    ad_list: list,  # type: ignore[type-arg]
+    ad_list: list[Any],
     pkg_to_result: dict[str, ConvergenceResult],
 ) -> int:
     count = 0
@@ -249,7 +249,7 @@ def _update_additional_dep_list(
 
 
 def _update_repo_additional_deps(
-    repo_entry: dict,  # type: ignore[type-arg]
+    repo_entry: dict[str, Any],
     pkg_to_result: dict[str, ConvergenceResult],
 ) -> int:
     count = 0
@@ -468,7 +468,7 @@ def update_dependabot_ignores(
     return len(added), len(removed)
 
 
-def _sort_types_entries(type_stubs_list: list) -> None:  # type: ignore[type-arg]
+def _sort_types_entries(type_stubs_list: list[Any]) -> None:
     """Sort types-* entries alphabetically, preserving non-types entries in place."""
     types_indices: list[int] = []
     types_entries: list[str] = []

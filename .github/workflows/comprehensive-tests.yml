@@ -31,7 +31,7 @@
 #
 # Architecture:
 #   - Minimal install ([pytest] extras only, no full [all] to keep CI fast)
-#   - Caches .pytest_cache and .mypy_cache for faster runs
+#   - Caches .pytest_cache for faster runs
 #   - Runs full pytest suite with coverage: pytest -v --cov --cov-report=xml --cov-report=term
 #   - Uploads coverage.xml THREE times (once per flag) because Codecov requires one flag per upload
 #     to populate the nightly aggregate view, the per-OS breakdown, and the per-Python-version view

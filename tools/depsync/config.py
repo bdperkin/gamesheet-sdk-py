@@ -25,10 +25,7 @@ UV_LOCK_TIMEOUT = 120
 
 TOOL_MAPPING: dict[str, str] = {
     "editorconfig-checker": "https://github.com/editorconfig-checker/editorconfig-checker.python",
-    "mypy": "https://github.com/pre-commit/mirrors-mypy",
     "pymarkdownlnt": "https://github.com/jackdewinter/pymarkdown",
-    "pyrefly": "https://github.com/facebook/pyrefly-pre-commit",
-    "pyright": "https://github.com/robertcraigie/pyright-python",
     "ruff": "https://github.com/astral-sh/ruff-pre-commit",
     "semgrep": "https://github.com/semgrep/pre-commit",
 }

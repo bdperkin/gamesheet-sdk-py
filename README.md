@@ -45,8 +45,7 @@ ______________________________________________________________________
 <!-- Code Quality -->
 
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
-[![Security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
+[![Checked with ty](https://img.shields.io/badge/types-ty-blue.svg)](https://github.com/astral-sh/ty)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 
 <!-- Package Info -->
@@ -115,7 +114,7 @@ ______________________________________________________________________
 - **Python API** — Fully typed Python SDK with pydantic models for all resources
 - **Multiple output formats** — JSON, YAML, CSV, TSV, or 13 tabulate table formats
 - **Shell completion** — Tab completion for bash, zsh, fish
-- **Typed (PEP 561)** — Ships `py.typed` marker, passes `mypy --strict`
+- **Typed (PEP 561)** — Ships `py.typed` marker, passes `ty check`
 - **100% test coverage** — Comprehensive test suite with VCR cassettes and browser automation tests
 - **Automated releases** — [Conventional Commits](https://www.conventionalcommits.org/) +
   [python-semantic-release](https://python-semantic-release.readthedocs.io/)
@@ -367,10 +366,10 @@ ______________________________________________________________________
 - **Python support:** 3.11, 3.12, 3.13, 3.14
 - **Version strategy:** Patch-only bumps until 1.0.0 (see [Release Process](docs/how-to/release-process.md))
 - **Test coverage:** 100% (enforced locally and via Codecov)
-- **Type checking:** `mypy --strict` and `pyright` pass on all source code
+- **Type checking:** `ty check` passes on all source code
 - **Code quality:** All blocks maintain cyclomatic complexity grade A (cc ≤ 5)
-- **CI/CD:** Comprehensive test matrix across Python versions, multi-OS testing (nightly), security scanning (Bandit, Semgrep, Trivy, GitGuardian, OSV-Scanner,
-  CodeQL), and automated PyPI releases
+- **CI/CD:** Comprehensive test matrix across Python versions, multi-OS testing (nightly), security scanning (Semgrep, Trivy, GitGuardian, OSV-Scanner, CodeQL),
+  and automated PyPI releases
 
 ______________________________________________________________________
 
@@ -393,7 +392,7 @@ ______________________________________________________________________
 
 Security is a top priority. This project employs multiple layers of automated security scanning:
 
-- **Static analysis:** Bandit (Python), Semgrep (SAST), CodeQL (semantic analysis)
+- **Static analysis:** Semgrep (SAST), CodeQL (semantic analysis)
 - **Dependency scanning:** OSV-Scanner, pip-audit
 - **Container scanning:** Trivy (with CVE suppression documented in `.trivyignore.yaml`, each entry carrying a rationale and an expiry date)
 - **Secret detection:** GitGuardian

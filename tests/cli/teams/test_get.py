@@ -28,7 +28,6 @@ def test_teams_get(runner: CliRunner) -> None:
             id="401",
             season_id=SEASON_ID,
             title=DEFAULT_TEAM_NAME,
-            roster={"players": [], "coaches": []},
             created_at=datetime(2024, 1, 1, tzinfo=UTC),
             updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         )
@@ -52,7 +51,6 @@ def test_teams_get_with_fields(runner: CliRunner) -> None:
             id="401",
             season_id=SEASON_ID,
             title=DEFAULT_TEAM_NAME,
-            roster={"players": [], "coaches": []},
             created_at=datetime(2024, 1, 1, tzinfo=UTC),
             updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         )
@@ -86,7 +84,6 @@ def test_teams_get_empty_fields(runner: CliRunner) -> None:
             id="401",
             season_id=SEASON_ID,
             title=DEFAULT_TEAM_NAME,
-            roster={"players": [], "coaches": []},
             created_at=datetime(2024, 1, 1, tzinfo=UTC),
             updated_at=datetime(2024, 1, 1, tzinfo=UTC),
         )

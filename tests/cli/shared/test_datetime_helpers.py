@@ -14,6 +14,8 @@ import rich_click as click
 
 from gamesheet_sdk.admin.cli.shared.datetime_helpers import (
     _format_utc_iso,
+    _resolve_single_update,
+    _resolve_with_all_inputs,
     get_local_timezone_name,
     get_local_timezone_offset,
     parse_flexible_datetime,
@@ -546,3 +548,15 @@ def test_update_end_and_duration_given() -> None:
     )
     assert start == "2026-07-04T23:00:00Z"
     assert end == "2026-07-05T01:00:00Z"
+
+
+def test_resolve_with_all_inputs_insufficient_inputs_raises() -> None:
+    """Test error when _resolve_with_all_inputs receives fewer than 2 inputs."""
+    with pytest.raises(click.UsageError, match="At least 2 of"):
+        _resolve_with_all_inputs(None, None, None)
+
+
+def test_resolve_single_update_missing_duration_raises() -> None:
+    """Test error when _resolve_single_update receives no inputs and duration=None."""
+    with pytest.raises(click.UsageError, match="Duration is required"):
+        _resolve_single_update(None, None, None, "2026-07-04T20:00:00Z", "2026-07-04T22:00:00Z")

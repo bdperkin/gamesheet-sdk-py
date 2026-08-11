@@ -10,7 +10,7 @@ import logging
 import shutil
 import subprocess
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import rich_click as click
 from rich.console import Console
@@ -238,7 +238,7 @@ def _display_results(results: list[ConvergenceResult]) -> None:
 
 def _write_all_convergence(
     config: RunConfig,
-    results: list,  # type: ignore[type-arg]
+    results: list[Any],
 ) -> int:
     """Write convergence results to all three managed files.
 
@@ -261,7 +261,7 @@ def _write_all_convergence(
 
 def _commit_convergence(
     config: RunConfig,
-    results: list,  # type: ignore[type-arg]
+    results: list[Any],
     target_files: list[Path],
 ) -> None:
     """Apply convergence results to disk for real.
@@ -297,7 +297,7 @@ def _commit_convergence(
 
 def _preview_convergence(
     config: RunConfig,
-    results: list,  # type: ignore[type-arg]
+    results: list[Any],
     target_files: list[Path],
 ) -> None:
     """Show the diff convergence would produce, then roll the files back.
@@ -320,7 +320,7 @@ def _preview_convergence(
 
 def _apply_convergence(
     config: RunConfig,
-    results: list,  # type: ignore[type-arg]
+    results: list[Any],
 ) -> bool:
     """Apply or preview convergence results.
 

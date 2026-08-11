@@ -118,7 +118,7 @@ pytest -x
 pre-commit run --all-files
 
 # Run specific hook
-pre-commit run mypy --all-files
+pre-commit run ty --all-files
 pre-commit run ruff --all-files
 
 # Update hook versions
@@ -128,11 +128,8 @@ pre-commit autoupdate
 ### 4.2. Type Checking
 
 ```bash
-# MyPy (strict mode)
-uv run mypy --strict src
-
-# Pyright
-uv run --extra pyright pyright
+# Astral ty
+uv run --extra ty ty check
 ```
 
 ### 4.3. Linting
@@ -142,7 +139,6 @@ uv run --extra pyright pyright
 uv run pre-commit run --all-files
 
 # Individual linters
-uv run --extra bandit bandit -c pyproject.toml -r src/
 uv run --extra semgrep semgrep scan --config auto --error
 ```
 
@@ -212,7 +208,7 @@ uv sync --all-extras
 uv run pytest
 
 # Run type checker
-uv run mypy --strict src
+uv run --extra ty ty check
 
 # Run docs build
 uv run --extra docs sphinx-build -b html docs docs/_build/html
@@ -230,7 +226,7 @@ make test          # uv run pytest
 make test-fast     # uv run pytest -m "not browser"
 make test-cov      # uv run pytest --cov
 make lint          # uv run pre-commit run --all-files
-make type          # uv run mypy --strict src
+make typecheck     # uv run --extra ty ty check
 make fix           # auto-format code
 make metrics       # radon complexity analysis
 make docs          # build HTML docs

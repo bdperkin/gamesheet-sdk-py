@@ -196,7 +196,7 @@ class Session:
         Returns:
             MutableMapping[str, str | bytes]: Return value.
         """
-        return self._http.headers  # pyright: ignore[reportReturnType]
+        return self._http.headers
 
     def set_bearer_token(self: Session, token: str) -> None:
         """Attach ``Authorization: Bearer <token>`` to all subsequent requests.
