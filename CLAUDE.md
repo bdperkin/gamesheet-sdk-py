@@ -7,7 +7,7 @@ ______________________________________________________________________
 - [1. Project nature](#1-project-nature)
 - [2. Common commands](#2-common-commands)
   - [2.1. Makefile shortcuts](#21-makefile-shortcuts)
-  - [2.2. Tox](#22-tox)
+  - [2.2. Running a single tool with uv](#22-running-a-single-tool-with-uv)
 - [3. Architecture notes](#3-architecture-notes)
 
 ______________________________________________________________________
@@ -86,7 +86,7 @@ Future domain modules attach the same way: a thin action function in a domain mo
 
 ```bash
 # Editable install with everything (run once after clone / when deps change).
-# `[dev]` is now minimal (pre-commit + tox-workdir only). `[all]` pulls every
+# `[dev]` is minimal (pre-commit, pre-commit-uv, uv). `[all]` pulls every
 # per-tool extra declared in pyproject.toml — pytest, mypy, lint suite, docs, …
 pip install -e ".[all]"
 
@@ -127,38 +127,38 @@ make test-cov      # pytest --cov
 make lint          # pre-commit run --all-files
 make type          # mypy --strict src
 make fix           # apply formatters in place (ruff, mdformat)
-make metrics       # radon + xenon complexity gates
+make metrics       # radon complexity + maintainability report
 make docs          # Sphinx HTML build (two-pass strict)
 make docs-serve    # live-reload preview
 make docs-pdf      # PDF docs (needs LaTeX on PATH)
 make docs-linkcheck
-make clean         # caches + build artifacts (.tox, .venv, _build untouched)
-make clean-all     # + .tox, $(VENV), docs build dirs
+make clean         # caches + build artifacts (.uv, $(VENV), _build untouched)
+make clean-all     # + .uv, $(VENV), docs build dirs
 ```
 
-### 2.2. Tox
+### 2.2. Running a single tool with uv
 
-Tox now ships ~60 envs — one per linter / formatter / type checker / doc builder — instead of the prior monolithic `lint` / `type` / `security` / `files-check`
-aggregates. Use **labels** for grouped runs:
+There is no separate task runner. Every tool is invoked directly through `uv run --extra <extra> <tool>`, which resolves an ephemeral environment holding the
+project plus only that extra. Each `pyproject.toml` `optional-dependencies.*` group is therefore the single source of truth for what one tool needs, and
+`.github/workflows/` invokes exactly these commands:
 
 ```bash
-tox -l                # list every env
-tox -m tests          # sanity (build/install) + pytest-py3{11..14}
-tox -m docs           # docs, docs-lint, docs-linkcheck, docs-doctest, docs-epub, docs-man, docs-pdf, docs-serve
-tox -m pre-commit     # pre-commit run --all-files inside a venv
-tox -e pytest         # single-version pytest run (no Python matrix)
-tox -e mypy           # mypy --strict
-tox -e pyright        # pyright
-tox -e pyrefly        # pyrefly (architectural-health linter)
-tox -e bandit         # bandit security scan
-tox -e xenon          # complexity gate
-tox -e metrics        # radon cc + radon mi
-tox -e fix            # apply ruff, mdformat in place
-tox -e py314 -- -k test_name   # pass args to pytest after --
+uv run --extra pytest pytest --cov            # tests + coverage gate
+uv run --extra mypy mypy --config-file pyproject.toml src/
+uv run --extra pyright pyright
+uv run --extra pyrefly pyrefly check
+uv run --extra bandit bandit -c pyproject.toml -r src/
+uv run --extra radon radon cc --show-complexity --average .
+uv run --extra docs sphinx-build -b html docs docs/_build/html
+uv run --extra dev pre-commit run --all-files
+uv run --extra pytest pytest -k test_name     # pass pytest args directly
 ```
 
-Every `pyproject.toml` `optional-dependencies.*` group has a matching tox env that installs only that extra plus the project, so each env runs in an isolated
-venv with the minimum surface area.
+`xenon` is the exception: it is not declared in any extra, because the `rubik/xenon` pre-commit hook supplies its own environment. Run the complexity gate with
+`pre-commit run xenon --all-files`.
+
+Prefer the `make` targets in [§2.1](#21-makefile-shortcuts) for everyday work — they wrap these same commands. Reach for the raw `uv run` form when you need a
+flag the Makefile does not expose, or when reproducing a specific CI job.
 
 The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.admin.cli:main`) and `gamesheet-teams` (entry point:
 `gamesheet_sdk.teams.cli:main`).
@@ -226,8 +226,9 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   `configuration_file_linters_-_formatters.yml`, `documentation_-_docstring_tools.yml`, `documentation_-_markdown_tools.yml`,
   `security-_metrics_-_complexity.yml`, and `comprehensive-tests.yml` (nightly, multi-OS; also uploads to Codecov). Plus the GitHub-supplied `codeql.yml`,
   `dependency-review.yml`, security scanning workflows (`gitguardian.yml`, `semgrep.yml`, `security-trivy.yml`, `security-trivy-image.yml`, `osv-scanner.yml`,
-  `workflow-linter.yml`), and `release.yml`. Each tool runs as its own matrixed job (py3.11–3.14) installing the `tox-workdir` plugin and invoking the matching
-  tox env. Job display names are the bare tool name (e.g. `mypy (py3.11)`, `pytest (py3.12)`) so the Checks UI stays scannable.
+  `workflow-linter.yml`), and `release.yml`. Each tool runs as its own matrixed job (py3.11–3.14) invoking `uv run --extra <extra> <tool>` directly, so the
+  extra is the only dependency declaration involved. Job display names are the bare tool name (e.g. `mypy (py3.11)`, `pytest (py3.12)`) so the Checks UI stays
+  scannable.
 
   **Trigger layout (uniform across most workflows):** `push:` is scoped to `branches: [main]` — CI runs on main branch pushes and when PRs are opened/updated
   against main. `pull_request:` uses either `types: [opened, reopened, synchronize]` (default behavior, runs on every PR push) or `branches: [main]` depending
@@ -259,7 +260,7 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 
 - **Python 3.11–3.14.** Use modern syntax (`from __future__ import annotations`, `X | None`, etc.) as the `cli` and `auth` packages already do.
 
-- **Formatting/lint pipeline.** The suite is broken out tool-per-hook in `.pre-commit-config.yaml`, tool-per-env in `tox.ini`, and tool-per-job in the
+- **Formatting/lint pipeline.** The suite is broken out tool-per-hook in `.pre-commit-config.yaml`, tool-per-extra in `pyproject.toml`, and tool-per-job in the
   per-category GitHub Actions workflows. Categories:
 
   - **Code style / formatters (auto-fix):** ruff (110).
@@ -267,10 +268,10 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   - **Code-quality linters / static analysis:** pyrefly, blocklint.
   - **Type checkers:** mypy (`--strict`), pyright.
   - **Security / metrics / complexity:** bandit (`[tool.bandit]`), semgrep (`--config auto --error`), xenon (complexity gate — see below), radon (cc / raw / mi
-    / hal as separate envs).
+    / hal as separate subcommands).
   - **Docstring / doc tools:** codespell, interrogate, mdformat (+ mdformat-gfm), pymarkdown.
-  - **Configuration-file linters / formatters:** yamllint (`-d relaxed`), tox-ini-fmt, pyproject-fmt, validate-pyproject, editorconfig-checker (+ -system
-    variant), pyroma.
+  - **Configuration-file linters / formatters:** yamllint (`-d relaxed`), yamlfix, pyproject-fmt, validate-pyproject, editorconfig-checker (+ -system variant),
+    pyroma.
   - **Meta:** sync-pre-commit-deps.
 
   Several hooks need the project's runtime deps or tool-specific plugins to resolve imports inside the isolated hook venv. Every such hook's
@@ -282,7 +283,7 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 - **Complexity gate.** A `xenon` pre-commit hook enforces `--max-absolute=A --max-modules=A --max-average=B` against `src/` on every commit
   (`pass_filenames: false`, runs the whole package as one analysis). Translation: **every block (function / method / class) must stay at cyclomatic-complexity
   grade A (cc \<= 5)**; every module must average grade A; the project as a whole must average grade B or better. As of the gate landing the project average is
-  2.43 with zero blocks above A. `tox -e radon-cc` (or `make metrics`) runs `radon cc -s -a` + `radon mi -s` to report the actual numbers — useful before
+  2.43 with zero blocks above A. `make metrics` runs `radon cc --show-complexity --average .` + `radon mi --show .` to report the actual numbers — useful before
   pushing a function that's growing conditionals. When you find yourself adding a fourth `if` / `except` / `for` / `and` / `or` to a block, extract a helper
   instead — see how `auth/login.py:login` is decomposed into `_resolve_email` + `_resolve_password` + `_wait_for_login_form` + `_attach_response_capture` +
   `_submit_login_form` + `_await_auth_outcome` for the pattern. **CodeQL data-flow gotcha worth preserving:** don't return a sensitive value (password, token,

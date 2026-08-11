@@ -25,7 +25,7 @@
 #   - Project average complexity: 2.43 (all blocks at grade A)
 #   - Extract helper functions when approaching 4+ conditionals in a block
 #
-# Each job runs: tox -e [tool]
+# Each job runs: uv run --extra [tool] [tool]
 # ==============================================================================
 name: Security, Metrics & Complexity
 

@@ -9,7 +9,7 @@ ______________________________________________________________________
   - [2.1. Configuration Centralization (`pyproject.toml`)](#21-configuration-centralization--pyprojecttoml)
   - [2.2. Pre-Commit Integration (`.genprecommitconfig.yaml` & `.pre-commit-config.yaml`)](#22-pre-commit-integration--genprecommitconfigyaml--pre-commit-configyaml)
   - [2.3. CI/CD Workflows (`.github/workflows/`)](#23-cicd-workflows--githubworkflows)
-  - [2.4. Task Execution & Automation (`Makefile`, `tox.ini`, `tools/`)](#24-task-execution--automation--makefile--toxini--tools)
+  - [2.4. Task Execution & Automation (`Makefile`, `tools/`)](#24-task-execution--automation--makefile--tools)
   - [2.5. Documentation & Metadata (`README.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `docs/`)](#25-documentation--metadata--readmemd--contributingmd--changelogmd--docs)
   - [2.6. Housekeeping (`.gitignore`)](#26-housekeeping--gitignore)
 - [3. Questions / Ambiguity Check](#3-questions--ambiguity-check)
@@ -31,7 +31,7 @@ ______________________________________________________________________
 2. **No Premature Commits:** Do **not** commit or push any changes until explicitly directed to do so upon review.
 3. **Strictness & Quality:** Configure `ty` rule levels, strict checking modes, and diagnostic options under `[tool.ty]` to be maximally strict.
 4. **Tool Replacement & Removal:** Completely eradicate all usage, references, configurations, and binary dependencies of the following tools across the entire
-   codebase (including pre-commit hooks, workflows, Makefiles, docs, and tox):
+   codebase (including pre-commit hooks, workflows, Makefiles, and docs):
    - `mypy`, `pyright`, `pyrefly`, and any associated type-stub packages or runner extensions (e.g., `types-` packages if handled natively or restructured by
      `ty`, and legacy `mypy`/`pyright` config files like `mypy.ini` or `pyrightconfig.json`).
 5. **Purge Obsolete Ignore Directives:** Sweep the entire codebase to completely remove all inline ignore comments, suppression flags, or pragmas tied to the
@@ -61,10 +61,9 @@ Inspect, update, refactor, or purge the following files and directories (at a mi
 - Refactor all GitHub Action workflows to execute type checking using `uv run ty check` (leveraging `uv`'s environment management and optimized caching).
 - Remove all workflow steps invoking `mypy`, `pyright`, or `pyrefly`.
 
-### 2.4. Task Execution & Automation (`Makefile`, `tox.ini`, `tools/`)
+### 2.4. Task Execution & Automation (`Makefile`, `tools/`)
 
 - **`Makefile`**: Update typecheck targets to invoke `uv run ty check`. Remove all legacy typing commands.
-- **`tox.ini`**: Remove type checking environments dedicated to obsolete checkers. If `tox` is maintained, ensure any type checking uses `uv run ty check`.
 - **`tools/`**: Audit custom scripts referencing old typing tools and update them to target `ty`.
 
 ### 2.5. Documentation & Metadata (`README.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `docs/`)

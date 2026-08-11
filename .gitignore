@@ -74,10 +74,8 @@ cover/
 nosetests.xml
 test-results/
 
-# uv / Tox
+# uv
 .uv/
-.tox/
-.nox/
 
 # VCR cassettes (keep these in git for replay testing)
 # tests/cassettes/  # Intentionally tracked

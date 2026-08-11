@@ -34,8 +34,8 @@
 # Architecture:
 #   - Every job runs on Python 3.11 (single-version documentation build)
 #   - Full git history (fetch-depth: 0) required for version detection
-#   - Each job invokes a matching tox env (docs, docs-epub, docs-man, docs-pdf, docs-lint,
-#     docs-linkcheck, docs-doctest) to isolate dependencies and guarantee reproducibility
+#   - Each job invokes sphinx-build directly through `uv run --extra docs`, so the docs
+#     extra is the single source of truth for build dependencies
 #   - docs-pdf installs LaTeX packages via apt (latexmk, texlive-latex-{recommended,extra})
 #   - docs-build uploads both a regular artifact (for PR review/debug, 14-day retention) and
 #     a Pages artifact (input to the deploy job, only created on main push)
@@ -54,13 +54,14 @@
 # Configuration Files:
 #   - docs/conf.py (Sphinx configuration)
 #   - pyproject.toml ([tool.sphinx], [optional-dependencies.docs])
-#   - tox.ini (docs, docs-epub, docs-man, docs-pdf, docs-lint, docs-linkcheck, docs-doctest)
+#   - Makefile (docs, docs-epub, docs-man, docs-pdf, docs-lint, docs-linkcheck, docs-doctest
+#     targets mirror these jobs for local use)
 #
 # Maintenance Notes:
 #   - PDF build requires LaTeX packages; if apt install fails, build will skip gracefully
 #   - Pages deployment uses the official actions/deploy-pages action (v5.0.0)
 #   - All jobs run in parallel except docs-deploy (gated by docs-build dependency)
-#   - If adding a new doc format, create a matching tox env and add a parallel job here
+#   - If adding a new doc format, add a parallel job here plus a matching Makefile target
 name: Docs
 
 on:

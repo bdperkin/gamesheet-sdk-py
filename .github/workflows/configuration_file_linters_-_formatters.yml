@@ -11,11 +11,10 @@
 #   - pull_request (opened, reopened, synchronize)
 #   - Concurrency: Cancels previous runs for the same branch
 #
-# Jobs: 6 tools × 4 Python versions = 24 total runs
+# Jobs: 5 tools × 4 Python versions = 20 total runs
 #   - editorconfig-checker: Validates files match .editorconfig rules (indentation,
 #                          line endings, trailing whitespace, final newline)
 #   - yamllint: Lints YAML files (-d relaxed mode for workflow compatibility)
-#   - tox-ini-fmt: Formats and validates tox.ini structure and ordering
 #   - pyproject-fmt: Formats pyproject.toml (sorts sections, normalizes spacing)
 #   - validate-pyproject: Validates pyproject.toml against PEP 517/518/621 schemas
 #   - pyroma: Rates project metadata quality and packaging best practices
@@ -24,7 +23,7 @@
 # the full project install, so it skips pre-commit.ci (tier limitations) but runs
 # in GitHub Actions where dependencies are available.
 #
-# Each job runs: tox -e [tool]
+# Each job runs: uv run --extra [tool] [tool]
 # ==============================================================================
 name: Configuration File Linters & Formatters
 

@@ -298,15 +298,15 @@ syncdeps = [
 
 ## 8. Troubleshooting
 
-| Issue                                     | Cause                                    | Solution                                  |
-| ----------------------------------------- | ---------------------------------------- | ----------------------------------------- |
-| `ParseError` on pyproject.toml            | Malformed TOML syntax                    | Validate with `tox -e pyprojectfmt`       |
-| `FetchError` for PyPI                     | Network issue or package not found       | Check network, verify package name        |
-| `FetchError` for git tags                 | Repository URL unreachable               | Check URL, verify git access              |
-| No common version found                   | PyPI and git tag sets don't overlap      | Check if repo uses different versioning   |
-| `ResolveError: 'uv' is not on PATH`       | uv missing                               | Install uv, or use `--no-uv-resolve`      |
-| `ResolveError: found no valid resolution` | Real conflict that survives pin relaxing | Read uv's message; loosen the requirement |
-| `uv lock` fails after a successful sync   | A pin was written without uv resolution  | Re-run without `--no-uv-resolve`          |
+| Issue                                     | Cause                                    | Solution                                                              |
+| ----------------------------------------- | ---------------------------------------- | --------------------------------------------------------------------- |
+| `ParseError` on pyproject.toml            | Malformed TOML syntax                    | `uv run --extra validate-pyproject validate-pyproject pyproject.toml` |
+| `FetchError` for PyPI                     | Network issue or package not found       | Check network, verify package name                                    |
+| `FetchError` for git tags                 | Repository URL unreachable               | Check URL, verify git access                                          |
+| No common version found                   | PyPI and git tag sets don't overlap      | Check if repo uses different versioning                               |
+| `ResolveError: 'uv' is not on PATH`       | uv missing                               | Install uv, or use `--no-uv-resolve`                                  |
+| `ResolveError: found no valid resolution` | Real conflict that survives pin relaxing | Read uv's message; loosen the requirement                             |
+| `uv lock` fails after a successful sync   | A pin was written without uv resolution  | Re-run without `--no-uv-resolve`                                      |
 
 ## 9. Related Tools
 

@@ -18,7 +18,7 @@
 #   - mypy: [tool.mypy] in pyproject.toml (strict = true)
 #   - pyright: [tool.pyright] in pyproject.toml
 #
-# Each job runs: tox -e [tool]
+# Each job runs: uv run --extra [tool] [tool]
 # ==============================================================================
 
 name: Type Checkers

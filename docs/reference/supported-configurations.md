@@ -82,7 +82,7 @@ If you change `[project.dependencies]` in `pyproject.toml`, update this table in
 
 The package declares many extras via `[project.optional-dependencies]`. The two most important are:
 
-- **`dev`** — minimal development setup: `pre-commit`, `tox-workdir`.
+- **`dev`** — minimal development setup: `pre-commit`, `pre-commit-uv`, `uv`.
 - **`docs`** — Sphinx and its plugins: `sphinx`, `furo`, `myst-parser[linkify]`, `sphinx-copybutton`, `sphinx-design`, `sphinx-click`, `sphinx-lint`,
   `sphinx-autobuild`.
 - **`all`** — includes every tool extra declared in the project (pytest, mypy, bandit, formatters, linters, type checkers, etc.). This is the one-line install
@@ -92,7 +92,7 @@ The package declares many extras via `[project.optional-dependencies]`. The two 
 
 | Extra        | Contents                                                                                                       |
 | ------------ | -------------------------------------------------------------------------------------------------------------- |
-| `dev`        | `pre-commit`, `tox-workdir`                                                                                    |
+| `dev`        | `pre-commit`, `pre-commit-uv`, `uv`                                                                            |
 | `docs`       | `sphinx`, `furo`, `myst-parser[linkify]`, `sphinx-copybutton`, `sphinx-design`, `sphinx-click`, `sphinx-lint`, |
 |              | `sphinx-autobuild`                                                                                             |
 | `pytest`     | `pytest`, `pytest-cov`, `pytest-playwright`, `pytest-recording`, `responses`                                   |
@@ -108,7 +108,7 @@ Each linter, formatter, type checker, and quality tool is isolated to its own ex
 - **Formatters**: `ruff`
 - **Linters**: `bandit`, `pyrefly`, `blocklint`, `vulture`, `deptry`, `semgrep`
 - **Doc tools**: `codespell`, `interrogate`, `pymarkdown`, `mdformat`
-- **Config file tools**: `yamllint`, `tox-ini-fmt`, `pyproject-fmt`, `validate-pyproject`, `editorconfig-checker`, `pyroma`
+- **Config file tools**: `yamllint`, `yamlfix`, `pyproject-fmt`, `validate-pyproject`, `editorconfig-checker`, `pyroma`
 - **Metrics**: `radon`
 
 See `[project.optional-dependencies]` in `pyproject.toml` for the complete list.
@@ -118,7 +118,7 @@ See `[project.optional-dependencies]` in `pyproject.toml` for the complete list.
 | Command                            | What it gets you                                   |
 | ---------------------------------- | -------------------------------------------------- |
 | `pip install gamesheet-sdk-py`     | Runtime deps only.                                 |
-| `pip install -e ".[dev]"`          | Runtime + pre-commit hooks + tox workdir support.  |
+| `pip install -e ".[dev]"`          | Runtime + pre-commit hooks + uv.                   |
 | `pip install -e ".[docs]"`         | Runtime + Sphinx toolchain.                        |
 | `pip install -e ".[dev,pytest]"`   | Runtime + dev tools + testing suite.               |
 | `pip install -e ".[all]"`          | Everything (all tools, all extras).                |
