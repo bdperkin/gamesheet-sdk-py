@@ -649,13 +649,24 @@ def _run_dependabot_preview(
 def _run_dependabot_sync(
     config: RunConfig,
     pinned_revs: dict[str, str],
+    override_pins: dict[str, str] | None = None,
 ) -> bool:
-    """Sync dependabot.yml ignore list with pinned revs.
+    """Sync dependabot.yml ignore list with pinned revs and transitive override pins.
+
+    An overridden package needs the same protection as a rev-pinned one, and arguably more: syncdeps owns its
+    version, and for a security override an unattended Dependabot bump past the declared ceiling is the very
+    breakage the ceiling exists to prevent. Overrides win over a rev pin for the same package, since the
+    override is what actually governs what gets installed.
+
+    Args:
+        config (RunConfig): Run configuration containing file paths and flags.
+        pinned_revs (dict[str, str]): Repo URL to pinned rev from .genprecommitconfig.yaml.
+        override_pins (dict[str, str] | None): Package name to target version for transitive overrides.
 
     Returns:
         bool: True if changes are needed (or were applied), False otherwise.
     """
-    pinned_packages = resolve_pinned_packages(pinned_revs)
+    pinned_packages = resolve_pinned_packages(pinned_revs) | (override_pins or {})
 
     if not config.dependabot_path.exists():
         logger.debug("dependabot.yml not found at %s, skipping", config.dependabot_path)
@@ -824,7 +835,7 @@ def _apply_overrides_stage(
     return True
 
 
-def _run_overrides(config: RunConfig, pins: dict[str, str]) -> bool:
+def _run_overrides(config: RunConfig, pins: dict[str, str]) -> tuple[bool, dict[str, str]]:
     """Converge transitive-dependency overrides declared in .syncdepsoverrides.yaml.
 
     Skipped entirely when no policies are declared, so a project without overrides pays nothing for this
@@ -835,17 +846,19 @@ def _run_overrides(config: RunConfig, pins: dict[str, str]) -> bool:
         pins (dict[str, str]): Packages held fixed by pre-commit pins.
 
     Returns:
-        bool: True if actual file changes are needed.
+        tuple[bool, dict[str, str]]: Whether file changes are needed, and the package name to *target* version
+            for every converged override. Targets rather than what is currently on disk, so the dependabot
+            ignore list reflects the end state even under --check, where nothing is written.
     """
     policies = parse_overrides(config.overrides_path)
     if not policies:
-        return False
+        return False, {}
 
     if config.no_uv_resolve:
         console.print(
             "\n[bold yellow]uv resolution disabled[/] — transitive overrides left untouched",
         )
-        return False
+        return False, {}
 
     bounded, unpinned = _resolve_override_versions(config, policies, pins)
     results = converge_overrides(
@@ -855,9 +868,10 @@ def _run_overrides(config: RunConfig, pins: dict[str, str]) -> bool:
         unpinned,
     )
     if not results:
-        return False
+        return False, {}
 
-    return _apply_overrides_stage(config, policies, results)
+    target_pins = {result.package: result.new_version for result in results}
+    return _apply_overrides_stage(config, policies, results), target_pins
 
 
 def _resolve_versions(
@@ -966,10 +980,11 @@ def _run(config: RunConfig) -> None:
         if types_changed:
             has_changes = True
 
-    if _run_overrides(config, resolve_pinned_packages(pinned_revs)):
+    overrides_changed, override_pins = _run_overrides(config, resolve_pinned_packages(pinned_revs))
+    if overrides_changed:
         has_changes = True
 
-    dependabot_changed = _run_dependabot_sync(config, pinned_revs)
+    dependabot_changed = _run_dependabot_sync(config, pinned_revs, override_pins)
     if dependabot_changed:
         has_changes = True
 
@@ -1006,7 +1021,7 @@ def _run(config: RunConfig) -> None:
     type=click.Path(),
     default=DEPENDABOT_CONFIG,
     show_default=True,
-    help="Path to dependabot.yml (ignore list synced with pinned revs).",
+    help="Path to dependabot.yml (ignore list synced with pinned revs and override pins).",
 )
 @click.option(
     "--overrides",

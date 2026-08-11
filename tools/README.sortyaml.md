@@ -75,7 +75,12 @@ Use `--type` to apply canonical key ordering for known configuration formats:
 ./tools/sortyaml --type github-workflow .github/workflows/ci.yml
 ./tools/sortyaml --type codecov codecov.yml
 ./tools/sortyaml --type trivyignore .trivyignore.yaml
+./tools/sortyaml --type syncdepsoverrides .syncdepsoverrides.yaml
 ```
+
+`syncdepsoverrides` orders each entry as the argument it is making — what is overridden (`package`, `pinned_by`), which versions are acceptable (`floor`,
+`ceiling`), why (`reason`), how that is proven (`verify`), and when to look again (`review`). `review` sits last for the same reason `expired_at` does under
+`trivyignore`: it is the entry's expiry metadata rather than part of its substance.
 
 ### 3.3. Command-Line Options
 
@@ -120,6 +125,7 @@ sort lexicographically after the known keys.
 | `github-workflow`    | `.github/workflows/*.yml`  | `name` → `on` → `jobs`; job/step keys by spec                                |
 | `codecov`            | `codecov.yml`              | Canonical codecov section ordering                                           |
 | `trivyignore`        | `.trivyignore.yaml`        | `version` → vulnerability/rule fields by priority                            |
+| `syncdepsoverrides`  | `.syncdepsoverrides.yaml`  | `package` → `pinned_by` → bounds → `reason` → `verify` → `review`            |
 
 ### 4.3. Long String Folding
 

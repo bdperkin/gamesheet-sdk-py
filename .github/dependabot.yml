@@ -50,6 +50,11 @@ updates:
         update-types:
           - minor
           - patch
+    ignore:
+      # Managed by syncdeps — do not edit manually
+      - dependency-name: mcp
+        versions:
+          - '> 1.29.0'
     cooldown:
       default-days: 7
 

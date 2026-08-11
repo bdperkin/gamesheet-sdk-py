@@ -128,23 +128,23 @@ Core dependencies (already installed):
 
 ### 4.4. CLI Options
 
-| Option                  | Default                    | Description                                                  |
-| ----------------------- | -------------------------- | ------------------------------------------------------------ |
-| `--pyproject`           | `pyproject.toml`           | Path to pyproject.toml                                       |
-| `--precommit-config`    | `.pre-commit-config.yaml`  | Path to .pre-commit-config.yaml                              |
-| `--genprecommit-config` | `.genprecommitconfig.yaml` | Path to .genprecommitconfig.yaml                             |
-| `--dependabot`          | `.github/dependabot.yml`   | Path to dependabot.yml (ignore list synced with pinned revs) |
-| `--overrides`           | `.syncdepsoverrides.yaml`  | Path to the transitive-dependency override policy file       |
-| `--uv-lock`             | `uv.lock`                  | Path to uv.lock (used with `--sync-types`)                   |
-| `--log-level`           | `info`                     | Logging verbosity (debug, info, warning, error)              |
-| `--dry-run`             | off                        | Show changes without modifying files                         |
-| `--sync-types`          | off                        | Sync `types-*` stub packages in the `type-stubs` group       |
-| `--no-uv-resolve`       | off                        | Skip uv resolution; pin each package to its latest release   |
-| `--backup`              | off                        | Write `.bak` copies before modifying any file                |
-| `--check`               | off                        | Exit 1 if any file would be modified (writes nothing)        |
-| `--diff`                | off                        | Show a unified diff of the changes                           |
-| `--version`             | —                          | Show version and exit                                        |
-| `--help`                | —                          | Show help and exit                                           |
+| Option                  | Default                    | Description                                                   |
+| ----------------------- | -------------------------- | ------------------------------------------------------------- |
+| `--pyproject`           | `pyproject.toml`           | Path to pyproject.toml                                        |
+| `--precommit-config`    | `.pre-commit-config.yaml`  | Path to .pre-commit-config.yaml                               |
+| `--genprecommit-config` | `.genprecommitconfig.yaml` | Path to .genprecommitconfig.yaml                              |
+| `--dependabot`          | `.github/dependabot.yml`   | Path to dependabot.yml (ignores synced with pins + overrides) |
+| `--overrides`           | `.syncdepsoverrides.yaml`  | Path to the transitive-dependency override policy file        |
+| `--uv-lock`             | `uv.lock`                  | Path to uv.lock (used with `--sync-types`)                    |
+| `--log-level`           | `info`                     | Logging verbosity (debug, info, warning, error)               |
+| `--dry-run`             | off                        | Show changes without modifying files                          |
+| `--sync-types`          | off                        | Sync `types-*` stub packages in the `type-stubs` group        |
+| `--no-uv-resolve`       | off                        | Skip uv resolution; pin each package to its latest release    |
+| `--backup`              | off                        | Write `.bak` copies before modifying any file                 |
+| `--check`               | off                        | Exit 1 if any file would be modified (writes nothing)         |
+| `--diff`                | off                        | Show a unified diff of the changes                            |
+| `--version`             | —                          | Show version and exit                                         |
+| `--help`                | —                          | Show help and exit                                            |
 
 `--dry-run`, `--check`, and `--diff` never leave changes behind. Producing a diff requires really writing the files, so the rollback runs in a `finally` block —
 an exception, a `SIGPIPE` from a truncated pager, or a `Ctrl-C` mid-render cannot turn a preview into a commit.
@@ -245,6 +245,12 @@ Per run, for each policy:
 | 4. Lock    | `uv.lock` is regenerated                                                                                                       |
 | 5. Verify  | The policy's `verify` command must exit 0; on failure the pin **and** the lockfile are rolled back and the run exits non-zero  |
 | 6. Retire  | If the stripped resolution already satisfies `floor`, the override is reported as retirable                                    |
+| 7. Guard   | The package joins the `ignore` list in `.github/dependabot.yml`, alongside rev-pinned packages                                 |
+
+The dependabot guard matters as much as the pin. Without it Dependabot is free to propose a version update past the declared ceiling, which for a security
+override is precisely the breakage the ceiling exists to prevent — arriving as an innocuous-looking dependency PR. An override takes precedence over a rev pin
+for the same package, since the override is what actually governs what gets installed, and the entry uses the **target** version so `--check` reports the end
+state rather than whatever happens to be on disk.
 
 Notes on the design, each of which is load-bearing:
 

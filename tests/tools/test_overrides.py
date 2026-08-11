@@ -279,3 +279,27 @@ def test_retirement_boundary(unpinned: str, expected: bool) -> None:
     results = converge_overrides([_policy()], {}, {"mcp": "1.29.0"}, {"mcp": unpinned})
 
     assert results[0].retirable is expected
+
+
+def test_override_pins_are_targets_not_current() -> None:
+    """Test that converged results expose the target version for the dependabot guard.
+
+    The dependabot ignore entry is built from these, so it has to describe the version the run is moving to
+    rather than the one already on disk — otherwise ``--check`` would report a stale guard.
+    """
+    results = converge_overrides([_policy()], {"mcp": "1.28.1"}, {"mcp": "1.29.0"}, {"mcp": "1.23.3"})
+    pins = {result.package: result.new_version for result in results}
+
+    assert pins == {"mcp": "1.29.0"}
+
+
+def test_override_pin_wins_over_rev_pin() -> None:
+    """Test that an override beats a rev pin for the same package when guards are merged.
+
+    An override is what actually governs the installed version, so it has to win; the merge order in
+    ``_run_dependabot_sync`` is what guarantees it.
+    """
+    rev_pins = {"mcp": "1.23.3", "ruff": "0.16.2"}
+    override_pins = {"mcp": "1.29.0"}
+
+    assert rev_pins | override_pins == {"mcp": "1.29.0", "ruff": "0.16.2"}
