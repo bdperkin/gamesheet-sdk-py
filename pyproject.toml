@@ -63,7 +63,7 @@ dependencies = [
   "python-dateutil==2.9.0.post0",
   "pyyaml==6.0.3",
   "requests==2.34.2",
-  "rich==14.3.4",
+  "rich==15.0.0",
   "rich-click==1.9.8",
   "tabulate==0.10.0",
   "tzlocal==5.4.4",
