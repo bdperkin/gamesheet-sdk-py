@@ -33,7 +33,7 @@ def config(tmp_path: Path) -> Config:
     """Build a Config that keeps all on-disk state inside a per-test tmp dir.
 
     Single shared fixture for both HTTP-session and browser-session tests; using one definition avoids the
-    pylint ``duplicate-code`` warning that fires when near- identical fixtures live in two test modules.
+    duplicate code warning that fires when near-identical fixtures live in two test modules.
 
     Args:
         tmp_path (Path): Temporary path.

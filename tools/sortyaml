@@ -595,7 +595,6 @@ def _sorted_pairs(
     return [(k, data[k]) for k in sorted(data.keys(), key=key_fn)]
 
 
-# pylint: disable-next=too-many-branches
 def _walk_merge_ids(data: object, ids: set[int], visited: set[int]) -> bool:
     """Return True if *data* is or contains a merge-involved map."""
     if not isinstance(data, (CommentedMap, list, CommentedSeq)):
@@ -975,4 +974,4 @@ def app(
 
 if __name__ == "__main__":
     sys.argv[0] = re.sub(r"(-script\.pyw|\.exe)?$", "", sys.argv[0])
-    app()  # pylint: disable=no-value-for-parameter,missing-kwoa
+    app()

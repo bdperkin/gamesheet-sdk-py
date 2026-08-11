@@ -85,8 +85,8 @@ The package declares many extras via `[project.optional-dependencies]`. The two 
 - **`dev`** — minimal development setup: `pre-commit`, `tox-workdir`.
 - **`docs`** — Sphinx and its plugins: `sphinx`, `furo`, `myst-parser[linkify]`, `sphinx-copybutton`, `sphinx-design`, `sphinx-click`, `sphinx-lint`,
   `sphinx-autobuild`.
-- **`all`** — includes every tool extra declared in the project (pytest, mypy, pylint, flake8, bandit, formatters, linters, type checkers, etc.). This is the
-  one-line install for full local development capability.
+- **`all`** — includes every tool extra declared in the project (pytest, mypy, bandit, formatters, linters, type checkers, etc.). This is the one-line install
+  for full local development capability.
 
 ### 5.1. Core extras
 
@@ -99,17 +99,15 @@ The package declares many extras via `[project.optional-dependencies]`. The two 
 | `type-stubs` | `types-pyyaml`, `types-requests`, `types-tabulate`                                                             |
 | `mypy`       | `mypy`, `gamesheet-sdk-py[pytest,type-stubs]`                                                                  |
 | `pyright`    | `pyright`, `gamesheet-sdk-py[pytest]`                                                                          |
-| `pylint`     | `gamesheet-sdk-py[pytest]`, `pylint-per-file-ignores`                                                          |
-| `flake8`     | `flake8-pyproject`, `gamesheet-sdk-py[flake8-plugins,pylint]`                                                  |
 | `all`        | Includes every extra listed in this table plus all individual tool extras                                      |
 
 ### 5.2. Individual tool extras
 
 Each linter, formatter, type checker, and quality tool is isolated to its own extra. Examples include:
 
-- **Formatters**: `black`, `isort`, `autopep8`, `pyupgrade`, `autoflake`, `ssort`, `add-trailing-comma`, `absolufy-imports`
-- **Linters**: `bandit`, `refurb`, `pyrefly`, `blocklint`, `vulture`, `deptry`, `unimport`, `semgrep`
-- **Doc tools**: `codespell`, `blacken-docs`, `docformatter`, `interrogate`, `pydocstyle`, `pymarkdown`, `mdformat`
+- **Formatters**: `ruff`
+- **Linters**: `bandit`, `pyrefly`, `blocklint`, `vulture`, `deptry`, `semgrep`
+- **Doc tools**: `codespell`, `interrogate`, `pymarkdown`, `mdformat`
 - **Config file tools**: `yamllint`, `tox-ini-fmt`, `pyproject-fmt`, `validate-pyproject`, `editorconfig-checker`, `pyroma`
 - **Metrics**: `radon`
 

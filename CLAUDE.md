@@ -126,7 +126,7 @@ make test-fast     # pytest -m "not browser"
 make test-cov      # pytest --cov
 make lint          # pre-commit run --all-files
 make type          # mypy --strict src
-make fix           # apply formatters in place (isort, black, mdformat)
+make fix           # apply formatters in place (ruff, mdformat)
 make metrics       # radon + xenon complexity gates
 make docs          # Sphinx HTML build (two-pass strict)
 make docs-serve    # live-reload preview
@@ -149,12 +149,11 @@ tox -m pre-commit     # pre-commit run --all-files inside a venv
 tox -e pytest         # single-version pytest run (no Python matrix)
 tox -e mypy           # mypy --strict
 tox -e pyright        # pyright
-tox -e pylint         # pylint
 tox -e pyrefly        # pyrefly (architectural-health linter)
 tox -e bandit         # bandit security scan
 tox -e xenon          # complexity gate
 tox -e metrics        # radon cc + radon mi
-tox -e fix            # apply isort, black, mdformat in place
+tox -e fix            # apply ruff, mdformat in place
 tox -e py314 -- -k test_name   # pass args to pytest after --
 ```
 
@@ -211,8 +210,8 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   in `ci.skip` — they still run in GitHub Actions where there is no 250 MiB tier limit and `python -m venv` works. The three main reasons a hook lands in the
   skip list:
 
-  - **Deps exceed the 250 MiB tier** — `pyright`, `flake8` (`[flake8-plugins]` pulls fastapi, flake8-django, etc.), `deptry`, `yesqa`, `refurb`.
-  - **Requires runtime deps via `additional_dependencies`** — `mypy`, `pylint`, `pyrefly-check`, `semgrep`.
+  - **Deps exceed the 250 MiB tier** — `pyright`, `deptry`,
+  - **Requires runtime deps via `additional_dependencies`** — `mypy`, `pyrefly-check`, `semgrep`.
   - **Needs `python -m venv`** — `pyroma` (introspects via `python -m build`; pre-commit.ci's bundled Python lacks `ensurepip`).
 
   Also skipped: `editorconfig-checker`, `mdformat`.
@@ -243,24 +242,22 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 - **Formatting/lint pipeline.** The suite is broken out tool-per-hook in `.pre-commit-config.yaml`, tool-per-env in `tox.ini`, and tool-per-job in the
   per-category GitHub Actions workflows. Categories:
 
-  - **Code style / formatters (auto-fix):** black (88), black-jupyter, isort (`profile = "black"`), pyupgrade (`--py311-plus`), autopep8, ssort,
-    add-trailing-comma, absolufy-imports.
-  - **Code cleaners / dead-code:** autoflake, unimport, vulture, deptry.
-  - **Code-quality linters / static analysis:** flake8 (via `flake8-pyproject` + ~50 plugins in `[flake8-plugins]`), pylint, refurb, pyrefly, blocklint.
+  - **Code style / formatters (auto-fix):** ruff (110).
+  - **Code cleaners / dead-code:** vulture, deptry.
+  - **Code-quality linters / static analysis:** pyrefly, blocklint.
   - **Type checkers:** mypy (`--strict`), pyright.
   - **Security / metrics / complexity:** bandit (`[tool.bandit]`), semgrep (`--config auto --error`), xenon (complexity gate — see below), radon (cc / raw / mi
     / hal as separate envs).
-  - **Docstring / doc tools:** codespell, blacken-docs, docformatter, interrogate, pydocstyle, mdformat (+ mdformat-gfm), pymarkdown.
+  - **Docstring / doc tools:** codespell, interrogate, mdformat (+ mdformat-gfm), pymarkdown.
   - **Configuration-file linters / formatters:** yamllint (`-d relaxed`), tox-ini-fmt, pyproject-fmt, validate-pyproject, editorconfig-checker (+ -system
     variant), pyroma.
   - **Meta:** sync-pre-commit-deps.
 
   Several hooks need the project's runtime deps or tool-specific plugins to resolve imports inside the isolated hook venv. Every such hook's
   `additional_dependencies` is consolidated to a single `gamesheet-sdk-py[<extras>]` self-reference (e.g. `gamesheet-sdk-py[mypy,tools]`,
-  `gamesheet-sdk-py[pylint,tools]`, `gamesheet-sdk-py[pyright,tools]`, `gamesheet-sdk-py[pyrefly]`, `gamesheet-sdk-py[deptry]`, `gamesheet-sdk-py[flake8]`,
-  `gamesheet-sdk-py[refurb]`, `gamesheet-sdk-py[mdformat]`) so `pyproject.toml`'s `optional-dependencies.*` groups are the single source of truth for what each
-  tool needs. Pyroma is skipped on pre-commit.ci (see above) and runs locally / in GitHub Actions where the project's build backend (`hatchling`) is already
-  present.
+  `gamesheet-sdk-py[pyright,tools]`, `gamesheet-sdk-py[pyrefly]`, `gamesheet-sdk-py[deptry]`, `gamesheet-sdk-py[mdformat]`) so `pyproject.toml`'s
+  `optional-dependencies.*` groups are the single source of truth for what each tool needs. Pyroma is skipped on pre-commit.ci (see above) and runs locally / in
+  GitHub Actions where the project's build backend (`hatchling`) is already present.
 
 - **Complexity gate.** A `xenon` pre-commit hook enforces `--max-absolute=A --max-modules=A --max-average=B` against `src/` on every commit
   (`pass_filenames: false`, runs the whole package as one analysis). Translation: **every block (function / method / class) must stay at cyclomatic-complexity
@@ -413,9 +410,7 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 - **CodeQL quality findings that are false positives.** Two code shapes in this repo are reported by the `security-and-quality` suite but must not be "fixed",
   and both carry inline comments saying so:
 
-  - `if TYPE_CHECKING: from pydantic import SecretStr` alongside `cast("SecretStr", ...)` in tests reads as `py/unused-import`. It isn't: flake8-type-checking's
-    **TC006** requires `cast()` annotations to be string literals, and a string annotation means the import can only live in a `TYPE_CHECKING` block. Unquoting
-    the cast or moving the import to runtime trades a CodeQL note for a flake8 failure, and flake8 gates merges while the note does not.
+  - `if TYPE_CHECKING: from pydantic import SecretStr` alongside `cast("SecretStr", ...)` in tests reads as `py/unused-import`.
   - `FIREBASE_AUTH_URL` and `TOKEN_EXCHANGE_URL` in `common/auth/constants.py` read as `py/unused-global-variable` because nothing in their defining module
     consumes them — they are imported by `teams/login.py` and `tests/common/auth/conftest.py`.
 

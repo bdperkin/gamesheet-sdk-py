@@ -217,7 +217,7 @@ The project uses a `src/` layout with the following structure:
 ### 6.1. Line Length
 
 - Maximum line length: **110 characters**
-- Configured in Black, flake8, isort, autopep8, and other formatters
+- Configured in ruff and other formatters
 
 #### 6.1.1. Python Version
 

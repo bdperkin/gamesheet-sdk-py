@@ -6,8 +6,6 @@
 
 globals:
   blacklisted_hooks:
-    - black-jupyter
-    - blank-line-after-blocks-jupyter
     - check-byte-order-marker
     - check-symlinks
     - check-xml
@@ -15,7 +13,6 @@ globals:
     - editorconfig-checker-system
     - fix-encoding-pragma
     - forbid-new-submodules
-    - format-docstring-jupyter
     - pip-compile
     - requirements-txt-fixer
     - ruff

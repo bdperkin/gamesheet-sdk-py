@@ -119,7 +119,7 @@ pre-commit run --all-files
 
 # Run specific hook
 pre-commit run mypy --all-files
-pre-commit run black --all-files
+pre-commit run ruff --all-files
 
 # Update hook versions
 pre-commit autoupdate
@@ -142,8 +142,6 @@ uv run --extra pyright pyright
 uv run pre-commit run --all-files
 
 # Individual linters
-uv run --extra pylint pylint src/
-uv run --extra flake8 flake8 src/
 uv run --extra bandit bandit -c pyproject.toml -r src/
 uv run --extra semgrep semgrep scan --config auto --error
 ```
@@ -155,8 +153,7 @@ uv run --extra semgrep semgrep scan --config auto --error
 make fix
 
 # Or run formatters individually via uv
-uv run --extra black black src/ tests/
-uv run --extra isort isort src/ tests/
+uv run --extra ruff ruff src/ tests/
 uv run --extra mdformat mdformat docs/ *.md
 ```
 
@@ -274,7 +271,7 @@ Common types:
 
 ### 9.1. Pre-commit hook failures
 
-If a hook modifies files (e.g., black, isort), stage the changes and commit again:
+If a hook modifies files (e.g., ruff), stage the changes and commit again:
 
 ```bash
 git add -u

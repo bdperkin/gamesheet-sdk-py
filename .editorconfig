@@ -30,7 +30,7 @@ trim_trailing_whitespace = true        # Remove trailing whitespace before savin
 # Python Files
 # ------------------------------------------------------------------------------
 # Uses project standard of 4 spaces (PEP 8 compatible)
-# Note: Line length (110) is enforced by black/flake8/pylint, not EditorConfig
+# Note: Line length (110) is enforced by ruff, not EditorConfig
 [*.py]
 indent_size              = 4
 max_line_length          = 110         # Informational only; enforced by linters

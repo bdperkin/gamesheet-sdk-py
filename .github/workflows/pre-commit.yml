@@ -23,7 +23,6 @@
 #     fail. The guard already ran locally on pre-commit/pre-push.
 #   - Three hooks are skipped on pre-commit.ci but run here:
 #     - pyright (dependencies exceed 250 MiB tier limit on pre-commit.ci)
-#     - flake8 (flake8-plugins pulls fastapi, flake8-django, etc., exceeding limit)
 #     - pyroma (requires python -m venv, which fails on pre-commit.ci's Python build)
 #
 # This workflow ensures all quality gates pass before code reaches main.
