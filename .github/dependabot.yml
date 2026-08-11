@@ -55,6 +55,12 @@ updates:
       - dependency-name: mcp
         versions:
           - '> 1.29.0'
+      - dependency-name: rich
+        versions:
+          - '> 14.3.4'
+      - dependency-name: tomlkit
+        versions:
+          - '> 0.13.3'
     cooldown:
       default-days: 7
 

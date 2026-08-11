@@ -26,6 +26,7 @@ ______________________________________________________________________
   - [5.7. Version Prefix Preservation](#57-version-prefix-preservation)
   - [5.8. Filtered Dependencies](#58-filtered-dependencies)
   - [5.9. Transitive-Dependency Overrides](#59-transitive-dependency-overrides)
+  - [5.10. Capped Pins and the Dependabot Ignore List](#510-capped-pins-and-the-dependabot-ignore-list)
 - [6. Exception Hierarchy](#6-exception-hierarchy)
 - [7. Dependencies](#7-dependencies)
 - [8. Troubleshooting](#8-troubleshooting)
@@ -252,6 +253,26 @@ override is precisely the breakage the ceiling exists to prevent — arriving as
 for the same package, since the override is what actually governs what gets installed, and the entry uses the **target** version so `--check` reports the end
 state rather than whatever happens to be on disk.
 
+### 5.10. Capped Pins and the Dependabot Ignore List
+
+A pin can be held below the newest release by a sibling requirement. `python-semantic-release==10.6.1` requires `rich~=14.0` and `tomlkit~=0.13.0`, so
+`rich==15.0.0` or `tomlkit==0.15.1` makes the project unsatisfiable — `uv lock` refuses it outright.
+
+syncdeps never proposes such a pin, because it writes whatever `uv` resolved. Dependabot has no such protection: it compares each pin against the index in
+isolation and opens a PR for the newest release. That PR can never merge, and it is worse than merely useless — a Dependabot PR touching only `pyproject.toml`
+matches every workflow's `paths-ignore`, so almost no checks run and it **looks green while being unmergeable**.
+
+After convergence, syncdeps therefore compares each managed pin's resolved version against the newest release the index offers. Anything resolved *below* the
+newest release is capped by something in the graph, and joins the `ignore` list in `.github/dependabot.yml` alongside rev-pinned and overridden packages.
+
+The suppression is deliberately narrow, because **a Dependabot `ignore` rule also applies to security updates**. Suppressing a package that is not genuinely
+capped would hide a future security bump for no benefit, so a pin is reported only when the index actually offers something newer — precisely the case where a
+Dependabot proposal could not be installed anyway. A fetch failure omits the package rather than guessing, and an unparseable version never manufactures a
+suppression.
+
+Because the entry is keyed on the resolved version (`> 14.3.4`), it maintains itself: once the cap lifts and `uv` resolves higher the entry follows, and it
+disappears once the pin reaches the newest release.
+
 Notes on the design, each of which is load-bearing:
 
 - **Resolution is delegated to `uv`,** as everywhere else in the tool — "newest release within bounds" is just what `uv` picks when handed those bounds, so the
@@ -315,20 +336,21 @@ syncdeps = [
 
 ## 10. Files
 
-| File                          | Purpose                                  |
-| ----------------------------- | ---------------------------------------- |
-| `tools/syncdeps`              | Executable entry point                   |
-| `tools/depsync/__init__.py`   | Package initialization                   |
-| `tools/depsync/cli.py`        | CLI interface                            |
-| `tools/depsync/config.py`     | Constants and mappings                   |
-| `tools/depsync/models.py`     | Pydantic v2 data models                  |
-| `tools/depsync/exceptions.py` | Exception hierarchy                      |
-| `tools/depsync/parsers.py`    | File parsers                             |
-| `tools/depsync/fetchers.py`   | Version fetchers                         |
-| `tools/depsync/engine.py`     | Convergence algorithm                    |
-| `tools/depsync/overrides.py`  | Transitive-dependency override subsystem |
-| `tools/depsync/typestubs.py`  | `types-*` stub sync                      |
-| `tools/depsync/writers.py`    | Style-preserving writers                 |
-| `tools/shared/uv_resolve.py`  | uv-delegated resolution                  |
-| `.syncdepsoverrides.yaml`     | Transitive-dependency override policy    |
-| `tools/README.syncdeps.md`    | This documentation                       |
+| File                          | Purpose                                     |
+| ----------------------------- | ------------------------------------------- |
+| `tools/syncdeps`              | Executable entry point                      |
+| `tools/depsync/__init__.py`   | Package initialization                      |
+| `tools/depsync/cli.py`        | CLI interface                               |
+| `tools/depsync/config.py`     | Constants and mappings                      |
+| `tools/depsync/models.py`     | Pydantic v2 data models                     |
+| `tools/depsync/exceptions.py` | Exception hierarchy                         |
+| `tools/depsync/parsers.py`    | File parsers                                |
+| `tools/depsync/fetchers.py`   | Version fetchers                            |
+| `tools/depsync/engine.py`     | Convergence algorithm                       |
+| `tools/depsync/caps.py`       | Capped-pin detection for Dependabot ignores |
+| `tools/depsync/overrides.py`  | Transitive-dependency override subsystem    |
+| `tools/depsync/typestubs.py`  | `types-*` stub sync                         |
+| `tools/depsync/writers.py`    | Style-preserving writers                    |
+| `tools/shared/uv_resolve.py`  | uv-delegated resolution                     |
+| `.syncdepsoverrides.yaml`     | Transitive-dependency override policy       |
+| `tools/README.syncdeps.md`    | This documentation                          |
