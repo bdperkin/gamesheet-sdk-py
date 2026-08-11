@@ -5,13 +5,16 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock
+from typing import TYPE_CHECKING
 
 from gamesheet_sdk.admin.cli.commands.teams_roster_players import (
     teams_roster_players_group,
 )
 from tests.cli.teams.roster.conftest import run_roster_delete_test
 from tests.helpers import PLAYER_ID_QUATERNARY, SEASON_ID, TEAM_ID_SECONDARY
+
+if TYPE_CHECKING:
+    from unittest.mock import MagicMock
 
 
 def test_teams_roster_players_delete_coverage(
@@ -24,7 +27,6 @@ def test_teams_roster_players_delete_coverage(
         resource_type="player",
         resource_id=PLAYER_ID_QUATERNARY,
         action_path="gamesheet_sdk.admin.cli.commands.teams_roster_players._delete_team_player_action",
-        # pylint: disable=duplicate-code
         season_id=SEASON_ID,
         team_id=TEAM_ID_SECONDARY,
         session=mock_session,
@@ -37,7 +39,6 @@ def test_teams_roster_players_delete_coverage(
         mock_session,
         SEASON_ID,
         TEAM_ID_SECONDARY,
-        # pylint: enable=duplicate-code
         PLAYER_ID_QUATERNARY,
     )
 

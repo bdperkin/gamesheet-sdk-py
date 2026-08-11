@@ -6,9 +6,8 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 from unittest.mock import patch
-
-from click.testing import CliRunner
 
 from gamesheet_sdk.admin.cli.main import cli
 from gamesheet_sdk.admin.referees import Referee
@@ -18,6 +17,9 @@ from tests.helpers import (
     SEASON_ID,
     TEST_EMAIL_REFEREE,
 )
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner
 
 
 def test_referees_create_with_all_fields(runner: CliRunner) -> None:

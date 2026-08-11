@@ -34,18 +34,15 @@ ci:
   skip:
     - deptry
     - editorconfig-checker
-    - flake8
     - identity
     - mdformat
     - mypy
-    - pylint
     - pyrefly-check
     - pyright
     - pyroma
     - semgrep
     - semgrep-ci
     - uv-lock
-    - yesqa
 
 # ==============================================================================
 # Global Defaults
@@ -630,112 +627,36 @@ repos:
   # Code Style & Formatting (Automated Fixers)
   # ----------------------------------------------------------------------------
 
-  - repo: https://github.com/asottile/add-trailing-comma
-    rev: v4.0.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.2
     hooks:
-      - id: add-trailing-comma
-        name: Add trailing commas
-        description: Automatically add trailing commas to calls and literals.
-        entry: add-trailing-comma
-        language: python
-        types:
-          - python
-
-  - repo: https://github.com/jsh9/blank-line-after-blocks
-    rev: 0.1.4
-    hooks:
-      - id: blank-line-after-blocks
-        name: Add blank lines after code blocks (in .py files)
-        description: Automatically add blank lines after if/for/while/with/try blocks to improve code readability.
-        entry: blank-line-after-blocks
-        language: python
-        types:
-          - python
-
-  - repo: https://github.com/marcogorelli/absolufy-imports
-    rev: v0.3.1
-    hooks:
-      - id: absolufy-imports
-        name: absolufy-imports
-        description: Automatically convert relative imports to absolute
-        entry: absolufy-imports
-        language: python
-        types:
-          - python
-        files: ""
-        minimum_pre_commit_version: 0.15.0
-
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.21.2
-    hooks:
-      - id: pyupgrade
-        name: pyupgrade
-        description: Automatically upgrade syntax for newer versions.
-        entry: pyupgrade
-        language: python
-        types:
-          - python
-        files: ""
-        minimum_pre_commit_version: 0.15.0
-
-  - repo: https://github.com/pycqa/isort
-    rev: 8.0.1
-    hooks:
-      - id: isort
-        name: isort
-        entry: isort
-        stages:
-          - pre-commit
-          - pre-merge-commit
-          - pre-push
-          - manual
-        require_serial: true
+      - id: ruff-check
+        name: ruff check
+        description: Run "ruff check" for extremely fast Python linting
+        entry: ruff check --force-exclude
         language: python
         types_or:
-          - cython
+          - python
           - pyi
-          - python
+          - jupyter
         args:
-          - --filter-files
-        minimum_pre_commit_version: 3.2.0
-
-  - repo: https://github.com/bwhmather/ssort
-    rev: 0.17.0
-    hooks:
-      - id: ssort
-        name: ssort
-        description: Sorting top level statements in python files.
-        entry: ssort
-        language: python
-        types:
-          - python
-
-  - repo: https://github.com/hhatto/autopep8
-    rev: v2.3.2
-    hooks:
-      - id: autopep8
-        name: autopep8
-        description: A tool that automatically formats Python code to conform to the PEP 8 style guide.
-        entry: autopep8
-        language: python
-        types:
-          - python
-        args:
-          - -i
-
-  - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 26.5.1
-    hooks:
-      - id: black
-        name: black
-        description: "Black: The uncompromising Python code formatter"
-        entry: black
-        language: python
+          - --fix
+        require_serial: true
+        additional_dependencies: []
         minimum_pre_commit_version: 2.9.2
-        require_serial: true
+      - id: ruff-format
+        name: ruff format
+        description: Run "ruff format" for extremely fast Python formatting
+        entry: ruff format --force-exclude
+        language: python
         types_or:
           - python
           - pyi
+          - jupyter
+        args: []
+        require_serial: true
+        additional_dependencies: []
+        minimum_pre_commit_version: 2.9.2
 
   # ----------------------------------------------------------------------------
   # Code Cleaners & Dead Code Detectors
@@ -750,36 +671,6 @@ repos:
         entry: detect-secrets-hook
         language: python
         files: .*
-
-  - repo: https://github.com/hakancelikdev/unimport
-    rev: 0.11.1
-    hooks:
-      - id: unimport
-        name: unimport
-        description: A linter, formatter for finding and removing unused import statements
-        entry: unimport
-        language: python
-        language_version: python3.11
-        types:
-          - python
-        args:
-          - --remove
-
-  - repo: https://github.com/pycqa/autoflake
-    rev: v2.3.3
-    hooks:
-      - id: autoflake
-        name: autoflake
-        entry: autoflake
-        language: python
-        types:
-          - python
-        require_serial: true
-        args:
-          - --in-place
-          - --expand-star-imports
-          - --remove-duplicate-keys
-          - --remove-unused-variables
 
   - repo: https://github.com/jendrikseipp/vulture
     rev: v2.16
@@ -825,29 +716,6 @@ repos:
         types:
           - text
 
-  - repo: https://github.com/asottile/blacken-docs
-    rev: 1.20.0
-    hooks:
-      - id: blacken-docs
-        name: blacken-docs
-        description: Run `black` on python code blocks in documentation files
-        entry: blacken-docs
-        language: python
-        files: \.(rst|md|markdown|py|tex)$
-
-  - repo: https://github.com/pycqa/docformatter
-    rev: v1.7.8
-    hooks:
-      - id: docformatter
-        name: docformatter
-        description: Formats docstrings to follow PEP 257.
-        entry: docformatter
-        args:
-          - -i
-        language: python
-        types:
-          - python
-
   - repo: https://github.com/econchick/interrogate
     rev: 1.7.0
     hooks:
@@ -861,52 +729,6 @@ repos:
           - python
         require_serial: true
         pass_filenames: false
-
-  - repo: https://github.com/jsh9/format-docstring
-    rev: 0.4.0
-    hooks:
-      - id: format-docstring
-        name: Wrap long docstring lines (in .py files)
-        description: Python formatter CLI for docstring line wrapping in Python files.
-        entry: format-docstring
-        language: python
-        types:
-          - python
-
-  - repo: https://github.com/jsh9/pydoclint
-    rev: 0.9.1
-    hooks:
-      - id: pydoclint
-        name: pydoclint
-        description: A Python docstring linter that checks arguments, returns, yields, and raises sections
-        entry: pydoclint
-        language: python
-        types:
-          - python
-        require_serial: true
-      - id: pydoclint-flake8
-        name: pydoclint-flake8
-        description: Run `pydoclint` as a `flake8` plugin
-        entry: flake8
-        args:
-          - --select=DOC
-        language: python
-        types:
-          - python
-        require_serial: true
-        additional_dependencies:
-          - flake8==7.3.0
-
-  - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.3.0
-    hooks:
-      - id: pydocstyle
-        name: pydocstyle
-        description: pydocstyle is a static analysis tool for checking compliance with Python docstring conventions.
-        entry: pydocstyle
-        language: python
-        types:
-          - python
 
   # ----------------------------------------------------------------------------
   # Code Quality Linters & Static Analysis
@@ -922,62 +744,6 @@ repos:
         language: python
         types:
           - text
-
-  - repo: https://github.com/asottile/yesqa
-    rev: v1.5.0
-    hooks:
-      - id: yesqa
-        name: Strip unnecessary `# noqa`s
-        description: Automatically remove unnecessary `# noqa` comments
-        entry: yesqa
-        language: python
-        types:
-          - python
-        additional_dependencies:
-          - gamesheet-sdk-py[flake8]
-
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.3.0
-    hooks:
-      - id: flake8
-        name: flake8
-        description: '`flake8` is a command-line utility for enforcing style consistency across Python projects.'
-        entry: flake8
-        language: python
-        types:
-          - python
-        require_serial: true
-        exclude: ^tools/(syncdeps|genprecommitconfig)$
-        additional_dependencies:
-          - gamesheet-sdk-py[flake8]
-
-  - repo: https://github.com/dosisod/refurb
-    rev: v2.3.1
-    hooks:
-      - id: refurb
-        name: refurb
-        description: A tool for refurbishing and modernizing Python codebases.
-        entry: refurb
-        language: python
-        types:
-          - python
-        require_serial: true
-        exclude: ^tools/(syncdeps|genprecommitconfig)$
-        additional_dependencies:
-          - gamesheet-sdk-py[refurb]
-
-  - repo: https://github.com/pylint-dev/pylint
-    rev: v4.0.7
-    hooks:
-      - id: pylint
-        name: pylint
-        entry: pylint
-        language: python
-        types:
-          - python
-        require_serial: true
-        additional_dependencies:
-          - gamesheet-sdk-py[pylint]
 
   - repo: https://github.com/facebook/pyrefly-pre-commit
     rev: 1.2.0

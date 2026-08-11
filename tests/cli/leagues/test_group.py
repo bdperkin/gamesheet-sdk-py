@@ -5,9 +5,12 @@
 
 from __future__ import annotations
 
-from click.testing import CliRunner
+from typing import TYPE_CHECKING
 
 from gamesheet_sdk.admin.cli.main import cli
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner
 
 
 def test_leagues_group_has_help_option(runner: CliRunner) -> None:

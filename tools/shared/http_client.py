@@ -5,10 +5,14 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import requests
 from requests.adapters import HTTPAdapter
-from shared.pip_config import PipConfig
 from urllib3.util.retry import Retry
+
+if TYPE_CHECKING:
+    from shared.pip_config import PipConfig
 
 HTTP_RETRY_TOTAL = 3
 

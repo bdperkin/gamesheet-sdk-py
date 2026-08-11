@@ -5,11 +5,13 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
-from click.testing import CliRunner
-
 from gamesheet_sdk.admin.cli.main import cli
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner
 
 
 def test_scheduled_delete_command(runner: CliRunner) -> None:

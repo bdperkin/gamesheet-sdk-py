@@ -5,9 +5,12 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import TYPE_CHECKING
+
+from packaging.version import InvalidVersion, Version
+from shared.concurrency import PARALLEL_WORKERS
 
 from depsync.config import repo_url_to_package
 from depsync.exceptions import FetchError
@@ -25,9 +28,11 @@ from depsync.models import (
     PyProjectDependency,
     UpdateTarget,
 )
-from packaging.version import InvalidVersion, Version
-from shared.concurrency import PARALLEL_WORKERS
-from shared.pip_config import PipConfig
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+
+    from shared.pip_config import PipConfig
 
 logger = logging.getLogger(__name__)
 

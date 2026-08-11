@@ -5,12 +5,16 @@
 
 from __future__ import annotations
 
-import pytest
+from typing import TYPE_CHECKING
+
 import responses
 
 from gamesheet_sdk import AuthenticatedSession, Config
 from gamesheet_sdk.common.auth.constants import REFRESH_URL
 from tests.fixtures.constants import TEST_ERROR_DISK_FULL
+
+if TYPE_CHECKING:
+    import pytest
 
 
 # ---------- AuthenticatedSession -----------------------------------------
@@ -143,7 +147,6 @@ def test_authenticated_session_handles_on_refresh_oserror(
     with (
         caplog.at_level("WARNING"),
         AuthenticatedSession(
-            # pylint: disable=duplicate-code
             config,
             access_token="A1",
             refresh_token="R1",
@@ -169,7 +172,6 @@ def test_authenticated_session_refreshes_and_retries_on_403(config: Config) -> N
     responses.add(responses.GET, "https://test.example/y", json={"err": 1}, status=403)
     responses.add(
         responses.POST,
-        # pylint: enable=duplicate-code
         REFRESH_URL,
         json={"access": "A2", "refresh": "R2", "roles": "Rol2"},
         status=200,

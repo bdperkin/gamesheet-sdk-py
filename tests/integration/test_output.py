@@ -5,10 +5,10 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
 import json
-from pathlib import Path
 import sys
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
@@ -22,6 +22,9 @@ from gamesheet_sdk.common.output import (
     TABULATE_FORMATS,
     write_output,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 _ROWS = [
     {"id": "11", "title": "Hockey Time", "logo": ""},

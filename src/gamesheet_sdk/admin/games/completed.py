@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from gamesheet_sdk.common.constants import (
     API_SEASONS_GAMES,
@@ -14,8 +14,10 @@ from gamesheet_sdk.common.constants import (
     SCORESHEET_SERVICE_BASE_URL,
     SCORESHEET_SERVICE_GAME,
 )
-from gamesheet_sdk.common.session import Session
 from gamesheet_sdk.common.shared import handle_response
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.session import Session
 
 
 def get_completed_game(

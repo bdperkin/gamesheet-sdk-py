@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import rich_click as click
 from rich_click import Context
 
@@ -27,15 +29,27 @@ from gamesheet_sdk.admin.cli.shared import (
 )
 from gamesheet_sdk.admin.referees import (
     create_referee as _create_referee_action,
+)
+from gamesheet_sdk.admin.referees import (
     delete_referee as _delete_referee_action,
+)
+from gamesheet_sdk.admin.referees import (
     get_referee as _get_referee_action,
+)
+from gamesheet_sdk.admin.referees import (
     get_referee_report as _get_referee_report_action,
+)
+from gamesheet_sdk.admin.referees import (
     list_referees as _list_referees_action,
+)
+from gamesheet_sdk.admin.referees import (
     update_referee as _update_referee_action,
 )
 from gamesheet_sdk.common import errors
 from gamesheet_sdk.common.cli.core import ResourceGroup, confirm_destructive
-from gamesheet_sdk.common.config import Config
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 
 @click.group(

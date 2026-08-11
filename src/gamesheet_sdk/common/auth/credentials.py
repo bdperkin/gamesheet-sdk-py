@@ -15,8 +15,12 @@ password logging.
 
 from __future__ import annotations
 
-from gamesheet_sdk.common.config import Config
+from typing import TYPE_CHECKING
+
 from gamesheet_sdk.common.exceptions import AuthenticationError
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 
 def resolve_email(cfg: Config, email: str | None) -> str:

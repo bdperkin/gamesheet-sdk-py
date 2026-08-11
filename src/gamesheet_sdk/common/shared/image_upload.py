@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import mimetypes
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from gamesheet_sdk.common import errors
 from gamesheet_sdk.common.constants import (
@@ -16,7 +16,9 @@ from gamesheet_sdk.common.constants import (
     CLOUDFLARE_IMAGE_DELIVERY_BASE,
 )
 from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
-from gamesheet_sdk.common.session import Session
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.session import Session
 
 
 def upload_image(session: Session, image_path: str, image_type: str = "image") -> str:

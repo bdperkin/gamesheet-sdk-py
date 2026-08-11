@@ -6,9 +6,12 @@
 from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING
 
-from rich.console import Console
 from rich.logging import RichHandler
+
+if TYPE_CHECKING:
+    from rich.console import Console
 
 
 def configure_logging(log_level: str, console: Console) -> None:

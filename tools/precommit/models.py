@@ -8,6 +8,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from pydantic import BaseModel, Field
+
 from precommit.config import (
     DEFAULT_ALLOWED_LANGUAGES,
     DEFAULT_FAIL_FAST,
@@ -16,7 +18,6 @@ from precommit.config import (
     DEFAULT_OUTPUT_FILE,
     DEFAULT_STAGES,
 )
-from pydantic import BaseModel, Field
 
 
 class HookConfig(BaseModel):

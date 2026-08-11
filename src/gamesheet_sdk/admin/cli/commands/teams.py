@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import rich_click as click
 from rich_click import Context
 
@@ -27,10 +29,14 @@ from gamesheet_sdk.admin.cli.shared import (
 )
 from gamesheet_sdk.admin.teams import (
     get_team as _get_team_action,
+)
+from gamesheet_sdk.admin.teams import (
     list_teams as _list_teams_action,
 )
 from gamesheet_sdk.common.cli.core import ResourceGroup, confirm_destructive
-from gamesheet_sdk.common.config import Config
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 
 @click.group(
@@ -182,7 +188,6 @@ def teams_create_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
     """
-    # pylint: disable=duplicate-code
     run_team_create(
         ctx,
         season_id,
@@ -242,7 +247,6 @@ def teams_update_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
     """
-    # pylint: disable=duplicate-code
     run_team_update(
         ctx,
         season_id,
@@ -287,5 +291,4 @@ def teams_delete_command(
         season_id (str): The season identifier
         team_id (str): The team identifier to delete
     """
-    # pylint: enable=duplicate-code
     run_team_delete(ctx, season_id, team_id)

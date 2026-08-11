@@ -6,13 +6,15 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 from unittest.mock import patch
-
-from click.testing import CliRunner
 
 from gamesheet_sdk.admin.cli.main import cli
 from gamesheet_sdk.admin.divisions import Division
 from tests.helpers import DEFAULT_DIVISION_NAME, SEASON_ID
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner
 
 
 def test_divisions_get(runner: CliRunner) -> None:

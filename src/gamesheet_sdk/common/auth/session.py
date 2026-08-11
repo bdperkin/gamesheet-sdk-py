@@ -5,17 +5,19 @@
 
 from __future__ import annotations
 
+import logging
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-import logging
-from typing import Any
-
-import requests
+from typing import TYPE_CHECKING, Any
 
 from gamesheet_sdk.common.auth.tokens import refresh_access_token
-from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.common.exceptions import GameSheetError
 from gamesheet_sdk.common.session import Session
+
+if TYPE_CHECKING:
+    import requests
+
+    from gamesheet_sdk.common.config import Config
 
 _LOGGER = logging.getLogger(__name__)
 OnRefreshCallback = Callable[[dict[str, str]], None]
@@ -86,8 +88,8 @@ class BaseAuthenticatedSession(Session, ABC):
         try:
             new_tokens = self._do_refresh()
         except GameSheetError as exc:
-            # editorconfig-checker-disable-next-line # pylint: disable-next=line-too-long
-            _LOGGER.warning(  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure # noqa: E501
+            # editorconfig-checker-disable-next-line
+            _LOGGER.warning(  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure
                 "Token refresh failed: %s; surfacing original response.",
                 exc,
             )
@@ -125,8 +127,8 @@ class BaseAuthenticatedSession(Session, ABC):
 
         if not self._try_refresh():
             return response
-        # editorconfig-checker-disable-next-line # pylint: disable-next=line-too-long
-        _LOGGER.warning(  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure # noqa: E501
+        # editorconfig-checker-disable-next-line
+        _LOGGER.warning(  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure
             "Refreshed access token; retrying %s %s.",
             method,
             url,

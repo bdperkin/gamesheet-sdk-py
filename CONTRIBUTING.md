@@ -228,15 +228,10 @@ The project uses a `src/` layout with the following structure:
 
 #### 6.1.2. Formatters (Auto-fix)
 
-The project uses multiple formatters that run automatically via pre-commit hooks:
+The project uses Ruff for code formatting and linter fixes:
 
-- `black` - line length: 88 with --line-length 110 override
-- `isort` - profile: black, line length: 110
-- `pyupgrade` - --py311-plus
-- `autopep8` - max line length: 110
-- `ssort` - statement sorting
-- `add-trailing-comma` - adds trailing commas
-- `absolufy-imports` - converts relative imports to absolute
+- `ruff format` - fast Python code formatter (line length: 110)
+- `ruff check --fix` - automated linter fixes and import sorting
 
 Apply all formatters with:
 
@@ -248,9 +243,7 @@ make fix
 
 The project uses comprehensive linting:
 
-- **flake8** with ~50 plugins
-- **pylint** with multiple extensions
-- **refurb** for modernization suggestions
+- **ruff** with ALL rule groups enabled (Google docstring style, PEP 8, complexity, etc.)
 - **pyrefly** for architectural health
 - **blocklint** for inclusive language
 
@@ -348,8 +341,8 @@ uv run --extra interrogate interrogate src
 
 ### 8.2. Docstring Style
 
-- **Style**: Google (configured in `[tool.interrogate] style = "google"`)
-- **Format**: PEP 257 compliant, enforced by `docformatter`
+- **Style**: Google (configured in `[tool.ruff.lint.pydocstyle] convention = "google"`)
+- **Format**: PEP 257 / Google style, enforced by `ruff`
 - **Length**: Wrap at 110 characters
 
 Example:
@@ -505,7 +498,7 @@ docs: add CONTRIBUTING.md with comprehensive guidelines
    - Test suite (Python 3.11-3.14 matrix)
    - Pre-commit hooks
    - Type checkers (mypy, pyright)
-   - Linters (flake8, pylint, refurb, pyrefly)
+   - Linters (ruff, pyrefly, blocklint)
    - Security scans (bandit, CodeQL, Semgrep, Trivy, OSV-Scanner)
    - Documentation build
    - Codecov upload and coverage enforcement
@@ -609,8 +602,7 @@ Run specific tools in isolated environments with `uv run`:
 
 ```bash
 uv run --extra mypy mypy --config-file pyproject.toml src/
-uv run --extra pylint pylint src/
-uv run --extra flake8 flake8 .
+uv run --extra ruff ruff check .
 uv run --extra bandit bandit -c pyproject.toml -r src/
 ```
 

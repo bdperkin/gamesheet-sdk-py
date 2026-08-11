@@ -28,7 +28,6 @@ def test_version_fallback_when_package_not_found() -> None:
         mock_version.side_effect = PackageNotFoundError("gamesheet-sdk-py")
 
         # Re-import the module, which will trigger the except block
-        # pylint: disable-next=reimported
         import gamesheet_sdk as gs
 
         # The fallback version should be set
@@ -39,7 +38,6 @@ def test_version_fallback_when_package_not_found() -> None:
         del sys.modules["gamesheet_sdk"]
 
     # Re-import normally to restore state
-    # pylint: disable-next=reimported
     import gamesheet_sdk
 
     # Verify it's back to normal

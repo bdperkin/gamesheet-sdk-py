@@ -5,13 +5,14 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
-
-from click.testing import CliRunner
 
 from gamesheet_sdk.admin.cli.main import cli
 from tests.helpers import ASSOCIATION_ID, DEFAULT_TEAM_NAME, SEASON_ID
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner
 
 
 def test_teams_create_basic(runner: CliRunner) -> None:

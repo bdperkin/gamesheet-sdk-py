@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from gamesheet_sdk.admin.games.models import Game
 from gamesheet_sdk.common.constants import (
@@ -15,8 +15,10 @@ from gamesheet_sdk.common.constants import (
     VALID_GAME_TYPES,
 )
 from gamesheet_sdk.common.exceptions import GameSheetError
-from gamesheet_sdk.common.session import Session
 from gamesheet_sdk.common.shared import check_bff_response_status, handle_response
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.session import Session
 
 
 def _make_request(

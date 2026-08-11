@@ -5,14 +5,16 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from gamesheet_sdk.admin.games.models import Location
 from gamesheet_sdk.common import errors
 from gamesheet_sdk.common.constants import API_LOCATIONS, DEFAULT_BASE_URL
 from gamesheet_sdk.common.exceptions import GameSheetError
-from gamesheet_sdk.common.session import Session
 from gamesheet_sdk.common.shared import handle_response
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.session import Session
 
 
 def list_locations(session: Session) -> list[Location]:

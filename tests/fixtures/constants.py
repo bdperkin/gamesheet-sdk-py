@@ -6,9 +6,9 @@
 from __future__ import annotations
 
 # Authentication test tokens
-TEST_BEARER_TOKEN = "test-token"  # noqa: S105 # nosec B105
-TEST_ACCESS_TOKEN = "bearer-tok"  # noqa: S105 # nosec B105
-TEST_REFRESH_TOKEN = "refresh-tok"  # noqa: S105 # nosec B105
+TEST_BEARER_TOKEN = "test-token"
+TEST_ACCESS_TOKEN = "bearer-tok"
+TEST_REFRESH_TOKEN = "refresh-tok"
 
 # Test IDs
 TEST_SEASON_ID = "test-season-123"

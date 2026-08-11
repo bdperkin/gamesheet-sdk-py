@@ -7,18 +7,22 @@ from __future__ import annotations
 
 import io
 import logging
-from pathlib import Path
 import re
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
-from depsync.exceptions import WriteError
-from depsync.models import ConvergenceResult, UpdateTarget
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from shared import PROJECT_NAME
 from shared.yaml_format import format_yaml
-from tomlkit.toml_document import TOMLDocument
 from tomlkit.toml_file import TOMLFile
+
+from depsync.exceptions import WriteError
+from depsync.models import ConvergenceResult, UpdateTarget
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from tomlkit.toml_document import TOMLDocument
 
 logger = logging.getLogger(__name__)
 

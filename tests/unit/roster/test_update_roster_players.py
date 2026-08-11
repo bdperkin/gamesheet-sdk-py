@@ -62,9 +62,9 @@ def test_update_player_with_photo_upload(config: Config) -> None:
     )
     # Mock PATCH to update player
     updated_player = roster_player_payload(season_id=SEASON_ID)
-    updated_player["attributes"][
-        "photo_url"
-    ] = "https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA/test-image-id"
+    updated_player["attributes"]["photo_url"] = (
+        "https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA/test-image-id"
+    )
     responses.add(
         responses.PATCH,
         _PLAYERS_ENDPOINT,
@@ -420,9 +420,9 @@ def test_update_team_player_with_photo_upload(config: Config) -> None:
     )
     # Mock PATCH to update player
     updated_player = roster_player_payload(season_id=SEASON_ID)
-    updated_player["attributes"][
-        "photo_url"
-    ] = "https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA/test-image-id"
+    updated_player["attributes"]["photo_url"] = (
+        "https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA/test-image-id"
+    )
     responses.add(
         responses.PATCH,
         f"https://test.example/api/seasons/{SEASON_ID}/players/{PLAYER_ID}",

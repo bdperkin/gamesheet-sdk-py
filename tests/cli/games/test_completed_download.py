@@ -6,13 +6,15 @@
 from __future__ import annotations
 
 import tempfile
+from typing import TYPE_CHECKING
 from unittest.mock import patch
-
-from click.testing import CliRunner
 
 from gamesheet_sdk.admin.cli.main import cli
 from gamesheet_sdk.admin.games import Game, TeamInfo
 from tests.fixtures.constants import TEST_ACCESS_TOKEN, TEST_REFRESH_TOKEN
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner
 
 
 def test_build_scoresheet_filename_sanitize() -> None:

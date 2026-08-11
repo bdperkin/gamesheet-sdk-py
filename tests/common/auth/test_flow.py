@@ -9,7 +9,6 @@ from gamesheet_sdk.common.auth import LoginFlow
 from gamesheet_sdk.common.auth.flow import LoginFlow as DirectLoginFlow
 
 
-# pylint: disable-next=too-few-public-methods
 class _ConformingFlow:
     """Minimal class that satisfies the LoginFlow protocol."""
 
@@ -25,7 +24,6 @@ class _ConformingFlow:
         return {"access": "a", "refresh": "r"}
 
 
-# pylint: disable-next=too-few-public-methods
 class _NonConformingFlow:
     """Class that does NOT satisfy the LoginFlow protocol."""
 
@@ -33,7 +31,6 @@ class _NonConformingFlow:
         """Do nothing."""
 
 
-# pylint: disable-next=too-few-public-methods
 class _BareFlow(LoginFlow):
     """Concrete subclass that inherits the Protocol's default body."""
 

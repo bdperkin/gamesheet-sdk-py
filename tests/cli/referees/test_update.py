@@ -6,13 +6,15 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 from unittest.mock import patch
-
-from click.testing import CliRunner
 
 from gamesheet_sdk.admin.cli.main import cli
 from gamesheet_sdk.admin.referees import Referee
 from tests.helpers import REFEREE_EXTERNAL_ID_SECONDARY, SEASON_ID
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner
 
 
 def test_referees_update_with_all_fields(runner: CliRunner) -> None:

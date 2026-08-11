@@ -5,10 +5,14 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from gamesheet_sdk.admin.games.helpers import _make_request
-from gamesheet_sdk.admin.games.models import Game
 from gamesheet_sdk.common.exceptions import GameSheetError
-from gamesheet_sdk.common.session import Session
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.admin.games.models import Game
+    from gamesheet_sdk.common.session import Session
 
 
 def list_completed(session: Session, season_id: str) -> list[Game]:

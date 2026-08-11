@@ -2,25 +2,13 @@
 # ==============================================================================
 # Code Cleaners & Dead Code Detectors
 # ==============================================================================
-# Purpose: Identifies unused code, unreferenced imports, and unnecessary
-# dependencies to keep the codebase lean and maintainable. Helps prevent
-# accumulation of technical debt from abandoned refactors.
+# Purpose: Identifies unused code and unnecessary dependencies to keep the
+# codebase lean and maintainable.
 #
 # Triggers:
 #   - push to main branch (skip if only CHANGELOG/version changes)
 #   - pull_request (opened, reopened, synchronize)
 #   - Concurrency: Cancels previous runs for the same branch
-#
-# Jobs: 4 tools × 3-4 Python versions = 15 total runs
-#   - unimport: Detects unused imports and variables (py3.11-3.13 only)
-#   - autoflake: Removes unused imports, variables, and unnecessary pass statements
-#   - vulture: Finds unused code including functions, classes, variables, and attributes
-#   - deptry: Identifies unused, missing, and transitive dependencies in project metadata
-#
-# These tools run in check mode (non-destructive) in CI. To apply fixes locally,
-# use the 'fix' tox environment or make target which runs autoflake in write mode.
-#
-# Each job runs: tox -e [tool]
 # ==============================================================================
 name: Code Cleaners & Dead Code Detectors
 
@@ -50,49 +38,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
-  unimport:
-    name: unimport (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.11"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          enable-cache: true
-      - name: Run unimport via uv
-        run: uv run --extra unimport unimport --check src/ tests/ tools/
-
-  autoflake:
-    name: autoflake (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          enable-cache: true
-      - name: Run autoflake via uv
-        run: uv run --extra autoflake autoflake --check --recursive src/ tests/ tools/
-
   vulture:
     name: vulture (py${{ matrix.python-version }})
     runs-on: ubuntu-latest

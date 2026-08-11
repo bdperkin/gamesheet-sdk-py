@@ -14,13 +14,12 @@ obtained (typically by reading the SPA's ``accessToken`` from the saved browser 
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
 from gamesheet_sdk.common import errors
 from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
-from gamesheet_sdk.common.session import Session
 from gamesheet_sdk.common.shared import JSONAPI_CONTENT_TYPE, JSONAPI_HEADERS
 from gamesheet_sdk.common.shared.constants import (
     FIELD_DESC_PARENT_SEASON_ID,
@@ -28,6 +27,9 @@ from gamesheet_sdk.common.shared.constants import (
     FIELD_DESC_REFEREE_LAST_NAME,
 )
 from gamesheet_sdk.common.shared.gamesheet_http import handle_season_scoped_response
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.session import Session
 
 
 class Referee(BaseModel):
@@ -271,7 +273,6 @@ def create_referee(
     return _parse(body["data"])
 
 
-# pylint: disable-next=too-many-branches
 def update_referee(
     session: Session,
     season_id: str,

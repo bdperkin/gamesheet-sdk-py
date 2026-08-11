@@ -5,12 +5,15 @@
 
 from __future__ import annotations
 
-from click.testing import CliRunner
+from typing import TYPE_CHECKING
 
 from gamesheet_sdk import __version__
 from gamesheet_sdk.admin.cli import main
 from gamesheet_sdk.admin.cli.commands.completion import completion_command
 from gamesheet_sdk.admin.cli.main import cli
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner
 
 
 def test_admin_cli_help(runner: CliRunner) -> None:
@@ -70,8 +73,8 @@ def test_admin_completion_without_parent_context(runner: CliRunner) -> None:
 def test_admin_cli_main_module() -> None:
     """Running the module as __main__ should invoke sys.exit(main())."""
     import runpy
-    from unittest.mock import patch
     import warnings
+    from unittest.mock import patch
 
     import pytest
 

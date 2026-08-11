@@ -4,9 +4,9 @@
 
 """Pre-commit configuration generation tool."""
 
-from pathlib import Path
 import re
 import sys
+from pathlib import Path
 
 try:
     from precommit.cli import app

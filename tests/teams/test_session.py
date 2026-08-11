@@ -5,13 +5,18 @@
 
 from __future__ import annotations
 
-import pytest
+from typing import TYPE_CHECKING
+
 import responses
 
-from gamesheet_sdk import Config
 from gamesheet_sdk.teams.session import TeamsAuthenticatedSession
 from gamesheet_sdk.teams.shared.constants import TEAMS_API_GATEWAY, TEAMS_REFRESH_PATH
 from tests.fixtures.constants import TEST_ERROR_DISK_FULL
+
+if TYPE_CHECKING:
+    import pytest
+
+    from gamesheet_sdk import Config
 
 TEAMS_REFRESH_URL = f"{TEAMS_API_GATEWAY}{TEAMS_REFRESH_PATH}"
 
@@ -153,7 +158,6 @@ def test_teams_session_handles_on_refresh_oserror(
     with (
         caplog.at_level("WARNING"),
         TeamsAuthenticatedSession(
-            # pylint: disable=duplicate-code
             config,
             access_token="A1",
             refresh_token="R1",
@@ -173,7 +177,6 @@ def test_teams_session_refreshes_and_retries_on_403(config: Config) -> None:
     responses.add(responses.GET, "https://test.example/y", json={"err": 1}, status=403)
     responses.add(
         responses.POST,
-        # pylint: enable=duplicate-code
         TEAMS_REFRESH_URL,
         json={"access": "A2", "refresh": "R2"},
         status=200,

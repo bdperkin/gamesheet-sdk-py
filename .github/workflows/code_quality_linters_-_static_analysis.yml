@@ -3,29 +3,12 @@
 # Code Quality Linters & Static Analysis
 # ==============================================================================
 # Purpose: Runs static analysis tools to detect code quality issues, potential
-# bugs, and maintainability problems. These tools analyze code structure,
-# patterns, and complexity without executing it.
+# bugs, and maintainability problems.
 #
 # Triggers:
 #   - push to main branch (skip if only CHANGELOG/version changes)
 #   - pull_request (opened, reopened, synchronize)
 #   - Concurrency: Cancels previous runs for the same branch
-#
-# Jobs: 5 tools × 4 Python versions = 20 total runs
-#   - blocklint: Detects insecure patterns and common code anti-patterns
-#   - flake8: Comprehensive style guide enforcement with ~50 plugins covering
-#            PEP 8, complexity, naming, imports, docstrings, security, and more
-#   - refurb: Modernization linter suggesting idiomatic Python improvements
-#   - pylint: Advanced static analyzer checking for errors, code smells, and
-#            enforcing coding standards with detailed error messages
-#   - pyrefly: Architectural-health linter for structural patterns and design
-#
-# Configuration:
-#   - flake8: pyproject.toml [tool.flake8] + extensive plugin suite
-#   - pylint: pyproject.toml [tool.pylint.*]
-#   - All tools configured for Python 3.11+ compatibility
-#
-# Each job runs: tox -e [tool]
 # ==============================================================================
 name: Code Quality Linters & Static Analysis
 
@@ -77,75 +60,6 @@ jobs:
           enable-cache: true
       - name: Run blocklint via uv
         run: uv run --extra blocklint blocklint .
-
-  flake8:
-    name: flake8 (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          enable-cache: true
-      - name: Run flake8 via uv
-        run: uv run --extra flake8 flake8 .
-
-  refurb:
-    name: refurb (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          enable-cache: true
-      - name: Run refurb via uv
-        run: uv run --extra refurb refurb .
-
-  pylint:
-    name: pylint (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          enable-cache: true
-      - name: Run pylint via uv
-        run: uv run --extra pylint pylint src/ tests/ tools/
 
   pyrefly:
     name: pyrefly (py${{ matrix.python-version }})

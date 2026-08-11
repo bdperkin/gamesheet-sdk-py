@@ -17,7 +17,7 @@ subsequent CLI commands can authenticate without repeating the login flow.
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import requests
 
@@ -25,7 +25,6 @@ from gamesheet_sdk.common.auth.constants import DEFAULT_TIMEOUT_S, FIREBASE_AUTH
 from gamesheet_sdk.common.auth.credentials import resolve_email, resolve_password
 from gamesheet_sdk.common.auth.firebase import extract_firebase_error
 from gamesheet_sdk.common.auth.tokens import save_tokens
-from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.teams.shared.constants import (
     FIREBASE_API_KEY,
@@ -33,6 +32,9 @@ from gamesheet_sdk.teams.shared.constants import (
     TEAMS_REFRESH_PATH,
     TEAMS_TOKEN_EXCHANGE_PATH,
 )
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -151,7 +153,6 @@ def refresh_access_token(
     return {"access": body["access"], "refresh": body["refresh"]}
 
 
-# pylint: disable-next=too-few-public-methods
 class TeamsLoginFlow:
     """HTTP-based: class:`~gamesheet_sdk.common.auth.flow.LoginFlow` for the teams dashboard.
 

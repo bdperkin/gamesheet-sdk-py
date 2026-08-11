@@ -6,12 +6,12 @@
 from __future__ import annotations
 
 import configparser
-from dataclasses import dataclass, field
 import logging
 import os
-from pathlib import Path
 import ssl
 import sys
+from dataclasses import dataclass, field
+from pathlib import Path
 from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)

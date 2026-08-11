@@ -199,7 +199,7 @@ def _detailjsonapi_payload(data: dict[str, object]) -> dict[str, object]:
 
 
 @responses.activate
-def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:  # noqa: R701
+def test_get_season_parses_detailed_jsonapi_response(config: Config) -> None:
     """Test that get_season correctly parses detailed JSON:API response."""
     responses.add(
         responses.GET,

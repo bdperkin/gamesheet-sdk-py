@@ -48,17 +48,17 @@ This module provides the foundational infrastructure for building resource-orien
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Mapping
 import functools
 import logging
 import os
 import sys
+from collections.abc import Callable, Iterable, Mapping
 from typing import Any, TypeVar
 
-from click.exceptions import Abort, Exit, UsageError
-from click.shell_completion import CompletionItem
 import colorlog
 import rich_click as click
+from click.exceptions import Abort, Exit, UsageError
+from click.shell_completion import CompletionItem
 from rich_click import Command, Context, HelpFormatter
 
 F = TypeVar("F", bound=Callable[..., Any])
@@ -283,10 +283,7 @@ class ResourceGroup(click.RichGroup):
         """
         # Look up the super method safely
         super_shell_complete = getattr(super(), "shell_complete", None)
-        if super_shell_complete is not None:
-            results = list(super_shell_complete(ctx, incomplete))
-        else:
-            results = []
+        results = list(super_shell_complete(ctx, incomplete)) if super_shell_complete is not None else []
 
         seen = {item.value for item in results}
         results.extend(self._alias_completion_items(incomplete, seen))

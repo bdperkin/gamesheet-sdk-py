@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import responses
 
@@ -13,6 +13,9 @@ from gamesheet_sdk import Config, Session
 from gamesheet_sdk.admin.games import download_completed_game_pdf
 from gamesheet_sdk.common.constants import DEFAULT_BASE_URL, SCORESHEET_SERVICE_BASE_URL
 from tests.fixtures.constants import TEST_BEARER_TOKEN
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @responses.activate

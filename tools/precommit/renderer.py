@@ -7,9 +7,12 @@ from __future__ import annotations
 
 import io
 import logging
-from pathlib import Path
 import re
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+from ruamel.yaml import YAML
+from ruamel.yaml.comments import CommentedMap, CommentedSeq
+from shared.yaml_format import format_yaml
 
 from precommit.config import (
     CI_PROPERTY_DESCRIPTIONS,
@@ -20,9 +23,9 @@ from precommit.config import (
     REPOS_SECTION_COMMENT,
 )
 from precommit.exceptions import RenderError
-from ruamel.yaml import YAML
-from ruamel.yaml.comments import CommentedMap, CommentedSeq
-from shared.yaml_format import format_yaml
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = logging.getLogger(__name__)
 

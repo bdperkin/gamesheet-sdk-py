@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 import shutil
-import subprocess  # noqa: S404 # nosec B404
+import subprocess
 
 GIT_LS_REMOTE_TIMEOUT = 30
 
@@ -44,7 +44,7 @@ def run_ls_remote(
     cmd: list[str] = ["git", "ls-remote", *options, repo_url, *refspecs]
 
     try:
-        return subprocess.run(  # noqa: S603 # nosec B603
+        return subprocess.run(
             cmd,
             capture_output=True,
             text=True,

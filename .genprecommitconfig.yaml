@@ -18,6 +18,7 @@ globals:
     - format-docstring-jupyter
     - pip-compile
     - requirements-txt-fixer
+    - ruff
     - sort-simple-yaml
 
 ci:
@@ -30,18 +31,15 @@ ci:
   skip:
     - deptry
     - editorconfig-checker
-    - flake8
     - identity
     - mdformat
     - mypy
-    - pylint
     - pyrefly-check
     - pyright
     - pyroma
     - semgrep
     - semgrep-ci
     - uv-lock
-    - yesqa
 
 categories:
   meta:
@@ -173,29 +171,13 @@ categories:
     description: Code Style & Formatting (Automated Fixers)
     repos:
 
-      - name: add-trailing-comma
-        repo: https://github.com/asottile/add-trailing-comma
-
-      - name: blank-line-after-blocks
-        repo: https://github.com/jsh9/blank-line-after-blocks
-
-      - name: absolufy-imports
-        repo: https://github.com/marcogorelli/absolufy-imports
-
-      - name: pyupgrade
-        repo: https://github.com/asottile/pyupgrade
-
-      - name: isort
-        repo: https://github.com/pycqa/isort
-
-      - name: ssort
-        repo: https://github.com/bwhmather/ssort
-
-      - name: autopep8
-        repo: https://github.com/hhatto/autopep8
-
-      - name: black-pre-commit-mirror
-        repo: https://github.com/psf/black-pre-commit-mirror
+      - name: ruff-pre-commit
+        repo: https://github.com/astral-sh/ruff-pre-commit
+        hooks:
+          - id: ruff-check
+            prepends:
+              args:
+                - --fix
 
   code_cleaners_-_dead_code_detectors:
     description: Code Cleaners & Dead Code Detectors
@@ -203,20 +185,6 @@ categories:
 
       - name: detect-secrets
         repo: https://github.com/yelp/detect-secrets
-
-      - name: unimport
-        repo: https://github.com/hakancelikdev/unimport
-        rev: 0.11.1
-        hooks:
-          - id: unimport
-            overrides:
-              language_version: python3.11
-            prepends:
-              args:
-                - --remove
-
-      - name: autoflake
-        repo: https://github.com/pycqa/autoflake
 
       - name: vulture
         repo: https://github.com/jendrikseipp/vulture
@@ -243,12 +211,6 @@ categories:
       - name: codespell
         repo: https://github.com/codespell-project/codespell
 
-      - name: blacken-docs
-        repo: https://github.com/asottile/blacken-docs
-
-      - name: docformatter
-        repo: https://github.com/pycqa/docformatter
-
       - name: interrogate
         repo: https://github.com/econchick/interrogate
         hooks:
@@ -256,57 +218,12 @@ categories:
             overrides:
               pass_filenames: false
 
-      - name: format-docstring
-        repo: https://github.com/jsh9/format-docstring
-
-      - name: pydoclint
-        repo: https://github.com/jsh9/pydoclint
-
-      - name: pydocstyle
-        repo: https://github.com/pycqa/pydocstyle
-
   code_quality_linters_-_static_analysis:
     description: Code Quality Linters & Static Analysis
     repos:
 
       - name: blocklint
         repo: https://github.com/princetonuniversity/blocklint
-
-      - name: yesqa
-        repo: https://github.com/asottile/yesqa
-        hooks:
-          - id: yesqa
-            appends:
-              additional_dependencies:
-                - gamesheet-sdk-py[flake8]
-
-      - name: flake8
-        repo: https://github.com/pycqa/flake8
-        hooks:
-          - id: flake8
-            overrides:
-              exclude: ^tools/(syncdeps|genprecommitconfig)$
-            appends:
-              additional_dependencies:
-                - gamesheet-sdk-py[flake8]
-
-      - name: refurb
-        repo: https://github.com/dosisod/refurb
-        hooks:
-          - id: refurb
-            overrides:
-              exclude: ^tools/(syncdeps|genprecommitconfig)$
-            appends:
-              additional_dependencies:
-                - gamesheet-sdk-py[refurb]
-
-      - name: pylint
-        repo: https://github.com/pylint-dev/pylint
-        hooks:
-          - id: pylint
-            appends:
-              additional_dependencies:
-                - gamesheet-sdk-py[pylint]
 
       - name: pyrefly-pre-commit
         repo: https://github.com/facebook/pyrefly-pre-commit

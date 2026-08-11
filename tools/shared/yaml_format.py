@@ -8,9 +8,10 @@ from __future__ import annotations
 import logging
 import re
 
-from shared.toml import PYPROJECT_PATH, load_toml
 from yamlfix import fix_code  # pyright: ignore[reportMissingImports]
 from yamlfix.model import YamlfixConfig  # pyright: ignore[reportMissingImports]
+
+from shared.toml import PYPROJECT_PATH, load_toml
 
 logger = logging.getLogger(__name__)
 

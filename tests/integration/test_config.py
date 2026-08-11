@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 import pytest
@@ -14,8 +13,9 @@ from gamesheet_sdk import DEFAULT_BASE_URL, Config
 
 if TYPE_CHECKING:
     # Imported for typing only, and referenced as a string in cast() below:
-    # flake8-type-checking's TC006 requires cast() annotations to be string
     # literals, so CodeQL reports this as py/unused-import. Do not remove it.
+    from pathlib import Path
+
     from pydantic import SecretStr
 
 

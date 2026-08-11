@@ -5,10 +5,12 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from gamesheet_sdk.common.session import Session
 from gamesheet_sdk.common.shared import JSONAPI_HEADERS, handle_response
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.session import Session
 
 
 def get_team_for_roster_update(

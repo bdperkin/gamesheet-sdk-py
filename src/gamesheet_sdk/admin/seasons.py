@@ -15,19 +15,21 @@ endpoint is used instead.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
 from gamesheet_sdk.common import errors
 from gamesheet_sdk.common.constants import BFF_API_BASE_URL
 from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
-from gamesheet_sdk.common.session import Session
 from gamesheet_sdk.common.shared import JSONAPI_HEADERS
 from gamesheet_sdk.common.shared.constants import (
     FIELD_DESC_PARENT_ASSOCIATION_ID,
     FIELD_DESC_PARENT_LEAGUE_ID,
 )
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.session import Session
 
 _ENDPOINT = "/api/seasons"
 
@@ -132,7 +134,6 @@ def _parse_bff_season(item: dict[str, Any], league_id: str) -> Season:
     )
 
 
-# pylint: disable-next=too-many-branches
 def _list_seasons_bff(
     session: Session,
     league_id: str,

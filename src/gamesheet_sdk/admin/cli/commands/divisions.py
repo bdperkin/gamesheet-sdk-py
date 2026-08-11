@@ -5,8 +5,10 @@
 
 from __future__ import annotations
 
-from click.exceptions import Exit
+from typing import TYPE_CHECKING
+
 import rich_click as click
+from click.exceptions import Exit
 from rich_click import Context
 
 from gamesheet_sdk.admin.cli.constants import (
@@ -31,16 +33,30 @@ from gamesheet_sdk.admin.cli.shared import (
 )
 from gamesheet_sdk.admin.divisions import (
     Division,
+)
+from gamesheet_sdk.admin.divisions import (
     create_division as _create_division_action,
+)
+from gamesheet_sdk.admin.divisions import (
     delete_division as _delete_division_action,
+)
+from gamesheet_sdk.admin.divisions import (
     get_division as _get_division_action,
+)
+from gamesheet_sdk.admin.divisions import (
     list_division_teams as _list_division_teams_action,
+)
+from gamesheet_sdk.admin.divisions import (
     list_divisions as _list_divisions_action,
+)
+from gamesheet_sdk.admin.divisions import (
     update_division as _update_division_action,
 )
-from gamesheet_sdk.common.auth.session import AuthenticatedSession
 from gamesheet_sdk.common.cli.core import ResourceGroup, confirm_destructive
-from gamesheet_sdk.common.config import Config
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.auth.session import AuthenticatedSession
+    from gamesheet_sdk.common.config import Config
 
 
 @click.group(
@@ -426,7 +442,6 @@ def divisions_teams_create_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
     """
-    # pylint: disable=duplicate-code
     run_team_create(
         ctx,
         season_id,
@@ -486,7 +501,6 @@ def divisions_teams_update_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
     """
-    # pylint: disable=duplicate-code
     run_team_update(
         ctx,
         season_id,
@@ -565,7 +579,6 @@ def divisions_delete_command(
         season_id (str): The season identifier
         division_id (str): The division identifier to delete
     """
-    # pylint: enable=duplicate-code
     config: Config = ctx.obj
     session = build_authenticated_session(config)
     run_action_or_exit(session, _delete_division_action, season_id, division_id)

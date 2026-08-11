@@ -7,7 +7,10 @@ from __future__ import annotations
 
 import contextlib
 import os
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def write_secure_text(path: Path, content: str) -> None:

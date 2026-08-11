@@ -5,9 +5,7 @@
 
 from __future__ import annotations
 
-from typing import Any
-
-import requests
+from typing import TYPE_CHECKING, Any
 
 from gamesheet_sdk.common import errors
 from gamesheet_sdk.common.exceptions import (
@@ -18,6 +16,9 @@ from gamesheet_sdk.common.exceptions import (
     GameSheetPermissionError,
     GameSheetRateLimitError,
 )
+
+if TYPE_CHECKING:
+    import requests
 
 
 def handle_response(

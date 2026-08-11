@@ -8,8 +8,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from shared.exceptions import ToolError
 import tomli
+
+from shared.exceptions import ToolError
 
 
 def load_toml(path: Path) -> dict[str, Any]:

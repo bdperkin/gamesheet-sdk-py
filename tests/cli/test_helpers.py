@@ -8,8 +8,8 @@ from __future__ import annotations
 import os
 from unittest.mock import Mock, patch
 
-from click.testing import CliRunner
 import rich_click as click
+from click.testing import CliRunner
 
 from gamesheet_sdk.common.cli.core import (
     ResourceGroup,

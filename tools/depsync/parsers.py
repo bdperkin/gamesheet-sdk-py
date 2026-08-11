@@ -6,18 +6,21 @@
 from __future__ import annotations
 
 import logging
-from pathlib import Path
 import re
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from depsync.exceptions import ParseError
-from depsync.models import PreCommitAdditionalDep, PreCommitRepo, PyProjectDependency
 from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import Version
 from ruamel.yaml import YAML
 from shared import PROJECT_NAME
 from shared.exceptions import ToolError
 from shared.toml import load_toml
+
+from depsync.exceptions import ParseError
+from depsync.models import PreCommitAdditionalDep, PreCommitRepo, PyProjectDependency
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = logging.getLogger(__name__)
 

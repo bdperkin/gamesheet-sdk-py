@@ -8,8 +8,8 @@ from __future__ import annotations
 import datetime
 import logging
 
-from dateutil import parser as dateutil_parser
 import rich_click as click
+from dateutil import parser as dateutil_parser
 
 from gamesheet_sdk.common.constants import DEFAULT_TIMEZONE
 
@@ -40,7 +40,7 @@ def get_local_timezone_name() -> str:
         if os.name != "nt":
             localtime = Path("/etc/localtime")
             if localtime.is_symlink():
-                target = os.readlink(localtime)
+                target = str(localtime.readlink())
                 if "zoneinfo/" in target:
                     return target.split("zoneinfo/", 1)[1]
     except (OSError, ValueError, IndexError) as exc:
@@ -64,10 +64,7 @@ def get_local_timezone_offset() -> int:
     """
     import time
 
-    if time.daylight and time.localtime().tm_isdst:
-        offset_seconds = -time.altzone
-    else:
-        offset_seconds = -time.timezone
+    offset_seconds = -time.altzone if time.daylight and time.localtime().tm_isdst else -time.timezone
 
     return offset_seconds // 60
 

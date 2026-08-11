@@ -5,9 +5,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
-
-from click.testing import CliRunner
 
 from gamesheet_sdk.admin.cli.main import cli
 from tests.fixtures.constants import (
@@ -20,6 +19,9 @@ from tests.fixtures.constants import (
     TEST_TIMEZONE_NAME,
     TEST_TIMEZONE_OFFSET,
 )
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner
 
 _CREATE_MOCKS = (
     "gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session",

@@ -5,13 +5,16 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
-from click import Group
 import pytest
 
 from gamesheet_sdk import Config
 from tests.cli.roster_helpers import run_roster_delete_test_base
+
+if TYPE_CHECKING:
+    from click import Group
 
 
 @pytest.fixture

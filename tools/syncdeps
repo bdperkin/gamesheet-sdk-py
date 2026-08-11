@@ -4,9 +4,9 @@
 
 """Dependency convergence tool."""
 
-from pathlib import Path
 import re
 import sys
+from pathlib import Path
 
 try:
     from depsync.cli import app

@@ -5,9 +5,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
-
-from click.testing import CliRunner
 
 from gamesheet_sdk import __version__
 from gamesheet_sdk.common.exceptions import GameSheetError
@@ -18,6 +17,9 @@ from gamesheet_sdk.teams.cli.commands.lookups import lookups_group
 from gamesheet_sdk.teams.cli.main import cli
 from gamesheet_sdk.teams.lookups import LookupValue
 from tests.helpers import TEST_EMAIL_GENERIC
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner
 
 
 def test_teams_cli_help(runner: CliRunner) -> None:

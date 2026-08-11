@@ -5,10 +5,10 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from click.exceptions import Exit
 import rich_click as click
+from click.exceptions import Exit
 from rich_click import Context
 
 from gamesheet_sdk.admin.cli.constants import (
@@ -37,15 +37,29 @@ from gamesheet_sdk.admin.cli.shared import (
 )
 from gamesheet_sdk.admin.roster import (
     assign_team_player as _assign_team_player_action,
+)
+from gamesheet_sdk.admin.roster import (
     create_team_player as _create_team_player_action,
+)
+from gamesheet_sdk.admin.roster import (
     delete_team_player as _delete_team_player_action,
+)
+from gamesheet_sdk.admin.roster import (
     get_team_player as _get_team_player_action,
+)
+from gamesheet_sdk.admin.roster import (
     list_team_players as _list_team_players_action,
+)
+from gamesheet_sdk.admin.roster import (
     unassign_team_player as _unassign_team_player_action,
+)
+from gamesheet_sdk.admin.roster import (
     update_team_player as _update_team_player_action,
 )
 from gamesheet_sdk.common.cli.core import ResourceGroup, confirm_destructive
-from gamesheet_sdk.common.config import Config
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
 
 
 # Teams roster players sub-group
@@ -236,7 +250,6 @@ def teams_roster_players_get_command(
 )
 @common_output_options
 @click.pass_context
-# pylint: disable-next=too-many-positional-arguments
 def teams_roster_players_create_command(
     ctx: Context,
     first_name: str,
@@ -312,7 +325,6 @@ def teams_roster_players_create_command(
         position=position,
         status=status,
         designation=designation,
-        # pylint: disable=duplicate-code
         biography=biography,
         height=height,
         weight=weight,
@@ -324,7 +336,6 @@ def teams_roster_players_create_command(
         drafted_by=drafted_by,
         committed_to=committed_to,
         photo_path=photo_path,
-        # pylint: enable=duplicate-code
         success_message=f"Player {{id}} added to team {team_id} successfully.",
     )
 
@@ -482,7 +493,6 @@ def teams_roster_players_update_command(
         session,
         season_id,
         team_id,
-        # pylint: disable=duplicate-code
         player_id,
         first_name=first_name,
         last_name=last_name,
@@ -528,7 +538,6 @@ def teams_roster_players_delete_command(ctx: Context, player_id: str) -> None:
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
-    # pylint: enable=duplicate-code
     team_id: str = ctx_data["team_id"]
     session = build_authenticated_session(config)
     try:

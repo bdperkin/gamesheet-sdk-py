@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-from click.exceptions import Exit
 import rich_click as click
+from click.exceptions import Exit
 from rich_click import Choice
 
 from gamesheet_sdk.common.cli.constants import SHELL_TYPES

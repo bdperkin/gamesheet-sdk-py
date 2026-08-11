@@ -10,10 +10,9 @@ automodule directives. It runs automatically during the docs build process.
 
 from __future__ import annotations
 
-import subprocess  # noqa: S404 # nosec B404
+import subprocess
 import sys
 
-# pylint: disable-next=import-error
 from _constants import (
     AUTOSUMMARY_DIR,
     PACKAGE_DIR,
@@ -50,7 +49,7 @@ def main() -> int:
     ]
     cmd_str = " ".join(cmd)
     rprint(f"[bold]Running:[/bold] [cyan]{cmd_str}[/cyan]")
-    result = subprocess.run(cmd, check=False)  # noqa: S603 # nosec B603
+    result = subprocess.run(cmd, check=False)
     if result.returncode:
         rprint(
             f"[bold red]sphinx-apidoc failed with exit code {result.returncode}[/bold red]",
