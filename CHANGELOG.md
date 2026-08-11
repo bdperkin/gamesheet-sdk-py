@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.21 (2026-08-11)
+
+### Bug Fixes
+
+- **ci**: Point the Dependency Review badge at its pull_request runs ([#210](https://github.com/bdperkin/gamesheet-sdk-py/pull/210),
+  [`e1cacbf`](https://github.com/bdperkin/gamesheet-sdk-py/commit/e1cacbf5c3dd125e73d4cfec3e1689f8d021f397))
+
 ## v0.4.20 (2026-08-11)
 
 ### Chores
