@@ -169,7 +169,7 @@ optional-dependencies.tools = [
   "packaging==26.3",
   "ruamel-yaml==0.19.1",
   "tomli==2.4.1",
-  "tomlkit==0.13.3",
+  "tomlkit==0.15.1",
 ]
 optional-dependencies.type-checkers = [
   "gamesheet-sdk-py[mypy,pyright]",
