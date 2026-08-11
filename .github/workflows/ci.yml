@@ -12,9 +12,10 @@
 #   - Concurrency: Cancels previous runs for the same branch
 #
 # Jobs: 1 job × 4 Python versions = 4 total runs
-#   - sanity: pip install + basic import test via tox
+#   - sanity: install + console-script smoke test via uv
 #
-# Each job runs: tox -e py3XX (installs package and runs --version check)
+# Each job runs: uv run gamesheet-admin --version and uv run gamesheet-teams
+# --version, which installs the project and proves both entry points import.
 # ==============================================================================
 
 name: CI

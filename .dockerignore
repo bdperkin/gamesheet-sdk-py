@@ -62,8 +62,6 @@ env/
 coverage.xml
 htmlcov/
 .uv/
-.tox/
-.nox/
 .hypothesis/
 nosetests.xml
 test-results/
@@ -129,7 +127,6 @@ _autosummary/
 
 # Build tools
 Makefile
-tox.ini
 
 # Editor configs
 .editorconfig

@@ -16,10 +16,10 @@
 #
 # Tools run in check mode in CI. To apply fixes locally:
 #   - make fix (runs mdformat in write mode)
-#   - tox -e mdformat (formats in place)
+#   - mdformat (formats in place)
 #   - pre-commit run --all-files (auto-fixes Markdown files)
 #
-# Each job runs: tox -e [tool]
+# Each job runs: uv run --extra [tool] [tool]
 # ==============================================================================
 name: Documentation & Markdown Tools
 

@@ -18,7 +18,7 @@
 #   - @pytest.mark.vcr: Replays HTTP from tests/cassettes/
 #   - @pytest.mark.browser: Headless Chromium via pytest-playwright
 #
-# Each job runs: tox -e pytest (pytest --cov with 100% coverage target)
+# Each job runs: uv run --extra pytest pytest --cov (100% coverage target)
 # ==============================================================================
 
 name: Run all tests

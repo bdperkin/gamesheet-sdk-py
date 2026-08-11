@@ -76,7 +76,7 @@ API documentation is regenerated automatically:
 - **During `make docs`** - The two-pass build runs `generate_api_docs.py` before each pass
 - **During `make docs-serve`** - The live-reload server watches `src/gamesheet_sdk/` for changes
 - **During `make docs-lint`** - Ensures docs are fresh before linting
-- **In CI/CD** - GitHub Actions runs the same tox environments that regenerate docs
+- **In CI/CD** - `docs.yml` runs `generate_api_docs.py` via `uv run --extra docs` before every build
 
 #### 2.1.3. Freshness checking
 
