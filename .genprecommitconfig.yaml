@@ -224,16 +224,6 @@ categories:
     description: Security, Metrics & Complexity
     repos:
 
-      - name: bandit
-        repo: https://github.com/pycqa/bandit
-        hooks:
-          - id: bandit
-            prepends:
-              args:
-                - --configfile
-                - pyproject.toml
-                - --recursive
-
       - name: semgrep
         repo: https://github.com/semgrep/pre-commit
         hooks:

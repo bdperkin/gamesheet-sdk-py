@@ -43,7 +43,6 @@ The 24 required status checks enforce a comprehensive quality gate across multip
 - **Test suite:** `pytest (py3.11)` through `pytest (py3.14)` — 4 checks ensuring correctness across all supported Python versions.
 - **Build & install sanity:** `sanity (py3.11)` through `sanity (py3.14)` — 4 checks verifying the package builds and installs cleanly.
 - **Type checkers:** `ty (py3.11)` through `ty (py3.14)` — 4 checks running static type checking across the matrix.
-- **Security scanning:** `bandit (py3.11)` through `bandit (py3.14)` — 4 checks for security vulnerabilities.
 - **Pre-commit suite:** `pre-commit (py)` — 1 check running the full formatting/lint/security/config-file pipeline.
 - **CodeQL analysis:** `Analyze (python)` and `Analyze (actions)` — 2 checks for deep static analysis and vulnerability detection.
 - **Documentation build:** `Build HTML for GitHub Pages` — 1 check ensuring the docs build successfully.

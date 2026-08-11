@@ -495,7 +495,7 @@ docs: add CONTRIBUTING.md with comprehensive guidelines
    - Pre-commit hooks
    - Type checker (ty)
    - Linters (ruff, blocklint)
-   - Security scans (bandit, CodeQL, Semgrep, Trivy, OSV-Scanner)
+   - Security scans (CodeQL, Semgrep, Trivy, OSV-Scanner)
    - Documentation build
    - Codecov upload and coverage enforcement
 
@@ -599,7 +599,6 @@ Run specific tools in isolated environments with `uv run`:
 ```bash
 uv run --extra ty ty check
 uv run --extra ruff ruff check .
-uv run --extra bandit bandit -c pyproject.toml -r src/
 ```
 
 ## 13. Getting Help

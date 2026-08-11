@@ -139,7 +139,6 @@ uv run --extra ty ty check
 uv run pre-commit run --all-files
 
 # Individual linters
-uv run --extra bandit bandit -c pyproject.toml -r src/
 uv run --extra semgrep semgrep scan --config auto --error
 ```
 

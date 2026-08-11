@@ -145,7 +145,6 @@ project plus only that extra. Each `pyproject.toml` `optional-dependencies.*` gr
 ```bash
 uv run --extra pytest pytest --cov            # tests + coverage gate
 uv run --extra ty ty check
-uv run --extra bandit bandit -c pyproject.toml -r src/
 uv run --extra radon radon cc --show-complexity --average .
 uv run --extra docs sphinx-build -b html docs docs/_build/html
 uv run --extra dev pre-commit run --all-files
@@ -236,8 +235,8 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   `push: branches: [main]`), and `comprehensive-tests.yml` (nightly `schedule` trigger plus manual `workflow_dispatch`).
 
   **Keep required status checks in sync with job names (gotcha worth preserving):** `main`'s branch protection pins a list of required status-check contexts by
-  *exact job name* (`pytest (py3.11)`, `bandit (py3.13)`, `pre-commit (py)`, …). That list lives in **repo settings, not in the tree**, so nothing in a PR diff
-  reveals it and no hook validates it. Renaming, removing, or re-matrixing a job therefore desynchronizes it silently, and it fails in both directions:
+  *exact job name* (`pytest (py3.11)`, `pre-commit (py)`, …). That list lives in **repo settings, not in the tree**, so nothing in a PR diff reveals it and no
+  hook validates it. Renaming, removing, or re-matrixing a job therefore desynchronizes it silently, and it fails in both directions:
 
   - **Required but never reported** — the context can never turn green, so *every* PR sits at `mergeStateStatus: BLOCKED` with all its checks passing and no
     hint as to why.
@@ -263,8 +262,8 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   - **Code cleaners / dead-code:** vulture, deptry.
   - **Code-quality linters / static analysis:** blocklint.
   - **Type checkers:** ty (`[tool.ty]`).
-  - **Security / metrics / complexity:** bandit (`[tool.bandit]`), semgrep (`--config auto --error`), xenon (complexity gate — see below), radon (cc / raw / mi
-    / hal as separate subcommands).
+  - **Security / metrics / complexity:** semgrep (`--config auto --error`), xenon (complexity gate — see below), radon (cc / raw / mi / hal as separate
+    subcommands).
   - **Docstring / doc tools:** codespell, interrogate, mdformat (+ mdformat-gfm), pymarkdown.
   - **Configuration-file linters / formatters:** yamllint (`-d relaxed`), yamlfix, pyproject-fmt, validate-pyproject, editorconfig-checker (+ -system variant),
     pyroma.
@@ -364,7 +363,6 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 
 - **Security scanning.** The project uses multiple security tools in CI:
 
-  - **bandit** — Python code security scanner (via pre-commit and dedicated workflow)
   - **GitGuardian** — secret scanning in commits
   - **Semgrep** — SAST (static application security testing)
   - **Trivy** — container vulnerability scanning with `.trivyignore.yaml` for suppressed CVEs

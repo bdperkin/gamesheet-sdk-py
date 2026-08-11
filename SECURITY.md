@@ -177,7 +177,7 @@ The project runs automated security and quality checks on every commit:
   - Detailed CVE reporting
   - ([workflow](https://github.com/bdperkin/gamesheet-sdk-py/blob/main/.github/workflows/security-trivy.yml))
 
-- **Bandit:** Static security analysis for Python code
+- **Security, Metrics, and Complexity:** Static security analysis for Python code
   ([workflow](https://github.com/bdperkin/gamesheet-sdk-py/blob/main/.github/workflows/security-_metrics_-_complexity.yml))
 
 - **CodeQL:** Semantic code analysis for security vulnerabilities

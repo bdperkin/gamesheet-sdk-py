@@ -85,8 +85,8 @@ The package declares many extras via `[project.optional-dependencies]`. The two 
 - **`dev`** — minimal development setup: `pre-commit`, `pre-commit-uv`, `uv`.
 - **`docs`** — Sphinx and its plugins: `sphinx`, `furo`, `myst-parser[linkify]`, `sphinx-copybutton`, `sphinx-design`, `sphinx-click`, `sphinx-lint`,
   `sphinx-autobuild`.
-- **`all`** — includes every tool extra declared in the project (pytest, ty, bandit, formatters, linters, type checkers, etc.). This is the one-line install for
-  full local development capability.
+- **`all`** — includes every tool extra declared in the project (pytest, ty, formatters, linters, type checkers, etc.). This is the one-line install for full
+  local development capability.
 
 ### 5.1. Core extras
 
@@ -104,7 +104,7 @@ The package declares many extras via `[project.optional-dependencies]`. The two 
 Each linter, formatter, type checker, and quality tool is isolated to its own extra. Examples include:
 
 - **Formatters**: `ruff`
-- **Linters**: `bandit`, `blocklint`, `vulture`, `deptry`, `semgrep`
+- **Linters**: `blocklint`, `vulture`, `deptry`, `semgrep`
 - **Doc tools**: `codespell`, `interrogate`, `pymarkdown`, `mdformat`
 - **Config file tools**: `yamllint`, `yamlfix`, `pyproject-fmt`, `validate-pyproject`, `editorconfig-checker`, `pyroma`
 - **Metrics**: `radon`
