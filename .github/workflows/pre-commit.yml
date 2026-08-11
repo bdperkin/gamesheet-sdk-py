@@ -21,8 +21,7 @@
 #   - no-commit-to-branch is skipped in CI because GitHub Actions checks out
 #     main by name on push events, so HEAD is on main and the hook would always
 #     fail. The guard already ran locally on pre-commit/pre-push.
-#   - Three hooks are skipped on pre-commit.ci but run here:
-#     - pyright (dependencies exceed 250 MiB tier limit on pre-commit.ci)
+#   - One hook is skipped on pre-commit.ci but run here:
 #     - pyroma (requires python -m venv, which fails on pre-commit.ci's Python build)
 #
 # This workflow ensures all quality gates pass before code reaches main.

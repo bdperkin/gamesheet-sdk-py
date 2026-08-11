@@ -284,10 +284,14 @@ def _resolve_with_all_inputs(
     if start_raw and end_raw:
         return _resolve_start_and_end(start_raw, end_raw)
 
-    if start_raw and duration is not None:
+    if start_raw is not None and duration is not None:
         return _resolve_start_and_duration(start_raw, duration)
 
-    return _resolve_end_and_duration(end_raw, duration)  # type: ignore[arg-type]
+    if end_raw is not None and duration is not None:
+        return _resolve_end_and_duration(end_raw, duration)
+
+    msg = "At least 2 of --start-datetime, --end-datetime, --duration are required."
+    raise click.UsageError(msg)
 
 
 def resolve_create_times(
@@ -347,8 +351,11 @@ def _resolve_single_update(
         validate_end_after_start(start_dt, end_dt)
         return current_start, _format_utc_iso(end_dt)
 
+    if duration is None:
+        msg = "Duration is required."
+        raise click.UsageError(msg)
     start_dt = parse_flexible_datetime(current_start)
-    end_dt = start_dt + datetime.timedelta(minutes=duration)  # type: ignore[arg-type]
+    end_dt = start_dt + datetime.timedelta(minutes=duration)
     return _format_utc_iso(start_dt), _format_utc_iso(end_dt)
 
 

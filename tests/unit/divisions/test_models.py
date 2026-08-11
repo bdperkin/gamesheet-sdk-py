@@ -14,13 +14,15 @@ from tests.helpers import DIVISION_ID, SEASON_ID
 
 def test_division_model_ignores_unknown_attributes() -> None:
     """Verify that Division model ignores unknown attributes."""
-    d = Division(
-        id=DIVISION_ID,
-        season_id=SEASON_ID,
-        title="U13 AAA",
-        created_at=datetime(2024, 1, 1, tzinfo=UTC),
-        updated_at=datetime(2024, 1, 1, tzinfo=UTC),
-        unexpected_future_attr="ignored",
+    d = Division.model_validate(
+        {
+            "id": DIVISION_ID,
+            "season_id": SEASON_ID,
+            "title": "U13 AAA",
+            "created_at": datetime(2024, 1, 1, tzinfo=UTC),
+            "updated_at": datetime(2024, 1, 1, tzinfo=UTC),
+            "unexpected_future_attr": "ignored",
+        }
     )
     assert d.id == DIVISION_ID
     assert d.season_id == SEASON_ID

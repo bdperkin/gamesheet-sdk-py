@@ -36,12 +36,10 @@ ci:
     - editorconfig-checker
     - identity
     - mdformat
-    - mypy
-    - pyrefly-check
-    - pyright
     - pyroma
     - semgrep
     - semgrep-ci
+    - ty
     - uv-lock
 
 # ==============================================================================
@@ -745,27 +743,6 @@ repos:
         types:
           - text
 
-  - repo: https://github.com/facebook/pyrefly-pre-commit
-    rev: 1.2.0
-    hooks:
-      - id: pyrefly-check
-        name: pyrefly check
-        description: Run `pyrefly check` for Python type checking.
-        entry: pyrefly check
-        language: python
-        types_or:
-          - python
-          - pyi
-        pass_filenames: false
-        require_serial: true
-        stages:
-          - pre-commit
-          - pre-merge-commit
-          - pre-push
-          - manual
-        additional_dependencies:
-          - gamesheet-sdk-py[pyrefly]
-
   # ----------------------------------------------------------------------------
   # Security, Metrics & Complexity
   # ----------------------------------------------------------------------------
@@ -826,42 +803,27 @@ repos:
   # Type Checkers
   # ----------------------------------------------------------------------------
 
-  - repo: https://github.com/robertcraigie/pyright-python
-    rev: v1.1.411
+  - repo: https://github.com/astral-sh/ty-pre-commit
+    rev: v0.0.70
     hooks:
-      - id: pyright
-        name: pyright
-        description: Python command line wrapper for pyright, a static type checker
-        entry: pyright
+      - id: ty
+        name: ty
+        description: Run "ty" for extremely fast Python type checking
+        entry: uv check --quiet --preview-features=check-command --ty-version=0.0.70
         language: python
         types_or:
           - python
           - pyi
-        require_serial: true
-        additional_dependencies:
-          - gamesheet-sdk-py[pyright,tools]
-        minimum_pre_commit_version: 2.9.2
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.3.0
-    hooks:
-      - id: mypy
-        name: mypy
-        description: ""
-        entry: mypy
-        language: python
-        types_or:
-          - python
-          - pyi
+          - jupyter
         args:
-          - --strict
-          - --ignore-missing-imports
-          - --scripts-are-modules
+          - --project
+          - .
+        pass_filenames: false
+        always_run: true
         require_serial: true
         additional_dependencies:
-          - gamesheet-sdk-py[mypy,tools]
+          - gamesheet-sdk-py[tools,ty]
         minimum_pre_commit_version: 2.9.2
-        exclude: ^tools/(syncdeps|genprecommitconfig)$
 
   # ----------------------------------------------------------------------------
   # Pre-Commit Hook Sync

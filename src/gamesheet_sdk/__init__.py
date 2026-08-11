@@ -41,8 +41,9 @@ not publish a public API, so this SDK automates the WebUI via HTTP requests and 
 
 **Type safety:**
 
-This package ships with a ``py.typed`` marker and enforces ``mypy --strict``. All public APIs are fully
-type-annotated. **Version resolution:** The package version is managed in ``pyproject.toml`` by
+This package ships with a ``py.typed`` marker and enforces type checking via Astral ``ty``.
+All public APIs are fully type-annotated.
+**Version resolution:** The package version is managed in ``pyproject.toml`` by
 python-semantic-release and accessible via standard importlib.metadata.
 """
 

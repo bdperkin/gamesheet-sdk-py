@@ -8,8 +8,8 @@ from __future__ import annotations
 import logging
 import re
 
-from yamlfix import fix_code  # pyright: ignore[reportMissingImports]
-from yamlfix.model import YamlfixConfig  # pyright: ignore[reportMissingImports]
+from yamlfix import fix_code
+from yamlfix.model import YamlfixConfig
 
 from shared.toml import PYPROJECT_PATH, load_toml
 

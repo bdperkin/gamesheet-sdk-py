@@ -121,7 +121,7 @@ def test_render_list_command_with_columns_filter() -> None:
 def test_render_get_command_with_pydantic_model() -> None:
     """Test render_get_command with a pydantic model."""
     output_file = Path(tempfile.gettempdir()) / "output.json"
-    model = SampleModel(id=LEAGUE_ID, name="Pydantic Test", extra="Extra data")
+    model = SampleModel.model_validate({"id": LEAGUE_ID, "name": "Pydantic Test", "extra": "Extra data"})
     render_get_command(model, "json", str(output_file), None)
     content = output_file.read_text()
     assert LEAGUE_ID in content

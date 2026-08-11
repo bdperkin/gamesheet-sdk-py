@@ -111,8 +111,8 @@ pytest --cov
 # Lint / format / hooks across the whole repo
 pre-commit run --all-files
 
-# Type check (strict mode is on)
-mypy src
+# Type check (Astral ty)
+ty check
 ```
 
 ### 2.1. Makefile shortcuts
@@ -125,7 +125,7 @@ make test          # full pytest suite
 make test-fast     # pytest -m "not browser"
 make test-cov      # pytest --cov
 make lint          # pre-commit run --all-files
-make type          # mypy --strict src
+make typecheck     # ty check
 make fix           # apply formatters in place (ruff, mdformat)
 make metrics       # radon complexity + maintainability report
 make docs          # Sphinx HTML build (two-pass strict)
@@ -144,9 +144,7 @@ project plus only that extra. Each `pyproject.toml` `optional-dependencies.*` gr
 
 ```bash
 uv run --extra pytest pytest --cov            # tests + coverage gate
-uv run --extra mypy mypy --config-file pyproject.toml src/
-uv run --extra pyright pyright
-uv run --extra pyrefly pyrefly check
+uv run --extra ty ty check
 uv run --extra bandit bandit -c pyproject.toml -r src/
 uv run --extra radon radon cc --show-complexity --average .
 uv run --extra docs sphinx-build -b html docs docs/_build/html
@@ -168,7 +166,7 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 - **`src/` layout.** Tests import via the installed package; `pyproject.toml` also sets `pythonpath = ["src"]` so `pytest` works without an install, but
   workflows that need the CLI or Playwright still require `pip install -e ".[all]"` (or at minimum `[dev,pytest]`).
 
-- **Typed package.** `py.typed` is shipped (PEP 561) and `[tool.mypy] strict = true` is enabled — all new code must be fully annotated and pass `mypy --strict`.
+- **Typed package.** `py.typed` is shipped (PEP 561) and `[tool.ty]` is configured — all new code must be fully annotated and pass `ty check`.
 
 - **Automated versioning and changelog.** The project uses `python-semantic-release` (PSR) to fully automate version bumping, CHANGELOG generation, and releases
   based on Conventional Commits. **No manual tagging required** — simply merge to `main` and PSR handles everything:
@@ -210,8 +208,8 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   in `ci.skip` — they still run in GitHub Actions where there is no 250 MiB tier limit and `python -m venv` works. The three main reasons a hook lands in the
   skip list:
 
-  - **Deps exceed the 250 MiB tier** — `pyright`, `deptry`,
-  - **Requires runtime deps via `additional_dependencies`** — `mypy`, `pyrefly-check`, `semgrep`.
+  - **Deps exceed the 250 MiB tier** — `deptry`.
+  - **Requires runtime deps via `additional_dependencies`** — `ty`, `semgrep`.
   - **Needs `python -m venv`** — `pyroma` (introspects via `python -m build`; pre-commit.ci's bundled Python lacks `ensurepip`).
 
   Also skipped: `editorconfig-checker`, `mdformat`.
@@ -265,8 +263,8 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 
   - **Code style / formatters (auto-fix):** ruff (110).
   - **Code cleaners / dead-code:** vulture, deptry.
-  - **Code-quality linters / static analysis:** pyrefly, blocklint.
-  - **Type checkers:** mypy (`--strict`), pyright.
+  - **Code-quality linters / static analysis:** blocklint.
+  - **Type checkers:** ty (`[tool.ty]`).
   - **Security / metrics / complexity:** bandit (`[tool.bandit]`), semgrep (`--config auto --error`), xenon (complexity gate — see below), radon (cc / raw / mi
     / hal as separate subcommands).
   - **Docstring / doc tools:** codespell, interrogate, mdformat (+ mdformat-gfm), pymarkdown.
@@ -275,10 +273,10 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   - **Meta:** sync-pre-commit-deps.
 
   Several hooks need the project's runtime deps or tool-specific plugins to resolve imports inside the isolated hook venv. Every such hook's
-  `additional_dependencies` is consolidated to a single `gamesheet-sdk-py[<extras>]` self-reference (e.g. `gamesheet-sdk-py[mypy,tools]`,
-  `gamesheet-sdk-py[pyright,tools]`, `gamesheet-sdk-py[pyrefly]`, `gamesheet-sdk-py[deptry]`, `gamesheet-sdk-py[mdformat]`) so `pyproject.toml`'s
-  `optional-dependencies.*` groups are the single source of truth for what each tool needs. Pyroma is skipped on pre-commit.ci (see above) and runs locally / in
-  GitHub Actions where the project's build backend (`hatchling`) is already present.
+  `additional_dependencies` is consolidated to a single `gamesheet-sdk-py[<extras>]` self-reference (e.g. `gamesheet-sdk-py[tools,ty]`,
+  `gamesheet-sdk-py[deptry]`, `gamesheet-sdk-py[mdformat]`) so `pyproject.toml`'s `optional-dependencies.*` groups are the single source of truth for what each
+  tool needs. Pyroma is skipped on pre-commit.ci (see above) and runs locally / in GitHub Actions where the project's build backend (`hatchling`) is already
+  present.
 
 - **Complexity gate.** A `xenon` pre-commit hook enforces `--max-absolute=A --max-modules=A --max-average=B` against `src/` on every commit
   (`pass_filenames: false`, runs the whole package as one analysis). Translation: **every block (function / method / class) must stay at cyclomatic-complexity

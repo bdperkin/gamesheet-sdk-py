@@ -13,15 +13,17 @@ from tests.helpers import SEASON_ID
 
 def test_referee_model_ignores_unknown_attributes() -> None:
     """Test that Referee model ignores unknown attributes."""
-    r = Referee(
-        id="101",
-        season_id=SEASON_ID,
-        first_name="John",
-        last_name="Smith",
-        email="john.smith@example.com",
-        created_at=datetime(2024, 1, 1, tzinfo=UTC),
-        updated_at=datetime(2024, 1, 1, tzinfo=UTC),
-        unexpected_future_attr="ignored",
+    r = Referee.model_validate(
+        {
+            "id": "101",
+            "season_id": SEASON_ID,
+            "first_name": "John",
+            "last_name": "Smith",
+            "email": "john.smith@example.com",
+            "created_at": datetime(2024, 1, 1, tzinfo=UTC),
+            "updated_at": datetime(2024, 1, 1, tzinfo=UTC),
+            "unexpected_future_attr": "ignored",
+        }
     )
     assert r.first_name == "John"
     assert r.last_name == "Smith"

@@ -2,23 +2,20 @@
 # ==============================================================================
 # Type Checkers - Static Type Analysis
 # ==============================================================================
-# Purpose: Runs mypy (--strict) and pyright type checkers to catch type errors
-#          before runtime. Both tools analyze type hints across the codebase.
+# Purpose: Runs ty type checker to catch type errors before runtime.
 #
 # Triggers:
 #   - push to main branch (skip if only CHANGELOG/version changes)
 #   - pull_request (opened, reopened, synchronize)
 #   - Concurrency: Cancels previous runs for the same branch
 #
-# Jobs: 2 tools × 4 Python versions = 8 total runs
-#   - mypy: Industry-standard type checker (--strict mode enforced)
-#   - pyright: Fast Microsoft type checker (TypeScript-based)
+# Jobs: ty × 4 Python versions = 4 total runs
+#   - ty: Universal, high-performance static type checker for Python
 #
 # Configuration:
-#   - mypy: [tool.mypy] in pyproject.toml (strict = true)
-#   - pyright: [tool.pyright] in pyproject.toml
+#   - ty: [tool.ty] in pyproject.toml
 #
-# Each job runs: uv run --extra [tool] [tool]
+# Each job runs: uv run --extra ty ty check
 # ==============================================================================
 
 name: Type Checkers
@@ -49,8 +46,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
-  mypy:
-    name: mypy (py${{ matrix.python-version }})
+  ty:
+    name: ty (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -71,30 +68,5 @@ jobs:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
 
-      - name: Run mypy via uv
-        run: uv run --extra mypy mypy --config-file pyproject.toml src/
-
-  pyright:
-    name: pyright (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          enable-cache: true
-
-      - name: Run pyright via uv
-        run: uv run --extra pyright pyright
+      - name: Run ty via uv
+        run: uv run --extra ty ty check

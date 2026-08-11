@@ -4,7 +4,7 @@
     "\\.venv",
     "\\.local",
     "\\.pytest_cache",
-    "\\.mypy_cache",
+    "\\.ty_cache",
     "\\.ruff_cache",
     "\\.uv",
     "__pycache__",

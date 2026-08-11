@@ -27,7 +27,7 @@
 #
 # Architecture:
 #   - Minimal install ([pytest] extras only, no full [all] to keep CI fast)
-#   - Caches .pytest_cache, .mypy_cache, .ruff_cache for faster runs
+#   - Caches .pytest_cache, .ruff_cache for faster runs
 #   - Runs pytest with --cov --cov-report=xml --cov-report=term --junitxml=junit-py${PYTHON_VERSION}.xml
 #   - Uploads coverage.xml twice (once with unittests flag, once with py3-XX flag) because
 #     Codecov requires one flag per upload to populate both the aggregate view and the

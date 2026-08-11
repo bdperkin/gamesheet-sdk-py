@@ -96,25 +96,25 @@ def create_coach(
         Coach: Return value.
     """
     endpoint = f"/api/seasons/{season_id}/coaches"
-    payload: dict[str, Any] = {
-        "data": {
-            "type": "coaches",
-            "attributes": {
-                "first_name": first_name,
-                "last_name": last_name,
-            },
+    data: dict[str, Any] = {
+        "type": "coaches",
+        "attributes": {
+            "first_name": first_name,
+            "last_name": last_name,
         },
     }
     if external_id:
-        payload["data"]["attributes"]["external_id"] = external_id
+        data["attributes"]["external_id"] = external_id
 
     if position:
-        payload["data"]["attributes"]["position"] = position
+        data["attributes"]["position"] = position
 
     if team_id:
-        payload["data"]["relationships"] = {
+        data["relationships"] = {
             "teams": {"data": [{"type": "teams", "id": team_id}]},
         }
+
+    payload: dict[str, Any] = {"data": data}
 
     response = session.post(endpoint, headers=JSONAPI_HEADERS, json=payload)
     handle_response(response, endpoint, "POST coach")

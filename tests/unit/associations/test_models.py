@@ -12,12 +12,14 @@ from gamesheet_sdk.admin.associations import Association
 
 def test_association_model_ignores_unknown_attributes() -> None:
     """Association model should ignore unknown attributes for forward compatibility."""
-    a = Association(
-        id="11",
-        title="X",
-        logo="",
-        created_at=datetime(2023, 1, 1, tzinfo=UTC),
-        updated_at=datetime(2023, 1, 1, tzinfo=UTC),
-        unexpected_future_attr="ignored",
+    a = Association.model_validate(
+        {
+            "id": "11",
+            "title": "X",
+            "logo": "",
+            "created_at": datetime(2023, 1, 1, tzinfo=UTC),
+            "updated_at": datetime(2023, 1, 1, tzinfo=UTC),
+            "unexpected_future_attr": "ignored",
+        }
     )
     assert a.title == "X"

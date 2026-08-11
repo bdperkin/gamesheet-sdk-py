@@ -244,29 +244,25 @@ make fix
 The project uses comprehensive linting:
 
 - **ruff** with ALL rule groups enabled (Google docstring style, PEP 8, complexity, etc.)
-- **pyrefly** for architectural health
 - **blocklint** for inclusive language
 
 #### 6.1.4. Type Checking
 
-All code must pass strict type checking:
+All code must pass static type checking via Astral `ty`:
 
 ```bash
-# mypy (strict mode)
-uv run mypy --strict src
-
-# pyright
-uv run --extra pyright pyright
+# ty check
+uv run --extra ty ty check
 
 # Or use the Makefile
-make type
+make typecheck
 ```
 
 **Requirements:**
 
 - All functions, methods, and variables must have type annotations
 - No `Any` types without justification
-- Pass `mypy --strict` with zero errors
+- Pass `ty check` with zero errors
 - The project ships with `py.typed` (PEP 561)
 
 ## 7. Testing Requirements
@@ -497,8 +493,8 @@ docs: add CONTRIBUTING.md with comprehensive guidelines
    - Build and install sanity check
    - Test suite (Python 3.11-3.14 matrix)
    - Pre-commit hooks
-   - Type checkers (mypy, pyright)
-   - Linters (ruff, pyrefly, blocklint)
+   - Type checker (ty)
+   - Linters (ruff, blocklint)
    - Security scans (bandit, CodeQL, Semgrep, Trivy, OSV-Scanner)
    - Documentation build
    - Codecov upload and coverage enforcement
@@ -601,7 +597,7 @@ def login(config, email, password):
 Run specific tools in isolated environments with `uv run`:
 
 ```bash
-uv run --extra mypy mypy --config-file pyproject.toml src/
+uv run --extra ty ty check
 uv run --extra ruff ruff check .
 uv run --extra bandit bandit -c pyproject.toml -r src/
 ```

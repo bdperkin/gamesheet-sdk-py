@@ -85,28 +85,26 @@ The package declares many extras via `[project.optional-dependencies]`. The two 
 - **`dev`** — minimal development setup: `pre-commit`, `pre-commit-uv`, `uv`.
 - **`docs`** — Sphinx and its plugins: `sphinx`, `furo`, `myst-parser[linkify]`, `sphinx-copybutton`, `sphinx-design`, `sphinx-click`, `sphinx-lint`,
   `sphinx-autobuild`.
-- **`all`** — includes every tool extra declared in the project (pytest, mypy, bandit, formatters, linters, type checkers, etc.). This is the one-line install
-  for full local development capability.
+- **`all`** — includes every tool extra declared in the project (pytest, ty, bandit, formatters, linters, type checkers, etc.). This is the one-line install for
+  full local development capability.
 
 ### 5.1. Core extras
 
-| Extra        | Contents                                                                                                       |
-| ------------ | -------------------------------------------------------------------------------------------------------------- |
-| `dev`        | `pre-commit`, `pre-commit-uv`, `uv`                                                                            |
-| `docs`       | `sphinx`, `furo`, `myst-parser[linkify]`, `sphinx-copybutton`, `sphinx-design`, `sphinx-click`, `sphinx-lint`, |
-|              | `sphinx-autobuild`                                                                                             |
-| `pytest`     | `pytest`, `pytest-cov`, `pytest-playwright`, `pytest-recording`, `responses`                                   |
-| `type-stubs` | `types-pyyaml`, `types-requests`, `types-tabulate`                                                             |
-| `mypy`       | `mypy`, `gamesheet-sdk-py[pytest,type-stubs]`                                                                  |
-| `pyright`    | `pyright`, `gamesheet-sdk-py[pytest]`                                                                          |
-| `all`        | Includes every extra listed in this table plus all individual tool extras                                      |
+| Extra    | Contents                                                                                                       |
+| -------- | -------------------------------------------------------------------------------------------------------------- |
+| `dev`    | `pre-commit`, `pre-commit-uv`, `uv`                                                                            |
+| `docs`   | `sphinx`, `furo`, `myst-parser[linkify]`, `sphinx-copybutton`, `sphinx-design`, `sphinx-click`, `sphinx-lint`, |
+|          | `sphinx-autobuild`                                                                                             |
+| `pytest` | `pytest`, `pytest-cov`, `pytest-playwright`, `pytest-recording`, `responses`                                   |
+| `ty`     | `ty`, `gamesheet-sdk-py[pytest]`                                                                               |
+| `all`    | Includes every extra listed in this table plus all individual tool extras                                      |
 
 ### 5.2. Individual tool extras
 
 Each linter, formatter, type checker, and quality tool is isolated to its own extra. Examples include:
 
 - **Formatters**: `ruff`
-- **Linters**: `bandit`, `pyrefly`, `blocklint`, `vulture`, `deptry`, `semgrep`
+- **Linters**: `bandit`, `blocklint`, `vulture`, `deptry`, `semgrep`
 - **Doc tools**: `codespell`, `interrogate`, `pymarkdown`, `mdformat`
 - **Config file tools**: `yamllint`, `yamlfix`, `pyproject-fmt`, `validate-pyproject`, `editorconfig-checker`, `pyroma`
 - **Metrics**: `radon`

@@ -10,7 +10,7 @@ import logging
 import operator
 import re
 from html.parser import HTMLParser
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import requests
 from packaging.specifiers import InvalidSpecifier, SpecifierSet
@@ -144,7 +144,7 @@ _SIMPLE_ACCEPT = (
 )
 
 
-def _extract_versions_from_simple_json(data: dict) -> dict[str, str | None]:  # type: ignore[type-arg]
+def _extract_versions_from_simple_json(data: dict[str, Any]) -> dict[str, str | None]:
     """Extract versions and requires-python from a PEP 691 JSON response.
 
     Returns:

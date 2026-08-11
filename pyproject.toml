@@ -108,35 +108,17 @@ optional-dependencies.editorconfig-checker = [
   "editorconfig-checker==3.11.1",
 ]
 optional-dependencies.formatters = [
-  "gamesheet-sdk-py[editorconfig-checker,pyproject-fmt,pyroma,validate-pyproject,yamlfix,yamllint]",
+  "gamesheet-sdk-py[editorconfig-checker,pyroma,validate-pyproject,yamlfix,yamllint]",
 ]
 optional-dependencies.interrogate = [
   "interrogate==1.7.0",
 ]
 optional-dependencies.markdown-tools = [
-  "gamesheet-sdk-py[mdformat,pymarkdown]",
+  "gamesheet-sdk-py[mdformat]",
 ]
 optional-dependencies.mdformat = [
   "mdformat-gfm==1.0.0",
   "mdformat-pyproject==0.1.1",
-]
-optional-dependencies.mypy = [
-  "gamesheet-sdk-py[pytest,type-stubs]",
-  "mypy==2.3.0",
-]
-optional-dependencies.pymarkdown = [
-  "pymarkdownlnt==0.9.39",
-]
-optional-dependencies.pyproject-fmt = [
-  "pyproject-fmt==2.27.0",
-]
-optional-dependencies.pyrefly = [
-  "gamesheet-sdk-py[pytest]",
-  "pyrefly==1.2.0",
-]
-optional-dependencies.pyright = [
-  "gamesheet-sdk-py[pytest]",
-  "pyright==1.1.411",
 ]
 optional-dependencies.pyroma = [
   "pyroma==5.0.1",
@@ -162,7 +144,7 @@ optional-dependencies.semgrep = [
   "semgrep==1.172.0",
 ]
 optional-dependencies.static-analysis = [
-  "gamesheet-sdk-py[blocklint,pyrefly,ruff]",
+  "gamesheet-sdk-py[blocklint,ruff,ty]",
 ]
 optional-dependencies.tools = [
   "gamesheet-sdk-py[dev,yamlfix]",
@@ -171,45 +153,12 @@ optional-dependencies.tools = [
   "tomli==2.4.1",
   "tomlkit==0.13.3",
 ]
-optional-dependencies.type-checkers = [
-  "gamesheet-sdk-py[mypy,pyright]",
+optional-dependencies.ty = [
+  "gamesheet-sdk-py[pytest]",
+  "ty==0.0.32",
 ]
-optional-dependencies.type-stubs = [
-  "types-attrs==19.1.0",
-  "types-babel==2.11.0.15",
-  "types-beautifulsoup4==4.12.0.20250516",
-  "types-boltons==26.1.0.20260724",
-  "types-certifi==2021.10.8.3",
-  "types-cffi==2.0.0.20260518",
-  "types-click==7.1.8",
-  "types-colorama==0.4.15.20260508",
-  "types-cryptography==3.3.23.2",
-  "types-deprecated==1.3.1.20260728",
-  "types-docutils==0.22.3.20260724",
-  "types-filelock==3.2.7",
-  "types-greenlet==3.5.0.20260518",
-  "types-jinja2==2.11.9",
-  "types-jsonschema==4.26.0.20260518",
-  "types-markupsafe==1.1.10",
-  "types-mypy-extensions==1.1.0.20260724",
-  "types-peewee==4.3.0.20260807",
-  "types-pluggy==1.2.0.20240106",
-  "types-polib==1.2.0.20260518",
-  "types-protobuf==7.34.1.20260518",
-  "types-pygments==2.20.0.20260728",
-  "types-pyjwt==1.7.1",
-  "types-python-dateutil==2.9.0.20260807",
-  "types-python-slugify==8.0.2.20240310",
-  "types-pywin32==312.0.0.20260724",
-  "types-pyyaml==6.0.12.20260724",
-  "types-regex==2026.7.19.20260720",
-  "types-requests==2.33.0.20260712",
-  "types-setuptools==83.0.0.20260807",
-  "types-six==1.17.0.20260724",
-  "types-tabulate==0.10.0.20260508",
-  "types-tzdata==2026.0.0.20260408",
-  "types-tzlocal==5.1.0.1",
-  "types-urllib3==1.26.25.14",
+optional-dependencies.type-checkers = [
+  "gamesheet-sdk-py[ty]",
 ]
 optional-dependencies.validate-pyproject = [
   "validate-pyproject==0.25",
@@ -402,11 +351,8 @@ optional_dependencies_dev_groups = [
   "interrogate",
   "markdown-tools",
   "mdformat",
-  "mypy",
   "pymarkdown",
   "pyproject-fmt",
-  "pyrefly",
-  "pyright",
   "pyroma",
   "pytest",
   "python-semantic-release",
@@ -415,8 +361,8 @@ optional_dependencies_dev_groups = [
   "semgrep",
   "static-analysis",
   "tools",
+  "ty",
   "type-checkers",
-  "type-stubs",
   "validate-pyproject",
   "vulture",
   "yamlfix",
@@ -545,84 +491,28 @@ check = true
 diff = true
 recursive = true
 
-## ## mypy - Industry-standard static type checker
-[tool.mypy]
-mypy_path = [
-  "src",
-  "tools",
-]
-exclude_gitignore = true
-python_version = "3.11"
-strict = true
-plugins = [
-  "pydantic.mypy",
-]
-overrides = [
-  # Third-party libraries: Ignore missing type stubs
-  { module = [
-    "_constants",
-    "pre_commit.clientlib",
-  ], ignore_missing_imports = true },
-]
-
-## ## pyrefly - Code health and quality reviewer
-[tool.pyrefly]
-python_version = "3.11"
-project-includes = [
-  "docs",
-  "src",
-  "tests",
-  "tools",
-]
-search-path = [
-  "docs",
-  "src",
-  "tests",
-  "tools",
-  ".",
-]
-
-## # -------------------------------------------------------------------------------------------------------------------
-## # Type Checkers
-## # -------------------------------------------------------------------------------------------------------------------
-## ## pyright - Fast Python type checker
-[tool.pyright]
-# Target environment settings.
-pythonVersion = "3.11"
-pythonPlatform = "Linux"
-# Optional: Keep test errors separate or less severe if they block CI.
-# typeCheckingMode = "basic"
-# Look into library code to extract type information if stubs are missing.
-useLibraryCodeForTypes = true
-# Directories or files to include for type checking.
-include = [
-  "docs",
-  "src",
-  "tests",
-  "tools",
-]
-# Directories or files to exclude from type checking.
-exclude = [
+[tool.ty]
+src.exclude = [
   ".local",
   ".pytest_cache",
   ".venv",
   "docs/_build",
 ]
-# Ignore errors inside specific files.
-ignore = []
-extraPaths = [
-  ".",
+src.include = [
   "docs",
   "src",
   "tests",
   "tools",
 ]
-reportGeneralTypeIssues = "error"
-# Override specific rules.
-reportMissingTypeStubs = "warning"
-reportUnknownMemberType = false
-executionEnvironments = [
-  { root = "tests", reportArgumentType = false, reportCallIssue = false },
+environment.extra-paths = [
+  "docs",
+  "tools",
+]
+rules.invalid-argument-type = "ignore"
+rules.not-subscriptable = "ignore"
+rules.unknown-argument = "ignore"
+analysis.allowed-unresolved-imports = [
+  "click.shell_completion",
 ]
 
 ## ## pytest - Testing framework
@@ -736,11 +626,6 @@ tag = true
 # production publish.
 upload_to_pypi = false
 upload_to_release = false
-
-[tool.mypy-pydantic]
-init_forbid_extra = true
-init_typed = true
-warn_required_dynamic_aliases = true
 
 ## ---------------------------------------------------------------------------------------------------------------------
 ## Non-Python Languages

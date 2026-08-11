@@ -55,8 +55,8 @@ def test_build_scoresheet_filename_none_values() -> None:
         id=456,
         status="completed",
         date="2026-07-20",
-        visitor=TeamInfo(id=3, title="", division_title=None),
-        home=TeamInfo(id=4, title="", division_title=""),
+        visitor=TeamInfo(id=3, title="", divisionTitle=None),
+        home=TeamInfo(id=4, title="", divisionTitle=""),
         game_number=None,
     )
 
