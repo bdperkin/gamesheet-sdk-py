@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+from http import HTTPStatus
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -48,7 +49,7 @@ def test_relative_url_resolves_against_base(config: Config) -> None:
     with Session(config) as sess:
         resp = sess.get("/api/leagues")
 
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK
     assert resp.json() == {"leagues": []}
 
 
@@ -80,9 +81,9 @@ def test_post_put_delete_resolve_too(config: Config) -> None:
         put_response = sess.put("/b")
         delete_response = sess.delete("/c")
 
-    assert post_response.status_code == 201
-    assert put_response.status_code == 204
-    assert delete_response.status_code == 204
+    assert post_response.status_code == HTTPStatus.CREATED
+    assert put_response.status_code == HTTPStatus.NO_CONTENT
+    assert delete_response.status_code == HTTPStatus.NO_CONTENT
 
 
 @responses.activate
@@ -226,7 +227,7 @@ def test_explicit_timeout_overrides_default(config: Config) -> None:
         # reaches urllib3 without deeper plumbing, but the call must succeed.
         resp = sess.get("/timed", timeout=0.5)
 
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK
     assert captured["called"] is True
 
 
@@ -298,4 +299,4 @@ def test_patch_resolves_relative_urls(config: Config) -> None:
     with Session(config) as sess:
         resp = sess.patch("/resource")
 
-    assert resp.status_code == 204
+    assert resp.status_code == HTTPStatus.NO_CONTENT

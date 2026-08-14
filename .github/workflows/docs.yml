@@ -67,8 +67,8 @@ name: Docs
 on:
   pull_request:
     paths-ignore:
-      - "CHANGELOG.md"
-      - "pyproject.toml"
+      - CHANGELOG.md
+      - pyproject.toml
 
     types:
       - opened
@@ -78,8 +78,8 @@ on:
     branches:
       - main
     paths-ignore:
-      - "CHANGELOG.md"
-      - "pyproject.toml"
+      - CHANGELOG.md
+      - pyproject.toml
 
 permissions:
   contents: read
@@ -94,14 +94,14 @@ jobs:
     name: HTML documentation build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 0 # Full history for version detection
+          fetch-depth: 0  # Full history for version detection
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: "3.11"
+          python-version: '3.11'
           enable-cache: true
       - name: Run docs via uv
         run: |
@@ -112,14 +112,14 @@ jobs:
     name: EPUB documentation build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 0 # Full history for version detection
+          fetch-depth: 0  # Full history for version detection
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: "3.11"
+          python-version: '3.11'
           enable-cache: true
       - name: Run docs-epub via uv
         run: |
@@ -130,14 +130,14 @@ jobs:
     name: man-page documentation build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 0 # Full history for version detection
+          fetch-depth: 0  # Full history for version detection
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: "3.11"
+          python-version: '3.11'
           enable-cache: true
       - name: Run docs-man via uv
         run: |
@@ -153,14 +153,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y latexmk texlive-latex-recommended tex-gyre \
           texlive-latex-extra texlive-xetex xindy
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 0 # Full history for version detection
+          fetch-depth: 0  # Full history for version detection
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: "3.11"
+          python-version: '3.11'
           enable-cache: true
       - name: Run docs-pdf via uv
         run: |
@@ -172,14 +172,14 @@ jobs:
     name: Python documentation issues check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 0 # Full history for version detection
+          fetch-depth: 0  # Full history for version detection
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: "3.11"
+          python-version: '3.11'
           enable-cache: true
       - name: Run docs-lint via uv
         run: |
@@ -191,14 +191,14 @@ jobs:
     name: Broken external link check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 0 # Full history for version detection
+          fetch-depth: 0  # Full history for version detection
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: "3.11"
+          python-version: '3.11'
           enable-cache: true
       - name: Run docs-linkcheck via uv
         run: |
@@ -209,14 +209,14 @@ jobs:
     name: Embedded doctest examples tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 0 # Full history for version detection
+          fetch-depth: 0  # Full history for version detection
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: "3.11"
+          python-version: '3.11'
           enable-cache: true
       - name: Run docs-doctest via uv
         run: |
@@ -227,28 +227,28 @@ jobs:
     name: Build HTML for GitHub Pages
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 0 # Full history for version detection
+          fetch-depth: 0  # Full history for version detection
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: "3.11"
+          python-version: '3.11'
           enable-cache: true
       - name: Run docs via uv
         run: |
           uv run --extra docs python docs/generate_api_docs.py
           uv run --extra docs sphinx-build -b html docs docs/_build/html
       - name: Upload HTML as regular artifact (PR review / debug)
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: html-docs
           path: docs/_build/html/
           retention-days: 14
       - name: Upload HTML as Pages artifact (deploy input)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
         with:
           path: docs/_build/html
 
@@ -259,11 +259,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     permissions:
-      id-token: write # Verify deployment target
-      pages: write # Deploy to GitHub Pages
+      id-token: write  # Verify deployment target
+      pages: write  # Deploy to GitHub Pages
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Deploy artifact to Pages
         id: deployment
-        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128  # v5.0.0

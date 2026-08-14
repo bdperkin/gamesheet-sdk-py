@@ -18,6 +18,7 @@ Examples:
         $ gamesheet-admin ipad-keys --season-id <season_id> --columns id,value,description
     Save iPad keys to a file::
         $ gamesheet-admin ipad-keys get --season-id <season_id> --format yaml --output keys.yaml
+
 """
 
 from __future__ import annotations
@@ -124,6 +125,7 @@ def ipad_keys_get_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         columns_spec (str | None): Optional comma-separated list of columns to display
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

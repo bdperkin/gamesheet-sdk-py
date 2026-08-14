@@ -27,6 +27,7 @@ def get_newest_source_mtime() -> float:
 
     Returns:
         float: Return value.
+
     """
     if not SRC_DIR.exists():
         return 0.0
@@ -43,6 +44,7 @@ def get_oldest_doc_mtime() -> float:
 
     Returns:
         float: Return value.
+
     """
     if not AUTOSUMMARY_DIR.exists():
         return 0.0
@@ -59,6 +61,7 @@ def main() -> int:
 
     Returns:
         int: Integer exit code.
+
     """
     newest_source = get_newest_source_mtime()
     oldest_doc = get_oldest_doc_mtime()

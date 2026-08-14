@@ -46,14 +46,14 @@ coverage:
     changes:
       default:
         if_ci_failed: error
-        informational: true # Don't fail PRs on indirect-coverage shifts
+        informational: true  # Don't fail PRs on indirect-coverage shifts
 
     # New code coverage status (only lines changed in PR)
     patch:
       default:
         if_ci_failed: error
-        target: 100% # All new code must be fully covered
-        threshold: 0% # No exceptions
+        target: 100%  # All new code must be fully covered
+        threshold: 0%  # No exceptions
 
     # Overall project coverage status
     project:
@@ -61,7 +61,7 @@ coverage:
         if_ci_failed: error
         if_no_uploads: error
         target: 100%
-        threshold: 0% # No drops tolerated - maintain 100%
+        threshold: 0%  # No drops tolerated - maintain 100%
 
 # ==============================================================================
 # Flag Management (Coverage Organized by Upload Tags)
@@ -264,17 +264,17 @@ component_management:
 # ==============================================================================
 comment:
   # Comment behavior
-  behavior: default # Comment on every PR
+  behavior: default  # Comment on every PR
 
-  hide_project_coverage: false # Show overall project coverage
+  hide_project_coverage: false  # Show overall project coverage
 
   # Layout sections in display order
-  layout: "header, diff, flags, components, files, footer"
+  layout: header, diff, flags, components, files, footer
 
-  require_base: false # Comment even if base commit has no coverage
-  require_changes: false # Comment even if no coverage change
-  require_head: true # Only comment if HEAD commit has coverage
-  show_carryforward_flags: true # Show which flags were carried forward
+  require_base: false  # Comment even if base commit has no coverage
+  require_changes: false  # Comment even if no coverage change
+  require_head: true  # Only comment if HEAD commit has coverage
+  show_carryforward_flags: true  # Show which flags were carried forward
 
 # ==============================================================================
 # GitHub Checks Annotations
@@ -290,9 +290,9 @@ github_checks:
 # Files and paths to exclude from coverage calculation.
 # ==============================================================================
 ignore:
-  - "tests/**" # Test code itself
-  - "docs/**" # Sphinx documentation sources
-  - "**/__init__.py" # Re-export modules (typically just imports)
+  - tests/**  # Test code itself
+  - docs/**  # Sphinx documentation sources
+  - '**/__init__.py' # Re-export modules (typically just imports)
 
 # ==============================================================================
 # Test Analytics

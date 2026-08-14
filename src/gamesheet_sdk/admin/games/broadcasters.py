@@ -31,6 +31,7 @@ def list_broadcasters(session: Session) -> list[Broadcaster]:
     Raises:
         AuthenticationError: If the server returns 401 or 403.
         GameSheetError: For any other non-2xx response.
+
     """
     url = f"{BFF_API_BASE_URL}{BFF_BROADCASTERS}"
     response = session.get(url)
@@ -56,6 +57,7 @@ def validate_broadcaster_key(session: Session, broadcaster: str) -> str:
 
     Raises:
         GameSheetError: If the broadcaster key is not valid.
+
     """
     if not broadcaster:
         return broadcaster

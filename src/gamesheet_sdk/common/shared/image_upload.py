@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import mimetypes
+from http import HTTPStatus
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -35,6 +36,7 @@ def upload_image(session: Session, image_path: str, image_type: str = "image") -
     Raises:
         GameSheetError: If the file is not found, is not a valid image, or the upload fails.
         AuthenticationError: If the server returns 401.
+
     """
     image_file_path = Path(image_path)
     if not image_file_path.exists():
@@ -48,10 +50,10 @@ def upload_image(session: Session, image_path: str, image_type: str = "image") -
 
     upload_url_endpoint = f"{BFF_API_BASE_URL}{BFF_ASSETS_UPLOAD_URL}"
     upload_url_response = session.post(upload_url_endpoint)
-    if upload_url_response.status_code == 401:
+    if upload_url_response.status_code == HTTPStatus.UNAUTHORIZED:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
-    if upload_url_response.status_code >= 400:
+    if upload_url_response.status_code >= HTTPStatus.BAD_REQUEST:
         _err_msg = errors.ERROR_MSG_HTTP_POST.format(
             endpoint=upload_url_endpoint,
             status_code=upload_url_response.status_code,
@@ -72,7 +74,7 @@ def upload_image(session: Session, image_path: str, image_type: str = "image") -
             files={"file": (image_file_path.name, f, mime_type)},
         )
 
-    if upload_response.status_code >= 400:
+    if upload_response.status_code >= HTTPStatus.BAD_REQUEST:
         _err_msg = errors.ERROR_MSG_HTTP_POST.format(
             endpoint=upload_url,
             status_code=upload_response.status_code,

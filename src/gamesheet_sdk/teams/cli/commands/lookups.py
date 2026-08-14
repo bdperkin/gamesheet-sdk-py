@@ -117,6 +117,7 @@ def get_command(
         category (str): Category name to retrieve.
         output_format (str): Output format (json, yaml, csv, tsv, or tabulate format).
         output_path (str | None): Optional file path to write output to.
+
     """
     config: Config = ctx.obj
     try:
@@ -169,6 +170,7 @@ def list_command(
         category (str | None): Optional category name to filter to.
         output_format (str): Output format (json, yaml, csv, tsv, or tabulate format).
         output_path (str | None): Optional file path to write output to.
+
     """
     config: Config = ctx.obj
     try:

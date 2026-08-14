@@ -9,6 +9,7 @@ import difflib
 import logging
 import shutil
 import subprocess
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -33,8 +34,18 @@ from depsync.config import (
 )
 from depsync.engine import converge, resolve_pinned_packages
 from depsync.exceptions import LockfileError, ResolveError, SyncDepsError, VerifyError
+from depsync.excludenewer import (
+    apply_results,
+    collect_versions,
+    converge_exclude_newer,
+    current_entries,
+    parse_policy,
+    prefetch_upload_times,
+    update_pyproject_exclude_newer,
+)
 from depsync.models import (
     ConvergenceResult,
+    ExcludeNewerResult,
     OverridePolicy,
     OverrideResult,
     PyProjectDependency,
@@ -80,6 +91,7 @@ def _snapshot_files(paths: list[Path]) -> dict[Path, bytes]:
 
     Returns:
         dict[Path, bytes]: Mapping of path to original bytes for files that exist.
+
     """
     snapshots: dict[Path, bytes] = {}
     for path in paths:
@@ -108,6 +120,7 @@ def _print_colored_diff(diff_lines: list[str]) -> None:
 
     Args:
         diff_lines (list[str]): Lines from a unified diff.
+
     """
     for line in diff_lines:
         text = line.rstrip("\n")
@@ -177,6 +190,7 @@ def _result_status(r: ConvergenceResult) -> str:
 
     Returns:
         str: Rich-markup status label.
+
     """
     if r.is_pinned and r.old_version == r.new_version:
         status = "[magenta]pinned (up to date)[/]"
@@ -248,6 +262,7 @@ def _write_all_convergence(
 
     Returns:
         int: Total number of entries written across all files.
+
     """
     pyproject_count = update_pyproject(config.pyproject_path, results)
     genprecommit_ad_count = update_genprecommit_additional_deps(
@@ -270,6 +285,7 @@ def _commit_convergence(
         config (RunConfig): Run configuration containing file paths and flags.
         results (list): Convergence results to apply.
         target_files (list[Path]): Files the results may touch.
+
     """
     snapshots = _snapshot_files(target_files)
     if config.backup:
@@ -309,6 +325,7 @@ def _preview_convergence(
         config (RunConfig): Run configuration containing file paths.
         results (list): Convergence results to preview.
         target_files (list[Path]): Files the results may touch.
+
     """
     snapshots = _snapshot_files(target_files)
     try:
@@ -326,6 +343,7 @@ def _apply_convergence(
 
     Returns:
         bool: True if actual file changes are needed.
+
     """
     _display_results(results)
 
@@ -363,6 +381,7 @@ def _check_lockfile_staleness(config: RunConfig) -> str | None:
 
     Raises:
         LockfileError: If stat calls fail unexpectedly.
+
     """
     if not config.uv_lock_path.exists():
         return "missing"
@@ -386,6 +405,7 @@ def _ensure_uv_lock(config: RunConfig) -> None:
     Raises:
         LockfileError: If uv is not found, the subprocess fails, times out, or the lockfile is still absent
             after generation.
+
     """
     reason = _check_lockfile_staleness(config)
 
@@ -402,7 +422,7 @@ def _ensure_uv_lock(config: RunConfig) -> None:
 
     try:
         subprocess.run(
-            ["uv", "lock"],
+            ["uv", "lock"],  # noqa: S607
             capture_output=True,
             text=True,
             check=True,
@@ -459,6 +479,7 @@ def _commit_types_sync(
         config (RunConfig): Run configuration containing file paths and flags.
         types_result (TypesSyncResult): Stub additions, removals, and updates to apply.
         target_files (list[Path]): Files the changes may touch.
+
     """
     snapshots = _snapshot_files(target_files)
     if config.backup:
@@ -489,6 +510,7 @@ def _preview_types_sync(
         config (RunConfig): Run configuration containing file paths.
         types_result (TypesSyncResult): Stub additions, removals, and updates to preview.
         target_files (list[Path]): Files the changes may touch.
+
     """
     snapshots = _snapshot_files(target_files)
     try:
@@ -509,11 +531,14 @@ def _run_types_sync(
     min_python: Version | None,
     extra_index_urls: tuple[str, ...],
     pip_config: PipConfig,
-) -> bool:
+) -> TypesSyncResult | None:
     """Run the types-* stub synchronization phase.
 
     Returns:
-        bool: True if changes are needed (or were applied), False otherwise.
+        TypesSyncResult | None: The stub changes needed (or applied), or None when the stubs are already in
+            sync. The result rather than a flag, because the stage writes pins that the exclude-newer stage
+            then has to account for.
+
     """
     console.print("\n[bold]Syncing types-* stub packages...[/]")
 
@@ -534,7 +559,7 @@ def _run_types_sync(
 
     if not types_result.added and not types_result.removed and not types_result.updated:
         console.print("\n[bold green]All types-* stubs are already in sync.[/]")
-        return False
+        return None
 
     _display_types_results(types_result)
 
@@ -548,6 +573,207 @@ def _run_types_sync(
         console.print("\n[bold yellow]Check mode — types-* stubs would be modified.[/]")
     else:
         console.print("\n[bold yellow]Dry run — no types-* changes applied.[/]")
+
+    return types_result
+
+
+_EXCLUDE_NEWER_ACTIONS: dict[str, str] = {
+    "add": "[green]add[/]",
+    "update": "[blue]update[/]",
+    "remove": "[red]remove[/]",
+}
+
+
+def _preview_label(config: RunConfig) -> str:
+    """Name the non-writing mode currently in effect.
+
+    Returns:
+        str: ``Check mode`` or ``Dry run``.
+
+    """
+    return "Check mode" if config.check else "Dry run"
+
+
+def _convergence_targets(results: Sequence[ConvergenceResult]) -> dict[str, str]:
+    """Extract the pins convergence is about to write to pyproject.toml.
+
+    Targets are read from the results rather than from disk so ``--check`` and ``--dry-run`` judge the end
+    state, which is the whole point of those modes.
+
+    Args:
+        results (Sequence[ConvergenceResult]): Convergence results.
+
+    Returns:
+        dict[str, str]: Package name to target version.
+
+    """
+    return {
+        r.package: r.new_version
+        for r in results
+        if r.target in {UpdateTarget.PYPROJECT, UpdateTarget.BOTH} and r.groups
+    }
+
+
+def _types_targets(types_result: TypesSyncResult) -> dict[str, str]:
+    """Extract the stub pins the types-* sync is about to write.
+
+    Args:
+        types_result (TypesSyncResult): Stub additions, removals, and updates.
+
+    Returns:
+        dict[str, str]: Package name to target version.
+
+    """
+    targets = dict(types_result.added)
+    targets.update({name: new_version for name, _, new_version in types_result.updated})
+
+    return targets
+
+
+def _display_exclude_newer_results(results: list[ExcludeNewerResult]) -> None:
+    """Render per-package cutoff relaxations as a table.
+
+    Args:
+        results (list[ExcludeNewerResult]): Converged changes to display.
+
+    """
+    table = Table(title="uv exclude-newer Relaxations", show_lines=False)
+    table.add_column("Package", style="cyan")
+    table.add_column("Pinned", style="yellow")
+    table.add_column("Current", style="red")
+    table.add_column("Target", style="green")
+    table.add_column("Action")
+
+    for result in results:
+        table.add_row(
+            result.package,
+            result.version or "—",
+            result.old_value or "—",
+            result.new_value or "—",
+            _EXCLUDE_NEWER_ACTIONS[result.action],
+        )
+
+    console.print()
+    console.print(table)
+
+
+def _commit_exclude_newer(
+    config: RunConfig,
+    desired: dict[str, str],
+    target_files: list[Path],
+) -> None:
+    """Write the converged relaxation table to disk.
+
+    Args:
+        config (RunConfig): Run configuration containing file paths and flags.
+        desired (dict[str, str]): The complete table to write.
+        target_files (list[Path]): Files the change may touch.
+
+    """
+    snapshots = _snapshot_files(target_files)
+    if config.backup:
+        _create_backups(snapshots)
+
+    written = update_pyproject_exclude_newer(config.pyproject_path, desired)
+    console.print(f"  Wrote [cyan]{written}[/] exclude-newer-package entries in pyproject.toml")
+
+    if config.diff:
+        _show_diffs(snapshots, target_files)
+
+
+def _preview_exclude_newer(
+    config: RunConfig,
+    desired: dict[str, str],
+    target_files: list[Path],
+) -> None:
+    """Show the diff the relaxation sync would produce, then roll the file back.
+
+    Args:
+        config (RunConfig): Run configuration containing file paths.
+        desired (dict[str, str]): The complete table that would be written.
+        target_files (list[Path]): Files the change may touch.
+
+    """
+    snapshots = _snapshot_files(target_files)
+    try:
+        update_pyproject_exclude_newer(config.pyproject_path, desired)
+        _show_diffs(snapshots, target_files)
+    finally:
+        _restore_files(snapshots)
+
+
+def _apply_exclude_newer(config: RunConfig, desired: dict[str, str]) -> None:
+    """Apply or preview the converged relaxation table.
+
+    Args:
+        config (RunConfig): Run configuration containing file paths and flags.
+        desired (dict[str, str]): The complete table to write.
+
+    """
+    target_files = [config.pyproject_path]
+
+    if not (config.dry_run or config.check):
+        _commit_exclude_newer(config, desired, target_files)
+    elif config.diff:
+        _preview_exclude_newer(config, desired, target_files)
+    else:
+        console.print(
+            f"\n[bold yellow]{_preview_label(config)} — exclude-newer-package entries would be modified.[/]",
+        )
+
+
+def _run_exclude_newer(
+    config: RunConfig,
+    targets: dict[str, str],
+    cache: dict[tuple[str, str], datetime | None],
+    index_url: str | None,
+    extra_index_urls: tuple[str, ...],
+    pip_config: PipConfig,
+) -> bool:
+    """Keep ``[tool.uv] exclude-newer-package`` in step with the pins this run writes.
+
+    Runs once after convergence and again after the types-* sync, because both write pins and either can land
+    a release younger than the cutoff — after which every ``uv lock`` in the project fails, including the one
+    the next stage is about to run.
+
+    Args:
+        config (RunConfig): Run configuration containing file paths and flags.
+        targets (dict[str, str]): Package name to the version this pass is about to pin.
+        cache (dict[tuple[str, str], datetime | None]): Publication times already looked up this run.
+        index_url (str | None): Optional PEP 503 index URL.
+        extra_index_urls (tuple[str, ...]): Additional PEP 503 index URLs.
+        pip_config (PipConfig): Pip configuration for SSL settings.
+
+    Returns:
+        bool: True if file changes are needed (or were applied).
+
+    """
+    if not config.sync_exclude_newer:
+        return False
+
+    policy = parse_policy(config.pyproject_path)
+    if policy is None:
+        return False
+
+    console.print("\n[bold]Syncing uv exclude-newer relaxations...[/]")
+
+    entries = current_entries(config.pyproject_path)
+    versions = collect_versions(config.pyproject_path, config.uv_lock_path, entries, targets)
+    uploads = prefetch_upload_times(
+        versions,
+        index_url=index_url,
+        extra_index_urls=extra_index_urls,
+        pip_config=pip_config,
+        cache=cache,
+    )
+
+    results = converge_exclude_newer(policy, entries, versions, uploads, datetime.now(tz=UTC))
+    if not results:
+        console.print(f"  [green]Cutoff [cyan]{policy.raw}[/] needs no per-package relaxation.[/]")
+        return False
+
+    _display_exclude_newer_results(results)
+    _apply_exclude_newer(config, apply_results(entries, results))
 
     return True
 
@@ -628,6 +854,7 @@ def _run_dependabot_preview(
 
     Returns:
         bool: True if the file would be modified, False otherwise.
+
     """
     target_files = [config.dependabot_path]
     snapshots = _snapshot_files(target_files)
@@ -671,6 +898,7 @@ def _find_capped_pins(
 
     Returns:
         dict[str, str]: Package name to resolved version for capped pins, empty when none are capped.
+
     """
     if not resolved:
         return {}
@@ -716,6 +944,7 @@ def _run_dependabot_sync(
 
     Returns:
         bool: True if changes are needed (or were applied), False otherwise.
+
     """
     pinned_packages = resolve_pinned_packages(pinned_revs) | (capped_pins or {}) | (override_pins or {})
 
@@ -741,6 +970,7 @@ def _display_override_results(results: list[OverrideResult]) -> None:
 
     Args:
         results (list[OverrideResult]): Override results to display.
+
     """
     table = Table(title="Transitive Overrides", show_lines=False)
     table.add_column("Package", style="cyan")
@@ -768,6 +998,7 @@ def _report_retirable(results: list[OverrideResult]) -> None:
 
     Args:
         results (list[OverrideResult]): Override results to inspect.
+
     """
     for result in (r for r in results if r.retirable):
         console.print(
@@ -797,6 +1028,7 @@ def _resolve_override_versions(
 
     Raises:
         ResolveError: If either resolution fails.
+
     """
     specifiers = [policy.specifier() for policy in policies]
     console.print(
@@ -829,6 +1061,7 @@ def _commit_overrides(
 
     Raises:
         VerifyError: If a verify command fails once the new pin is in place.
+
     """
     target_files = [config.pyproject_path, config.uv_lock_path]
     snapshots = _snapshot_files(target_files)
@@ -867,6 +1100,7 @@ def _apply_overrides_stage(
 
     Returns:
         bool: True if actual file changes are needed.
+
     """
     _display_override_results(results)
     _report_retirable(results)
@@ -900,6 +1134,7 @@ def _run_overrides(config: RunConfig, pins: dict[str, str]) -> tuple[bool, dict[
         tuple[bool, dict[str, str]]: Whether file changes are needed, and the package name to *target* version
             for every converged override. Targets rather than what is currently on disk, so the dependabot
             ignore list reflects the end state even under --check, where nothing is written.
+
     """
     policies = parse_overrides(config.overrides_path)
     if not policies:
@@ -943,6 +1178,7 @@ def _resolve_versions(
 
     Raises:
         ResolveError: If uv is unavailable or finds no valid resolution.
+
     """
     if config.no_uv_resolve:
         console.print(
@@ -971,6 +1207,7 @@ def _run(config: RunConfig) -> None:
 
     Raises:
         SystemExit: If check mode is active and changes are needed.
+
     """
     console.print("[bold]Parsing configuration files...[/]")
 
@@ -1014,22 +1251,40 @@ def _run(config: RunConfig) -> None:
     )
 
     has_changes = False
+    upload_cache: dict[tuple[str, str], datetime | None] = {}
 
     if results:
         has_changes = _apply_convergence(config, results)
     else:
         console.print("\n[bold green]All dependencies are already converged.[/]")
 
-    if config.sync_types:
-        types_changed = _run_types_sync(
+    if _run_exclude_newer(
+        config,
+        _convergence_targets(results),
+        upload_cache,
+        index_url,
+        extra_index_urls,
+        pip_config,
+    ):
+        has_changes = True
+
+    types_result = (
+        _run_types_sync(config, index_url, min_python, extra_index_urls, pip_config)
+        if config.sync_types
+        else None
+    )
+    if types_result is not None:
+        has_changes = True
+        # A stub pin is chosen from the index, not from the resolution, so it too can land ahead of the
+        # cutoff — and the next stage locks.
+        _run_exclude_newer(
             config,
+            _types_targets(types_result),
+            upload_cache,
             index_url,
-            min_python,
             extra_index_urls,
             pip_config,
         )
-        if types_changed:
-            has_changes = True
 
     overrides_changed, override_pins = _run_overrides(config, resolve_pinned_packages(pinned_revs))
     if overrides_changed:
@@ -1112,6 +1367,13 @@ def _run(config: RunConfig) -> None:
     help="Sync types-* stub packages in the type-stubs group against the dependency tree.",
 )
 @click.option(
+    "--sync-exclude-newer/--no-sync-exclude-newer",
+    "sync_exclude_newer",
+    default=True,
+    show_default=True,
+    help="Keep [tool.uv] exclude-newer-package in step with the pins written.",
+)
+@click.option(
     "--no-uv-resolve",
     is_flag=True,
     default=False,
@@ -1149,6 +1411,7 @@ def app(
     *,
     dry_run: bool,
     sync_types: bool,
+    sync_exclude_newer: bool,
     no_uv_resolve: bool,
     backup: bool,
     check_mode: bool,
@@ -1164,10 +1427,12 @@ def app(
         precommit_config (str): Path to .pre-commit-config.yaml.
         genprecommit_config (str): Path to .genprecommitconfig.yaml.
         dependabot (str): Path to dependabot.yml.
+        overrides (str): Path to overrides policy YAML.
         uv_lock (str): Path to uv.lock.
         log_level (str): Logging level string.
         dry_run (bool): If True, report changes without writing files.
         sync_types (bool): If True, synchronize types-* stub packages.
+        sync_exclude_newer (bool): If True, keep [tool.uv] exclude-newer-package in step with the pins.
         no_uv_resolve (bool): If True, skip uv resolution and use the latest index release per package.
         backup (bool): If True, create backup files before writing.
         check_mode (bool): If True, exit 1 when changes would be made.
@@ -1175,6 +1440,7 @@ def app(
 
     Raises:
         SystemExit: If a SyncDepsError occurs during execution.
+
     """
     configure_logging(log_level, console)
 
@@ -1188,6 +1454,7 @@ def app(
         log_level=log_level,
         dry_run=dry_run,
         sync_types=sync_types,
+        sync_exclude_newer=sync_exclude_newer,
         no_uv_resolve=no_uv_resolve,
         backup=backup,
         check=check_mode,

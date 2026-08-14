@@ -7,8 +7,11 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, cast
 from unittest.mock import MagicMock, patch
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 from click.testing import CliRunner
 
@@ -51,13 +54,13 @@ def test_divisions_teams_create_coverage() -> None:
 
     def run_action_side_effect(
         session: MagicMock,
-        func: Any,
-        *__args: Any,
-        **__kwargs: Any,
-    ) -> Any:
+        func: object,
+        *__args: object,
+        **__kwargs: object,
+    ) -> object:
         # Call the function to ensure it's covered
         if callable(func):
-            return func(session)
+            return cast("Callable[..., object]", func)(session)
 
         return func
 
@@ -141,13 +144,13 @@ def test_divisions_teams_update_coverage() -> None:
 
     def run_action_side_effect(
         session: MagicMock,
-        func: Any,
-        *__args: Any,
-        **__kwargs: Any,
-    ) -> Any:
+        func: object,
+        *__args: object,
+        **__kwargs: object,
+    ) -> object:
         # Call the function to ensure it's covered
         if callable(func):
-            return func(session)
+            return cast("Callable[..., object]", func)(session)
 
         return func
 

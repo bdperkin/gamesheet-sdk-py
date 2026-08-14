@@ -40,6 +40,7 @@ def _parse_type_stubs_types(pyproject_path: Path) -> dict[str, str | None]:
 
     Raises:
         ParseError: If the file cannot be read or contains invalid TOML.
+
     """
     try:
         data = load_toml(pyproject_path)
@@ -81,6 +82,7 @@ def _discover_available_types(
 
     Returns:
         set[str]: Set of base package names whose types-* stub exists.
+
     """
     available: set[str] = set()
 
@@ -119,6 +121,7 @@ def _collect_types_to_fetch(
 
     Returns:
         set[str]: Package names to fetch version data for.
+
     """
     types_to_fetch: set[str] = set()
     for name in available:
@@ -144,6 +147,7 @@ def _find_new_stubs(
 
     Returns:
         list[tuple[str, str]]: List of (package_name, version) pairs.
+
     """
     added: list[tuple[str, str]] = []
     for name in sorted(available):
@@ -168,6 +172,7 @@ def _find_stale_stubs(
     Returns:
         tuple[list[str], list[tuple[str, str, str]]]: Removed names and updated (name, old_version,
             new_version) triples.
+
     """
     removed: list[str] = []
     updated: list[tuple[str, str, str]] = []
@@ -209,6 +214,7 @@ def sync_types(
 
     Returns:
         TypesSyncResult: TypesSyncResult describing all changes.
+
     """
     current_types = _parse_type_stubs_types(pyproject_path)
 

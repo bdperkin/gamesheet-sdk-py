@@ -13,7 +13,9 @@ obtained (typically by reading the SPA's ``accessToken`` from the saved browser 
 
 from __future__ import annotations
 
+import uuid
 from datetime import datetime
+from http import HTTPStatus
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
@@ -47,6 +49,7 @@ class Division(BaseModel):
             include_team_counts=True).
         created_at (datetime): When the division was created.
         updated_at (datetime): Last time the division was updated.
+
     """
 
     id: str = Field(description="Division identifier (string in JSON:API).")
@@ -74,6 +77,7 @@ def _parse(item: dict[str, Any]) -> Division:
 
     Returns:
         Division: Parsed Division model instance.
+
     """
     data = parse_jsonapi_resource(item, relationship_map={"season": "season_id"})
     return Division(**data)
@@ -92,8 +96,9 @@ def list_division_teams(session: Session, division_id: str) -> list[Team]:
     Returns:
         list[Team]: A list of :class:`Team`, in the order the server returned them. The list may be empty if
             the division has no teams.
+
     """
-    from gamesheet_sdk.admin.teams import _parse as parse_team
+    from gamesheet_sdk.admin.teams import _parse as parse_team  # noqa: PLC0415
 
     endpoint = f"/api/divisions/{division_id}/teams"
     # Request sparse fieldset including logo_url and roster (for player/coach counts)
@@ -145,6 +150,7 @@ def get_division(
     Raises:
         AuthenticationError: If the server returns 401.
         GameSheetError: For any other non-2xx response.
+
     """
     endpoint = f"{_ENDPOINT}/{division_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -187,6 +193,7 @@ def list_divisions(
     Raises:
         AuthenticationError: If the server returns 401.
         GameSheetError: For any other non-2xx response.
+
     """
     response = session.get(_ENDPOINT, headers=JSONAPI_HEADERS)
     handle_response(response, _ENDPOINT, "GET divisions")
@@ -228,9 +235,8 @@ def create_division(
     Raises:
         AuthenticationError: If the server returns 401.
         GameSheetError: For any other non-2xx response.
-    """
-    import uuid
 
+    """
     endpoint = f"/api/seasons/{season_id}/divisions"
     # Generate external_id if not provided
     if external_id is None:
@@ -286,6 +292,7 @@ def update_division(
 
     Raises:
         ValueError: If neither title nor external_id is provided.
+
     """
     if title is None is external_id:
         msg = "At least one of title or external_id must be provided"
@@ -298,7 +305,7 @@ def update_division(
             f"/api/divisions/{division_id}",
             headers=JSONAPI_HEADERS,
         )
-        if get_response.status_code == 200:
+        if get_response.status_code == HTTPStatus.OK:
             current_data = get_response.json()
             title = current_data.get("data", {}).get("attributes", {}).get("title", "")
         else:
@@ -350,6 +357,7 @@ def delete_division(
         session (Session): An authenticated :class:`Session`.
         season_id (str): The season identifier containing the division.
         division_id (str): The division identifier to delete.
+
     """
     endpoint = f"/api/seasons/{season_id}/divisions/{division_id}"
     response = session.delete(endpoint, headers=JSONAPI_HEADERS)

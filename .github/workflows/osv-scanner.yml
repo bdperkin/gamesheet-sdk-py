@@ -54,17 +54,17 @@ on:
     branches:
       - main
     paths-ignore:
-      - "CHANGELOG.md"
-      - "pyproject.toml"
+      - CHANGELOG.md
+      - pyproject.toml
   push:
     branches:
       - main
     paths-ignore:
-      - "CHANGELOG.md"
-      - "pyproject.toml"
+      - CHANGELOG.md
+      - pyproject.toml
   schedule:
     # Run daily at 2:00 AM UTC
-    - cron: "0 2 * * *"
+    - cron: 0 2 * * *
 
 permissions:
   contents: read
@@ -79,20 +79,20 @@ jobs:
     name: pip-audit Vulnerability Scan
     permissions:
       contents: read
-      security-events: write # Required for uploading SARIF results
+      security-events: write  # Required for uploading SARIF results
 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 0 # Full history for comprehensive scanning
+          fetch-depth: 0  # Full history for comprehensive scanning
           persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install package with all dependencies
         run: |
@@ -130,7 +130,7 @@ jobs:
         continue-on-error: true
       - name: Upload audit results as artifact
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: pip-audit-results
           path: audit.json

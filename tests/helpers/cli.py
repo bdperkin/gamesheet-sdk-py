@@ -19,6 +19,7 @@ def assert_no_session_error(result: Result) -> None:
 
     Args:
         result (Result): Click CLI test result to check.
+
     """
     assert "No saved session" in result.output or "login" in result.output.lower()
 
@@ -31,5 +32,6 @@ def assert_output_contains_id(result: Result) -> None:
 
     Args:
         result (Result): Click CLI test result to check.
+
     """
     assert "id:" in result.output or "id :" in result.output

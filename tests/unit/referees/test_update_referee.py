@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+from typing import cast
 
 import pytest
 import responses
@@ -97,7 +98,7 @@ def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None
     assert patch_req.method == "PATCH"
     # Verify the PATCH request payload includes all fields
     assert patch_req.body is not None
-    payload = json.loads(patch_req.body)
+    payload = json.loads(cast("bytes | str", patch_req.body))
     assert payload["data"]["id"] == _referee_id
     assert payload["data"]["type"] == "referees"
     assert payload["data"]["attributes"]["first_name"] == "WES"
@@ -176,7 +177,7 @@ def test_update_referee_sends_correct_payload_partial_fields(
     # Verify the PATCH payload includes all required fields (from current + updates)
     patch_req = responses.calls[1].request
     assert patch_req.body is not None
-    payload = json.loads(patch_req.body)
+    payload = json.loads(cast("bytes | str", patch_req.body))
     assert payload["data"]["attributes"]["first_name"] == "Updated"
     assert payload["data"]["attributes"]["last_name"] == "Name"  # Preserved from current
     assert payload["data"]["attributes"]["email_address"] == "original@example.com"  # Preserved
@@ -347,7 +348,7 @@ def test_update_referee_preserves_existing_external_id(config: Config) -> None:
     assert len(responses.calls) == 2
     patch_req = responses.calls[1].request
     assert patch_req.body is not None
-    payload = json.loads(patch_req.body)
+    payload = json.loads(cast("bytes | str", patch_req.body))
     assert payload["data"]["attributes"]["external_id"] == _existing_external_id
 
 

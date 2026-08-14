@@ -25,9 +25,10 @@ def _discover_meta_hooks() -> list[str]:
 
     Raises:
         ProcessingError: If pre-commit is not installed.
+
     """
     try:
-        from pre_commit.clientlib import (
+        from pre_commit.clientlib import (  # noqa: PLC0415
             _meta,
         )
     except ImportError as exc:
@@ -45,6 +46,7 @@ def _apply_modifications(hook: dict[str, Any], cfg: HookConfig) -> None:
     Args:
         hook (dict[str, Any]): Hook dict to modify.
         cfg (HookConfig): Hook configuration with overrides, appends, and prepends.
+
     """
     hook.update(cfg.overrides)
 
@@ -95,6 +97,7 @@ def process_meta_hooks(
 
     Returns:
         list[dict[str, Any]]: List of hook dicts ready for YAML output.
+
     """
     overrides_map = {h.id: h for h in repo_config.hooks} if repo_config.hooks else {}
 
@@ -146,6 +149,7 @@ def _process_single_hook(
 
     Raises:
         ProcessingError: If required fields are missing.
+
     """
     hook_id = hook.get("id")
     if not hook_id:
@@ -195,6 +199,7 @@ def process_remote_hooks(
 
     Returns:
         list[dict[str, Any]]: List of processed hook dicts ready for YAML output.
+
     """
     overrides_map = {h.id: h for h in repo_config.hooks}
     processed: list[dict[str, Any]] = []
@@ -222,6 +227,7 @@ def get_hook_comment(repo_config: RepoConfig, hook_id: str) -> str | None:
 
     Returns:
         str | None: Comment string or None.
+
     """
     for hook_cfg in repo_config.hooks:
         if hook_cfg.id == hook_id and hook_cfg.comment:

@@ -127,28 +127,47 @@ test-cov: ## Run pytest with coverage via uv run
 # Linting, formatting, typing
 # =============================================================================
 
-.PHONY: lint
-lint: ## Run pre-commit across the whole repo via uv run
-	uv run pre-commit run --all-files
+.PHONY: dependencies
+dependencies: ## Lockfile Synchronization
+	uv run --extra dev uv lock
 
-.PHONY: typecheck
-typecheck: ## Run ty check against codebase via uv run
-	uv run --extra ty ty check
+.PHONY: checks
+checks: ## Low-level Checks
+	uv run --extra editorconfig-checker ec
 
-.PHONY: typecheck-watch
-typecheck-watch: ## Run ty check in watch mode via uv run
-	uv run --extra ty ty check --watch
+.PHONY: configuration
+configuration: ## Configuration Validation
+	uv run --extra format-json format-json --autofix --no-sort-keys
+	uv run --extra yamlfix yamlfix $$(git ls-files *.yml *.yaml .yamllint)
+	uv run --extra yamllint yamllint --config-file .yamllint $$(git ls-files *.yml *.yaml .yamllint)
+	uv run --extra pyproject-fmt pyproject-fmt pyproject.toml
+	uv run --extra validate-pyproject validate-pyproject pyproject.toml
+	uv run --extra pyroma pyroma --directory --min=10 .
 
-.PHONY: type
-type: typecheck ## Alias for typecheck
+.PHONY: markdown
+markdown: ## Markdown Formatting
+	uv run --extra mdformat mdformat $$(git ls-files '*.md')
+	uv run --extra pymarkdown pymarkdown scan .
 
-.PHONY: fix
-fix: ## Apply formatters and linters in place (ruff check --fix, ruff format, mdformat) via uv run
-	@printf "$(CYAN)→$(RESET) applying formatters (ruff, mdformat)\n"
-	uv run --extra ruff ruff check --fix .
-	uv run --extra ruff ruff format .
-	uv run --extra mdformat mdformat .
-	@printf "$(GREEN)✓$(RESET) formatting complete\n"
+.PHONY: security
+security: ## Secret and Vulnerability Scans
+	uv run --extra semgrep semgrep --disable-version-check --quiet --skip-unknown-extensions
+
+.PHONY: format
+format: ## Python Formatting
+	uv run --extra ruff ruff check --force-exclude
+	uv run --extra ruff ruff format --force-exclude
+
+.PHONY: quality
+quality: ## Code Quality
+	uv run --extra vulture vulture
+	uv run --extra interrogate interrogate
+	uv run --extra codespell codespell $$(git ls-files)
+	uv run --extra blocklint blocklint
+
+.PHONY: types
+types: ## Static Type Checks
+	uv run --extra ty --extra tools ty check
 
 # =============================================================================
 # Complexity / metrics

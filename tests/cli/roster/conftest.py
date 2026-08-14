@@ -63,6 +63,7 @@ def run_roster_delete_test(
 
     Returns:
         tuple[int, str, MagicMock]: Tuple of (exit_code, output, mock_action)
+
     """
     return run_roster_delete_test_base(
         group=group,

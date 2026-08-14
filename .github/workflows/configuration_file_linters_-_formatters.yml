@@ -30,8 +30,8 @@ name: Configuration File Linters & Formatters
 on:
   pull_request:
     paths-ignore:
-      - "CHANGELOG.md"
-      - "pyproject.toml"
+      - CHANGELOG.md
+      - pyproject.toml
 
     types:
       - opened
@@ -41,8 +41,8 @@ on:
     branches:
       - main
     paths-ignore:
-      - "CHANGELOG.md"
-      - "pyproject.toml"
+      - CHANGELOG.md
+      - pyproject.toml
 
 permissions:
   contents: read
@@ -60,16 +60,16 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
@@ -83,21 +83,21 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
       - name: Run yamllint via uv
-        run: uv run --extra yamllint yamllint -d relaxed .
+        run: uv run --extra yamllint yamllint --config-file .yamllint .
 
   pyproject-fmt:
     name: pyproject-fmt (py${{ matrix.python-version }})
@@ -106,16 +106,16 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
@@ -129,16 +129,16 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
@@ -152,18 +152,18 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
       - name: Run pyroma via uv
-        run: uv run --extra pyroma pyroma .
+        run: uv run --extra pyroma pyroma --directory --min=10 .

@@ -41,12 +41,11 @@
 #              auto-removed, because silently dropping an override would
 #              reintroduce the vulnerability it exists to fix.
 # ==============================================================================
-
 overrides:
   - package: mcp
     pinned_by: semgrep
-    floor: ">=1.28.1"
-    ceiling: "<2"
+    floor: '>=1.28.1'
+    ceiling: <2
     reason: >-
       semgrep hard-pins mcp==1.23.3 — every release published to date does,
       including the latest — and that version carries three HIGH advisories:

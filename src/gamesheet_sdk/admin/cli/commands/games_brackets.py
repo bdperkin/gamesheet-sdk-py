@@ -44,6 +44,7 @@ def brackets_list_command(
 
     Raises:
         Exit: Always raised (exit code 1) because this command is not yet implemented.
+
     """
     # Click binds these by their declared option names, so they cannot be underscore-prefixed.
     _ = (output_format, output_path, columns_spec)

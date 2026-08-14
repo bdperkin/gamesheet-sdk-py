@@ -24,6 +24,7 @@ def common_output_options(func: F) -> F:
 
     Returns:
         F: The decorated function with --format and --output options
+
     """
     func = click.option(
         "--format",
@@ -56,6 +57,7 @@ def list_columns_option(func: F) -> F:
 
     Returns:
         F: The decorated function with --columns option
+
     """
     return click.option(
         "--columns",
@@ -74,6 +76,7 @@ def get_fields_option(func: F) -> F:
 
     Returns:
         F: The decorated function with --fields option
+
     """
     return click.option(
         "--fields",
@@ -92,6 +95,7 @@ def team_update_options(func: F) -> F:
 
     Returns:
         F: The decorated function with team update options
+
     """
     func = click.option(
         "--title",
@@ -133,6 +137,7 @@ def team_create_options(func: F) -> F:
 
     Returns:
         F: The decorated function with team create options
+
     """
     func = click.option(
         "--external-id",

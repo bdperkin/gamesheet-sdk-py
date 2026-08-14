@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 import pytest
 import responses
 
@@ -82,10 +84,10 @@ def test_update_division_updates_title(config: Config) -> None:
     assert req.headers["Accept"] == JSONAPI_CONTENT_TYPE
     assert req.headers["Content-Type"] == JSONAPI_CONTENT_TYPE
     assert req.body is not None
-    _verify_update_payload(req.body, "Updated Division")
+    _verify_update_payload(cast("bytes | str", req.body), "Updated Division")
     import json
 
-    payload = json.loads(req.body)
+    payload = json.loads(cast("bytes | str", req.body))
     assert "external_id" not in payload["data"]["attributes"]
 
 
@@ -154,7 +156,7 @@ def test_update_division_updates_external_id(config: Config) -> None:
     assert responses.calls[0].request.method == "GET"
     # Second call: PATCH with existing title + new external_id
     assert responses.calls[1].request.body is not None
-    patch_payload = json.loads(responses.calls[1].request.body)
+    patch_payload = json.loads(cast("bytes | str", responses.calls[1].request.body))
     assert patch_payload["data"]["attributes"]["title"] == "Existing Title"
     assert patch_payload["data"]["attributes"]["external_id"] == "new-external-id"
     assert patch_payload["data"]["attributes"]["settings"] == {}

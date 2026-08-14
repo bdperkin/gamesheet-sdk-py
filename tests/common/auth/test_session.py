@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from http import HTTPStatus
 from typing import TYPE_CHECKING
 
 import responses
@@ -30,7 +31,7 @@ def test_authenticated_session_passthrough_when_200(config: Config) -> None:
     with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
         resp = session.get("/x")
 
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK
     sent = responses.calls[0].request
     assert sent.headers["Authorization"] == "Bearer A1"
 
@@ -61,7 +62,7 @@ def test_authenticated_session_refreshes_and_retries_on_401(config: Config) -> N
     ) as session:
         resp = session.get("/x")
 
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK
     assert resp.json() == {"ok": True}
     assert persisted == [{"access": "A2", "refresh": "R2", "roles": "Rol2"}]
     # Three calls: original GET, refresh, retried GET.
@@ -86,7 +87,7 @@ def test_authenticated_session_propagates_401_when_refresh_fails(
     ) as session:
         resp = session.get("/x")
     # Original 401 surfaces to the caller; no further retries.
-    assert resp.status_code == 401
+    assert resp.status_code == HTTPStatus.UNAUTHORIZED
     assert len(responses.calls) == 2
 
 
@@ -100,7 +101,7 @@ def test_authenticated_session_does_not_retry_when_refresh_returns_500(
     with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
         resp = session.get("/x")
 
-    assert resp.status_code == 401  # original surfaces
+    assert resp.status_code == HTTPStatus.UNAUTHORIZED  # original surfaces
     assert len(responses.calls) == 2  # no retry of /x
 
 
@@ -118,7 +119,7 @@ def test_authenticated_session_post_also_triggers_refresh(config: Config) -> Non
     with AuthenticatedSession(config, access_token="A1", refresh_token="R1") as session:
         resp = session.post("/mutate")
 
-    assert resp.status_code == 201
+    assert resp.status_code == HTTPStatus.CREATED
 
 
 @responses.activate
@@ -155,7 +156,7 @@ def test_authenticated_session_handles_on_refresh_oserror(
     ):
         resp = session.get("/x")
     # Refresh still succeeded, request was retried despite callback failure
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK
     assert "on_refresh callback failed to persist" in caplog.text
     assert TEST_ERROR_DISK_FULL in caplog.text
 
@@ -191,7 +192,7 @@ def test_authenticated_session_refreshes_and_retries_on_403(config: Config) -> N
     ) as session:
         resp = session.get("/y")
 
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK
     assert resp.json() == {"ok": True}
     assert persisted == [{"access": "A2", "refresh": "R2", "roles": "Rol2"}]
     # Three calls: original GET, refresh, retried GET.
@@ -216,7 +217,7 @@ def test_authenticated_session_propagates_403_when_refresh_fails(
     ) as session:
         resp = session.get("/z")
     # Original 403 surfaces to the caller; no further retries.
-    assert resp.status_code == 403
+    assert resp.status_code == HTTPStatus.FORBIDDEN
     assert len(responses.calls) == 2
 
 

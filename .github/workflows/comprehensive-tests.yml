@@ -75,13 +75,13 @@ on:
   workflow_dispatch:
   pull_request:
     branches-ignore:
-      - "**"
+      - '**'
   push:
     branches-ignore:
-      - "**"
+      - '**'
   schedule:
     # Run daily at 2:00 AM UTC
-    - cron: "0 2 * * *"
+    - cron: 0 2 * * *
 
 permissions:
   contents: read
@@ -103,18 +103,18 @@ jobs:
           - macos-latest
           - windows-latest
         python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 0 # Full history for comprehensive testing
+          fetch-depth: 0  # Full history for comprehensive testing
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
@@ -135,7 +135,7 @@ jobs:
         shell: bash
       - name: Upload coverage to Codecov (nightly)
         if: success()
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f  # v7.0.0
         with:
           files: ./coverage.xml
           flags: nightly
@@ -144,7 +144,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload coverage to Codecov (${{ matrix.os }})
         if: success()
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f  # v7.0.0
         with:
           files: ./coverage.xml
           flags: ${{ matrix.os }}
@@ -153,7 +153,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload coverage to Codecov (${{ steps.pyflag.outputs.value }})
         if: success()
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f  # v7.0.0
         with:
           files: ./coverage.xml
           flags: ${{ steps.pyflag.outputs.value }}
@@ -183,7 +183,7 @@ jobs:
           RUN_ATTEMPT: ${{ github.run_attempt }}
       - name: Trigger automatic retry (first attempt only)
         if: github.run_attempt == 1
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
         with:
           script: |-
             console.log('🔄 Triggering automatic retry of failed jobs...');

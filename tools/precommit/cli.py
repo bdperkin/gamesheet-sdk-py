@@ -28,6 +28,7 @@ def _write_init_template(config_file: Path) -> None:
 
     Raises:
         SystemExit: If the file already exists.
+
     """
     if config_file.exists():
         console.print(f"[bold red]Error:[/] {config_file} already exists")
@@ -123,6 +124,7 @@ def app(
 
     Raises:
         SystemExit: If generation fails.
+
     """
     configure_logging(log_level, console)
 

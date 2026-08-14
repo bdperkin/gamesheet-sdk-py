@@ -23,8 +23,8 @@ requires = [
 name = "gamesheet-sdk-py"
 version = "0.4.22"
 description = """\
-  Unofficial Python SDK and CLI for the GameSheet Inc. platform — automates WebUI procedures where a native API is \
-  absent.\
+  Unofficial Python SDK and CLI for the GameSheet Inc. platform — automates WebUI procedures where a \
+  native API is absent.\
   """
 readme = "README.md"
 keywords = [
@@ -36,9 +36,9 @@ keywords = [
   "sdk",
   "sports",
 ]
-license = { file = "LICENSE" }
+license.file = "LICENSE"
 authors = [
-  { name = "bdperkin", email = "bdperkin@gmail.com" },
+  { email = "bdperkin@gmail.com", name = "bdperkin" },
 ]
 requires-python = ">=3.11,<3.15"
 classifiers = [
@@ -69,23 +69,33 @@ dependencies = [
   "tzlocal==5.4.4",
   "urllib3==2.7.0",
 ]
+optional-dependencies.architecture = [
+  "gamesheet-sdk-py[radon,xenon]",
+]
 optional-dependencies.blocklint = [
   "blocklint==0.3.0",
+]
+optional-dependencies.checks = [
+  "gamesheet-sdk-py[editorconfig-checker]",
 ]
 optional-dependencies.codespell = [
   "codespell==2.4.3",
 ]
-optional-dependencies.complexity = [
-  "gamesheet-sdk-py[radon,semgrep]",
-]
-optional-dependencies.dead-code-detectors = [
-  "gamesheet-sdk-py[ruff,vulture]",
+optional-dependencies.configuration = [
+  "gamesheet-sdk-py[format-json,pyproject-fmt,pyroma,validate-pyproject,yamlfix,yamllint]",
 ]
 optional-dependencies.deptry = [
   "deptry==0.25.1",
+  """\
+  gamesheet-sdk-py[architecture,checks,configuration,docs,format,markdown,pytest,python-semantic-release,qual\
+  ity,security,type-stubs,types]\
+  """,
+]
+optional-dependencies.detect-secrets = [
+  "detect-secrets==1.5.0",
 ]
 optional-dependencies.dev = [
-  "pre-commit==4.6.2",
+  "pre-commit==4.6.1",
   "pre-commit-uv==4.3.0",
   "uv==0.12.3",
 ]
@@ -98,26 +108,31 @@ optional-dependencies.docs = [
   "sphinx-design==0.7.0",
   "sphinx-lint==1.0.2",
 ]
-optional-dependencies.docstring-tools = [
-  "gamesheet-sdk-py[codespell,interrogate,ruff]",
-]
 optional-dependencies.editorconfig-checker = [
-  "editorconfig-checker==3.11.1",
+  "editorconfig-checker==3.8.0",
 ]
-optional-dependencies.formatters = [
-  "gamesheet-sdk-py[editorconfig-checker,pyproject-fmt,pyroma,validate-pyproject,yamlfix,yamllint]",
+optional-dependencies.format = [
+  "gamesheet-sdk-py[ruff]",
+]
+optional-dependencies.format-json = [
+  "format-json==0.1.2",
 ]
 optional-dependencies.interrogate = [
   "interrogate==1.7.0",
 ]
-optional-dependencies.markdown-tools = [
-  "gamesheet-sdk-py[mdformat,pymarkdown]",
+optional-dependencies.markdown = [
+  "gamesheet-sdk-py[markdown-heading-numbering,markdown-toc-creator,mdformat,pymarkdown]",
+]
+optional-dependencies.markdown-heading-numbering = [
+  "markdown-heading-numbering==0.1.1",
+]
+optional-dependencies.markdown-toc-creator = [
+  "markdown-toc-creator==0.1.3",
 ]
 optional-dependencies.mdformat = [
   "mdformat-gfm==1.0.0",
   "mdformat-pyproject==0.1.1",
 ]
-optional-dependencies.pre-commit-ci = [ "gamesheet-sdk-py[deptry,mdformat,ty]" ]
 optional-dependencies.pymarkdown = [
   "pymarkdownlnt==0.9.39",
 ]
@@ -131,12 +146,15 @@ optional-dependencies.pytest = [
   "gamesheet-sdk-py[tools]",
   "pytest==9.1.1",
   "pytest-cov==7.1.0",
-  "pytest-playwright==0.9.0",
+  "pytest-playwright==0.8.0",
   "pytest-recording==0.13.4",
   "responses==0.26.2",
 ]
 optional-dependencies.python-semantic-release = [
   "python-semantic-release==10.6.1",
+]
+optional-dependencies.quality = [
+  "gamesheet-sdk-py[blocklint,codespell,interrogate,vulture]",
 ]
 optional-dependencies.radon = [
   "radon==6.0.1",
@@ -144,11 +162,11 @@ optional-dependencies.radon = [
 optional-dependencies.ruff = [
   "ruff==0.16.2",
 ]
+optional-dependencies.security = [
+  "gamesheet-sdk-py[detect-secrets,semgrep]",
+]
 optional-dependencies.semgrep = [
   "semgrep==1.172.0",
-]
-optional-dependencies.static-analysis = [
-  "gamesheet-sdk-py[blocklint,ruff,ty]",
 ]
 optional-dependencies.tools = [
   "gamesheet-sdk-py[dev,yamlfix]",
@@ -158,11 +176,7 @@ optional-dependencies.tools = [
   "tomlkit==0.13.3",
 ]
 optional-dependencies.ty = [
-  "gamesheet-sdk-py[pytest,type-stubs]",
-  "ty==0.0.70",
-]
-optional-dependencies.type-checkers = [
-  "gamesheet-sdk-py[ty]",
+  "ty==0.0.69",
 ]
 optional-dependencies.type-stubs = [
   "types-attrs==19.1.0",
@@ -193,18 +207,24 @@ optional-dependencies.type-stubs = [
   "types-pyyaml==6.0.12.20260724",
   "types-regex==2026.7.19.20260720",
   "types-requests==2.33.0.20260712",
-  "types-setuptools==83.0.0.20260807",
+  "types-setuptools==84.0.0.20260812",
   "types-six==1.17.0.20260724",
   "types-tabulate==0.10.0.20260508",
   "types-tzdata==2026.0.0.20260408",
   "types-tzlocal==5.1.0.1",
   "types-urllib3==1.26.25.14",
 ]
+optional-dependencies.types = [
+  "gamesheet-sdk-py[ty]",
+]
 optional-dependencies.validate-pyproject = [
   "validate-pyproject==0.25",
 ]
 optional-dependencies.vulture = [
   "vulture==2.16",
+]
+optional-dependencies.xenon = [
+  "xenon==0.9.3",
 ]
 optional-dependencies.yamlfix = [
   "yamlfix==1.19.1",
@@ -222,7 +242,6 @@ scripts.gamesheet-teams = "gamesheet_sdk.teams.cli:main"
 # ----------------------------------------------------------------------------------------------------------------------
 # Tool Configurations
 # ----------------------------------------------------------------------------------------------------------------------
-## ## hatch - Extensible, lifecycle management tool for Python
 [tool.hatch]
 build.targets.wheel.packages = [
   "src/gamesheet_sdk",
@@ -253,142 +272,135 @@ build.targets.sdist.include = [
 override-dependencies = [
   "mcp==1.29.0",
 ]
+exclude-newer = "7 days"
+exclude-newer-package.types-setuptools = "2 days"
 package = true
 
-## ## ruff - An extremely fast Python linter and code formatter
 [tool.ruff]
 target-version = "py311"
 line-length = 110
-extend-exclude = [
-  ".local",
-  ".pytest_cache",
-  ".venv",
-  "docs/_build",
-]
+indent-width = 4
+respect-gitignore = true
 format.indent-style = "space"
 format.quote-style = "double"
 format.line-ending = "auto"
 format.skip-magic-trailing-comma = false
+format.docstring-code-line-length = "dynamic"
 format.docstring-code-format = true
 lint.select = [
   "ALL",
 ]
 lint.ignore = [
-  "ANN401",  # Dynamically typed expressions (typing.Any)
-  "C901",    # Function is too complex
-  "COM812",  # Trailing comma missing - handled by ruff format
-  "D107",    # Missing docstring in __init__
-  "D301",    # Use r""" if any backslashes in a docstring
-  "D417",    # Missing argument description in docstring
-  "DTZ",     # Naive datetime checks
-  "E501",    # Line too long - handled by ruff format
-  "FBT001",  # Boolean-typed positional argument
-  "FBT002",  # Boolean-typed positional default value
-  "FBT003",  # Boolean positional value in function call
-  "FIX002",  # Line contains TODO
-  "ISC001",  # Implicit string concatenation - handled by ruff format
-  "PLC0415", # Import outside top-level
-  "PLR0912", # Too many branches
-  "PLR0913", # Too many arguments
-  "PLR0915", # Too many statements
-  "PLR0917", # Too many positional arguments
-  "PLR2004", # Magic value comparison
-  "S105",    # Possible hardcoded password
-  "TC001",   # Move application import into type-checking block
-  "TC002",   # Move third-party import into type-checking block
-  "TC003",   # Move standard library import into type-checking block
-  "TD002",   # Missing author in TODO
-  "TD003",   # Missing issue link on line for TODO
+  "COM812",
+  "D203",
+  "D213",
+  "ISC001",
 ]
 lint.per-file-ignores."docs/*" = [
-  "A001",
-  "INP001",
-  "PLW2901",
   "RUF001",
-  "S101",
-  "S603",
-  "S607",
-  "T201",
 ]
 lint.per-file-ignores."tests/*" = [
-  "ANN",
-  "ARG",
-  "D",
-  "DTZ",
+  "DTZ001",
+  "FBT001",
+  "PLC0415",
   "PLR2004",
-  "RUF043",
   "S101",
-  "S105",
   "S106",
-  "S107",
   "SLF001",
 ]
-lint.per-file-ignores."tools/*" = [
-  "INP001",
-  "S101",
-  "S603",
-  "S607",
-  "T201",
+lint.per-file-ignores."tests/tools/*" = [
+  "E402",
 ]
-lint.pydocstyle.convention = "google"
+lint.fixable = [
+  "ALL",
+]
+lint.unfixable = []
+lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+lint.flake8-annotations.allow-star-arg-any = true
+lint.flake8-type-checking.runtime-evaluated-base-classes = [
+  "pydantic.BaseModel",
+]
+lint.pylint.max-args = 25
+lint.pylint.max-bool-expr = 10
+lint.pylint.max-branches = 15
+lint.pylint.max-locals = 20
+lint.pylint.max-nested-blocks = 10
+lint.pylint.max-positional-args = 25
+lint.pylint.max-public-methods = 30
+lint.pylint.max-returns = 10
+lint.pylint.max-statements = 75
+lint.pylint.max-statements-in-try = 10
 
-## # -------------------------------------------------------------------------------------------------------------------
-## # Documentation & Docstring Tools
-## # -------------------------------------------------------------------------------------------------------------------
-## ## codespell - Typos and spelling checker
 [tool.codespell]
-builtin = "code,en-GB_to_en-US,informal,names,rare,usage"
+builtin = "clear,rare,informal,usage,code,names,en-GB_to_en-US"
 ignore-words = "custom-dictionary.txt"
-skip = "docs/_build,.local,.pytest_cache,.venv,uv.lock"
+skip = "uv.lock"
+check-filenames = true
+check-hidden = true
+write-changes = false
+interactive = 0
+enable-colors = true
+disable-colors = false
+count = false
+quiet-level = 34
+summary = false
+context = 1
+ignore-sic = true
+stdin-single-line = true
 
-## ## interrogate - Docstring coverage checker
 [tool.interrogate]
-fail-under = 100
-ignore-magic = true
-ignore-semiprivate = true
-ignore-nested-functions = true
-extend-exclude = [
-  ".local",
-  ".pytest_cache",
-  ".venv",
-  "docs/_build",
-]
-check = true
-diff = true
-recursive = true
-style = "google"
+fail_under = 100
+color = false
+docstring_style = "google"
+ignore_init_method = false
+ignore_init_module = false
+ignore_magic = false
+ignore_module = false
+ignore_nested_classes = false
+ignore_nested_functions = false
+ignore_overloaded_functions = false
+ignore_private = false
+ignore_property_decorators = false
+ignore_property_setters = false
+ignore_regex = ""
+ignore_semiprivate = false
+include_regex = ""
+omit_covered_files = false
 
-## ## deptry - Dependency analyzer
 [tool.deptry]
 extend_exclude = [
-  ".local",
-  ".pytest_cache",
-  ".venv",
   "docs",
-  "docs/_build",
   "tools",
 ]
 ignore = []
+ignore_notebooks = true
 per_rule_ignores.DEP002 = [
   "gamesheet-sdk-py",
 ]
 known_first_party = [
   "gamesheet_sdk",
 ]
+requirements_files = []
+requirements_files_dev = []
+package_module_name_map = {}
+enforce_posix_paths = true
 experimental_namespace_package = true
+github_output = true
+github_warning_errors = []
+no_ansi = false
+non_dev_dependency_groups = []
 optional_dependencies_dev_groups = [
   "blocklint",
   "codespell",
-  "complexity",
-  "dead-code-detectors",
   "deptry",
+  "detect-secrets",
   "dev",
   "docs",
-  "docstring-tools",
   "editorconfig-checker",
-  "formatters",
+  "format-json",
   "interrogate",
-  "markdown-tools",
+  "markdown-heading-numbering",
+  "markdown-toc-creator",
   "mdformat",
   "pymarkdown",
   "pyproject-fmt",
@@ -398,79 +410,60 @@ optional_dependencies_dev_groups = [
   "radon",
   "ruff",
   "semgrep",
-  "static-analysis",
   "tools",
   "ty",
-  "type-checkers",
   "type-stubs",
   "validate-pyproject",
   "vulture",
+  "xenon",
   "yamlfix",
   "yamllint",
 ]
+root = [
+  "src",
+]
 
-## ## vulture - Dead code finder
 [tool.vulture]
+paths = [
+  ".",
+]
 exclude = [
-  ".local",
-  ".pytest_cache",
-  ".venv",
-  "docs/_build",
+  ".local/",
+  ".venv/",
+  "docs/conf.py",
 ]
 ignore_names = [
+  "*_ID",
+  "*_INVALID",
+  "*_LIST",
+  "*_NOT_FOUND",
+  "*_PATTERN",
+  "*_SUGGESTION",
   "_*",
-  "autoclass_*",
-  "autodoc_*",
-  "autosectionlabel_*",
-  "autosummary_*",
-  "BFF_*",
-  "broadcaster_*",
-  "category",
+  "BFF_STATUS_SUCCESS",
+  "broadcaster_id",
   "city",
-  "CLI_*",
-  "CONTENT_*",
-  "copyright",
+  "CLI_COMMAND_*",
+  "CONTENT_TYPE_JSON",
   "default_flow_style",
-  "discovered_*",
-  "element_*",
-  "end_*",
-  "epub_*",
-  "ERROR_*",
+  "end_time",
+  "ERROR_MSG_*",
   "ERRORS_*",
-  "extensions",
-  "FILE_*",
+  "FILE_EXT_PDF",
   "FILENAME_*",
-  "FIREBASE_*",
-  "form_*",
-  "get_session",
   "handle_starttag",
   "has_*",
   "HELP_*",
-  "html_*",
-  "intersphinx_*",
-  "is_*",
+  "is_valid",
   "ISO_8601_HELP_TEXT",
-  "latex_*",
-  "linkcheck_*",
-  "man_*",
-  "model_*",
-  "myst_*",
-  "napoleon_*",
-  "OPTIONS_*",
+  "model_config",
+  "OPTIONS_TABLE_*",
   "preserve_quotes",
-  "province_*",
-  "scheduled_*",
-  "SCORESHEET_*",
-  "SecretStr",
+  "province_state",
+  "scheduled_time_gmt",
   "side_effect",
-  "source_*",
-  "STYLE_*",
-  "TEAMS_*",
-  "templates_*",
   "TEST_*",
-  "todo_*",
   "vendors",
-  "verify",
   "viewed",
   "width",
 ]
@@ -478,132 +471,48 @@ ignore_decorators = [
   "@associations_group.command",
   "@brackets_group.command",
   "@click.command",
+  "@click.option",
   "@coaches_group.command",
   "@completed_group.command",
-  "@divisions_group.command",
-  "@divisions_teams_group.command",
-  "@ipad_keys_group.command",
-  "@leagues_group.command",
   "@locations_group.command",
-  "@lookups_group.command",
   "@players_group.command",
   "@pytest.fixture",
-  "@referees_group.command",
   "@scheduled_group.command",
-  "@seasons_group.command",
-  "@teams_group.command",
   "@teams_roster_coaches_group.command",
   "@teams_roster_players_group.command",
   "@test_group.command",
 ]
+make_whitelist = false
+min_confidence = 0
+sort_by_size = false
+verbose = false
 
-## ## pyproject-fmt - Pyproject.toml formatter
 [tool.pyproject-fmt]
-column_width = 120
+column_width = 110
 indent = 2
 keep_full_version = true
+generate_python_version_classifiers = true
+max_supported_python = "3.14"
 table_format = "short"
-check = true
-diff = true
-recursive = true
+sub_table_spacing = ""
+separate_root_table = "\n"
+expand_tables = []
+collapse_tables = []
+skip_wrap_for_keys = []
+min_supported_python = "3.11"
 
-## # -------------------------------------------------------------------------------------------------------------------
-## # Security, Metrics & Complexity
-## # -------------------------------------------------------------------------------------------------------------------
 [tool.ty]
-src.exclude = [
-  ".local",
-  ".pytest_cache",
-  ".venv",
-  "docs/_build",
-]
-src.include = [
-  "docs",
-  "src",
-  "tests",
-  "tools",
-]
 environment.extra-paths = [
   "docs",
   "tools",
 ]
-rules.invalid-argument-type = "ignore"
-rules.not-subscriptable = "ignore"
-rules.unknown-argument = "ignore"
-analysis.allowed-unresolved-imports = [
-  "click.shell_completion",
-]
+rules.all = "error"
+rules.missing-override-decorator = "ignore"
+rules.unresolved-import = "ignore"
+terminal.error-on-warning = true
+analysis.strict-equality-semantics = true
+analysis.strict-generic-narrowing = true
 
-## ## pytest - Testing framework
-# Test discovery, markers, and default options for pytest test runner.
-# Custom markers must be registered here when using --strict-markers.
-[tool.pytest]
-# Minimum Python version for tests
-ini_options.minversion = "7.0"
-# Test discovery patterns
-ini_options.testpaths = [
-  "tests",
-]
-ini_options.python_files = [
-  "test_*.py",
-]
-ini_options.python_classes = [
-  "Test*",
-]
-ini_options.python_functions = [
-  "test_*",
-]
-# Command-line options applied by default
-ini_options.addopts = [
-  "--strict-markers", # Raise error for unregistered markers
-  "--strict-config",  # Raise error for invalid config
-  "--tb=short",       # Shorter traceback format
-  "-ra",              # Show all test summary info except passed
-  "--block-network",  # Block network access (from pytest-recording)
-]
-# Custom markers (must be registered to use --strict-markers)
-ini_options.markers = [
-  "allowed_hosts: List of regex patterns for hosts where connections are allowed",
-  "block_network: Block all network access except VCR recording",
-  "browser: Requires headless Chromium via pytest-playwright (slow tests)",
-  "default_cassette: Override the default VCR cassette name",
-  "vcr: Uses VCR.py to replay HTTP interactions from cassettes",
-]
-# Warnings
-ini_options.filterwarnings = [
-  "error",                                         # Turn warnings into errors
-  "ignore::DeprecationWarning:pytest_recording.*",
-  "ignore::DeprecationWarning:urllib3.*",
-]
-# Console output
-ini_options.console_output_style = "progress"
-
-[tool.coverage]
-run.branch = true
-run.parallel = false
-## ## coverage - Test coverage measurement
-# Without this block, `pytest --cov` has no source path to instrument and emits an empty coverage.xml — which Codecov
-# registers as an upload but with no data, surfacing as "No report uploaded" on every flag and component. See
-# https://coverage.readthedocs.io/.
-run.source = [
-  "src/gamesheet_sdk",
-]
-# Collapse coverage from the installed package onto the src layout so paths in coverage.xml match the component / flag
-# path filters in .codecov.yml.
-paths.source = [
-  "src/gamesheet_sdk",
-  "*/site-packages/gamesheet_sdk",
-]
-report.exclude_also = [
-  "@overload",
-  "if TYPE_CHECKING:",
-  "pragma: no cover",
-  "raise NotImplementedError",
-]
-report.fail_under = 100
-report.show_missing = true
-
-## ## python-semantic-release - Automated semantic versioning and changelog generation
 [tool.semantic_release]
 tag_format = "v{version}"
 # Version strategy: patch-only (feat/fix/perf → patch) until minor bumps are re-enabled.
@@ -646,137 +555,194 @@ tag = true
 upload_to_pypi = false
 upload_to_release = false
 
-## ---------------------------------------------------------------------------------------------------------------------
-## Non-Python Languages
-## ---------------------------------------------------------------------------------------------------------------------
-## # -------------------------------------------------------------------------------------------------------------------
-## # Configuration File Linters & Formatters
-## # -------------------------------------------------------------------------------------------------------------------
-## ## editorconfig-checker - EditorConfig compliance verifier
-[tool.editorconfig-checker]
-check = true
-diff = true
-recursive = true
+[tool.markdown_toc_creator]
+add_horizontal_rules = true
+add_toc_title = false
+exclude = ".git|.tox|.pytest_cache|CHANGELOG.md"
+horizontal_rule_style = "mdformat"
+in_place = true
+proactive = true
+quiet = false
+skip_first_n_lines = 1
+style = "github"
+toc_title = "Table of Contents"
 
-## ## yamlfix - YAML file formatter
-[tool.yamlfix]
-check = true
-diff = true
-recursive = true
-allow_duplicate_keys = false
-comments_min_spaces_from_content = 1
-comments_require_starting_space = true
-whitelines = 1
-comments_whitelines = 1
-section_whitelines = 1
-explicit_start = true
-sequence_style = "block_style"
-indent_mapping = 2
-indent_offset = 2
-indent_sequence = 4
-line_length = 110
-none_representation = ""
-quote_basic_values = false
-quote_keys_and_basic_values = false
-quote_representation = '"'
-preserve_quotes = true
-preserve_block_scalars = true
-whitelines_adjusting = true
-exclude = [ "venv/*", ".git/*" ]
-
-## ## yamllint - YAML file linter
-[tool.yamllint]
-check = true
-diff = true
-recursive = true
-
-## # -------------------------------------------------------------------------------------------------------------------
-## # Documentation & Markdown Tools
-## # -------------------------------------------------------------------------------------------------------------------
-## ## pymarkdown - Markdown linting engine
-[tool.pymarkdown]
-check = true
-diff = true
-mode.strict-config = true
-plugins.commands-show-output.enabled = false
-plugins.line-length.code_block_line_length = 160
-plugins.line-length.code_blocks = true
-plugins.line-length.heading_line_length = 160
-plugins.line-length.headings = true
-plugins.line-length.line_length = 160
-plugins.line-length.links = false
-plugins.no-duplicate-heading.siblings_only = true
-plugins.no-multiple-blanks.maximum = 4
-plugins.no-trailing-punctuation.punctuation = ""
-plugins.ul-indent.indent = 4
-recursive = true
-level = "WARNING"
-stack-trace = false
-
-## ## mdformat - Markdown formatter
 [tool.mdformat]
 end_of_line = "lf"
 number = true
 validate = true
 wrap = 160
 
-## ## markdown-toc-creator - Create table of contents for markdown files
-[tool.markdown_toc_creator]
-proactive = "True"
-style = "github"
-exclude = ".git|.uv|.pytest_cache|CHANGELOG.md"
-in-place = "True"
-quiet = "False"
-skip-first-n-lines = 1
-add-toc-title = "False"
-toc-title = "Table of Contents"
-add-horizontal-rules = "True"
-horizontal-rule-style = "mdformat"
+[tool.pymarkdown]
+continue_on_error = false
+no_json5 = true
+stack_trace = false
+strict_config = true
+extensions.front-matter.allow_blank_lines = false
+extensions.front-matter.enabled = false
+extensions.linter-pragmas.enabled = true
+extensions.markdown-disallow-raw-html.change_tag_names = ""
+extensions.markdown-disallow-raw-html.enabled = false
+extensions.markdown-extended-autolinks.enabled = false
+extensions.markdown-strikethrough.enabled = false
+extensions.markdown-tables.enabled = false
+extensions.markdown-task-list-items.enabled = false
+log.file = ""
+log.level = "WARNING"
+log.stack-trace = false
+mode.return_code_scheme = "default"
+mode.strict-config = true
+plugins.additional_paths = []
+plugins.disable = []
+plugins.disable_all = false
+plugins.enable = []
+plugins.blanks-around-fences.enabled = true
+plugins.blanks-around-fences.list_items = true
+plugins.blanks-around-headings.enabled = true
+plugins.blanks-around-headings.lines_above = 1
+plugins.blanks-around-headings.lines_below = 1
+plugins.blanks-around-lists.enabled = true
+plugins.code-block-style.enabled = true
+plugins.code-block-style.style = "consistent"
+plugins.code-fence-style.enabled = true
+plugins.code-fence-style.style = "consistent"
+plugins.commands-show-output.enabled = false
+plugins.descriptive-link-text.enabled = true
+plugins.descriptive-link-text.prohibited-phrases = "['click here', 'here', 'link', 'more']"
+plugins.disallow-lazy-list-indentation.enabled = false
+plugins.disallowed-html.change_tag_names = ""
+plugins.disallowed-html.enabled = false
+plugins.emphasis-style.enabled = true
+plugins.emphasis-style.style = "consistent"
+plugins.fenced-code-language.enabled = true
+plugins.first-heading-h1.enabled = false
+plugins.first-heading-h1.level = 0
+plugins.first-line-heading.enabled = true
+plugins.first-line-heading.front_matter_title = "title"
+plugins.first-line-heading.level = 1
+plugins.heading-increment.enabled = true
+plugins.heading-increment.front_matter_title = "title"
+plugins.heading-start-left.enabled = true
+plugins.heading-style.allow-setext-update = false
+plugins.heading-style.enabled = true
+plugins.heading-style.style = "consistent"
+plugins.hr-style.enabled = true
+plugins.hr-style.style = "consistent"
+plugins.line-length.code_block_line_length = 160
+plugins.line-length.code_blocks = true
+plugins.line-length.enabled = true
+plugins.line-length.heading_line_length = 160
+plugins.line-length.headings = true
+plugins.line-length.line_length = 160
+plugins.line-length.stern = false
+plugins.line-length.strict = false
+plugins.line-length.table_line_length = 160
+plugins.line-length.tables = true
+plugins.link-fragments.enabled = true
+plugins.link-fragments.ignore-case = true
+plugins.link-fragments.ignore-pattern-regex = ""
+plugins.link-image-reference-definitions.enabled = true
+plugins.link-image-reference-definitions.ignored-definitions = "['//']"
+plugins.link-image-style.autolinks = true
+plugins.link-image-style.collapsed-links = true
+plugins.link-image-style.enabled = true
+plugins.link-image-style.full-links = true
+plugins.link-image-style.inline-links = true
+plugins.link-image-style.inline-urls = true
+plugins.link-image-style.shortcut-links = true
+plugins.list-anchored-indent.enabled = false
+plugins.list-anchored-indent.indent = 0
+plugins.list-indent.enabled = true
+plugins.list-marker-space.enabled = true
+plugins.list-marker-space.ol_multi = 1
+plugins.list-marker-space.ol_single = 1
+plugins.list-marker-space.ul_multi = 1
+plugins.list-marker-space.ul_single = 1
+plugins.no-alt-text.enabled = true
+plugins.no-bare-urls.enabled = true
+plugins.no-blanks-blockquote.enabled = true
+plugins.no-duplicate-heading.allow_different_nesting = false
+plugins.no-duplicate-heading.enabled = true
+plugins.no-duplicate-heading.siblings_only = true
+plugins.no-emphasis-as-heading.enabled = true
+plugins.no-emphasis-as-heading.punctuation = ".,;:!?。，；：？"
+plugins.no-empty-links.enabled = true
+plugins.no-hard-tabs.code_blocks = true
+plugins.no-hard-tabs.enabled = true
+plugins.no-inline-html.allow_first_image_element = true
+plugins.no-inline-html.enabled = true
+plugins.no-missing-space-atx.enabled = true
+plugins.no-missing-space-closed-atx.enabled = true
+plugins.no-multiple-blanks.enabled = true
+plugins.no-multiple-blanks.maximum = 1
+plugins.no-multiple-space-atx.enabled = true
+plugins.no-multiple-space-blockquote.enabled = true
+plugins.no-multiple-space-closed-atx.enabled = true
+plugins.no-reversed-links.enabled = true
+plugins.no-space-in-code.enabled = true
+plugins.no-space-in-emphasis.enabled = true
+plugins.no-space-in-links.enabled = true
+plugins.no-trailing-punctuation.enabled = true
+plugins.no-trailing-punctuation.punctuation = ".,;:!。，；：！"
+plugins.no-trailing-spaces.br_spaces = 2
+plugins.no-trailing-spaces.enabled = true
+plugins.no-trailing-spaces.list_item_empty_lines = false
+plugins.no-trailing-spaces.strict = false
+plugins.ol-prefix.allow_extended_start_values = false
+plugins.ol-prefix.enabled = true
+plugins.ol-prefix.style = "one_or_ordered"
+plugins.per-file-ignores = {}
+plugins.proper-names.code_blocks = true
+plugins.proper-names.code_spans = true
+plugins.proper-names.enabled = true
+plugins.proper-names.names = ""
+plugins.required-headings.enabled = true
+plugins.required-headings.headings = ""
+plugins.single-title.enabled = true
+plugins.single-title.front_matter_title = "title"
+plugins.single-title.level = 1
+plugins.single-trailing-newline.enabled = true
+plugins.strong-style.enabled = true
+plugins.strong-style.style = "consistent"
+plugins.ul-indent.enabled = true
+plugins.ul-indent.indent = 2
+plugins.ul-indent.start_indented = false
+plugins.ul-start-left.enabled = false
+plugins.ul-style.enabled = true
+plugins.ul-style.style = "consistent"
+system.exclude_path = []
 
-## ---------------------------------------------------------------------------------------------------------------------
-## Python
-## ---------------------------------------------------------------------------------------------------------------------
-## # -------------------------------------------------------------------------------------------------------------------
-## # Configuration File Linters & Formatters
-## # -------------------------------------------------------------------------------------------------------------------
-## ## validate-pyproject - Pyproject.toml validator
-[tool.validate-pyproject]
-check = true
-diff = true
-recursive = true
-
-## ## pyroma - Packaging quality checker
-[tool.pyroma]
-check = true
-diff = true
-min_score = 10
-recursive = true
-
-## ## sphinx-lint - Sphinx/reStructuredText linter
-[tool.sphinx-lint]
-check = true
-diff = true
-recursive = true
-
-## ## blocklint - Inclusive language checker
-[tool.blocklint]
-check = true
-diff = true
-recursive = true
-
-## ## radon - Code metrics and complexity calculator
 [tool.radon]
 cc_min = "A"
-check = true
-diff = true
-# Indentation size for output.
-indent = 4
-min_rank = "A"
-recursive = true
-# Show closures in the complexity results.
+exclude = ""
+max_cc = 5
+mi_min = "A"
+no_assert = false
 show_closures = true
-# Display the total average at the end.
 total_average = true
-max-absolute = "A"
-max-modules = "A"
-max-average = "B"
+
+[tool.xenon]
+exclude = ""
+ignore = ""
+max_absolute = "A"
+max_average = "A"
+max_modules = "A"
+
+[tool.yamlfix]
+allow_duplicate_keys = false
+comments_min_spaces_from_content = 2
+comments_require_starting_space = true
+comments_whitelines = 1
+explicit_start = true
+indent_mapping = 2
+indent_offset = 2
+indent_sequence = 4
+line_length = 110
+none_representation = ""
+preserve_quotes = false
+quote_basic_values = false
+quote_keys_and_basic_values = false
+quote_representation = '"'
+section_whitelines = 1
+sequence_style = "block_style"
+whitelines = 1

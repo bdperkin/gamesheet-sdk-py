@@ -7,9 +7,10 @@ from __future__ import annotations
 
 import logging
 import time
+from http import HTTPStatus
 from typing import TYPE_CHECKING, Any
 
-from playwright.sync_api import Response
+from playwright.sync_api import Page, Response
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from gamesheet_sdk.common.auth.constants import (
@@ -49,6 +50,7 @@ def _resolve_email(cfg: Config, email: str | None) -> str:
 
     Raises:
         AuthenticationError: If no email is available from any source.
+
     """
     return resolve_email(cfg, email)
 
@@ -67,11 +69,12 @@ def _resolve_password(cfg: Config, password: str | None) -> str:
 
     Raises:
         AuthenticationError: If no password is available from any source.
+
     """
     return resolve_password(cfg, password)
 
 
-def _wait_for_login_form(page: Any, cfg: Config) -> bool:
+def _wait_for_login_form(page: Page, cfg: Config) -> bool:
     """Wait for the login form to appear, or detect an already-authenticated session.
 
     Waits up to :data:`FORM_DETECTION_TIMEOUT_MS` for the ``#email`` input field. If the timeout fires, the
@@ -84,6 +87,7 @@ def _wait_for_login_form(page: Any, cfg: Config) -> bool:
 
     Returns:
         bool: Boolean result.
+
     """
     try:
         page.wait_for_selector("#email", timeout=FORM_DETECTION_TIMEOUT_MS)
@@ -109,11 +113,12 @@ def _is_firebase_signin(url: str) -> bool:
 
     Returns:
         bool: Boolean result.
+
     """
     return FIREBASE_AUTH_HOST in url and FIREBASE_AUTH_PATH in url
 
 
-def _attach_response_capture(page: Any) -> dict[str, Response | None]:
+def _attach_response_capture(page: Page) -> dict[str, Response | None]:
     """Attach a Playwright response listener to capture Firebase and token exchange responses.
 
     Registers a ``page.on("response", ...)`` handler that saves the first Firebase signInWithPassword response
@@ -125,6 +130,7 @@ def _attach_response_capture(page: Any) -> dict[str, Response | None]:
 
     Returns:
         dict[str, Response | None]: None. The registered handler populates them as matching responses arrive.
+
     """
     captured: dict[str, Response | None] = {"firebase": None, "token": None}
 
@@ -137,6 +143,7 @@ def _attach_response_capture(page: Any) -> dict[str, Response | None]:
 
         Args:
             response (Response): A Playwright Response object intercepted by the page listener.
+
         """
         if _is_firebase_signin(response.url) and captured["firebase"] is None:
             captured["firebase"] = response
@@ -147,7 +154,7 @@ def _attach_response_capture(page: Any) -> dict[str, Response | None]:
     return captured
 
 
-def _submit_login_form(page: Any, email: str, password: str) -> None:
+def _submit_login_form(page: Page, email: str, password: str) -> None:
     """Fill in the login form and submit it.
 
     Args:
@@ -158,6 +165,7 @@ def _submit_login_form(page: Any, email: str, password: str) -> None:
     Returns:
         None: None. The form submission triggers background network calls captured by
             :func:`_attach_response_capture`.
+
     """
     page.fill("#email", email)
     page.fill("#password", password)
@@ -175,6 +183,7 @@ def _firebase_error_message(response: Response) -> str:
 
     Returns:
         str: Extracted error message or HTTP status fallback.
+
     """
     try:
         body: dict[str, Any] = response.json()
@@ -196,8 +205,9 @@ def _raise_for_firebase_error(response: Response) -> None:
     Raises:
         AuthenticationError: If the response status is not 200. The exception message includes the Firebase
             error code extracted by :func:`_firebase_error_message`.
+
     """
-    if response.status != 200:
+    if response.status != HTTPStatus.OK:
         _err_msg = f"Login rejected by Firebase: {_firebase_error_message(response)}"
         raise AuthenticationError(_err_msg)
 
@@ -213,8 +223,9 @@ def _raise_for_token_error(response: Response) -> None:
 
     Raises:
         AuthenticationError: If the response status is not 200.
+
     """
-    if response.status != 200:
+    if response.status != HTTPStatus.OK:
         _err_msg = f"GameSheet token exchange failed (HTTP {response.status})."
         raise AuthenticationError(_err_msg)
 
@@ -233,6 +244,7 @@ def _auth_round_trip_complete(captured: dict[str, Response | None], email: str) 
     Raises:
         AuthenticationError: If Firebase Auth or token exchange responses indicate failure (via
             :func:`_raise_for_firebase_error` or :func:`_raise_for_token_error`).
+
     """
     fb = captured["firebase"]
     if fb is None:
@@ -249,7 +261,7 @@ def _auth_round_trip_complete(captured: dict[str, Response | None], email: str) 
 
 
 def _await_auth_outcome(
-    page: Any,
+    page: Page,
     captured: dict[str, Response | None],
     *,
     deadline: float,
@@ -276,6 +288,7 @@ def _await_auth_outcome(
     Raises:
         AuthenticationError: If auth responses indicate failure (via :func:`_auth_round_trip_complete`), or if
             the deadline passes with no responses.
+
     """
     while time.monotonic() < deadline:
         if _auth_round_trip_complete(captured, email):
@@ -308,6 +321,7 @@ def _settle_post_login(session: BrowserSession, path: str) -> None:
 
     Returns:
         None: None
+
     """
     try:
         session.goto(
@@ -357,6 +371,7 @@ def login(
     Raises:
         AuthenticationError: If authentication fails (missing credentials, Firebase rejection, token exchange
             failure, or timeout).
+
     """
     email = _resolve_email(session.config, email)
     password = _resolve_password(session.config, password)
@@ -406,9 +421,16 @@ class AdminLoginFlow:
 
     Args:
         config (Config): SDK configuration (credentials, URLs, storage paths).
+
     """
 
     def __init__(self: AdminLoginFlow, config: Config) -> None:
+        """Initialize AdminLoginFlow with SDK config.
+
+        Args:
+            config (Config): SDK configuration (credentials, URLs, storage paths).
+
+        """
         self._config = config
 
     def authenticate(
@@ -434,6 +456,7 @@ class AdminLoginFlow:
         Raises:
             ~gamesheet_sdk.common.exceptions.AuthenticationError: If credentials are missing, the auth backend
                 rejects them, or tokens are not found in the saved state after login.
+
         """
         with BrowserSession(self._config) as session:
             login(session, email=email, password=password, timeout=timeout)

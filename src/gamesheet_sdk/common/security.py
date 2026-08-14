@@ -22,6 +22,7 @@ def write_secure_text(path: Path, content: str) -> None:
     Args:
         path (Path): Target file path.
         content (str): Text content to write.
+
     """
     path.parent.mkdir(parents=True, exist_ok=True)
     if os.name == "posix":

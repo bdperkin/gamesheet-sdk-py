@@ -19,6 +19,8 @@ UV_LOCK = "uv.lock"
 
 PYPI_API_URL = "https://pypi.org/pypi/{package}/json"
 
+PYPI_RELEASE_API_URL = "https://pypi.org/pypi/{package}/{version}/json"
+
 PYPI_TIMEOUT = 10
 
 UV_LOCK_TIMEOUT = 120
@@ -44,6 +46,7 @@ def repo_url_to_package(url: str) -> str | None:
 
     Returns:
         str | None: Package name, or None if the URL has no usable basename.
+
     """
     if url in REVERSE_MAPPING:
         return REVERSE_MAPPING[url]

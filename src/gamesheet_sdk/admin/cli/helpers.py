@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import rich_click as click
 from click.exceptions import Exit
@@ -21,7 +21,11 @@ from gamesheet_sdk.common.auth.tokens import (
 from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from gamesheet_sdk.common.config import Config
+
+_R = TypeVar("_R")
 
 
 def build_authenticated_session(
@@ -37,6 +41,7 @@ def build_authenticated_session(
 
     Raises:
         Exit: If no tokens are saved.
+
     """
     access = load_access_token(config)
     refresh = load_refresh_token(config)
@@ -56,7 +61,7 @@ def build_authenticated_session(
     )
 
 
-def run_action_or_exit(session: AuthenticatedSession, action: Any, *args: Any) -> Any:
+def run_action_or_exit(session: AuthenticatedSession, action: Callable[..., _R], *args: object) -> _R:
     """Run an action function with error handling.
 
     Wraps the action call in the session's context manager and catches :exc:`AuthenticationError` and
@@ -76,6 +81,7 @@ def run_action_or_exit(session: AuthenticatedSession, action: Any, *args: Any) -
     Raises:
         Exit: If ``action`` raises :exc:`AuthenticationError` or :exc:`GameSheetError`. Exit code is 1 in both
             cases.
+
     """
     try:
         with session:
@@ -122,9 +128,12 @@ def run_team_update(
 
     Returns:
         None: None
+
     """
-    from gamesheet_sdk.admin.teams import Team
-    from gamesheet_sdk.admin.teams import update_team as _update_team_action
+    from gamesheet_sdk.admin.teams import Team  # noqa: PLC0415
+    from gamesheet_sdk.admin.teams import (  # noqa: PLC0415
+        update_team as _update_team_action,
+    )
 
     # Validate that at least one field is provided for update
     if all(v is None or v is False for v in (title, division_id, external_id, logo_path, remove_logo)):
@@ -152,7 +161,7 @@ def run_team_update(
         )
 
     team = run_action_or_exit(session, _update_with_kwargs)
-    from gamesheet_sdk.admin.cli.shared import render_list_command
+    from gamesheet_sdk.admin.cli.shared import render_list_command  # noqa: PLC0415
 
     render_list_command([team], output_format, output_path)
 
@@ -183,13 +192,16 @@ def run_team_create(
 
     Returns:
         None: None
+
     """
-    from gamesheet_sdk.admin.teams import create_team as _create_team_action
+    from gamesheet_sdk.admin.teams import (  # noqa: PLC0415
+        create_team as _create_team_action,
+    )
 
     config: Config = ctx.obj
     session = build_authenticated_session(config)
 
-    def _create_with_kwargs(sess: AuthenticatedSession) -> Any:
+    def _create_with_kwargs(sess: AuthenticatedSession) -> object:
         return _create_team_action(
             sess,
             season_id,
@@ -199,8 +211,8 @@ def run_team_create(
             logo_path=logo_path,
         )
 
-    result = run_action_or_exit(session, _create_with_kwargs)
-    from gamesheet_sdk.admin.cli.shared import render_get_command
+    result: Any = run_action_or_exit(session, _create_with_kwargs)
+    from gamesheet_sdk.admin.cli.shared import render_get_command  # noqa: PLC0415
 
     render_get_command(result, output_format, output_path)
     # Show success message when output goes to stdout
@@ -222,8 +234,11 @@ def run_team_delete(ctx: Context, season_id: str, team_id: str) -> None:
         ctx (Context): The click context containing the config.
         season_id (str): Season ID containing the team.
         team_id (str): Team ID to delete.
+
     """
-    from gamesheet_sdk.admin.teams import delete_team as _delete_team_action
+    from gamesheet_sdk.admin.teams import (  # noqa: PLC0415
+        delete_team as _delete_team_action,
+    )
 
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -232,15 +247,15 @@ def run_team_delete(ctx: Context, season_id: str, team_id: str) -> None:
 
 
 def run_roster_assign_with_output(
-    action: Any,
+    action: Callable[..., Any],
     session: AuthenticatedSession,
     resource_type: str,
     resource_id: str,
     target_id: str,
     output_format: str,
     output_path: str | None,
-    *args: Any,
-    **kwargs: Any,
+    *args: object,
+    **kwargs: object,
 ) -> None:
     """Run roster assign action with error handling and output rendering.
 
@@ -257,8 +272,9 @@ def run_roster_assign_with_output(
 
     Raises:
         Exit: If the action raises an exception.
+
     """
-    from gamesheet_sdk.admin.cli.shared import render_get_command
+    from gamesheet_sdk.admin.cli.shared import render_get_command  # noqa: PLC0415
 
     try:
         with session:
@@ -275,12 +291,12 @@ def run_roster_assign_with_output(
 
 
 def run_roster_unassign(
-    action: Any,
+    action: Callable[..., Any],
     session: AuthenticatedSession,
     resource_type: str,
     resource_id: str,
     target_id: str,
-    *args: Any,
+    *args: object,
 ) -> None:
     """Run roster unassign action with error handling.
 
@@ -294,6 +310,7 @@ def run_roster_unassign(
 
     Raises:
         Exit: If the action raises an exception.
+
     """
     try:
         with session:
@@ -309,13 +326,13 @@ def run_roster_unassign(
 
 
 def run_roster_update_with_output(
-    action: Any,
+    action: Callable[..., Any],
     session: AuthenticatedSession,
     resource_type: str,
     output_format: str,
     output_path: str | None,
-    *args: Any,
-    **kwargs: Any,
+    *args: object,
+    **kwargs: object,
 ) -> None:
     """Run roster update action with error handling and output rendering.
 
@@ -330,8 +347,9 @@ def run_roster_update_with_output(
 
     Raises:
         Exit: If the action raises an exception.
+
     """
-    from gamesheet_sdk.admin.cli.shared import render_get_command
+    from gamesheet_sdk.admin.cli.shared import render_get_command  # noqa: PLC0415
 
     try:
         with session:
@@ -351,14 +369,14 @@ def run_roster_update_with_output(
 
 
 def run_roster_create_with_output(
-    action: Any,
+    action: Callable[..., Any],
     session: AuthenticatedSession,
     resource_type: str,
     output_format: str,
     output_path: str | None,
-    *args: Any,
+    *args: object,
     success_message: str | None = None,
-    **kwargs: Any,
+    **kwargs: object,
 ) -> None:
     """Run roster create action with error handling and output rendering.
 
@@ -375,8 +393,9 @@ def run_roster_create_with_output(
 
     Raises:
         Exit: If the action raises an exception.
+
     """
-    from gamesheet_sdk.admin.cli.shared import render_get_command
+    from gamesheet_sdk.admin.cli.shared import render_get_command  # noqa: PLC0415
 
     try:
         with session:

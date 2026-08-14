@@ -24,6 +24,7 @@ def load_toml(path: Path) -> dict[str, Any]:
 
     Raises:
         ToolError: If the file cannot be read or contains invalid TOML.
+
     """
     try:
         with path.open("rb") as f:

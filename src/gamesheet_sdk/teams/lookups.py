@@ -10,6 +10,7 @@ least a ``key`` field; additional fields vary by category.
 
 from __future__ import annotations
 
+from http import HTTPStatus
 from typing import Any
 
 import requests
@@ -30,6 +31,7 @@ class LookupValue(BaseModel):
     Attributes:
         key (str): Machine-readable identifier.
         title (str): Human-readable display name.
+
     """
 
     model_config = ConfigDict(extra="allow")
@@ -55,10 +57,11 @@ def list_lookups(
 
     Raises:
         GameSheetError: If the server returns a non-2xx status code.
+
     """
     url = f"{TEAMS_API_GATEWAY}{TEAMS_LOOKUPS_PATH}"
     response = requests.get(url, timeout=timeout)
-    if response.status_code >= 400:
+    if response.status_code >= HTTPStatus.BAD_REQUEST:
         msg = f"GET {TEAMS_LOOKUPS_PATH} returned HTTP {response.status_code}: {response.text}"
         raise GameSheetError(msg)
 

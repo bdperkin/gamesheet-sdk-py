@@ -49,6 +49,7 @@ def teams_roster_group(ctx: Context, season_id: str, team_id: str) -> None:
         ctx (Context): Click context object containing config
         season_id (str): The season identifier
         team_id (str): The team identifier
+
     """
     config = ctx.obj
     ctx.obj = {"config": config, "season_id": season_id, "team_id": team_id}
@@ -59,6 +60,7 @@ def register_teams_roster_group(teams_group: click.Group) -> None:
 
     Args:
         teams_group (click.Group): The main teams group to attach roster commands to.
+
     """
     teams_group.add_command(teams_roster_group)
 

@@ -58,7 +58,7 @@ def _reset_working_tree(*, exclude: str | None = None) -> None:
         cmd.append(f":(exclude){exclude}")
 
     try:
-        subprocess.run(
+        subprocess.run(  # noqa: S603
             cmd,
             capture_output=True,
             check=True,
@@ -109,9 +109,16 @@ class PreCommitGenerator:
 
     Args:
             run_config (RunConfig): Runtime configuration for the generation pipeline.
+
     """
 
     def __init__(self: PreCommitGenerator, run_config: RunConfig) -> None:
+        """Initialize PreCommitGenerator instance.
+
+        Args:
+            run_config (RunConfig): Runtime configuration.
+
+        """
         self.run_config = run_config
         self.tool_config: ToolConfig | None = None
         self.repos: list[dict[str, Any]] = []
@@ -137,6 +144,7 @@ class PreCommitGenerator:
 
         Raises:
             ConfigError: If the configuration data fails validation.
+
         """
         try:
             return ToolConfig.model_validate(raw)
@@ -323,6 +331,7 @@ class PreCommitGenerator:
 
         Raises:
             PreCommitValidationError: If all candidates fail validation.
+
         """
         del hook_ids
         candidates = [c for c in rev_result.candidates if c != rev_result.rev]
@@ -438,6 +447,7 @@ class PreCommitGenerator:
         Raises:
             PreCommitValidationError: If validation fails and downgrade is not possible or all candidates are
                 exhausted.
+
         """
         try:
             self._render_and_validate(
@@ -593,6 +603,7 @@ class PreCommitGenerator:
 
         Returns:
             dict[str, str]: Package name to locked version, empty if unavailable.
+
         """
         if not lock_path.exists():
             logger.info("%s not found — using tag/index discovery only", lock_path)

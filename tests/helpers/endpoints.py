@@ -20,6 +20,7 @@ def coaches_endpoint(season_id: str) -> str:
 
     Returns:
         str: Full endpoint URL.
+
     """
     return f"{TEST_BASE_URL}/api/seasons/{season_id}/coaches"
 
@@ -32,6 +33,7 @@ def players_endpoint(season_id: str) -> str:
 
     Returns:
         str: Full endpoint URL.
+
     """
     return f"{TEST_BASE_URL}/api/seasons/{season_id}/players"
 
@@ -44,6 +46,7 @@ def referees_endpoint(season_id: str) -> str:
 
     Returns:
         str: Full endpoint URL.
+
     """
     return f"{TEST_BASE_URL}/api/seasons/{season_id}/referees"
 
@@ -57,6 +60,7 @@ def referee_endpoint(season_id: str, referee_id: str) -> str:
 
     Returns:
         str: Full endpoint URL.
+
     """
     return f"{TEST_BASE_URL}/api/seasons/{season_id}/referees/{referee_id}"
 
@@ -69,6 +73,7 @@ def teams_endpoint(season_id: str) -> str:
 
     Returns:
         str: Full endpoint URL.
+
     """
     return f"{TEST_BASE_URL}/api/seasons/{season_id}/teams"
 
@@ -82,5 +87,6 @@ def team_endpoint(season_id: str, team_id: str) -> str:
 
     Returns:
         str: Full endpoint URL.
+
     """
     return f"{TEST_BASE_URL}/api/seasons/{season_id}/teams/{team_id}"

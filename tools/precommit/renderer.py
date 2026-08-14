@@ -40,6 +40,7 @@ def _build_hook_map(hook: dict[str, Any]) -> CommentedMap:
 
     Returns:
         CommentedMap: CommentedMap with ordered keys.
+
     """
     hook_map = CommentedMap()
     if "id" in hook:
@@ -67,6 +68,7 @@ def _build_ci_map(ci: dict[str, Any]) -> CommentedMap:
 
     Returns:
         CommentedMap: CommentedMap with description comments on documented properties.
+
     """
     ci_map = CommentedMap()
     for key, value in ci.items():
@@ -95,6 +97,7 @@ def _build_repo_map(repo: dict[str, Any]) -> CommentedMap:
 
     Returns:
         CommentedMap: CommentedMap with ordered keys.
+
     """
     repo_map = CommentedMap()
     repo_map["repo"] = repo["repo"]
@@ -118,6 +121,7 @@ def _add_global_comment(doc: CommentedMap, key: str) -> None:
     Args:
         doc (CommentedMap): The document CommentedMap.
         key (str): The key to annotate.
+
     """
     if key in GLOBALS_PROPERTY_DESCRIPTIONS:
         doc.yaml_set_comment_before_after_key(
@@ -146,6 +150,7 @@ def _add_globals_section(
         files (str | None): Optional global files regex pattern.
         exclude (str | None): Optional global exclude regex pattern.
         minimum_pre_commit_version (str | None): Optional minimum pre-commit version.
+
     """
     if minimum_pre_commit_version is not None:
         doc["minimum_pre_commit_version"] = minimum_pre_commit_version
@@ -195,6 +200,7 @@ def _apply_hook_comments(
         repo_map (CommentedMap): The CommentedMap for a single repo.
         repo_idx (int): Index of this repo in the repos sequence.
         hook_comments (dict[tuple[int, int], str]): Mapping of (repo_index, hook_index) to comment text.
+
     """
     hooks_list = repo_map.get("hooks")
     if not isinstance(hooks_list, CommentedSeq):
@@ -223,6 +229,7 @@ def _build_repos_seq(
 
     Returns:
         CommentedSeq: CommentedSeq ready for insertion into the document.
+
     """
     repos_seq = CommentedSeq()
     for repo_idx, repo in enumerate(repos):
@@ -272,6 +279,7 @@ def _build_document(
 
     Returns:
         CommentedMap: CommentedMap ready for YAML serialization.
+
     """
     doc = CommentedMap()
     doc.yaml_set_start_comment(HEADER_COMMENT)
@@ -301,6 +309,7 @@ def _add_repo_spacing(text: str) -> str:
 
     Returns:
         str: Text with blank lines inserted before repo entries.
+
     """
     lines = text.splitlines()
     result: list[str] = []
@@ -326,14 +335,15 @@ def _single_to_double_quotes(text: str) -> str:
 
     Returns:
         str: Text with single quotes replaced by double quotes.
+
     """
 
     def _replace_match(m: re.Match[str]) -> str:
         inner = m.group(1)
         if "\\" in inner:
-            return m.group(0)
+            return str(m.group(0))
 
-        return '"' + inner + '"'
+        return f'"{inner}"'
 
     def _replace_on_line(line: str) -> str:
         if line.lstrip().startswith("#"):
@@ -350,6 +360,7 @@ def _write_yaml(output_path: Path, doc: CommentedMap) -> None:
     Args:
         output_path (Path): Path to write to.
         doc (CommentedMap): Document to serialize.
+
     """
     yml = YAML()
     yml.indent(mapping=2, sequence=4, offset=2)
@@ -397,6 +408,7 @@ def render_config(
 
     Raises:
         RenderError: If the file cannot be written.
+
     """
     doc = _build_document(
         default_language_version=default_language_version,

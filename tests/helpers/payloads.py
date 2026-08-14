@@ -36,6 +36,7 @@ def jsonapi_payload(rows: list[dict[str, Any]]) -> dict[str, Any]:
     Examples:
         >>> jsonapi_payload([{"type": "associations", "id": "1", "attributes": {...}}])
         {'data': [{'type': 'associations', 'id': '1', 'attributes': {...}}]}
+
     """
     return {"data": rows}
 
@@ -52,6 +53,7 @@ def jsonapi_detail_payload(data: dict[str, Any]) -> dict[str, Any]:
     Examples:
         >>> jsonapi_detail_payload({"type": "associations", "id": "1", "attributes": {...}})
         {'data': {'type': 'associations', 'id': '1', 'attributes': {...}}}
+
     """
     return {"data": data}
 
@@ -78,6 +80,7 @@ def roster_player_payload(
     Examples:
         >>> roster_player_payload()
         {'type': 'players', 'id': '8043169', 'attributes': {...}}
+
     """
     return {
         "type": "players",
@@ -139,6 +142,7 @@ def roster_coach_payload(
     Examples:
         >>> roster_coach_payload()
         {'type': 'coaches', 'id': '1879938', 'attributes': {...}}
+
     """
     return {
         "type": "coaches",
@@ -177,6 +181,7 @@ def association_payload(
     Examples:
         >>> association_payload("1", "Hockey Canada")
         {'type': 'associations', 'id': '1', 'attributes': {'name': 'Hockey Canada'}}
+
     """
     return {
         "type": "associations",
@@ -201,6 +206,7 @@ def league_payload(
 
     Returns:
         dict[str, Any]: API league resource object
+
     """
     return {
         "type": "leagues",
@@ -239,6 +245,7 @@ def team_payload(
         {'type': 'teams', 'id': '12345', 'attributes': {...}, 'relationships': {...}}
         >>> team_payload(players=[{"id": "123", "status": "playing"}])
         {'type': 'teams', 'id': '12345', 'attributes': {'roster': {'players': [...], 'coaches': []}}}
+
     """
     return {
         "type": "teams",
@@ -279,6 +286,7 @@ def invitation_relationship_and_included(
         >>> rel, inc = invitation_relationship_and_included("inv-123", "RAPTORS2024")
         >>> # rel = {"invitations": {"data": [{"type": "invitations", "id": "inv-123"}]}}
         >>> # inc = [{"type": "invitations", "id": "inv-123", "attributes": {"code": "RAPTORS2024"}}]
+
     """
     relationship = {
         "invitations": {

@@ -78,7 +78,7 @@ FIREBASE_AUTH_PATH: Final[str] = ":signInWithPassword"
 # reports it as py/unused-global-variable because nothing in this module reads it.
 FIREBASE_AUTH_URL: Final[str] = f"https://{FIREBASE_AUTH_HOST}/v1/accounts{FIREBASE_AUTH_PATH}"
 # GameSheet token exchange endpoint
-TOKEN_EXCHANGE_PATH: Final[str] = "/api/token"
+TOKEN_EXCHANGE_PATH: Final[str] = "/api/token"  # noqa: S105
 # Consumed by tests/common/auth/conftest.py; CodeQL reports it as
 # py/unused-global-variable because nothing in this module reads it.
 TOKEN_EXCHANGE_URL: Final[str] = f"{DEFAULT_BASE_URL}{TOKEN_EXCHANGE_PATH}"

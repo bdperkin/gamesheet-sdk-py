@@ -14,7 +14,8 @@ endpoint is used instead.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
+from http import HTTPStatus
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
@@ -124,7 +125,7 @@ def _parse_bff_season(item: dict[str, Any], league_id: str) -> Season:
 
     Note: The BFF API does not return created_at/updated_at, so we use the current time.
     """
-    now = datetime.now()
+    now = datetime.now(tz=UTC)
     return Season(
         id=str(item["id"]),
         league_id=league_id,
@@ -167,14 +168,14 @@ def _list_seasons_bff(
 
     url = f"{BFF_API_BASE_URL}/leagues/{league_id}/seasons"
     response = session.get(url, params=params)
-    if response.status_code == 401:
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
-    if response.status_code == 404:
+    if response.status_code == HTTPStatus.NOT_FOUND:
         _err_msg = errors.ERROR_MSG_404_LEAGUE.format(league_id=league_id)
         raise GameSheetError(_err_msg)
 
-    if response.status_code >= 400:
+    if response.status_code >= HTTPStatus.BAD_REQUEST:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=url,
             status_code=response.status_code,
@@ -230,6 +231,7 @@ def list_seasons(
         AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
             ``gamesheet-admin login`` to refresh).
         GameSheetError: For any other non-2xx response.
+
     """
     has_filters = any([starts_after, ends_before, status, stats_year, title])
     if has_filters:
@@ -247,10 +249,10 @@ def list_seasons(
         _ENDPOINT,
         headers=JSONAPI_HEADERS,
     )
-    if response.status_code == 401:
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
-    if response.status_code >= 400:
+    if response.status_code >= HTTPStatus.BAD_REQUEST:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=_ENDPOINT,
             status_code=response.status_code,
@@ -281,20 +283,21 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
         AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
             ``gamesheet-admin login`` to refresh).
         GameSheetError: For any other non-2xx response (including 404 if the season doesn't exist).
+
     """
     endpoint = f"{_ENDPOINT}/{season_id}"
     response = session.get(
         endpoint,
         headers=JSONAPI_HEADERS,
     )
-    if response.status_code == 401:
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
-    if response.status_code == 404:
+    if response.status_code == HTTPStatus.NOT_FOUND:
         _err_msg = errors.ERROR_MSG_404_SEASON.format(season_id=season_id)
         raise GameSheetError(_err_msg)
 
-    if response.status_code >= 400:
+    if response.status_code >= HTTPStatus.BAD_REQUEST:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=endpoint,
             status_code=response.status_code,

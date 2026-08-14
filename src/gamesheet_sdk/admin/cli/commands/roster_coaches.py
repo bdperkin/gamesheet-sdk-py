@@ -5,9 +5,11 @@
 
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING
 
 import rich_click as click
+import yaml
 from click.exceptions import Exit
 from rich_click import Context
 
@@ -108,6 +110,7 @@ def coaches_get_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         fields_spec (str | None): Optional comma-separated list of fields to display
+
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
@@ -136,6 +139,7 @@ def coaches_list_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         columns_spec (str | None): Optional comma-separated list of columns to display
+
     """
     # Extract config and season_id from context (set by roster_group)
     # ctx.obj is always a dict set by roster_group with "config" and "season_id" keys
@@ -202,6 +206,7 @@ def coaches_create_command(
 
     Raises:
         Exit: Always raised (exit code 1) because this command is not yet implemented.
+
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
@@ -283,8 +288,11 @@ def coaches_update_command(
 
     Raises:
         Exit: Always raised (exit code 1) because this command is not yet implemented.
+
     """
-    from gamesheet_sdk.admin.cli.helpers import run_roster_update_with_output
+    from gamesheet_sdk.admin.cli.helpers import (  # noqa: PLC0415
+        run_roster_update_with_output,
+    )
 
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
@@ -328,6 +336,7 @@ def coaches_delete_command(ctx: Context, coach_id: str) -> None:
 
     Raises:
         Exit: On authentication or API errors.
+
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
@@ -368,25 +377,24 @@ def coaches_penalty_report_command(
         coach_id (str): Coach ID to retrieve penalty report for
         output_format (str): Output format (json, yaml, etc.)
         output_path (str | None): Optional path to write output file
-    """
-    import json
 
+    """
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
     with build_authenticated_session(config) as session:
-        from gamesheet_sdk.admin.roster import get_coach_penalty_report
+        from gamesheet_sdk.admin.roster import (  # noqa: PLC0415
+            get_coach_penalty_report,
+        )
 
         report = get_coach_penalty_report(session, season_id, coach_id)
         if output_format == "json":
             output_text = json.dumps(report, indent=2)
         elif output_format == "yaml":
-            import yaml
-
             output_text = yaml.dump(report, default_flow_style=False)
         else:
             output_text = json.dumps(report, indent=2)
 
-        from gamesheet_sdk.common.output import write_output
+        from gamesheet_sdk.common.output import write_output  # noqa: PLC0415
 
         write_output(output_text, output_path, fmt=output_format)
 
@@ -432,6 +440,7 @@ def coaches_assign_command(
         position (str | None): Optional position
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
+
     """
     config, season_id = ctx.obj["config"], ctx.obj["season_id"]
     session = build_authenticated_session(config)
@@ -476,6 +485,7 @@ def coaches_unassign_command(ctx: Context, coach_id: str, team_id: str) -> None:
         ctx (Context): Click context object containing config
         coach_id (str): The coach identifier
         team_id (str): The team identifier
+
     """
     config, season_id = ctx.obj["config"], ctx.obj["season_id"]
     session = build_authenticated_session(config)

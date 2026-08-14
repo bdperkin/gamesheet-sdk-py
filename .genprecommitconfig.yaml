@@ -19,40 +19,59 @@ globals:
     - sort-simple-yaml
 
 ci:
-  autofix_commit_msg: "style: Auto-fixes from pre-commit.ci"
+  autofix_commit_msg: 'style: Auto-fixes from pre-commit.ci'
   autofix_prs: true
-  autoupdate_branch: ""
-  autoupdate_commit_msg: "chore(deps): Update pre-commit hooks"
+  autoupdate_branch: ''
+  autoupdate_commit_msg: 'chore(deps): Update pre-commit hooks'
   autoupdate_schedule: weekly
   submodules: false
+  # Skipped on pre-commit.ci only. Keep this list minimal — add an entry only
+  # when a specific pre-commit.ci run fails on that hook. Everything skipped
+  # here still runs in GitHub Actions, which has no tier limit.
+  #
+  #   pyroma      introspects via `python -m build`, and pre-commit.ci's bundled
+  #               Python has no ensurepip, so the build venv cannot be created
+  #   semgrep     the semgrep repo env is 332 MiB, over the 250 MiB tier limit;
+  #   semgrep-ci  both ids must be skipped or the env is built anyway
+  #   ty          entry is `uv check`, which syncs the project environment when
+  #               it runs; pre-commit.ci has no network during hook execution
   skip:
-    - deptry
-    - editorconfig-checker
     - identity
-    - mdformat
     - pyroma
     - semgrep
     - semgrep-ci
     - ty
-    - uv-lock
 
 categories:
   meta:
-    description: Meta Hooks (pre-commit validation)
+    description: Hook Management
     repos:
 
       - name: meta
         repo: meta
 
-  conventional-commits:
-    description: Commit Message Linting (Conventional Commits)
+      - name: sync-pre-commit-deps
+        repo: https://github.com/pre-commit/sync-pre-commit-deps
+
+  dependencies:
+    description: Lockfile Synchronization
     repos:
 
-      - name: conventional-pre-commit
-        repo: https://github.com/compilerla/conventional-pre-commit
+      - name: uv
+        repo: https://github.com/astral-sh/uv-pre-commit
+        rev: installed
+        hooks:
+          - id: uv-audit
+            overrides:
+              stages:
+                - manual
+          - id: uv-export
+            overrides:
+              stages:
+                - manual
 
-  check:
-    description: Global File Sanity Checks
+  checks:
+    description: Low-level Checks
     repos:
 
       - name: pre-commit-hooks
@@ -75,7 +94,7 @@ categories:
                 - --no-sort-keys
           - id: name-tests-test
             overrides:
-              exclude: ^tests/.*(cli|conftest|constants|endpoints|mocks|payloads|roster_helpers)\.py$
+              exclude: ^tests/(cli/roster_helpers|fixtures/constants|helpers/cli|helpers/constants|helpers/endpoints|helpers/mocks|helpers/payloads)\.py$
             prepends:
               args:
                 - --pytest-test-first
@@ -87,25 +106,12 @@ categories:
             overrides:
               exclude: ^\.pre-commit-config\.yaml$
 
-      - name: uv-pre-commit
-        repo: https://github.com/astral-sh/uv-pre-commit
-        rev: installed
-        hooks:
-          - id: uv-audit
-            overrides:
-              stages:
-                - manual
-          - id: uv-export
-            overrides:
-              stages:
-                - manual
-
-  configuration_file_linters_-_formatters:
-    description: Configuration File Linters & Formatters
-    repos:
-
-      - name: editorconfig-checker.python
+      - name: editorconfig-checker
         repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+
+  configuration:
+    description: Configuration Validation
+    repos:
 
       - name: format-json
         repo: https://github.com/jsh9/format-json
@@ -114,16 +120,14 @@ categories:
             prepends:
               args:
                 - --autofix
+                - --indent
+                - '2'
 
       - name: yamlfix
         repo: https://github.com/lyz-code/yamlfix
 
       - name: yamllint
         repo: https://github.com/adrienverge/yamllint
-        hooks:
-          - id: yamllint
-            overrides:
-              exclude: ^\.pre-commit-config\.yaml$
 
       - name: pyproject-fmt
         repo: https://github.com/tox-dev/pyproject-fmt
@@ -134,8 +138,8 @@ categories:
       - name: pyroma
         repo: https://github.com/regebro/pyroma
 
-  documentation_-_markdown_tools:
-    description: Documentation & Markdown Tools
+  markdown:
+    description: Markdown Formatting
     repos:
 
       - name: mdformat
@@ -149,9 +153,6 @@ categories:
       - name: markdown-heading-numbering
         repo: https://github.com/jsh9/markdown-heading-numbering
         hooks:
-          # semantic-release prepends each release at the placeholder, so
-          # numbering CHANGELOG.md would renumber every entry below it on
-          # every release — and count backwards through time besides.
           - id: markdown-heading-numbering
             overrides:
               exclude: ^CHANGELOG\.md$
@@ -162,11 +163,21 @@ categories:
       - name: pymarkdown
         repo: https://github.com/jackdewinter/pymarkdown
 
-  code_style_-_formatting_-automated_fixers-:
-    description: Code Style & Formatting (Automated Fixers)
+  security:
+    description: Secret and Vulnerability Scans
     repos:
 
-      - name: ruff-pre-commit
+      - name: detect-secrets
+        repo: https://github.com/yelp/detect-secrets
+
+      - name: semgrep
+        repo: https://github.com/semgrep/pre-commit
+
+  format:
+    description: Python Formatting
+    repos:
+
+      - name: ruff
         repo: https://github.com/astral-sh/ruff-pre-commit
         hooks:
           - id: ruff-check
@@ -174,20 +185,29 @@ categories:
               args:
                 - --fix
 
-  code_cleaners_-_dead_code_detectors:
-    description: Code Cleaners & Dead Code Detectors
+  quality:
+    description: Code Quality
     repos:
-
-      - name: detect-secrets
-        repo: https://github.com/yelp/detect-secrets
 
       - name: vulture
         repo: https://github.com/jendrikseipp/vulture
+
+      - name: interrogate
+        repo: https://github.com/econchick/interrogate
         hooks:
-          - id: vulture
-            appends:
-              args:
-                - .
+          - id: interrogate
+            overrides:
+              pass_filenames: false
+
+      - name: codespell
+        repo: https://github.com/codespell-project/codespell
+
+      - name: blocklint
+        repo: https://github.com/princetonuniversity/blocklint
+
+  architecture:
+    description: Dependencies and Complexity Metrics
+    repos:
 
       - name: deptry
         repo: https://github.com/osprey-oss/deptry
@@ -199,62 +219,32 @@ categories:
               additional_dependencies:
                 - gamesheet-sdk-py[deptry]
 
-  documentation_-_docstring_tools:
-    description: Documentation & Docstring Tools
-    repos:
-
-      - name: codespell
-        repo: https://github.com/codespell-project/codespell
-
-      - name: interrogate
-        repo: https://github.com/econchick/interrogate
-        hooks:
-          - id: interrogate
-            overrides:
-              pass_filenames: false
-
-  code_quality_linters_-_static_analysis:
-    description: Code Quality Linters & Static Analysis
-    repos:
-
-      - name: blocklint
-        repo: https://github.com/princetonuniversity/blocklint
-
-  security-_metrics_-_complexity:
-    description: Security, Metrics & Complexity
-    repos:
-
-      - name: semgrep
-        repo: https://github.com/semgrep/pre-commit
-        hooks:
-          - id: semgrep
-            prepends:
-              args:
-                - --jobs
-                - "1"
-
       - name: xenon
         repo: https://github.com/rubik/xenon
 
-  type_checkers:
-    description: Type Checkers
+  types:
+    description: Static Type Checks
     repos:
 
-      - name: ty-pre-commit
+      - name: ty
         repo: https://github.com/astral-sh/ty-pre-commit
         hooks:
           - id: ty
             prepends:
               args:
-                - --project
-                - .
+                - --fix
+                # `uv check` syncs the project environment itself, so without
+                # the tools extra `packaging`/`tomlkit`/`ruamel-yaml` are
+                # unresolvable and everything in tools/ infers as `Unknown`.
+                - --extra
+                - tools
 
-  pre-commit-hook-sync:
-    description: Pre-Commit Hook Sync
+  commits:
+    description: Commit Standards
     repos:
+
+      - name: conventional-pre-commit
+        repo: https://github.com/compilerla/conventional-pre-commit
 
       - name: pre-commit-ci-config
         repo: https://github.com/pre-commit-ci/pre-commit-ci-config
-
-      - name: sync-pre-commit-deps
-        repo: https://github.com/pre-commit/sync-pre-commit-deps

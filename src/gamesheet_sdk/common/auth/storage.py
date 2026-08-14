@@ -80,6 +80,7 @@ def read_state_file(path: Path) -> dict[str, Any] | None:
     Returns:
         dict[str, Any] | None: Parsed storage state dictionary, or ``None`` if file is missing or cannot be
             parsed.
+
     """
     if not path.exists():
         return None
@@ -93,7 +94,7 @@ def read_state_file(path: Path) -> dict[str, Any] | None:
     return loaded
 
 
-def lookup_local_storage(state: dict[str, Any], base_url: str, name: str) -> Any:
+def lookup_local_storage(state: dict[str, Any], base_url: str, name: str) -> object | None:
     """Return the named localStorage value for base_url, or None.
 
     Searches the storage state dictionary for a localStorage entry matching the given origin (base_url) and
@@ -111,6 +112,7 @@ def lookup_local_storage(state: dict[str, Any], base_url: str, name: str) -> Any
 
     Returns:
         Any: The value associated with the key, or ``None`` if the origin or key is not found.
+
     """
     for origin in state.get("origins", []):
         if origin.get("origin") != base_url:
@@ -151,6 +153,7 @@ def load_local_storage_value(config: Config, name: str) -> str | None:
 
     Returns:
         str | None: The string value if found and non-empty, otherwise None.
+
     """
     state = read_state_file(config.browser_state_path)
     if state is None:
@@ -176,6 +179,7 @@ def read_state_or_empty(path: Path) -> dict[str, Any]:
     Returns:
         dict[str, Any]: Parsed storage state dictionary, or ``{"cookies": [], "origins": []}`` if the file is
             missing or cannot be parsed.
+
     """
     empty: dict[str, Any] = {"cookies": [], "origins": []}
     if not path.exists():
@@ -206,6 +210,7 @@ def origin_entry_for(state: dict[str, Any], base_url: str) -> dict[str, Any]:
     Returns:
         dict[str, Any]: The origin entry dictionary containing ``"origin"`` and ``"localStorage"`` keys. The
             returned dict is a **live reference** — modifications to it will update the state.
+
     """
     origins: list[dict[str, Any]] = state.setdefault("origins", [])
     for origin in origins:
@@ -257,6 +262,7 @@ def apply_local_storage_updates(
         ls (list[dict[str, str]]): The ``localStorage`` array from an origin entry (typically
             ``origin["localStorage"]``). This list is **mutated in place**.
         updates (dict[str, str]): Dictionary of key-value pairs to upsert.
+
     """
     by_name = {kv.get("name"): kv for kv in ls}
     for name, value in updates.items():

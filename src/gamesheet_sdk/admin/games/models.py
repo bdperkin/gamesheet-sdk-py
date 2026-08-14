@@ -17,6 +17,7 @@ class Broadcaster(BaseModel):
         key (str): Broadcaster key identifier (e.g., "LIVEBARN").
         title (str): Display name of the broadcaster.
         url (str): Broadcaster website URL.
+
     """
 
     key: str = Field(description="Broadcaster key identifier.")
@@ -34,6 +35,7 @@ class Location(BaseModel):
         city (str): City where the location is located.
         province_state (str): Province or state.
         country (str): Country.
+
     """
 
     id: str = Field(description="Location identifier (UUID).")
@@ -48,6 +50,7 @@ class Location(BaseModel):
 
         Returns:
             str: Combined location and surface name.
+
         """
         return f"{self.location_name} {self.surface_name}"
 
@@ -60,6 +63,7 @@ class TeamInfo(BaseModel):
         title (str): Team name.
         division_id (int | None): Division identifier.
         division_title (str | None): Division name.
+
     """
 
     id: int = Field(description="Team identifier.")
@@ -98,6 +102,7 @@ class Game(BaseModel):
         has_shootout (bool | None): Whether game had a shootout.
         has_overtime (bool | None): Whether game had overtime.
         viewed (bool | None): Whether the user has viewed this game.
+
     """
 
     id: int = Field(description="Game identifier.")
@@ -163,6 +168,7 @@ class Scorekeeper(BaseModel):
     Attributes:
         name (str): Scorekeeper's full name.
         phone (str): Scorekeeper's phone number.
+
     """
 
     name: str = Field(description="Scorekeeper's full name.")
@@ -180,6 +186,7 @@ class GameData(BaseModel):
         broadcaster_id (int): Broadcaster identifier.
         home_label (str): Home team label override.
         visitor_label (str): Visitor team label override.
+
     """
 
     vendors: dict[str, Any] = Field(
@@ -221,6 +228,7 @@ class RelationshipData(BaseModel):
     Attributes:
         id (str): Related resource identifier.
         type (str): Related resource type.
+
     """
 
     id: str = Field(description="Related resource identifier.")
@@ -232,6 +240,7 @@ class Relationship(BaseModel):
 
     Attributes:
         data (RelationshipData): Relationship data.
+
     """
 
     data: RelationshipData = Field(description="Relationship data.")
@@ -248,6 +257,7 @@ class ScheduledGameRelationships(BaseModel):
         season (Relationship | None): Parent season.
         visitor_division (Relationship): Visitor team's division.
         visitor_team (Relationship): Visitor team.
+
     """
 
     association: Relationship | None = Field(
@@ -289,6 +299,7 @@ class ScheduledGameAttributes(BaseModel):
         data (GameData): Additional game metadata.
         created_at (str | None): Creation timestamp (ISO 8601).
         updated_at (str | None): Last update timestamp (ISO 8601).
+
     """
 
     status: str = Field(description="Game status.")
@@ -323,6 +334,7 @@ class ScheduledGameData(BaseModel):
         id (str): Game identifier.
         attributes (ScheduledGameAttributes): Game attributes.
         relationships (ScheduledGameRelationships): Game relationships.
+
     """
 
     type: str = Field(description="Resource type.")
@@ -338,6 +350,7 @@ class ScheduledGame(BaseModel):
 
     Attributes:
         data (ScheduledGameData): Game data wrapper.
+
     """
 
     data: ScheduledGameData = Field(description="Game data wrapper.")

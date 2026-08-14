@@ -77,6 +77,7 @@ def _render_json(
     str: Example output: :
 
         [{"id": 123, "name": "Example"}]
+
     """
     return json.dumps(rows, indent=JSON_INDENT_SPACES, sort_keys=True, default=str)
 
@@ -100,8 +101,9 @@ def _render_yaml(
             name: Example
         - id: 456
             name: Another
+
     """
-    return yaml.safe_dump(rows, sort_keys=True, default_flow_style=False).rstrip()
+    return str(yaml.safe_dump(rows, sort_keys=True, default_flow_style=False)).rstrip()
 
 
 def _render_dsv(
@@ -124,6 +126,7 @@ def _render_dsv(
             id, name
             123, Example
             456, Another
+
     """
     buf = io.StringIO()
     writer = csv.DictWriter(
@@ -153,6 +156,7 @@ def _render_csv(rows: list[dict[str, Any]], columns: list[str]) -> str:
 
     Returns:
         str: CSV string with header row and comma delimiters.
+
     """
     return _render_dsv(rows, columns, delimiter=",")
 
@@ -168,6 +172,7 @@ def _render_tsv(rows: list[dict[str, Any]], columns: list[str]) -> str:
 
     Returns:
         str: TSV string with header row and tab delimiters.
+
     """
     return _render_dsv(rows, columns, delimiter="\t")
 
@@ -186,9 +191,10 @@ def _render_tabulate(rows: list[dict[str, Any]], columns: list[str], fmt: str) -
 
     Returns:
         str: Formatted table string.
+
     """
     table_rows = [[row.get(col, "") for col in columns] for row in rows]
-    return _tabulate.tabulate(table_rows, headers=columns, tablefmt=fmt)
+    return str(_tabulate.tabulate(table_rows, headers=columns, tablefmt=fmt))
 
 
 # Dispatch table for the non-tabulate ("data") formats. Keeps :func:`render`
@@ -213,6 +219,7 @@ def _derive_columns(rows: list[dict[str, Any]]) -> list[str]:
 
     Returns:
         list[str]: Keys from the first row, or an empty list if ``rows`` is empty.
+
     """
     if not rows:
         return []
@@ -275,6 +282,7 @@ def render(
         # id,name
         # 123,Example
         # 456,Another
+
     """
     if fmt not in ALL_FORMATS:
         _fmt_list = ", ".join(ALL_FORMATS)
@@ -300,6 +308,7 @@ def _ensure_trailing_newline(text: str) -> str:
 
     Returns:
         str: Text string with a guaranteed trailing newline.
+
     """
     return text if text.endswith("\n") else f"{text}\n"
 
@@ -326,13 +335,13 @@ def write_output(
 
     **TTY stdout example** (JSON/YAML only)::
 
-        >>> from gamesheet_sdk.common.output import write_output
+        >>> from gamesheet_sdk.common.output import write_output  # noqa: PLC0415
         >>> write_output(text, None, fmt="json")
         # Syntax-highlighted output to terminal if stdout is a TTY
 
     **Non-TTY / other formats**::
 
-        >>> from gamesheet_sdk.common.output import write_output
+        >>> from gamesheet_sdk.common.output import write_output  # noqa: PLC0415
         >>> write_output(text, None, fmt="csv")
         # Plain text to stdout with trailing newline
 
@@ -342,6 +351,7 @@ def write_output(
             stdout.
         fmt (str): Format name (e.g. ``"json"``, ``"yaml"``, ``"csv"``); controls syntax highlighting on TTY
             stdout.
+
     """
     if path is not None:
         Path(path).write_text(_ensure_trailing_newline(text), encoding=ENCODING_UTF8)

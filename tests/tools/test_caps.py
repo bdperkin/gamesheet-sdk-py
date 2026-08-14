@@ -19,8 +19,8 @@ TOOLS_DIR = Path(__file__).resolve().parents[2] / "tools"
 if str(TOOLS_DIR) not in sys.path:  # pragma: no cover - import side effect
     sys.path.insert(0, str(TOOLS_DIR))
 
-from depsync.caps import detect_capped_pins  # noqa: E402
-from depsync.exceptions import FetchError  # noqa: E402
+from depsync.caps import detect_capped_pins
+from depsync.exceptions import FetchError
 
 
 def _stub_index(monkeypatch: pytest.MonkeyPatch, available: dict[str, list[str]]) -> None:
@@ -29,6 +29,7 @@ def _stub_index(monkeypatch: pytest.MonkeyPatch, available: dict[str, list[str]]
     Args:
         monkeypatch (pytest.MonkeyPatch): Patcher.
         available (dict[str, list[str]]): Package name to the versions the index offers.
+
     """
 
     def _fetch(name: str, **_kwargs: object) -> dict[str, str | None]:
@@ -36,7 +37,7 @@ def _stub_index(monkeypatch: pytest.MonkeyPatch, available: dict[str, list[str]]
             msg = f"no such package {name}"
             raise FetchError(msg)
 
-        return dict.fromkeys(available[name])
+        return {k: None for k in available[name]}  # noqa: C420
 
     monkeypatch.setattr("depsync.caps.fetch_pypi_versions", _fetch)
 
@@ -107,7 +108,7 @@ def test_empty_input_does_no_work(monkeypatch: pytest.MonkeyPatch) -> None:
     assert detect_capped_pins([], {}) == {}
 
 
-def test_unparseable_version_is_not_capped(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_unparsable_version_is_not_capped(monkeypatch: pytest.MonkeyPatch) -> None:
     """Test that a version that cannot be compared never manufactures a suppression."""
     _stub_index(monkeypatch, {"weird": ["not-a-version"]})
 
@@ -136,6 +137,7 @@ def test_cap_boundary(
         resolved (str): Version uv resolved.
         newest (str): Newest version the index offers.
         expected (bool): Whether that should count as capped.
+
     """
     _stub_index(monkeypatch, {"pkg": [resolved, newest]})
 

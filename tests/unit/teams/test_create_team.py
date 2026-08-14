@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
+from typing import cast
 
 import pytest
 import responses
@@ -83,7 +84,7 @@ def test_create_team_sends_correct_payload_without_logo(config: Config) -> None:
     import json
 
     assert req.body is not None
-    payload = json.loads(req.body)
+    payload = json.loads(cast("bytes | str", req.body))
     assert payload["title"] == DEFAULT_TEAM_NAME
     assert payload["divisionId"] == 80385
     assert "externalId" not in payload
@@ -122,7 +123,7 @@ def test_create_team_with_external_id(config: Config) -> None:
     import json
 
     assert responses.calls[0].request.body is not None
-    payload = json.loads(responses.calls[0].request.body)
+    payload = json.loads(cast("bytes | str", responses.calls[0].request.body))
     assert payload["externalId"] == "custom-external-id"
 
 
@@ -198,7 +199,7 @@ def test_create_team_with_logo(config: Config) -> None:
 
         team_req = responses.calls[2].request
         assert team_req.body is not None
-        payload = json.loads(team_req.body)
+        payload = json.loads(cast("bytes | str", team_req.body))
         assert payload["logo"] == f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/test-image-id"
     finally:
         Path(logo_path).unlink()

@@ -14,6 +14,7 @@ Playwright needed for read-only access once a bearer token has been obtained (ty
 from __future__ import annotations
 
 from datetime import datetime
+from http import HTTPStatus
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
@@ -30,6 +31,8 @@ from gamesheet_sdk.common.shared.constants import FIELD_DESC_PARENT_SEASON_ID
 from gamesheet_sdk.common.shared.gamesheet_http import handle_season_scoped_response
 
 if TYPE_CHECKING:
+    import requests
+
     from gamesheet_sdk.common.session import Session
 
 
@@ -50,6 +53,7 @@ class Team(BaseModel):
         coach_count (int | None): Number of coaches on the team.
         created_at (datetime): When the team was created.
         updated_at (datetime): Last time the team was updated.
+
     """
 
     id: str = Field(description="Team identifier (string in JSON:API).")
@@ -88,6 +92,7 @@ def _parse(item: dict[str, Any]) -> Team:
 
     Returns:
         Team: Parsed Team model instance.
+
     """
     attrs = item.get("attributes", {})
     relationships = item.get("relationships", {})
@@ -131,6 +136,7 @@ def list_teams(session: Session, season_id: str) -> list[Team]:
     Returns:
         list[Team]: A list of :class:`Team`, in the order the server returned them. The list may be empty if
             the season has no teams.
+
     """
     endpoint = f"/api/seasons/{season_id}/teams"
     # Request sparse fieldset including logo_url and roster (for player/coach counts)
@@ -184,6 +190,7 @@ def get_team(session: Session, season_id: str, team_id: str) -> Team:
         The single-team GET endpoint doesn't support including related invitations, so this function fetches
         all teams in the season (which does include invitations) and filters to the requested team. This
         ensures invitation_code is populated.
+
     """
     # The single-team endpoint (/api/seasons/{season_id}/teams/{team_id}) doesn't
     # honor the include=invitations parameter, so we use the list endpoint instead
@@ -214,14 +221,15 @@ def _upload_logo(session: Session, logo_path: str) -> str:
     Raises:
         GameSheetError: If the file is not found, is not a valid image, or the upload fails.
         AuthenticationError: If the server returns 401.
+
     """
-    from gamesheet_sdk.common.shared import upload_image
+    from gamesheet_sdk.common.shared import upload_image  # noqa: PLC0415
 
     return upload_image(session, logo_path, "logo")
 
 
 def _handle_team_response_errors(
-    response: Any,
+    response: requests.Response,
     endpoint: str,
     team_id: str,
     season_id: str,
@@ -237,18 +245,19 @@ def _handle_team_response_errors(
     Raises:
         AuthenticationError: If the response is 401.
         GameSheetError: For 404 or other non-2xx responses.
+
     """
-    if response.status_code == 401:
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
-    if response.status_code == 404:
+    if response.status_code == HTTPStatus.NOT_FOUND:
         _err_msg = errors.ERROR_MSG_404_TEAM.format(
             team_id=team_id,
             season_id=season_id,
         )
         raise GameSheetError(_err_msg)
 
-    if response.status_code >= 400:
+    if response.status_code >= HTTPStatus.BAD_REQUEST:
         _err_msg = errors.ERROR_MSG_GENERIC_HTTP.format(
             context="",
             endpoint=endpoint,
@@ -292,6 +301,7 @@ def update_team(
     Raises:
         GameSheetError: For any other non-2xx response.
         ValueError: If no fields are provided for update.
+
     """
     if all(v is None or v is False for v in (title, external_id, division_id, logo_path, remove_logo)):
         raise ValueError(errors.ERROR_MSG_AT_LEAST_ONE_FIELD)
@@ -372,7 +382,7 @@ def update_team(
             delete_logo_endpoint,
             headers=JSONAPI_HEADERS,
         )
-        if delete_response.status_code >= 400:
+        if delete_response.status_code >= HTTPStatus.BAD_REQUEST:
             _err_msg = errors.ERROR_MSG_HTTP_DELETE.format(
                 endpoint=delete_logo_endpoint,
                 status_code=delete_response.status_code,
@@ -414,6 +424,7 @@ def create_team(
     Raises:
         AuthenticationError: If the server returns 401.
         GameSheetError: For any other non-2xx response.
+
     """
     logo_url: str | None = None
     if logo_path:
@@ -431,10 +442,10 @@ def create_team(
         payload["logo"] = logo_url
 
     create_response = session.post(create_endpoint, json=payload)
-    if create_response.status_code == 401:
+    if create_response.status_code == HTTPStatus.UNAUTHORIZED:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
-    if create_response.status_code >= 400:
+    if create_response.status_code >= HTTPStatus.BAD_REQUEST:
         _err_msg = errors.ERROR_MSG_HTTP_POST.format(
             endpoint=create_endpoint,
             status_code=create_response.status_code,
@@ -470,23 +481,24 @@ def delete_team(
         AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
             ``gamesheet-admin login`` to refresh).
         GameSheetError: For any other non-2xx response.
+
     """
     endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
     response = session.delete(
         endpoint,
         headers=JSONAPI_HEADERS,
     )
-    if response.status_code == 401:
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
-    if response.status_code == 404:
+    if response.status_code == HTTPStatus.NOT_FOUND:
         _err_msg = errors.ERROR_MSG_404_TEAM.format(
             team_id=team_id,
             season_id=season_id,
         )
         raise GameSheetError(_err_msg)
 
-    if response.status_code >= 400:
+    if response.status_code >= HTTPStatus.BAD_REQUEST:
         _err_msg = errors.ERROR_MSG_HTTP_DELETE.format(
             endpoint=endpoint,
             status_code=response.status_code,

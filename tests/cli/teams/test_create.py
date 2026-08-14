@@ -5,13 +5,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 from gamesheet_sdk.admin.cli.main import cli
 from tests.helpers import ASSOCIATION_ID, DEFAULT_TEAM_NAME, SEASON_ID
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from click.testing import CliRunner
 
 
@@ -193,7 +195,7 @@ def test_teams_create_alias_new_works(runner: CliRunner) -> None:
         mock_create.assert_called_once()
 
 
-def test_teams_create_with_output_file(runner: CliRunner, tmp_path: Any) -> None:
+def test_teams_create_with_output_file(runner: CliRunner, tmp_path: Path) -> None:
     """The teams create command should support --output flag."""
     output_file = tmp_path / "team.json"
     with (

@@ -28,6 +28,7 @@ def list_completed(session: Session, season_id: str) -> list[Game]:
     Returns:
         list[Game]: A list of :class:`Game`, in the order the server returned them. The list may be empty if
             the season has no completed games.
+
     """
     return _make_request(session, season_id, completed=True, scheduled=False)
 
@@ -53,6 +54,7 @@ def list_brackets(session: Session, season_id: str) -> list[Game]:
     Raises:
         AuthenticationError: If the server returns 401.
         GameSheetError: For any other non-2xx response.
+
     """
     # Try filter[brackets]=true first, fallback to gameType=playoff if needed
     return _make_request(session, season_id, brackets=True)
@@ -74,6 +76,7 @@ def get_game(session: Session, season_id: str, game_id: int) -> Game:
 
     Raises:
         GameSheetError: For any other non-2xx response, including 404 if the game is not found.
+
     """
     # Get all games for the season and filter by ID
     # The BFF API doesn't have a single-game endpoint, so we filter client-side

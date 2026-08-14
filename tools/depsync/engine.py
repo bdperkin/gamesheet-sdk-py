@@ -38,10 +38,11 @@ logger = logging.getLogger(__name__)
 
 
 def _normalize_rev(rev: str) -> str | None:
-    """Normalize a rev string to a comparable version, or None if unparseable.
+    """Normalize a rev string to a comparable version, or None if unparsable.
 
     Returns:
         str | None: Normalized version string, or None for non-version revs.
+
     """
     stripped = rev.lstrip("v")
     try:
@@ -61,6 +62,7 @@ def resolve_pinned_packages(pinned_revs: dict[str, str]) -> dict[str, str]:
 
     Returns:
         dict[str, str]: Dict mapping PyPI package name to normalized version string.
+
     """
     result: dict[str, str] = {}
     for url, rev in pinned_revs.items():
@@ -99,6 +101,7 @@ def prefetch_versions(
     Returns:
         tuple[dict[str, dict[str, str | None]], dict[str, list[str]]]: Tuple of (pypi_cache, git_cache) where
             pypi_cache maps package name to versions dict and git_cache maps repo URL to tag list.
+
     """
     logger.info(
         "Prefetching %d PyPI packages and %d git repos in parallel",
@@ -167,6 +170,7 @@ def _target_version(
 
     Returns:
         str | None: Target version string, or None if no candidate could be determined.
+
     """
     uv_version = resolved.get(pkg_name)
     if uv_version:
@@ -197,6 +201,7 @@ def _resolve_hook_target(
 
     Returns:
         tuple[str, str] | None: Tuple of (git_tag, normalized_version), or None if no target exists.
+
     """
     git_tags = git_cache.get(repo_url, [])
     uv_version = resolved.get(pkg_name)
@@ -240,6 +245,7 @@ def _log_convergence_result(
         needs_regen (bool): Whether the pre-commit rev needs regeneration.
         repo_rev (str): The current rev string from .pre-commit-config.yaml.
         current_pyproject_version (str | None): The current version in pyproject.toml.
+
     """
     if pyproject_changed:
         logger.info(
@@ -278,6 +284,7 @@ def _converge_shared_main_hooks(
 
     Returns:
         list[ConvergenceResult]: List of convergence results for shared main-hook packages.
+
     """
     results: list[ConvergenceResult] = []
 
@@ -378,6 +385,7 @@ def _converge_shared_additional_deps(
 
     Returns:
         list[ConvergenceResult]: List of convergence results for shared additional-dependency packages.
+
     """
     results: list[ConvergenceResult] = []
 
@@ -436,6 +444,7 @@ def _converge_pypi_only(
 
     Returns:
         list[ConvergenceResult]: List of convergence results for pyproject-only packages.
+
     """
     results: list[ConvergenceResult] = []
 
@@ -489,6 +498,7 @@ def _converge_precommit_only_additional(
 
     Returns:
         list[ConvergenceResult]: List of convergence results for pre-commit-only additional dependencies.
+
     """
     results: list[ConvergenceResult] = []
 
@@ -552,6 +562,7 @@ def _detect_stale_precommit_revs(
 
     Returns:
         list[ConvergenceResult]: List of ConvergenceResult for repos with stale revs.
+
     """
     results: list[ConvergenceResult] = []
 
@@ -624,6 +635,7 @@ def _build_repo_mappings(
     Returns:
         tuple[dict[str, str], dict[str, str], dict[str, list[PreCommitRepo]]]: Tuple of (repo_url_to_pkg,
             pkg_to_repo_url, precommit_additional_names).
+
     """
     repo_url_to_pkg: dict[str, str] = {}
     pkg_to_repo_url: dict[str, str] = {}
@@ -662,6 +674,7 @@ def _collect_prefetch_candidates(
 
     Returns:
         tuple[set[str], set[str]]: Tuple of (pypi_names, git_urls) to prefetch.
+
     """
     pypi_names: set[str] = set()
     git_urls: set[str] = set()
@@ -720,6 +733,7 @@ def converge(
 
     Returns:
         list[ConvergenceResult]: List of ConvergenceResult describing all updates needed.
+
     """
     results: list[ConvergenceResult] = []
     uv_resolved: Mapping[str, str] = resolved or {}

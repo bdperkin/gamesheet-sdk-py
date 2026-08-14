@@ -45,6 +45,7 @@ def roster_group(ctx: Context, season_id: str) -> None:
     Args:
         ctx (Context): Click context object containing config
         season_id (str): The season identifier
+
     """
     # Store season_id in context for sub-commands to access
     # ctx.obj is a Config object from the root CLI - wrap it in a dict

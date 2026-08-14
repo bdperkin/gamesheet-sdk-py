@@ -24,6 +24,7 @@ if TYPE_CHECKING:
 def _make_request(
     session: Session,
     season_id: str,
+    *,
     completed: bool | None = None,
     scheduled: bool | None = None,
     brackets: bool | None = None,
@@ -42,6 +43,7 @@ def _make_request(
 
     Raises:
         GameSheetError: For any non-2xx response.
+
     """
     params: dict[str, Any] = {
         "filter[seasons]": season_id,
@@ -77,6 +79,7 @@ def validate_game_type(game_type: str) -> None:
 
     Raises:
         GameSheetError: If the game type is not valid.
+
     """
     sorted_game_types = ", ".join(sorted(VALID_GAME_TYPES))
     if game_type not in VALID_GAME_TYPES:

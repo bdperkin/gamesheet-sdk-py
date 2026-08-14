@@ -14,6 +14,7 @@ obtained (typically by reading the SPA's ``accessToken`` from the saved browser 
 from __future__ import annotations
 
 from datetime import datetime
+from http import HTTPStatus
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
@@ -87,6 +88,7 @@ def _parse(item: dict[str, Any]) -> Referee:
 
     Returns:
         Referee: Return value.
+
     """
     attrs = item.get("attributes", {})
     # Extract season_id from relationships
@@ -121,23 +123,24 @@ def get_referee(session: Session, season_id: str, referee_id: str) -> Referee:
         AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
             ``gamesheet-admin login`` to refresh).
         GameSheetError: For any other non-2xx response.
+
     """
     endpoint = f"/api/seasons/{season_id}/referees/{referee_id}"
     response = session.get(
         endpoint,
         headers=JSONAPI_HEADERS,
     )
-    if response.status_code == 401:
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
-    if response.status_code == 404:
+    if response.status_code == HTTPStatus.NOT_FOUND:
         _err_msg = errors.ERROR_MSG_404_REFEREE_IN_SEASON.format(
             referee_id=referee_id,
             season_id=season_id,
         )
         raise GameSheetError(_err_msg)
 
-    if response.status_code >= 400:
+    if response.status_code >= HTTPStatus.BAD_REQUEST:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=endpoint,
             status_code=response.status_code,
@@ -173,6 +176,7 @@ def get_referee_report(
         AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
             ``gamesheet-admin login`` to refresh).
         GameSheetError: For any other non-2xx response, or if the referee has no external_id.
+
     """
     # First, get the referee to obtain the external_id
     referee = get_referee(session, season_id, referee_id)
@@ -185,16 +189,16 @@ def get_referee_report(
     # Now fetch the report using the external_id
     endpoint = f"/api/reports/referees/{referee.external_id}"
     response = session.get(endpoint)
-    if response.status_code == 401:
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
-    if response.status_code == 404:
+    if response.status_code == HTTPStatus.NOT_FOUND:
         _err_msg = errors.ERROR_MSG_404_REFEREE_REPORT.format(
             external_id=referee.external_id,
         )
         raise GameSheetError(_err_msg)
 
-    if response.status_code >= 400:
+    if response.status_code >= HTTPStatus.BAD_REQUEST:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=endpoint,
             status_code=response.status_code,
@@ -241,6 +245,7 @@ def create_referee(
 
     Returns:
         Referee: Return value.
+
     """
     endpoint = f"/api/seasons/{season_id}/referees"
     attributes: dict[str, Any] = {
@@ -273,7 +278,7 @@ def create_referee(
     return _parse(body["data"])
 
 
-def update_referee(
+def update_referee(  # noqa: C901
     session: Session,
     season_id: str,
     referee_id: str,
@@ -305,6 +310,7 @@ def update_referee(
         AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
             ``gamesheet-admin login`` to refresh).
         GameSheetError: For any other non-2xx response.
+
     """
     # Fetch current referee data to get all fields
     get_endpoint = f"/api/seasons/{season_id}/referees/{referee_id}"
@@ -312,17 +318,17 @@ def update_referee(
         get_endpoint,
         headers=JSONAPI_HEADERS,
     )
-    if get_response.status_code == 401:
+    if get_response.status_code == HTTPStatus.UNAUTHORIZED:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
-    if get_response.status_code == 404:
+    if get_response.status_code == HTTPStatus.NOT_FOUND:
         _err_msg = errors.ERROR_MSG_404_REFEREE_IN_SEASON.format(
             referee_id=referee_id,
             season_id=season_id,
         )
         raise GameSheetError(_err_msg)
 
-    if get_response.status_code >= 400:
+    if get_response.status_code >= HTTPStatus.BAD_REQUEST:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=get_endpoint,
             status_code=get_response.status_code,
@@ -363,17 +369,17 @@ def update_referee(
             "Content-Type": JSONAPI_CONTENT_TYPE,
         },
     )
-    if response.status_code == 401:
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
-    if response.status_code == 404:
+    if response.status_code == HTTPStatus.NOT_FOUND:
         _err_msg = errors.ERROR_MSG_404_REFEREE_IN_SEASON.format(
             referee_id=referee_id,
             season_id=season_id,
         )
         raise GameSheetError(_err_msg)
 
-    if response.status_code >= 400:
+    if response.status_code >= HTTPStatus.BAD_REQUEST:
         _err_msg = errors.ERROR_MSG_HTTP_PATCH.format(
             endpoint=patch_endpoint,
             status_code=response.status_code,
@@ -404,23 +410,24 @@ def delete_referee(
         AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
             ``gamesheet-admin login`` to refresh).
         GameSheetError: For any other non-2xx response.
+
     """
     endpoint = f"/api/seasons/{season_id}/referees/{referee_id}"
     response = session.delete(
         endpoint,
         headers=JSONAPI_HEADERS,
     )
-    if response.status_code == 401:
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
-    if response.status_code == 404:
+    if response.status_code == HTTPStatus.NOT_FOUND:
         _err_msg = (
             f"Referee '{referee_id}' not found in season '{season_id}' (HTTP 404). "
             f"Make sure you're using a valid referee ID and season ID."
         )
         raise GameSheetError(_err_msg)
 
-    if response.status_code >= 400:
+    if response.status_code >= HTTPStatus.BAD_REQUEST:
         _err_msg = errors.ERROR_MSG_HTTP_DELETE.format(
             endpoint=endpoint,
             status_code=response.status_code,
@@ -442,6 +449,7 @@ def list_referees(session: Session, season_id: str) -> list[Referee]:
     Returns:
         list[Referee]: A list of :class:`Referee`, in the order the server returned them. The list may be
             empty if the season has no referees.
+
     """
     endpoint = f"/api/seasons/{season_id}/referees"
     response = session.get(

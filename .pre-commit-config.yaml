@@ -19,28 +19,24 @@
 
 ci:
   # The Git commit message used when autofixing code.
-  autofix_commit_msg: "style: Auto-fixes from pre-commit.ci"
+  autofix_commit_msg: 'style: Auto-fixes from pre-commit.ci'
   # Automatically pushes formatting fixes back to the PR branch.
   autofix_prs: true
   # Branch to send autoupdate PRs to (empty string = default branch).
-  autoupdate_branch: ""
+  autoupdate_branch: ''
   # The Git commit message used when updating hook tags.
-  autoupdate_commit_msg: "chore(deps): Update pre-commit hooks"
+  autoupdate_commit_msg: 'chore(deps): Update pre-commit hooks'
   # Frequency of dependency updates (weekly, monthly, quarterly).
   autoupdate_schedule: weekly
   # Whether to recursively check out Git submodules in the CI environment.
   submodules: false
   # List of hook ids to skip only in CI (useful for heavy/slow local scripts).
   skip:
-    - deptry
-    - editorconfig-checker
     - identity
-    - mdformat
     - pyroma
     - semgrep
     - semgrep-ci
     - ty
-    - uv-lock
 
 # ==============================================================================
 # Global Defaults
@@ -70,7 +66,7 @@ fail_fast: true
 repos:
 
   # ----------------------------------------------------------------------------
-  # Meta Hooks (pre-commit validation)
+  # Hook Management
   # ----------------------------------------------------------------------------
 
   - repo: meta
@@ -79,24 +75,78 @@ repos:
       - id: check-useless-excludes
       - id: identity
 
-  # ----------------------------------------------------------------------------
-  # Commit Message Linting (Conventional Commits)
-  # ----------------------------------------------------------------------------
-
-  - repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v4.4.0
+  - repo: https://github.com/pre-commit/sync-pre-commit-deps
+    rev: v0.0.5
     hooks:
-      - id: conventional-pre-commit
-        name: Conventional Commit
-        entry: conventional-pre-commit
+      - id: sync-pre-commit-deps
+        name: sync-pre-commit-deps
+        description: Sync pre-commit hook dependencies based on other installed hooks
+        entry: sync-pre-commit-deps
         language: python
-        description: Checks commit message for Conventional Commits formatting
-        always_run: true
-        stages:
-          - commit-msg
+        language_version: python3
+        files: ^\.pre-commit-config.yaml$
 
   # ----------------------------------------------------------------------------
-  # Global File Sanity Checks
+  # Lockfile Synchronization
+  # ----------------------------------------------------------------------------
+
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.12.3
+    hooks:
+      - id: uv-lock
+        name: uv-lock
+        description: Automatically run "uv lock" on your project dependencies
+        entry: uv lock
+        language: python
+        files: ^(uv\.lock|pyproject\.toml|uv\.toml)$
+        args: []
+        pass_filenames: false
+        additional_dependencies: []
+        minimum_pre_commit_version: 2.9.2
+      - id: uv-export
+        name: uv-export
+        description: Automatically run "uv export" on your project dependencies
+        entry: uv export
+        language: python
+        files: ^uv\.lock$
+        args:
+          - --frozen
+          - --output-file=requirements.txt
+          - --quiet
+        pass_filenames: false
+        additional_dependencies: []
+        minimum_pre_commit_version: 2.9.2
+        stages:
+          - manual
+      - id: uv-sync
+        name: uv-sync
+        description: Automatically run "uv sync" on your repository after a checkout, pull or rebase
+        entry: uv sync --no-active
+        args:
+          - --locked
+        language: python
+        always_run: true
+        pass_filenames: false
+        stages:
+          - post-checkout
+          - post-merge
+          - post-rewrite
+        minimum_pre_commit_version: 2.9.2
+      - id: uv-audit
+        name: uv-audit
+        description: Automatically run "uv audit" on your project dependencies
+        entry: uv audit
+        language: python
+        files: ^(uv\.lock|pyproject\.toml|uv\.toml)$
+        args: []
+        pass_filenames: false
+        additional_dependencies: []
+        minimum_pre_commit_version: 2.9.2
+        stages:
+          - manual
+
+  # ----------------------------------------------------------------------------
+  # Low-level Checks
   # ----------------------------------------------------------------------------
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -279,7 +329,7 @@ repos:
         name: forbid submodules
         description: forbids any submodules in the repository
         language: fail
-        entry: "submodules are not allowed in this repository:"
+        entry: 'submodules are not allowed in this repository:'
         types:
           - directory
       - id: mixed-line-ending
@@ -295,7 +345,7 @@ repos:
         entry: name-tests-test
         language: python
         files: (^|/)tests/.+\.py$
-        exclude: ^tests/.*(cli|conftest|constants|endpoints|mocks|payloads|roster_helpers)\.py$
+        exclude: ^tests/(cli/roster_helpers|fixtures/constants|helpers/cli|helpers/constants|helpers/endpoints|helpers/mocks|helpers/payloads)\.py$
         args:
           - --pytest-test-first
       - id: no-commit-to-branch
@@ -324,7 +374,7 @@ repos:
         name: check blanket noqa
         description: 'Enforce that `noqa` annotations always occur with specific codes. Sample annotations: `# noqa:
           F401`, `# noqa: F401,W203`'
-        entry: "(?i)# noqa(?!: )"
+        entry: '(?i)# noqa(?!: )'
         language: pygrep
         types:
           - python
@@ -379,7 +429,7 @@ repos:
       - id: python-use-type-annotations
         name: type annotations not comments
         description: Enforce that python3.6+ type annotations are used instead of type comments
-        entry: "# type(?!: *ignore([^a-zA-Z0-9]|$))"
+        entry: '# type(?!: *ignore([^a-zA-Z0-9]|$))'
         language: pygrep
         types:
           - python
@@ -413,67 +463,8 @@ repos:
           - text
         exclude: ^\.pre-commit-config\.yaml$
 
-  - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.12.3
-    hooks:
-      - id: uv-lock
-        name: uv-lock
-        description: Automatically run "uv lock" on your project dependencies
-        entry: uv lock
-        language: python
-        files: ^(uv\.lock|pyproject\.toml|uv\.toml)$
-        args: []
-        pass_filenames: false
-        additional_dependencies: []
-        minimum_pre_commit_version: 2.9.2
-      - id: uv-export
-        name: uv-export
-        description: Automatically run "uv export" on your project dependencies
-        entry: uv export
-        language: python
-        files: ^uv\.lock$
-        args:
-          - --frozen
-          - --output-file=requirements.txt
-          - --quiet
-        pass_filenames: false
-        additional_dependencies: []
-        minimum_pre_commit_version: 2.9.2
-        stages:
-          - manual
-      - id: uv-sync
-        name: uv-sync
-        description: Automatically run "uv sync" on your repository after a checkout, pull or rebase
-        entry: uv sync --no-active
-        args:
-          - --locked
-        language: python
-        always_run: true
-        pass_filenames: false
-        stages:
-          - post-checkout
-          - post-merge
-          - post-rewrite
-        minimum_pre_commit_version: 2.9.2
-      - id: uv-audit
-        name: uv-audit
-        description: Automatically run "uv audit" on your project dependencies
-        entry: uv audit
-        language: python
-        files: ^(uv\.lock|pyproject\.toml|uv\.toml)$
-        args: []
-        pass_filenames: false
-        additional_dependencies: []
-        minimum_pre_commit_version: 2.9.2
-        stages:
-          - manual
-
-  # ----------------------------------------------------------------------------
-  # Configuration File Linters & Formatters
-  # ----------------------------------------------------------------------------
-
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
-    rev: 3.11.1
+    rev: 3.8.0
     hooks:
       - id: editorconfig-checker
         name: Check .editorconfig rules
@@ -483,6 +474,10 @@ repos:
         types:
           - text
         require_serial: true
+
+  # ----------------------------------------------------------------------------
+  # Configuration Validation
+  # ----------------------------------------------------------------------------
 
   - repo: https://github.com/jsh9/format-json
     rev: 0.1.2
@@ -498,6 +493,8 @@ repos:
           - jupyter
         args:
           - --autofix
+          - --indent
+          - '2'
 
   - repo: https://github.com/lyz-code/yamlfix
     rev: 1.19.1
@@ -521,21 +518,20 @@ repos:
         types:
           - file
           - yaml
-        exclude: ^\.pre-commit-config\.yaml$
 
   - repo: https://github.com/tox-dev/pyproject-fmt
     rev: v2.27.0
     hooks:
       - id: pyproject-fmt
         name: pyproject-fmt
-        description: ""
+        description: ''
         entry: pyproject-fmt
         language: python
         files: (^|/)pyproject\.toml$
         args: []
         require_serial: false
         additional_dependencies: []
-        minimum_pre_commit_version: "0"
+        minimum_pre_commit_version: '0'
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.25
@@ -567,7 +563,7 @@ repos:
         always_run: true
 
   # ----------------------------------------------------------------------------
-  # Documentation & Markdown Tools
+  # Markdown Formatting
   # ----------------------------------------------------------------------------
 
   - repo: https://github.com/hukkin/mdformat
@@ -622,7 +618,43 @@ repos:
           - markdown
 
   # ----------------------------------------------------------------------------
-  # Code Style & Formatting (Automated Fixers)
+  # Secret and Vulnerability Scans
+  # ----------------------------------------------------------------------------
+
+  - repo: https://github.com/yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        name: Detect secrets
+        description: Detects high entropy strings that are likely to be passwords.
+        entry: detect-secrets-hook
+        language: python
+        files: .*
+
+  - repo: https://github.com/semgrep/pre-commit
+    rev: v1.172.0
+    hooks:
+      - id: semgrep
+        name: semgrep
+        entry: semgrep
+        language: python
+        args:
+          - --disable-version-check
+          - --quiet
+          - --skip-unknown-extensions
+      - id: semgrep-ci
+        name: semgrep
+        entry: semgrep
+        language: python
+        pass_filenames: false
+        args:
+          - ci
+          - --dry-run
+          - --baseline-commit
+          - HEAD
+
+  # ----------------------------------------------------------------------------
+  # Python Formatting
   # ----------------------------------------------------------------------------
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -657,18 +689,8 @@ repos:
         minimum_pre_commit_version: 2.9.2
 
   # ----------------------------------------------------------------------------
-  # Code Cleaners & Dead Code Detectors
+  # Code Quality
   # ----------------------------------------------------------------------------
-
-  - repo: https://github.com/yelp/detect-secrets
-    rev: v1.5.0
-    hooks:
-      - id: detect-secrets
-        name: Detect secrets
-        description: Detects high entropy strings that are likely to be passwords.
-        entry: detect-secrets-hook
-        language: python
-        files: .*
 
   - repo: https://github.com/jendrikseipp/vulture
     rev: v2.16
@@ -682,37 +704,6 @@ repos:
           - python
         pass_filenames: false
         require_serial: true
-        args:
-          - .
-
-  - repo: https://github.com/osprey-oss/deptry
-    rev: 0.25.1
-    hooks:
-      - id: deptry
-        name: deptry
-        description: deptry is a command line tool to check for issues with dependencies in a Python project, such
-          as unused or missing dependencies.
-        entry: deptry .
-        language: python
-        always_run: true
-        pass_filenames: false
-        additional_dependencies:
-          - gamesheet-sdk-py[deptry]
-
-  # ----------------------------------------------------------------------------
-  # Documentation & Docstring Tools
-  # ----------------------------------------------------------------------------
-
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.3
-    hooks:
-      - id: codespell
-        name: codespell
-        description: Checks for common misspellings in text files.
-        entry: codespell
-        language: python
-        types:
-          - text
 
   - repo: https://github.com/econchick/interrogate
     rev: 1.7.0
@@ -728,9 +719,16 @@ repos:
         require_serial: true
         pass_filenames: false
 
-  # ----------------------------------------------------------------------------
-  # Code Quality Linters & Static Analysis
-  # ----------------------------------------------------------------------------
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.3
+    hooks:
+      - id: codespell
+        name: codespell
+        description: Checks for common misspellings in text files.
+        entry: codespell
+        language: python
+        types:
+          - text
 
   - repo: https://github.com/princetonuniversity/blocklint
     rev: v0.3.0
@@ -744,32 +742,22 @@ repos:
           - text
 
   # ----------------------------------------------------------------------------
-  # Security, Metrics & Complexity
+  # Dependencies and Complexity Metrics
   # ----------------------------------------------------------------------------
 
-  - repo: https://github.com/semgrep/pre-commit
-    rev: v1.172.0
+  - repo: https://github.com/osprey-oss/deptry
+    rev: 0.25.1
     hooks:
-      - id: semgrep
-        name: semgrep
-        entry: semgrep
+      - id: deptry
+        name: deptry
+        description: deptry is a command line tool to check for issues with dependencies in a Python project, such
+          as unused or missing dependencies.
+        entry: deptry .
         language: python
-        args:
-          - --jobs
-          - "1"
-          - --disable-version-check
-          - --quiet
-          - --skip-unknown-extensions
-      - id: semgrep-ci
-        name: semgrep
-        entry: semgrep
-        language: python
+        always_run: true
         pass_filenames: false
-        args:
-          - ci
-          - --dry-run
-          - --baseline-commit
-          - HEAD
+        additional_dependencies:
+          - gamesheet-sdk-py[deptry]
 
   - repo: https://github.com/rubik/xenon
     rev: v0.9.3
@@ -783,24 +771,25 @@ repos:
           - python
 
   # ----------------------------------------------------------------------------
-  # Type Checkers
+  # Static Type Checks
   # ----------------------------------------------------------------------------
 
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: v0.0.70
+    rev: v0.0.71
     hooks:
       - id: ty
         name: ty
         description: Run "ty" for extremely fast Python type checking
-        entry: uv check --quiet --preview-features=check-command --ty-version=0.0.70
+        entry: uv check --quiet --preview-features=check-command --ty-version=0.0.71
         language: python
         types_or:
           - python
           - pyi
           - jupyter
         args:
-          - --project
-          - .
+          - --fix
+          - --extra
+          - tools
         pass_filenames: false
         always_run: true
         require_serial: true
@@ -808,8 +797,20 @@ repos:
         minimum_pre_commit_version: 2.9.2
 
   # ----------------------------------------------------------------------------
-  # Pre-Commit Hook Sync
+  # Commit Standards
   # ----------------------------------------------------------------------------
+
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.4.0
+    hooks:
+      - id: conventional-pre-commit
+        name: Conventional Commit
+        entry: conventional-pre-commit
+        language: python
+        description: Checks commit message for Conventional Commits formatting
+        always_run: true
+        stages:
+          - commit-msg
 
   - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
     rev: v1.6.1
@@ -819,15 +820,4 @@ repos:
         description: validate pre-commit.ci configuration
         entry: check-pre-commit-ci-config
         language: python
-        files: ^\.pre-commit-config.yaml$
-
-  - repo: https://github.com/pre-commit/sync-pre-commit-deps
-    rev: v0.0.5
-    hooks:
-      - id: sync-pre-commit-deps
-        name: sync-pre-commit-deps
-        description: Sync pre-commit hook dependencies based on other installed hooks
-        entry: sync-pre-commit-deps
-        language: python
-        language_version: python3
         files: ^\.pre-commit-config.yaml$

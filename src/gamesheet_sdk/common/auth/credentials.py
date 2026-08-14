@@ -37,6 +37,7 @@ def resolve_email(cfg: Config, email: str | None) -> str:
 
     Raises:
         AuthenticationError: If no email is available from any source.
+
     """
     if email is None:
         email = cfg.username
@@ -62,6 +63,7 @@ def resolve_password(cfg: Config, password: str | None) -> str:
 
     Raises:
         AuthenticationError: If no password is available from any source.
+
     """
     if password is None and cfg.password is not None:
         password = cfg.password.get_secret_value()

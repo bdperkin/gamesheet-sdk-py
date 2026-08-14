@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock
 
 import pytest
@@ -13,10 +13,13 @@ import pytest
 from gamesheet_sdk import BrowserSession, Config
 from gamesheet_sdk.common.auth.constants import FIREBASE_AUTH_URL, TOKEN_EXCHANGE_URL
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
 __all__ = ["_FIREBASE_URL", "_TOKEN_URL", "_make_response", "fake_browser_session"]
 
 
-def _make_response(url: str, status: int, body: Any = None) -> MagicMock:
+def _make_response(url: str, status: int, body: object = None) -> MagicMock:
     """Build a MagicMock that quacks like a playwright Response."""
     r = MagicMock(name=f"response[{url}]")
     r.url = url
@@ -47,7 +50,7 @@ def fake_browser_session(config: Config) -> MagicMock:
     # Capture the response callback the production code registers.
     listeners: dict[str, Any] = {}
 
-    def register(event: str, callback: Any) -> None:
+    def register(event: str, callback: Callable[..., object]) -> None:
         listeners[event] = callback
 
     page.on.side_effect = register
@@ -61,5 +64,5 @@ def fake_browser_session(config: Config) -> MagicMock:
     page.click.side_effect = click
     # Make wait_for_timeout actually advance the clock a little so loops
     # don't spin entirely in zero real time.
-    page.wait_for_timeout.side_effect = lambda __ms__: None
+    page.wait_for_timeout.side_effect = lambda __ms__: None  # noqa: ARG005
     return sess

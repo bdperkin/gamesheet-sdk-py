@@ -18,6 +18,7 @@ Examples:
         $ gamesheet-admin associations list --columns id,title,created_at
     Save associations to a file::
         $ gamesheet-admin associations list --format yaml --output associations.yaml
+
 """
 
 from __future__ import annotations
@@ -103,6 +104,7 @@ def associations_get_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         fields_spec (str | None): Optional comma-separated list of fields to display
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -150,6 +152,7 @@ def associations_list_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         columns_spec (str | None): Optional comma-separated list of columns to display
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

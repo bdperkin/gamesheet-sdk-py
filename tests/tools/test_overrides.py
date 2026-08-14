@@ -19,9 +19,9 @@ TOOLS_DIR = Path(__file__).resolve().parents[2] / "tools"
 if str(TOOLS_DIR) not in sys.path:  # pragma: no cover - import side effect
     sys.path.insert(0, str(TOOLS_DIR))
 
-from depsync.exceptions import ParseError, VerifyError, WriteError  # noqa: E402
-from depsync.models import OverridePolicy, OverrideResult  # noqa: E402
-from depsync.overrides import (  # noqa: E402
+from depsync.exceptions import ParseError, VerifyError, WriteError
+from depsync.models import OverridePolicy, OverrideResult
+from depsync.overrides import (
     converge_overrides,
     current_overrides,
     parse_overrides,
@@ -51,6 +51,7 @@ def _write(path: Path, text: str) -> Path:
 
     Returns:
         Path: The written path, for chaining.
+
     """
     path.write_text(text, encoding="utf-8")
     return path
@@ -64,6 +65,7 @@ def _policy(**overrides: object) -> OverridePolicy:
 
     Returns:
         OverridePolicy: The constructed policy.
+
     """
     fields: dict[str, object] = {
         "package": "mcp",
@@ -107,7 +109,7 @@ def test_parse_overrides_rejects_missing_required_field(tmp_path: Path) -> None:
         parse_overrides(_write(tmp_path / "o.yaml", text))
 
 
-def test_parse_overrides_rejects_unparseable_bounds(tmp_path: Path) -> None:
+def test_parse_overrides_rejects_unparsable_bounds(tmp_path: Path) -> None:
     """Test that a malformed specifier fails loudly instead of excluding every candidate."""
     text = (
         "---\noverrides:\n  - package: mcp\n    pinned_by: semgrep\n"
@@ -119,7 +121,7 @@ def test_parse_overrides_rejects_unparseable_bounds(tmp_path: Path) -> None:
 
 
 def test_parse_overrides_rejects_invalid_yaml(tmp_path: Path) -> None:
-    """Test that unparseable YAML raises ParseError."""
+    """Test that unparsable YAML raises ParseError."""
     with pytest.raises(ParseError, match="Cannot parse"):
         parse_overrides(_write(tmp_path / "o.yaml", "overrides:\n  - [unclosed\n"))
 
@@ -170,7 +172,7 @@ def test_converge_overrides_skips_unresolved_package() -> None:
     assert converge_overrides([_policy()], {}, {}, {}) == []
 
 
-def test_converge_overrides_unparseable_unpinned_version_is_not_retirable() -> None:
+def test_converge_overrides_unparsable_unpinned_version_is_not_retirable() -> None:
     """Test that a version we cannot compare keeps the override in place."""
     results = converge_overrides([_policy()], {}, {"mcp": "1.29.0"}, {"mcp": "not-a-version"})
 
@@ -275,6 +277,7 @@ def test_retirement_boundary(unpinned: str, expected: bool) -> None:
     Args:
         unpinned (str): Version the resolution yields without the override.
         expected (bool): Whether that should count as retirable.
+
     """
     results = converge_overrides([_policy()], {}, {"mcp": "1.29.0"}, {"mcp": unpinned})
 

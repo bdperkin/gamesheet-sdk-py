@@ -20,6 +20,7 @@ def configure_logging(log_level: str, console: Console) -> None:
     Args:
         log_level (str): One of 'debug', 'info', 'warning', 'error'.
         console (Console): Rich Console instance for output.
+
     """
     level_map = {
         "debug": logging.DEBUG,

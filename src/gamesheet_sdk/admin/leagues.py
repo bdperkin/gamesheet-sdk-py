@@ -57,6 +57,7 @@ class League(BaseModel):
         title (str): Display name of the league.
         created_at (datetime): When the league was created.
         updated_at (datetime): Last time the league was updated.
+
     """
 
     id: str = Field(description="League identifier (string in JSON:API).")
@@ -79,6 +80,7 @@ def _parse(item: dict[str, Any], association_id: str) -> League:
 
     Returns:
         League: Return value.
+
     """
     data = parse_jsonapi_resource(item)
     data["association_id"] = association_id
@@ -98,6 +100,7 @@ def get_league(session: Session, association_id: str, league_id: str) -> League:
 
     Returns:
         League: Return value.
+
     """
     endpoint = f"{_ENDPOINT_TEMPLATE.format(association_id=association_id)}/{league_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -119,6 +122,7 @@ def list_leagues(session: Session, association_id: str) -> list[League]:
     Returns:
         list[League]: A list of :class:`League`, in the order the server returned them. The list may be empty
             if the association has no leagues.
+
     """
     endpoint = _ENDPOINT_TEMPLATE.format(association_id=association_id)
     response = session.get(endpoint, headers=JSONAPI_HEADERS)

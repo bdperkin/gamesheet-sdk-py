@@ -63,10 +63,10 @@ on:
       - reopened
   push:
     branches-ignore:
-      - "**"
+      - '**'
   schedule:
     # Run weekly on Mondays at 9:00 AM UTC
-    - cron: "0 9 * * 1"
+    - cron: 0 9 * * 1
 
 permissions:
   contents: read
@@ -81,72 +81,72 @@ jobs:
     name: Trivy filesystem scan
     permissions:
       contents: read
-      security-events: write # For uploading SARIF results
+      security-events: write  # For uploading SARIF results
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
 
       - name: Run Trivy filesystem scan
-        uses: aquasecurity/trivy-action@bfa4b33a029b9aa80ddb784b45574c30e072c59e # master
+        uses: aquasecurity/trivy-action@bfa4b33a029b9aa80ddb784b45574c30e072c59e  # master
         with:
-          exit-code: "0" # Don't fail build, just report
+          exit-code: '0' # Don't fail build, just report
           # Required: Trivy auto-loads `.trivyignore` but not `.trivyignore.yaml`
-          format: "sarif"
-          output: "trivy-fs-results.sarif"
-          scan-ref: "."
-          scan-type: "fs"
-          severity: "CRITICAL,HIGH,MEDIUM"
-          trivyignores: ".trivyignore.yaml"
+          format: sarif
+          output: trivy-fs-results.sarif
+          scan-ref: .
+          scan-type: fs
+          severity: CRITICAL,HIGH,MEDIUM
+          trivyignores: .trivyignore.yaml
 
       - name: Upload Trivy results to GitHub Security
         if: always()
-        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
+        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3  # v4.37.6
         with:
-          category: "trivy-fs"
-          sarif_file: "trivy-fs-results.sarif"
+          category: trivy-fs
+          sarif_file: trivy-fs-results.sarif
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Trivy filesystem scan (fail on CRITICAL/HIGH)
-        uses: aquasecurity/trivy-action@bfa4b33a029b9aa80ddb784b45574c30e072c59e # master
+        uses: aquasecurity/trivy-action@bfa4b33a029b9aa80ddb784b45574c30e072c59e  # master
         with:
-          exit-code: "1" # Fail on critical/high
+          exit-code: '1' # Fail on critical/high
           # Required: Trivy auto-loads `.trivyignore` but not `.trivyignore.yaml`
-          format: "table"
-          scan-ref: "."
-          scan-type: "fs"
-          severity: "CRITICAL,HIGH"
-          trivyignores: ".trivyignore.yaml"
+          format: table
+          scan-ref: .
+          scan-type: fs
+          severity: CRITICAL,HIGH
+          trivyignores: .trivyignore.yaml
 
   trivy-config:
     name: Trivy config scan
     permissions:
       contents: read
-      security-events: write # For uploading SARIF results
+      security-events: write  # For uploading SARIF results
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
 
       - name: Run Trivy config scan
-        uses: aquasecurity/trivy-action@bfa4b33a029b9aa80ddb784b45574c30e072c59e # master
+        uses: aquasecurity/trivy-action@bfa4b33a029b9aa80ddb784b45574c30e072c59e  # master
         with:
-          exit-code: "0" # Don't fail build, just report
+          exit-code: '0' # Don't fail build, just report
 
-          format: "sarif"
-          output: "trivy-config-results.sarif"
-          scan-ref: "."
-          scan-type: "config"
+          format: sarif
+          output: trivy-config-results.sarif
+          scan-ref: .
+          scan-type: config
       - name: Upload Trivy config results to GitHub Security
         if: always()
-        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
+        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3  # v4.37.6
         with:
-          category: "trivy-config"
-          sarif_file: "trivy-config-results.sarif"
+          category: trivy-config
+          sarif_file: trivy-config-results.sarif
           token: ${{ secrets.GITHUB_TOKEN }}
 
   pip-audit:
@@ -155,18 +155,18 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -179,4 +179,4 @@ jobs:
         run: |-
           pip install pip-audit
           pip-audit --desc --skip-editable
-        continue-on-error: true # Report findings but don't fail build
+        continue-on-error: true  # Report findings but don't fail build

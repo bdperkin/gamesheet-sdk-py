@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import copy
 import os
+from http import HTTPStatus
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -93,7 +94,7 @@ def test_exception_hierarchy() -> None:
         response_body="Internal Error",
     )
     assert isinstance(api_err, GameSheetError)
-    assert api_err.status_code == 500
+    assert api_err.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
     assert api_err.endpoint == "/api/test"
     assert api_err.response_body == "Internal Error"
 
@@ -104,7 +105,7 @@ def test_exception_hierarchy() -> None:
     )
     assert isinstance(not_found, GameSheetAPIError)
     assert isinstance(not_found, GameSheetError)
-    assert not_found.status_code == 404
+    assert not_found.status_code == HTTPStatus.NOT_FOUND
 
     perm_err = GameSheetPermissionError(
         "Forbidden",
@@ -114,7 +115,7 @@ def test_exception_hierarchy() -> None:
     assert isinstance(perm_err, AuthenticationError)
     assert isinstance(perm_err, GameSheetAPIError)
     assert isinstance(perm_err, GameSheetError)
-    assert perm_err.status_code == 403
+    assert perm_err.status_code == HTTPStatus.FORBIDDEN
 
     rate_limit = GameSheetRateLimitError(
         "Rate limited",
@@ -140,6 +141,6 @@ def test_api_error_str_and_copy_roundtrip() -> None:
 
     restored = copy.copy(err)
     assert str(restored) == "API error"
-    assert restored.status_code == 500
+    assert restored.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
     assert restored.endpoint == "/api/test"
     assert restored.response_body == "Internal Error"

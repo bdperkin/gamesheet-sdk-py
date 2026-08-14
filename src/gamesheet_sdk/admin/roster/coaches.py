@@ -34,6 +34,7 @@ def get_coach(session: Session, season_id: str, coach_id: str) -> Coach:
 
     Returns:
         Coach: Return value.
+
     """
     endpoint = f"/api/seasons/{season_id}/coaches/{coach_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -55,6 +56,7 @@ def list_coaches(session: Session, season_id: str) -> list[Coach]:
     Returns:
         list[Coach]: A list of :class:`Coach`, in the order the server returned them. The list may be empty if
             the season has no coaches.
+
     """
     endpoint = f"/api/seasons/{season_id}/coaches"
     response = session.get(
@@ -94,6 +96,7 @@ def create_coach(
 
     Returns:
         Coach: Return value.
+
     """
     endpoint = f"/api/seasons/{season_id}/coaches"
     data: dict[str, Any] = {
@@ -152,6 +155,7 @@ def update_coach(
 
     Raises:
         ValueError: If no fields are provided for update.
+
     """
     if all(v is None for v in (first_name, last_name, external_id, position)):
         raise ValueError(errors.ERROR_MSG_AT_LEAST_ONE_FIELD)
@@ -200,6 +204,7 @@ def list_team_coaches(session: Session, season_id: str, team_id: str) -> list[Co
     Returns:
         list[Coach]: A list of :class:`Coach`, in the order the server returned them. The list may be empty if
             the team has no coaches.
+
     """
     endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
     response = session.get(
@@ -259,6 +264,7 @@ def get_team_coach(
 
     Raises:
         GameSheetError: If the coach is not found on the team's roster.
+
     """
     coaches = list_team_coaches(session, season_id, team_id)
     for coach in coaches:
@@ -282,6 +288,7 @@ def _build_coach_roster_entry(
 
     Returns:
         dict[str, Any]: Dictionary containing roster entry data ready for team roster update.
+
     """
     entry: dict[str, Any] = {
         "id": coach_id,
@@ -305,6 +312,7 @@ def _populate_coach_metadata(
     Args:
         coach (Coach): The Coach instance to populate.
         position (str | None): Optional position (Head Coach, Assistant Coach, etc.).
+
     """
     if position:
         coach.position = position
@@ -340,6 +348,7 @@ def create_team_coach(
 
     Returns:
         Coach: Return value.
+
     """
     # Step 1: Create the coach at the season level (without "type" field for team context)
     endpoint = f"/api/seasons/{season_id}/coaches"
@@ -406,6 +415,7 @@ def update_team_coach(
 
     Raises:
         ValueError: If no fields are provided for update.
+
     """
     if all(v is None for v in (first_name, last_name, external_id, position)):
         raise ValueError(errors.ERROR_MSG_AT_LEAST_ONE_FIELD)
@@ -465,6 +475,7 @@ def delete_coach(session: Session, season_id: str, coach_id: str) -> None:
         session (Session): An authenticated :class:`Session`.
         season_id (str): The season identifier containing the coach.
         coach_id (str): The coach identifier to delete.
+
     """
     endpoint = f"/api/seasons/{season_id}/coaches/{coach_id}"
     response = session.delete(endpoint, headers=JSONAPI_HEADERS)
@@ -490,6 +501,7 @@ def unassign_coach(
 
     Raises:
         GameSheetError: If the coach is not assigned to the team.
+
     """
     # Step 1: Fetch current team data
     team_data = get_team_for_roster_update(session, season_id, team_id)
@@ -535,6 +547,7 @@ def delete_team_coach(
         season_id (str): The season identifier.
         team_id (str): The team identifier.
         coach_id (str): The coach identifier to delete.
+
     """
     # Step 1: Remove coach from team roster (may not be on this team's roster)
     with suppress(GameSheetError):
@@ -568,6 +581,7 @@ def assign_coach(
 
     Raises:
         GameSheetError: If the coach is already assigned to the team.
+
     """
     # Step 1: Fetch the coach to ensure it exists
     coach = get_coach(session, season_id, coach_id)
@@ -624,6 +638,7 @@ def assign_team_coach(
 
     Returns:
         Coach: Return value.
+
     """
     return assign_coach(session, season_id, coach_id, team_id, position=position)
 
@@ -645,6 +660,7 @@ def unassign_team_coach(
         season_id (str): The season identifier.
         team_id (str): The team identifier to unassign the coach from.
         coach_id (str): The coach identifier to unassign.
+
     """
     unassign_coach(session, season_id, coach_id, team_id)
 
@@ -668,6 +684,7 @@ def get_coach_penalty_report(
     Returns:
         dict[str, Any]: Penalty report data including coach_games, coach_penalties, rostered_coaches, and
             season_coaches.
+
     """
     coach = get_coach(session, season_id, coach_id)
     external_id = coach.external_id

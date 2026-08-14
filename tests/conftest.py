@@ -22,6 +22,7 @@ def _clear_gamesheet_env(monkeypatch: pytest.MonkeyPatch) -> None:
 
     Returns:
         None: None
+
     """
     for key in list(os.environ):
         if key.startswith("GAMESHEET_"):
@@ -40,6 +41,7 @@ def config(tmp_path: Path) -> Config:
 
     Returns:
         Config: Return value.
+
     """
     return Config(
         base_url="https://test.example",
@@ -59,6 +61,7 @@ def vcr_config() -> dict[str, object]:
 
     Returns:
         dict[str, object]: Dictionary of results.
+
     """
     return {
         "filter_headers": [
@@ -91,5 +94,6 @@ def browser_type_launch_args() -> dict[str, object]:
 
     Returns:
         dict[str, object]: Dictionary of results.
+
     """
     return {"headless": True}
