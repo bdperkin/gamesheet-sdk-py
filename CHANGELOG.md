@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.23 (2026-08-14)
+
+### Bug Fixes
+
+- **ci**: Quote schedule time in dependabot.yml and preserve quotes in yamlfix ([#213](https://github.com/bdperkin/gamesheet-sdk-py/pull/213),
+  [`c5893af`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c5893af5e64b3396926bad4f884bbcc4d0eb3807))
+
+### Chores
+
+- **tooling**: Overhaul lint, format, and dependency tooling ([#212](https://github.com/bdperkin/gamesheet-sdk-py/pull/212),
+  [`db29300`](https://github.com/bdperkin/gamesheet-sdk-py/commit/db2930040f6101553be99851bd12d369fd6e5be9))
+
 ## v0.4.22 (2026-08-11)
 
 ### Bug Fixes
