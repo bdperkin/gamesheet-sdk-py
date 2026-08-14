@@ -16,6 +16,7 @@ globals:
     - pip-compile
     - requirements-txt-fixer
     - ruff
+    - semgrep
     - sort-simple-yaml
 
 ci:
@@ -31,14 +32,15 @@ ci:
   #
   #   pyroma      introspects via `python -m build`, and pre-commit.ci's bundled
   #               Python has no ensurepip, so the build venv cannot be created
-  #   semgrep     the semgrep repo env is 332 MiB, over the 250 MiB tier limit;
-  #   semgrep-ci  both ids must be skipped or the env is built anyway
+  #   semgrep-ci  the semgrep repo env is 332 MiB, over the 250 MiB tier limit,
+  #               and this is the only id keeping that repo in the config (the
+  #               plain `semgrep` id is blacklisted), so skipping it here is
+  #               enough to keep the env from being built at all
   #   ty          entry is `uv check`, which syncs the project environment when
   #               it runs; pre-commit.ci has no network during hook execution
   skip:
     - identity
     - pyroma
-    - semgrep
     - semgrep-ci
     - ty
 

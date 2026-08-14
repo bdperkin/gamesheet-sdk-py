@@ -30,6 +30,8 @@ TOOL_MAPPING: dict[str, str] = {
     "pymarkdownlnt": "https://github.com/jackdewinter/pymarkdown",
     "ruff": "https://github.com/astral-sh/ruff-pre-commit",
     "semgrep": "https://github.com/semgrep/pre-commit",
+    "ty": "https://github.com/astral-sh/ty-pre-commit",
+    "uv": "https://github.com/astral-sh/uv-pre-commit",
 }
 
 REVERSE_MAPPING: dict[str, str] = {url: pkg for pkg, url in TOOL_MAPPING.items()}

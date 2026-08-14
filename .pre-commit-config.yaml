@@ -19,13 +19,13 @@
 
 ci:
   # The Git commit message used when autofixing code.
-  autofix_commit_msg: 'style: Auto-fixes from pre-commit.ci'
+  autofix_commit_msg: "style: Auto-fixes from pre-commit.ci"
   # Automatically pushes formatting fixes back to the PR branch.
   autofix_prs: true
   # Branch to send autoupdate PRs to (empty string = default branch).
-  autoupdate_branch: ''
+  autoupdate_branch: ""
   # The Git commit message used when updating hook tags.
-  autoupdate_commit_msg: 'chore(deps): Update pre-commit hooks'
+  autoupdate_commit_msg: "chore(deps): Update pre-commit hooks"
   # Frequency of dependency updates (weekly, monthly, quarterly).
   autoupdate_schedule: weekly
   # Whether to recursively check out Git submodules in the CI environment.
@@ -34,7 +34,6 @@ ci:
   skip:
     - identity
     - pyroma
-    - semgrep
     - semgrep-ci
     - ty
 
@@ -329,7 +328,7 @@ repos:
         name: forbid submodules
         description: forbids any submodules in the repository
         language: fail
-        entry: 'submodules are not allowed in this repository:'
+        entry: "submodules are not allowed in this repository:"
         types:
           - directory
       - id: mixed-line-ending
@@ -374,7 +373,7 @@ repos:
         name: check blanket noqa
         description: 'Enforce that `noqa` annotations always occur with specific codes. Sample annotations: `# noqa:
           F401`, `# noqa: F401,W203`'
-        entry: '(?i)# noqa(?!: )'
+        entry: "(?i)# noqa(?!: )"
         language: pygrep
         types:
           - python
@@ -429,7 +428,7 @@ repos:
       - id: python-use-type-annotations
         name: type annotations not comments
         description: Enforce that python3.6+ type annotations are used instead of type comments
-        entry: '# type(?!: *ignore([^a-zA-Z0-9]|$))'
+        entry: "# type(?!: *ignore([^a-zA-Z0-9]|$))"
         language: pygrep
         types:
           - python
@@ -494,7 +493,7 @@ repos:
         args:
           - --autofix
           - --indent
-          - '2'
+          - "2"
 
   - repo: https://github.com/lyz-code/yamlfix
     rev: 1.19.1
@@ -524,14 +523,14 @@ repos:
     hooks:
       - id: pyproject-fmt
         name: pyproject-fmt
-        description: ''
+        description: ""
         entry: pyproject-fmt
         language: python
         files: (^|/)pyproject\.toml$
         args: []
         require_serial: false
         additional_dependencies: []
-        minimum_pre_commit_version: '0'
+        minimum_pre_commit_version: "0"
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.25
@@ -634,14 +633,6 @@ repos:
   - repo: https://github.com/semgrep/pre-commit
     rev: v1.172.0
     hooks:
-      - id: semgrep
-        name: semgrep
-        entry: semgrep
-        language: python
-        args:
-          - --disable-version-check
-          - --quiet
-          - --skip-unknown-extensions
       - id: semgrep-ci
         name: semgrep
         entry: semgrep
@@ -775,12 +766,12 @@ repos:
   # ----------------------------------------------------------------------------
 
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: v0.0.71
+    rev: v0.0.69
     hooks:
       - id: ty
         name: ty
         description: Run "ty" for extremely fast Python type checking
-        entry: uv check --quiet --preview-features=check-command --ty-version=0.0.71
+        entry: uv check --quiet --preview-features=check-command --ty-version=0.0.69
         language: python
         types_or:
           - python

@@ -121,12 +121,10 @@ A `Makefile` wraps the most common workflows. `make help` lists every target. Hi
 
 ```bash
 make install       # editable install ([dev] extras) + Playwright Chromium
+make install-all   # editable install ([all] extras) + Playwright Chromium
 make test          # full pytest suite
 make test-fast     # pytest -m "not browser"
 make test-cov      # pytest --cov
-make lint          # pre-commit run --all-files
-make typecheck     # ty check
-make fix           # apply formatters in place (ruff, mdformat)
 make metrics       # radon complexity + maintainability report
 make docs          # Sphinx HTML build (two-pass strict)
 make docs-serve    # live-reload preview
@@ -135,6 +133,29 @@ make docs-linkcheck
 make clean         # caches + build artifacts (.uv, $(VENV), _build untouched)
 make clean-all     # + .uv, $(VENV), docs build dirs
 ```
+
+**Tool targets are named after hook categories, not after tools** — there is one target per category in `.genprecommitconfig.yaml`, running that category's
+tools in hook order:
+
+```bash
+make dependencies    # uv lock
+make checks          # editorconfig-checker
+make configuration   # format-json, yamlfix, yamllint, pyproject-fmt, validate-pyproject, pyroma
+make markdown        # mdformat, pymarkdown
+make security        # semgrep
+make format          # ruff check, ruff format
+make quality         # vulture, interrogate, codespell, blocklint
+make types           # ty check
+```
+
+**These are not byte-identical to the CI jobs, and deliberately so:** where a tool can fix, the `make` target lets it (`mdformat`, `ruff format`,
+`pyproject-fmt`, `yamlfix`, `format-json` all write in place), whereas the workflow job passes `--check`. The category also spans more tools than the matching
+workflow in two places — `format-json` and `yamlfix` are pre-commit-only, with no CI job — and `make security` runs
+`semgrep --disable-version-check --quiet --skip-unknown-extensions` where the workflow job runs `semgrep --config auto .`. For a faithful reproduction of a CI
+job, copy the `run:` line out of the workflow (see [§2.2](#22-running-a-single-tool-with-uv)).
+
+There is no aggregate target; use `pre-commit run --all-files`. Two categories have no target either: `commits` is inherently per-commit
+(`conventional-pre-commit`), and `architecture` is split between `make metrics` (radon) and `pre-commit run xenon --all-files` (the complexity gate).
 
 ### 2.2. Running a single tool with uv
 
@@ -151,8 +172,8 @@ uv run --extra dev pre-commit run --all-files
 uv run --extra pytest pytest -k test_name     # pass pytest args directly
 ```
 
-`xenon` is the exception: it is not declared in any extra, because the `rubik/xenon` pre-commit hook supplies its own environment. Run the complexity gate with
-`pre-commit run xenon --all-files`.
+`xenon` now has its own extra like every other tool (pulled in by `architecture` alongside `radon`), but no workflow job invokes it: the complexity gate runs
+solely as the `rubik/xenon` pre-commit hook, which supplies its own environment. Run it with `pre-commit run xenon --all-files`.
 
 Prefer the `make` targets in [§2.1](#21-makefile-shortcuts) for everyday work — they wrap these same commands. Reach for the raw `uv run` form when you need a
 flag the Makefile does not expose, or when reproducing a specific CI job.
@@ -203,15 +224,23 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   - `unit/` — unit tests by domain (associations, divisions, games, ipad_keys, leagues, referees, roster, seasons, teams, gamesheet_http)
 
 - **Dependency updates.** `pre-commit.ci` configuration lives inline in `.pre-commit-config.yaml` under the top-level `ci:` key (the only path that service
-  reads). It pins `python_version: "3.11"`, runs `autoupdate_schedule: weekly`, and auto-fixes formatting on PRs (`autofix_prs: true`). Eleven hooks are listed
-  in `ci.skip` — they still run in GitHub Actions where there is no 250 MiB tier limit and `python -m venv` works. The three main reasons a hook lands in the
-  skip list:
+  reads) — but edit it in `.genprecommitconfig.yaml`, since the generator owns the output file. It runs `autoupdate_schedule: weekly` and auto-fixes formatting
+  on PRs (`autofix_prs: true`). The interpreter comes from the top-level `default_language_version.python: python3.11`, not from a `ci.python_version` key.
 
-  - **Deps exceed the 250 MiB tier** — `deptry`.
-  - **Requires runtime deps via `additional_dependencies`** — `ty`, `semgrep`.
-  - **Needs `python -m venv`** — `pyroma` (introspects via `python -m build`; pre-commit.ci's bundled Python lacks `ensurepip`).
+  **`ci.skip` is deliberately minimal — four hooks.** Everything skipped still runs in GitHub Actions, which has no tier limit, real network access during hook
+  execution, and a working `python -m venv`:
 
-  Also skipped: `editorconfig-checker`, `mdformat`.
+  - `identity` — a meta hook that only echoes filenames; no value in CI.
+  - `pyroma` — introspects via `python -m build`, and pre-commit.ci's bundled Python lacks `ensurepip`, so the build venv cannot be created.
+  - `semgrep-ci` — the semgrep repo env is 332 MiB against a 250 MiB tier limit. This is the only enabled id from that repo (the plain `semgrep` id is in
+    `globals.blacklisted_hooks`), so skipping it keeps the env from being built at all. **Both conditions matter:** leaving any id from an oversized repo
+    enabled fails the whole run at *build* time with `exceeds tier max size`, before a single hook executes.
+  - `ty` — its entry is `uv check`, which syncs the project environment when it runs, and pre-commit.ci has no network during hook execution.
+
+  **Add to this list only in response to a specific failed run, never preemptively.** The list was 9 entries before it was rebuilt from evidence on 2026-08-14;
+  `deptry`, `editorconfig-checker`, `mdformat` and `uv-lock` had all been skipped for conditions that no longer applied, and a run with them enabled proved they
+  work on the free tier. Each entry above is reproduced by a real pre-commit.ci failure, and the rationale is kept as comments beside the list in
+  `.genprecommitconfig.yaml`.
 
   Autoupdates land as PRs (empty `autoupdate_branch`), not auto-merges. `.github/dependabot.yml` opens grouped weekly PRs for Python runtime deps, Python dev
   deps, and GitHub Actions versions — three PRs/week max.
