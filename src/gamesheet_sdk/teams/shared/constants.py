@@ -28,6 +28,6 @@ from typing import Final
 
 TEAMS_API_GATEWAY: Final[str] = "https://api.teams.gamesheet.app"
 FIREBASE_API_KEY: Final[str] = "AIzaSyCk5pKBFxvCMuwPchzXgvvz4XmmscJTvs8"  # notsecret
-TEAMS_TOKEN_EXCHANGE_PATH: Final[str] = "/api/auth/tokens"
+TEAMS_TOKEN_EXCHANGE_PATH: Final[str] = "/api/auth/tokens"  # noqa: S105
 TEAMS_REFRESH_PATH: Final[str] = "/api/auth/refresh"
 TEAMS_LOOKUPS_PATH: Final[str] = "/api/lookups"

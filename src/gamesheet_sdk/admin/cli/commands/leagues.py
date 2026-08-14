@@ -20,6 +20,7 @@ Examples:
     Use environment variable for association ID::
         $ export GAMESHEET_ASSOCIATION_ID=ABC123
         $ gamesheet-admin leagues
+
 """
 
 from __future__ import annotations
@@ -112,6 +113,7 @@ def leagues_get_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         fields_spec (str | None): Optional comma-separated list of fields to display
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -178,6 +180,7 @@ def leagues_list_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         columns_spec (str | None): Optional comma-separated list of columns to display
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

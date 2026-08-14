@@ -105,6 +105,7 @@ def referees_get_command(
         referee_id (str): The referee identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -146,6 +147,7 @@ def referees_report_command(
         referee_id (str): The referee identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -215,6 +217,7 @@ def referees_create_command(
         external_id (str | None): Optional external identifier for the referee
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -299,6 +302,7 @@ def referees_update_command(
 
     Raises:
         click.UsageError: If no fields are provided for update
+
     """
     # Validate that at least one field is provided
     if not any([first_name, last_name, email_address, external_id]):
@@ -352,6 +356,7 @@ def referees_delete_command(
         ctx (Context): Click context object containing config
         season_id (str): The season identifier
         referee_id (str): The referee identifier to delete
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -387,6 +392,7 @@ def referees_list_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         columns_spec (str | None): Optional comma-separated list of columns to display
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

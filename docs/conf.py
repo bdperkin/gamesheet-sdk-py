@@ -11,7 +11,7 @@ from pathlib import Path
 # -- Project information -----------------------------------------------------
 project = "gamesheet-sdk-py"
 author = "bdperkin"
-copyright = f"2026, {author}"
+copyright = f"2026, {author}"  # noqa: A001
 release = metadata.version("gamesheet-sdk-py")
 version = ".".join(release.split(".")[:2])
 # -- General configuration ---------------------------------------------------
@@ -50,13 +50,13 @@ gitignore_path = Path(project_root, ".gitignore")
 if Path(gitignore_path).exists():
     with gitignore_path.open(encoding="utf-8") as f:
         for line in f:
-            line = line.strip()
+            raw_line = line.strip()
             # Skip empty lines, comments, or negation rules
-            if not line or line.startswith(("#", "!")):
+            if not raw_line or raw_line.startswith(("#", "!")):
                 continue
             # Sphinx expect patterns, strip leading/trailing slashes for safety
             # e.g., "/.uv/" becomes ".uv"
-            clean_pattern = line.strip("/")
+            clean_pattern = raw_line.strip("/")
             if clean_pattern and clean_pattern not in exclude_patterns:
                 exclude_patterns.append(clean_pattern)
 

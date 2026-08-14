@@ -24,6 +24,7 @@ def _find_pre_commit() -> str | None:
 
     Returns:
         str | None: Path to pre-commit or None if not found.
+
     """
     return shutil.which("pre-commit")
 
@@ -44,6 +45,7 @@ def _run_pre_commit(
     Raises:
         PreCommitValidationError: If the run reports failures or skipped hooks.
         SubprocessError: If pre-commit cannot be executed.
+
     """
     cmd = [pre_commit, "run"]
     if hook_id:
@@ -52,7 +54,7 @@ def _run_pre_commit(
     cmd.extend(["--all-files", "--verbose"])
 
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603
             cmd,
             capture_output=True,
             text=True,
@@ -96,6 +98,7 @@ def _clear_backup(backup_path: Path) -> None:
 
     Args:
         backup_path (Path): Path to the backup file.
+
     """
     try:
         backup_path.write_text("", encoding="utf-8")
@@ -112,13 +115,14 @@ def _config_unchanged(backup_path: Path, output_path: Path) -> bool:
 
     Returns:
         bool: True if the files are identical, False otherwise.
+
     """
     if not (backup_path.exists() and output_path.exists()):
         return False
 
     with suppress(FileNotFoundError):
-        result = subprocess.run(
-            ["diff", "-q", str(backup_path), str(output_path)],
+        result = subprocess.run(  # noqa: S603
+            ["diff", "-q", str(backup_path), str(output_path)],  # noqa: S607
             capture_output=True,
             text=True,
             check=False,
@@ -145,6 +149,7 @@ def _diff_and_run(
         backup_path (Path): Path to the backup of the previous config.
         hook_ids (list[str] | None): Optional hook IDs to run individually.
         print_output (bool): Whether to print pre-commit stdout.
+
     """
     if _config_unchanged(backup_path, output_path):
         logger.debug("Config unchanged, skipping validation")
@@ -187,6 +192,7 @@ def validate_config(
 
     Raises:
         PreCommitValidationError: If pre-commit reports failures or errors.
+
     """
     pre_commit = _find_pre_commit()
     if pre_commit is None:

@@ -65,6 +65,7 @@ def run_roster_delete_test(
 
     Returns:
         tuple[int, str, MagicMock]: Tuple of (exit_code, output, mock_action)
+
     """
     # Derive build_session_path from action_path module
     # e.g., "gamesheet_sdk.admin.cli.commands.teams_roster_players._delete..."

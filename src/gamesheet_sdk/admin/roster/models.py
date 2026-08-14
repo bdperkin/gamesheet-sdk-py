@@ -53,6 +53,7 @@ class Player(BaseModel):
         affiliated (bool | None): Whether player is affiliated (team roster only).
         created_at (datetime): When the player record was created.
         updated_at (datetime): Last time the player record was updated.
+
     """
 
     id: str = Field(description="Player identifier (string in JSON:API).")
@@ -133,6 +134,7 @@ class Coach(BaseModel):
         signature (str | None): Coach's signature (team roster only).
         created_at (datetime): When the coach record was created.
         updated_at (datetime): Last time the coach record was updated.
+
     """
 
     id: str = Field(description="Coach identifier (string in JSON:API).")
@@ -168,6 +170,7 @@ def parse_player(item: dict[str, Any]) -> Player:
 
     Returns:
         Player: Parsed Player model instance.
+
     """
     data = parse_jsonapi_resource(item, relationship_map={"season": "season_id"})
     return Player(**data)
@@ -182,6 +185,7 @@ def parse_coach(item: dict[str, Any]) -> Coach:
 
     Returns:
         Coach: Parsed Coach model instance.
+
     """
     data = parse_jsonapi_resource(item, relationship_map={"season": "season_id"})
     return Coach(**data)

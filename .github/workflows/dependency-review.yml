@@ -49,18 +49,18 @@
 # ║   delete the entry once it is — a dead allowance silently re-opens the hole              ║
 # ╚══════════════════════════════════════════════════════════════════════════════════════════╝
 
-name: "Dependency review"
+name: Dependency review
 
 on:
   pull_request:
     branches:
       - main
     paths-ignore:
-      - "CHANGELOG.md"
-      - "pyproject.toml"
+      - CHANGELOG.md
+      - pyproject.toml
   push:
     branches-ignore:
-      - "**"
+      - '**'
 
 # If using a dependency submission action in this workflow this permission will need to be set to:
 #
@@ -80,15 +80,15 @@ jobs:
     name: Dependency Review
     permissions:
       contents: read
-      pull-requests: write # Required for comment-summary-in-pr option
+      pull-requests: write  # Required for comment-summary-in-pr option
     runs-on: ubuntu-latest
     steps:
-      - name: "Checkout repository"
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
-      - name: "Dependency Review"
-        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+      - name: Dependency Review
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294  # v5.0.0
         # Commonly enabled options, see
         # https://github.com/actions/dependency-review-action#configuration-options for all available options.
         with:

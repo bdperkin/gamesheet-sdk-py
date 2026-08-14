@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING
 
 import rich_click as click
@@ -87,6 +88,7 @@ def completed_get_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         fields_spec (str | None): Optional comma-separated list of fields to display
+
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
@@ -115,6 +117,7 @@ def completed_list_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         columns_spec (str | None): Optional comma-separated list of columns to display
+
     """
     # Extract config and season_id from context (set by games_group)
     # ctx.obj is always a dict set by games_group with "config" and "season_id" keys
@@ -136,6 +139,7 @@ def _build_scoresheet_filename(game: Game) -> str:
 
     Returns:
         str: A filesystem-safe filename
+
     """
 
     def sanitize(text: str | None) -> str:
@@ -144,7 +148,6 @@ def _build_scoresheet_filename(game: Game) -> str:
             return "unknown"
         # Convert to lowercase, replace spaces/special chars with underscores,
         # collapse multiple underscores, and strip leading/trailing underscores
-        import re
 
         return re.sub(r"_+", "_", re.sub(r"[^\w\-]", "_", text.lower())).strip("_")
 
@@ -194,6 +197,7 @@ def completed_download_command(
         ctx (Context): Click context object containing config
         game_id (str): The game identifier
         output_path (str | None): File path where the PDF will be saved (optional)
+
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]

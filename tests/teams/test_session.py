@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from http import HTTPStatus
 from typing import TYPE_CHECKING
 
 import responses
@@ -37,7 +38,7 @@ def test_teams_session_passthrough_when_200(config: Config) -> None:
     ) as session:
         resp = session.get("/x")
 
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK
     sent = responses.calls[0].request
     assert sent.headers["Authorization"] == "Bearer A1"
 
@@ -67,7 +68,7 @@ def test_teams_session_refreshes_and_retries_on_401(config: Config) -> None:
     ) as session:
         resp = session.get("/x")
 
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK
     assert resp.json() == {"ok": True}
     assert persisted == [{"access": "A2", "refresh": "R2"}]
     assert len(responses.calls) == 3
@@ -89,7 +90,7 @@ def test_teams_session_propagates_401_when_refresh_fails(config: Config) -> None
     ) as session:
         resp = session.get("/x")
 
-    assert resp.status_code == 401
+    assert resp.status_code == HTTPStatus.UNAUTHORIZED
     assert len(responses.calls) == 2
 
 
@@ -107,7 +108,7 @@ def test_teams_session_does_not_retry_when_refresh_returns_500(
     ) as session:
         resp = session.get("/x")
 
-    assert resp.status_code == 401
+    assert resp.status_code == HTTPStatus.UNAUTHORIZED
     assert len(responses.calls) == 2
 
 
@@ -129,7 +130,7 @@ def test_teams_session_post_also_triggers_refresh(config: Config) -> None:
     ) as session:
         resp = session.post("/mutate")
 
-    assert resp.status_code == 201
+    assert resp.status_code == HTTPStatus.CREATED
 
 
 @responses.activate
@@ -166,7 +167,7 @@ def test_teams_session_handles_on_refresh_oserror(
     ):
         resp = session.get("/x")
 
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK
     assert "on_refresh callback failed to persist" in caplog.text
     assert TEST_ERROR_DISK_FULL in caplog.text
 
@@ -196,7 +197,7 @@ def test_teams_session_refreshes_and_retries_on_403(config: Config) -> None:
     ) as session:
         resp = session.get("/y")
 
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK
     assert resp.json() == {"ok": True}
     assert persisted == [{"access": "A2", "refresh": "R2"}]
     assert len(responses.calls) == 3
@@ -218,5 +219,5 @@ def test_teams_session_propagates_403_when_refresh_fails(config: Config) -> None
     ) as session:
         resp = session.get("/z")
 
-    assert resp.status_code == 403
+    assert resp.status_code == HTTPStatus.FORBIDDEN
     assert len(responses.calls) == 2

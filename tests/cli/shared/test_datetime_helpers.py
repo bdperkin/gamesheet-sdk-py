@@ -72,7 +72,7 @@ def test_timezone_name_etc_localtime_symlink() -> None:
     with (
         patch.dict(sys.modules, {"tzlocal": None}),
         patch("os.name", "posix"),
-        patch("pathlib.Path", return_value=mock_path),
+        patch("gamesheet_sdk.admin.cli.shared.datetime_helpers.Path", return_value=mock_path),
     ):
         result = get_local_timezone_name()
         assert result == "America/Los_Angeles"
@@ -106,7 +106,7 @@ def test_timezone_name_etc_localtime_not_symlink() -> None:
     with (
         patch.dict(sys.modules, {"tzlocal": None}),
         patch("os.name", "posix"),
-        patch("pathlib.Path", return_value=mock_path),
+        patch("gamesheet_sdk.admin.cli.shared.datetime_helpers.Path", return_value=mock_path),
     ):
         result = get_local_timezone_name()
         assert result == "UTC"
@@ -120,7 +120,7 @@ def test_timezone_name_etc_localtime_no_zoneinfo() -> None:
     with (
         patch.dict(sys.modules, {"tzlocal": None}),
         patch("os.name", "posix"),
-        patch("pathlib.Path", return_value=mock_path),
+        patch("gamesheet_sdk.admin.cli.shared.datetime_helpers.Path", return_value=mock_path),
         patch("os.readlink", return_value="/some/other/path"),
     ):
         result = get_local_timezone_name()
@@ -197,7 +197,7 @@ def test_parse_strips_explicit_timezone() -> None:
 
 
 def test_parse_invalid_string_raises() -> None:
-    """Test that unparseable strings raise UsageError."""
+    """Test that unparsable strings raise UsageError."""
     with pytest.raises(click.UsageError, match="Cannot parse datetime"):
         parse_flexible_datetime("not-a-date")
 

@@ -59,9 +59,16 @@ class BrowserSession:
     Args:
         config (Config | None): Optional configuration object. If ``None``, a default
             :class:`~gamesheet_sdk.common.config.Config` is created.
+
     """
 
     def __init__(self: BrowserSession, config: Config | None = None) -> None:
+        """Initialize BrowserSession instance.
+
+        Args:
+            config (Config | None): Optional SDK configuration object.
+
+        """
         self.config = config or Config()
         self._playwright: Playwright | None = None
         self._browser: Browser | None = None
@@ -74,6 +81,7 @@ class BrowserSession:
         Returns:
             StorageState | None: A dictionary containing cookies and localStorage data, or ``None`` if the
                 file does not exist or cannot be parsed.
+
         """
         path = self.config.browser_state_path
         if not path.exists():
@@ -97,6 +105,7 @@ class BrowserSession:
 
         Returns:
             None: None
+
         """
         self._playwright = sync_playwright().start()
         self._browser = self._playwright.chromium.launch(
@@ -126,6 +135,7 @@ class BrowserSession:
         Raises:
             RuntimeError: If the session has already been closed.
             ValueError: If the browser failed to start (defensive check).
+
         """
         if self._closed:
             _err_msg = "BrowserSession has been closed"
@@ -148,6 +158,7 @@ class BrowserSession:
 
         Returns:
             Page: Return value.
+
         """
         return self.context.new_page()
 
@@ -162,6 +173,7 @@ class BrowserSession:
 
         Returns:
             str: String result.
+
         """
         if url.startswith(("http://", "https://", "data:", "file:", "about:")):
             return url
@@ -186,6 +198,7 @@ class BrowserSession:
 
         Returns:
             Page: A :class:`~playwright.sync_api.Page` navigated to the resolved URL.
+
         """
         page = self.new_page()
         page.goto(self._resolve(url), **kwargs)
@@ -213,6 +226,7 @@ class BrowserSession:
 
         Returns:
             None: None
+
         """
         try:
             self.save()
@@ -227,6 +241,7 @@ class BrowserSession:
 
         Returns:
             None: None
+
         """
         if self._context is not None:
             self._context.close()
@@ -258,6 +273,7 @@ class BrowserSession:
 
         Returns:
             Self: Return value.
+
         """
         return self
 
@@ -273,5 +289,6 @@ class BrowserSession:
 
         Returns:
             None: None
+
         """
         self.close()

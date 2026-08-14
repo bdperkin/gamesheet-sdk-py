@@ -46,7 +46,7 @@ rules:
   # ----------------------------------------------------------------------------
   # Allow inline comments without requiring a space before them
   comments:
-    min-spaces-from-content: 1 # Require at least 1 space before inline comment
+    min-spaces-from-content: 1  # Require at least 1 space before inline comment
 
   # ----------------------------------------------------------------------------
   # Document End
@@ -66,16 +66,16 @@ rules:
   # ----------------------------------------------------------------------------
   # Allow reasonable flexibility with blank lines
   empty-lines:
-    max: 2 # Allow up to 2 consecutive blank lines
+    max: 2  # Allow up to 2 consecutive blank lines
 
   # ----------------------------------------------------------------------------
   # Indentation
   # ----------------------------------------------------------------------------
   # Enforce strict and consistent 2-space indentation throughout
   indentation:
-    check-multi-line-strings: false # Don't enforce indentation in multi-line strings
-    indent-sequences: true # Enforce correct indentation for list items (-)
-    spaces: 2 # Standardize on 2 spaces for nested blocks
+    check-multi-line-strings: false  # Don't enforce indentation in multi-line strings
+    indent-sequences: true  # Enforce correct indentation for list items (-)
+    spaces: 2  # Standardize on 2 spaces for nested blocks
 
   # ----------------------------------------------------------------------------
   # Line Length
@@ -83,9 +83,9 @@ rules:
   # Allow longer lines for GitHub Actions workflows and complex configurations
   # Default is 80, but CI workflows often have long URLs, paths, and commands
   line-length:
-    allow-non-breakable-inline-mappings: true # allow non-breakable words in inline mappings
-    allow-non-breakable-words: true # allow non breakable words (without spaces inside) to overflow the limit
-    max: 110 # Allow up to 110 characters per line
+    allow-non-breakable-inline-mappings: true  # allow non-breakable words in inline mappings
+    allow-non-breakable-words: true  # allow non breakable words (without spaces inside) to overflow the limit
+    max: 110  # Allow up to 110 characters per line
 
   # ----------------------------------------------------------------------------
   # Quoted Strings
@@ -101,10 +101,10 @@ rules:
   # GitHub Actions uses 'true'/'false', while some tools prefer 'yes'/'no'
   truthy:
     allowed-values:
-      - "true"
-      - "false"
-      - "yes"
-      - "no"
-      - "on"
-      - "off"
-    check-keys: false # Don't check key names for truthy values
+      - 'true'
+      - 'false'
+      - 'yes'
+      - 'no'
+      - 'on'
+      - 'off'
+    check-keys: false  # Don't check key names for truthy values

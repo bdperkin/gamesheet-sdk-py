@@ -58,6 +58,7 @@ def _is_self_reference(dep_string: str) -> bool:
 
     Returns:
         bool: True if the string names this project.
+
     """
     name = dep_string.strip().split("==", maxsplit=1)[0].split("[", maxsplit=1)[0]
     return _normalize_name(name) == _normalize_name(PROJECT_NAME)
@@ -109,6 +110,7 @@ def parse_pyproject(path: Path) -> dict[str, list[PyProjectDependency]]:
 
     Raises:
         ParseError: If the file cannot be read or parsed.
+
     """
     try:
         data = load_toml(path)
@@ -178,6 +180,7 @@ def _parse_repo_hooks(
     Returns:
         tuple[list[str], list[PreCommitAdditionalDep]]: Tuple of (hook_ids, additional_deps) extracted from
             the repo's hooks.
+
     """
     hook_ids: list[str] = []
     additional_deps: list[PreCommitAdditionalDep] = []
@@ -213,6 +216,7 @@ def parse_precommit_config(path: Path) -> list[PreCommitRepo]:
 
     Raises:
         ParseError: If the file cannot be read or parsed.
+
     """
     yaml = YAML()
     try:
@@ -255,6 +259,7 @@ def _extract_pinned_from_data(data: dict[str, Any]) -> dict[str, str]:
 
     Returns:
         dict[str, str]: Dict mapping repo URL to pinned rev string.
+
     """
     pinned: dict[str, str] = {}
     for cat in (data.get("categories") or {}).values():
@@ -292,6 +297,7 @@ def parse_genprecommit_pinned_revs(path: Path) -> dict[str, str]:
 
     Raises:
         ParseError: If the file cannot be read or parsed.
+
     """
     yaml = YAML()
     try:
@@ -322,6 +328,7 @@ def parse_uv_lock(path: Path) -> tuple[set[str], set[str]]:
 
     Raises:
         ParseError: If the file cannot be read or parsed.
+
     """
     try:
         data = load_toml(path)
@@ -351,6 +358,7 @@ def _parse_specifier_lower_bound(spec_str: str) -> Version | None:
 
     Returns:
         Version | None: The minimum Version from ``>=`` or ``~=``, or None on parse failure.
+
     """
     try:
         spec_set = SpecifierSet(spec_str)
@@ -375,6 +383,7 @@ def parse_requires_python(path: Path) -> Version | None:
 
     Returns:
         Version | None: The minimum Python Version, or None if not configured.
+
     """
     try:
         data = load_toml(path)
@@ -396,6 +405,7 @@ def parse_index_url(path: Path) -> str | None:
 
     Returns:
         str | None: The ``index-url`` string, or None if not configured.
+
     """
     try:
         data = load_toml(path)
@@ -404,6 +414,6 @@ def parse_index_url(path: Path) -> str | None:
 
     index_url = data.get("tool", {}).get("uv", {}).get("index-url")
     if isinstance(index_url, str) and index_url.strip():
-        return index_url.strip()
+        return str(index_url.strip())
 
     return None

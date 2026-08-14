@@ -24,6 +24,7 @@ def add_mock_locations_response(location_id: str = "loc-1") -> None:
 
     Args:
         location_id (str): Location ID to use in mock data
+
     """
     responses.add(
         responses.GET,

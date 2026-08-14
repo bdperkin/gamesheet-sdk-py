@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from pydantic import SecretStr
 
 
-def _firebase_ok(id_token: str = "firebase-id-tok") -> MagicMock:
+def _firebase_ok(id_token: str = "firebase-id-tok") -> MagicMock:  # noqa: S107
     """Build a mock response for a successful Firebase sign-in."""
     resp = MagicMock()
     resp.status_code = 200
@@ -137,7 +137,7 @@ def test_teams_login_flow_reads_credentials_from_config() -> None:
     call_kwargs = mock_post.call_args
     payload = call_kwargs.kwargs.get("json") or call_kwargs[1].get("json")
     assert payload["email"] == "bob@example.com"
-    assert payload["password"] == "s3cret"  # pragma: allowlist secret
+    assert payload["password"] == "s3cret"  # noqa: S105 # pragma: allowlist secret
 
 
 # ---------- firebase failures --------------------------------------------

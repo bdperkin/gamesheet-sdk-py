@@ -93,6 +93,7 @@ def scheduled_get_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         fields_spec (str | None): Optional comma-separated list of fields to display
+
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
@@ -121,6 +122,7 @@ def scheduled_list_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         columns_spec (str | None): Optional comma-separated list of columns to display
+
     """
     # Extract config and season_id from context (set by games_group)
     # ctx.obj is always a dict set by games_group with "config" and "season_id" keys
@@ -329,6 +331,7 @@ def scheduled_create_command(
         visitor_label (str): Visitor team label override
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
+
     """
     validate_no_input_conflict(start_datetime, start_date, start_time_str, "start")
     validate_no_input_conflict(end_datetime, end_date, end_time_str, "end")
@@ -574,6 +577,7 @@ def scheduled_update_command(
         visitor_label (str | None): Visitor team label override
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
+
     """
     validate_no_input_conflict(start_datetime, start_date, start_time_str, "start")
     validate_no_input_conflict(end_datetime, end_date, end_time_str, "end")
@@ -654,6 +658,7 @@ def scheduled_delete_command(
     Args:
         ctx (Context): Click context object containing config
         game_id (str): Game identifier
+
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]

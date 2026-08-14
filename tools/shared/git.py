@@ -36,6 +36,7 @@ def run_ls_remote(
     Raises:
         GitCommandError: If git is not on PATH, the command fails, times
             out, or cannot be executed.
+
     """
     if shutil.which("git") is None:
         msg = "'git' is not on PATH; install git to enable tag discovery"
@@ -44,7 +45,7 @@ def run_ls_remote(
     cmd: list[str] = ["git", "ls-remote", *options, repo_url, *refspecs]
 
     try:
-        return subprocess.run(
+        return subprocess.run(  # noqa: S603
             cmd,
             capture_output=True,
             text=True,

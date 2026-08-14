@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 from gamesheet_sdk.admin.cli.main import cli
@@ -18,6 +18,8 @@ from tests.helpers import (
 )
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from click.testing import CliRunner
 
 
@@ -148,7 +150,7 @@ def test_leagues_list_columns_filter(runner: CliRunner) -> None:
         assert DEFAULT_LEAGUE_NAME in result.output
 
 
-def test_leagues_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
+def test_leagues_list_output_to_file(runner: CliRunner, tmp_path: Path) -> None:
     """The --output option should write to a file for leagues."""
     output_file = tmp_path / "leagues.json"
     with (

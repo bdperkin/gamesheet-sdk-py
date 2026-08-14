@@ -28,6 +28,7 @@ def _load_yamlfix_config() -> YamlfixConfig:
 
     Raises:
         ToolError: If pyproject.toml cannot be read or parsed.
+
     """
     fields = frozenset(YamlfixConfig.model_fields)
     table = load_toml(PYPROJECT_PATH).get("tool", {}).get("yamlfix", {})
@@ -44,6 +45,7 @@ def _apply_yamlfix(text: str) -> str:
 
     Raises:
         SystemExit: If yamlfix cannot format the text.
+
     """
     try:
         formatted: str = fix_code(text, _load_yamlfix_config())
@@ -59,6 +61,7 @@ def _postprocess(text: str) -> str:
 
     Returns:
         str: Cleaned YAML text.
+
     """
     text = re.sub(
         r"^(\s*<<:[^\n]*\S)\s*\n\s*(#[^\n]*)",
@@ -83,5 +86,6 @@ def format_yaml(text: str) -> str:
 
     Raises:
         SystemExit: If yamlfix cannot format the text.
+
     """
     return _postprocess(_apply_yamlfix(text))

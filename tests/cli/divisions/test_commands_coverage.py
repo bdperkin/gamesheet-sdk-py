@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import Any
 from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
@@ -65,7 +64,7 @@ def test_divisions_create_coverage() -> None:
         "title": DEFAULT_DIVISION_NAME,
     }
 
-    def mock_run_action(session: MagicMock, action: MagicMock, *args: MagicMock) -> Any:
+    def mock_run_action(session: MagicMock, action: MagicMock, *args: MagicMock) -> object:
         # Actually call the action to ensure coverage of the nested function
         return action(session, *args)
 
@@ -114,7 +113,7 @@ def test_divisions_create_with_output_file_coverage() -> None:
         "title": DEFAULT_DIVISION_NAME,
     }
 
-    def mock_run_action(session: MagicMock, action: MagicMock, *args: MagicMock) -> Any:
+    def mock_run_action(session: MagicMock, action: MagicMock, *args: MagicMock) -> object:
         return action(session, *args)
 
     with (
@@ -163,7 +162,7 @@ def test_divisions_update_coverage() -> None:
         "title": "Updated Division",
     }
 
-    def mock_run_action(session: MagicMock, action: MagicMock, *args: MagicMock) -> Any:
+    def mock_run_action(session: MagicMock, action: MagicMock, *args: MagicMock) -> object:
         return action(session, *args)
 
     with (
@@ -236,7 +235,7 @@ def test_divisions_update_with_output_file_coverage() -> None:
         "title": "Updated Division",
     }
 
-    def mock_run_action(session: MagicMock, action: MagicMock, *args: MagicMock) -> Any:
+    def mock_run_action(session: MagicMock, action: MagicMock, *args: MagicMock) -> object:
         return action(session, *args)
 
     with (

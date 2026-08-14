@@ -20,6 +20,8 @@ from tests.helpers import TEST_EMAIL_MINIMAL
 if TYPE_CHECKING:
     # Imported for typing only, and referenced as a string in cast() below:
     # literals, so CodeQL reports this as py/unused-import. Do not remove it.
+    from collections.abc import Callable
+
     from pydantic import SecretStr
 # ---------- credential validation ----------------------------------------
 
@@ -68,7 +70,7 @@ def test_login_reads_credentials_from_config(
     page = fake_browser_session.goto.return_value
     listeners: dict[str, Any] = {}
 
-    def register(ev: str, cb: Any) -> None:
+    def register(ev: str, cb: Callable[..., object]) -> None:
         listeners[ev] = cb
 
     def click(*__args: Any, **__kwargs: Any) -> None:
@@ -174,7 +176,7 @@ def test_login_post_login_navigation_timeout_is_swallowed(
         _make_response(_TOKEN_URL, 200, {}),
     ]
 
-    def goto_side_effect(path: str, **kwargs: Any) -> Any:
+    def goto_side_effect(path: str, **kwargs: object) -> object:
         # The post-login navigation is the one that asks for networkidle;
         # the initial form-load navigation uses wait_until="load".
         if kwargs.get("wait_until") == "networkidle":

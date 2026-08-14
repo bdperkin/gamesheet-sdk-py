@@ -9,6 +9,7 @@ import http
 import logging
 import operator
 import re
+from datetime import UTC, datetime
 from html.parser import HTMLParser
 from typing import TYPE_CHECKING, Any
 
@@ -27,12 +28,13 @@ from shared.pip_config import PipConfig, resolve_verify
 
 from depsync.config import (
     PYPI_API_URL,
+    PYPI_RELEASE_API_URL,
     PYPI_TIMEOUT,
 )
 from depsync.exceptions import FetchError
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterable, Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +75,7 @@ def _version_from_filename(filename: str) -> str | None:
 
     Returns:
         str | None: Version string, or None if the filename cannot be parsed.
+
     """
     try:
         if filename.endswith(".whl"):
@@ -104,6 +107,7 @@ def _drop_yanked(
 
     Returns:
         dict[str, str | None]: The input with fully-yanked releases removed.
+
     """
     kept = {ver: req_py for ver, req_py in versions.items() if not yanked.get(ver)}
 
@@ -120,6 +124,7 @@ def _extract_versions_from_simple_html(html_content: str) -> dict[str, str | Non
     Returns:
         dict[str, str | None]: Dict mapping version string to requires_python (or None), yanked releases
             excluded.
+
     """
     parser = _SimpleIndexParser()
     parser.feed(html_content)
@@ -150,6 +155,7 @@ def _extract_versions_from_simple_json(data: dict[str, Any]) -> dict[str, str | 
     Returns:
         dict[str, str | None]: Dict mapping version string to requires_python (or None), yanked releases
             excluded.
+
     """
     req_py_map: dict[str, str | None] = {}
     yanked: dict[str, bool] = {}
@@ -182,6 +188,7 @@ def _parse_simple_response(
 
     Returns:
         dict[str, str | None]: Dict mapping version string to requires_python (or None), empty on failure.
+
     """
     try:
         if "json" in content_type:
@@ -199,19 +206,24 @@ def _parse_simple_response(
     return versions
 
 
-def _fetch_simple_versions(
+def _get_simple(
     package_name: str,
     index_url: str,
-    *,
-    pip_config: PipConfig | None = None,
-) -> dict[str, str | None]:
-    """Fetch versions from a PEP 503/691 Simple Repository API.
+    pip_config: PipConfig | None,
+) -> requests.Response | None:
+    """Fetch a package's page from a PEP 503/691 Simple Repository API.
 
     Requests PEP 691 JSON (preferred) with HTML fallback so that proxy repositories like Nexus return complete
     listings.
 
+    Args:
+        package_name (str): The package name to look up.
+        index_url (str): PEP 503 Simple API base URL.
+        pip_config (PipConfig | None): Optional pip configuration for SSL settings.
+
     Returns:
-        dict[str, str | None]: Dict mapping version string to requires_python (or None), empty on failure.
+        requests.Response | None: The response, or None if the package is absent or the request failed.
+
     """
     normalized = re.sub(r"[-_.]+", "-", package_name).lower()
     base = index_url.rstrip("/")
@@ -228,7 +240,7 @@ def _fetch_simple_versions(
         )
         if response.status_code == http.HTTPStatus.NOT_FOUND:
             logger.debug("Package %s not found on index %s", package_name, index_url)
-            return {}
+            return None
 
         response.raise_for_status()
     except requests.RequestException as exc:
@@ -238,6 +250,25 @@ def _fetch_simple_versions(
             index_url,
             exc,
         )
+        return None
+
+    return response
+
+
+def _fetch_simple_versions(
+    package_name: str,
+    index_url: str,
+    *,
+    pip_config: PipConfig | None = None,
+) -> dict[str, str | None]:
+    """Fetch versions from a PEP 503/691 Simple Repository API.
+
+    Returns:
+        dict[str, str | None]: Dict mapping version string to requires_python (or None), empty on failure.
+
+    """
+    response = _get_simple(package_name, index_url, pip_config)
+    if response is None:
         return {}
 
     content_type = response.headers.get("content-type", "")
@@ -267,6 +298,7 @@ def check_package_exists(
 
     Returns:
         bool: True if the package exists, False otherwise.
+
     """
     if index_url:
         versions = _fetch_simple_versions(
@@ -307,6 +339,7 @@ def _extract_requires_python(files: list[dict[str, str | None]]) -> str | None:
 
     Returns:
         str | None: The first requires_python string found, or None.
+
     """
     for f in files:
         rp = f.get("requires_python")
@@ -328,6 +361,7 @@ def _fetch_pypi_json_versions(package_name: str) -> dict[str, str | None]:
 
     Raises:
         FetchError: If the request fails.
+
     """
     url = PYPI_API_URL.format(package=package_name)
     session = get_session()
@@ -373,6 +407,7 @@ def fetch_pypi_versions(
 
     Raises:
         FetchError: If all fetch attempts fail.
+
     """
     if index_url:
         versions = _fetch_simple_versions(
@@ -403,6 +438,180 @@ def fetch_pypi_versions(
     return _fetch_pypi_json_versions(package_name)
 
 
+def _parse_upload_time(raw: str | None) -> datetime | None:
+    """Parse a publication timestamp from index metadata.
+
+    Args:
+        raw (str | None): RFC 3339 timestamp as published by the index.
+
+    Returns:
+        datetime | None: Timezone-aware instant, or None if absent or unparsable. A value without an offset
+            is read as UTC, which is what both the PyPI JSON API and PEP 700 promise.
+
+    """
+    if not raw:
+        return None
+
+    try:
+        parsed = datetime.fromisoformat(raw)
+    except ValueError:
+        logger.debug("Unparsable upload time %r", raw)
+        return None
+
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
+
+
+def _latest_upload_time(stamps: Iterable[str | None]) -> datetime | None:
+    """Reduce a release's per-file timestamps to the moment the release was complete.
+
+    The *latest* file wins rather than the first: a cutoff placed between two files of the same release admits
+    only some of them, which is indistinguishable from a release that never shipped a wheel for the current
+    platform.
+
+    Args:
+        stamps (Iterable[str | None]): Raw timestamps, one per distribution file.
+
+    Returns:
+        datetime | None: The latest parseable timestamp, or None if none could be read.
+
+    """
+    parsed = [stamp for stamp in (_parse_upload_time(raw) for raw in stamps) if stamp is not None]
+
+    return max(parsed) if parsed else None
+
+
+def _pypi_upload_time(package_name: str, version: str) -> datetime | None:
+    """Look up one release's publication time on the public PyPI JSON API.
+
+    Queries the per-release endpoint rather than the whole-project one, so the response stays small enough to
+    ask about every pin in the project.
+
+    Args:
+        package_name (str): The PyPI package name.
+        version (str): The exact version to look up.
+
+    Returns:
+        datetime | None: Publication time, or None if the release is absent or the request failed.
+
+    """
+    url = PYPI_RELEASE_API_URL.format(package=package_name, version=version)
+    session = get_session()
+    try:
+        response = session.get(url, timeout=PYPI_TIMEOUT)
+        if response.status_code == http.HTTPStatus.NOT_FOUND:
+            logger.debug("Release %s==%s not found on PyPI", package_name, version)
+            return None
+
+        response.raise_for_status()
+        data = response.json()
+    except (requests.RequestException, ValueError) as exc:
+        logger.warning("Failed to fetch upload time for %s==%s: %s", package_name, version, exc)
+        return None
+
+    return _latest_upload_time(entry.get("upload_time_iso_8601") for entry in data.get("urls", []))
+
+
+def _files_for_version(files: list[dict[str, Any]], version: str) -> list[str | None]:
+    """Select the ``upload-time`` values belonging to one version.
+
+    Args:
+        files (list[dict[str, Any]]): File entries from a PEP 691 response.
+        version (str): The exact version to select.
+
+    Returns:
+        list[str | None]: Raw upload-time values for that version's files.
+
+    """
+    return [
+        entry.get("upload-time")
+        for entry in files
+        if _version_from_filename(entry.get("filename", "")) == version
+    ]
+
+
+def _simple_upload_time(
+    package_name: str,
+    version: str,
+    index_url: str,
+    pip_config: PipConfig | None,
+) -> datetime | None:
+    """Look up one release's publication time on a Simple Repository API.
+
+    Args:
+        package_name (str): The package name.
+        version (str): The exact version to look up.
+        index_url (str): PEP 503 Simple API base URL.
+        pip_config (PipConfig | None): Optional pip configuration for SSL settings.
+
+    Returns:
+        datetime | None: Publication time, or None when the index is unreachable, answers in HTML (which
+            carries no timestamps), or omits the PEP 700 ``upload-time`` field.
+
+    """
+    response = _get_simple(package_name, index_url, pip_config)
+    if response is None:
+        return None
+
+    if "json" not in response.headers.get("content-type", ""):
+        logger.debug("Index %s answered in HTML; PEP 700 upload times unavailable", index_url)
+        return None
+
+    try:
+        files = response.json().get("files", [])
+    except ValueError:
+        logger.warning("Failed to parse index response for %s at %s", package_name, index_url)
+        return None
+
+    return _latest_upload_time(_files_for_version(files, version))
+
+
+def _index_urls(index_url: str | None, extra_index_urls: Sequence[str]) -> list[str]:
+    """Collect the configured indexes in query order.
+
+    Returns:
+        list[str]: Non-empty index URLs, primary first.
+
+    """
+    return [url for url in (index_url, *extra_index_urls) if url]
+
+
+def fetch_upload_time(
+    package_name: str,
+    version: str,
+    *,
+    index_url: str | None = None,
+    extra_index_urls: Sequence[str] = (),
+    pip_config: PipConfig | None = None,
+) -> datetime | None:
+    """Fetch the moment a specific release was published.
+
+    Respects pip semantics, as the rest of this module does: configured indexes are consulted exclusively, and
+    public PyPI only when none are set.
+
+    Args:
+        package_name (str): The package name.
+        version (str): The exact version to look up.
+        index_url (str | None): Optional PEP 503 Simple API base URL.
+        extra_index_urls (Sequence[str]): Additional PEP 503 index URLs to try.
+        pip_config (PipConfig | None): Optional pip configuration for SSL settings.
+
+    Returns:
+        datetime | None: Publication time, or None if it could not be determined. Callers treat None as "leave
+            this package alone" rather than as an answer.
+
+    """
+    indexes = _index_urls(index_url, extra_index_urls)
+    if not indexes:
+        return _pypi_upload_time(package_name, version)
+
+    for url in indexes:
+        stamp = _simple_upload_time(package_name, version, url, pip_config)
+        if stamp is not None:
+            return stamp
+
+    return None
+
+
 def fetch_git_tags(repo_url: str) -> list[str]:
     """Fetch all tags from a git repository via ls-remote.
 
@@ -414,6 +623,7 @@ def fetch_git_tags(repo_url: str) -> list[str]:
 
     Raises:
         FetchError: If the git command fails.
+
     """
     try:
         result = run_ls_remote(repo_url, "--tags")
@@ -448,6 +658,7 @@ def clean_and_sort_versions(
 
     Returns:
         list[tuple[str, Version]]: Sorted list of (original_string, parsed_Version) tuples, ascending.
+
     """
     valid: list[tuple[str, Version]] = []
     for v in version_list:
@@ -481,6 +692,7 @@ def filter_python_compatible(
 
     Returns:
         list[str]: List of compatible version strings.
+
     """
     if min_python is None:
         return list(versions.keys())
@@ -522,6 +734,7 @@ def resolve_latest_version(
 
     Returns:
         str | None: The latest version string, or None if none found.
+
     """
     compatible = filter_python_compatible(versions, min_python)
     sorted_versions = clean_and_sort_versions(compatible)
@@ -546,6 +759,7 @@ def find_tag_for_version(git_tags: list[str], version: str) -> str | None:
 
     Returns:
         str | None: The original tag string, or None if no tag matches.
+
     """
     for orig_tag, parsed in clean_and_sort_versions(git_tags, include_prerelease=True):
         if str(parsed) == version:
@@ -570,6 +784,7 @@ def find_highest_common_version(
     Returns:
         tuple[str, str] | None: Tuple of (git_tag_string, normalized_version) for the highest common stable
             version, or None if no overlap.
+
     """
     compatible = filter_python_compatible(pypi_versions, min_python)
     pypi_sorted = clean_and_sort_versions(compatible)

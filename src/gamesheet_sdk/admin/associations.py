@@ -60,6 +60,7 @@ class Association(BaseModel):
         logo (str): Logo asset URL, possibly empty string.
         created_at (datetime): When the association was created.
         updated_at (datetime): Last time the association was updated.
+
     """
 
     id: str = Field(description="Association identifier (string in JSON:API).")
@@ -77,6 +78,7 @@ def _parse(item: dict[str, Any]) -> Association:
 
     Returns:
         Association: Parsed Association model instance.
+
     """
     return Association(**parse_jsonapi_resource(item))
 
@@ -97,6 +99,7 @@ def get_association(session: Session, association_id: str) -> Association:
     Raises:
         AuthenticationError: If the server returns 401 (bearer missing or expired).
         GameSheetError: For any other non-2xx response (including 404 if not found).
+
     """
     endpoint = f"{_ENDPOINT}/{association_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -117,6 +120,7 @@ def list_associations(session: Session) -> list[Association]:
     Returns:
         list[Association]: A list of :class:`Association`, in the order the server returned them. The list may
             be empty if the user has access to no associations.
+
     """
     response = session.get(_ENDPOINT, headers=JSONAPI_HEADERS)
     handle_response(response, _ENDPOINT, "GET associations")

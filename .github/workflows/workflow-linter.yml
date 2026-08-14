@@ -57,13 +57,13 @@ on:
     branches:
       - main
     paths:
-      - ".github/workflows/**"
+      - .github/workflows/**
 
   push:
     branches:
       - main
     paths:
-      - ".github/workflows/**"
+      - .github/workflows/**
 
 permissions:
   contents: read
@@ -78,19 +78,19 @@ jobs:
     name: Audit GitHub Actions workflows
     permissions:
       contents: read
-      security-events: write # Required for uploading SARIF results
+      security-events: write  # Required for uploading SARIF results
 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install pipx
         run: |
@@ -126,7 +126,7 @@ jobs:
 
       - name: Upload SARIF results
         if: always()
-        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
+        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3  # v4.37.6
         with:
           category: zizmor
           sarif_file: zizmor-results.sarif
@@ -134,7 +134,7 @@ jobs:
 
       - name: Upload results as artifact
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: zizmor-results
           path: zizmor-results.sarif

@@ -59,10 +59,10 @@ globals:
     - pre-push
 
 ci:
-  autofix_commit_msg: "style: Auto-fixes from pre-commit.ci"
+  autofix_commit_msg: 'style: Auto-fixes from pre-commit.ci'
   autofix_prs: true
-  autoupdate_branch: ""
-  autoupdate_commit_msg: "chore(deps): Update pre-commit hooks"
+  autoupdate_branch: ''
+  autoupdate_commit_msg: 'chore(deps): Update pre-commit hooks'
   autoupdate_schedule: weekly
   skip: []
 

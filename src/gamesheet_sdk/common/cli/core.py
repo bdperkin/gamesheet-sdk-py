@@ -53,12 +53,12 @@ import logging
 import os
 import sys
 from collections.abc import Callable, Iterable, Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 import colorlog
 import rich_click as click
 from click.exceptions import Abort, Exit, UsageError
-from click.shell_completion import CompletionItem
+from click.shell_completion import CompletionItem  # type: ignore[unresolved-import]
 from rich_click import Command, Context, HelpFormatter
 
 F = TypeVar("F", bound=Callable[..., Any])
@@ -92,6 +92,7 @@ class ResourceGroup(click.RichGroup):
             and both ``rm`` and ``remove`` to resolve to ``delete``. Aliases appear in parentheses next to the
             canonical name in ``--help`` output and are included in tab-completion results.
         **kwargs (Any): Keyword arguments forwarded to the decorated function.
+
     """
 
     def __init__(
@@ -101,6 +102,15 @@ class ResourceGroup(click.RichGroup):
         aliases: Mapping[str, Iterable[str]] | None = None,
         **kwargs: Any,
     ) -> None:
+        """Initialize a ResourceGroup instance.
+
+        Args:
+            *args (Any): Positional arguments passed to superclass.
+            default (str | None): Default sub-command name.
+            aliases (Mapping[str, Iterable[str]] | None): Mapping of command names to aliases.
+            **kwargs (Any): Keyword arguments passed to superclass.
+
+        """
         super().__init__(*args, **kwargs)
         self.default_cmd_name = default
         # Flatten {canonical: (alt, ...)} into {alt: canonical} for O(1)
@@ -122,6 +132,7 @@ class ResourceGroup(click.RichGroup):
 
         Returns:
             Command | None: The resolved Command object, or ``None`` if not found.
+
         """
         cmd = super().get_command(ctx, cmd_name)
         if cmd is not None:
@@ -148,6 +159,7 @@ class ResourceGroup(click.RichGroup):
 
         Returns:
             list[str]: Parsed argument list.
+
         """
         if not args and self.default_cmd_name is not None and not ctx.resilient_parsing:
             args = [self.default_cmd_name]
@@ -168,6 +180,7 @@ class ResourceGroup(click.RichGroup):
 
         Returns:
             tuple[str, str]: Return value.
+
         """
         alts = sorted(a for a, t in self._aliases.items() if t == name)
         alts_str = ", ".join(alts)
@@ -186,6 +199,7 @@ class ResourceGroup(click.RichGroup):
 
         Returns:
             Iterable[tuple[str, str]]
+
         """
         for name in self.list_commands(ctx):
             cmd = self.get_command(ctx, name)
@@ -204,6 +218,7 @@ class ResourceGroup(click.RichGroup):
         Args:
             ctx (Context): The click context
             formatter (HelpFormatter): The help formatter to write to
+
         """
         rows = list(self._visible_command_rows(ctx))
         if rows:
@@ -222,10 +237,12 @@ class ResourceGroup(click.RichGroup):
         Args:
             alias (str): The alias name to check.
             target (str): The canonical command name that the alias points to.
-            incomplete (str): The partial command string being completed. :param set[str] seen: Set of
+            incomplete (str): The partial command string being completed.
+            seen (set[str]): Set of already seen command names or aliases.
 
         Returns:
             CompletionItem | None: Return value.
+
         """
         if alias in seen or not alias.startswith(incomplete):
             return None
@@ -246,10 +263,12 @@ class ResourceGroup(click.RichGroup):
         """Build the alias-only completion items not already in ``seen``.
 
         Args:
-            incomplete (str): The partial command string being completed. :param set[str] seen: Set of
+            incomplete (str): The partial command string being completed.
+            seen (set[str]): Set of already seen command names or aliases.
 
         Returns:
             list[CompletionItem]: List of results.
+
         """
         items: list[CompletionItem] = []
         for alias, target in self._aliases.items():
@@ -280,6 +299,7 @@ class ResourceGroup(click.RichGroup):
 
         Returns:
             list[CompletionItem]: List of results.
+
         """
         # Look up the super method safely
         super_shell_complete = getattr(super(), "shell_complete", None)
@@ -307,16 +327,18 @@ def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
 
     Returns:
         Callable[[F], F]: A decorator that wraps the command function with confirmation logic.
+
     """
 
-    def decorator(f: F) -> Any:
+    def decorator(f: F) -> F:
         """Actual decorator that adds the --force option and confirmation logic.
 
         Args:
             f (F): The command function to decorate.
 
         Returns:
-            Any: Return value.
+            F: Decorated command function.
+
         """
 
         @click.option(
@@ -326,7 +348,7 @@ def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
             help=f"Skip the confirmation prompt and delete {target} immediately.",
         )
         @functools.wraps(f)
-        def wrapper(*args: Any, force: bool = False, **kwargs: Any) -> Any:
+        def wrapper(*args: Any, force: bool = False, **kwargs: Any) -> object:
             """Execute the decorated function with optional confirmation.
 
             Args:
@@ -335,10 +357,11 @@ def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
                 **kwargs (Any): Keyword arguments forwarded to the decorated function.
 
             Returns:
-                Any: Boolean result.
+                object: Result of calling decorated function.
 
             Raises:
                 Exit: With code 1 if the user declines confirmation.
+
             """
             if not force:
                 confirmed = click.confirm(f"Delete {target}?", default=False)
@@ -348,7 +371,7 @@ def confirm_destructive(target: str = "this resource") -> Callable[[F], F]:
             # Remove force from kwargs before calling the original function
             return f(*args, **kwargs)
 
-        return wrapper
+        return cast("F", wrapper)
 
     return decorator
 
@@ -363,6 +386,7 @@ def _should_color(handler: logging.StreamHandler[Any]) -> bool:
 
     Returns:
         bool: Boolean result.
+
     """
     if "NO_COLOR" in os.environ:
         return False
@@ -372,7 +396,7 @@ def _should_color(handler: logging.StreamHandler[Any]) -> bool:
     except AttributeError:
         return False
 
-    return hasattr(stream, "isatty") and stream.isatty()
+    return bool(hasattr(stream, "isatty") and stream.isatty())
 
 
 def _configure_logging(verbose: int) -> None:
@@ -383,6 +407,7 @@ def _configure_logging(verbose: int) -> None:
 
     Returns:
         None
+
     """
     if not verbose:
         level = logging.WARNING
@@ -429,6 +454,7 @@ def parse_columns_spec(spec: str | None) -> list[str] | None:
     Returns:
         list[str] | None: A list of column names, or ``None`` if ``spec`` is ``None`` or contains only
             whitespace.
+
     """
     if spec is None:
         return None
@@ -455,6 +481,7 @@ def resolve_system_exit(
 
     Returns:
         int: Integer exit code.
+
     """
     code = getattr(exc, "code", None)
     if code is None:
@@ -481,6 +508,7 @@ def resolve_exit(exc: BaseException) -> int:
     Returns:
         int: An integer exit code following Unix conventions (0 = success, 1 = general error, 2 = usage
             error).
+
     """
     if isinstance(exc, Exit):
         return int(exc.exit_code)

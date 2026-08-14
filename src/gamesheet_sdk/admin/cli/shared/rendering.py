@@ -5,8 +5,10 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
+import yaml
 from pydantic import BaseModel
 
 from gamesheet_sdk.common.cli.core import parse_columns_spec
@@ -26,6 +28,7 @@ def render_get_command(
         output_format (str): Output format (json, yaml, csv, tsv, or tabulate format)
         output_path (str | None): Optional file path to write output to
         fields_spec (str | None): Optional comma-separated field names to include
+
     """
     # Convert pydantic model to dict if needed
     data_dict = data.model_dump(mode="json") if isinstance(data, BaseModel) else data
@@ -57,6 +60,7 @@ def render_list_command(
         output_format (str): Output format (json, yaml, csv, tsv, or tabulate format)
         output_path (str | None): Optional file path to write output to
         columns_spec (str | None): Optional comma-separated column names to include
+
     """
     # Convert pydantic models to dicts
     rows = [item.model_dump(mode="json") if hasattr(item, "model_dump") else item for item in items]
@@ -78,14 +82,11 @@ def render_penalty_report(
         report (dict[str, Any]): The penalty report dictionary to render
         output_format (str): Output format (json or yaml)
         output_path (str | None): Optional file path to write output to
-    """
-    import json
 
+    """
     if output_format == "json":
         output_text = json.dumps(report, indent=2)
     elif output_format == "yaml":
-        import yaml
-
         output_text = yaml.dump(report, default_flow_style=False)
     else:
         output_text = json.dumps(report, indent=2)

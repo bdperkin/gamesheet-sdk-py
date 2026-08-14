@@ -87,6 +87,7 @@ class Config(BaseSettings, env_prefix="GAMESHEET_", extra="ignore"):
         config = Config()  # Picks up the env vars above
         print(config.username)  # "user@example.com"
         print(config.timeout)  # 60.0
+
     """
 
     base_url: str = Field(

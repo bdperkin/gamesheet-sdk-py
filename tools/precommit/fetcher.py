@@ -33,6 +33,7 @@ def _build_raw_url(repo_url: str, rev: str) -> str:
 
     Raises:
         FetchError: If the repository host is not supported.
+
     """
     normalized = repo_url.removesuffix(".git")
     hostname = urlparse(normalized).hostname or ""
@@ -64,7 +65,8 @@ def _parse_hooks_yaml(
         list[dict[str, Any]]: Parsed list of hook definition dicts.
 
     Raises:
-        FetchError: If the YAML is unparseable or not a list.
+        FetchError: If the YAML is unparsable or not a list.
+
     """
     try:
         hooks = YAML().load(content)
@@ -98,7 +100,8 @@ def fetch_hooks(
         list[dict[str, Any]]: List of hook definition dicts parsed from the YAML.
 
     Raises:
-        FetchError: If the URL cannot be determined, the request fails, or the YAML is unparseable.
+        FetchError: If the URL cannot be determined, the request fails, or the YAML is unparsable.
+
     """
     raw_url = _build_raw_url(repo_url, rev)
     logger.debug("Fetching hooks from %s", raw_url)

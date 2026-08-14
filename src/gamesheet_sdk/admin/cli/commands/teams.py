@@ -98,6 +98,7 @@ def teams_get_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         fields_spec (str | None): Optional comma-separated list of fields to display
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -134,6 +135,7 @@ def teams_list_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         columns_spec (str | None): Optional comma-separated list of columns to display
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -187,6 +189,7 @@ def teams_create_command(
         logo_path (str | None): Optional path to a logo image file
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
+
     """
     run_team_create(
         ctx,
@@ -246,6 +249,7 @@ def teams_update_command(
         remove_logo (bool): Remove the team's logo
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
+
     """
     run_team_update(
         ctx,
@@ -290,5 +294,6 @@ def teams_delete_command(
         ctx (Context): Click context object containing config
         season_id (str): The season identifier
         team_id (str): The team identifier to delete
+
     """
     run_team_delete(ctx, season_id, team_id)

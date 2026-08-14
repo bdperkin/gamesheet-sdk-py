@@ -15,7 +15,7 @@
 #   - mdformat: Auto-formats Markdown files (GFM plugin enabled)
 #
 # Tools run in check mode in CI. To apply fixes locally:
-#   - make fix (runs mdformat in write mode)
+#   - make markdown (runs mdformat in write mode)
 #   - mdformat (formats in place)
 #   - pre-commit run --all-files (auto-fixes Markdown files)
 #
@@ -26,8 +26,8 @@ name: Documentation & Markdown Tools
 on:
   pull_request:
     paths-ignore:
-      - "CHANGELOG.md"
-      - "pyproject.toml"
+      - CHANGELOG.md
+      - pyproject.toml
 
     types:
       - opened
@@ -37,8 +37,8 @@ on:
     branches:
       - main
     paths-ignore:
-      - "CHANGELOG.md"
-      - "pyproject.toml"
+      - CHANGELOG.md
+      - pyproject.toml
 
 permissions:
   contents: read
@@ -56,21 +56,21 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
       - name: Run pymarkdown via uv
-        run: uv run --extra pymarkdown pymarkdown --config pyproject.toml scan $(git ls-files '*.md')
+        run: uv run --extra pymarkdown pymarkdown scan .
 
   mdformat:
     name: mdformat (py${{ matrix.python-version }})
@@ -79,18 +79,18 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
       - name: Run mdformat via uv
-        run: uv run --extra mdformat mdformat --check docs/ README.md CONTRIBUTING.md
+        run: uv run --extra mdformat mdformat --check $(git ls-files '*.md')

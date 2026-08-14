@@ -48,6 +48,7 @@ def run_roster_delete_test_base(
 
     Returns:
         tuple[int, str, MagicMock]: Tuple of (exit_code, output, mock_action)
+
     """
     runner = CliRunner()
     patches = [
@@ -79,4 +80,5 @@ def run_roster_delete_test_base(
             input=input_text,
         )
 
+        assert isinstance(mock_action, MagicMock)
         return result.exit_code, result.output, mock_action

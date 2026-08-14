@@ -113,6 +113,7 @@ def cli(
         base_url (str | None): Override for the GameSheet base URL, or ``None`` to use the default.
         no_headless (bool): When ``True``, show the browser window during Playwright flows.
         verbose (int): Logging verbosity level (0 = WARNING, 1 = INFO, 2 = DEBUG).
+
     """
     _configure_logging(verbose)
     overrides: dict[str, Any] = {}
@@ -150,6 +151,7 @@ def main(argv: list[str] | None = None) -> int:
 
     Returns:
         int: Process exit code.
+
     """
     try:
         result = cli.main(

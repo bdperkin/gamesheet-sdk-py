@@ -17,6 +17,7 @@ subsequent CLI commands can authenticate without repeating the login flow.
 from __future__ import annotations
 
 import logging
+from http import HTTPStatus
 from typing import TYPE_CHECKING, Any
 
 import requests
@@ -50,6 +51,7 @@ def _firebase_error_message(response: requests.Response) -> str:
 
     Returns:
         str: Extracted error message or HTTP status fallback.
+
     """
     try:
         body: dict[str, Any] = response.json()
@@ -59,7 +61,7 @@ def _firebase_error_message(response: requests.Response) -> str:
     return extract_firebase_error(body, response.status_code)
 
 
-def _firebase_sign_in(email: str, password: str, *, timeout: float) -> Any:
+def _firebase_sign_in(email: str, password: str, *, timeout: float) -> str:
     """Authenticate with Firebase REST API and return the ID token.
 
     Args:
@@ -72,15 +74,16 @@ def _firebase_sign_in(email: str, password: str, *, timeout: float) -> Any:
 
     Raises:
         AuthenticationError: If Firebase rejects the credentials.
+
     """
     url = f"{FIREBASE_AUTH_URL}?key={FIREBASE_API_KEY}"
     payload = {"email": email, "password": password, "returnSecureToken": True}
     response = requests.post(url, json=payload, timeout=timeout)
-    if response.status_code != 200:
+    if response.status_code != HTTPStatus.OK:
         _err_msg = f"Login rejected by Firebase: {_firebase_error_message(response)}"
         raise AuthenticationError(_err_msg)
 
-    return response.json()["idToken"]
+    return str(response.json()["idToken"])
 
 
 def _exchange_id_token(id_token: str, *, timeout: float) -> dict[str, str]:
@@ -95,11 +98,12 @@ def _exchange_id_token(id_token: str, *, timeout: float) -> dict[str, str]:
 
     Raises:
         AuthenticationError: If the token exchange fails.
+
     """
     url = f"{TEAMS_API_GATEWAY}{TEAMS_TOKEN_EXCHANGE_PATH}"
     headers = {"Authorization": f"Bearer {id_token}"}
     response = requests.get(url, headers=headers, timeout=timeout)
-    if response.status_code != 200:
+    if response.status_code != HTTPStatus.OK:
         _err_msg = f"Teams token exchange failed (HTTP {response.status_code})."
         raise AuthenticationError(_err_msg)
 
@@ -134,6 +138,7 @@ def refresh_access_token(
         AuthenticationError: If the refresh token is rejected (HTTP 401). This typically means the token has
             expired and the user needs to re-authenticate via ``gamesheet-teams login``.
         GameSheetError: For any other non-2xx HTTP response from the token refresh endpoint.
+
     """
     url = f"{TEAMS_API_GATEWAY}{TEAMS_REFRESH_PATH}"
     headers = {
@@ -141,11 +146,11 @@ def refresh_access_token(
         "Content-Type": "application/json",
     }
     response = requests.post(url, json={}, headers=headers, timeout=timeout)
-    if response.status_code == 401:
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
         _err_msg = "Refresh token rejected. Run `gamesheet-teams login` to re-authenticate."
         raise AuthenticationError(_err_msg)
 
-    if response.status_code >= 400:
+    if response.status_code >= HTTPStatus.BAD_REQUEST:
         _err_msg = f"Token refresh failed: HTTP {response.status_code}: {response.text[:200]!r}"
         raise GameSheetError(_err_msg)
 
@@ -175,9 +180,16 @@ class TeamsLoginFlow:
 
     Args:
         config (Config): SDK configuration (credentials, URLs, storage paths).
+
     """
 
     def __init__(self: TeamsLoginFlow, config: Config) -> None:
+        """Initialize TeamsLoginFlow with SDK config.
+
+        Args:
+            config (Config): SDK configuration (credentials, URLs, storage paths).
+
+        """
         self._config = config
 
     def authenticate(
@@ -203,6 +215,7 @@ class TeamsLoginFlow:
         Raises:
             ~gamesheet_sdk.common.exceptions.AuthenticationError: If credentials are missing, Firebase rejects
                 them, or the token exchange fails.
+
         """
         resolved_email = resolve_email(self._config, email)
         resolved_password = resolve_password(self._config, password)

@@ -59,6 +59,7 @@ def _read_toml(path: Path) -> tuple[TOMLFile, TOMLDocument]:
 
     Raises:
         WriteError: If the file cannot be read.
+
     """
     try:
         toml_file = TOMLFile(str(path))
@@ -75,6 +76,7 @@ def _write_toml(path: Path, toml_file: TOMLFile, doc: TOMLDocument) -> None:
 
     Raises:
         WriteError: If the file cannot be written.
+
     """
     try:
         toml_file.write(doc)
@@ -91,6 +93,7 @@ def _read_yaml_file(path: Path, yml: YAML) -> CommentedMap:
 
     Raises:
         WriteError: If the file cannot be read.
+
     """
     try:
         with path.open(encoding="utf-8") as f:
@@ -105,6 +108,7 @@ def _write_yaml_file(path: Path, yml: YAML, data: CommentedMap) -> None:
 
     Raises:
         WriteError: If the file cannot be written.
+
     """
     try:
         _write_yaml(path, yml, data)
@@ -121,6 +125,7 @@ def _get_toml_key(doc: TOMLDocument, keys: list[str], path: Path) -> object:
 
     Raises:
         WriteError: If any key in the path is missing.
+
     """
     # Annotated because indexing a TOMLDocument narrows to `Item | Container`, which is not assignable back
     # to the loop variable; the traversal is heterogeneous by nature.
@@ -141,6 +146,7 @@ def _normalize_dep_name(dep_lower: str) -> str:
 
     Returns:
         str: Normalized name with separators replaced by hyphens.
+
     """
     name = dep_lower.split("==", maxsplit=1)[0].split("[", maxsplit=1)[0]
     return re.sub(r"[-_.]+", "-", name)
@@ -183,6 +189,7 @@ def update_pyproject(
 
     Raises:
         WriteError: If the file cannot be read or written.
+
     """
     pyproject_results = [
         r
@@ -280,6 +287,7 @@ def update_genprecommit_additional_deps(
 
     Raises:
         WriteError: If the file cannot be read or written.
+
     """
     ad_results = [
         r
@@ -331,6 +339,7 @@ def update_precommit_config(
 
     Raises:
         WriteError: If the file cannot be read or written.
+
     """
     rev_results = {r.repo_url: r for r in results if r.needs_regeneration and r.rev_tag}
     ad_results = {
@@ -432,6 +441,7 @@ def update_dependabot_ignores(
 
     Returns:
         tuple[int, int]: Tuple of (added_count, removed_count).
+
     """
     if not path.exists():
         logger.debug("dependabot.yml not found, skipping ignore sync")
@@ -491,6 +501,7 @@ def _apply_removes_and_updates(
 
     Returns:
         int: Number of entries changed.
+
     """
     change_count = 0
     i = len(type_stubs_list) - 1
@@ -531,6 +542,7 @@ def apply_types_sync(
 
     Raises:
         WriteError: If the file cannot be read or written.
+
     """
     if not to_add and not to_remove and not to_update:
         return 0

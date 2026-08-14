@@ -31,6 +31,7 @@ def setup_photo_upload_mocks(
 
     Returns:
         str: Path to the temporary image file.
+
     """
     with tempfile.NamedTemporaryFile(
         mode="w",
@@ -77,6 +78,7 @@ def setup_team_roster_update_mocks(
         season_id (str): Season ID.
         team_id (str): Team ID.
         team_data (dict[str, Any]): Team payload data.
+
     """
     # Mock GET team to fetch current roster
     responses.add(
@@ -107,6 +109,7 @@ def setup_update_player_mocks(
         endpoint (str): Player endpoint URL.
         current_player (dict[str, Any]): Current player payload data.
         updated_player (dict[str, Any]): Updated player payload data.
+
     """
     # Mock GET player to fetch current data
     responses.add(
@@ -137,6 +140,7 @@ def setup_update_coach_mocks(
         endpoint (str): Coach endpoint URL.
         current_coach (dict[str, Any]): Current coach payload data.
         updated_coach (dict[str, Any]): Updated coach payload data.
+
     """
     # Mock GET coach to fetch current data
     responses.add(
@@ -169,6 +173,7 @@ def setup_get_team_roster_mocks(
         team_id (str): Team ID.
         roster_data (dict[str, Any]): Team roster attributes (players and coaches arrays).
         included (list[dict[str, Any]]): List of included player/coach resource objects.
+
     """
     responses.add(
         responses.GET,

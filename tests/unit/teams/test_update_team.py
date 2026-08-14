@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 import responses
@@ -110,7 +110,7 @@ def test_update_team_title_only(config: Config) -> None:
     assert len(responses.calls) == 2  # GET + POST
     update_req = responses.calls[1].request
     assert update_req.body is not None
-    payload = json.loads(update_req.body)
+    payload = json.loads(cast("bytes | str", update_req.body))
     assert payload["data"]["attributes"]["title"] == "Updated Team Name"
     assert payload["data"]["attributes"]["external_id"] == "old-ext-id"  # Preserved
 
@@ -135,7 +135,7 @@ def test_update_team_division_id_only(config: Config) -> None:
 
     update_req = responses.calls[1].request
     assert update_req.body is not None
-    payload = json.loads(update_req.body)
+    payload = json.loads(cast("bytes | str", update_req.body))
     assert payload["data"]["relationships"]["division"]["data"]["id"] == "99999"
     assert payload["data"]["attributes"]["title"] == "Old Team Name"  # Preserved
 
@@ -160,7 +160,7 @@ def test_update_team_external_id_only(config: Config) -> None:
 
     update_req = responses.calls[1].request
     assert update_req.body is not None
-    payload = json.loads(update_req.body)
+    payload = json.loads(cast("bytes | str", update_req.body))
     assert payload["data"]["attributes"]["external_id"] == "new-ext-id"
 
 
@@ -196,7 +196,7 @@ def test_update_team_multiple_fields(config: Config) -> None:
 
     update_req = responses.calls[1].request
     assert update_req.body is not None
-    payload = json.loads(update_req.body)
+    payload = json.loads(cast("bytes | str", update_req.body))
     assert payload["data"]["attributes"]["title"] == "New Title"
     assert payload["data"]["relationships"]["division"]["data"]["id"] == "88888"
     assert payload["data"]["attributes"]["external_id"] == "custom-id"
@@ -258,7 +258,7 @@ def test_update_team_with_logo(config: Config) -> None:
 
         team_req = responses.calls[3].request
         assert team_req.body is not None
-        payload = json.loads(team_req.body)
+        payload = json.loads(cast("bytes | str", team_req.body))
         assert payload["data"]["attributes"]["logo_url"] == new_logo_url
     finally:
         Path(logo_path).unlink()
@@ -287,7 +287,7 @@ def test_update_team_remove_logo(config: Config) -> None:
     assert len(responses.calls) == 3  # GET + PATCH + DELETE
     update_req = responses.calls[1].request
     assert update_req.body is not None
-    payload = json.loads(update_req.body)
+    payload = json.loads(cast("bytes | str", update_req.body))
     assert not payload["data"]["attributes"]["logo_url"]
 
 
@@ -421,5 +421,5 @@ def test_update_team_delete_logo_failure_raises_gamesheet_error(config: Config) 
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        with pytest.raises(GameSheetError, match="DELETE.*HTTP 500"):
+        with pytest.raises(GameSheetError, match=r"DELETE.*HTTP 500"):
             update_team(session, SEASON_ID, _TEAM_ID, remove_logo=True)

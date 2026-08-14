@@ -50,6 +50,7 @@ def _has_lc(val: object, typ: type) -> bool:
 
     Returns:
         bool: True if *val* matches *typ*, is non-empty, and has lc data.
+
     """
     return isinstance(val, typ) and bool(val) and hasattr(val, "lc")
 
@@ -68,11 +69,11 @@ def _map_indents(node: object) -> Iterator[int]:
 
         return
 
-    for key in node:  # type: ignore[attr-defined]
-        val = node[key]  # type: ignore[index]
+    for key in node:
+        val = node[key]
         if _has_lc(val, CommentedMap):
             keys = list(val.keys())
-            yield val.lc.key(keys[0])[1] - node.lc.key(key)[1]  # type: ignore[attr-defined]
+            yield val.lc.key(keys[0])[1] - node.lc.key(key)[1]
 
         yield from _map_indents(val)
 
@@ -85,10 +86,10 @@ def _seq_indents(node: object) -> Iterator[int]:
 
         return
 
-    for key in node:  # type: ignore[attr-defined]
-        val = node[key]  # type: ignore[index]
+    for key in node:
+        val = node[key]
         if _has_lc(val, CommentedSeq):
-            yield val.lc.item(0)[1] - node.lc.key(key)[1]  # type: ignore[attr-defined]
+            yield val.lc.item(0)[1] - node.lc.key(key)[1]
 
         yield from _seq_indents(val)
 
@@ -98,6 +99,7 @@ def _detect_indent(data: object) -> tuple[int, int, int]:
 
     Returns:
         tuple[int, int, int]: ``(mapping_indent, sequence_indent, dash_offset)``.
+
     """
     mi = next(_map_indents(data), 2)
     si = next(_seq_indents(data), 2)
@@ -480,7 +482,7 @@ def _github_workflow_sort_key(
     if depth == 1 and _is_job_value(value):
         return (pos,)
 
-    sort_key = "on" if key is True else key  # type: ignore[comparison-overlap]  # bare `on` is YAML boolean
+    sort_key = "on" if key is True else key
     order = _GITHUB_WORKFLOW_DEPTH_KEYS.get(depth, ())
     return (_ordered_key_pos(sort_key, order), _type_order(value), sort_key)
 
@@ -607,6 +609,7 @@ def _save_comments(data: CommentedMap) -> dict[str, object]:
 
     Returns:
         dict[str, object]: Mapping of key to comment data.
+
     """
     return {k: data.ca.items[k] for k in data if k in data.ca.items}
 
@@ -630,7 +633,7 @@ def _sorted_pairs(
     return [(k, data[k]) for k in sorted(data.keys(), key=key_fn)]
 
 
-def _walk_merge_ids(data: object, ids: set[int], visited: set[int]) -> bool:
+def _walk_merge_ids(data: object, ids: set[int], visited: set[int]) -> bool:  # noqa: C901
     """Return True if *data* is or contains a merge-involved map."""
     if not isinstance(data, (CommentedMap, list, CommentedSeq)):
         return False
@@ -672,6 +675,7 @@ def _collect_merge_ids(data: object) -> set[int]:
 
     Returns:
         set[int]: Object ids of merge-involved CommentedMaps.
+
     """
     ids: set[int] = set()
     _walk_merge_ids(data, ids, set())
@@ -801,6 +805,7 @@ def _render(yml: YAML, data: object) -> str:
 
     Returns:
         str: Rendered YAML text.
+
     """
     _preserve_anchors(data)
     buf = io.StringIO()
@@ -816,6 +821,7 @@ def _validate_args(*, backup: bool, is_stdin: bool) -> None:
 
     Raises:
         SystemExit: If --backup is used with stdin.
+
     """
     if backup and is_stdin:
         console.print("[bold red]Error:[/] --backup cannot be used with stdin")
@@ -833,6 +839,7 @@ def _load_yaml(file: io.TextIOWrapper) -> tuple[str, object, YAML]:
 
     Raises:
         SystemExit: If YAML parsing fails.
+
     """
     original = file.read()
     yml = YAML()
@@ -867,6 +874,7 @@ def _sort_and_render(
 
     Returns:
         str: Sorted, rendered, and yamlfix-formatted YAML text.
+
     """
     mi, si, do = _detect_indent(data)
     yml.indent(mapping=mi, sequence=si, offset=do)
@@ -899,6 +907,7 @@ def _run_check(original: str, sorted_text: str, source: str, *, showed_diff: boo
 
     Raises:
         SystemExit: If content is not already sorted.
+
     """
     if original == sorted_text:
         logger.info("%s already sorted", source)
@@ -983,6 +992,7 @@ def app(
         diff (bool): Show unified diff of changes.
         schema_type (str | None): Schema type for schema-specific sorting rules.
         strict (bool): Disable identity-key-first sorting in sequence elements.
+
     """
     configure_logging(_LOG_LEVELS[verbose], console)
     is_stdin = file.name == "<stdin>"

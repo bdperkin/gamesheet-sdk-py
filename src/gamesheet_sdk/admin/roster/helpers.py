@@ -32,6 +32,7 @@ def get_team_for_roster_update(
     Raises:
         AuthenticationError: If the server returns 401.
         GameSheetError: For any other non-2xx response.
+
     """
     endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
     response = session.get(
@@ -65,6 +66,7 @@ def update_team_roster(
     Raises:
         AuthenticationError: If the server returns 401.
         GameSheetError: For any other non-2xx response.
+
     """
     endpoint = f"/api/seasons/{season_id}/teams-v2/{team_id}"
     payload = {

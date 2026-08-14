@@ -57,6 +57,7 @@ def login_command(
         email (str | None): Email address for login, or ``None`` to use the environment variable.
         password (str | None): Password for login, or ``None`` to prompt interactively.
         timeout (int): Page-load timeout in milliseconds.
+
     """
     config: Config = ctx.obj
     try:

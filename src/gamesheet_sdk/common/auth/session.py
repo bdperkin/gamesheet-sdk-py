@@ -8,6 +8,7 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from collections.abc import Callable
+from http import HTTPStatus
 from typing import TYPE_CHECKING, Any
 
 from gamesheet_sdk.common.auth.tokens import refresh_access_token
@@ -42,6 +43,7 @@ class BaseAuthenticatedSession(Session, ABC):
         on_refresh (OnRefreshCallback | None): Optional callback invoked with a token dict after a successful
             token refresh. Use this to persist the new tokens to disk (e.g. via
             :func:`~gamesheet_sdk.common.auth.tokens.save_tokens`).
+
     """
 
     def __init__(
@@ -52,6 +54,15 @@ class BaseAuthenticatedSession(Session, ABC):
         refresh_token: str,
         on_refresh: OnRefreshCallback | None = None,
     ) -> None:
+        """Initialize BaseAuthenticatedSession instance.
+
+        Args:
+            config (Config | None): Optional SDK configuration.
+            access_token (str): Access token.
+            refresh_token (str): Refresh token.
+            on_refresh (OnRefreshCallback | None): Optional callback invoked when tokens refresh.
+
+        """
         super().__init__(config)
         self._refresh_token = refresh_token
         self._on_refresh = on_refresh
@@ -68,6 +79,7 @@ class BaseAuthenticatedSession(Session, ABC):
 
         Raises:
             GameSheetError: On any refresh failure (propagated to :meth:`_try_refresh`).
+
         """
 
     def _notify_refresh(
@@ -89,7 +101,7 @@ class BaseAuthenticatedSession(Session, ABC):
             new_tokens = self._do_refresh()
         except GameSheetError as exc:
             # editorconfig-checker-disable-next-line
-            _LOGGER.warning(  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure
+            _LOGGER.warning(  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure  # noqa: E501
                 "Token refresh failed: %s; surfacing original response.",
                 exc,
             )
@@ -120,15 +132,16 @@ class BaseAuthenticatedSession(Session, ABC):
         Returns:
             requests.Response: HTTP response object from the request. If token refresh fails, returns the
                 original 401/403 response without raising an exception.
+
         """
         response = super().request(method, url, timeout=timeout, **kwargs)
-        if response.status_code not in (401, 403):
+        if response.status_code not in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
             return response
 
         if not self._try_refresh():
             return response
         # editorconfig-checker-disable-next-line
-        _LOGGER.warning(  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure
+        _LOGGER.warning(  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure  # noqa: E501
             "Refreshed access token; retrying %s %s.",
             method,
             url,

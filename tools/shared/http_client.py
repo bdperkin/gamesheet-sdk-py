@@ -31,6 +31,7 @@ def get_session(pip_config: PipConfig | None = None) -> requests.Session:
 
     Returns:
         requests.Session: A shared requests Session with retry-on- transient-error.
+
     """
     if "session" not in _state:
         retry = Retry(

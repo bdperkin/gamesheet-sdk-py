@@ -28,6 +28,7 @@ def main() -> int:
 
     Returns:
         int: Integer exit code.
+
     """
     # Ensure output directory exists
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -49,7 +50,7 @@ def main() -> int:
     ]
     cmd_str = " ".join(cmd)
     rprint(f"[bold]Running:[/bold] [cyan]{cmd_str}[/cyan]")
-    result = subprocess.run(cmd, check=False)
+    result = subprocess.run(cmd, check=False)  # noqa: S603
     if result.returncode:
         rprint(
             f"[bold red]sphinx-apidoc failed with exit code {result.returncode}[/bold red]",

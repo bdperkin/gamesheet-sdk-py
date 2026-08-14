@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from http import HTTPStatus
 from typing import TYPE_CHECKING, Any
 
 from gamesheet_sdk.common import errors
@@ -39,42 +40,43 @@ def handle_response(
         GameSheetNotFoundError: If response status is 404 (Not Found).
         GameSheetRateLimitError: If response status is 429 (Too Many Requests).
         GameSheetAPIError: For any other >= 400 response status.
+
     """
     text_val = getattr(response, "text", "")
     body_snippet = text_val[:200] if isinstance(text_val, str) and text_val else None
 
-    if response.status_code == 401:
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
         msg = errors.ERROR_MSG_401_GENERIC.format(context=context_msg)
         raise AuthenticationError(msg)
 
-    if response.status_code == 403:
+    if response.status_code == HTTPStatus.FORBIDDEN:
         msg = errors.ERROR_MSG_403_GENERIC.format(context=context_msg)
         raise GameSheetPermissionError(
             msg,
-            status_code=403,
+            status_code=HTTPStatus.FORBIDDEN,
             endpoint=endpoint,
             response_body=body_snippet,
         )
 
-    if response.status_code == 404:
+    if response.status_code == HTTPStatus.NOT_FOUND:
         msg = errors.ERROR_MSG_404_RESOURCE.format(endpoint=endpoint)
         raise GameSheetNotFoundError(
             msg,
-            status_code=404,
+            status_code=HTTPStatus.NOT_FOUND,
             endpoint=endpoint,
             response_body=body_snippet,
         )
 
-    if response.status_code == 429:
+    if response.status_code == HTTPStatus.TOO_MANY_REQUESTS:
         msg = f"Rate limit exceeded (HTTP 429) for {endpoint}"
         raise GameSheetRateLimitError(
             msg,
-            status_code=429,
+            status_code=HTTPStatus.TOO_MANY_REQUESTS,
             endpoint=endpoint,
             response_body=body_snippet,
         )
 
-    if response.status_code >= 400:
+    if response.status_code >= HTTPStatus.BAD_REQUEST:
         msg = errors.ERROR_MSG_GENERIC_HTTP.format(
             context=context_msg.upper(),
             endpoint=endpoint,
@@ -99,6 +101,7 @@ def check_bff_response_status(data: dict[str, Any], _endpoint: str) -> None:
 
     Raises:
         GameSheetError: If status is not ``"success"``.
+
     """
     status = data.get("status")
     if status != "success":
@@ -129,32 +132,33 @@ def handle_season_scoped_response(
         GameSheetPermissionError: If response status is 403 (Forbidden).
         GameSheetNotFoundError: If response status is 404 (Not Found).
         GameSheetAPIError: For any other >= 400 response status.
+
     """
     text_val = getattr(response, "text", "")
     body_snippet = repr(text_val[:200]) if isinstance(text_val, str) and text_val else None
 
-    if response.status_code == 401:
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
-    if response.status_code == 403:
+    if response.status_code == HTTPStatus.FORBIDDEN:
         msg = errors.ERROR_MSG_403_GENERIC.format(context=f"{method} {resource_type}")
         raise GameSheetPermissionError(
             msg,
-            status_code=403,
+            status_code=HTTPStatus.FORBIDDEN,
             endpoint=endpoint,
             response_body=body_snippet,
         )
 
-    if response.status_code == 404:
+    if response.status_code == HTTPStatus.NOT_FOUND:
         msg = errors.ERROR_MSG_404_SEASON.format(season_id=season_id)
         raise GameSheetNotFoundError(
             msg,
-            status_code=404,
+            status_code=HTTPStatus.NOT_FOUND,
             endpoint=endpoint,
             response_body=body_snippet,
         )
 
-    if response.status_code >= 400:
+    if response.status_code >= HTTPStatus.BAD_REQUEST:
         msg = errors.ERROR_MSG_GENERIC_HTTP.format(
             context=method.upper(),
             endpoint=endpoint,

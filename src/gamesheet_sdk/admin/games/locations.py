@@ -33,6 +33,7 @@ def list_locations(session: Session) -> list[Location]:
     Raises:
         AuthenticationError: If the server returns 401 or 403.
         GameSheetError: For any other non-2xx response.
+
     """
     url = f"{DEFAULT_BASE_URL}{API_LOCATIONS}"
     response = session.get(url)
@@ -55,6 +56,7 @@ def get_location(session: Session, location_id: str) -> Location:
 
     Raises:
         GameSheetError: If the location ID is not found.
+
     """
     locations = list_locations(session)
     for loc in locations:
@@ -80,6 +82,7 @@ def validate_location(session: Session, location: str) -> str:
 
     Raises:
         GameSheetError: If the location is not valid.
+
     """
     if not location:
         return location

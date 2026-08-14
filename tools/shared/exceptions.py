@@ -13,11 +13,18 @@ class ToolError(Exception):
 
     Args:
         *args (object): Exception arguments passed to the base class.
+
     """
 
     exit_code: int = 1
 
     def __init__(self: ToolError, *args: object) -> None:
+        """Initialize ToolError instance.
+
+        Args:
+            *args (object): Positional exception arguments.
+
+        """
         super().__init__(*args)
 
 
@@ -28,6 +35,7 @@ class SubprocessError(ToolError):
         command (str): The command string that failed.
         exit_code (int): Process exit code from the failed command.
         stderr (str): Captured standard error output.
+
     """
 
     def __init__(
@@ -36,6 +44,14 @@ class SubprocessError(ToolError):
         exit_code: int,
         stderr: str,
     ) -> None:
+        """Initialize SubprocessError instance.
+
+        Args:
+            command (str): Failed command string.
+            exit_code (int): Process exit code.
+            stderr (str): Standard error output.
+
+        """
         self.command = command
         self.exit_code = exit_code
         self.stderr = stderr

@@ -60,6 +60,7 @@ def _resolve_installed_version(repo_url: str, resolved: Mapping[str, str]) -> st
 
     Raises:
         DiscoveryError: If the package is neither locked nor installed.
+
     """
     package_name = repo_url.rsplit("/", maxsplit=1)[-1].replace("-pre-commit", "")
 
@@ -100,6 +101,7 @@ def _find_highest_available_tag(
 
     Returns:
         tuple[str, str] | None: Tuple of (original_tag, normalized_version) or None if no match.
+
     """
     pypi_versions = fetch_pypi_versions(
         pypi_name,
@@ -123,6 +125,7 @@ def _parse_tags(ls_remote_output: str) -> list[str]:
 
     Returns:
         list[str]: List of release tag names.
+
     """
     tags: list[str] = []
     for line in ls_remote_output.strip().splitlines():
@@ -150,6 +153,7 @@ def _normalize_version(tag: str) -> str:
 
     Returns:
         str: Numeric version string with v/ver prefix removed.
+
     """
     return re.sub(r"^(ver|v)", "", tag, flags=re.IGNORECASE)
 
@@ -164,6 +168,7 @@ def _select_latest_tag(tags: list[str]) -> str:
 
     Returns:
         str: The tag name with the highest version.
+
     """
     versioned: list[tuple[Version, str]] = []
     for tag in tags:
@@ -171,7 +176,7 @@ def _select_latest_tag(tags: list[str]) -> str:
             ver = Version(_normalize_version(tag))
             versioned.append((ver, tag))
         except InvalidVersion:
-            logger.debug("Skipping unparseable tag: %s", tag)
+            logger.debug("Skipping unparsable tag: %s", tag)
 
     if versioned:
         versioned.sort(key=operator.itemgetter(0))
@@ -188,7 +193,8 @@ def _sort_tags_descending(tags: list[str]) -> list[str]:
         tags (list[str]): List of tag names.
 
     Returns:
-        list[str]: Tags sorted from newest to oldest. Unparseable tags are excluded.
+        list[str]: Tags sorted from newest to oldest. Unparsable tags are excluded.
+
     """
     versioned: list[tuple[Version, str]] = []
     for tag in tags:
@@ -196,7 +202,7 @@ def _sort_tags_descending(tags: list[str]) -> list[str]:
             ver = Version(_normalize_version(tag))
             versioned.append((ver, tag))
         except InvalidVersion:
-            logger.debug("Skipping unparseable tag: %s", tag)
+            logger.debug("Skipping unparsable tag: %s", tag)
 
     versioned.sort(key=operator.itemgetter(0), reverse=True)
     return [tag for _, tag in versioned]
@@ -213,6 +219,7 @@ def _resolve_head_commit(repo_url: str) -> str:
 
     Raises:
         DiscoveryError: If the git command fails.
+
     """
     try:
         result = run_ls_remote(repo_url, "--quiet", refspecs=("HEAD",))
@@ -248,6 +255,7 @@ def _resolve_locked_tag(
 
     Returns:
         str | None: The matching tag, or None if there is no confident match.
+
     """
     package_name = repo_url_to_package(repo_url)
     locked = resolved.get(package_name) if package_name else None
@@ -298,6 +306,7 @@ def _resolve_latest_tag(
 
     Raises:
         DiscoveryError: If no tags are found or the git command fails.
+
     """
     try:
         result = run_ls_remote(repo_url, "--tags", "--quiet")
@@ -367,6 +376,7 @@ def resolve_revision(
 
     Returns:
         RevisionResult: RevisionResult with the resolved revision and candidate tags.
+
     """
     locked: Mapping[str, str] = resolved or {}
 

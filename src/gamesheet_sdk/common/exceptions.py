@@ -30,6 +30,7 @@ class GameSheetAPIError(GameSheetError):
         status_code (int): The HTTP response status code (e.g. 404, 500).
         endpoint (str): The API endpoint path that triggered the error.
         response_body (str | None): Truncated response body text from the server.
+
     """
 
     def __init__(
@@ -39,6 +40,15 @@ class GameSheetAPIError(GameSheetError):
         endpoint: str,
         response_body: str | None = None,
     ) -> None:
+        """Initialize GameSheetAPIError.
+
+        Args:
+            message (str): Context message for error reporting.
+            status_code (int): The HTTP response status code.
+            endpoint (str): The API endpoint path.
+            response_body (str | None): Truncated response body text.
+
+        """
         # Every argument is forwarded to ``super().__init__()`` (and kept positional) so the default
         # ``BaseException.__reduce__`` round-trips the instance through ``pickle``/``copy.copy()``.
         super().__init__(message, status_code, endpoint, response_body)
@@ -51,6 +61,7 @@ class GameSheetAPIError(GameSheetError):
 
         Returns:
             str: The context message passed to the constructor.
+
         """
         return str(self.args[0])
 

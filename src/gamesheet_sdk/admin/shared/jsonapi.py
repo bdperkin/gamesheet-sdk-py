@@ -34,6 +34,7 @@ def extract_relationship_id(
 
     Returns:
         str: The relationship ID or default value.
+
     """
     result: Any = item.get("relationships", {}).get(relationship_name, {}).get("data", {}).get("id", default)
     return str(result) if result else default
@@ -72,6 +73,7 @@ def parse_jsonapi_resource(
 
     Returns:
         dict[str, Any]: Flattened dict with id + attributes + relationship IDs.
+
     """
     result: dict[str, Any] = {"id": item["id"]}
     result.update(item.get("attributes", {}))
@@ -92,6 +94,7 @@ def build_invitation_code_lookup(body: dict[str, Any]) -> dict[str, str]:
 
     Returns:
         dict[str, str]: Dictionary mapping invitation IDs to invitation codes.
+
     """
     invitation_codes: dict[str, str] = {}
     for item in body.get("included", []):
@@ -118,6 +121,7 @@ def get_invitation_code_from_relationship(
 
     Returns:
         str | None: The invitation code if found, otherwise None.
+
     """
     inv_rel = item.get("relationships", {}).get("invitations", {}).get("data")
     if inv_rel:

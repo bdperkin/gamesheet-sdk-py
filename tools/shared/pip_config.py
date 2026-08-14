@@ -39,6 +39,7 @@ def _pip_config_paths() -> list[Path]:
 
     Returns:
         list[Path]: List of paths to check, lowest precedence first.
+
     """
     paths: list[Path] = []
 
@@ -72,6 +73,7 @@ def _split_multi_value(value: str) -> list[str]:
 
     Returns:
         list[str]: Non-empty stripped values.
+
     """
     parts = value.replace("\n", " ").split()
     return [p.strip() for p in parts if p.strip()]
@@ -82,6 +84,7 @@ def _read_config_files(paths: list[Path]) -> configparser.ConfigParser:
 
     Returns:
         configparser.ConfigParser: Merged ConfigParser with all discovered settings.
+
     """
     parser = configparser.ConfigParser()
     for path in paths:
@@ -106,6 +109,7 @@ def _read_global_section(
     Returns:
         tuple[str | None, list[str], list[str], str | None, str | None]: Tuple of (index_url,
             extra_index_urls, trusted_hosts, cert, client_cert).
+
     """
     if not parser.has_section("global"):
         return None, [], [], None, None
@@ -128,6 +132,7 @@ def load_pip_config() -> PipConfig:
 
     Returns:
         PipConfig: Resolved pip configuration.
+
     """
     paths = _pip_config_paths()
     parser = _read_config_files(paths)
@@ -182,6 +187,7 @@ def _get_system_ca_bundle() -> str | bool:
 
     Returns:
         str | bool: Path to the system CA file, or True to use the default certifi bundle.
+
     """
     paths = ssl.get_default_verify_paths()
     if paths.cafile:
@@ -211,6 +217,7 @@ def resolve_verify(url: str, config: PipConfig | None = None) -> str | bool:
 
     Returns:
         str | bool: False for trusted hosts, cert path if configured, or system CA bundle.
+
     """
     if config and config.trusted_hosts:
         hostname = urlparse(url).hostname or ""

@@ -109,6 +109,7 @@ def divisions_get_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         fields_spec (str | None): Optional comma-separated list of fields to display
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -144,6 +145,7 @@ def divisions_list_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         columns_spec (str | None): Optional comma-separated list of columns to display
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -196,6 +198,7 @@ def divisions_create_command(
         external_id (str | None): Optional external identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -269,6 +272,7 @@ def divisions_update_command(
 
     Raises:
         Exit: If neither title nor external_id is provided
+
     """
     if title is None is external_id:
         click.secho(
@@ -344,6 +348,7 @@ def divisions_teams_list_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         columns_spec (str | None): Optional comma-separated list of columns to display
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -385,8 +390,11 @@ def divisions_teams_get_command(
         team_id (str): The team identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
+
     """
-    from gamesheet_sdk.admin.teams import get_team as _get_team_action
+    from gamesheet_sdk.admin.teams import (  # noqa: PLC0415
+        get_team as _get_team_action,
+    )
 
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -441,6 +449,7 @@ def divisions_teams_create_command(
         logo_path (str | None): Optional path to a logo image file
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
+
     """
     run_team_create(
         ctx,
@@ -500,6 +509,7 @@ def divisions_teams_update_command(
         remove_logo (bool): Remove the team's logo
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
+
     """
     run_team_update(
         ctx,
@@ -545,6 +555,7 @@ def divisions_teams_delete_command(
         ctx (Context): Click context object containing config
         season_id (str): The season identifier
         team_id (str): The team identifier to delete
+
     """
     run_team_delete(ctx, season_id, team_id)
 
@@ -578,6 +589,7 @@ def divisions_delete_command(
         ctx (Context): Click context object containing config
         season_id (str): The season identifier
         division_id (str): The division identifier to delete
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

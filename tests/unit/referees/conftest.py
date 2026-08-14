@@ -26,6 +26,7 @@ def referee_response_data(referee_id: str) -> dict[str, Any]:
 
     Returns:
         dict[str, Any]: A dict representing a JSON: API referee response
+
     """
     return {
         "data": {

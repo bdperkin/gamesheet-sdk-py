@@ -1,8 +1,8 @@
-Blacklist
 blacklist
 centre
 defence
-deque
 falsy
 gotcha
+jupyter
 master
+re-uses

@@ -7,6 +7,10 @@ from __future__ import annotations
 
 import datetime
 import logging
+import os
+import time
+from pathlib import Path
+from typing import cast
 
 import rich_click as click
 from dateutil import parser as dateutil_parser
@@ -14,6 +18,8 @@ from dateutil import parser as dateutil_parser
 from gamesheet_sdk.common.constants import DEFAULT_TIMEZONE
 
 _LOGGER = logging.getLogger(__name__)
+
+MIN_REQUIRED_INPUTS = 2
 
 
 def get_local_timezone_name() -> str:
@@ -23,19 +29,17 @@ def get_local_timezone_name() -> str:
 
     Returns:
         str: IANA timezone name
+
     """
     try:
         try:
-            import tzlocal
+            import tzlocal  # noqa: PLC0415
 
             tz = tzlocal.get_localzone()
         except (ImportError, AttributeError):
             pass
         else:
             return str(tz.key) if hasattr(tz, "key") else str(tz)
-
-        import os
-        from pathlib import Path
 
         if os.name != "nt":
             localtime = Path("/etc/localtime")
@@ -61,9 +65,8 @@ def get_local_timezone_offset() -> int:
 
     Returns:
         int: Timezone offset in minutes
-    """
-    import time
 
+    """
     offset_seconds = -time.altzone if time.daylight and time.localtime().tm_isdst else -time.timezone
 
     return offset_seconds // 60
@@ -84,6 +87,7 @@ def parse_flexible_datetime(raw: str) -> datetime.datetime:
 
     Raises:
         click.UsageError: If the string cannot be parsed
+
     """
     try:
         dt = dateutil_parser.parse(raw)
@@ -91,7 +95,7 @@ def parse_flexible_datetime(raw: str) -> datetime.datetime:
         msg = f"Cannot parse datetime '{raw}': {exc}"
         raise click.UsageError(msg) from exc
 
-    return dt.replace(tzinfo=None)
+    return cast("datetime.datetime", dt.replace(tzinfo=None))
 
 
 def _format_utc_iso(dt: datetime.datetime) -> str:
@@ -105,6 +109,7 @@ def _format_utc_iso(dt: datetime.datetime) -> str:
 
     Returns:
         str: ISO 8601 string like ``2026-07-04T12:00:00Z``
+
     """
     return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -125,6 +130,7 @@ def validate_no_input_conflict(
 
     Raises:
         click.UsageError: If combined and any split input coexist
+
     """
     if combined and (date_part or time_part):
         msg = f"Cannot combine --{label}-datetime with --{label}-date/--{label}-time."
@@ -150,6 +156,7 @@ def resolve_datetime_input(
 
     Raises:
         click.UsageError: If only one of date/time is provided
+
     """
     if combined:
         return combined
@@ -173,6 +180,7 @@ def validate_end_after_start(start_dt: datetime.datetime, end_dt: datetime.datet
 
     Raises:
         click.UsageError: If end <= start
+
     """
     if end_dt <= start_dt:
         msg = f"End time ({end_dt.isoformat()}) must be after start time ({start_dt.isoformat()})."
@@ -196,12 +204,13 @@ def _resolve_all_three(
 
     Raises:
         click.UsageError: If start + duration != end (within 59s tolerance)
+
     """
     start_dt = parse_flexible_datetime(start_raw)
     end_dt = parse_flexible_datetime(end_raw)
     validate_end_after_start(start_dt, end_dt)
     expected_end = start_dt + datetime.timedelta(minutes=duration)
-    if abs((end_dt - expected_end).total_seconds()) > 59:
+    if abs(end_dt - expected_end) >= datetime.timedelta(minutes=1):
         msg = f"Inconsistent inputs: start ({start_raw}) + duration ({duration}min) != end ({end_raw})."
         raise click.UsageError(msg)
 
@@ -220,6 +229,7 @@ def _resolve_start_and_end(
 
     Returns:
         tuple[str, str]: ``(start_utc_iso, end_utc_iso)`` tuple
+
     """
     start_dt = parse_flexible_datetime(start_raw)
     end_dt = parse_flexible_datetime(end_raw)
@@ -239,6 +249,7 @@ def _resolve_start_and_duration(
 
     Returns:
         tuple[str, str]: ``(start_utc_iso, end_utc_iso)`` tuple
+
     """
     start_dt = parse_flexible_datetime(start_raw)
     end_dt = start_dt + datetime.timedelta(minutes=duration)
@@ -257,6 +268,7 @@ def _resolve_end_and_duration(
 
     Returns:
         tuple[str, str]: ``(start_utc_iso, end_utc_iso)`` tuple
+
     """
     end_dt = parse_flexible_datetime(end_raw)
     start_dt = end_dt - datetime.timedelta(minutes=duration)
@@ -277,6 +289,7 @@ def _resolve_with_all_inputs(
 
     Returns:
         tuple[str, str]: ``(start_utc_iso, end_utc_iso)`` tuple
+
     """
     if start_raw and end_raw and duration is not None:
         return _resolve_all_three(start_raw, end_raw, duration)
@@ -311,9 +324,10 @@ def resolve_create_times(
 
     Raises:
         click.UsageError: If fewer than 2 of 3 are provided, or if all 3 are inconsistent, or end <= start
+
     """
     given = (start_raw is not None) + (end_raw is not None) + (duration is not None)
-    if given < 2:
+    if given < MIN_REQUIRED_INPUTS:
         msg = "At least 2 of --start-datetime, --end-datetime, --duration are required."
         raise click.UsageError(msg)
 
@@ -338,6 +352,7 @@ def _resolve_single_update(
 
     Returns:
         tuple[str, str]: ``(start_utc_iso, end_utc_iso)`` tuple
+
     """
     if start_raw:
         start_dt = parse_flexible_datetime(start_raw)
@@ -379,12 +394,13 @@ def resolve_update_times(
 
     Returns:
         tuple[str, str]: ``(start_utc_iso, end_utc_iso)`` tuple
+
     """
     given = (start_raw is not None) + (end_raw is not None) + (duration is not None)
     if not given:
         return current_start, current_end
 
-    if given >= 2:
+    if given >= MIN_REQUIRED_INPUTS:
         return _resolve_with_all_inputs(start_raw, end_raw, duration)
 
     return _resolve_single_update(

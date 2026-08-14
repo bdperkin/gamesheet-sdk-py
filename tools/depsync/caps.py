@@ -49,8 +49,9 @@ def _is_capped(resolved: str, latest: str | None) -> bool:
         latest (str | None): Newest release found on the index, or None.
 
     Returns:
-        bool: True when the index offers something strictly newer than the resolution. Unparseable versions
+        bool: True when the index offers something strictly newer than the resolution. Unparsable versions
             return False, so an odd version string can never manufacture a suppression.
+
     """
     if latest is None:
         return False
@@ -85,6 +86,7 @@ def detect_capped_pins(
     Returns:
         dict[str, str]: Package name to its resolved version, for packages the index offers a newer release
             of. A fetch failure omits the package rather than guessing.
+
     """
     names = [name for name in packages if name in resolved]
     if not names:

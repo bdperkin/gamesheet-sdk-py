@@ -27,6 +27,7 @@ ______________________________________________________________________
   - [5.8. Filtered Dependencies](#58-filtered-dependencies)
   - [5.9. Transitive-Dependency Overrides](#59-transitive-dependency-overrides)
   - [5.10. Capped Pins and the Dependabot Ignore List](#510-capped-pins-and-the-dependabot-ignore-list)
+  - [5.11. Publication Cutoff Relaxations](#511-publication-cutoff-relaxations)
 - [6. Exception Hierarchy](#6-exception-hierarchy)
 - [7. Dependencies](#7-dependencies)
 - [8. Troubleshooting](#8-troubleshooting)
@@ -55,32 +56,34 @@ Unlike the legacy `cideps` script, `syncdeps` is a modular package that:
 
 The tool follows the same modular package pattern as `tools/precommit/`.
 
-| Component   | File                          | Purpose                                                             |
-| ----------- | ----------------------------- | ------------------------------------------------------------------- |
-| Entry point | `tools/syncdeps`              | Thin wrapper that imports and runs `depsync.cli.app`                |
-| CLI         | `tools/depsync/cli.py`        | Click/rich-click command with options and output formatting         |
-| Config      | `tools/depsync/config.py`     | Constants, default paths, PyPI↔git repo mapping table               |
-| Models      | `tools/depsync/models.py`     | Pydantic v2 models for dependencies, repos, and results             |
-| Exceptions  | `tools/depsync/exceptions.py` | Exception hierarchy with exit codes                                 |
-| Parsers     | `tools/depsync/parsers.py`    | Parse `pyproject.toml` and `.pre-commit-config.yaml`                |
-| Fetchers    | `tools/depsync/fetchers.py`   | Query PyPI JSON API and `git ls-remote` for versions                |
-| Engine      | `tools/depsync/engine.py`     | Core convergence algorithm                                          |
-| Type stubs  | `tools/depsync/typestubs.py`  | `types-*` stub discovery and synchronization                        |
-| Writers     | `tools/depsync/writers.py`    | Style-preserving file updates                                       |
-| Resolver    | `tools/shared/uv_resolve.py`  | Delegates resolution to `uv lock`; shared with `genprecommitconfig` |
-| Shared      | `tools/shared/`               | Shared utilities (HTTP, git, logging, TOML, exceptions)             |
+| Component   | File                            | Purpose                                                             |
+| ----------- | ------------------------------- | ------------------------------------------------------------------- |
+| Entry point | `tools/syncdeps`                | Thin wrapper that imports and runs `depsync.cli.app`                |
+| CLI         | `tools/depsync/cli.py`          | Click/rich-click command with options and output formatting         |
+| Config      | `tools/depsync/config.py`       | Constants, default paths, PyPI↔git repo mapping table               |
+| Models      | `tools/depsync/models.py`       | Pydantic v2 models for dependencies, repos, and results             |
+| Exceptions  | `tools/depsync/exceptions.py`   | Exception hierarchy with exit codes                                 |
+| Parsers     | `tools/depsync/parsers.py`      | Parse `pyproject.toml` and `.pre-commit-config.yaml`                |
+| Fetchers    | `tools/depsync/fetchers.py`     | Query PyPI JSON API and `git ls-remote` for versions                |
+| Engine      | `tools/depsync/engine.py`       | Core convergence algorithm                                          |
+| Type stubs  | `tools/depsync/typestubs.py`    | `types-*` stub discovery and synchronization                        |
+| Cutoff      | `tools/depsync/excludenewer.py` | Per-package relaxation of the `uv` publication cutoff               |
+| Writers     | `tools/depsync/writers.py`      | Style-preserving file updates                                       |
+| Resolver    | `tools/shared/uv_resolve.py`    | Delegates resolution to `uv lock`; shared with `genprecommitconfig` |
+| Shared      | `tools/shared/`                 | Shared utilities (HTTP, git, logging, TOML, exceptions)             |
 
 ### 2.1. Execution Pipeline
 
-| Phase       | Description                                                                            |
-| ----------- | -------------------------------------------------------------------------------------- |
-| 1. Parse    | Read `pyproject.toml` and `.pre-commit-config.yaml`                                    |
-| 2. Resolve  | Ask `uv lock` which versions can co-exist (see [Version targets](#51-version-targets)) |
-| 3. Map      | Build bidirectional PyPI↔git repo mappings                                             |
-| 4. Prefetch | Fetch all PyPI versions and git tags in parallel                                       |
-| 5. Converge | Determine updates for each dependency category                                         |
-| 6. Display  | Show results table                                                                     |
-| 7. Write    | Apply updates to all three files directly                                              |
+| Phase       | Description                                                                                               |
+| ----------- | --------------------------------------------------------------------------------------------------------- |
+| 1. Parse    | Read `pyproject.toml` and `.pre-commit-config.yaml`                                                       |
+| 2. Resolve  | Ask `uv lock` which versions can co-exist (see [Version targets](#51-version-targets))                    |
+| 3. Map      | Build bidirectional PyPI↔git repo mappings                                                                |
+| 4. Prefetch | Fetch all PyPI versions and git tags in parallel                                                          |
+| 5. Converge | Determine updates for each dependency category                                                            |
+| 6. Display  | Show results table                                                                                        |
+| 7. Write    | Apply updates to all three files directly                                                                 |
+| 8. Relax    | Reconcile `exclude-newer-package` with the pins written (see [5.11](#511-publication-cutoff-relaxations)) |
 
 ## 3. Prerequisites
 
@@ -129,23 +132,24 @@ Core dependencies (already installed):
 
 ### 4.4. CLI Options
 
-| Option                  | Default                    | Description                                                   |
-| ----------------------- | -------------------------- | ------------------------------------------------------------- |
-| `--pyproject`           | `pyproject.toml`           | Path to pyproject.toml                                        |
-| `--precommit-config`    | `.pre-commit-config.yaml`  | Path to .pre-commit-config.yaml                               |
-| `--genprecommit-config` | `.genprecommitconfig.yaml` | Path to .genprecommitconfig.yaml                              |
-| `--dependabot`          | `.github/dependabot.yml`   | Path to dependabot.yml (ignores synced with pins + overrides) |
-| `--overrides`           | `.syncdepsoverrides.yaml`  | Path to the transitive-dependency override policy file        |
-| `--uv-lock`             | `uv.lock`                  | Path to uv.lock (used with `--sync-types`)                    |
-| `--log-level`           | `info`                     | Logging verbosity (debug, info, warning, error)               |
-| `--dry-run`             | off                        | Show changes without modifying files                          |
-| `--sync-types`          | off                        | Sync `types-*` stub packages in the `type-stubs` group        |
-| `--no-uv-resolve`       | off                        | Skip uv resolution; pin each package to its latest release    |
-| `--backup`              | off                        | Write `.bak` copies before modifying any file                 |
-| `--check`               | off                        | Exit 1 if any file would be modified (writes nothing)         |
-| `--diff`                | off                        | Show a unified diff of the changes                            |
-| `--version`             | —                          | Show version and exit                                         |
-| `--help`                | —                          | Show help and exit                                            |
+| Option                    | Default                    | Description                                                   |
+| ------------------------- | -------------------------- | ------------------------------------------------------------- |
+| `--pyproject`             | `pyproject.toml`           | Path to pyproject.toml                                        |
+| `--precommit-config`      | `.pre-commit-config.yaml`  | Path to .pre-commit-config.yaml                               |
+| `--genprecommit-config`   | `.genprecommitconfig.yaml` | Path to .genprecommitconfig.yaml                              |
+| `--dependabot`            | `.github/dependabot.yml`   | Path to dependabot.yml (ignores synced with pins + overrides) |
+| `--overrides`             | `.syncdepsoverrides.yaml`  | Path to the transitive-dependency override policy file        |
+| `--uv-lock`               | `uv.lock`                  | Path to uv.lock (used with `--sync-types`)                    |
+| `--log-level`             | `info`                     | Logging verbosity (debug, info, warning, error)               |
+| `--dry-run`               | off                        | Show changes without modifying files                          |
+| `--sync-types`            | off                        | Sync `types-*` stub packages in the `type-stubs` group        |
+| `--no-sync-exclude-newer` | on                         | Suppress the `exclude-newer-package` reconciliation           |
+| `--no-uv-resolve`         | off                        | Skip uv resolution; pin each package to its latest release    |
+| `--backup`                | off                        | Write `.bak` copies before modifying any file                 |
+| `--check`                 | off                        | Exit 1 if any file would be modified (writes nothing)         |
+| `--diff`                  | off                        | Show a unified diff of the changes                            |
+| `--version`               | —                          | Show version and exit                                         |
+| `--help`                  | —                          | Show help and exit                                            |
 
 `--dry-run`, `--check`, and `--diff` never leave changes behind. Producing a diff requires really writing the files, so the rollback runs in a `finally` block —
 an exception, a `SIGPIPE` from a truncated pager, or a `Ctrl-C` mid-render cannot turn a preview into a commit.
@@ -268,7 +272,7 @@ newest release is capped by something in the graph, and joins the `ignore` list 
 The suppression is deliberately narrow, because **a Dependabot `ignore` rule also applies to security updates** — GitHub's documentation is explicit that you
 can "configure Dependabot to ignore those dependencies when it opens pull requests for version updates *and security updates*". Suppressing a package that is
 not genuinely capped would hide a future security bump for no benefit, so a pin is reported only when the index actually offers something newer — precisely the
-case where a Dependabot proposal could not be installed anyway. A fetch failure omits the package rather than guessing, and an unparseable version never
+case where a Dependabot proposal could not be installed anyway. A fetch failure omits the package rather than guessing, and an unparsable version never
 manufactures a suppression.
 
 Because the entry is keyed on the resolved version (`> 14.3.4`), it maintains itself: once the cap lifts and `uv` resolves higher the entry follows, and it
@@ -301,6 +305,64 @@ Notes on the design, each of which is load-bearing:
   mean anything. Both modes say so rather than implying the override was validated.
 - **A project with no policy file pays nothing** — the stage is skipped before any resolution work. `--no-uv-resolve` also skips it, since the whole mechanism
   depends on uv.
+
+### 5.11. Publication Cutoff Relaxations
+
+`[tool.uv] exclude-newer` is a cooldown: `uv` refuses any distribution published after the cutoff, so a release cannot be installed the hour it lands. For a
+package `uv` is free to float that is exactly the wanted behavior — the resolver picks the newest release the cutoff admits and nothing fails.
+
+**An exact pin cannot float.** Several convergence targets above are chosen outside the resolver:
+
+- a shared main hook takes the newest **git tag** ([5.2](#52-shared-main-hooks)),
+- a `types-*` stub takes the newest **index release**,
+- `--no-uv-resolve` takes the newest release for everything.
+
+Each of those can write a pin the cooldown then refuses, and from that moment every `uv lock` in the project fails — including the `uv-lock` pre-commit hook,
+which runs on any change to `pyproject.toml`. `semgrep` is the standing example: it ships several releases a week, so its tag is usually newer than a seven-day
+window, and a run that bumps it without relaxing the cutoff leaves the repo unable to lock.
+
+`exclude-newer-package` is uv's answer — it relaxes the cutoff for one package while leaving it in force for the rest of the graph. syncdeps keeps that table in
+step, in both directions:
+
+| Situation                                                       | Action                                                      |
+| --------------------------------------------------------------- | ----------------------------------------------------------- |
+| Pinned release is **newer** than the cutoff, no entry yet       | Add `exclude-newer-package.<pkg>`, narrowed to that release |
+| Pinned release is newer, existing entry **already admits** it   | Leave the entry exactly as written                          |
+| Pinned release is newer, existing entry **no longer admits** it | Rewrite it (the pin moved to a newer release)               |
+| Pinned release has **aged past** the cutoff                     | Remove the entry — the global rule now admits it unaided    |
+| Entry's package is **absent from `uv.lock`**                    | Remove the entry — it governs nothing                       |
+| Release date could not be determined                            | Leave the entry alone; a failed lookup is not evidence      |
+
+Written values follow whichever notation `exclude-newer` itself uses. A relative cutoff (`"7 days"`) yields whole-day spans; an absolute one (`"2026-08-05"`)
+yields RFC 3339 timestamps:
+
+```toml
+[tool.uv]
+exclude-newer = "7 days"
+exclude-newer-package.pre-commit = "1 days"     # released 1.8 days ago
+exclude-newer-package.semgrep = "0 days"        # released this morning
+```
+
+The scope is every exact pin the project declares — `pyproject.toml` dependencies, `override-dependencies` ([5.9](#59-transitive-dependency-overrides)), and the
+targets the current run is about to write — plus every package already named in the table. Publication times come from the per-release PyPI JSON endpoint, or
+from a configured index's PEP 700 `upload-time` field, fetched in parallel.
+
+Notes on the design, each of which is load-bearing:
+
+- **The value is the narrowest relaxation that works,** floored to whole days rather than set to `0 days`. It is the smallest exemption that admits the pin.
+- **A sufficient entry is never recomputed.** A value derived from the release's age would grow by a day every day, so every run would rewrite the table and
+  `--check` would fail daily on a project nobody had touched. Stability comes from keeping any value that still admits the pin.
+- **A rendered timestamp rounds *up* to the whole second.** PyPI reports microseconds; truncating would place the cutoff *before* the upload it exists to admit,
+  excluding the very file the entry was written for.
+- **The stage runs twice** — after convergence and again after the `types-*` sync — because both write pins and the stages between them run `uv lock`.
+  Publication lookups are cached across the two passes, so the second costs only what the first did not already answer.
+- **Retirement is automatic here, unlike an override.** An override encodes a human judgment that dropping it would undo; a relaxation encodes only "this
+  release is younger than the cutoff", which stops being true on its own. Leaving a spent entry behind would exempt that package from every future cooldown
+  without saying so.
+- **A calendar-unit cutoff (`"3 months"`) disables the stage** rather than being approximated. No `timedelta` represents a month, and guessing 30 days would
+  move the cutoff silently.
+- **An unreadable `uv.lock` suppresses retirement, not addition.** Without the lockfile the graph is invisible, and an entry cannot be declared dead on the
+  strength of something we could not see.
 
 ## 6. Exception Hierarchy
 
@@ -341,6 +403,7 @@ syncdeps = [
 | `ResolveError: 'uv' is not on PATH`       | uv missing                               | Install uv, or use `--no-uv-resolve`                                  |
 | `ResolveError: found no valid resolution` | Real conflict that survives pin relaxing | Read uv's message; loosen the requirement                             |
 | `uv lock` fails after a successful sync   | A pin was written without uv resolution  | Re-run without `--no-uv-resolve`                                      |
+| `uv lock` rejects a pin as too new        | Cutoff relaxation missing or suppressed  | Re-run without `--no-sync-exclude-newer`                              |
 
 ## 9. Related Tools
 
@@ -349,21 +412,22 @@ syncdeps = [
 
 ## 10. Files
 
-| File                          | Purpose                                     |
-| ----------------------------- | ------------------------------------------- |
-| `tools/syncdeps`              | Executable entry point                      |
-| `tools/depsync/__init__.py`   | Package initialization                      |
-| `tools/depsync/cli.py`        | CLI interface                               |
-| `tools/depsync/config.py`     | Constants and mappings                      |
-| `tools/depsync/models.py`     | Pydantic v2 data models                     |
-| `tools/depsync/exceptions.py` | Exception hierarchy                         |
-| `tools/depsync/parsers.py`    | File parsers                                |
-| `tools/depsync/fetchers.py`   | Version fetchers                            |
-| `tools/depsync/engine.py`     | Convergence algorithm                       |
-| `tools/depsync/caps.py`       | Capped-pin detection for Dependabot ignores |
-| `tools/depsync/overrides.py`  | Transitive-dependency override subsystem    |
-| `tools/depsync/typestubs.py`  | `types-*` stub sync                         |
-| `tools/depsync/writers.py`    | Style-preserving writers                    |
-| `tools/shared/uv_resolve.py`  | uv-delegated resolution                     |
-| `.syncdepsoverrides.yaml`     | Transitive-dependency override policy       |
-| `tools/README.syncdeps.md`    | This documentation                          |
+| File                            | Purpose                                     |
+| ------------------------------- | ------------------------------------------- |
+| `tools/syncdeps`                | Executable entry point                      |
+| `tools/depsync/__init__.py`     | Package initialization                      |
+| `tools/depsync/cli.py`          | CLI interface                               |
+| `tools/depsync/config.py`       | Constants and mappings                      |
+| `tools/depsync/models.py`       | Pydantic v2 data models                     |
+| `tools/depsync/exceptions.py`   | Exception hierarchy                         |
+| `tools/depsync/parsers.py`      | File parsers                                |
+| `tools/depsync/fetchers.py`     | Version fetchers                            |
+| `tools/depsync/engine.py`       | Convergence algorithm                       |
+| `tools/depsync/caps.py`         | Capped-pin detection for Dependabot ignores |
+| `tools/depsync/overrides.py`    | Transitive-dependency override subsystem    |
+| `tools/depsync/excludenewer.py` | Publication-cutoff relaxation subsystem     |
+| `tools/depsync/typestubs.py`    | `types-*` stub sync                         |
+| `tools/depsync/writers.py`      | Style-preserving writers                    |
+| `tools/shared/uv_resolve.py`    | uv-delegated resolution                     |
+| `.syncdepsoverrides.yaml`       | Transitive-dependency override policy       |
+| `tools/README.syncdeps.md`      | This documentation                          |

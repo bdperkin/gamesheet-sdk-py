@@ -20,7 +20,7 @@ import json
 import logging
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _resolved_version
-from typing import TYPE_CHECKING, Any, Self
+from typing import TYPE_CHECKING, Any, Self, cast
 from urllib.parse import urljoin
 
 import requests
@@ -47,6 +47,7 @@ def _default_user_agent() -> str:
 
     Returns:
         str: String result.
+
     """
     try:
         ver = _resolved_version("gamesheet-sdk-py")
@@ -82,6 +83,7 @@ class Session:
     Args:
         config (Config | None): Optional configuration object. If ``None``, a default
             :class:`~gamesheet_sdk.common.config.Config` is created.
+
     """
 
     # -- internals --------------------------------------------------------
@@ -95,6 +97,7 @@ class Session:
 
         Returns:
             requests.Session: Return value.
+
         """
         s = requests.Session()
         s.headers["User-Agent"] = self.config.user_agent or _default_user_agent()
@@ -123,6 +126,7 @@ class Session:
 
         Returns:
             None: None
+
         """
         # Load from browser state file first (from login flow)
         browser_state_path = self.config.browser_state_path
@@ -170,6 +174,12 @@ class Session:
             self._http.cookies.set(**cookie_dict)
 
     def __init__(self: Session, config: Config | None = None) -> None:
+        """Initialize Session instance.
+
+        Args:
+            config (Config | None): Optional SDK configuration object.
+
+        """
         self.config = config or Config()
         self._http = self._build_http_session()
         self._load_cookies()
@@ -183,6 +193,7 @@ class Session:
 
         Returns:
             RequestsCookieJar: Return value.
+
         """
         return self._http.cookies
 
@@ -195,8 +206,9 @@ class Session:
 
         Returns:
             MutableMapping[str, str | bytes]: Return value.
+
         """
-        return self._http.headers
+        return cast("MutableMapping[str, str | bytes]", self._http.headers)
 
     def set_bearer_token(self: Session, token: str) -> None:
         """Attach ``Authorization: Bearer <token>`` to all subsequent requests.
@@ -205,6 +217,7 @@ class Session:
 
         Args:
             token (str): The bearer token to attach
+
         """
         self._http.headers["Authorization"] = f"Bearer {token}"
 
@@ -219,6 +232,7 @@ class Session:
 
         Returns:
             str: String result.
+
         """
         if url.startswith(("http://", "https://")):
             return url
@@ -245,6 +259,7 @@ class Session:
 
         Returns:
             requests.Response: Return value.
+
         """
         full_url = self._resolve(url)
         effective_timeout = timeout if timeout is not None else self.config.timeout
@@ -261,6 +276,7 @@ class Session:
 
         Returns:
             requests.Response: Return value.
+
         """
         return self.request("GET", url, **kwargs)
 
@@ -275,6 +291,7 @@ class Session:
 
         Returns:
             requests.Response: Return value.
+
         """
         return self.request("POST", url, **kwargs)
 
@@ -289,6 +306,7 @@ class Session:
 
         Returns:
             requests.Response: Return value.
+
         """
         return self.request("PUT", url, **kwargs)
 
@@ -303,6 +321,7 @@ class Session:
 
         Returns:
             requests.Response: Return value.
+
         """
         return self.request("PATCH", url, **kwargs)
 
@@ -317,6 +336,7 @@ class Session:
 
         Returns:
             requests.Response: Return value.
+
         """
         return self.request("DELETE", url, **kwargs)
 
@@ -356,6 +376,7 @@ class Session:
 
         Returns:
             Self: Return value.
+
         """
         return self
 
@@ -372,5 +393,6 @@ class Session:
 
         Returns:
             None: None
+
         """
         self.close()

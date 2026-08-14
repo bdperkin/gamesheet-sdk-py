@@ -33,6 +33,7 @@ def list_scheduled(session: Session, season_id: str) -> list[Game]:
     Returns:
         list[Game]: A list of :class:`Game`, in the order the server returned them. The list may be empty if
             the season has no scheduled games.
+
     """
     return _make_request(session, season_id, completed=False, scheduled=True)
 
@@ -91,10 +92,15 @@ def create_scheduled_game(
         AuthenticationError: If the server returns 401.
         GameSheetError: If the game_type, location, or broadcaster is invalid, or for any other non-2xx
             response.
+
     """
     # Import here to avoid circular dependency
-    from gamesheet_sdk.admin.games.broadcasters import validate_broadcaster_key
-    from gamesheet_sdk.admin.games.locations import validate_location
+    from gamesheet_sdk.admin.games.broadcasters import (  # noqa: PLC0415
+        validate_broadcaster_key,
+    )
+    from gamesheet_sdk.admin.games.locations import (  # noqa: PLC0415
+        validate_location,
+    )
 
     # Validate game type
     validate_game_type(game_type)
@@ -159,6 +165,7 @@ def get_scheduled_game(session: Session, season_id: str, game_id: str) -> Schedu
     Raises:
         AuthenticationError: If the server returns 401.
         GameSheetError: For any other non-2xx response, including 404 if the game is not found.
+
     """
     url = f"{DEFAULT_BASE_URL}{API_SEASONS_SCHEDULE_GAME.format(season_id=season_id, game_id=game_id)}"
     response = session.get(url)
@@ -225,10 +232,15 @@ def update_scheduled_game(
         AuthenticationError: If the server returns 401.
         GameSheetError: If the game_type, location, or broadcaster is invalid, or for any other non-2xx
             response, including 404 if the game is not found.
+
     """
     # Import here to avoid circular dependency
-    from gamesheet_sdk.admin.games.broadcasters import validate_broadcaster_key
-    from gamesheet_sdk.admin.games.locations import validate_location
+    from gamesheet_sdk.admin.games.broadcasters import (  # noqa: PLC0415
+        validate_broadcaster_key,
+    )
+    from gamesheet_sdk.admin.games.locations import (  # noqa: PLC0415
+        validate_location,
+    )
 
     # Validate game type
     validate_game_type(game_type)
@@ -294,6 +306,7 @@ def delete_scheduled_game(session: Session, season_id: str, game_id: str) -> Non
     Raises:
         AuthenticationError: If the server returns 401.
         GameSheetError: For any other non-2xx response, including 404 if the game is not found.
+
     """
     url = f"{DEFAULT_BASE_URL}{API_SEASONS_SCHEDULE_GAME.format(season_id=season_id, game_id=game_id)}"
     response = session.delete(url)

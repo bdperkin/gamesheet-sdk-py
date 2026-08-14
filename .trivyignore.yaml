@@ -96,51 +96,51 @@ vulnerabilities:
   # No fixed versions in Debian trixie. None reachable: the SDK never parses
   # XML, so no untrusted input reaches expat.
   - id: CVE-2026-56131
-    statement: "libexpat buffer overflow in XML_GetBuffer; XML never parsed."
+    statement: libexpat buffer overflow in XML_GetBuffer; XML never parsed.
     expired_at: 2027-01-27
 
   - id: CVE-2026-56132
-    statement: "libexpat integer overflow in XML_GetBuffer; XML never parsed."
+    statement: libexpat integer overflow in XML_GetBuffer; XML never parsed.
     expired_at: 2027-01-27
 
   - id: CVE-2026-56403
-    statement: "libexpat use-after-free in doContent; XML never parsed."
+    statement: libexpat use-after-free in doContent; XML never parsed.
     expired_at: 2027-01-27
 
   - id: CVE-2026-56404
-    statement: "libexpat heap buffer overflow in build_model; XML never parsed."
+    statement: libexpat heap buffer overflow in build_model; XML never parsed.
     expired_at: 2027-01-27
 
   - id: CVE-2026-56405
-    statement: "libexpat out-of-bounds read in storeAtts; XML never parsed."
+    statement: libexpat out-of-bounds read in storeAtts; XML never parsed.
     expired_at: 2027-01-27
 
   - id: CVE-2026-56406
-    statement: "libexpat null pointer dereference in poolGrow; XML never parsed."
+    statement: libexpat null pointer dereference in poolGrow; XML never parsed.
     expired_at: 2027-01-27
 
   - id: CVE-2026-56407
-    statement: "libexpat stack exhaustion via nested entities; XML never parsed."
+    statement: libexpat stack exhaustion via nested entities; XML never parsed.
     expired_at: 2027-01-27
 
   - id: CVE-2026-56408
-    statement: "libexpat integer overflow in XML_ParseBuffer; XML never parsed."
+    statement: libexpat integer overflow in XML_ParseBuffer; XML never parsed.
     expired_at: 2027-01-27
 
   - id: CVE-2026-56409
-    statement: "libexpat heap buffer overflow in addBinding; XML never parsed."
+    statement: libexpat heap buffer overflow in addBinding; XML never parsed.
     expired_at: 2027-01-27
 
   - id: CVE-2026-56410
-    statement: "libexpat use-after-free in poolDestroy; XML never parsed."
+    statement: libexpat use-after-free in poolDestroy; XML never parsed.
     expired_at: 2027-01-27
 
   - id: CVE-2026-56411
-    statement: "libexpat integer overflow in poolGrow; XML never parsed."
+    statement: libexpat integer overflow in poolGrow; XML never parsed.
     expired_at: 2027-01-27
 
   - id: CVE-2026-56412
-    statement: "libexpat out-of-bounds write in storeRawNames; XML never parsed."
+    statement: libexpat out-of-bounds write in storeRawNames; XML never parsed.
     expired_at: 2027-01-27
 
   # ----------------------------------------------------------------------------
@@ -310,7 +310,7 @@ vulnerabilities:
   # Playwright. The SDK does not process X11 protocol from untrusted sources,
   # and browser rendering happens inside Chromium's sandbox.
   - id: CVE-2026-55999
-    statement: "glamor Font Atlas heap buffer overflow; no untrusted X11 input."
+    statement: glamor Font Atlas heap buffer overflow; no untrusted X11 input.
     expired_at: 2027-01-27
 
   - id: CVE-2026-56000
@@ -975,7 +975,7 @@ vulnerabilities:
   # ncurses — terminal handling
   # ----------------------------------------------------------------------------
   # The SDK renders CLI output with click/tabulate, not curses. No TUI is ever
-  # initialised and TERM is not attacker-controlled.
+  # initialized and TERM is not attacker-controlled.
 
   - id: CVE-2025-6141
     statement: >-

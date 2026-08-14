@@ -38,6 +38,7 @@ def get_player(session: Session, season_id: str, player_id: str) -> Player:
     Raises:
         AuthenticationError: If the server returns 401.
         GameSheetError: For any other non-2xx response.
+
     """
     endpoint = f"/api/seasons/{season_id}/players/{player_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -59,6 +60,7 @@ def list_players(session: Session, season_id: str) -> list[Player]:
     Returns:
         list[Player]: A list of :class:`Player`, in the order the server returned them. The list may be empty
             if the season has no players.
+
     """
     endpoint = f"/api/seasons/{season_id}/players"
     response = session.get(
@@ -86,6 +88,7 @@ def list_team_players(session: Session, season_id: str, team_id: str) -> list[Pl
     Returns:
         list[Player]: A list of :class:`Player`, in the order the server returned them. The list may be empty
             if the team has no players.
+
     """
     endpoint = f"/api/seasons/{season_id}/teams/{team_id}"
     response = session.get(
@@ -143,19 +146,21 @@ def _upload_photo(session: Session, photo_path: str) -> str:
     Raises:
         GameSheetError: If the file is not found, is not a valid image, or the upload fails.
         AuthenticationError: If the server returns 401.
+
     """
-    from gamesheet_sdk.common.shared import upload_image
+    from gamesheet_sdk.common.shared import upload_image  # noqa: PLC0415
 
     return upload_image(session, photo_path, "photo")
 
 
-def _add_optional_field(attrs: dict[str, Any], key: str, value: Any) -> None:
+def _add_optional_field(attrs: dict[str, Any], key: str, value: object) -> None:
     """Add a field to attrs dict if value is truthy.
 
     Args:
         attrs (dict[str, Any]): The attributes dictionary to update.
         key (str): The attribute key name.
         value (Any): The value to add (only added if truthy).
+
     """
     if value:
         attrs[key] = value
@@ -219,6 +224,7 @@ def create_player(
     Raises:
         AuthenticationError: If the server returns 401.
         GameSheetError: For any other non-2xx response, or if photo upload fails.
+
     """
     photo_url: str | None = None
     if photo_path:
@@ -287,6 +293,7 @@ def get_team_player(
 
     Raises:
         GameSheetError: If the player is not found on the team's roster.
+
     """
     players = list_team_players(session, season_id, team_id)
     for player in players:
@@ -316,6 +323,7 @@ def _build_player_roster_entry(
 
     Returns:
         dict[str, Any]: Dictionary containing roster entry data ready for team roster update.
+
     """
     entry: dict[str, Any] = {
         "id": player_id,
@@ -360,6 +368,7 @@ def _populate_player_metadata(
         position (str | None): Optional position.
         status (str | None): Optional status.
         designation (str | None): Optional designation.
+
     """
     if jersey:
         player.number = jersey
@@ -374,7 +383,7 @@ def _populate_player_metadata(
         player.designation = designation
 
 
-def create_team_player(
+def create_team_player(  # noqa: C901
     session: Session,
     season_id: str,
     team_id: str,
@@ -434,6 +443,7 @@ def create_team_player(
     Raises:
         AuthenticationError: If the server returns 401.
         GameSheetError: For any other non-2xx response, or if photo upload fails.
+
     """
     photo_url: str | None = None
     if photo_path:
@@ -519,8 +529,8 @@ def create_team_player(
 def _merge_optional_field(
     attrs: dict[str, Any],
     key: str,
-    new_value: Any,
-    current_value: Any,
+    new_value: object,
+    current_value: object,
 ) -> None:
     """Merge an optional field into attrs dict, preferring new value over current.
 
@@ -529,6 +539,7 @@ def _merge_optional_field(
         key (str): The attribute key name.
         new_value (Any): The new value (may be None).
         current_value (Any): The current value from existing record.
+
     """
     if new_value is not None:
         attrs[key] = new_value
@@ -588,6 +599,7 @@ def update_player(
 
     Raises:
         ValueError: If no fields are provided for update or both photo_path and remove_photo are set.
+
     """
     if all(
         v is None or v is False
@@ -722,6 +734,7 @@ def update_team_player(
 
     Raises:
         ValueError: If no fields are provided for update or both photo_path and remove_photo are set.
+
     """
     if all(
         v is None or v is False
@@ -820,6 +833,7 @@ def delete_player(session: Session, season_id: str, player_id: str) -> None:
         session (Session): An authenticated :class:`Session`.
         season_id (str): The season identifier containing the player.
         player_id (str): The player identifier to delete.
+
     """
     endpoint = f"/api/seasons/{season_id}/players/{player_id}"
     response = session.delete(endpoint, headers=JSONAPI_HEADERS)
@@ -845,6 +859,7 @@ def unassign_player(
 
     Raises:
         GameSheetError: If the player is not assigned to the team.
+
     """
     # Step 1: Fetch current team data
     team_data = get_team_for_roster_update(session, season_id, team_id)
@@ -890,6 +905,7 @@ def delete_team_player(
         season_id (str): The season identifier.
         team_id (str): The team identifier.
         player_id (str): The player identifier to delete.
+
     """
     # Step 1: Remove player from team roster (may not be on this team's roster)
     with suppress(GameSheetError):
@@ -930,6 +946,7 @@ def assign_player(
     Raises:
         GameSheetError: If the player is already assigned to the team.
         AuthenticationError: If the server returns 401.
+
     """
     player = get_player(session, season_id, player_id)
     team_data = get_team_for_roster_update(session, season_id, team_id)
@@ -1003,6 +1020,7 @@ def assign_team_player(
     Raises:
         GameSheetError: If the player is already assigned to the team.
         AuthenticationError: If the server returns 401.
+
     """
     return assign_player(
         session,
@@ -1033,6 +1051,7 @@ def unassign_team_player(
         season_id (str): The season identifier.
         team_id (str): The team identifier to unassign the player from.
         player_id (str): The player identifier to unassign.
+
     """
     unassign_player(session, season_id, player_id, team_id)
 
@@ -1056,6 +1075,7 @@ def get_player_penalty_report(
     Returns:
         dict[str, Any]: Penalty report data including player_games, player_penalties, rostered_players, and
             season_players.
+
     """
     player = get_player(session, season_id, player_id)
     external_id = player.external_id

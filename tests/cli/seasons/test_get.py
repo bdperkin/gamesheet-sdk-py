@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 from gamesheet_sdk.admin.cli.main import cli
@@ -13,6 +13,8 @@ from gamesheet_sdk.admin.seasons import SeasonDetail
 from tests.helpers import SEASON_ID, TIMESTAMP_2024_01_01
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from click.testing import CliRunner
 
 
@@ -201,7 +203,7 @@ def test_seasons_get_fields_filter(runner: CliRunner) -> None:
         assert "Test Season" in result.output
 
 
-def test_seasons_get_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
+def test_seasons_get_output_to_file(runner: CliRunner, tmp_path: Path) -> None:
     """The --output option should write to a file for seasons get."""
     output_file = tmp_path / "season.json"
     with (

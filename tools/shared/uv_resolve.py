@@ -63,6 +63,7 @@ def _normalize_name(name: str) -> str:
 
     Returns:
         str: Lower-cased name with runs of separators collapsed to hyphens.
+
     """
     return re.sub(r"[-_.]+", "-", name).lower()
 
@@ -79,6 +80,7 @@ def versions_from_lock(lock_path: Path) -> dict[str, str]:
 
     Raises:
         UvResolveError: If the lockfile cannot be read or contains invalid TOML.
+
     """
     try:
         data = load_toml(lock_path)
@@ -109,6 +111,7 @@ def _relax_entry(entry: str, pins: Mapping[str, str]) -> str | None:
 
     Returns:
         str | None: The replacement string, or None if the entry must be left exactly as written.
+
     """
     if entry.startswith(f"{PROJECT_NAME}["):
         return None
@@ -117,7 +120,7 @@ def _relax_entry(entry: str, pins: Mapping[str, str]) -> str | None:
     if not match:
         return None
 
-    name_part = match.group(1)
+    name_part = str(match.group(1))
     normalized = _normalize_name(name_part.split("[", maxsplit=1)[0])
     pinned = pins.get(normalized)
 
@@ -136,6 +139,7 @@ def _relax_dep_list(
         pins (Mapping[str, str]): Normalized package name to version that must be held fixed.
         loosened (dict[str, str]): Collects package name to the original version each relaxed entry had, so a
             pin can be restored if it turns out to be unrelaxable.
+
     """
     for i, entry in enumerate(dep_list):
         original = str(entry)
@@ -158,6 +162,7 @@ def _ensure_uv_table(doc: TOMLDocument) -> Table:
 
     Returns:
         Table: The ``[tool.uv]`` table, ready to mutate.
+
     """
     tool = doc.get("tool")
     if tool is None:
@@ -180,6 +185,7 @@ def _apply_overrides(doc: TOMLDocument, overrides: Sequence[str] | None) -> None
         overrides (Sequence[str] | None): Requirement strings to install as the override list. ``None`` leaves
             whatever the file already declares untouched; an *empty* sequence removes the overrides entirely,
             which is how a caller asks what the resolution looks like without them.
+
     """
     if overrides is None:
         return
@@ -210,6 +216,7 @@ def _relaxed_pyproject(
 
     Raises:
         UvResolveError: If the file cannot be read, is invalid TOML, or has no ``[project]`` table.
+
     """
     try:
         doc = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
@@ -244,6 +251,7 @@ def _run_uv_lock(directory: Path, timeout: int) -> str:
 
     Raises:
         UvResolveError: If uv is missing, times out, or cannot be executed.
+
     """
     if shutil.which("uv") is None:
         msg = "'uv' is not on PATH; install uv or pass --no-uv-resolve"
@@ -251,7 +259,7 @@ def _run_uv_lock(directory: Path, timeout: int) -> str:
 
     try:
         result = subprocess.run(
-            ["uv", "lock"],
+            ["uv", "lock"],  # noqa: S607
             capture_output=True,
             text=True,
             check=False,
@@ -281,6 +289,7 @@ def _unrelaxable_pins(stderr: str, loosened: Mapping[str, str]) -> dict[str, str
 
     Returns:
         dict[str, str]: Package name to original version for pins that must be restored.
+
     """
     # uv hard-wraps its error output, so collapse whitespace before matching across line breaks.
     flat = " ".join(stderr.split())
@@ -305,6 +314,7 @@ def _stage_pyproject(directory: Path, content: str) -> None:
 
     Raises:
         UvResolveError: If the file cannot be written.
+
     """
     try:
         (directory / "pyproject.toml").write_text(content, encoding="utf-8")
@@ -341,6 +351,7 @@ def resolve_project_versions(
 
     Raises:
         UvResolveError: If the relaxed copy cannot be built or ``uv lock`` fails.
+
     """
     effective_pins = dict(pins or {})
 

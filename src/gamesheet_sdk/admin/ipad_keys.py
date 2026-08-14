@@ -14,6 +14,7 @@ Playwright needed for read-only access once a bearer token has been obtained (ty
 from __future__ import annotations
 
 from datetime import datetime
+from http import HTTPStatus
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
@@ -77,20 +78,21 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
         AuthenticationError: If the server returns 401 (the bearer is missing, malformed, or expired -- run
             ``gamesheet-admin login`` to refresh).
         GameSheetError: For any other non-2xx response.
+
     """
     response = session.get(
         _ENDPOINT,
         params={"filter[season]": season_id},
         headers=JSONAPI_HEADERS,
     )
-    if response.status_code == 401:
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
-    if response.status_code == 404:
+    if response.status_code == HTTPStatus.NOT_FOUND:
         _err_msg = errors.ERROR_MSG_404_IPAD_KEYS.format(season_id=season_id)
         raise GameSheetError(_err_msg)
 
-    if response.status_code >= 400:
+    if response.status_code >= HTTPStatus.BAD_REQUEST:
         _err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=_ENDPOINT,
             status_code=response.status_code,

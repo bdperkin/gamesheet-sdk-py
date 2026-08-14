@@ -100,6 +100,7 @@ def teams_roster_players_list_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         columns_spec (str | None): Optional comma-separated list of columns to display
+
     """
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
@@ -139,6 +140,7 @@ def teams_roster_players_get_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         fields_spec (str | None): Optional comma-separated list of fields to display
+
     """
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
@@ -302,8 +304,11 @@ def teams_roster_players_create_command(
 
     Raises:
         Exit: On authentication or API errors.
+
     """
-    from gamesheet_sdk.admin.cli.helpers import run_roster_create_with_output
+    from gamesheet_sdk.admin.cli.helpers import (  # noqa: PLC0415
+        run_roster_create_with_output,
+    )
 
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
@@ -477,8 +482,11 @@ def teams_roster_players_update_command(
 
     Raises:
         Exit: On authentication or API errors.
+
     """
-    from gamesheet_sdk.admin.cli.helpers import run_roster_update_with_output
+    from gamesheet_sdk.admin.cli.helpers import (  # noqa: PLC0415
+        run_roster_update_with_output,
+    )
 
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
@@ -534,6 +542,7 @@ def teams_roster_players_delete_command(ctx: Context, player_id: str) -> None:
 
     Raises:
         Exit: On authentication or API errors.
+
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
@@ -575,12 +584,15 @@ def teams_roster_players_penalty_report_command(
         player_id (str): Player ID to retrieve penalty report for
         output_format (str): Output format (json, yaml, etc.)
         output_path (str | None): Optional path to write output file
+
     """
     ctx_data: dict[str, Any] = ctx.obj
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
     with build_authenticated_session(config) as session:
-        from gamesheet_sdk.admin.roster import get_player_penalty_report
+        from gamesheet_sdk.admin.roster import (  # noqa: PLC0415
+            get_player_penalty_report,
+        )
 
         report = get_player_penalty_report(session, season_id, player_id)
         render_penalty_report(report, output_format, output_path)
@@ -646,6 +658,7 @@ def teams_roster_players_assign_command(
         designation (str | None): Optional designation
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
+
     """
     config, season_id, team_id = (
         ctx.obj["config"],
@@ -689,6 +702,7 @@ def teams_roster_players_unassign_command(ctx: Context, player_id: str) -> None:
     Args:
         ctx (Context): Click context object containing config
         player_id (str): The player identifier
+
     """
     config, season_id, team_id = (
         ctx.obj["config"],

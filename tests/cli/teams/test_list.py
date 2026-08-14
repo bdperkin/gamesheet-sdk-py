@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 from gamesheet_sdk.admin.cli.main import cli
@@ -18,6 +18,8 @@ from tests.helpers import (
 )
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from click.testing import CliRunner
 
 
@@ -143,7 +145,7 @@ def test_teams_list_columns_filter(runner: CliRunner) -> None:
         assert "Raleigh Raptors" in result.output
 
 
-def test_teams_list_output_to_file(runner: CliRunner, tmp_path: Any) -> None:
+def test_teams_list_output_to_file(runner: CliRunner, tmp_path: Path) -> None:
     """The --output option should write to a file for teams."""
     output_file = tmp_path / "teams.json"
     with (

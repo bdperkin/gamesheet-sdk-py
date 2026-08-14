@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from http import HTTPStatus
 from unittest.mock import Mock
 
 import pytest
@@ -114,7 +115,7 @@ def test_handle_response_raises_on_429() -> None:
     ) as exc_info:
         handle_response(response, "/api/test", "GET test")
 
-    assert exc_info.value.status_code == 429
+    assert exc_info.value.status_code == HTTPStatus.TOO_MANY_REQUESTS
     assert exc_info.value.endpoint == "/api/test"
     assert exc_info.value.response_body == "Too Many Requests"
 
@@ -136,5 +137,5 @@ def test_handle_season_scoped_response_raises_on_403() -> None:
             resource_type="referee",
         )
 
-    assert exc_info.value.status_code == 403
+    assert exc_info.value.status_code == HTTPStatus.FORBIDDEN
     assert exc_info.value.endpoint == "/api/seasons/1/referees"

@@ -7,7 +7,7 @@ ______________________________________________________________________
 - [1. Overview](#1-overview)
 - [2. Workflow](#2-workflow)
   - [2.1. Development and Commits](#21-development-and-commits)
-  - [2.2. Merge to Main - Fully Automated!](#22-merge-to-main---fully-automated)
+  - [2.2. Merge to Main - Fully Automated](#22-merge-to-main---fully-automated)
   - [2.3. When No Release is Needed](#23-when-no-release-is-needed)
 - [3. Version Strategy](#3-version-strategy)
   - [3.1. Before 1.0.0 (Current)](#31-before-100-current)
@@ -85,7 +85,7 @@ git commit -m "docs: update installation instructions"
 git commit -m "feat!: redesign authentication flow" -m "BREAKING CHANGE: authentication tokens now require v2 format"
 ```
 
-### 2.2. Merge to Main - Fully Automated!
+### 2.2. Merge to Main - Fully Automated
 
 When code is merged to `main`:
 

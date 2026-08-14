@@ -68,6 +68,7 @@ def locations_list_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         columns_spec (str | None): Comma-separated list of columns to display
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
@@ -105,6 +106,7 @@ def locations_get_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
         fields_spec (str | None): Comma-separated list of fields to display
+
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)

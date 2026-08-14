@@ -56,6 +56,7 @@ def parse_overrides(path: Path) -> list[OverridePolicy]:
 
     Raises:
         ParseError: If the file cannot be read, is not valid YAML, or an entry is missing required fields.
+
     """
     if not path.exists():
         logger.debug("%s not found, no transitive overrides declared", path)
@@ -93,6 +94,7 @@ def _validate_bounds(policies: Sequence[OverridePolicy], path: Path) -> None:
 
     Raises:
         ParseError: If any policy's floor or ceiling is not a valid specifier.
+
     """
     for policy in policies:
         bounds = policy.floor if policy.ceiling is None else f"{policy.floor},{policy.ceiling}"
@@ -115,6 +117,7 @@ def current_overrides(pyproject_path: Path) -> dict[str, str]:
 
     Raises:
         ParseError: If the file cannot be read or is invalid TOML.
+
     """
     try:
         doc = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
@@ -141,9 +144,10 @@ def _satisfies_floor(version: str, floor: str) -> bool:
         floor (str): Floor as a PEP 440 specifier.
 
     Returns:
-        bool: True if the version satisfies the floor. An unparseable version is treated as not satisfying it,
+        bool: True if the version satisfies the floor. An unparsable version is treated as not satisfying it,
             which is the conservative reading — it keeps the override in place rather than retiring it on the
             strength of something we cannot compare.
+
     """
     try:
         return Version(version) in SpecifierSet(floor)
@@ -170,6 +174,7 @@ def converge_overrides(
     Returns:
         list[OverrideResult]: One result per policy whose package uv actually resolved. A policy uv did not
             resolve is skipped with a warning rather than guessed at.
+
     """
     results: list[OverrideResult] = []
     for policy in policies:
@@ -207,6 +212,7 @@ def run_verify(policy: OverridePolicy) -> None:
 
     Raises:
         VerifyError: If the command exits non-zero, times out, or cannot be executed.
+
     """
     if policy.verify is None:
         logger.debug("No verify command declared for %s", policy.package)
@@ -214,7 +220,7 @@ def run_verify(policy: OverridePolicy) -> None:
 
     logger.info("Verifying %s override: %s", policy.package, policy.verify)
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603
             shlex.split(policy.verify),
             capture_output=True,
             text=True,
@@ -245,6 +251,7 @@ def _override_array(doc: TOMLDocument) -> Array:
 
     Returns:
         Array: The override array, ready to mutate.
+
     """
     tool = doc.get("tool")
     if tool is None:
@@ -279,6 +286,7 @@ def update_pyproject_overrides(pyproject_path: Path, results: Sequence[OverrideR
 
     Raises:
         WriteError: If the file cannot be read or written.
+
     """
     changed = [r for r in results if r.old_version != r.new_version]
     if not changed:
@@ -314,6 +322,7 @@ def _rewrite_override_entries(
 
     Returns:
         int: Number of entries written, counting both replacements and additions.
+
     """
     targets = {r.package: r.new_version for r in changed}
 

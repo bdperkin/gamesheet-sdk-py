@@ -55,10 +55,10 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - "Dockerfile"
-      - ".dockerignore"
-      - ".trivyignore.yaml"
-      - ".github/workflows/security-trivy-image.yml"
+      - Dockerfile
+      - .dockerignore
+      - .trivyignore.yaml
+      - .github/workflows/security-trivy-image.yml
     types:
       - opened
       - reopened
@@ -66,7 +66,7 @@ on:
   schedule:
     # Run weekly on Mondays at 9:30 AM UTC, 30 minutes after the filesystem
     # scan, to pick up base-image CVEs published since the last run.
-    - cron: "30 9 * * 1"
+    - cron: 30 9 * * 1
 
 permissions:
   contents: read
@@ -80,12 +80,12 @@ jobs:
   trivy-image:
     name: Trivy container image scan
     permissions:
-      contents: read # Checkout repository
-      security-events: write # Upload SARIF (non-PR runs only)
+      contents: read  # Checkout repository
+      security-events: write  # Upload SARIF (non-PR runs only)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
 
@@ -94,36 +94,36 @@ jobs:
           docker build --tag gamesheet-sdk-py:scan-candidate .
 
       - name: Run Trivy image scan (informational)
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
         with:
-          exit-code: "0" # Report only; the gate below decides pass/fail
+          exit-code: '0' # Report only; the gate below decides pass/fail
           # Required: Trivy auto-loads `.trivyignore` but not `.trivyignore.yaml`
-          format: "table"
-          image-ref: "gamesheet-sdk-py:scan-candidate"
-          scan-type: "image"
-          severity: "CRITICAL,HIGH,MEDIUM"
-          trivyignores: ".trivyignore.yaml"
+          format: table
+          image-ref: gamesheet-sdk-py:scan-candidate
+          scan-type: image
+          severity: CRITICAL,HIGH,MEDIUM
+          trivyignores: .trivyignore.yaml
 
       # SARIF refresh runs BEFORE the gate so that a CRITICAL/HIGH failure still
       # leaves the Security tab up to date rather than silently stale.
       - name: Run Trivy image scan (SARIF)
         if: github.event_name != 'pull_request'
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
         with:
-          exit-code: "0"
+          exit-code: '0'
           # Required: Trivy auto-loads `.trivyignore` but not `.trivyignore.yaml`
-          format: "sarif"
-          image-ref: "gamesheet-sdk-py:scan-candidate"
-          output: "trivy-image-results.sarif"
-          scan-type: "image"
-          trivyignores: ".trivyignore.yaml"
+          format: sarif
+          image-ref: gamesheet-sdk-py:scan-candidate
+          output: trivy-image-results.sarif
+          scan-type: image
+          trivyignores: .trivyignore.yaml
 
       - name: Upload Trivy image results to GitHub Security
         if: github.event_name != 'pull_request'
-        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
+        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3  # v4.37.6
         with:
-          category: "trivy-image"
-          sarif_file: "trivy-image-results.sarif"
+          category: trivy-image
+          sarif_file: trivy-image-results.sarif
           # Shared with release.yml's image scan so both workflows write to one
           # analysis stream and refresh each other's findings. An omitted category
           # is NOT shared: GitHub derives ".github/workflows/<file>:<job>", which
@@ -131,12 +131,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Trivy image scan (fail on CRITICAL/HIGH)
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
         with:
-          exit-code: "1" # Fail on unsuppressed critical/high findings
+          exit-code: '1' # Fail on unsuppressed critical/high findings
           # Required: Trivy auto-loads `.trivyignore` but not `.trivyignore.yaml`
-          format: "table"
-          image-ref: "gamesheet-sdk-py:scan-candidate"
-          scan-type: "image"
-          severity: "CRITICAL,HIGH"
-          trivyignores: ".trivyignore.yaml"
+          format: table
+          image-ref: gamesheet-sdk-py:scan-candidate
+          scan-type: image
+          severity: CRITICAL,HIGH
+          trivyignores: .trivyignore.yaml

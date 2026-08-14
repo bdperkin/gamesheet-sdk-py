@@ -11,7 +11,6 @@
 #
 # Reference: https://docs.github.com/en/code-security/dependabot
 # ==============================================================================
-
 version: 2
 
 updates:
@@ -30,15 +29,15 @@ updates:
     schedule:
       interval: weekly
       day: monday
-      time: "09:00"
-      timezone: "UTC"
+      time: 09:00
+      timezone: UTC
     open-pull-requests-limit: 5
     labels:
       - dependencies
       - python
     commit-message:
       include: scope
-      prefix: "chore(deps)"
+      prefix: chore(deps)
     groups:
       development-dependencies:
         dependency-type: development
@@ -52,15 +51,39 @@ updates:
           - patch
     ignore:
       # Managed by syncdeps — do not edit manually
+      - dependency-name: editorconfig-checker
+        versions:
+          - '> 3.8.0'
       - dependency-name: mcp
         versions:
           - '> 1.29.0'
+      - dependency-name: pre-commit
+        versions:
+          - '> 4.6.1'
+      - dependency-name: pyproject-fmt
+        versions:
+          - '> 2.27.0'
+      - dependency-name: pytest-playwright
+        versions:
+          - '> 0.8.0'
       - dependency-name: rich
         versions:
           - '> 14.3.4'
+      - dependency-name: ruff
+        versions:
+          - '> 0.16.2'
+      - dependency-name: semgrep
+        versions:
+          - '> 1.172.0'
       - dependency-name: tomlkit
         versions:
           - '> 0.13.3'
+      - dependency-name: ty
+        versions:
+          - '> 0.0.69'
+      - dependency-name: uv
+        versions:
+          - '> 0.12.3'
     cooldown:
       default-days: 7
 
@@ -79,19 +102,19 @@ updates:
     schedule:
       interval: weekly
       day: monday
-      time: "09:00"
-      timezone: "UTC"
+      time: 09:00
+      timezone: UTC
     open-pull-requests-limit: 5
     labels:
       - dependencies
       - github-actions
     commit-message:
       include: scope
-      prefix: "chore(deps)"
+      prefix: chore(deps)
     groups:
       actions:
         patterns:
-          - "*"
+          - '*'
         update-types:
           - minor
           - patch

@@ -5,11 +5,14 @@
 
 from __future__ import annotations
 
-from datetime import date
+import math
+from datetime import UTC, date, datetime, timedelta
 from enum import StrEnum
 from pathlib import Path
 
 from pydantic import BaseModel, Field
+
+_ONE_DAY = timedelta(days=1)
 
 
 class UpdateTarget(StrEnum):
@@ -137,6 +140,7 @@ class OverridePolicy(BaseModel):
 
         Returns:
             str: Requirement string such as ``mcp>=1.28.1,<2``.
+
         """
         bounds = self.floor if self.ceiling is None else f"{self.floor},{self.ceiling}"
         return f"{self.package}{bounds}"
@@ -158,6 +162,117 @@ class OverrideResult(BaseModel):
     )
 
 
+def _rfc3339_ceiling(moment: datetime) -> str:
+    """Render *moment* as an RFC 3339 UTC timestamp, rounding **up** to the next whole second.
+
+    Rounding up rather than truncating is what makes the result usable as a cutoff: a timestamp of
+    ``12:00:01.5`` truncated to ``12:00:01`` sits *before* the upload it is meant to admit, so uv would
+    exclude the very file the entry exists to allow.
+
+    Args:
+        moment (datetime): Timezone-aware instant to render.
+
+    Returns:
+        str: Timestamp such as ``2026-08-10T14:22:32Z``.
+
+    """
+    if moment.microsecond:
+        moment = moment.replace(microsecond=0) + timedelta(seconds=1)
+
+    return moment.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+class ExcludeNewerPolicy(BaseModel):
+    """A ``uv`` publication cutoff, in either of the two forms uv accepts.
+
+    ``exclude-newer`` is written either as a relative span (``"7 days"``) or as an absolute date/timestamp
+    (``"2026-08-05"``). Both reduce to a single instant once *now* is known, which is what every decision in
+    this module is actually made against.
+    """
+
+    raw: str = Field(description="The value exactly as written in pyproject.toml")
+    span: timedelta | None = Field(
+        default=None,
+        description="Relative window, for values written as a duration",
+    )
+    timestamp: datetime | None = Field(
+        default=None,
+        description="Absolute cutoff, for values written as a date or timestamp",
+    )
+
+    def cutoff(self, now: datetime) -> datetime:
+        """Resolve the policy to the instant after which distributions are excluded.
+
+        Args:
+            now (datetime): Current time, supplied by the caller so a run is reproducible.
+
+        Returns:
+            datetime: The cutoff instant.
+
+        """
+        if self.timestamp is not None:
+            return self.timestamp
+
+        return now - (self.span or timedelta())
+
+    def admits(self, upload: datetime, now: datetime) -> bool:
+        """Check whether this cutoff already allows a distribution uploaded at *upload*.
+
+        Args:
+            upload (datetime): When the release was published.
+            now (datetime): Current time.
+
+        Returns:
+            bool: True if the release is not excluded, so no per-package relaxation is needed.
+
+        """
+        return upload <= self.cutoff(now)
+
+    def render(self, upload: datetime, now: datetime) -> str:
+        """Render the narrowest per-package value that still admits *upload*.
+
+        A span policy yields whole days floored to the release's age — the most restrictive relaxation that
+        works, and one that stays valid as the release ages. An absolute policy yields the upload instant
+        itself.
+
+        Args:
+            upload (datetime): When the release was published.
+            now (datetime): Current time.
+
+        Returns:
+            str: Value to write for ``exclude-newer-package.<package>``.
+
+        """
+        if self.span is None:
+            return _rfc3339_ceiling(upload)
+
+        return f"{max(0, math.floor((now - upload) / _ONE_DAY))} days"
+
+
+class ExcludeNewerResult(BaseModel):
+    """One change to the ``exclude-newer-package`` table."""
+
+    package: str = Field(description="Package the entry applies to")
+    version: str | None = Field(
+        description="Version the decision was made against, or None when the package left the graph",
+    )
+    old_value: str | None = Field(description="Value currently written, or None if there is no entry")
+    new_value: str | None = Field(description="Value to write, or None to drop the entry")
+
+    @property
+    def action(self) -> str:
+        """Classify the change for display.
+
+        Returns:
+            str: One of ``add``, ``update``, or ``remove``.
+
+        """
+        if self.new_value is None:
+            return "remove"
+
+        return "add" if self.old_value is None else "update"
+
+
 class RunConfig(BaseModel):
     """CLI runtime configuration."""
 
@@ -170,6 +285,7 @@ class RunConfig(BaseModel):
     log_level: str = Field(default="info", pattern=r"^(debug|info|warning|error)$")
     dry_run: bool = False
     sync_types: bool = False
+    sync_exclude_newer: bool = True
     no_uv_resolve: bool = False
     backup: bool = False
     check: bool = False
