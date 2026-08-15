@@ -2,6 +2,21 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.24 (2026-08-15)
+
+### Bug Fixes
+
+- **tooling**: Restore the pytest and coverage config ([#216](https://github.com/bdperkin/gamesheet-sdk-py/pull/216),
+  [`392a820`](https://github.com/bdperkin/gamesheet-sdk-py/commit/392a820201efa718d01b68a020ed998f0da307f2))
+
+### Chores
+
+- **tooling**: Add five Python formatters to the format category ([#215](https://github.com/bdperkin/gamesheet-sdk-py/pull/215),
+  [`424e033`](https://github.com/bdperkin/gamesheet-sdk-py/commit/424e033930ee3635f0d791a4edd88a3fc7ea5143))
+
+- **tooling**: Track ty and uv hook revisions from locked versions ([#214](https://github.com/bdperkin/gamesheet-sdk-py/pull/214),
+  [`8ad04b4`](https://github.com/bdperkin/gamesheet-sdk-py/commit/8ad04b41d713c6ffbf6331c66c1eca21710c64c7))
+
 ## v0.4.23 (2026-08-14)
 
 ### Bug Fixes
