@@ -762,7 +762,7 @@ wheels = [
 
 [[package]]
 name = "gamesheet-sdk-py"
-version = "0.4.23"
+version = "0.4.24"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
@@ -859,7 +859,6 @@ deptry = [
     { name = "types-boltons" },
     { name = "types-certifi" },
     { name = "types-cffi" },
-    { name = "types-click" },
     { name = "types-colorama" },
     { name = "types-cryptography" },
     { name = "types-deprecated" },
@@ -1025,7 +1024,6 @@ ty = [
     { name = "types-boltons" },
     { name = "types-certifi" },
     { name = "types-cffi" },
-    { name = "types-click" },
     { name = "types-colorama" },
     { name = "types-cryptography" },
     { name = "types-deprecated" },
@@ -1064,7 +1062,6 @@ type-stubs = [
     { name = "types-boltons" },
     { name = "types-certifi" },
     { name = "types-cffi" },
-    { name = "types-click" },
     { name = "types-colorama" },
     { name = "types-cryptography" },
     { name = "types-deprecated" },
@@ -1113,7 +1110,6 @@ types = [
     { name = "types-boltons" },
     { name = "types-certifi" },
     { name = "types-cffi" },
-    { name = "types-click" },
     { name = "types-colorama" },
     { name = "types-cryptography" },
     { name = "types-deprecated" },
@@ -1236,7 +1232,6 @@ requires-dist = [
     { name = "types-boltons", marker = "extra == 'type-stubs'", specifier = "==26.1.0.20260724" },
     { name = "types-certifi", marker = "extra == 'type-stubs'", specifier = "==2021.10.8.3" },
     { name = "types-cffi", marker = "extra == 'type-stubs'", specifier = "==2.0.0.20260518" },
-    { name = "types-click", marker = "extra == 'type-stubs'", specifier = "==7.1.8" },
     { name = "types-colorama", marker = "extra == 'type-stubs'", specifier = "==0.4.15.20260508" },
     { name = "types-cryptography", marker = "extra == 'type-stubs'", specifier = "==3.3.23.2" },
     { name = "types-deprecated", marker = "extra == 'type-stubs'", specifier = "==1.3.1.20260728" },
@@ -3774,15 +3769,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/bd/0b/b352742758a6054d1053783887bf8cfb739deda1102fda8722294bdc01f7/types_cffi-2.0.0.20260518.tar.gz", hash = "sha256:f9707e66c13454789a58f8843d1ded4a66f1e9c8b10bd24d5eb5e0f25c0c5472", size = 17790, upload-time = "2026-05-18T06:06:50.672Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/68/44/d3b4aafa20a3f76384ba19a513d39272add13746dcfe0409d8d4974fd464/types_cffi-2.0.0.20260518-py3-none-any.whl", hash = "sha256:5b68a215a95d0eac4203b58e766ff7fe40c2e091b1fa1a9e54111f04cc560084", size = 20198, upload-time = "2026-05-18T06:06:49.83Z" },
-]
-
-[[package]]
-name = "types-click"
-version = "7.1.8"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/00/ff/0e6a56108d45c80c61cdd4743312d0304d8192482aea4cce96c554aaa90d/types-click-7.1.8.tar.gz", hash = "sha256:b6604968be6401dc516311ca50708a0a28baa7a0cb840efd7412f0dbbff4e092", size = 10015, upload-time = "2021-11-23T12:28:01.701Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ee/ad/607454a5f991c5b3e14693a7113926758f889138371058a5f72f567fa131/types_click-7.1.8-py3-none-any.whl", hash = "sha256:8cb030a669e2e927461be9827375f83c16b8178c365852c060a34e24871e7e81", size = 12929, upload-time = "2021-11-23T12:27:59.493Z" },
 ]
 
 [[package]]

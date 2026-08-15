@@ -198,7 +198,6 @@ optional-dependencies.type-stubs = [
   "types-boltons==26.1.0.20260724",
   "types-certifi==2021.10.8.3",
   "types-cffi==2.0.0.20260518",
-  "types-click==7.1.8",
   "types-colorama==0.4.15.20260508",
   "types-cryptography==3.3.23.2",
   "types-deprecated==1.3.1.20260728",
@@ -530,7 +529,7 @@ environment.extra-paths = [
 ]
 rules.all = "error"
 rules.missing-override-decorator = "ignore"
-rules.unresolved-import = "ignore"
+rules.unresolved-import = "error"
 terminal.error-on-warning = true
 analysis.strict-equality-semantics = true
 analysis.strict-generic-narrowing = true
