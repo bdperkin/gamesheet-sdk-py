@@ -21,7 +21,7 @@ def test_season_model_ignores_unknown_attributes() -> None:
             "created_at": datetime(2024, 1, 1, tzinfo=UTC),
             "updated_at": datetime(2024, 1, 1, tzinfo=UTC),
             "unexpected_future_attr": "ignored",
-        }
+        },
     )
     assert s.title == "2024-2025"
 
@@ -42,6 +42,6 @@ def test_season_detail_model_ignores_unknown_attributes() -> None:
             "created_at": datetime(2024, 1, 1, tzinfo=UTC),
             "updated_at": datetime(2024, 1, 1, tzinfo=UTC),
             "unexpected_future_attr": "ignored",
-        }
+        },
     )
     assert sd.title == "Test"

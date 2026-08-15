@@ -15,8 +15,9 @@
 # Configuration:
 #   - ty: [tool.ty] in pyproject.toml
 #
-# Each job runs: uv run --extra ty --extra tools ty check
-# (the tools extra is required so imports inside tools/ resolve)
+# Each job runs: uv run --extra ty ty check
+# (the ty extra fans out to [pytest,type-stubs] -> [tools], which is what makes
+#  imports in tests/ and tools/ resolve and third-party types come from stubs)
 # ==============================================================================
 
 name: Type Checkers
@@ -70,4 +71,4 @@ jobs:
           enable-cache: true
 
       - name: Run ty via uv
-        run: uv run --extra ty --extra tools ty check
+        run: uv run --extra ty ty check

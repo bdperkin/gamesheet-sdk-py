@@ -10,7 +10,6 @@ import logging
 import os
 import time
 from pathlib import Path
-from typing import cast
 
 import rich_click as click
 from dateutil import parser as dateutil_parser
@@ -95,7 +94,7 @@ def parse_flexible_datetime(raw: str) -> datetime.datetime:
         msg = f"Cannot parse datetime '{raw}': {exc}"
         raise click.UsageError(msg) from exc
 
-    return cast("datetime.datetime", dt.replace(tzinfo=None))
+    return dt.replace(tzinfo=None)
 
 
 def _format_utc_iso(dt: datetime.datetime) -> str:
@@ -369,6 +368,7 @@ def _resolve_single_update(
     if duration is None:
         msg = "Duration is required."
         raise click.UsageError(msg)
+
     start_dt = parse_flexible_datetime(current_start)
     end_dt = start_dt + datetime.timedelta(minutes=duration)
     return _format_utc_iso(start_dt), _format_utc_iso(end_dt)

@@ -22,6 +22,6 @@ def test_team_model_ignores_unknown_attributes() -> None:
             "created_at": datetime(2024, 1, 1, tzinfo=UTC),
             "updated_at": datetime(2024, 1, 1, tzinfo=UTC),
             "unexpected_future_attr": "ignored",
-        }
+        },
     )
     assert t.title == "Raleigh Raptors"

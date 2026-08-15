@@ -20,7 +20,7 @@ import json
 import logging
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _resolved_version
-from typing import TYPE_CHECKING, Any, Self, cast
+from typing import TYPE_CHECKING, Any, Self
 from urllib.parse import urljoin
 
 import requests
@@ -208,7 +208,7 @@ class Session:
             MutableMapping[str, str | bytes]: Return value.
 
         """
-        return cast("MutableMapping[str, str | bytes]", self._http.headers)
+        return self._http.headers
 
     def set_bearer_token(self: Session, token: str) -> None:
         """Attach ``Authorization: Bearer <token>`` to all subsequent requests.

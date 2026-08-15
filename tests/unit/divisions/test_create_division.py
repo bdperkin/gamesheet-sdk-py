@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from typing import cast
-
 import pytest
 import responses
 
@@ -73,7 +71,7 @@ def test_create_division_sends_correct_payload(config: Config) -> None:
     import json
 
     assert req.body is not None
-    payload = json.loads(cast("bytes | str", req.body))
+    payload = json.loads(req.body)
     assert payload["data"]["type"] == "divisions"
     assert payload["data"]["attributes"]["title"] == DEFAULT_DIVISION_NAME
     assert payload["data"]["attributes"]["external_id"] == "test-external-id"
@@ -116,7 +114,7 @@ def test_create_division_generates_uuid_if_external_id_not_provided(
     import json
 
     assert responses.calls[0].request.body is not None
-    payload = json.loads(cast("bytes | str", responses.calls[0].request.body))
+    payload = json.loads(responses.calls[0].request.body)
     external_id = payload["data"]["attributes"]["external_id"]
     assert external_id is not None
     assert len(external_id) > 0

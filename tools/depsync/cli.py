@@ -1291,7 +1291,12 @@ def _run(config: RunConfig) -> None:
         has_changes = True
 
     capped_pins = _find_capped_pins(
-        pyproject_deps, resolved, index_url, extra_index_urls, pip_config, min_python
+        pyproject_deps,
+        resolved,
+        index_url,
+        extra_index_urls,
+        pip_config,
+        min_python,
     )
 
     dependabot_changed = _run_dependabot_sync(config, pinned_revs, override_pins, capped_pins)

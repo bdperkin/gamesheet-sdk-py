@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from typing import cast
-
 import pytest
 import responses
 
@@ -73,7 +71,7 @@ def test_create_referee_sends_correct_payload_with_all_fields(config: Config) ->
     import json
 
     assert req.body is not None
-    payload = json.loads(cast("bytes | str", req.body))
+    payload = json.loads(req.body)
     assert payload["data"]["attributes"]["first_name"] == "Wes"
     assert payload["data"]["attributes"]["last_name"] == "McCauley"
     assert payload["data"]["attributes"]["email_address"] == TEST_EMAIL_REFEREE
@@ -119,7 +117,7 @@ def test_create_referee_sends_correct_payload_required_fields_only(
 
     req = responses.calls[0].request
     assert req.body is not None
-    payload = json.loads(cast("bytes | str", req.body))
+    payload = json.loads(req.body)
     assert payload["data"]["attributes"]["first_name"] == "Jane"
     assert payload["data"]["attributes"]["last_name"] == DEFAULT_PLAYER_LAST_NAME
     assert "email_address" not in payload["data"]["attributes"]

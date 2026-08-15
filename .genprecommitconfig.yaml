@@ -6,6 +6,7 @@
 
 globals:
   blacklisted_hooks:
+    - blank-line-after-blocks-jupyter
     - check-byte-order-marker
     - check-symlinks
     - check-xml
@@ -38,11 +39,16 @@ ci:
   #               enough to keep the env from being built at all
   #   ty          entry is `uv check`, which syncs the project environment when
   #               it runs; pre-commit.ci has no network during hook execution
+  #   unimport    0.11.1 calls `ast.Str`, removed in Python 3.12. pre-commit.ci
+  #               runs it on a newer interpreter than the python3.11 this config
+  #               asks for, so it dies with AttributeError; the GitHub Actions
+  #               pre-commit job honors python3.11 and runs it fine
   skip:
     - identity
     - pyroma
     - semgrep-ci
     - ty
+    - unimport
 
 categories:
   meta:
@@ -179,6 +185,29 @@ categories:
     description: Python Formatting
     repos:
 
+      - name: unimport
+        repo: https://github.com/hakancelikdev/unimport
+        hooks:
+          - id: unimport
+            prepends:
+              args:
+                - --remove
+            appends:
+              additional_dependencies:
+                - gamesheet-sdk-py[unimport]
+
+      - name: absolufy-imports
+        repo: https://github.com/marcogorelli/absolufy-imports
+
+      - name: ssort
+        repo: https://github.com/bwhmather/ssort
+
+      - name: add-trailing-comma
+        repo: https://github.com/asottile/add-trailing-comma
+
+      - name: blank-line-after-blocks
+        repo: https://github.com/jsh9/blank-line-after-blocks
+
       - name: ruff
         repo: https://github.com/astral-sh/ruff-pre-commit
         hooks:
@@ -235,11 +264,16 @@ categories:
             prepends:
               args:
                 - --fix
-                # `uv check` syncs the project environment itself, so without
-                # the tools extra `packaging`/`tomlkit`/`ruamel-yaml` are
-                # unresolvable and everything in tools/ infers as `Unknown`.
+                # `uv check` syncs the project environment itself, so ty only
+                # sees what this extra installs. `ty` fans out to
+                # [pytest,type-stubs] and pytest fans out to [tools], which
+                # covers all three things ty needs: test deps, tools/ deps
+                # (packaging, tomlkit, ruamel-yaml) and the third-party stubs.
+                # Drop any of them and the affected code silently infers as
+                # `Unknown` or as the wrong type — which is how a load-bearing
+                # cast got auto-removed as "redundant".
                 - --extra
-                - tools
+                - ty
 
   commits:
     description: Commit Standards
