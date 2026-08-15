@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.25 (2026-08-15)
+
+### Bug Fixes
+
+- **tooling**: Make unresolved imports an error again ([#217](https://github.com/bdperkin/gamesheet-sdk-py/pull/217),
+  [`6e5f529`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6e5f529f4118e52912674016ebbc75daf404dd3a))
+
 ## v0.4.24 (2026-08-15)
 
 ### Bug Fixes
