@@ -39,11 +39,16 @@ ci:
   #               enough to keep the env from being built at all
   #   ty          entry is `uv check`, which syncs the project environment when
   #               it runs; pre-commit.ci has no network during hook execution
+  #   unimport    0.11.1 calls `ast.Str`, removed in Python 3.12. pre-commit.ci
+  #               runs it on a newer interpreter than the python3.11 this config
+  #               asks for, so it dies with AttributeError; the GitHub Actions
+  #               pre-commit job honors python3.11 and runs it fine
   skip:
     - identity
     - pyroma
     - semgrep-ci
     - ty
+    - unimport
 
 categories:
   meta:

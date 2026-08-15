@@ -236,6 +236,8 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
     `globals.blacklisted_hooks`), so skipping it keeps the env from being built at all. **Both conditions matter:** leaving any id from an oversized repo
     enabled fails the whole run at *build* time with `exceeds tier max size`, before a single hook executes.
   - `ty` — its entry is `uv check`, which syncs the project environment when it runs, and pre-commit.ci has no network during hook execution.
+  - `unimport` — 0.11.1 calls `ast.Str`, removed in Python 3.12. pre-commit.ci runs it on a newer interpreter than the `python3.11` this config asks for, so it
+    dies with `AttributeError`; the GitHub Actions `pre-commit` job honors `python3.11` and runs it fine.
 
   **Add to this list only in response to a specific failed run, never preemptively.** The list was 9 entries before it was rebuilt from evidence on 2026-08-14;
   `deptry`, `editorconfig-checker`, `mdformat` and `uv-lock` had all been skipped for conditions that no longer applied, and a run with them enabled proved they
@@ -287,7 +289,8 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 - **Formatting/lint pipeline.** `.genprecommitconfig.yaml` is the source of truth. It declares tools grouped into **categories**, and one category name is
   reused across every surface: it generates `.pre-commit-config.yaml` (tool-per-hook), matches an extra in `pyproject.toml` (tool-per-extra, each category extra
   fanning out to the per-tool extras it contains), a `make` target ([§2.1](#21-makefile-shortcuts)), and a per-category workflow file (tool-per-job). Add a tool
-  in one place and regenerate; **never hand-edit `.pre-commit-config.yaml`.** Categories, in hook order:
+  in one place and regenerate; **never hand-edit `.pre-commit-config.yaml`.** The workflow surface is the one that can lag: the five import/layout fixers below
+  have no dedicated jobs yet, so in CI they are covered only by the `pre-commit` job. Categories, in hook order:
 
   - **meta** (Hook Management): pre-commit's own `check-hooks-apply` / `check-useless-excludes` / `identity`, sync-pre-commit-deps.
   - **dependencies** (Lockfile Synchronization): uv — `uv-lock` on every run; `uv-export` and `uv-audit` are `manual`-stage, `uv-sync` is
