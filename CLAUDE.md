@@ -186,7 +186,20 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 - **`src/` layout.** Tests import via the installed package — there is no `pythonpath` setting, so `pytest` needs the project installed
   (`uv run --extra pytest pytest`, or `pip install -e ".[all]"` / at minimum `[dev,pytest]` for anything touching the CLI or Playwright).
 
-- **Typed package.** `py.typed` is shipped (PEP 561) and `[tool.ty]` is configured — all new code must be fully annotated and pass `ty check`.
+- **Typed package.** `py.typed` is shipped (PEP 561) and `[tool.ty]` is configured — all new code must be fully annotated and pass `ty check`. `rules.all` is
+  `error`, and `missing-override-decorator` is the only rule ignored.
+
+  **Keep `unresolved-import` an error.** It is the only thing that reports a missing dependency or type stub, and downgrading it to `ignore` does not merely
+  hide import noise — every symbol from the unresolved module silently degrades to `Unknown` or to a wrong inferred type, and `ty --fix` then acts on that.
+  While it was globally ignored, `import totally_nonexistent_module_xyz` type checked clean, `types-requests` went missing from the ty extra unnoticed, and
+  `ty --fix` deleted a load-bearing `cast()` in `common/session.py` as "redundant". Fix the cause — add the stub to `optional-dependencies.type-stubs`, or
+  remove a stale one — rather than widening the rule.
+
+  **Do not add stubs for a dependency that ships `py.typed`.** An obsolete stub package *shadows* the real inline types, so every symbol is checked against the
+  version the stub describes. `types-click==7.1.8` did exactly that: it describes click 7, the project runs click 8.4.2, and `click.shell_completion` (added in
+  click 8) therefore read as unresolved — which is what the old `analysis.allowed-unresolved-imports` allowlist existed to paper over. Dropping the stub made
+  the import resolve and the allowlist unnecessary. Several other entries in `type-stubs` cover packages that have since shipped `py.typed` and are worth the
+  same scrutiny.
 
 - **Automated versioning and changelog.** The project uses `python-semantic-release` (PSR) to fully automate version bumping, CHANGELOG generation, and releases
   based on Conventional Commits. **No manual tagging required** — simply merge to `main` and PSR handles everything:
