@@ -43,6 +43,29 @@ logger = logging.getLogger(__name__)
 VERIFY_TIMEOUT = 600
 
 
+def _validate_bounds(policies: Sequence[OverridePolicy], path: Path) -> None:
+    """Reject bounds that are not parseable PEP 440 specifiers.
+
+    Catching this here means a typo surfaces as a clear error rather than as a resolution that silently
+    excludes every candidate.
+
+    Args:
+        policies (Sequence[OverridePolicy]): Parsed policies to check.
+        path (Path): Policy file path, for the error message.
+
+    Raises:
+        ParseError: If any policy's floor or ceiling is not a valid specifier.
+
+    """
+    for policy in policies:
+        bounds = policy.floor if policy.ceiling is None else f"{policy.floor},{policy.ceiling}"
+        try:
+            SpecifierSet(bounds)
+        except InvalidSpecifier as exc:
+            msg = f"Invalid bounds for {policy.package} in {path}: {bounds} ({exc})"
+            raise ParseError(msg) from exc
+
+
 def parse_overrides(path: Path) -> list[OverridePolicy]:
     """Read override policies from ``.syncdepsoverrides.yaml``.
 
@@ -80,29 +103,6 @@ def parse_overrides(path: Path) -> list[OverridePolicy]:
     _validate_bounds(policies, path)
     logger.debug("Parsed %d override policies from %s", len(policies), path)
     return policies
-
-
-def _validate_bounds(policies: Sequence[OverridePolicy], path: Path) -> None:
-    """Reject bounds that are not parseable PEP 440 specifiers.
-
-    Catching this here means a typo surfaces as a clear error rather than as a resolution that silently
-    excludes every candidate.
-
-    Args:
-        policies (Sequence[OverridePolicy]): Parsed policies to check.
-        path (Path): Policy file path, for the error message.
-
-    Raises:
-        ParseError: If any policy's floor or ceiling is not a valid specifier.
-
-    """
-    for policy in policies:
-        bounds = policy.floor if policy.ceiling is None else f"{policy.floor},{policy.ceiling}"
-        try:
-            SpecifierSet(bounds)
-        except InvalidSpecifier as exc:
-            msg = f"Invalid bounds for {policy.package} in {path}: {bounds} ({exc})"
-            raise ParseError(msg) from exc
 
 
 def current_overrides(pyproject_path: Path) -> dict[str, str]:
@@ -271,6 +271,37 @@ def _override_array(doc: TOMLDocument) -> Array:
     return cast("Array", declared)
 
 
+def _rewrite_override_entries(
+    declared: Array,
+    changed: Sequence[OverrideResult],
+) -> int:
+    """Replace matching entries in the override array in place, appending any that are absent.
+
+    Args:
+        declared (Array): TOML array of override requirement strings.
+        changed (Sequence[OverrideResult]): Results whose pins need writing.
+
+    Returns:
+        int: Number of entries written, counting both replacements and additions.
+
+    """
+    targets = {r.package: r.new_version for r in changed}
+
+    written = 0
+    for index, entry in enumerate(declared):
+        name = str(entry).partition("==")[0].strip()
+        version = targets.pop(name, None)
+        if version is not None:
+            declared[index] = f"{name}=={version}"
+            written += 1
+
+    for name, version in sorted(targets.items()):
+        declared.append(f"{name}=={version}")
+        written += 1
+
+    return written
+
+
 def update_pyproject_overrides(pyproject_path: Path, results: Sequence[OverrideResult]) -> int:
     """Write resolved override pins into ``[tool.uv] override-dependencies``.
 
@@ -307,35 +338,4 @@ def update_pyproject_overrides(pyproject_path: Path, results: Sequence[OverrideR
         raise WriteError(msg) from exc
 
     logger.info("Updated %d override pins in %s", written, pyproject_path)
-    return written
-
-
-def _rewrite_override_entries(
-    declared: Array,
-    changed: Sequence[OverrideResult],
-) -> int:
-    """Replace matching entries in the override array in place, appending any that are absent.
-
-    Args:
-        declared (Array): TOML array of override requirement strings.
-        changed (Sequence[OverrideResult]): Results whose pins need writing.
-
-    Returns:
-        int: Number of entries written, counting both replacements and additions.
-
-    """
-    targets = {r.package: r.new_version for r in changed}
-
-    written = 0
-    for index, entry in enumerate(declared):
-        name = str(entry).partition("==")[0].strip()
-        version = targets.pop(name, None)
-        if version is not None:
-            declared[index] = f"{name}=={version}"
-            written += 1
-
-    for name, version in sorted(targets.items()):
-        declared.append(f"{name}=={version}")
-        written += 1
-
     return written

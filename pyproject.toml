@@ -69,8 +69,17 @@ dependencies = [
   "tzlocal==5.4.4",
   "urllib3==2.7.0",
 ]
+optional-dependencies.absolufy-imports = [
+  "absolufy-imports==0.3.1",
+]
+optional-dependencies.add-trailing-comma = [
+  "add-trailing-comma==4.0.0",
+]
 optional-dependencies.architecture = [
   "gamesheet-sdk-py[radon,xenon]",
+]
+optional-dependencies.blank-line-after-blocks = [
+  "blank-line-after-blocks==0.1.4",
 ]
 optional-dependencies.blocklint = [
   "blocklint==0.3.0",
@@ -112,7 +121,7 @@ optional-dependencies.editorconfig-checker = [
   "editorconfig-checker==3.8.0",
 ]
 optional-dependencies.format = [
-  "gamesheet-sdk-py[ruff]",
+  "gamesheet-sdk-py[absolufy-imports,add-trailing-comma,blank-line-after-blocks,ruff,ssort,unimport]",
 ]
 optional-dependencies.format-json = [
   "format-json==0.1.2",
@@ -168,6 +177,9 @@ optional-dependencies.security = [
 optional-dependencies.semgrep = [
   "semgrep==1.172.0",
 ]
+optional-dependencies.ssort = [
+  "ssort==0.17.0",
+]
 optional-dependencies.tools = [
   "gamesheet-sdk-py[dev,yamlfix]",
   "packaging==26.3",
@@ -210,12 +222,16 @@ optional-dependencies.type-stubs = [
   "types-setuptools==84.0.0.20260812",
   "types-six==1.17.0.20260724",
   "types-tabulate==0.10.0.20260508",
+  "types-toml==0.10.8.20260518",
   "types-tzdata==2026.0.0.20260408",
   "types-tzlocal==5.1.0.1",
   "types-urllib3==1.26.25.14",
 ]
 optional-dependencies.types = [
   "gamesheet-sdk-py[ty]",
+]
+optional-dependencies.unimport = [
+  "unimport==0.11.1",
 ]
 optional-dependencies.validate-pyproject = [
   "validate-pyproject==0.25",
@@ -390,6 +406,9 @@ github_warning_errors = []
 no_ansi = false
 non_dev_dependency_groups = []
 optional_dependencies_dev_groups = [
+  "absolufy-imports",
+  "add-trailing-comma",
+  "blank-line-after-blocks",
   "blocklint",
   "codespell",
   "deptry",
@@ -410,9 +429,11 @@ optional_dependencies_dev_groups = [
   "radon",
   "ruff",
   "semgrep",
+  "ssort",
   "tools",
   "ty",
   "type-stubs",
+  "unimport",
   "validate-pyproject",
   "vulture",
   "xenon",

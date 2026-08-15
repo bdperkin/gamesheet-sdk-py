@@ -20,6 +20,6 @@ def test_league_model_ignores_unknown_attributes() -> None:
             "created_at": datetime(2023, 1, 1, tzinfo=UTC),
             "updated_at": datetime(2023, 1, 1, tzinfo=UTC),
             "unexpected_future_attr": "ignored",
-        }
+        },
     )
     assert lg.title == "18U AAA"

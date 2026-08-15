@@ -284,25 +284,36 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 
 - **Python 3.11–3.14.** Use modern syntax (`from __future__ import annotations`, `X | None`, etc.) as the `cli` and `auth` packages already do.
 
-- **Formatting/lint pipeline.** The suite is broken out tool-per-hook in `.pre-commit-config.yaml`, tool-per-extra in `pyproject.toml`, and tool-per-job in the
-  per-category GitHub Actions workflows. Categories:
+- **Formatting/lint pipeline.** `.genprecommitconfig.yaml` is the source of truth. It declares tools grouped into **categories**, and one category name is
+  reused across every surface: it generates `.pre-commit-config.yaml` (tool-per-hook), matches an extra in `pyproject.toml` (tool-per-extra, each category extra
+  fanning out to the per-tool extras it contains), a `make` target ([§2.1](#21-makefile-shortcuts)), and a per-category workflow file (tool-per-job). Add a tool
+  in one place and regenerate; **never hand-edit `.pre-commit-config.yaml`.** Categories, in hook order:
 
-  - **Code style / formatters (auto-fix):** ruff (110).
-  - **Code cleaners / dead-code:** vulture, deptry.
-  - **Code-quality linters / static analysis:** blocklint.
-  - **Type checkers:** ty (`[tool.ty]`).
-  - **Security / metrics / complexity:** semgrep (`--config auto --error`), xenon (complexity gate — see below), radon (cc / raw / mi / hal as separate
-    subcommands).
-  - **Docstring / doc tools:** codespell, interrogate, mdformat (+ mdformat-gfm), pymarkdown.
-  - **Configuration-file linters / formatters:** yamllint (`-d relaxed`), yamlfix, pyproject-fmt, validate-pyproject, editorconfig-checker (+ -system variant),
-    pyroma.
-  - **Meta:** sync-pre-commit-deps.
+  - **meta** (Hook Management): pre-commit's own `check-hooks-apply` / `check-useless-excludes` / `identity`, sync-pre-commit-deps.
+  - **dependencies** (Lockfile Synchronization): uv — `uv-lock` on every run; `uv-export` and `uv-audit` are `manual`-stage, `uv-sync` is
+    post-checkout/merge/rewrite.
+  - **checks** (Low-level Checks): pre-commit-hooks, pygrep-hooks, editorconfig-checker.
+  - **configuration** (Configuration Validation): format-json, yamlfix, yamllint, pyproject-fmt, validate-pyproject, pyroma.
+  - **markdown** (Markdown Formatting): mdformat (+ mdformat-gfm), markdown-heading-numbering, markdown-toc-creator, pymarkdown.
+  - **security** (Secret and Vulnerability Scans): detect-secrets, semgrep (`semgrep ci --dry-run --baseline-commit HEAD`; the plain `semgrep` id is
+    blacklisted, and the full `--config auto .` scan runs as a workflow job).
+  - **format** (Python Formatting): unimport (`--remove`), absolufy-imports, ssort, add-trailing-comma, blank-line-after-blocks, ruff (`ruff-check --fix` +
+    `ruff-format`, line length 110).
+  - **quality** (Code Quality): vulture, interrogate, codespell, blocklint.
+  - **architecture** (Dependencies and Complexity Metrics): deptry, xenon (complexity gate — see below). radon is *not* a hook; it runs as workflow jobs (cc /
+    raw / mi / hal) and via `make metrics`.
+  - **types** (Static Type Checks): ty (`[tool.ty]`, `--fix --extra tools`).
+  - **commits** (Commit Standards): conventional-pre-commit, pre-commit-ci-config.
 
-  Several hooks need the project's runtime deps or tool-specific plugins to resolve imports inside the isolated hook venv. Every such hook's
-  `additional_dependencies` is consolidated to a single `gamesheet-sdk-py[<extras>]` self-reference (e.g. `gamesheet-sdk-py[tools,ty]`,
-  `gamesheet-sdk-py[deptry]`, `gamesheet-sdk-py[mdformat]`) so `pyproject.toml`'s `optional-dependencies.*` groups are the single source of truth for what each
-  tool needs. Pyroma is skipped on pre-commit.ci (see above) and runs locally / in GitHub Actions where the project's build backend (`hatchling`) is already
-  present.
+  Hooks needing the project's runtime deps or tool plugins inside their isolated venv use a single `gamesheet-sdk-py[<extras>]` self-reference, so
+  `pyproject.toml`'s `optional-dependencies.*` groups stay the single source of truth. Three hooks currently do: `gamesheet-sdk-py[mdformat]`,
+  `gamesheet-sdk-py[unimport]`, `gamesheet-sdk-py[deptry]`. Pyroma is skipped on pre-commit.ci (see above) and runs locally / in GitHub Actions where the
+  project's build backend (`hatchling`) is already present.
+
+  **Convergence gotcha worth preserving:** the auto-fixers are ordered `format` (unimport, ruff, …) *before* `types` (ty), so a fix that ty makes cannot be
+  cleaned up by an earlier category until the next run. Concretely, `ty --fix` deletes a redundant `cast(...)` call but leaves `from typing import cast`
+  orphaned; `unimport` / `ruff --fix` only remove that import on the following pass. **A single `pre-commit run --all-files` can therefore exit dirty on a tree
+  that is one more run away from clean** — re-run before concluding a hook is broken, and expect the two-stage churn in the diff when new fixers land.
 
 - **Complexity gate.** A `xenon` pre-commit hook enforces `--max-absolute=A --max-modules=A --max-average=B` against `src/` on every commit
   (`pass_filenames: false`, runs the whole package as one analysis). Translation: **every block (function / method / class) must stay at cyclomatic-complexity

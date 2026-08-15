@@ -23,7 +23,7 @@ def test_referee_model_ignores_unknown_attributes() -> None:
             "created_at": datetime(2024, 1, 1, tzinfo=UTC),
             "updated_at": datetime(2024, 1, 1, tzinfo=UTC),
             "unexpected_future_attr": "ignored",
-        }
+        },
     )
     assert r.first_name == "John"
     assert r.last_name == "Smith"

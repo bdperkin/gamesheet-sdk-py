@@ -22,6 +22,6 @@ def test_ipad_key_model_ignores_unknown_attributes() -> None:
             "created_at": datetime(2026, 1, 1, tzinfo=UTC),
             "updated_at": datetime(2026, 1, 1, tzinfo=UTC),
             "unexpected_future_attr": "ignored",
-        }
+        },
     )
     assert key.value == "ipad-test-key"

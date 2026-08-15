@@ -6,6 +6,7 @@
 
 globals:
   blacklisted_hooks:
+    - blank-line-after-blocks-jupyter
     - check-byte-order-marker
     - check-symlinks
     - check-xml
@@ -178,6 +179,29 @@ categories:
   format:
     description: Python Formatting
     repos:
+
+      - name: unimport
+        repo: https://github.com/hakancelikdev/unimport
+        hooks:
+          - id: unimport
+            prepends:
+              args:
+                - --remove
+            appends:
+              additional_dependencies:
+                - gamesheet-sdk-py[unimport]
+
+      - name: absolufy-imports
+        repo: https://github.com/marcogorelli/absolufy-imports
+
+      - name: ssort
+        repo: https://github.com/bwhmather/ssort
+
+      - name: add-trailing-comma
+        repo: https://github.com/asottile/add-trailing-comma
+
+      - name: blank-line-after-blocks
+        repo: https://github.com/jsh9/blank-line-after-blocks
 
       - name: ruff
         repo: https://github.com/astral-sh/ruff-pre-commit

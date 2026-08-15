@@ -155,6 +155,11 @@ security: ## Secret and Vulnerability Scans
 
 .PHONY: format
 format: ## Python Formatting
+	uv run --extra unimport unimport docs src tests tools
+	uv run --extra absolufy-imports absolufy-imports
+	uv run --extra ssort ssort
+	uv run --extra add-trailing-comma add-trailing-comma
+	uv run --extra blank-line-after-blocks blank-line-after-blocks
 	uv run --extra ruff ruff check --force-exclude
 	uv run --extra ruff ruff format --force-exclude
 

@@ -648,6 +648,68 @@ repos:
   # Python Formatting
   # ----------------------------------------------------------------------------
 
+  - repo: https://github.com/hakancelikdev/unimport
+    rev: 0.11.1
+    hooks:
+      - id: unimport
+        name: unimport
+        description: A linter, formatter for finding and removing unused import statements
+        entry: unimport
+        language: python
+        language_version: python3
+        types:
+          - python
+        additional_dependencies:
+          - gamesheet-sdk-py[unimport]
+        args:
+          - --remove
+
+  - repo: https://github.com/marcogorelli/absolufy-imports
+    rev: v0.3.1
+    hooks:
+      - id: absolufy-imports
+        name: absolufy-imports
+        description: Automatically convert relative imports to absolute
+        entry: absolufy-imports
+        language: python
+        types:
+          - python
+        files: ""
+        minimum_pre_commit_version: 0.15.0
+
+  - repo: https://github.com/bwhmather/ssort
+    rev: 0.17.0
+    hooks:
+      - id: ssort
+        name: ssort
+        description: Sorting top level statements in python files.
+        entry: ssort
+        language: python
+        types:
+          - python
+
+  - repo: https://github.com/asottile/add-trailing-comma
+    rev: v4.0.0
+    hooks:
+      - id: add-trailing-comma
+        name: Add trailing commas
+        description: Automatically add trailing commas to calls and literals.
+        entry: add-trailing-comma
+        language: python
+        types:
+          - python
+
+  - repo: https://github.com/jsh9/blank-line-after-blocks
+    rev: 0.1.4
+    hooks:
+      - id: blank-line-after-blocks
+        name: Add blank lines after code blocks (in .py files)
+        description: Automatically add blank lines after if/for/while/with/try blocks to improve code readability.
+        entry: blank-line-after-blocks
+        language: python
+        types:
+          - python
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.16.2
     hooks:

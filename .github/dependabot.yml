@@ -81,6 +81,9 @@ updates:
       - dependency-name: ty
         versions:
           - '> 0.0.69'
+      - dependency-name: unimport
+        versions:
+          - '> 0.11.1'
       - dependency-name: uv
         versions:
           - '> 0.12.3'

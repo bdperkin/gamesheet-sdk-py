@@ -22,7 +22,7 @@ def test_division_model_ignores_unknown_attributes() -> None:
             "created_at": datetime(2024, 1, 1, tzinfo=UTC),
             "updated_at": datetime(2024, 1, 1, tzinfo=UTC),
             "unexpected_future_attr": "ignored",
-        }
+        },
     )
     assert d.id == DIVISION_ID
     assert d.season_id == SEASON_ID
