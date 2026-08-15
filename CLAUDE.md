@@ -183,8 +183,8 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 
 ## 3. Architecture notes
 
-- **`src/` layout.** Tests import via the installed package; `pyproject.toml` also sets `pythonpath = ["src"]` so `pytest` works without an install, but
-  workflows that need the CLI or Playwright still require `pip install -e ".[all]"` (or at minimum `[dev,pytest]`).
+- **`src/` layout.** Tests import via the installed package — there is no `pythonpath` setting, so `pytest` needs the project installed
+  (`uv run --extra pytest pytest`, or `pip install -e ".[all]"` / at minimum `[dev,pytest]` for anything touching the CLI or Playwright).
 
 - **Typed package.** `py.typed` is shipped (PEP 561) and `[tool.ty]` is configured — all new code must be fully annotated and pass `ty check`.
 
@@ -264,6 +264,11 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   `concurrency.group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}` with `cancel-in-progress: true` to collapse overlapping runs — only the
   latest run continues. The exceptions are `codeql.yml`/`dependency-review.yml` (kept on their original GitHub-supplied triggers), `release.yml` (only
   `push: branches: [main]`), and `comprehensive-tests.yml` (nightly `schedule` trigger plus manual `workflow_dispatch`).
+
+  **`paths-ignore` makes a `pyproject.toml`-only PR unmergeable (gotcha worth preserving):** every gating workflow ignores that path, so a PR touching *only*
+  `pyproject.toml` runs none of them, and all nine required contexts stay unreported — the PR sits at `BLOCKED` with a green check list and no explanation.
+  `tools/depsync/caps.py` documents this for Dependabot, but it applies to any hand-made PR too, and it bites hardest on config-only changes such as restoring a
+  `[tool.pytest]` block. Touch one non-ignored file in the same PR (a matching CLAUDE.md correction usually exists) or the branch can never merge.
 
   **Keep required status checks in sync with job names (gotcha worth preserving):** `main`'s branch protection pins a list of required status-check contexts by
   *exact job name* (`pytest (py3.11)`, `pre-commit (py)`, …). That list lives in **repo settings, not in the tree**, so nothing in a PR diff reveals it and no
