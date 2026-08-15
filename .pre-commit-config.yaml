@@ -842,7 +842,7 @@ repos:
         args:
           - --fix
           - --extra
-          - tools
+          - ty
         pass_filenames: false
         always_run: true
         require_serial: true

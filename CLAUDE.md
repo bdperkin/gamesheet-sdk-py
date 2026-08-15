@@ -302,13 +302,21 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   - **quality** (Code Quality): vulture, interrogate, codespell, blocklint.
   - **architecture** (Dependencies and Complexity Metrics): deptry, xenon (complexity gate — see below). radon is *not* a hook; it runs as workflow jobs (cc /
     raw / mi / hal) and via `make metrics`.
-  - **types** (Static Type Checks): ty (`[tool.ty]`, `--fix --extra tools`).
+  - **types** (Static Type Checks): ty (`[tool.ty]`, `--fix --extra ty`).
   - **commits** (Commit Standards): conventional-pre-commit, pre-commit-ci-config.
 
   Hooks needing the project's runtime deps or tool plugins inside their isolated venv use a single `gamesheet-sdk-py[<extras>]` self-reference, so
   `pyproject.toml`'s `optional-dependencies.*` groups stay the single source of truth. Three hooks currently do: `gamesheet-sdk-py[mdformat]`,
   `gamesheet-sdk-py[unimport]`, `gamesheet-sdk-py[deptry]`. Pyroma is skipped on pre-commit.ci (see above) and runs locally / in GitHub Actions where the
   project's build backend (`hatchling`) is already present.
+
+  **ty environment gotcha worth preserving:** ty reports against whatever is installed, so an incomplete extra does not fail loudly — it silently infers
+  `Unknown` or the wrong type, and `--fix` then acts on that. `optional-dependencies.ty` must keep fanning out to `[pytest,type-stubs]` (and `pytest` to
+  `[tools]`), which is why every invocation is a bare `--extra ty`. This has bitten twice: without `[tools]` everything in `tools/` inferred as `Unknown` and
+  tripped `unsound-return-statement`; without `[type-stubs]`, `requests.Session.headers` typed as `CaseInsensitiveDict[str]` instead of
+  `CaseInsensitiveDict[str | bytes]`, so `ty --fix` deleted a **load-bearing** `cast()` in `common/session.py` as redundant and the CI job — which had no stubs
+  either — then failed on the very line the fix produced. **Never add an extra to one ty invocation only**; a passing local `ty check` against a fat, long-lived
+  `.venv` proves nothing about CI, so reproduce with `uv run --isolated --extra ty ty check`.
 
   **Convergence gotcha worth preserving:** the auto-fixers are ordered `format` (unimport, ruff, …) *before* `types` (ty), so a fix that ty makes cannot be
   cleaned up by an earlier category until the next run. Concretely, `ty --fix` deletes a redundant `cast(...)` call but leaves `from typing import cast`

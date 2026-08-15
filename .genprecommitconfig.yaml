@@ -259,11 +259,16 @@ categories:
             prepends:
               args:
                 - --fix
-                # `uv check` syncs the project environment itself, so without
-                # the tools extra `packaging`/`tomlkit`/`ruamel-yaml` are
-                # unresolvable and everything in tools/ infers as `Unknown`.
+                # `uv check` syncs the project environment itself, so ty only
+                # sees what this extra installs. `ty` fans out to
+                # [pytest,type-stubs] and pytest fans out to [tools], which
+                # covers all three things ty needs: test deps, tools/ deps
+                # (packaging, tomlkit, ruamel-yaml) and the third-party stubs.
+                # Drop any of them and the affected code silently infers as
+                # `Unknown` or as the wrong type — which is how a load-bearing
+                # cast got auto-removed as "redundant".
                 - --extra
-                - tools
+                - ty
 
   commits:
     description: Commit Standards

@@ -172,7 +172,7 @@ quality: ## Code Quality
 
 .PHONY: types
 types: ## Static Type Checks
-	uv run --extra ty --extra tools ty check
+	uv run --extra ty ty check
 
 # =============================================================================
 # Complexity / metrics

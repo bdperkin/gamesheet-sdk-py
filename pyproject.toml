@@ -188,6 +188,7 @@ optional-dependencies.tools = [
   "tomlkit==0.13.3",
 ]
 optional-dependencies.ty = [
+  "gamesheet-sdk-py[pytest,type-stubs]",
   "ty==0.0.69",
 ]
 optional-dependencies.type-stubs = [
