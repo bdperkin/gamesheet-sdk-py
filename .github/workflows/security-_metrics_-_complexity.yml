@@ -46,7 +46,6 @@ permissions:
 
 concurrency:
   cancel-in-progress: true
-
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
@@ -68,11 +67,10 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: ${{ matrix.python-version }}
           enable-cache: true
+          python-version: ${{ matrix.python-version }}
       - name: Run semgrep via uv
         run: uv run --extra semgrep semgrep --config auto .
-
   radon:
     name: radon ${{ matrix.analyzer }} analysis (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
@@ -96,9 +94,9 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: ${{ matrix.python-version }}
           enable-cache: true
+          python-version: ${{ matrix.python-version }}
       - name: Run radon-${{ matrix.analyzer }} via uv
+        run: uv run --extra radon radon "$RADON_ANALYZER" .
         env:
           RADON_ANALYZER: ${{ matrix.analyzer }}
-        run: uv run --extra radon radon "$RADON_ANALYZER" .

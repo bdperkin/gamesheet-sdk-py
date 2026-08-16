@@ -45,7 +45,6 @@ permissions:
 
 concurrency:
   cancel-in-progress: true
-
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
@@ -67,11 +66,10 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: ${{ matrix.python-version }}
           enable-cache: true
+          python-version: ${{ matrix.python-version }}
       - name: Run editorconfig-checker via uv
         run: uv run --extra editorconfig-checker ec
-
   yamllint:
     name: yamllint (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
@@ -90,11 +88,10 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: ${{ matrix.python-version }}
           enable-cache: true
+          python-version: ${{ matrix.python-version }}
       - name: Run yamllint via uv
         run: uv run --extra yamllint yamllint --config-file .yamllint .
-
   pyproject-fmt:
     name: pyproject-fmt (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
@@ -113,11 +110,10 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: ${{ matrix.python-version }}
           enable-cache: true
+          python-version: ${{ matrix.python-version }}
       - name: Run pyproject-fmt via uv
         run: uv run --extra pyproject-fmt pyproject-fmt --check pyproject.toml
-
   validate-pyproject:
     name: validate-pyproject (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
@@ -136,11 +132,10 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: ${{ matrix.python-version }}
           enable-cache: true
+          python-version: ${{ matrix.python-version }}
       - name: Run validate-pyproject via uv
         run: uv run --extra validate-pyproject validate-pyproject pyproject.toml
-
   pyroma:
     name: pyroma (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
@@ -159,7 +154,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: ${{ matrix.python-version }}
           enable-cache: true
+          python-version: ${{ matrix.python-version }}
       - name: Run pyroma via uv
         run: uv run --extra pyroma pyroma --directory --min=10 .

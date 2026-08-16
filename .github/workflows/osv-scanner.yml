@@ -46,7 +46,6 @@
 # ║ • Complements Trivy's pip-audit job (this runs daily + on every push/PR)                 ║
 # ║ • Future: pip-audit native SARIF support coming (currently uses JSON parsing)            ║
 # ╚══════════════════════════════════════════════════════════════════════════════════════════╝
-
 name: Python Dependency Vulnerability Scanner
 
 on:
@@ -68,7 +67,6 @@ permissions:
 
 concurrency:
   cancel-in-progress: true
-
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
@@ -77,7 +75,6 @@ jobs:
     permissions:
       contents: read
       security-events: write  # Required for uploading SARIF results
-
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -85,27 +82,22 @@ jobs:
         with:
           fetch-depth: 0  # Full history for comprehensive scanning
           persist-credentials: false
-
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: '3.11'
-
       - name: Install package with all dependencies
         run: |
           # Install the package with all extras to get full dependency tree
           pip install -e ".[all]"
-
       - name: Run pip-audit vulnerability scan
         id: pip-audit
         run: |
           # Install pip-audit
           pip install pip-audit
-
           # Scan installed packages and generate SARIF
           # Exit code 0: no vulnerabilities, 1: vulnerabilities found
           pip-audit --format=json --output=audit.json || true
-
           # Convert to SARIF format (pip-audit native SARIF support coming soon)
           # For now, check if vulnerabilities were found
           if [ -f audit.json ]; then
@@ -132,7 +124,6 @@ jobs:
           name: pip-audit-results
           path: audit.json
           retention-days: 30
-
       - name: Fail if vulnerabilities found
         if: steps.pip-audit.outputs.scan_status == 'vulnerabilities_found'
         run: |-

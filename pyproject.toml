@@ -193,7 +193,7 @@ optional-dependencies.ty = [
 ]
 optional-dependencies.type-stubs = [
   "types-python-dateutil==2.9.0.20260807",
-  "types-pyyaml==6.0.12.20260724",
+  "types-pyyaml==6.0.12.20260815",
   "types-requests==2.33.0.20260712",
   "types-tabulate==0.10.0.20260508",
 ]
@@ -259,7 +259,7 @@ override-dependencies = [
   "mcp==1.29.0",
 ]
 exclude-newer = "7 days"
-exclude-newer-package.types-setuptools = "2 days"
+exclude-newer-package.types-pyyaml = "1 days"
 package = true
 
 [tool.ruff]

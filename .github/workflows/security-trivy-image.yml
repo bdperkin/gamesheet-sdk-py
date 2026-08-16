@@ -48,7 +48,6 @@
 # ║ • Single-platform build; release.yml builds linux/amd64 + linux/arm64.                   ║
 # ║   OS-package CVEs are identical across both, so amd64 is representative.                 ║
 # ╚══════════════════════════════════════════════════════════════════════════════════════════╝
-
 name: Security - Trivy Container Image Scan
 
 on:
@@ -73,7 +72,6 @@ permissions:
 
 concurrency:
   cancel-in-progress: true
-
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
@@ -88,11 +86,9 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
-
       - name: Build container image
         run: |
           docker build --tag gamesheet-sdk-py:scan-candidate .
-
       - name: Run Trivy image scan (informational)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
         with:
@@ -103,7 +99,6 @@ jobs:
           scan-type: image
           severity: CRITICAL,HIGH,MEDIUM
           trivyignores: .trivyignore.yaml
-
       # SARIF refresh runs BEFORE the gate so that a CRITICAL/HIGH failure still
       # leaves the Security tab up to date rather than silently stale.
       - name: Run Trivy image scan (SARIF)
@@ -117,7 +112,6 @@ jobs:
           output: trivy-image-results.sarif
           scan-type: image
           trivyignores: .trivyignore.yaml
-
       - name: Upload Trivy image results to GitHub Security
         if: github.event_name != 'pull_request'
         uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3  # v4.37.6
@@ -129,7 +123,6 @@ jobs:
           # is NOT shared: GitHub derives ".github/workflows/<file>:<job>", which
           # yields two parallel alert sets for the same image.
           token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Run Trivy image scan (fail on CRITICAL/HIGH)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
         with:

@@ -41,7 +41,6 @@ permissions:
 
 concurrency:
   cancel-in-progress: true
-
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
@@ -63,11 +62,10 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: ${{ matrix.python-version }}
           enable-cache: true
+          python-version: ${{ matrix.python-version }}
       - name: Run pymarkdown via uv
         run: uv run --extra pymarkdown pymarkdown scan .
-
   mdformat:
     name: mdformat (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
@@ -86,7 +84,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: ${{ matrix.python-version }}
           enable-cache: true
+          python-version: ${{ matrix.python-version }}
       - name: Run mdformat via uv
         run: uv run --extra mdformat mdformat --check $(git ls-files '*.md')
