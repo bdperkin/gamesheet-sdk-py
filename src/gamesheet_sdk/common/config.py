@@ -7,9 +7,11 @@ Values are resolved by `pydantic-settings`_ in the following precedence:
 1. Keyword arguments passed to :class:`Config`.
 2. ``GAMESHEET_``-prefixed environment variables.
 3. Built-in defaults defined on the model below.
+
 A TOML config-file source is not loaded yet; it can be added later by overriding
-``settings_customise_sources`` without changing the public API. .. _pydantic-settings:
-https://docs.pydantic.dev/latest/concepts/pydantic_settings/
+``settings_customise_sources`` without changing the public API.
+
+.. _pydantic-settings: https://docs.pydantic.dev/latest/concepts/pydantic_settings/
 """
 
 from __future__ import annotations
@@ -59,34 +61,45 @@ class Config(BaseSettings, env_prefix="GAMESHEET_", extra="ignore"):
         request_retries (int): Automatic retries on 5xx responses and connection errors
         browser_state_path (Path): Where to persist Playwright storage state between runs
         browser_headless (bool): Launch the Playwright browser in headless mode
-    **Examples: **
-    Create a default config that picks up environment variables:
-    .. code-block:: python
-        from gamesheet_sdk import Config
+    Examples:
+        Create a default config that picks up environment variables:
 
-        # Reads GAMESHEET_USERNAME, GAMESHEET_PASSWORD, etc. if set
-        config = Config()
-    Override specific fields programmatically:
-    .. code-block:: python
-        from gamesheet_sdk import Config
+        .. code-block:: python
 
-        config = Config(
-            username="user@example.com",
-            timeout=60.0,
-            browser_headless=False,
-        )
-    Use environment variables to configure the SDK:
-    .. code-block:: bash
-        export GAMESHEET_USERNAME="user@example.com"
-        export GAMESHEET_PASSWORD="secret"  # pragma: allowlist secret
-        export GAMESHEET_TIMEOUT="60.0"
-    Then in Python:
-    .. code-block:: python
-        from gamesheet_sdk import Config
+            from gamesheet_sdk import Config
 
-        config = Config()  # Picks up the env vars above
-        print(config.username)  # "user@example.com"
-        print(config.timeout)  # 60.0
+            # Reads GAMESHEET_USERNAME, GAMESHEET_PASSWORD, etc. if set
+            config = Config()
+
+        Override specific fields programmatically:
+
+        .. code-block:: python
+
+            from gamesheet_sdk import Config
+
+            config = Config(
+                username="user@example.com",
+                timeout=60.0,
+                browser_headless=False,
+            )
+
+        Use environment variables to configure the SDK:
+
+        .. code-block:: bash
+
+            export GAMESHEET_USERNAME="user@example.com"
+            export GAMESHEET_PASSWORD="secret"  # pragma: allowlist secret
+            export GAMESHEET_TIMEOUT="60.0"
+
+        Then in Python:
+
+        .. code-block:: python
+
+            from gamesheet_sdk import Config
+
+            config = Config()  # Picks up the env vars above
+            print(config.username)  # "user@example.com"
+            print(config.timeout)  # 60.0
 
     """
 

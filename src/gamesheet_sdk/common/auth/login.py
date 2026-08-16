@@ -270,7 +270,7 @@ def _await_auth_outcome(
 ) -> None:
     """Poll until both Firebase Auth and token exchange responses arrive, or timeout expires.
 
-    Checks: func:`_auth_round_trip_complete` in a loop with :data:`POLL_INTERVAL_MS` sleeps. Raises on
+    Checks :func:`_auth_round_trip_complete` in a loop with :data:`POLL_INTERVAL_MS` sleeps. Raises on
     explicit auth failure (via ``_auth_round_trip_complete``) or if the deadline passes with no response.
 
     Args:
@@ -398,26 +398,25 @@ def login(
 
 
 class AdminLoginFlow:
-    """Browser-based: class:`~gamesheet_sdk.common.auth.flow.LoginFlow` for the admin dashboard.
+    """Browser-based :class:`~gamesheet_sdk.common.auth.flow.LoginFlow` for the admin dashboard.
 
     Wraps the headless-browser :func:`login` flow in a class that conforms to the
     :class:`~gamesheet_sdk.common.auth.flow.LoginFlow` protocol.  After the browser session closes (persisting
     localStorage to disk), the access and refresh tokens are read back and returned so callers can use them
     without touching the state file directly.
 
-    **Example: **
+    Example:
+        Authenticating with the admin dashboard:
 
-    .. code-block:: python
+        .. code-block:: python
 
-        from gamesheet_sdk.common.auth.login import AdminLoginFlow
-        from gamesheet_sdk.common.config import Config
+            from gamesheet_sdk.common.auth.login import AdminLoginFlow
+            from gamesheet_sdk.common.config import Config
 
-        config = Config()
-        flow = AdminLoginFlow(config)
-        tokens = flow.authenticate(email="user@example.com")
-        print(tokens["access"])
-
-    Store the configuration for later browser-session creation.
+            config = Config()
+            flow = AdminLoginFlow(config)
+            tokens = flow.authenticate(email="user@example.com")
+            print(tokens["access"])
 
     Args:
         config (Config): SDK configuration (credentials, URLs, storage paths).

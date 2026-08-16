@@ -10,11 +10,11 @@ module talks to the GameSheet JSON:API at ``/api/associations`` directly with th
 obtained (typically by reading the SPA's ``accessToken`` from the saved browser storage state via
 :func:`gamesheet_sdk.common.auth.load_access_token`).
 
-**Examples: **
+Example:
+    Retrieve all associations accessible by the authenticated user:
 
-Retrieve all associations accessible by the authenticated user:
+    .. code-block:: python
 
-.. code-block:: python
         from gamesheet_sdk.common.auth import load_access_token
         from gamesheet_sdk.common.session import Session
         from gamesheet_sdk.admin.associations import list_associations
@@ -31,6 +31,7 @@ Retrieve all associations accessible by the authenticated user:
             print(f"{assoc.title} (ID: {assoc.id})")
             print(f"  Created: {assoc.created_at}")
             print(f"  Logo: {assoc.logo or '(none)'}")
+
 """
 
 from __future__ import annotations

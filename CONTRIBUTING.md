@@ -192,25 +192,36 @@ make test-cov
 
 ### 5.3. Project Structure
 
-The project uses a `src/` layout with the following structure:
+The project uses a `src/` layout organized into a clean three-pillar architecture:
 
 - `src/gamesheet_sdk/` - Main package code
-  - `auth/` - Authentication package (login, sessions, tokens)
-  - `cli/` - Command-line interface package
-    - `commands/` - Individual CLI command modules
-    - `shared/` - Shared CLI utilities
-  - `games/` - Games domain package
-  - `roster/` - Roster management package
-  - `shared/` - Shared utilities package
-  - Domain modules (associations.py, divisions.py, leagues.py, seasons.py, teams.py, etc.)
-- `tests/` - Test suite
-  - `auth/` - Authentication tests
-  - `cli/` - CLI command tests
-  - `fixtures/` - Shared test fixtures
-  - `helpers/` - Test helper modules
-  - `integration/` - Integration tests
-  - `unit/` - Unit tests by domain
-- `docs/` - Sphinx documentation (follows Diataxis framework)
+  - `__init__.py` - Root public exports and SDK version
+  - `common/` - Shared across admin and teams pillars
+    - `auth/` - Authentication protocol (`LoginFlow`), credentials, tokens, session base
+    - `cli/` - Shared rich CLI components (`ResourceGroup`, formatters, shell completion)
+    - `shared/` - Common constants and HTTP helpers
+    - `browser.py`, `config.py`, `constants.py`, `errors.py`, `exceptions.py`, `output.py`, `security.py`, `session.py`
+  - `admin/` - Admin dashboard domain logic and CLI (`gamesheet-admin`)
+    - `cli/` - Admin Click command tree (`associations`, `divisions`, `games`, `ipad_keys`, `leagues`, `locations`, `login`, `referees`, `roster`, `seasons`,
+      `teams`)
+    - `games/` - Scheduled, completed, and bracket games domain logic
+    - `roster/` - Season and team roster management (players and coaches)
+    - `shared/` - JSON:API parser and admin-specific utilities
+    - Domain modules (`associations.py`, `divisions.py`, `ipad_keys.py`, `leagues.py`, `referees.py`, `seasons.py`, `teams.py`)
+  - `teams/` - Teams dashboard domain logic and CLI (`gamesheet-teams`)
+    - `cli/` - Teams Click command tree (`login`, `lookups`, `completion`)
+    - `shared/` - Teams-specific constants (`TEAMS_API_GATEWAY`, endpoints)
+    - `login.py` - HTTP-only Firebase + Teams token exchange auth flow
+    - `lookups.py` - Public lookup domain models and client
+    - `session.py` - `TeamsAuthenticatedSession`
+- `tests/` - Comprehensive test suite (100% coverage enforced)
+  - `admin/` - Admin domain, model, and CLI tests
+  - `common/` - Common auth, CLI, config, and session tests
+  - `teams/` - Teams domain, auth, and CLI tests
+  - `fixtures/` - VCR cassettes and JSON fixtures
+  - `tools/` - Developer tooling tests
+- `docs/` - Sphinx documentation following the Diataxis framework
+- `tools/` - Development helper tooling (`depsync`, `precommit`, `shared`)
 
 ## 6. Code Style Guidelines
 
@@ -228,7 +239,7 @@ The project uses a `src/` layout with the following structure:
 
 #### 6.1.2. Formatters (Auto-fix)
 
-The project uses Ruff for code formatting and linter fixes:
+The project uses Ruff, yamlfix, and pyproject-fmt for automated formatting:
 
 - `ruff format` - fast Python code formatter (line length: 110)
 - `ruff check --fix` - automated linter fixes and import sorting
@@ -236,7 +247,7 @@ The project uses Ruff for code formatting and linter fixes:
 Apply all formatters with:
 
 ```bash
-make fix
+make format
 ```
 
 #### 6.1.3. Linters
@@ -245,6 +256,17 @@ The project uses comprehensive linting:
 
 - **ruff** with ALL rule groups enabled (Google docstring style, PEP 8, complexity, etc.)
 - **blocklint** for inclusive language
+- **codespell** for spell checking
+- **interrogate** for 100% docstring coverage enforcement
+- **vulture** for dead code detection
+
+Run linting and quality gates with:
+
+```bash
+make quality
+# or run all repository checks:
+make checks
+```
 
 #### 6.1.4. Type Checking
 
@@ -254,8 +276,8 @@ All code must pass static type checking via Astral `ty`:
 # ty check
 uv run --extra ty ty check
 
-# Or use the Makefile
-make typecheck
+# Or use the Makefile shortcut
+make types
 ```
 
 **Requirements:**
@@ -305,7 +327,7 @@ pytest -m "not browser"
 pytest tests/test_init_coverage.py
 
 # Run specific test
-pytest tests/test_init_coverage.py::test_version_is_string
+pytest tests/test_init_coverage.py::test_version_fallback_when_package_not_found
 
 # Use Makefile shortcuts
 make test        # full suite
@@ -326,7 +348,7 @@ make test-cov    # with coverage
 
 ### 8.1. Docstring Coverage
 
-**100% docstring coverage is required** for all public APIs.
+**100% docstring coverage is required** for all modules, classes, methods, and functions.
 
 Enforced via `interrogate` with `fail-under = 100`:
 
@@ -345,15 +367,21 @@ Example:
 
 ```python
 def example_function(arg1: str, arg2: int) -> bool:
-    """
-    Short one-line summary of what the function does.
+    """Short one-line summary of what the function does.
 
-    Longer description if needed, explaining the purpose, behavior, and any important details.
+    Longer description if needed, explaining the purpose, behavior,
+    and any important details.
 
-    :param arg1: Description of arg1
-    :param arg2: Description of arg2
-    :return: Description of return value
-    :raises ValueError: When and why this exception is raised
+    Args:
+        arg1 (str): Description of arg1.
+        arg2 (int): Description of arg2.
+
+    Returns:
+        bool: Description of return value.
+
+    Raises:
+        ValueError: When and why this exception is raised.
+
     """
     pass
 ```
@@ -455,9 +483,9 @@ Update your code to convert to list if needed: list(list_seasons(...))
 
 1. Ensure all tests pass: `pytest --cov`
 2. Ensure 100% test coverage: `pytest --cov` (coverage report will show any gaps)
-3. Run quality gates: `pre-commit run --all-files`
+3. Run quality gates: `pre-commit run --all-files` (or `make quality`)
 4. Check complexity: `make metrics` (all blocks must be grade A)
-5. Ensure type checking passes: `make type`
+5. Ensure type checking passes: `make types`
 6. Update documentation if needed
 7. Ensure all commits follow Conventional Commits format
 

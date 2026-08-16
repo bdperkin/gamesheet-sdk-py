@@ -221,12 +221,8 @@ class BrowserSession:
     def _safe_save(self: BrowserSession) -> None:
         """Persist storage state, demoting disk errors to a warning.
 
-        Calls: meth:`save` and logs any :exc:`OSError` as a warning instead of propagating it, ensuring
+        Calls :meth:`save` and logs any :exc:`OSError` as a warning instead of propagating it, ensuring
         cleanup can proceed even if state persistence fails.
-
-        Returns:
-            None: None
-
         """
         try:
             self.save()

@@ -88,7 +88,7 @@ The package installs two console scripts: `gamesheet-admin` (admin dashboard) an
 
 ```console
 (.venv) $ gamesheet-admin --version
-gamesheet-admin 0.0.1
+gamesheet-admin 0.4.27
 ```
 
 Then ask for its help text:
@@ -112,11 +112,16 @@ Options:
 Commands:
   associations  List, view, and manage associations
   completion    Print shell-completion script for bash / zsh / fish
+  divisions     List, view, and manage divisions
+  games         List scheduled, completed, and bracket games
   ipad-keys     Retrieve Scoring Access Keys for an association
   leagues       List, view, and manage leagues
+  locations     List and manage locations
   login         Authenticate against GameSheet and store tokens
-  season        Get detailed information about a specific season
-  seasons       List seasons for a league
+  referees      List, view, and manage referees
+  roster        Manage season-level players and coaches
+  seasons       List, view, and manage seasons
+  teams         List, view, and manage teams
 ```
 
 If the command prints output and exits cleanly, the CLI is installed correctly.
@@ -127,9 +132,9 @@ The SDK also imports as a Python package. Start the interpreter and ask it for t
 
 ```console
 (.venv) $ python
->>> from gamesheet_sdk import __version__
->>> __version__
-'0.0.1'
+>>> import gamesheet_sdk
+>>> gamesheet_sdk.__version__
+'0.4.27'
 >>> exit()
 ```
 
@@ -153,8 +158,8 @@ The password prompt hides your input for security. You can also provide it via t
 variable, but the interactive prompt is safer.
 ```
 
-Your authentication tokens are now saved to `~/.local/share/gamesheet-sdk-py/browser_state` (on Linux; the location varies by OS). Subsequent commands will use
-these tokens automatically — no need to log in again until they expire.
+Your authentication tokens and browser state are saved to `$XDG_CACHE_HOME/gamesheet-sdk-py/` (or `~/.cache/gamesheet-sdk-py/` on Linux). Subsequent commands
+will use these tokens automatically — no need to log in again until they expire.
 
 If you do not have a GameSheet account yet, you can skip this step. The CLI and Python API verification steps above confirm the SDK is working; you can return
 here when you are ready to authenticate.

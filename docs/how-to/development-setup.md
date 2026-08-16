@@ -221,18 +221,21 @@ uv run --extra docs sphinx-build -b html docs docs/_build/html
 make help
 
 # Common workflows
-make install       # uv sync --extra dev + Playwright setup
+make install       # uv sync --extra dev
+make install-all   # uv sync --all-extras
 make test          # uv run pytest
 make test-fast     # uv run pytest -m "not browser"
 make test-cov      # uv run pytest --cov
-make lint          # uv run pre-commit run --all-files
-make typecheck     # uv run --extra ty ty check
-make fix           # auto-format code
+make format        # auto-format Python, YAML, pyproject
+make quality       # dead code, docstring, spelling, and language checks
+make types         # uv run --extra ty ty check
+make checks        # run all pre-commit hooks
 make metrics       # radon complexity analysis
 make docs          # build HTML docs
 make docs-serve    # live-reload docs
+make docs-lint     # lint documentation files
 make clean         # remove build artifacts
-make clean-all     # aggressive clean (includes .uv, .venv)
+make clean-all     # aggressive clean (includes .venv)
 ```
 
 ## 8. Committing Changes

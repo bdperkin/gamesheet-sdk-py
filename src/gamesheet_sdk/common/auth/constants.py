@@ -4,50 +4,62 @@
 """Authentication-related constants and configuration values.
 
 This module defines all authentication constants used throughout the :mod:`gamesheet_sdk.common.auth` package,
-including URL paths, endpoints, and timing parameters for login flows and token operations. Constants
---------- LOGIN_PATH : str Path for the login form relative to the base URL. POST_LOGIN_PATH : str Default
-destination after successful authentication. FIREBASE_AUTH_HOST : str Firebase Authentication service
-hostname. FIREBASE_AUTH_PATH : str Firebase Authentication endpoint path. TOKEN_EXCHANGE_PATH : str GameSheet
-token exchange API endpoint. REFRESH_URL : str Full URL for refreshing access tokens. REFRESH_TIMEOUT_S :
-float Timeout in seconds for token refresh operations. DEFAULT_TIMEOUT_S : float Default timeout in seconds
-for HTTP requests. POLL_INTERVAL_MS : int Polling interval in milliseconds for browser state checks.
-POST_LOGIN_NAVIGATION_TIMEOUT_MS : int Timeout in milliseconds for post-login navigation.
-FORM_DETECTION_TIMEOUT_MS : int Timeout in milliseconds for detecting the login form. Examples -------- Using
-authentication constants in login flows:
-.. code-block:: python
-    from gamesheet_sdk.common.auth.constants import (
-        LOGIN_PATH,
-        POST_LOGIN_PATH,
-        DEFAULT_TIMEOUT_S,
-    )
+including URL paths, endpoints, and timing parameters for login flows and token operations.
 
-    # Construct login URL
-    login_url = f"{base_url}{LOGIN_PATH}"
-    # Use timeout in HTTP request
-    response = session.get(login_url, timeout=DEFAULT_TIMEOUT_S)
-Using timeout constants with Playwright:
-.. code-block:: python
-    from gamesheet_sdk.common.auth.constants import (
-        FORM_DETECTION_TIMEOUT_MS,
-        POST_LOGIN_NAVIGATION_TIMEOUT_MS,
-    )
+Attributes:
+    LOGIN_PATH (str): Path for the login form relative to the base URL.
+    POST_LOGIN_PATH (str): Default destination after successful authentication.
+    FIREBASE_AUTH_HOST (str): Firebase Authentication service hostname.
+    FIREBASE_AUTH_PATH (str): Firebase Authentication endpoint path.
+    FIREBASE_AUTH_URL (str): Full Firebase Authentication REST URL.
+    TOKEN_EXCHANGE_PATH (str): GameSheet token exchange API endpoint.
+    TOKEN_EXCHANGE_URL (str): Full URL for token exchange.
+    REFRESH_URL (str): Full URL for refreshing access tokens.
+    REFRESH_TIMEOUT_S (float): Timeout in seconds for token refresh operations.
+    DEFAULT_TIMEOUT_S (float): Default timeout in seconds for HTTP requests.
+    POLL_INTERVAL_MS (int): Polling interval in milliseconds for browser state checks.
+    POST_LOGIN_NAVIGATION_TIMEOUT_MS (int): Timeout in milliseconds for post-login navigation.
+    FORM_DETECTION_TIMEOUT_MS (int): Timeout in milliseconds for detecting the login form.
 
-    # Wait for login form to appear
-    page.wait_for_selector("#email", timeout=FORM_DETECTION_TIMEOUT_MS)
-    # Wait for post-login navigation
-    page.wait_for_url(pattern, timeout=POST_LOGIN_NAVIGATION_TIMEOUT_MS)
-Using Firebase and token exchange constants:
-.. code-block:: python
-    from gamesheet_sdk.common.auth.constants import (
-        FIREBASE_AUTH_HOST,
-        FIREBASE_AUTH_PATH,
-        TOKEN_EXCHANGE_PATH,
-    )
+Examples:
+    Using authentication constants in login flows:
 
-    # Build Firebase auth URL
-    firebase_url = f"https://{FIREBASE_AUTH_HOST}{FIREBASE_AUTH_PATH}"
-    # Build token exchange URL
-    token_url = f"{base_url}{TOKEN_EXCHANGE_PATH}"
+    .. code-block:: python
+
+        from gamesheet_sdk.common.auth.constants import (
+            DEFAULT_TIMEOUT_S,
+            LOGIN_PATH,
+            POST_LOGIN_PATH,
+        )
+
+        login_url = f"{base_url}{LOGIN_PATH}"
+        response = session.get(login_url, timeout=DEFAULT_TIMEOUT_S)
+
+    Using timeout constants with Playwright:
+
+    .. code-block:: python
+
+        from gamesheet_sdk.common.auth.constants import (
+            FORM_DETECTION_TIMEOUT_MS,
+            POST_LOGIN_NAVIGATION_TIMEOUT_MS,
+        )
+
+        page.wait_for_selector("#email", timeout=FORM_DETECTION_TIMEOUT_MS)
+        page.wait_for_url(pattern, timeout=POST_LOGIN_NAVIGATION_TIMEOUT_MS)
+
+    Using Firebase and token exchange constants:
+
+    .. code-block:: python
+
+        from gamesheet_sdk.common.auth.constants import (
+            FIREBASE_AUTH_HOST,
+            FIREBASE_AUTH_PATH,
+            TOKEN_EXCHANGE_PATH,
+        )
+
+        firebase_url = f"https://{FIREBASE_AUTH_HOST}{FIREBASE_AUTH_PATH}"
+        token_url = f"{base_url}{TOKEN_EXCHANGE_PATH}"
+
 """
 
 from __future__ import annotations

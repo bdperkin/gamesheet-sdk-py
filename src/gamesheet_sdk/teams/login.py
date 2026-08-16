@@ -70,7 +70,7 @@ def _firebase_sign_in(email: str, password: str, *, timeout: float) -> str:
         timeout (float): Request timeout in seconds.
 
     Returns:
-        Any: Firebase ID token string.
+        str: Firebase ID token string.
 
     Raises:
         AuthenticationError: If Firebase rejects the credentials.
@@ -128,7 +128,7 @@ def refresh_access_token(
     Args:
         refresh_token (str): The refresh token to exchange for new tokens.
         timeout (float): Request timeout in seconds. Defaults to
-            :data:`~gamesheet_sdk.common.auth.constants.DEFAULT_TIMEOUT_ S`.
+            :data:`~gamesheet_sdk.common.auth.constants.DEFAULT_TIMEOUT_S`.
 
     Returns:
         dict[str, str]: Dictionary with keys ``access`` and ``refresh``, each containing the corresponding
@@ -159,24 +159,23 @@ def refresh_access_token(
 
 
 class TeamsLoginFlow:
-    """HTTP-based: class:`~gamesheet_sdk.common.auth.flow.LoginFlow` for the teams dashboard.
+    """HTTP-based :class:`~gamesheet_sdk.common.auth.flow.LoginFlow` for the teams dashboard.
 
     Authenticates via two sequential HTTP calls — Firebase REST ``signInWithPassword`` followed by a token
     exchange against the teams API gateway — without requiring a headless browser.
 
-    **Example: **
+    Example:
+        Authenticating with the teams dashboard:
 
-    .. code-block:: python
+        .. code-block:: python
 
-        from gamesheet_sdk.common.config import Config
-        from gamesheet_sdk.teams.login import TeamsLoginFlow
+            from gamesheet_sdk.common.config import Config
+            from gamesheet_sdk.teams.login import TeamsLoginFlow
 
-        config = Config(base_url="https://teams.gamesheet.app")
-        flow = TeamsLoginFlow(config)
-        tokens = flow.authenticate(email="user@example.com", password="secret")
-        print(tokens["access"])
-
-    Store the configuration for credential resolution and token persistence.
+            config = Config(base_url="https://teams.gamesheet.app")
+            flow = TeamsLoginFlow(config)
+            tokens = flow.authenticate(email="user@example.com", password="secret")
+            print(tokens["access"])
 
     Args:
         config (Config): SDK configuration (credentials, URLs, storage paths).

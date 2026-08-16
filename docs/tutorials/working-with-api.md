@@ -50,13 +50,17 @@ Open it in your editor. You'll add code to it step by step.
 
 ## 3. Step 2 — Import the SDK modules
 
-Start with the imports. You need three modules: `auth` for loading the access token, `session` for making authenticated HTTP requests, and `associations` for
-the association-specific logic.
+Start with the imports. You can import all public domain functions, models, and session classes directly from `gamesheet_sdk`:
 
 ```python
-from gamesheet_sdk.auth import load_access_token
-from gamesheet_sdk.session import Session
-from gamesheet_sdk.associations import list_associations
+from gamesheet_sdk import (
+    AuthenticatedSession,
+    Config,
+    list_associations,
+    load_access_token,
+    load_refresh_token,
+    save_tokens,
+)
 ```
 
 Add this to the top of `fetch_associations.py`.
@@ -66,48 +70,58 @@ Add this to the top of `fetch_associations.py`.
 The `load_access_token()` function reads the saved token from disk (the one you created in {doc}`authentication-workflow`). Call it and store the result:
 
 ```python
-token = load_access_token()
+config = Config()
+access = load_access_token(config)
+refresh = load_refresh_token(config)
 ```
 
-This will raise an `AuthenticationError` if the token file doesn't exist. If that happens, run `gamesheet-admin login` first.
+If you haven't authenticated yet, run `gamesheet-admin login` first.
 
 ## 5. Step 4 — Create an authenticated session
 
-The `Session` class is a thin wrapper around `requests.Session` with a `set_bearer_token()` method. Create an instance and attach the token:
+Use `AuthenticatedSession` as a context manager. It manages bearer headers and automatic token refresh:
 
 ```python
-session = Session(base_url="https://gamesheet.app")
-session.set_bearer_token(token)
+with AuthenticatedSession(
+    config,
+    access_token=access or "",
+    refresh_token=refresh or "",
+    on_refresh=lambda tokens: save_tokens(config, **tokens),
+) as session:
+    associations = list_associations(session)
+    for assoc in associations:
+        print(f"{assoc.title} (ID: {assoc.id})")
 ```
 
 Now the session carries your credentials on every request.
 
 ## 6. Step 5 — Fetch and print associations
 
-Call `list_associations()` with the session, then loop over the results and print them:
+Your complete starter script in `fetch_associations.py` looks like this:
 
 ```python
-associations = list_associations(session)
+from gamesheet_sdk import (
+    AuthenticatedSession,
+    Config,
+    list_associations,
+    load_access_token,
+    load_refresh_token,
+    save_tokens,
+)
 
-for assoc in associations:
-    print(f"{assoc.title} (ID: {assoc.id})")
-```
+config = Config()
+access = load_access_token(config)
+refresh = load_refresh_token(config)
 
-Your script should now look like this:
-
-```python
-from gamesheet_sdk.auth import load_access_token
-from gamesheet_sdk.session import Session
-from gamesheet_sdk.associations import list_associations
-
-token = load_access_token()
-session = Session(base_url="https://gamesheet.app")
-session.set_bearer_token(token)
-
-associations = list_associations(session)
-
-for assoc in associations:
-    print(f"{assoc.title} (ID: {assoc.id})")
+with AuthenticatedSession(
+    config,
+    access_token=access or "",
+    refresh_token=refresh or "",
+    on_refresh=lambda tokens: save_tokens(config, **tokens),
+) as session:
+    associations = list_associations(session)
+    for assoc in associations:
+        print(f"{assoc.title} (ID: {assoc.id})")
 ```
 
 ## 7. Step 6 — Run the script

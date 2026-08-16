@@ -53,7 +53,7 @@ The admin CLI provides full resource management for the GameSheet admin dashboar
 
 ## 3. Teams CLI
 
-The teams CLI targets the GameSheet teams dashboard. Login is not yet implemented.
+The teams CLI targets the GameSheet teams dashboard, providing HTTP-only authentication and access to team management and public lookup data.
 
 ```{eval-rst}
 .. click:: gamesheet_sdk.teams.cli.main:cli
@@ -160,6 +160,8 @@ exceptions:
 - {class}`click.exceptions.Abort` — returns 1 (after printing "Aborted.").
 - {class}`SystemExit` — mapped to its code (0 if None, 1 if non-integer, otherwise the code itself).
 
+(environment-variables)=
+
 ## 6. Environment Variables
 
 Both CLIs read configuration from `GAMESHEET_`-prefixed environment variables via {class}`gamesheet_sdk.common.config.Config` (implemented with
@@ -221,7 +223,7 @@ Future releases may add support for a `~/.config/gamesheet-sdk-py/config.toml` f
 3. Configuration file
 4. Field defaults (lowest priority)
 
-For now, use environment variables or CLI flags to configure the SDK. See the {ref}`reference/cli:Environment Variables` section above for details.
+For now, use environment variables or CLI flags to configure the SDK. See the {ref}`environment-variables` section above for details.
 
 ## 8. See also
 

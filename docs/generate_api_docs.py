@@ -58,6 +58,9 @@ def main() -> int:
         )
         return result.returncode
 
+    for rst_file in OUTPUT_DIR.glob("*.rst"):
+        rst_file.touch()
+
     rprint(
         f"[bold green]✓[/bold green] API documentation generated in [cyan]{OUTPUT_DIR}[/cyan]",
     )

@@ -3,23 +3,25 @@
 
 """Login flow protocol for pluggable authentication strategies.
 
-Defines: class:`LoginFlow`, the structural interface that both admin (browser-based) and teams (HTTP-only)
+Defines :class:`LoginFlow`, the structural interface that both admin (browser-based) and teams (HTTP-only)
 authentication implement. Downstream code that needs to authenticate — CLI commands, session construction
 helpers — depends on this protocol rather than on a concrete login function, so the auth mechanism can vary
 per pillar without changing the consumer.
 
-**Example — using a LoginFlow implementation:**
+Example:
+    Using a :class:`LoginFlow` implementation:
 
-.. code-block:: python
+    .. code-block:: python
 
-    from gamesheet_sdk.common.auth.flow import LoginFlow
-    from gamesheet_sdk.common.auth.tokens import save_tokens
-    from gamesheet_sdk.common.config import Config
+        from gamesheet_sdk.common.auth.flow import LoginFlow
+        from gamesheet_sdk.common.auth.tokens import save_tokens
+        from gamesheet_sdk.common.config import Config
 
 
-    def run_login(flow: LoginFlow, config: Config) -> None:
-        tokens = flow.authenticate(email="user@example.com")
-        save_tokens(config, **tokens)
+        def run_login(flow: LoginFlow, config: Config) -> None:
+            tokens = flow.authenticate(email="user@example.com")
+            save_tokens(config, **tokens)
+
 """
 
 from __future__ import annotations

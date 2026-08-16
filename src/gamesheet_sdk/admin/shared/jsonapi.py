@@ -49,7 +49,7 @@ def parse_jsonapi_resource(
     Flattens a JSON:API resource object into a simple dict by merging the id, attributes, and optionally
     extracting relationship IDs.
 
-    **JSON: API structure:**
+    **JSON:API structure:**
 
     .. code-block:: json
 
@@ -60,7 +60,7 @@ def parse_jsonapi_resource(
             "relationships": {"association": {"data": {"id": "456"}}}
         }
 
-    **Result: **
+    **Result:**
 
     .. code-block:: python
 
