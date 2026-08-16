@@ -205,10 +205,18 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   green. Add a stub only when ty actually reports something unresolved, and delete one the moment its module stops being imported — an unused stub is not inert,
   it is a second, staler definition of a package waiting to shadow the real one.
 
-  **`syncdeps --sync-types` will put them all back.** It adds `types-<pkg>` for every resolved dependency whose stub merely *exists on PyPI*
-  (`tools/depsync/typestubs.py:_discover_available_types`), with no check for whether the runtime ships `py.typed` or whether any file imports it — which is how
-  the group reached 34. The flag is off by default; if you do run it, review what it adds against the two rules above rather than committing the result
-  wholesale.
+  **`syncdeps --sync-types` enforces those two rules itself (since 2026-08-16).** It used to add `types-<pkg>` for every resolved dependency whose stub merely
+  *existed on PyPI*, with no check for `py.typed` or for whether anything imports the module — which is how the group reached 34. Two gates in
+  `tools/depsync/typedness.py` now run *before* the index is queried: a candidate must have one of its top-level modules imported under `src/`, `tests/`,
+  `tools/` or `docs/` (collected with `ast`, so a function-level import counts and a relative import does not), and its runtime distribution must not ship
+  `py.typed`. Module names come from installed metadata (`top_level.txt`, else the recorded file list), never from the distribution name — `pyyaml` provides
+  `yaml`. Against the current tree that gates out 197 of 203 candidates and proposes zero additions.
+
+  The gates are **asymmetric on purpose, and the asymmetry is the load-bearing part:** an undeterminable answer rejects an *addition* (not adding is cheap — ty
+  reports the unresolved import and you add it deliberately) but keeps an existing stub (a distribution absent from the env `syncdeps` runs in has no
+  authoritative module list, and deleting a load-bearing stub on a guessed name breaks ty in CI). And only the imports rule drives removals: `py.typed` is
+  add-time only, so `types-requests` — deliberately kept, see below — survives a sync. Rejections are never silent: a per-reason count prints on stdout and
+  `--log-level debug` lists every one. Still review what a run proposes; the gates narrow the input, they do not replace the judgment.
 
   **When a stub and an inline `py.typed` disagree, check which matches runtime — the stub is sometimes right.** `types-requests` shadows requests' own
   annotations and is kept on purpose: requests declares `Session.headers` as `CaseInsensitiveDict[str]` and typeshed as `CaseInsensitiveDict[str | bytes]`, and
