@@ -143,6 +143,13 @@ vulnerabilities:
     statement: libexpat out-of-bounds write in storeRawNames; XML never parsed.
     expired_at: 2027-01-27
 
+  - id: CVE-2026-72522
+    statement: >-
+      MEDIUM: libexpat Denial of Service due to incorrect Unicode surrogate
+      handling in XML parser. No fixed version in Debian trixie. Not reachable:
+      the SDK never parses XML.
+    expired_at: 2027-02-16
+
   # ----------------------------------------------------------------------------
   # libasound2 — ALSA audio library (not used by this project)
   # ----------------------------------------------------------------------------
@@ -274,6 +281,13 @@ vulnerabilities:
       smartcards.
     expired_at: 2027-01-27
 
+  - id: CVE-2026-18938
+    statement: >-
+      MEDIUM: p11-kit integer overflow in RPC attribute-array length calculation
+      on 32-bit systems. No fixed version in Debian trixie. Not reachable: the
+      SDK runs on 64-bit platforms and never uses PKCS#11 tokens or RPC.
+    expired_at: 2027-02-16
+
   # ----------------------------------------------------------------------------
   # LLVM — Compiler infrastructure (build-time only)
   # ----------------------------------------------------------------------------
@@ -318,6 +332,20 @@ vulnerabilities:
       GLX contextTags use-after-free in CommonMakeCurrent(); no untrusted X11 input.
     expired_at: 2027-01-27
 
+  - id: CVE-2026-44950
+    statement: >-
+      LOW: libxfont2 privilege escalation via heap buffer overflow in Font
+      Server Client. No fixed version in Debian trixie. Not reachable: false
+      untrusted font server connections or font parsing.
+    expired_at: 2027-08-16
+
+  - id: CVE-2026-59679
+    statement: >-
+      LOW: libxfont2 Font Server Client encoding[] out-of-bounds read/write. No
+      fixed version in Debian trixie. Not reachable: no untrusted font server
+      connections or font parsing.
+    expired_at: 2027-08-16
+
   # ----------------------------------------------------------------------------
   # Perl — Perl language runtime (build/system dependency)
   # ----------------------------------------------------------------------------
@@ -327,6 +355,19 @@ vulnerabilities:
       HTTP::Tiny forwards credential headers on redirect. Not reachable: the SDK
       makes HTTP requests via Python `requests`, not Perl.
     expired_at: 2027-01-27
+
+  - id: CVE-2026-15534
+    statement: >-
+      LOW/unrated: perl-base out-of-bounds heap reads and writes. No fixed
+      version in Debian trixie. Not reachable: Perl is never invoked by the SDK.
+    expired_at: 2027-02-16
+
+  - id: CVE-2026-19487
+    statement: >-
+      LOW/unrated: perl-base incorrect regular expression compilation/execution.
+      No fixed version in Debian trixie. Not reachable: Perl is never invoked by
+      the SDK.
+    expired_at: 2027-02-16
 
   - id: CVE-2026-13221
     statement: >-
@@ -542,6 +583,21 @@ vulnerabilities:
       affected, no fixed version. Migrated 2026-07-27 from a GitHub "won't fix"
       dismissal; not individually re-triaged.
     expired_at: 2027-01-27
+
+  - id: CVE-2026-6368
+    statement: >-
+      MEDIUM: libc-bin, libc6 — glibc process abort due to invalid memory in
+      wordexp. No fixed version in Debian trixie. Not reachable: the SDK does not
+      invoke glibc wordexp.
+    expired_at: 2027-02-16
+
+  - id: CVE-2026-6791
+    statement: >-
+      MEDIUM: libc-bin, libc6 — glibc Denial of Service via stack exhaustion
+      during tilde expansion. No fixed version in Debian trixie. Not reachable:
+      the SDK uses Python pathlib and does not invoke glibc wordexp/glob tilde
+      expansion on untrusted input.
+    expired_at: 2027-02-16
 
   - id: CVE-2026-18477
     statement: >-
@@ -1563,7 +1619,14 @@ vulnerabilities:
 #     below 2 deliberately: mcp 2.x removes `mcp.server.fastmcp`, which
 #     `semgrep/cli.py` imports unconditionally.
 #
+# Reviewed: 2026-08-16  —  177 rules total
+#   - Added 8 rules for base-image OS/Playwright packages:
+#     CVE-2026-18938 (libp11-kit0), CVE-2026-44950 (libxfont2),
+#     CVE-2026-59679 (libxfont2), CVE-2026-6368 (libc6/libc-bin),
+#     CVE-2026-6791 (libc6/libc-bin), CVE-2026-72522 (libexpat1),
+#     CVE-2026-15534 (perl-base), CVE-2026-19487 (perl-base).
+#
 # Expiry tiers in force: 25 rules due 2026-10-27 or 2026-11-02,
-#                        72 due 2027-01-27 or 2027-02-02, 70 due 2027-07-27.
+#                        78 due 2027-01-27 or 2027-02-16, 74 due 2027-07-27 or 2027-08-16.
 # Next backstop review: 2026-10-27 (when the CRITICAL/HIGH tier expires)
 # ==============================================================================

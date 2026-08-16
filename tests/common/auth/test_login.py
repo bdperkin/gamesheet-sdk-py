@@ -5,11 +5,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock, patch
 
 import pytest
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+from pydantic import SecretStr
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 from gamesheet_sdk import AuthenticationError, Config, login
 from gamesheet_sdk.common.auth.constants import LOGIN_PATH, POST_LOGIN_PATH
@@ -17,12 +21,6 @@ from gamesheet_sdk.common.auth.login import AdminLoginFlow
 from tests.common.auth.conftest import _FIREBASE_URL, _TOKEN_URL, _make_response
 from tests.helpers import TEST_EMAIL_MINIMAL
 
-if TYPE_CHECKING:
-    # Imported for typing only, and referenced as a string in cast() below:
-    # literals, so CodeQL reports this as py/unused-import. Do not remove it.
-    from collections.abc import Callable
-
-    from pydantic import SecretStr
 # ---------- credential validation ----------------------------------------
 
 
@@ -60,7 +58,7 @@ def test_login_reads_credentials_from_config(
     fake_browser_session.config = Config(
         base_url="https://test.example",
         username="bob@example.com",
-        password=cast("SecretStr", "s3cret"),
+        password=SecretStr("s3cret"),
     )
     fake_browser_session.goto.return_value.staged_responses = [
         _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
@@ -89,7 +87,7 @@ def test_login_args_override_config(fake_browser_session: MagicMock) -> None:
     fake_browser_session.config = Config(
         base_url="https://test.example",
         username="bob@example.com",
-        password=cast("SecretStr", "s3cret"),
+        password=SecretStr("s3cret"),
     )
     page = fake_browser_session.goto.return_value
     page.staged_responses = [

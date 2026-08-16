@@ -5,18 +5,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
-
 import pytest
+from pydantic import SecretStr
 
 from gamesheet_sdk import AuthenticationError, Config
 from gamesheet_sdk.common.auth.credentials import resolve_email, resolve_password
-
-if TYPE_CHECKING:
-    # Imported for typing only, and referenced as a string in cast() below:
-    # literals, so CodeQL reports this as py/unused-import. Do not remove it.
-    from pydantic import SecretStr
-
 
 # ---------- resolve_email ------------------------------------------------
 
@@ -56,7 +49,7 @@ def test_resolve_password_from_config() -> None:
     """Test that password falls back to config.password."""
     cfg = Config(
         base_url="https://test.example",
-        password=cast("SecretStr", "s3cret"),
+        password=SecretStr("s3cret"),
     )
     assert resolve_password(cfg, None) == "s3cret"
 

@@ -858,7 +858,6 @@ def _run_dependabot_preview(
     """
     target_files = [config.dependabot_path]
     snapshots = _snapshot_files(target_files)
-    added, removed = 0, 0
 
     try:
         added, removed = update_dependabot_ignores(config.dependabot_path, pinned_packages)
