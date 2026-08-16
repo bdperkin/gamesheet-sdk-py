@@ -198,8 +198,22 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   **Do not add stubs for a dependency that ships `py.typed`.** An obsolete stub package *shadows* the real inline types, so every symbol is checked against the
   version the stub describes. `types-click==7.1.8` did exactly that: it describes click 7, the project runs click 8.4.2, and `click.shell_completion` (added in
   click 8) therefore read as unresolved — which is what the old `analysis.allowed-unresolved-imports` allowlist existed to paper over. Dropping the stub made
-  the import resolve and the allowlist unnecessary. Several other entries in `type-stubs` cover packages that have since shipped `py.typed` and are worth the
-  same scrutiny.
+  the import resolve and the allowlist unnecessary.
+
+  **`optional-dependencies.type-stubs` is deliberately tiny — four entries.** It was 34 before the audit on 2026-08-15; 30 of those stubbed modules that no file
+  under `src/`, `tests/`, `tools/` or `docs/` imports (`types-pywin32` alone contributed ~60 Windows-only module stubs), and dropping them left `ty check`
+  green. Add a stub only when ty actually reports something unresolved, and delete one the moment its module stops being imported — an unused stub is not inert,
+  it is a second, staler definition of a package waiting to shadow the real one.
+
+  **`syncdeps --sync-types` will put them all back.** It adds `types-<pkg>` for every resolved dependency whose stub merely *exists on PyPI*
+  (`tools/depsync/typestubs.py:_discover_available_types`), with no check for whether the runtime ships `py.typed` or whether any file imports it — which is how
+  the group reached 34. The flag is off by default; if you do run it, review what it adds against the two rules above rather than committing the result
+  wholesale.
+
+  **When a stub and an inline `py.typed` disagree, check which matches runtime — the stub is sometimes right.** `types-requests` shadows requests' own
+  annotations and is kept on purpose: requests declares `Session.headers` as `CaseInsensitiveDict[str]` and typeshed as `CaseInsensitiveDict[str | bytes]`, and
+  the wider typeshed view is the accurate one. Remove that stub and `common/session.py:211` plus the `json.loads(request.body)` call sites in `tests/unit/` fail
+  immediately — which is exactly the breakage #215 hit from the other direction. So "stub shadows `py.typed`" is a prompt to verify, not an automatic removal.
 
 - **Automated versioning and changelog.** The project uses `python-semantic-release` (PSR) to fully automate version bumping, CHANGELOG generation, and releases
   based on Conventional Commits. **No manual tagging required** — simply merge to `main` and PSR handles everything:
