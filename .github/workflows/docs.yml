@@ -25,7 +25,7 @@
 #   1. docs: HTML documentation build (Sphinx + Furo theme, two-pass strict mode)
 #   2. docs-epub: EPUB documentation build (e-reader distribution format)
 #   3. docs-man: man-page documentation build (CLI manual-page generation)
-#   4. docs-pdf: PDF documentation build (requires LaTeX toolchain)
+#   4. docs-pdf: PDF documentation build (requires LaTeX toolchain, runs on main push)
 #   5. docs-lint: Python documentation issues check (sphinx-lint, etc.)
 #   6. docs-linkcheck: Broken external link check (validates HTTP references)
 #   7. docs-doctest: Embedded doctest examples tests (validates code examples)
@@ -38,6 +38,7 @@
 #   - Each job invokes sphinx-build directly through `uv run --extra docs`, so the docs
 #     extra is the single source of truth for build dependencies
 #   - docs-pdf installs LaTeX packages via apt (latexmk, texlive-latex-{recommended,extra})
+#     and only runs on push to main (after branch merge / release)
 #   - docs-build uploads both a regular artifact (for PR review/debug, 14-day retention) and
 #     a Pages artifact (input to the deploy job, only created on main push)
 #   - docs-deploy is gated on push to main AND needs docs-build success
@@ -62,6 +63,7 @@
 #   - PDF build requires LaTeX packages; if apt install fails, build will skip gracefully
 #   - Pages deployment uses the official actions/deploy-pages action (v5.0.0)
 #   - All jobs run in parallel except docs-deploy (gated by docs-build dependency)
+#   - docs-pdf only runs on push to main to avoid slow LaTeX installation on PRs
 #   - If adding a new doc format, add a parallel job here plus a matching Makefile target
 name: Docs
 
@@ -140,6 +142,7 @@ jobs:
   docs-pdf:
     name: PDF documentation build
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Update apt cache and install packages
         run: |

@@ -1,6 +1,6 @@
 ---
 # ==============================================================================
-# Documentation & Markdown Tools
+# Markdown Formatting
 # ==============================================================================
 # Purpose: Lints and formats Markdown files for consistent style, valid syntax,
 # and proper structure. Ensures documentation adheres to CommonMark/GFM standards.
@@ -10,9 +10,9 @@
 #   - pull_request (opened, reopened, synchronize)
 #   - Concurrency: Cancels previous runs for the same branch
 #
-# Jobs: 2 tools (pymarkdown: 4 Python versions; mdformat: single version)
-#   - pymarkdown: Lints Markdown files for style and syntax violations
+# Jobs: 2 tools (mdformat, pymarkdown: 4 Python versions)
 #   - mdformat: Auto-formats Markdown files (GFM plugin enabled)
+#   - pymarkdown: Lints Markdown files for style and syntax violations
 #
 # Tools run in check mode in CI. To apply fixes locally:
 #   - make markdown (runs mdformat in write mode)
@@ -21,7 +21,7 @@
 #
 # Each job runs: uv run --extra [tool] [tool]
 # ==============================================================================
-name: Documentation & Markdown Tools
+name: Markdown Formatting
 
 on:
   pull_request:
@@ -44,28 +44,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
-  pymarkdown:
-    name: pymarkdown (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - '3.11'
-          - '3.12'
-          - '3.13'
-          - '3.14'
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
-        with:
-          enable-cache: true
-          python-version: ${{ matrix.python-version }}
-      - name: Run pymarkdown via uv
-        run: uv run --extra pymarkdown pymarkdown scan .
   mdformat:
     name: mdformat (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
@@ -88,3 +66,25 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run mdformat via uv
         run: uv run --extra mdformat mdformat --check $(git ls-files '*.md')
+  pymarkdown:
+    name: pymarkdown (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+      - name: Run pymarkdown via uv
+        run: uv run --extra pymarkdown pymarkdown scan .

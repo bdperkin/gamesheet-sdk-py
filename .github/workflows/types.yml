@@ -1,6 +1,6 @@
 ---
 # ==============================================================================
-# Type Checkers - Static Type Analysis
+# Static Type Checks
 # ==============================================================================
 # Purpose: Runs ty type checker to catch type errors before runtime.
 #
@@ -21,7 +21,7 @@
 # (the ty extra fans out to [pytest,type-stubs] -> [tools], which is what makes
 #  imports in tests/ and tools/ resolve and third-party types come from stubs)
 # ==============================================================================
-name: Type Checkers
+name: Static Type Checks
 
 on:
   pull_request:

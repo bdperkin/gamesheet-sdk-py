@@ -1,6 +1,6 @@
 ---
 # ==============================================================================
-# Configuration File Linters & Formatters
+# Configuration Validation
 # ==============================================================================
 # Purpose: Validates and formats project configuration files (YAML, TOML, INI,
 # .editorconfig) to ensure correctness, consistency, and adherence to specs.
@@ -25,7 +25,7 @@
 #
 # Each job runs: uv run --extra [tool] [tool]
 # ==============================================================================
-name: Configuration File Linters & Formatters
+name: Configuration Validation
 
 on:
   pull_request:
