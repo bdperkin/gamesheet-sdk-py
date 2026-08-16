@@ -205,10 +205,18 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   green. Add a stub only when ty actually reports something unresolved, and delete one the moment its module stops being imported — an unused stub is not inert,
   it is a second, staler definition of a package waiting to shadow the real one.
 
-  **`syncdeps --sync-types` will put them all back.** It adds `types-<pkg>` for every resolved dependency whose stub merely *exists on PyPI*
-  (`tools/depsync/typestubs.py:_discover_available_types`), with no check for whether the runtime ships `py.typed` or whether any file imports it — which is how
-  the group reached 34. The flag is off by default; if you do run it, review what it adds against the two rules above rather than committing the result
-  wholesale.
+  **`syncdeps --sync-types` enforces those two rules itself (since 2026-08-16).** It used to add `types-<pkg>` for every resolved dependency whose stub merely
+  *existed on PyPI*, with no check for `py.typed` or for whether anything imports the module — which is how the group reached 34. Two gates in
+  `tools/depsync/typedness.py` now run *before* the index is queried: a candidate must have one of its top-level modules imported under `src/`, `tests/`,
+  `tools/` or `docs/` (collected with `ast`, so a function-level import counts and a relative import does not), and its runtime distribution must not ship
+  `py.typed`. Module names come from installed metadata (`top_level.txt`, else the recorded file list), never from the distribution name — `pyyaml` provides
+  `yaml`. Against the current tree that gates out 197 of 203 candidates and proposes zero additions.
+
+  The gates are **asymmetric on purpose, and the asymmetry is the load-bearing part:** an undeterminable answer rejects an *addition* (not adding is cheap — ty
+  reports the unresolved import and you add it deliberately) but keeps an existing stub (a distribution absent from the env `syncdeps` runs in has no
+  authoritative module list, and deleting a load-bearing stub on a guessed name breaks ty in CI). And only the imports rule drives removals: `py.typed` is
+  add-time only, so `types-requests` — deliberately kept, see below — survives a sync. Rejections are never silent: a per-reason count prints on stdout and
+  `--log-level debug` lists every one. Still review what a run proposes; the gates narrow the input, they do not replace the judgment.
 
   **When a stub and an inline `py.typed` disagree, check which matches runtime — the stub is sometimes right.** `types-requests` shadows requests' own
   annotations and is kept on purpose: requests declares `Session.headers` as `CaseInsensitiveDict[str]` and typeshed as `CaseInsensitiveDict[str | bytes]`, and
@@ -286,16 +294,19 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 
   **Trigger layout (uniform across most workflows):** `push:` is scoped to `branches: [main]` — CI runs on main branch pushes and when PRs are opened/updated
   against main. `pull_request:` uses either `types: [opened, reopened, synchronize]` (default behavior, runs on every PR push) or `branches: [main]` depending
-  on the workflow. Both `push` and `pull_request` include `paths-ignore: ["CHANGELOG.md", "pyproject.toml"]` to skip workflows when only version/changelog files
-  change (those are updated by automated release commits). All workflows use
-  `concurrency.group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}` with `cancel-in-progress: true` to collapse overlapping runs — only the
-  latest run continues. The exceptions are `codeql.yml`/`dependency-review.yml` (kept on their original GitHub-supplied triggers), `release.yml` (only
-  `push: branches: [main]`), and `comprehensive-tests.yml` (nightly `schedule` trigger plus manual `workflow_dispatch`).
+  on the workflow. **`paths-ignore: ["CHANGELOG.md", "pyproject.toml"]` appears under `push:` only** — it exists to skip CI for the automated release commit,
+  which PSR pushes straight to `main` and never opens a PR for, so under `pull_request:` it filtered nothing useful and made config-only PRs unmergeable (see
+  below). All workflows use `concurrency.group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}` with `cancel-in-progress: true` to collapse
+  overlapping runs — only the latest run continues. The exceptions are `codeql.yml`/`dependency-review.yml` (kept on their original GitHub-supplied triggers),
+  `release.yml` (only `push: branches: [main]`), and `comprehensive-tests.yml` (nightly `schedule` trigger plus manual `workflow_dispatch`).
 
-  **`paths-ignore` makes a `pyproject.toml`-only PR unmergeable (gotcha worth preserving):** every gating workflow ignores that path, so a PR touching *only*
-  `pyproject.toml` runs none of them, and all nine required contexts stay unreported — the PR sits at `BLOCKED` with a green check list and no explanation.
-  `tools/depsync/caps.py` documents this for Dependabot, but it applies to any hand-made PR too, and it bites hardest on config-only changes such as restoring a
-  `[tool.pytest]` block. Touch one non-ignored file in the same PR (a matching CLAUDE.md correction usually exists) or the branch can never merge.
+  **Never add `paths-ignore` to a `pull_request:` trigger (gotcha worth preserving):** a path filter that excludes a workflow does not *fail* its jobs, it never
+  reports them — and a required status check that is never reported leaves the PR at `mergeStateStatus: BLOCKED` with a green check list and no explanation.
+  While every gating workflow ignored `pyproject.toml`, a PR touching *only* that file ran none of the nine required contexts and could never merge: it bit
+  hand-made config-only changes (restoring a `[tool.pytest]` block) and every Dependabot version bump, which is what `tools/depsync/caps.py` documents from the
+  Dependabot side. Fixed on 2026-08-16 by dropping `paths-ignore` from all 18 `pull_request:` triggers that carried it; the `push:` filters stay, since that is
+  the only place the release commit lands. The rule generalizes past this repo: **a filter on `pull_request` can only ever silence a check that something is
+  waiting on.**
 
   **Keep required status checks in sync with job names (gotcha worth preserving):** `main`'s branch protection pins a list of required status-check contexts by
   *exact job name* (`pytest (py3.11)`, `pre-commit (py)`, …). That list lives in **repo settings, not in the tree**, so nothing in a PR diff reveals it and no

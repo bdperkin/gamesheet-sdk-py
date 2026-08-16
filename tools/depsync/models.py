@@ -112,6 +112,10 @@ class TypesSyncResult(BaseModel):
         default_factory=list,
         description="(package_name, old_version, new_version) for version bumps",
     )
+    skipped: list[tuple[str, str]] = Field(
+        default_factory=list,
+        description="(package_name, reason) for stubs a gate rejected before the index was queried",
+    )
 
 
 class OverridePolicy(BaseModel):

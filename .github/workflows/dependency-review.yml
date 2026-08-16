@@ -10,7 +10,7 @@
 # ║ Source    │ GitHub-supplied workflow (actions/dependency-review-action)                  ║
 # ║ Docs      │ https://docs.github.com/en/code-security/supply-chain-security/              ║
 # ║           │ understanding-your-software-supply-chain/about-dependency-review             ║
-# ║ Trigger   │ pull_request: branches=[main] (paths-ignore: CHANGELOG.md, pyproject.toml)   ║
+# ║ Trigger   │ pull_request: branches=[main] (no paths-ignore - must gate every PR)         ║
 # ║           │ push: branches-ignore=["**"] (effectively disabled for push events)          ║
 # ║ Runs on   │ ubuntu-latest                                                                ║
 # ║ Scope     │ Python dependencies declared in pyproject.toml and lock files                ║
@@ -48,16 +48,12 @@
 # ║ • No allow-ghsas: suppress an advisory only while no patched version is reachable, and   ║
 # ║   delete the entry once it is — a dead allowance silently re-opens the hole              ║
 # ╚══════════════════════════════════════════════════════════════════════════════════════════╝
-
 name: Dependency review
 
 on:
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - CHANGELOG.md
-      - pyproject.toml
   push:
     branches-ignore:
       - '**'

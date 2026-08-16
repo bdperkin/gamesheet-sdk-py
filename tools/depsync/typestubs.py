@@ -20,6 +20,7 @@ from depsync.engine import prefetch_versions
 from depsync.exceptions import FetchError, ParseError
 from depsync.fetchers import check_package_exists, resolve_latest_version
 from depsync.models import TypesSyncResult
+from depsync.typedness import collect_imported_modules, filter_stub_candidates, is_orphaned
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -161,11 +162,32 @@ def _find_new_stubs(
     return added
 
 
+def _removal_reason(base_name: str, all_packages: set[str], imported: set[str]) -> str | None:
+    """Explain why an existing stub no longer belongs, if it does not.
+
+    A stub whose base package left the dependency tree is dead, and so is one whose module no file imports
+    any more. Shipping ``py.typed`` is deliberately *not* grounds for removal — see
+    :mod:`depsync.typedness`.
+
+    Returns:
+        str | None: Reason to remove the stub, or None to keep it.
+
+    """
+    if base_name not in all_packages:
+        return "base package not in dependency tree"
+
+    if is_orphaned(base_name, imported):
+        return "no file imports the stubbed module any more"
+
+    return None
+
+
 def _find_stale_stubs(
     current_types: dict[str, str | None],
     all_packages: set[str],
     types_cache: dict[str, dict[str, str | None]],
     min_python: Version | None,
+    imported: set[str],
 ) -> tuple[list[str], list[tuple[str, str, str]]]:
     """Identify types-* stubs to remove or update.
 
@@ -178,9 +200,10 @@ def _find_stale_stubs(
     updated: list[tuple[str, str, str]] = []
     for types_name, current_version in sorted(current_types.items()):
         base_name = types_name.removeprefix("types-")
-        if base_name not in all_packages:
+        reason = _removal_reason(base_name, all_packages, imported)
+        if reason:
             removed.append(types_name)
-            logger.info("  Remove %s (base package not in dependency tree)", types_name)
+            logger.info("  Remove %s (%s)", types_name, reason)
             continue
 
         latest = resolve_latest_version(types_cache.get(types_name, {}), min_python)
@@ -200,8 +223,14 @@ def sync_types(
     extra_index_urls: Sequence[str] = (),
     pip_config: PipConfig | None = None,
     min_python: Version | None = None,
+    source_root: Path | None = None,
 ) -> TypesSyncResult:
     """Compute types-* stub additions, removals, and updates.
+
+    Availability on the index is a necessary but not sufficient condition for an addition: a candidate must
+    also pass the gates in :mod:`depsync.typedness` — the module has to be imported somewhere in the tree,
+    and the runtime distribution must not already ship ``py.typed``. Gated-out candidates are reported in
+    ``TypesSyncResult.skipped`` rather than dropped silently.
 
     Args:
         base_packages (set[str]): Non-types package names from uv.lock.
@@ -211,24 +240,28 @@ def sync_types(
         extra_index_urls (Sequence[str]): Additional PEP 503 index URLs to try.
         pip_config (PipConfig | None): Optional pip configuration for SSL settings.
         min_python (Version | None): Minimum Python version to filter compatible releases.
+        source_root (Path | None): Directory whose source tree is scanned for imports. Defaults to the
+            directory holding *pyproject_path*.
 
     Returns:
         TypesSyncResult: TypesSyncResult describing all changes.
 
     """
     current_types = _parse_type_stubs_types(pyproject_path)
+    imported = collect_imported_modules(source_root or pyproject_path.parent)
 
     candidates = {
         name for name in base_packages if not name.startswith(PROJECT_NAME) and name != "type-stubs"
     }
 
     already_known = {name.removeprefix("types-") for name in current_types}
-    to_check = candidates - already_known
+    to_check, skipped = filter_stub_candidates(candidates - already_known, imported)
 
     logger.info(
-        "Checking %d candidates for types-* stubs (%d already in type-stubs group)",
+        "Checking %d candidates for types-* stubs (%d already in type-stubs group, %d gated out)",
         len(to_check),
         len(already_known),
+        len(skipped),
     )
 
     available = _discover_available_types(
@@ -248,12 +281,14 @@ def sync_types(
     )
 
     result = TypesSyncResult()
+    result.skipped = skipped
     result.added = _find_new_stubs(available, current_types, types_cache, min_python)
     result.removed, result.updated = _find_stale_stubs(
         current_types,
         all_packages,
         types_cache,
         min_python,
+        imported,
     )
 
     return result

@@ -9,8 +9,10 @@ unsatisfiable — ``uv lock`` refuses it outright.
 
 ``syncdeps`` already avoids proposing such a pin, because it takes whatever ``uv`` resolved. Dependabot has no
 such protection: it compares a pin against the index in isolation, opens a PR for the newest release, and that
-PR can never merge. Worse, a Dependabot PR touching only ``pyproject.toml`` matches every workflow's
-``paths-ignore``, so almost no checks run and the PR looks green while being unmergeable.
+PR can never merge — ``uv lock`` refuses the combination. It used to also look green while being unmergeable,
+because every workflow's ``pull_request`` trigger carried ``paths-ignore: [CHANGELOG.md, pyproject.toml]`` and
+a pyproject-only PR therefore ran almost no checks. That filter is now on ``push`` only, so the PR is checked
+honestly; suppressing the pin is still the point, since a checked PR that cannot lock is still noise.
 
 This module identifies those capped pins so the Dependabot ignore list can suppress exactly them.
 

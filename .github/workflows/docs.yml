@@ -9,7 +9,8 @@
 # Triggers:
 #   - push: Runs on push to main branch (after PR merge)
 #   - pull_request: Runs on opened, reopened, synchronize (all PR activity)
-#   - Ignores changes to CHANGELOG.md and pyproject.toml (managed by release workflow)
+#   - push only ignores CHANGELOG.md and pyproject.toml (managed by release workflow);
+#     pull_request has no paths-ignore, so every PR reports this workflow's checks
 #
 # Concurrency:
 #   - Scoped to workflow + branch name
@@ -66,10 +67,6 @@ name: Docs
 
 on:
   pull_request:
-    paths-ignore:
-      - CHANGELOG.md
-      - pyproject.toml
-
     types:
       - opened
       - reopened
@@ -86,7 +83,6 @@ permissions:
 
 concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
-
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
@@ -101,13 +97,12 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: '3.11'
           enable-cache: true
+          python-version: '3.11'
       - name: Run docs via uv
         run: |
           uv run --extra docs python docs/generate_api_docs.py
           uv run --extra docs sphinx-build -b html docs docs/_build/html
-
   docs-epub:
     name: EPUB documentation build
     runs-on: ubuntu-latest
@@ -119,13 +114,12 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: '3.11'
           enable-cache: true
+          python-version: '3.11'
       - name: Run docs-epub via uv
         run: |
           uv run --extra docs python docs/generate_api_docs.py
           uv run --extra docs sphinx-build -b epub docs docs/_build/epub
-
   docs-man:
     name: man-page documentation build
     runs-on: ubuntu-latest
@@ -137,13 +131,12 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: '3.11'
           enable-cache: true
+          python-version: '3.11'
       - name: Run docs-man via uv
         run: |
           uv run --extra docs python docs/generate_api_docs.py
           uv run --extra docs sphinx-build -b man docs docs/_build/man
-
   docs-pdf:
     name: PDF documentation build
     runs-on: ubuntu-latest
@@ -160,14 +153,13 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: '3.11'
           enable-cache: true
+          python-version: '3.11'
       - name: Run docs-pdf via uv
         run: |
           uv run --extra docs python docs/generate_api_docs.py
           uv run --extra docs sphinx-build -b latex docs docs/_build/latex
           make -C docs/_build/latex all-pdf
-
   docs-lint:
     name: Python documentation issues check
     runs-on: ubuntu-latest
@@ -179,14 +171,13 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: '3.11'
           enable-cache: true
+          python-version: '3.11'
       - name: Run docs-lint via uv
         run: |
           uv run --extra docs python docs/generate_api_docs.py
           uv run python docs/check_api_freshness.py
           uv run --extra docs sphinx-lint docs
-
   docs-linkcheck:
     name: Broken external link check
     runs-on: ubuntu-latest
@@ -198,13 +189,12 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: '3.11'
           enable-cache: true
+          python-version: '3.11'
       - name: Run docs-linkcheck via uv
         run: |
           uv run --extra docs python docs/generate_api_docs.py
           uv run --extra docs sphinx-build -b linkcheck docs docs/_build/linkcheck
-
   docs-doctest:
     name: Embedded doctest examples tests
     runs-on: ubuntu-latest
@@ -216,13 +206,12 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: '3.11'
           enable-cache: true
+          python-version: '3.11'
       - name: Run docs-doctest via uv
         run: |
           uv run --extra docs python docs/generate_api_docs.py
           uv run --extra docs sphinx-build -b doctest docs docs/_build/doctest
-
   docs-build:
     name: Build HTML for GitHub Pages
     runs-on: ubuntu-latest
@@ -234,8 +223,8 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: '3.11'
           enable-cache: true
+          python-version: '3.11'
       - name: Run docs via uv
         run: |
           uv run --extra docs python docs/generate_api_docs.py
@@ -251,7 +240,6 @@ jobs:
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
         with:
           path: docs/_build/html
-
   docs-deploy:
     name: Deploy to GitHub Pages
     needs: docs-build

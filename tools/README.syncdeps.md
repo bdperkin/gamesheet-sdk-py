@@ -28,6 +28,7 @@ ______________________________________________________________________
   - [5.9. Transitive-Dependency Overrides](#59-transitive-dependency-overrides)
   - [5.10. Capped Pins and the Dependabot Ignore List](#510-capped-pins-and-the-dependabot-ignore-list)
   - [5.11. Publication Cutoff Relaxations](#511-publication-cutoff-relaxations)
+  - [5.12. Type Stub Gates](#512-type-stub-gates)
 - [6. Exception Hierarchy](#6-exception-hierarchy)
 - [7. Dependencies](#7-dependencies)
 - [8. Troubleshooting](#8-troubleshooting)
@@ -67,6 +68,7 @@ The tool follows the same modular package pattern as `tools/precommit/`.
 | Fetchers    | `tools/depsync/fetchers.py`     | Query PyPI JSON API and `git ls-remote` for versions                |
 | Engine      | `tools/depsync/engine.py`       | Core convergence algorithm                                          |
 | Type stubs  | `tools/depsync/typestubs.py`    | `types-*` stub discovery and synchronization                        |
+| Stub gates  | `tools/depsync/typedness.py`    | Import scan and `py.typed` detection gating stub additions          |
 | Cutoff      | `tools/depsync/excludenewer.py` | Per-package relaxation of the `uv` publication cutoff               |
 | Writers     | `tools/depsync/writers.py`      | Style-preserving file updates                                       |
 | Resolver    | `tools/shared/uv_resolve.py`    | Delegates resolution to `uv lock`; shared with `genprecommitconfig` |
@@ -263,8 +265,10 @@ A pin can be held below the newest release by a sibling requirement. `python-sem
 `rich==15.0.0` or `tomlkit==0.15.1` makes the project unsatisfiable — `uv lock` refuses it outright.
 
 syncdeps never proposes such a pin, because it writes whatever `uv` resolved. Dependabot has no such protection: it compares each pin against the index in
-isolation and opens a PR for the newest release. That PR can never merge, and it is worse than merely useless — a Dependabot PR touching only `pyproject.toml`
-matches every workflow's `paths-ignore`, so almost no checks run and it **looks green while being unmergeable**.
+isolation and opens a PR for the newest release, and that PR can never merge — `uv lock` refuses the combination. It used to be worse still: while every
+workflow's `pull_request` trigger carried `paths-ignore: [CHANGELOG.md, pyproject.toml]`, a Dependabot PR touching only `pyproject.toml` ran almost no checks
+and **looked green while being unmergeable**. That filter now applies to `push` only, so such a PR is at least checked honestly; suppressing the pin remains the
+point, since a checked PR that cannot lock is still noise.
 
 After convergence, syncdeps therefore compares each managed pin's resolved version against the newest release the index offers. Anything resolved *below* the
 newest release is capped by something in the graph, and joins the `ignore` list in `.github/dependabot.yml` alongside rev-pinned and overridden packages.
@@ -364,6 +368,38 @@ Notes on the design, each of which is load-bearing:
 - **An unreadable `uv.lock` suppresses retirement, not addition.** Without the lockfile the graph is invisible, and an entry cannot be declared dead on the
   strength of something we could not see.
 
+### 5.12. Type Stub Gates
+
+`--sync-types` used to add `types-<pkg>` for every resolved dependency whose stub merely **existed** on PyPI. That is how `optional-dependencies.type-stubs`
+reached 34 entries, of which 30 stubbed modules no file in the repo imports (`types-pywin32` alone contributed ~60 Windows-only module stubs), and one —
+`types-click==7.1.8` — described click 7 while the project ran click 8, shadowing click's own inline types so `click.shell_completion` read as unresolved.
+
+**An unused stub is not inert.** It is a second, staler definition of a package, and PEP 561 puts it *ahead* of the runtime's inline annotations. Availability
+on the index is therefore necessary but not sufficient; two gates in `tools/depsync/typedness.py` run before the index is even queried:
+
+| Rule               | Rejected when                                                     | Rationale                                            |
+| ------------------ | ----------------------------------------------------------------- | ---------------------------------------------------- |
+| 1. Imported        | No file under the source roots imports a module the dist provides | An unimported stub can only shadow, never help       |
+| 2. No inline types | The runtime distribution ships `py.typed`                         | Inline types need no stub, and a stub displaces them |
+
+The source roots are `src/`, `tests/`, `tools/` and `docs/`.
+
+Module names come from installed metadata (`top_level.txt`, else the recorded file list), never from the distribution name — `pyyaml` provides `yaml`,
+`python-dateutil` provides `dateutil`. Imports are collected with `ast`, so a function-level import counts (`tools/precommit/processor.py` imports `pre_commit`
+inside a function body) and a relative import does not (it can never name a distribution).
+
+The gates are deliberately asymmetric between adding and removing:
+
+- **An undeterminable answer rejects an addition.** Not adding costs nothing: `ty` reports the unresolved import and the stub is then added deliberately, which
+  is the documented workflow.
+- **An undeterminable answer keeps an existing stub.** A distribution absent from the environment `syncdeps` runs in has no authoritative module list, and
+  deleting a load-bearing stub on a guessed name would break `ty` in CI.
+- **Only rule 1 drives removals.** Rule 2 is add-time only, because a stub that shadows `py.typed` is sometimes the one that is right: `types-requests` is kept
+  on purpose, since typeshed types `Session.headers` as `CaseInsensitiveDict[str | bytes]` where requests itself says `CaseInsensitiveDict[str]`, and the wider
+  view is the accurate one. "Stub shadows `py.typed`" is a prompt to verify, not an automatic removal — so it may block an unreviewed addition but never undo a
+  reviewed keep.
+- **Nothing is narrowed silently.** Every rejection is reported — a per-reason count on stdout, and one line per candidate at `--log-level debug`.
+
 ## 6. Exception Hierarchy
 
 ```text
@@ -427,6 +463,7 @@ syncdeps = [
 | `tools/depsync/overrides.py`    | Transitive-dependency override subsystem    |
 | `tools/depsync/excludenewer.py` | Publication-cutoff relaxation subsystem     |
 | `tools/depsync/typestubs.py`    | `types-*` stub sync                         |
+| `tools/depsync/typedness.py`    | Stub gates (imported? inline types?)        |
 | `tools/depsync/writers.py`      | Style-preserving writers                    |
 | `tools/shared/uv_resolve.py`    | uv-delegated resolution                     |
 | `.syncdepsoverrides.yaml`       | Transitive-dependency override policy       |

@@ -6,7 +6,9 @@
 #
 # Triggers:
 #   - push to main branch (skip if only CHANGELOG/version changes)
-#   - pull_request (opened, reopened, synchronize)
+#   - pull_request (opened, reopened, synchronize) - no paths-ignore here on purpose:
+#     this job is a required status check, and a filtered-out PR never reports it, so
+#     a pyproject.toml-only PR would sit at BLOCKED forever
 #   - Concurrency: Cancels previous runs for the same branch
 #
 # Jobs: ty × 4 Python versions = 4 total runs
@@ -19,15 +21,10 @@
 # (the ty extra fans out to [pytest,type-stubs] -> [tools], which is what makes
 #  imports in tests/ and tools/ resolve and third-party types come from stubs)
 # ==============================================================================
-
 name: Type Checkers
 
 on:
   pull_request:
-    paths-ignore:
-      - CHANGELOG.md
-      - pyproject.toml
-
     types:
       - opened
       - reopened
@@ -44,7 +41,6 @@ permissions:
 
 concurrency:
   cancel-in-progress: true
-
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
@@ -63,12 +59,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
-
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: ${{ matrix.python-version }}
           enable-cache: true
-
+          python-version: ${{ matrix.python-version }}
       - name: Run ty via uv
         run: uv run --extra ty ty check

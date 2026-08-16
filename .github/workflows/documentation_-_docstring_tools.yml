@@ -13,10 +13,6 @@ name: Documentation & Docstring Tools
 
 on:
   pull_request:
-    paths-ignore:
-      - CHANGELOG.md
-      - pyproject.toml
-
     types:
       - opened
       - reopened
@@ -33,7 +29,6 @@ permissions:
 
 concurrency:
   cancel-in-progress: true
-
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
@@ -55,11 +50,10 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: ${{ matrix.python-version }}
           enable-cache: true
+          python-version: ${{ matrix.python-version }}
       - name: Run codespell via uv
         run: uv run --extra codespell codespell $(git ls-files)
-
   interrogate:
     name: interrogate (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
@@ -78,7 +72,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: ${{ matrix.python-version }}
           enable-cache: true
+          python-version: ${{ matrix.python-version }}
       - name: Run interrogate via uv
         run: uv run --extra interrogate interrogate

@@ -8,7 +8,9 @@
 #
 # Triggers:
 #   - push to main branch (skip if only CHANGELOG/version changes)
-#   - pull_request (opened, reopened, synchronize)
+#   - pull_request (opened, reopened, synchronize) - no paths-ignore here on purpose:
+#     this job is a required status check, and a filtered-out PR never reports it, so
+#     a pyproject.toml-only PR would sit at BLOCKED forever
 #   - Concurrency: Cancels previous runs for the same branch
 #
 # Jobs: 1 job running pre-commit across all configured hooks
@@ -30,10 +32,6 @@ name: pre-commit
 
 on:
   pull_request:
-    paths-ignore:
-      - CHANGELOG.md
-      - pyproject.toml
-
     types:
       - opened
       - reopened
@@ -50,7 +48,6 @@ permissions:
 
 concurrency:
   cancel-in-progress: true
-
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
@@ -72,9 +69,8 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: '3.11'
           enable-cache: true
-
+          python-version: '3.11'
       - name: Run pre-commit via uv
         run: uv run --extra dev pre-commit run --all-files
         env:

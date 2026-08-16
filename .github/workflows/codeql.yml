@@ -42,14 +42,10 @@
 # ║ • Runs the security-extended + security-and-quality suites (not just the default)        ║
 # ║ • Manual build mode available if automatic build fails                                   ║
 # ╚══════════════════════════════════════════════════════════════════════════════════════════╝
-
 name: CodeQL Advanced
 
 on:
   pull_request:
-    paths-ignore:
-      - CHANGELOG.md
-      - pyproject.toml
     types:
       - opened
       - reopened
@@ -69,7 +65,6 @@ permissions:
 
 concurrency:
   cancel-in-progress: true
-
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:

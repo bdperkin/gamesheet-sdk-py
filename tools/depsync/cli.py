@@ -68,6 +68,7 @@ from depsync.parsers import (
     parse_requires_python,
     parse_uv_lock,
 )
+from depsync.typedness import PY_TYPED_REASON
 from depsync.typestubs import sync_types
 from depsync.writers import (
     apply_types_sync,
@@ -468,6 +469,23 @@ def _display_types_results(types_result: TypesSyncResult) -> None:
     console.print(table)
 
 
+def _display_types_skipped(types_result: TypesSyncResult) -> None:
+    """Summarize stub candidates a gate rejected, so the narrowing is never silent.
+
+    Counts rather than names: the unimported bucket routinely holds ~200 transitive packages. Every entry is
+    logged individually at debug level, which the message points at.
+    """
+    if not types_result.skipped:
+        return
+
+    shadowing = sum(1 for _, reason in types_result.skipped if reason == PY_TYPED_REASON)
+    console.print(
+        f"  Gated out [yellow]{len(types_result.skipped)}[/] stub candidate(s): "
+        f"[dim]{len(types_result.skipped) - shadowing} module not imported, "
+        f"{shadowing} ship py.typed — --log-level debug lists them[/]",
+    )
+
+
 def _commit_types_sync(
     config: RunConfig,
     types_result: TypesSyncResult,
@@ -556,6 +574,8 @@ def _run_types_sync(
         pip_config=pip_config,
         min_python=min_python,
     )
+
+    _display_types_skipped(types_result)
 
     if not types_result.added and not types_result.removed and not types_result.updated:
         console.print("\n[bold green]All types-* stubs are already in sync.[/]")

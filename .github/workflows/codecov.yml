@@ -9,7 +9,8 @@
 # Triggers:
 #   - push: Runs on push to main branch (after PR merge)
 #   - pull_request: Runs on all PR activity targeting main
-#   - Ignores changes to CHANGELOG.md and pyproject.toml (managed by release workflow)
+#   - push only ignores CHANGELOG.md and pyproject.toml (managed by release workflow);
+#     pull_request has no paths-ignore, so every PR reports this workflow's checks
 #
 # Concurrency:
 #   - Scoped to workflow + branch name
@@ -65,10 +66,6 @@ on:
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - CHANGELOG.md
-      - pyproject.toml
-
   push:
     branches:
       - main
@@ -81,14 +78,12 @@ permissions:
 
 concurrency:
   cancel-in-progress: true
-
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
   test:
     name: Test on Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         include:
@@ -99,7 +94,6 @@ jobs:
           - py-flag: py3-13
             python-version: '3.13'
           - py-flag: py3-14
-
             python-version: '3.14'
     steps:
       - name: Checkout code
@@ -107,18 +101,15 @@ jobs:
         with:
           fetch-depth: 0  # Full history for comprehensive testing
           persist-credentials: false
-
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
-          python-version: ${{ matrix.python-version }}
           enable-cache: true
-
+          python-version: ${{ matrix.python-version }}
       - name: Run tests with coverage
         run: |
           uv run --extra pytest pytest --cov --cov-report=xml --cov-report=term \
             --junitxml=junit-py${PYTHON_VERSION}.xml
-
       # Codecov requires one flag per upload. Upload the same coverage.xml
       # twice so the same data feeds both the `unittests` aggregate and
       # the per-Python-version (py3-XX) flag.
@@ -137,7 +128,6 @@ jobs:
           override_commit: ${{ github.event.pull_request.head.sha || github.sha }}
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
-
       - name: Upload coverage to Codecov (${{ matrix.py-flag }})
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f  # v7.0.0
         with:
@@ -148,7 +138,6 @@ jobs:
           override_commit: ${{ github.event.pull_request.head.sha || github.sha }}
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
-
       - name: Upload test results to Codecov
         if: always()
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f  # v7.0.0
