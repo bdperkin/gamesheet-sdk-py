@@ -762,7 +762,7 @@ wheels = [
 
 [[package]]
 name = "gamesheet-sdk-py"
-version = "0.4.24"
+version = "0.4.25"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
@@ -853,40 +853,10 @@ deptry = [
     { name = "tomli" },
     { name = "tomlkit" },
     { name = "ty" },
-    { name = "types-attrs" },
-    { name = "types-babel" },
-    { name = "types-beautifulsoup4" },
-    { name = "types-boltons" },
-    { name = "types-certifi" },
-    { name = "types-cffi" },
-    { name = "types-colorama" },
-    { name = "types-cryptography" },
-    { name = "types-deprecated" },
-    { name = "types-docutils" },
-    { name = "types-filelock" },
-    { name = "types-greenlet" },
-    { name = "types-jinja2" },
-    { name = "types-jsonschema" },
-    { name = "types-markupsafe" },
-    { name = "types-peewee" },
-    { name = "types-pluggy" },
-    { name = "types-polib" },
-    { name = "types-protobuf" },
-    { name = "types-pygments" },
-    { name = "types-pyjwt" },
     { name = "types-python-dateutil" },
-    { name = "types-python-slugify" },
-    { name = "types-pywin32" },
     { name = "types-pyyaml" },
-    { name = "types-regex" },
     { name = "types-requests" },
-    { name = "types-setuptools" },
-    { name = "types-six" },
     { name = "types-tabulate" },
-    { name = "types-toml" },
-    { name = "types-tzdata" },
-    { name = "types-tzlocal" },
-    { name = "types-urllib3" },
     { name = "unimport" },
     { name = "uv" },
     { name = "validate-pyproject" },
@@ -1018,78 +988,18 @@ ty = [
     { name = "tomli" },
     { name = "tomlkit" },
     { name = "ty" },
-    { name = "types-attrs" },
-    { name = "types-babel" },
-    { name = "types-beautifulsoup4" },
-    { name = "types-boltons" },
-    { name = "types-certifi" },
-    { name = "types-cffi" },
-    { name = "types-colorama" },
-    { name = "types-cryptography" },
-    { name = "types-deprecated" },
-    { name = "types-docutils" },
-    { name = "types-filelock" },
-    { name = "types-greenlet" },
-    { name = "types-jinja2" },
-    { name = "types-jsonschema" },
-    { name = "types-markupsafe" },
-    { name = "types-peewee" },
-    { name = "types-pluggy" },
-    { name = "types-polib" },
-    { name = "types-protobuf" },
-    { name = "types-pygments" },
-    { name = "types-pyjwt" },
     { name = "types-python-dateutil" },
-    { name = "types-python-slugify" },
-    { name = "types-pywin32" },
     { name = "types-pyyaml" },
-    { name = "types-regex" },
     { name = "types-requests" },
-    { name = "types-setuptools" },
-    { name = "types-six" },
     { name = "types-tabulate" },
-    { name = "types-toml" },
-    { name = "types-tzdata" },
-    { name = "types-tzlocal" },
-    { name = "types-urllib3" },
     { name = "uv" },
     { name = "yamlfix" },
 ]
 type-stubs = [
-    { name = "types-attrs" },
-    { name = "types-babel" },
-    { name = "types-beautifulsoup4" },
-    { name = "types-boltons" },
-    { name = "types-certifi" },
-    { name = "types-cffi" },
-    { name = "types-colorama" },
-    { name = "types-cryptography" },
-    { name = "types-deprecated" },
-    { name = "types-docutils" },
-    { name = "types-filelock" },
-    { name = "types-greenlet" },
-    { name = "types-jinja2" },
-    { name = "types-jsonschema" },
-    { name = "types-markupsafe" },
-    { name = "types-peewee" },
-    { name = "types-pluggy" },
-    { name = "types-polib" },
-    { name = "types-protobuf" },
-    { name = "types-pygments" },
-    { name = "types-pyjwt" },
     { name = "types-python-dateutil" },
-    { name = "types-python-slugify" },
-    { name = "types-pywin32" },
     { name = "types-pyyaml" },
-    { name = "types-regex" },
     { name = "types-requests" },
-    { name = "types-setuptools" },
-    { name = "types-six" },
     { name = "types-tabulate" },
-    { name = "types-toml" },
-    { name = "types-tzdata" },
-    { name = "types-tzlocal" },
-    { name = "types-urllib3" },
 ]
 types = [
     { name = "packaging" },
@@ -1104,40 +1014,10 @@ types = [
     { name = "tomli" },
     { name = "tomlkit" },
     { name = "ty" },
-    { name = "types-attrs" },
-    { name = "types-babel" },
-    { name = "types-beautifulsoup4" },
-    { name = "types-boltons" },
-    { name = "types-certifi" },
-    { name = "types-cffi" },
-    { name = "types-colorama" },
-    { name = "types-cryptography" },
-    { name = "types-deprecated" },
-    { name = "types-docutils" },
-    { name = "types-filelock" },
-    { name = "types-greenlet" },
-    { name = "types-jinja2" },
-    { name = "types-jsonschema" },
-    { name = "types-markupsafe" },
-    { name = "types-peewee" },
-    { name = "types-pluggy" },
-    { name = "types-polib" },
-    { name = "types-protobuf" },
-    { name = "types-pygments" },
-    { name = "types-pyjwt" },
     { name = "types-python-dateutil" },
-    { name = "types-python-slugify" },
-    { name = "types-pywin32" },
     { name = "types-pyyaml" },
-    { name = "types-regex" },
     { name = "types-requests" },
-    { name = "types-setuptools" },
-    { name = "types-six" },
     { name = "types-tabulate" },
-    { name = "types-toml" },
-    { name = "types-tzdata" },
-    { name = "types-tzlocal" },
-    { name = "types-urllib3" },
     { name = "uv" },
     { name = "yamlfix" },
 ]
@@ -1226,40 +1106,10 @@ requires-dist = [
     { name = "tomli", marker = "extra == 'tools'", specifier = "==2.4.1" },
     { name = "tomlkit", marker = "extra == 'tools'", specifier = "==0.13.3" },
     { name = "ty", marker = "extra == 'ty'", specifier = "==0.0.69" },
-    { name = "types-attrs", marker = "extra == 'type-stubs'", specifier = "==19.1.0" },
-    { name = "types-babel", marker = "extra == 'type-stubs'", specifier = "==2.11.0.15" },
-    { name = "types-beautifulsoup4", marker = "extra == 'type-stubs'", specifier = "==4.12.0.20250516" },
-    { name = "types-boltons", marker = "extra == 'type-stubs'", specifier = "==26.1.0.20260724" },
-    { name = "types-certifi", marker = "extra == 'type-stubs'", specifier = "==2021.10.8.3" },
-    { name = "types-cffi", marker = "extra == 'type-stubs'", specifier = "==2.0.0.20260518" },
-    { name = "types-colorama", marker = "extra == 'type-stubs'", specifier = "==0.4.15.20260508" },
-    { name = "types-cryptography", marker = "extra == 'type-stubs'", specifier = "==3.3.23.2" },
-    { name = "types-deprecated", marker = "extra == 'type-stubs'", specifier = "==1.3.1.20260728" },
-    { name = "types-docutils", marker = "extra == 'type-stubs'", specifier = "==0.22.3.20260724" },
-    { name = "types-filelock", marker = "extra == 'type-stubs'", specifier = "==3.2.7" },
-    { name = "types-greenlet", marker = "extra == 'type-stubs'", specifier = "==3.5.0.20260518" },
-    { name = "types-jinja2", marker = "extra == 'type-stubs'", specifier = "==2.11.9" },
-    { name = "types-jsonschema", marker = "extra == 'type-stubs'", specifier = "==4.26.0.20260518" },
-    { name = "types-markupsafe", marker = "extra == 'type-stubs'", specifier = "==1.1.10" },
-    { name = "types-peewee", marker = "extra == 'type-stubs'", specifier = "==4.3.0.20260807" },
-    { name = "types-pluggy", marker = "extra == 'type-stubs'", specifier = "==1.2.0.20240106" },
-    { name = "types-polib", marker = "extra == 'type-stubs'", specifier = "==1.2.0.20260518" },
-    { name = "types-protobuf", marker = "extra == 'type-stubs'", specifier = "==7.34.1.20260518" },
-    { name = "types-pygments", marker = "extra == 'type-stubs'", specifier = "==2.20.0.20260728" },
-    { name = "types-pyjwt", marker = "extra == 'type-stubs'", specifier = "==1.7.1" },
     { name = "types-python-dateutil", marker = "extra == 'type-stubs'", specifier = "==2.9.0.20260807" },
-    { name = "types-python-slugify", marker = "extra == 'type-stubs'", specifier = "==8.0.2.20240310" },
-    { name = "types-pywin32", marker = "extra == 'type-stubs'", specifier = "==312.0.0.20260724" },
     { name = "types-pyyaml", marker = "extra == 'type-stubs'", specifier = "==6.0.12.20260724" },
-    { name = "types-regex", marker = "extra == 'type-stubs'", specifier = "==2026.7.19.20260720" },
     { name = "types-requests", marker = "extra == 'type-stubs'", specifier = "==2.33.0.20260712" },
-    { name = "types-setuptools", marker = "extra == 'type-stubs'", specifier = "==84.0.0.20260812" },
-    { name = "types-six", marker = "extra == 'type-stubs'", specifier = "==1.17.0.20260724" },
     { name = "types-tabulate", marker = "extra == 'type-stubs'", specifier = "==0.10.0.20260508" },
-    { name = "types-toml", marker = "extra == 'type-stubs'", specifier = "==0.10.8.20260518" },
-    { name = "types-tzdata", marker = "extra == 'type-stubs'", specifier = "==2026.0.0.20260408" },
-    { name = "types-tzlocal", marker = "extra == 'type-stubs'", specifier = "==5.1.0.1" },
-    { name = "types-urllib3", marker = "extra == 'type-stubs'", specifier = "==1.26.25.14" },
     { name = "tzlocal", specifier = "==5.4.4" },
     { name = "unimport", marker = "extra == 'unimport'", specifier = "==0.11.1" },
     { name = "urllib3", specifier = "==2.7.0" },
@@ -3709,225 +3559,6 @@ wheels = [
 ]
 
 [[package]]
-name = "types-attrs"
-version = "19.1.0"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/fc/c9/1ac000a4eeee5f9dcca7f97f5792d4866e3f08489b88c2dbc5f19e855358/types_attrs-19.1.0-py2.py3-none-any.whl", hash = "sha256:d11acf7a2531a7c52a740c30fa3eb8d01d3066c10d34c01ff5e59502caac5352", size = 6079, upload-time = "2021-06-06T15:28:56.12Z" },
-]
-
-[[package]]
-name = "types-babel"
-version = "2.11.0.15"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "types-pytz" },
-    { name = "types-setuptools" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/64/b5/b18d2dd9375515126069616096470fd9efd27434abac9e8d601e71f61b12/types-babel-2.11.0.15.tar.gz", hash = "sha256:282c184c8c9d81e8269212c1b8fa0d39ee88fb8bc43be47980412781c9c85f7e", size = 14392, upload-time = "2023-07-20T15:21:10.686Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d7/6a/56538e54ca538552a1b83e5f3f05ba23668870276a9342df1252e4e07f73/types_babel-2.11.0.15-py3-none-any.whl", hash = "sha256:d0579f2e8adeaef3fbe2eb63e5a2ecf01767fc018e5f3f36a3c9d8b723bd62c7", size = 18442, upload-time = "2023-07-20T15:21:08.221Z" },
-]
-
-[[package]]
-name = "types-beautifulsoup4"
-version = "4.12.0.20250516"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "types-html5lib" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/6d/d1/32b410f6d65eda94d3dfb0b3d0ca151f12cb1dc4cef731dcf7cbfd8716ff/types_beautifulsoup4-4.12.0.20250516.tar.gz", hash = "sha256:aa19dd73b33b70d6296adf92da8ab8a0c945c507e6fb7d5db553415cc77b417e", size = 16628, upload-time = "2025-05-16T03:09:09.93Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/7c/79/d84de200a80085b32f12c5820d4fd0addcbe7ba6dce8c1c9d8605e833c8e/types_beautifulsoup4-4.12.0.20250516-py3-none-any.whl", hash = "sha256:5923399d4a1ba9cc8f0096fe334cc732e130269541d66261bb42ab039c0376ee", size = 16879, upload-time = "2025-05-16T03:09:09.051Z" },
-]
-
-[[package]]
-name = "types-boltons"
-version = "26.1.0.20260724"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/3c/33/c22cc4c7d472c378c86643acb2a33ed972a9f17687a3b05c672ae621fdb6/types_boltons-26.1.0.20260724.tar.gz", hash = "sha256:63695b95add313f714d733729002c48e333f13e807b8795572e74fa47a8ae2ae", size = 22261, upload-time = "2026-07-24T04:58:09.764Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/77/88/ec6a17cdd63ceb8c0ebc55f253bc6cd2943d5e1db24a0a7aa1888a5005a4/types_boltons-26.1.0.20260724-py3-none-any.whl", hash = "sha256:ec6edf04de47b435d21ca44f4081f7572e3eeb6fcd3eeab88130c53529503fce", size = 28721, upload-time = "2026-07-24T04:58:08.849Z" },
-]
-
-[[package]]
-name = "types-certifi"
-version = "2021.10.8.3"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/52/68/943c3aeaf14624712a0357c4a67814dba5cea36d194f5c764dad7959a00c/types-certifi-2021.10.8.3.tar.gz", hash = "sha256:72cf7798d165bc0b76e1c10dd1ea3097c7063c42c21d664523b928e88b554a4f", size = 2095, upload-time = "2022-06-09T15:19:05.244Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b5/63/2463d89481e811f007b0e1cd0a91e52e141b47f9de724d20db7b861dcfec/types_certifi-2021.10.8.3-py3-none-any.whl", hash = "sha256:b2d1e325e69f71f7c78e5943d410e650b4707bb0ef32e4ddf3da37f54176e88a", size = 2136, upload-time = "2022-06-09T15:19:03.127Z" },
-]
-
-[[package]]
-name = "types-cffi"
-version = "2.0.0.20260518"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "types-setuptools" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/bd/0b/b352742758a6054d1053783887bf8cfb739deda1102fda8722294bdc01f7/types_cffi-2.0.0.20260518.tar.gz", hash = "sha256:f9707e66c13454789a58f8843d1ded4a66f1e9c8b10bd24d5eb5e0f25c0c5472", size = 17790, upload-time = "2026-05-18T06:06:50.672Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/68/44/d3b4aafa20a3f76384ba19a513d39272add13746dcfe0409d8d4974fd464/types_cffi-2.0.0.20260518-py3-none-any.whl", hash = "sha256:5b68a215a95d0eac4203b58e766ff7fe40c2e091b1fa1a9e54111f04cc560084", size = 20198, upload-time = "2026-05-18T06:06:49.83Z" },
-]
-
-[[package]]
-name = "types-colorama"
-version = "0.4.15.20260508"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/be/d5/4870d88c6c87adf786ef33d674cbf82b3a2d5fcbe6deec29282cff80e8b3/types_colorama-0.4.15.20260508.tar.gz", hash = "sha256:3a8916039e57452bd21f57e674e1f221ca9e4f319893c5e3bbd37b845c27d8e6", size = 10638, upload-time = "2026-05-08T04:47:14.593Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/56/33/a3449e3e93c43861b92d0a93ed4ea5505756463e507625812cfb29c91c7a/types_colorama-0.4.15.20260508-py3-none-any.whl", hash = "sha256:b0c39908a3e5171ef1f8bf3d59fae082e9eaff3a19ca49b6d640b83f78cff61c", size = 10755, upload-time = "2026-05-08T04:47:13.761Z" },
-]
-
-[[package]]
-name = "types-cryptography"
-version = "3.3.23.2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/18/05/a57fe8bbed10fe4b739fac6e16c4e80c5199ce2f74ae67fa7d7f6e3750da/types-cryptography-3.3.23.2.tar.gz", hash = "sha256:09cc53f273dd4d8c29fa7ad11fefd9b734126d467960162397bc5e3e604dea75", size = 15461, upload-time = "2022-11-08T18:29:28.012Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b6/36/92dfe7e5056694e78caefd05b383140c74c7fcbfc63d26ee514c77f2d8a2/types_cryptography-3.3.23.2-py3-none-any.whl", hash = "sha256:b965d548f148f8e87f353ccf2b7bd92719fdf6c845ff7cedf2abb393a0643e4f", size = 30223, upload-time = "2022-11-08T18:29:26.848Z" },
-]
-
-[[package]]
-name = "types-deprecated"
-version = "1.3.1.20260728"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/6d/0f/a6c55e899f6a2b3519f4079ee1d99f64411299a6d882decbdf17b17319ba/types_deprecated-1.3.1.20260728.tar.gz", hash = "sha256:cab836fdcf6b57d3e277e62d9d76d8a4c556a2639fd0e90cb555fa0e8300d164", size = 8729, upload-time = "2026-07-28T04:51:30.946Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/fe/e6/4e4d2a7d861ac277fbdce3d9a25ce5205f366bcc4e37c021eeb2017c160c/types_deprecated-1.3.1.20260728-py3-none-any.whl", hash = "sha256:d94b3e1db08db6a63ad0e8519e2da2b2d22843f015efa7bd83baef6aa99f7403", size = 9109, upload-time = "2026-07-28T04:51:30.008Z" },
-]
-
-[[package]]
-name = "types-docutils"
-version = "0.22.3.20260724"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/e5/8f/30e02b59a9aad81eacd3d02fab5365257e89fde56e7acf44a4128f5f80aa/types_docutils-0.22.3.20260724.tar.gz", hash = "sha256:0223ce87f9b8331a5a3a7c7832e828033d289da6b878a0dcfbc74c30ec58850e", size = 57883, upload-time = "2026-07-24T04:58:36.388Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/13/1a/898fbb98680dbd5eb7ac8e9cbaf39cf234d329a45d89d04faaf33d7d8008/types_docutils-0.22.3.20260724-py3-none-any.whl", hash = "sha256:45e2fe584608671aa648784c4f805d08a36cd69eb2bd542e60522140c46dc89c", size = 91986, upload-time = "2026-07-24T04:58:35.368Z" },
-]
-
-[[package]]
-name = "types-filelock"
-version = "3.2.7"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/64/f8/8fec49f11f50e1dcc086973785c2a201932cc59d58cc3dedcd4986ac6ef9/types-filelock-3.2.7.tar.gz", hash = "sha256:0673a25b45725c5c45661fe3744c3d8058653a16e683f0ae4a74afb44a0cdef4", size = 3158, upload-time = "2022-06-09T09:19:15.538Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/c7/3f/2346b8821ebc17e1c291c2ea11ec15c0b1c9241d29eaa28f2e7f9db42088/types_filelock-3.2.7-py3-none-any.whl", hash = "sha256:ee0ee2b4ec3d491ebe71f7343e21435c3a07f910881275a94788cac42acf4339", size = 2515, upload-time = "2022-06-09T09:19:13.87Z" },
-]
-
-[[package]]
-name = "types-greenlet"
-version = "3.5.0.20260518"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/e4/58/ec7e4d35ce36557d7599d347c51632723e5f89af551af776d25bab7c605f/types_greenlet-3.5.0.20260518.tar.gz", hash = "sha256:2abc0b31a60d10244bba4a9f9e5d19b7254749b14ea85cb2f72eef282fab39f4", size = 9084, upload-time = "2026-05-18T06:03:08.352Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/4e/1f/112ebbffe68c40af3bca8e948a9d2df66a53dd7b3124e031e3110fcba3e5/types_greenlet-3.5.0.20260518-py3-none-any.whl", hash = "sha256:ce8f2b59314ffd683648d8f7fc1eab7b7a36a0330adb4a054d0a2157b9624166", size = 8816, upload-time = "2026-05-18T06:03:07.06Z" },
-]
-
-[[package]]
-name = "types-html5lib"
-version = "1.1.11.20260518"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "types-webencodings" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/b8/5a/0c708d1b0d35ad48b6a223c77c4a882fd016b40c25becb082a92e02a9c00/types_html5lib-1.1.11.20260518.tar.gz", hash = "sha256:4f33c087cb1119d65c4c80eca4323c2b501f9eaf8af9616b8b732ed4d8eae8fa", size = 18420, upload-time = "2026-05-18T06:07:23.662Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/4d/d0/b088b9f11eb69637d6826843f06caaff60247156735a25512922d3dc2c13/types_html5lib-1.1.11.20260518-py3-none-any.whl", hash = "sha256:9baa7912224ebb37027c5ccb7e3768e43ea47b1dfdd977e7ddc4b0a4a550584d", size = 24339, upload-time = "2026-05-18T06:07:22.876Z" },
-]
-
-[[package]]
-name = "types-jinja2"
-version = "2.11.9"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "types-markupsafe" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/46/c4/b82309bfed8195de7997672deac301bd6f5bd5cbb6a3e392b7fe780d7852/types-Jinja2-2.11.9.tar.gz", hash = "sha256:dbdc74a40aba7aed520b7e4d89e8f0fe4286518494208b35123bcf084d4b8c81", size = 13302, upload-time = "2021-11-26T06:21:17.496Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b7/b0/e79d84748f1d34304f13191424348a719c3febaa3493835370fe9528e1e6/types_Jinja2-2.11.9-py3-none-any.whl", hash = "sha256:60a1e21e8296979db32f9374d8a239af4cb541ff66447bb915d8ad398f9c63b2", size = 18190, upload-time = "2021-11-26T06:21:16.18Z" },
-]
-
-[[package]]
-name = "types-jsonschema"
-version = "4.26.0.20260518"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "referencing" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/dd/46/73b6a5d61a61015c4248030a8cb07e5bdddb4041430fae9e585a68692578/types_jsonschema-4.26.0.20260518.tar.gz", hash = "sha256:e1dd53dc97a64f5eccdd6fa9839666e09bb500a8ebba2db6fdaf1789faea81a6", size = 16638, upload-time = "2026-05-18T06:06:44.106Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/07/d5/134f8a147dcecda10db7f60cfc6af0578a25a5c53c87b3907a64385e0184/types_jsonschema-4.26.0.20260518-py3-none-any.whl", hash = "sha256:30b30a518c7fe335df85c919fcbcc631b69c03d4a4b5b632fa916bea03065307", size = 16072, upload-time = "2026-05-18T06:06:43.264Z" },
-]
-
-[[package]]
-name = "types-markupsafe"
-version = "1.1.10"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/39/31/b5f059142d058aec41e913d8e0eff0a967e7bc46f9a2ba2f31bc11cff059/types-MarkupSafe-1.1.10.tar.gz", hash = "sha256:85b3a872683d02aea3a5ac2a8ef590193c344092032f58457287fbf8e06711b1", size = 2986, upload-time = "2021-11-27T03:18:07.558Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/bc/d6/b8effb1c48539260a5eb4196afc55efac4ea1684a4991977555eb266b2ef/types_MarkupSafe-1.1.10-py3-none-any.whl", hash = "sha256:ca2bee0f4faafc45250602567ef38d533e877d2ddca13003b319c551ff5b3cc5", size = 3998, upload-time = "2021-11-27T03:18:06.398Z" },
-]
-
-[[package]]
-name = "types-peewee"
-version = "4.3.0.20260807"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/8b/83/efbdde32d33b4a549239012f78a555f05c4ef118b08a8f6af3bb98d19a07/types_peewee-4.3.0.20260807.tar.gz", hash = "sha256:5bcc498576528aa268079662da16cc2c02e7ee5ec389d491dd8e8320b1dd19b1", size = 24882, upload-time = "2026-08-07T04:17:32.6Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/59/57/c6d1acef06919142bd9718660f0a9fd02e786360cce2918816069051654f/types_peewee-4.3.0.20260807-py3-none-any.whl", hash = "sha256:7d88f71915ba6ca7e35f1e84e5f73f83face8a20748559448c59141ab1186e7b", size = 22122, upload-time = "2026-08-07T04:17:31.693Z" },
-]
-
-[[package]]
-name = "types-pluggy"
-version = "1.2.0.20240106"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/09/8f/b8ac209fb4610f59d9a29049248bebe71780b43a1a423f0a44a091634e79/types-pluggy-1.2.0.20240106.tar.gz", hash = "sha256:df598c71add54b70a8074c0d59a884512724a50591c3f86af7794c5a824df005", size = 4440, upload-time = "2024-01-06T02:20:15.752Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/9a/2b/f5820c136b3f1297ec1781108ca53c934900576fdfbb099184f8eb440928/types_pluggy-1.2.0.20240106-py3-none-any.whl", hash = "sha256:8ab6a9d6ab853f057e54539100aaa0faf0ff049fa67ed716c8584e6ced86b68b", size = 5494, upload-time = "2024-01-06T02:20:14.373Z" },
-]
-
-[[package]]
-name = "types-polib"
-version = "1.2.0.20260518"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/f3/a0/bc3cfd4d6cb2e9798a28579dd4dd39675cde66a52dd9f5f158b0afc80420/types_polib-1.2.0.20260518.tar.gz", hash = "sha256:2b593a1c6eceb1c4d2ef41054d24ec17c5ee3ec4f2a29a26ece75d8f5715420f", size = 9285, upload-time = "2026-05-18T06:02:24.073Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/67/05/11cf19d219d4cdf53bbf8b3e0c9254d7a04d4b1a6df966124421e407138e/types_polib-1.2.0.20260518-py3-none-any.whl", hash = "sha256:1a6b9bd7eab3672a1c2e54c939b3fb720241e2b671e34a60cb82d2f791eba025", size = 8528, upload-time = "2026-05-18T06:02:22.737Z" },
-]
-
-[[package]]
-name = "types-protobuf"
-version = "7.34.1.20260518"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/29/59/e2b13b499d15e6720150c4b1a8d91e31fcacf716b432397475b3151ff7e4/types_protobuf-7.34.1.20260518.tar.gz", hash = "sha256:28cfaded25889cb83ebfb63cfb0a43628f0b6f3785767bec17287dc6468795f2", size = 68936, upload-time = "2026-05-18T06:01:47.332Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/2a/1f/ec5caf72c2e3b688ca3927e0979a04ddad19e1afc4bf1c199bd743e0f419/types_protobuf-7.34.1.20260518-py3-none-any.whl", hash = "sha256:a0a5337413347166439c0e07cbc26c6164d091401c6f01b1dfd8cdb966c4dd8f", size = 85992, upload-time = "2026-05-18T06:01:45.696Z" },
-]
-
-[[package]]
-name = "types-pygments"
-version = "2.20.0.20260728"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/17/99/0cee9f28ce2c1b8ce6619a6fc4e92bed751d2afc82f27c4e2682b080e3e3/types_pygments-2.20.0.20260728.tar.gz", hash = "sha256:dd0a49d84fd9e3f08ab3a3191779e4732a91bb1fad2e80178cf4574e8f35684d", size = 21362, upload-time = "2026-07-28T04:51:27.768Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/7a/29/394fd32bc24c95fd957f8ec0916b54846eb6e1d416c333272aa32b4e25df/types_pygments-2.20.0.20260728-py3-none-any.whl", hash = "sha256:22974ff0b06fcf752e5d91039a2a6bfd93607f13862b6dc1320a576506144df6", size = 29060, upload-time = "2026-07-28T04:51:26.835Z" },
-]
-
-[[package]]
-name = "types-pyjwt"
-version = "1.7.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "types-cryptography" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/45/92/f2b9e0a047aa22daf364556a61904e98fd164c07524b18487d4bf01bd858/types-PyJWT-1.7.1.tar.gz", hash = "sha256:99c1a0d94d370951f9c6e57b1c369be280b2cbfab72c0f9c0998707490f015c9", size = 3452, upload-time = "2021-06-17T15:00:54.496Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/5a/65/41dc35b71cbd44dbc40583ab1d7b919e7b5c269ec36b9cee8e26c5d665a0/types_PyJWT-1.7.1-py2.py3-none-any.whl", hash = "sha256:810112a84b6c060bb5bc1959a1d229830465eccffa91d8a68eeaac28fb7713ac", size = 4694, upload-time = "2021-06-17T15:00:53.476Z" },
-]
-
-[[package]]
 name = "types-python-dateutil"
 version = "2.9.0.20260807"
 source = { registry = "https://pypi.org/simple" }
@@ -3937,48 +3568,12 @@ wheels = [
 ]
 
 [[package]]
-name = "types-python-slugify"
-version = "8.0.2.20240310"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d2/cb/7fdc1982b117d216a9ebbe4ecc6619690991c48f994d93dee7888f459976/types-python-slugify-8.0.2.20240310.tar.gz", hash = "sha256:5157b508c7fed587520c70d77f62aea0fafdc6620893c2ec8972f13a1faf5560", size = 3661, upload-time = "2024-03-10T02:19:03.582Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ce/6d/873300a60133e51b284a5287a618d3d948a65160e3954b90b3dc5e562667/types_python_slugify-8.0.2.20240310-py3-none-any.whl", hash = "sha256:0efec18b802c69ebd22dcee55c91afaeaa80e1e40ddd66ccabf69fd42ce87b74", size = 3566, upload-time = "2024-03-10T02:19:02.575Z" },
-]
-
-[[package]]
-name = "types-pytz"
-version = "2026.3.1.20260727"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/b1/cf/eae96172a036b942e0ad0ec49512108b4ef4b97cd6c2aed5677540a597e7/types_pytz-2026.3.1.20260727.tar.gz", hash = "sha256:4364075b6867dd15b210bb8c1d29727d609917129b45600defe1d4b3eda5ecb9", size = 10914, upload-time = "2026-07-27T05:36:32.389Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/9c/24/a654176875944981c75516857cd8750600eeb9ff7fc07a2b82573619a57c/types_pytz-2026.3.1.20260727-py3-none-any.whl", hash = "sha256:42ac44e83645bfceb46597342c8fb8ec028a1407e2feae9c5c539986eab6b57a", size = 10132, upload-time = "2026-07-27T05:36:31.52Z" },
-]
-
-[[package]]
-name = "types-pywin32"
-version = "312.0.0.20260724"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/c5/ed/32b91cb4792f25ef30bc87a9aefc3d87867faa804d7fdd5071cef18c2d7c/types_pywin32-312.0.0.20260724.tar.gz", hash = "sha256:0ab44f2eaf24879929a934d4e989c6fbb4aa1df9e44e38eca6d47c680d7c1397", size = 335004, upload-time = "2026-07-24T04:59:09.95Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/cb/89/15b040c0abf53d88ff3dba292e82038854745a8576cd57fc867a60b9517e/types_pywin32-312.0.0.20260724-py3-none-any.whl", hash = "sha256:00a66a2a8a5ccd18d2ac52798f2d1549e74125f0e3d0665e02a33d03fe6fcfcd", size = 397301, upload-time = "2026-07-24T04:59:08.806Z" },
-]
-
-[[package]]
 name = "types-pyyaml"
 version = "6.0.12.20260724"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/3f/6f/a28f44bcd56bebed42b028a2894c79853e2f5e6b5279e633cb3f287a05e7/types_pyyaml-6.0.12.20260724.tar.gz", hash = "sha256:3c1ce1bb73cd5ec02e90390c2b1f00e810d241d8825fd73ff359696839271b6b", size = 17893, upload-time = "2026-07-24T04:58:43.453Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8b/42/0337fefc615e20ee55d1c8f71b774a9b2b734a04669139c20753b27a2a3a/types_pyyaml-6.0.12.20260724-py3-none-any.whl", hash = "sha256:d57db930a4b2efbc57cf430ec8882765d246929432fa253092f383902329a453", size = 20312, upload-time = "2026-07-24T04:58:42.486Z" },
-]
-
-[[package]]
-name = "types-regex"
-version = "2026.7.19.20260720"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/00/bc/825471e08455b037c40d2c80fe9f93a574fcfef0b2e6c6fc2e248ada4adb/types_regex-2026.7.19.20260720.tar.gz", hash = "sha256:49ab8261bd46fa215245b9cb0d2fed1c1056fbdc763303714f6132208909afcf", size = 13473, upload-time = "2026-07-20T05:27:00.203Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b0/1a/9bbd3eace00c2562556570d2464afe843ef5f8118df17aee5f36fed5948f/types_regex-2026.7.19.20260720-py3-none-any.whl", hash = "sha256:70e76f05d8ef60f00227e50351f1cb81552d1cdf3fdf77350f7063c911ee26da", size = 11147, upload-time = "2026-07-20T05:26:59.245Z" },
 ]
 
 [[package]]
@@ -3994,78 +3589,12 @@ wheels = [
 ]
 
 [[package]]
-name = "types-setuptools"
-version = "84.0.0.20260812"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/4f/cd/3b2a3362a526f91c33f785a291462b2ec448ae531101c62372fc30a21f53/types_setuptools-84.0.0.20260812.tar.gz", hash = "sha256:09bedc248ebbb7a232c9419dfcdca329706e61bf2aa5743e9424d027f1d956b4", size = 46545, upload-time = "2026-08-12T03:52:42.316Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/8a/e5/3a41cab4066465593facd660b2683c017f3d88d3297cdd26db0677b8e479/types_setuptools-84.0.0.20260812-py3-none-any.whl", hash = "sha256:799c08e4bc6a288e8a0b538afb5f5ff320a08927ba8dbedb30c74ee3ba5d867b", size = 70320, upload-time = "2026-08-12T03:52:41.154Z" },
-]
-
-[[package]]
-name = "types-six"
-version = "1.17.0.20260724"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/f8/0a/1fb3a4b570f654475a2eadb8c14cc213c25bec5ba25b51364189dcb0b753/types_six-1.17.0.20260724.tar.gz", hash = "sha256:d7abfa82d40eb7dfbb6356c5b1abb4ddc87e0854515a213512e6be98c5d6bc02", size = 15900, upload-time = "2026-07-24T04:58:28.187Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/f7/b5/e955d46780884ab065dd2dca5a4c240585d0ea4c851e978d669e06b71abb/types_six-1.17.0.20260724-py3-none-any.whl", hash = "sha256:5076f03667e21f77b45c029c0aba0a4f5f0f0472c27fc102c8ec7bb68206ecf4", size = 19937, upload-time = "2026-07-24T04:58:27.335Z" },
-]
-
-[[package]]
 name = "types-tabulate"
 version = "0.10.0.20260508"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/11/af/c100d86897d3fdb010d8f813569fa80355b5cb553f51080e37d4f3c451bb/types_tabulate-0.10.0.20260508.tar.gz", hash = "sha256:8e51f159e8b24976849706ae2ed1dc9adba8ebbd080b17e494ebb66a8cc92c74", size = 8395, upload-time = "2026-05-08T04:47:58.921Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a0/36/443b700f54a585cf8ed4e76d8ad08b12df6914f8782a2788ecd0d8491519/types_tabulate-0.10.0.20260508-py3-none-any.whl", hash = "sha256:b1e1a2d0456fbd655a71690b09a7aaeffdf2978d32049184ea436492aa51d20a", size = 8137, upload-time = "2026-05-08T04:47:57.872Z" },
-]
-
-[[package]]
-name = "types-toml"
-version = "0.10.8.20260518"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/4b/11/6ece999e91f2ccb848ab4420f3f4816e78ac0541f739e6864affdaaa5737/types_toml-0.10.8.20260518.tar.gz", hash = "sha256:80e10facd24fdeda9d5c672187d72be3ac284843788d67f5aae59e3e016db6fe", size = 9419, upload-time = "2026-05-18T06:02:16.719Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/91/25/489751806bf5c95e4007f8e17409199c54d31e49ffbea07c5729b1286c8e/types_toml-0.10.8.20260518-py3-none-any.whl", hash = "sha256:0e564ab05f6fde62a315b3b5a9b6624fda569399795d30a37e64705a70459303", size = 9669, upload-time = "2026-05-18T06:02:15.86Z" },
-]
-
-[[package]]
-name = "types-tzdata"
-version = "2026.0.0.20260408"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/25/2b/5ceaefaff522b8c78ac3c011701b702e2fc6b0773b675e4137a75b0d23a1/types_tzdata-2026.0.0.20260408.tar.gz", hash = "sha256:675efbcde3b082c9a6e15e3d851c952f7151cc7f79d60f3e58e70ff8ad593739", size = 6796, upload-time = "2026-04-08T04:31:22.068Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/be/0b/4215444b7b3685f9e1b34ee1e5f36a04de5c1d88367c6465eafa82c87614/types_tzdata-2026.0.0.20260408-py3-none-any.whl", hash = "sha256:9f9f9b5b07d7e9c1d5f40e0e3586d4aa818b8862a0379f55a791f776dc500b43", size = 7219, upload-time = "2026-04-08T04:31:21.261Z" },
-]
-
-[[package]]
-name = "types-tzlocal"
-version = "5.1.0.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "types-pytz" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/e7/cf/e4d446e57c0b14ed1da4de180d2a4cac773b667f183e83bdad76ea6e2238/types-tzlocal-5.1.0.1.tar.gz", hash = "sha256:b84a115c0c68f0d0fa9af1c57f0645eeef0e539147806faf1f95ac3ac01ce47b", size = 3549, upload-time = "2023-10-24T02:15:07.127Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/f8/13/caeb438290df069ddda6f055d0eb14337ada293c7d43ab89419ba4b1a778/types_tzlocal-5.1.0.1-py3-none-any.whl", hash = "sha256:0302e8067c86936de8f7e0aaedc2cfbf240080802c603df0f80312fbd4efb926", size = 3005, upload-time = "2023-10-24T02:15:05.815Z" },
-]
-
-[[package]]
-name = "types-urllib3"
-version = "1.26.25.14"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/73/de/b9d7a68ad39092368fb21dd6194b362b98a1daeea5dcfef5e1adb5031c7e/types-urllib3-1.26.25.14.tar.gz", hash = "sha256:229b7f577c951b8c1b92c1bc2b2fdb0b49847bd2af6d1cc2a2e3dd340f3bda8f", size = 11239, upload-time = "2023-07-20T15:19:31.307Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/11/7b/3fc711b2efea5e85a7a0bbfe269ea944aa767bbba5ec52f9ee45d362ccf3/types_urllib3-1.26.25.14-py3-none-any.whl", hash = "sha256:9683bbb7fb72e32bfe9d2be6e04875fbe1b3eeec3cbb4ea231435aa7fd6b4f0e", size = 15377, upload-time = "2023-07-20T15:19:30.379Z" },
-]
-
-[[package]]
-name = "types-webencodings"
-version = "0.5.0.20260408"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/1c/d2/21567fac142315580ce3ee37d08a4e8819921dae833bbcd27b9f8b373799/types_webencodings-0.5.0.20260408.tar.gz", hash = "sha256:28c596619f367e43eee393d85f63e8d2fdb6874c654a8d441c37f8afe29c6d0d", size = 7504, upload-time = "2026-04-08T04:28:51.735Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/8f/e4/f13be8f6d9a561166f7d963012d0ccc833e13aee3044c4f1a8fb1fee462a/types_webencodings-0.5.0.20260408-py3-none-any.whl", hash = "sha256:19a2afe5c22d9b1e880b49ff823c7b531f473a390fe47ac903c0bdb5cd677dd9", size = 8717, upload-time = "2026-04-08T04:28:50.943Z" },
 ]
 
 [[package]]
