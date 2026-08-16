@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.27 (2026-08-16)
+
+### Bug Fixes
+
+- **security**: Remove unused Callable import in test_teams_commands ([#220](https://github.com/bdperkin/gamesheet-sdk-py/pull/220),
+  [`324bee6`](https://github.com/bdperkin/gamesheet-sdk-py/commit/324bee6f7611f0c281453d90e4f4f742c4014314))
+
 ## v0.4.26 (2026-08-16)
 
 ### Bug Fixes
