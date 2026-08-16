@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.28 (2026-08-16)
+
+### Bug Fixes
+
+- **ci**: Skip 'uv-lock' from pre-commit CI. ([#221](https://github.com/bdperkin/gamesheet-sdk-py/pull/221),
+  [`2613726`](https://github.com/bdperkin/gamesheet-sdk-py/commit/26137264a1be5303d318e1c74774c93a4517d1f0))
+
+### Documentation
+
+- Update documentation and Python docstrings for three-pillar layout ([#221](https://github.com/bdperkin/gamesheet-sdk-py/pull/221),
+  [`2613726`](https://github.com/bdperkin/gamesheet-sdk-py/commit/26137264a1be5303d318e1c74774c93a4517d1f0))
+
 ## v0.4.27 (2026-08-16)
 
 ### Bug Fixes
