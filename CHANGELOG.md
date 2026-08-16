@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.26 (2026-08-16)
+
+### Bug Fixes
+
+- **security**: Resolve CodeQL findings and suppress base image CVEs ([#219](https://github.com/bdperkin/gamesheet-sdk-py/pull/219),
+  [`a11ac39`](https://github.com/bdperkin/gamesheet-sdk-py/commit/a11ac39add2d830f63072c260c5ce748139f6281))
+
+### Chores
+
+- **tooling**: Cut type-stubs from 34 pins to 4 ([#218](https://github.com/bdperkin/gamesheet-sdk-py/pull/218),
+  [`c994083`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c994083fe1608b688086f69a427dab61f7bec04e))
+
 ## v0.4.25 (2026-08-15)
 
 ### Bug Fixes
