@@ -7,16 +7,12 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
 from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
 from gamesheet_sdk.admin.cli.commands.divisions import divisions_group
 from tests.helpers import ASSOCIATION_ID, SEASON_ID
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
 
 
 def test_divisions_teams_get_coverage() -> None:
@@ -52,18 +48,6 @@ def test_divisions_teams_create_coverage() -> None:
     """Ensure divisions teams create command body is covered."""
     runner = CliRunner()
 
-    def run_action_side_effect(
-        session: MagicMock,
-        func: object,
-        *__args: object,
-        **__kwargs: object,
-    ) -> object:
-        # Call the function to ensure it's covered
-        if callable(func):
-            return cast("Callable[[MagicMock], object]", func)(session)
-
-        return func
-
     with (
         patch("gamesheet_sdk.admin.cli.helpers.build_authenticated_session"),
         patch(
@@ -75,7 +59,7 @@ def test_divisions_teams_create_coverage() -> None:
         ),
         patch(
             "gamesheet_sdk.admin.cli.helpers.run_action_or_exit",
-            side_effect=run_action_side_effect,
+            side_effect=lambda session, action, *args, **kw: action(session, *args, **kw),
         ),
         patch("gamesheet_sdk.admin.cli.shared.render_get_command"),
         patch("gamesheet_sdk.admin.cli.helpers.click.secho"),
@@ -142,18 +126,6 @@ def test_divisions_teams_update_coverage() -> None:
     """Ensure divisions teams update command body is covered."""
     runner = CliRunner()
 
-    def run_action_side_effect(
-        session: MagicMock,
-        func: object,
-        *__args: object,
-        **__kwargs: object,
-    ) -> object:
-        # Call the function to ensure it's covered
-        if callable(func):
-            return cast("Callable[[MagicMock], object]", func)(session)
-
-        return func
-
     with (
         patch("gamesheet_sdk.admin.cli.helpers.build_authenticated_session"),
         patch(
@@ -164,7 +136,7 @@ def test_divisions_teams_update_coverage() -> None:
         ),
         patch(
             "gamesheet_sdk.admin.cli.helpers.run_action_or_exit",
-            side_effect=run_action_side_effect,
+            side_effect=lambda session, action, *args, **kw: action(session, *args, **kw),
         ),
         patch("gamesheet_sdk.admin.cli.shared.render_list_command"),
     ):
