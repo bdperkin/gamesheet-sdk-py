@@ -9,7 +9,8 @@
 # Triggers:
 #   - push: Runs on push to main branch (after PR merge)
 #   - pull_request: Runs on opened, reopened, synchronize (all PR activity)
-#   - Ignores changes to CHANGELOG.md and pyproject.toml (managed by release workflow)
+#   - push only ignores CHANGELOG.md and pyproject.toml (managed by release workflow);
+#     pull_request has no paths-ignore, so every PR reports this workflow's checks
 #
 # Concurrency:
 #   - Scoped to workflow + branch name
@@ -66,10 +67,6 @@ name: Docs
 
 on:
   pull_request:
-    paths-ignore:
-      - CHANGELOG.md
-      - pyproject.toml
-
     types:
       - opened
       - reopened

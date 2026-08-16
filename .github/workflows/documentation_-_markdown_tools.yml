@@ -25,10 +25,6 @@ name: Documentation & Markdown Tools
 
 on:
   pull_request:
-    paths-ignore:
-      - CHANGELOG.md
-      - pyproject.toml
-
     types:
       - opened
       - reopened

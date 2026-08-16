@@ -265,8 +265,10 @@ A pin can be held below the newest release by a sibling requirement. `python-sem
 `rich==15.0.0` or `tomlkit==0.15.1` makes the project unsatisfiable — `uv lock` refuses it outright.
 
 syncdeps never proposes such a pin, because it writes whatever `uv` resolved. Dependabot has no such protection: it compares each pin against the index in
-isolation and opens a PR for the newest release. That PR can never merge, and it is worse than merely useless — a Dependabot PR touching only `pyproject.toml`
-matches every workflow's `paths-ignore`, so almost no checks run and it **looks green while being unmergeable**.
+isolation and opens a PR for the newest release, and that PR can never merge — `uv lock` refuses the combination. It used to be worse still: while every
+workflow's `pull_request` trigger carried `paths-ignore: [CHANGELOG.md, pyproject.toml]`, a Dependabot PR touching only `pyproject.toml` ran almost no checks
+and **looked green while being unmergeable**. That filter now applies to `push` only, so such a PR is at least checked honestly; suppressing the pin remains the
+point, since a checked PR that cannot lock is still noise.
 
 After convergence, syncdeps therefore compares each managed pin's resolved version against the newest release the index offers. Anything resolved *below* the
 newest release is capped by something in the graph, and joins the `ignore` list in `.github/dependabot.yml` alongside rev-pinned and overridden packages.

@@ -8,7 +8,9 @@
 #
 # Triggers:
 #   - push to main branch (skip if only CHANGELOG/version changes)
-#   - pull_request (opened, reopened, synchronize)
+#   - pull_request (opened, reopened, synchronize) - no paths-ignore here on purpose:
+#     this job is a required status check, and a filtered-out PR never reports it, so
+#     a pyproject.toml-only PR would sit at BLOCKED forever
 #   - Concurrency: Cancels previous runs for the same branch
 #
 # Jobs: 1 job running pre-commit across all configured hooks
@@ -30,10 +32,6 @@ name: pre-commit
 
 on:
   pull_request:
-    paths-ignore:
-      - CHANGELOG.md
-      - pyproject.toml
-
     types:
       - opened
       - reopened

@@ -9,7 +9,7 @@
 # ╠══════════════════════════════════════════════════════════════════════════════════════════╣
 # ║ Tool      │ pip-audit (Python-specific vulnerability scanner, PyPA OSV database)         ║
 # ║ Trigger   │ push: branches=[main] (paths-ignore: CHANGELOG.md, pyproject.toml)          ║
-# ║           │ pull_request: branches=[main] (paths-ignore: CHANGELOG.md, pyproject.toml)  ║
+# ║           │ pull_request: branches=[main] (no paths-ignore - must gate every PR)        ║
 # ║           │ schedule: daily at 2:00 AM UTC                                               ║
 # ║ Runs on   │ ubuntu-latest                                                                ║
 # ║ Python    │ 3.11 (single version for consistent daily scans)                             ║
@@ -53,9 +53,6 @@ on:
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - CHANGELOG.md
-      - pyproject.toml
   push:
     branches:
       - main

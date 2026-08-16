@@ -9,7 +9,7 @@
 # ╠══════════════════════════════════════════════════════════════════════════════════════════╣
 # ║ Action    │ GitGuardian/ggshield-action (ggshield CLI wrapper)                           ║
 # ║ Trigger   │ push: branches=[main] (paths-ignore: CHANGELOG.md, pyproject.toml)          ║
-# ║           │ pull_request: branches=[main] (paths-ignore: CHANGELOG.md, pyproject.toml)  ║
+# ║           │ pull_request: branches=[main] (no paths-ignore - must gate every PR)        ║
 # ║ Runs on   │ ubuntu-latest                                                                ║
 # ║ Scope     │ Full commit history (fetch-depth: 0) to scan all commits in PR diff         ║
 # ╠══════════════════════════════════════════════════════════════════════════════════════════╣
@@ -55,9 +55,6 @@ on:
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - CHANGELOG.md
-      - pyproject.toml
 
   push:
     branches:
