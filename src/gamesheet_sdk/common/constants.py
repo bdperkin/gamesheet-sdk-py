@@ -3,29 +3,43 @@
 
 """SDK-wide constants and configuration values.
 
-This module defines all URL constants and endpoints used throughout the GameSheet SDK. Constants ---------
-DEFAULT_BASE_URL : str Default GameSheet web application base URL. APP_GAMESHEET_COM : str Legacy GameSheet
-domain (used for browser storage). BFF_API_BASE_URL : str Backend-for-Frontend API base URL.
-SCORESHEET_SERVICE_BASE_URL : str Scoresheet service base URL (for PDF downloads).
-CLOUDFLARE_IMAGE_DELIVERY_BASE : str Cloudflare image delivery CDN base URL with account hash. Examples
--------- Using base URLs in session configuration:
-.. code-block:: python
-    from gamesheet_sdk.common.constants import DEFAULT_BASE_URL
-    from gamesheet_sdk import Session
+This module defines URL constants, API endpoints, output defaults, and HTTP settings
+used throughout the GameSheet SDK.
 
-    session = Session(base_url=DEFAULT_BASE_URL)
-Using BFF API endpoints:
-.. code-block:: python
-    from gamesheet_sdk.common.constants import BFF_API_BASE_URL
+Attributes:
+    DEFAULT_BASE_URL (str): Default GameSheet web application base URL.
+    PLAY_GAMESHEET_APP (str): Play subdomain for certain league operations.
+    APP_GAMESHEET_COM (str): Legacy GameSheet domain (used for browser storage state).
+    BFF_API_BASE_URL (str): Backend-for-Frontend API base URL.
+    SCORESHEET_SERVICE_BASE_URL (str): Scoresheet service base URL (for PDF downloads).
+    CLOUDFLARE_IMAGE_DELIVERY_BASE (str): Cloudflare image delivery CDN base URL with account hash.
 
-    games_url = f"{BFF_API_BASE_URL}/games-list/v1"
-Using image delivery:
-.. code-block:: python
-    from gamesheet_sdk.common.constants import (
-        CLOUDFLARE_IMAGE_DELIVERY_BASE,
-    )
+Examples:
+    Using base URLs in session configuration:
 
-    logo_url = f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/{image_id}"
+    .. code-block:: python
+
+        from gamesheet_sdk.common.constants import DEFAULT_BASE_URL
+        from gamesheet_sdk.common.session import Session
+
+        session = Session(base_url=DEFAULT_BASE_URL)
+
+    Using BFF API endpoints:
+
+    .. code-block:: python
+
+        from gamesheet_sdk.common.constants import BFF_API_BASE_URL
+
+        games_url = f"{BFF_API_BASE_URL}/games-list/v1"
+
+    Using image delivery:
+
+    .. code-block:: python
+
+        from gamesheet_sdk.common.constants import CLOUDFLARE_IMAGE_DELIVERY_BASE
+
+        logo_url = f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/{image_id}"
+
 """
 
 from __future__ import annotations

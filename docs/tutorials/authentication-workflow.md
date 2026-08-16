@@ -92,21 +92,32 @@ The output format depends on your associations. If the list is empty, your accou
 
 ## 6. Step 5 — Use the access token from Python
 
-The Python API has the same authentication story. Import the `load_access_token` function and use it to create an authenticated session:
+The Python API provides direct top-level access to authentication and session management. Import `load_access_token` and `AuthenticatedSession`:
 
 ```console
 (.venv) $ python
->>> from gamesheet_sdk.auth import load_access_token
->>> from gamesheet_sdk.session import Session
->>> from gamesheet_sdk.associations import list_associations
+>>> from gamesheet_sdk import (
+...     AuthenticatedSession,
+...     Config,
+...     list_associations,
+...     load_access_token,
+...     load_refresh_token,
+...     save_tokens,
+... )
 >>>
->>> token = load_access_token()
->>> session = Session(base_url="https://gamesheet.app")
->>> session.set_bearer_token(token)
+>>> config = Config()
+>>> access = load_access_token(config)
+>>> refresh = load_refresh_token(config)
 >>>
->>> associations = list_associations(session)
->>> for a in associations:
-...     print(f"{a.title} (ID: {a.id})")
+>>> with AuthenticatedSession(
+...     config,
+...     access_token=access or "",
+...     refresh_token=refresh or "",
+...     on_refresh=lambda tokens: save_tokens(config, **tokens),
+... ) as session:
+...     associations = list_associations(session)
+...     for a in associations:
+...         print(f"{a.title} (ID: {a.id})")
 ...
 Springfield Youth Hockey (ID: 12345)
 Tournament Series 2024 (ID: 67890)

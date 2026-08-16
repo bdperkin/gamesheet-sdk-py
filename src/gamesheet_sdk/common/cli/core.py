@@ -65,11 +65,11 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 
 class ResourceGroup(click.RichGroup):
-    """A: class:`click.RichGroup` for resource-oriented sub-command trees.
+    """A :class:`click.RichGroup` for resource-oriented sub-command trees.
 
     Adds two pieces of architectural plumbing on top of the stock group:
 
-    **Aliases: **
+    **Aliases:**
         Pass ``aliases={"list": ("ls",), "delete": ("rm", "remove")}`` and ``ls`` resolves to the same
         callback as ``list`` without re-binding it. The canonical name is what shows up in tracebacks and
         ``--help`` output; aliases appear in parentheses next to it.

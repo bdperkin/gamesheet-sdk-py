@@ -13,7 +13,7 @@ ______________________________________________________________________
 - [7. Admin games package](#7-admin-games-package)
 - [8. Admin roster package](#8-admin-roster-package)
 - [9. Admin CLI](#9-admin-cli)
-- [10. Teams CLI](#10-teams-cli)
+- [10. Teams domain and CLI](#10-teams-domain-and-cli)
 
 ______________________________________________________________________
 
@@ -26,7 +26,7 @@ The package is organized into three pillars:
 
 - **`common`** — Shared infrastructure (auth, config, session, browser, output, errors)
 - **`admin`** — Admin dashboard domain modules and CLI
-- **`teams`** — Teams dashboard CLI (domain modules forthcoming)
+- **`teams`** — Teams dashboard domain modules and CLI
 
 ## 1. Module index
 
@@ -47,6 +47,7 @@ All Python modules are automatically discovered and documented. Click any module
     gamesheet_sdk.common.errors
     gamesheet_sdk.common.exceptions
     gamesheet_sdk.common.output
+    gamesheet_sdk.common.security
     gamesheet_sdk.common.session
     gamesheet_sdk.common.shared
     gamesheet_sdk.admin
@@ -58,9 +59,14 @@ All Python modules are automatically discovered and documented. Click any module
     gamesheet_sdk.admin.referees
     gamesheet_sdk.admin.roster
     gamesheet_sdk.admin.seasons
+    gamesheet_sdk.admin.shared
     gamesheet_sdk.admin.teams
     gamesheet_sdk.admin.cli
     gamesheet_sdk.teams
+    gamesheet_sdk.teams.login
+    gamesheet_sdk.teams.lookups
+    gamesheet_sdk.teams.session
+    gamesheet_sdk.teams.shared
     gamesheet_sdk.teams.cli
 ```
 
@@ -79,6 +85,7 @@ Shared modules used by both admin and teams CLIs.
     _autosummary/gamesheet_sdk.common.errors
     _autosummary/gamesheet_sdk.common.exceptions
     _autosummary/gamesheet_sdk.common.output
+    _autosummary/gamesheet_sdk.common.security
     _autosummary/gamesheet_sdk.common.session
 ```
 
@@ -92,6 +99,9 @@ Authentication flows, token management, and authenticated HTTP session.
 
     _autosummary/gamesheet_sdk.common.auth
     _autosummary/gamesheet_sdk.common.auth.constants
+    _autosummary/gamesheet_sdk.common.auth.credentials
+    _autosummary/gamesheet_sdk.common.auth.firebase
+    _autosummary/gamesheet_sdk.common.auth.flow
     _autosummary/gamesheet_sdk.common.auth.login
     _autosummary/gamesheet_sdk.common.auth.session
     _autosummary/gamesheet_sdk.common.auth.storage
@@ -110,7 +120,8 @@ Shared utilities and helpers used across the SDK.
     _autosummary/gamesheet_sdk.common.shared.constants
     _autosummary/gamesheet_sdk.common.shared.gamesheet_http
     _autosummary/gamesheet_sdk.common.shared.image_upload
-    _autosummary/gamesheet_sdk.common.shared.jsonapi
+    _autosummary/gamesheet_sdk.admin.shared
+    _autosummary/gamesheet_sdk.admin.shared.jsonapi
 ```
 
 ## 5. Common CLI infrastructure
@@ -124,6 +135,7 @@ Shared CLI framework used by both admin and teams CLIs.
     _autosummary/gamesheet_sdk.common.cli
     _autosummary/gamesheet_sdk.common.cli.constants
     _autosummary/gamesheet_sdk.common.cli.core
+    _autosummary/gamesheet_sdk.common.cli.rich_config
 ```
 
 ## 6. Admin domain modules
@@ -216,18 +228,24 @@ Admin CLI framework and command implementations.
     _autosummary/gamesheet_sdk.admin.cli.commands.teams_roster_players
 ```
 
-## 10. Teams CLI
+## 10. Teams domain and CLI
 
-Teams CLI framework and command implementations.
+Teams domain models, auth, and CLI command implementations.
 
 ```{eval-rst}
 .. toctree::
     :maxdepth: 2
 
     _autosummary/gamesheet_sdk.teams
+    _autosummary/gamesheet_sdk.teams.login
+    _autosummary/gamesheet_sdk.teams.lookups
+    _autosummary/gamesheet_sdk.teams.session
+    _autosummary/gamesheet_sdk.teams.shared
+    _autosummary/gamesheet_sdk.teams.shared.constants
     _autosummary/gamesheet_sdk.teams.cli
     _autosummary/gamesheet_sdk.teams.cli.main
     _autosummary/gamesheet_sdk.teams.cli.commands
     _autosummary/gamesheet_sdk.teams.cli.commands.completion
     _autosummary/gamesheet_sdk.teams.cli.commands.login
+    _autosummary/gamesheet_sdk.teams.cli.commands.lookups
 ```

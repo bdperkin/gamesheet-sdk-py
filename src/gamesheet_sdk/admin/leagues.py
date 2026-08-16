@@ -10,22 +10,25 @@ with the lightweight :class:`gamesheet_sdk.Session` path -- no Playwright needed
 bearer token has been obtained (typically by reading the SPA's ``accessToken`` from the saved browser storage
 state via :func:`gamesheet_sdk.common.auth.load_access_token`).
 
-**Example: **
+Example:
+    Retrieve all leagues for a given association:
 
-Retrieve all leagues for a given association:
-.. code-block:: python
-    from gamesheet_sdk.common.auth import load_access_token
-    from gamesheet_sdk.admin.leagues import list_leagues
-    from gamesheet_sdk.common.session import Session
+    .. code-block:: python
 
-    # Create authenticated session
-    session = Session(base_url=PLAY_GAMESHEET_APP)
-    token = load_access_token()
-    session.set_bearer_token(token)
-    # List leagues for association "12345"
-    leagues = list_leagues(session, association_id="12345")
-    for league in leagues:
-        print(f"{league.title} (ID: {league.id})")
+        from gamesheet_sdk.admin.leagues import list_leagues
+        from gamesheet_sdk.common.auth import load_access_token
+        from gamesheet_sdk.common.constants import PLAY_GAMESHEET_APP
+        from gamesheet_sdk.common.session import Session
+
+        # Create authenticated session
+        session = Session(base_url=PLAY_GAMESHEET_APP)
+        token = load_access_token()
+        session.set_bearer_token(token)
+        # List leagues for association "12345"
+        leagues = list_leagues(session, association_id="12345")
+        for league in leagues:
+            print(f"{league.title} (ID: {league.id})")
+
 """
 
 from __future__ import annotations

@@ -9,12 +9,15 @@ ______________________________________________________________________
 - [3. Features](#3-features)
 - [4. Requirements](#4-requirements)
 - [5. Installation](#5-installation)
-  - [5.1. Via PyPI / uv](#51-via-pypi--uv)
-  - [5.2. Via Docker](#52-via-docker)
+  - [5.1. From PyPI (Recommended)](#51-from-pypi-recommended)
+  - [5.2. Using UV (10x Faster)](#52-using-uv-10x-faster)
   - [5.3. From Source](#53-from-source)
+  - [5.4. Via Docker](#54-via-docker)
 - [6. Available Resources](#6-available-resources)
 - [7. Quick Start](#7-quick-start)
   - [7.1. CLI](#71-cli)
+    - [7.1.1. Admin CLI (`gamesheet-admin`)](#711-admin-cli--gamesheet-admin)
+    - [7.1.2. Teams CLI (`gamesheet-teams`)](#712-teams-cli--gamesheet-teams)
   - [7.2. Python API](#72-python-api)
 - [8. Configuration](#8-configuration)
 - [9. Documentation](#9-documentation)
@@ -131,16 +134,50 @@ ______________________________________________________________________
 
 ## 5. Installation
 
-### 5.1. Via PyPI / uv
+### 5.1. From PyPI (Recommended)
+
+Install the package from PyPI using standard `pip`:
 
 ```bash
+pip install gamesheet-sdk-py
+
+# Install Playwright browser binary (required for login flow)
+python -m playwright install chromium
+```
+
+### 5.2. Using UV (10x Faster)
+
+If you use Astral [uv](https://github.com/astral-sh/uv), dependency installation is substantially faster:
+
+```bash
+# Add as a project dependency
 uv add gamesheet-sdk-py
 
-# Install Playwright browser (required for login)
+# Or install in a virtual environment
+uv pip install gamesheet-sdk-py
+
+# Install Playwright browser binary (required for login flow)
 uv run playwright install chromium
 ```
 
-### 5.2. Via Docker
+### 5.3. From Source
+
+Clone the repository and install with all development extras:
+
+```bash
+git clone https://github.com/bdperkin/gamesheet-sdk-py.git
+cd gamesheet-sdk-py
+uv sync --all-extras
+uv run playwright install chromium
+
+# Or build the Docker image locally
+make docker-build
+make docker-run
+```
+
+See [Development Setup](docs/how-to/development-setup.md) for detailed instructions.
+
+### 5.4. Via Docker
 
 Pre-built images include Playwright (Chromium) for seamless browser automation.
 
@@ -171,29 +208,14 @@ docker run --rm -v ~/.gamesheet:/home/gamesheet/.gamesheet \
 **Available Docker tags:**
 
 - `latest` — most recent release from main branch
-- `<version>` — specific version (e.g., `0.2.2`, `0.2`, `0`)
+- `<version>` — specific version (e.g., `0.4.27`, `0.4`, `0`)
 - `<branch>-<sha>` — specific commit for traceability
-
-### 5.3. From Source
-
-```bash
-git clone https://github.com/bdperkin/gamesheet-sdk-py.git
-cd gamesheet-sdk-py
-uv sync --all-extras
-uv run playwright install chromium
-
-# Or build the Docker image locally
-make docker-build
-make docker-run
-```
-
-See [Development Setup](docs/how-to/development-setup.md) for detailed instructions.
 
 ______________________________________________________________________
 
 ## 6. Available Resources
 
-The CLI and Python API provide comprehensive coverage of GameSheet resources:
+The SDK provides comprehensive coverage of GameSheet resources across both Admin and Teams dashboards:
 
 | Resource         | CLI Command                                            | Description                             |
 | ---------------- | ------------------------------------------------------ | --------------------------------------- |
@@ -208,6 +230,7 @@ The CLI and Python API provide comprehensive coverage of GameSheet resources:
 | **Team Roster**  | `teams roster players`, `teams roster coaches`         | Team-level roster management            |
 | **Locations**    | `locations`                                            | Game locations and venues               |
 | **iPad Keys**    | `ipad-keys`                                            | iPad scoring access keys                |
+| **Lookups**      | `lookups` (teams CLI)                                  | Public enumeration metadata             |
 
 Each resource supports intuitive verbs: `list` (or `ls`), `get` (or `show`/`view`), `create` (or `add`/`new`), `update` (or `set`/`edit`), `delete` (or
 `rm`/`remove`) where applicable. Most resources default to `list` when invoked without a verb (e.g., `gamesheet-admin associations` runs `list`).
@@ -217,6 +240,8 @@ ______________________________________________________________________
 ## 7. Quick Start
 
 ### 7.1. CLI
+
+#### 7.1.1. Admin CLI (`gamesheet-admin`)
 
 ```bash
 # Authenticate (credentials can also come from env vars)
@@ -262,6 +287,19 @@ gamesheet-admin roster coaches list --season-id 15020 --format json
 # Tab completion setup
 gamesheet-admin completion bash > ~/.gamesheet-admin-completion.bash
 source ~/.gamesheet-admin-completion.bash
+```
+
+#### 7.1.2. Teams CLI (`gamesheet-teams`)
+
+```bash
+# Authenticate against teams dashboard (HTTP-only)
+gamesheet-teams login --email you@example.com
+
+# List public lookup categories (no auth required)
+gamesheet-teams lookups list --format json
+
+# Get lookup values for a specific category
+gamesheet-teams lookups get --category sports --format json
 ```
 
 See the [CLI Reference](docs/reference/cli.md) for complete usage.
@@ -362,7 +400,7 @@ ______________________________________________________________________
 
 **Status:** Alpha — Active development, breaking changes possible before 1.0.0
 
-- **Current version:** 0.2.2
+- **Current version:** 0.4.27
 - **Python support:** 3.11, 3.12, 3.13, 3.14
 - **Version strategy:** Patch-only bumps until 1.0.0 (see [Release Process](docs/how-to/release-process.md))
 - **Test coverage:** 100% (enforced locally and via Codecov)

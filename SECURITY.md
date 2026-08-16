@@ -44,8 +44,8 @@ burden.
 
 | Version | Supported          | Security Enhancements              |
 | ------- | ------------------ | ---------------------------------- |
-| 0.1.x   | :white_check_mark: | Trivy, pip-audit, daily Dependabot |
-| 0.0.x   | :x:                | End of life                        |
+| 0.4.x   | :white_check_mark: | Trivy, pip-audit, daily Dependabot |
+| < 0.4.x | :x:                | End of life                        |
 
 ## 3. Reporting a Vulnerability
 

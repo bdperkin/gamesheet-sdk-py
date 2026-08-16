@@ -70,10 +70,13 @@ These are required and installed automatically by `pip install gamesheet-sdk-py`
 | `playwright`        | Headless-browser automation for the heavy code path.                       |
 | `pydantic`          | Data validation for SDK models.                                            |
 | `pydantic-settings` | Env-driven resolution of `Config`.                                         |
+| `python-dateutil`   | Flexible date/time parsing for game schedule filters and CLI flags.        |
 | `pyyaml`            | YAML output for CLI workflows.                                             |
 | `requests`          | HTTP client for the lightweight code path.                                 |
 | `rich`              | Syntax-highlighted JSON / YAML output to a TTY.                            |
+| `rich-click`        | Rich formatting and option grouping for Click CLI help output.             |
 | `tabulate`          | Human-readable table formats for CLI output.                               |
+| `tzlocal`           | Local timezone detection for game schedules.                               |
 | `urllib3`           | HTTP connection pooling and request retries.                               |
 
 If you change `[project.dependencies]` in `pyproject.toml`, update this table in the same commit.

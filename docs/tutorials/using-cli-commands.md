@@ -52,11 +52,11 @@ For example, to list associations, you would run:
 
 The resource is `associations`, and the verb is `list`. Most resources support these verbs:
 
-- `list` (alias: `ls`) — Show all items.
+- `list` (alias: `ls`) — Show all items (default sub-command for resource groups).
 - `get` (alias: `show`, `view`) — Show details of a single item by ID.
-- `create` (alias: `add`, `new`) — Create a new item (not yet implemented for most resources).
-- `update` (alias: `set`, `edit`) — Update an existing item (not yet implemented for most resources).
-- `delete` (alias: `rm`, `remove`) — Delete an item (not yet implemented for most resources).
+- `create` (alias: `add`, `new`) — Create a new item (supported on divisions, teams, referees, roster, etc.).
+- `update` (alias: `set`, `edit`) — Update an existing item (supported on divisions, teams, referees, roster, etc.).
+- `delete` (alias: `rm`, `remove`) — Delete an item (supported on divisions, teams, referees, roster, etc.).
 
 ## 3. Step 2 — List your associations
 

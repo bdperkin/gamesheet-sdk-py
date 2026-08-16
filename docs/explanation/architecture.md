@@ -60,7 +60,7 @@ The SDK is organized into three pillars:
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                        gamesheet_sdk (top-level)                           │
-│                  Re-exports for backward compatibility                     │
+│                  Re-exports for public API & backward compat               │
 └─────────────────────────────────────────────────────────────────────────────┘
          │                      │                      │
          ▼                      ▼                      ▼
@@ -68,14 +68,14 @@ The SDK is organized into three pillars:
 │     common/     │  │       admin/        │  │       teams/        │
 │  Shared infra   │  │  Admin dashboard    │  │  Teams dashboard    │
 │                 │  │                     │  │                     │
-│ • auth/         │  │ • associations.py   │  │ • cli/ (stub)       │
-│ • cli/core      │  │ • divisions.py      │  │   - login (NYI)     │
-│ • browser.py    │  │ • leagues.py        │  │   - completion      │
-│ • config.py     │  │ • seasons.py        │  │                     │
-│ • session.py    │  │ • teams.py          │  │ (domain modules     │
-│ • output.py     │  │ • referees.py       │  │  forthcoming)       │
-│ • errors.py     │  │ • ipad_keys.py      │  │                     │
-│ • exceptions.py │  │ • games/            │  │                     │
+│ • auth/         │  │ • associations.py   │  │ • login.py          │
+│ • cli/          │  │ • divisions.py      │  │ • lookups.py        │
+│ • browser.py    │  │ • leagues.py        │  │ • session.py        │
+│ • config.py     │  │ • seasons.py        │  │ • shared/constants │
+│ • session.py    │  │ • teams.py          │  │ • cli/              │
+│ • output.py     │  │ • referees.py       │  │   - login           │
+│ • errors.py     │  │ • ipad_keys.py      │  │   - lookups         │
+│ • exceptions.py │  │ • games/            │  │   - completion      │
 │ • constants.py  │  │ • roster/           │  │                     │
 │ • shared/       │  │ • cli/ (full)       │  │                     │
 └─────────────────┘  └─────────────────────┘  └─────────────────────┘
@@ -83,9 +83,11 @@ The SDK is organized into three pillars:
 
 Each pillar has a clear responsibility:
 
-- **`common/`** — Infrastructure shared by both dashboards: authentication, HTTP sessions, browser automation, configuration, output formatting, error messages.
-- **`admin/`** — Domain modules and CLI for the admin dashboard (`gamesheet-admin`). Contains all resource models and action functions.
-- **`teams/`** — CLI and domain modules for the teams dashboard (`gamesheet-teams`). Currently a stub with login not yet implemented.
+- **`common/`** — Infrastructure shared by both dashboards: authentication protocol, HTTP sessions, browser automation, configuration, output formatting, error
+  handling.
+- **`admin/`** — Domain modules and CLI for the admin dashboard (`gamesheet-admin`). Contains all resource models, JSON:API parsers, and action functions.
+- **`teams/`** — Domain modules and CLI for the teams dashboard (`gamesheet-teams`). Features HTTP-only authentication (Firebase REST + Teams token exchange),
+  public lookups, and session management.
 
 Dependencies flow inward: `admin/` and `teams/` depend on `common/`, but never on each other.
 
@@ -435,11 +437,12 @@ If the standard CRUD verbs (`create`, `get`, `list`, `update`, `delete`) are ins
 
 ### 5.3. Adding Teams Domain Modules
 
-The teams pillar follows the same pattern as admin. When the teams authentication flow is implemented:
+The teams pillar follows the same pattern as admin (domain models + actions + Click commands):
 
-1. Create domain modules under `src/gamesheet_sdk/teams/`
-2. Create CLI commands under `src/gamesheet_sdk/teams/cli/commands/`
+1. Create domain modules under `src/gamesheet_sdk/teams/<resource>.py` (e.g. `lookups.py`)
+2. Create CLI commands under `src/gamesheet_sdk/teams/cli/commands/<resource>.py`
 3. Register commands in `teams/cli/main.py`
+4. Add tests under `tests/teams/`
 
 ### 5.4. Adding a New Output Format
 

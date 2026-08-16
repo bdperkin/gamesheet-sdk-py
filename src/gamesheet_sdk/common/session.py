@@ -3,7 +3,7 @@
 
 """Reusable HTTP session for talking to the GameSheet WebUI.
 
-Wraps: class:`requests.Session` with the bits every WebUI workflow
+Wraps :class:`requests.Session` with the bits every WebUI workflow
 needs and nobody wants to wire up by hand:
 - A pinned, version-stamped ``User-Agent``.
 - Configurable base URL so callers can hand in relative paths.
@@ -268,14 +268,14 @@ class Session:
     def get(self: Session, url: str, **kwargs: Any) -> requests.Response:
         """Send a GET request.
 
-        See: meth:`request`.
+        See :meth:`request`.
 
         Args:
             url (str): Absolute URL, or a path relative to :attr:`Config.base_url`.
             **kwargs (Any): Additional keyword arguments forwarded to :meth:`request`.
 
         Returns:
-            requests.Response: Return value.
+            requests.Response: The HTTP response from the server.
 
         """
         return self.request("GET", url, **kwargs)
@@ -283,14 +283,14 @@ class Session:
     def post(self: Session, url: str, **kwargs: Any) -> requests.Response:
         """Send a POST request.
 
-        See: meth:`request`.
+        See :meth:`request`.
 
         Args:
             url (str): Absolute URL, or a path relative to :attr:`Config.base_url`.
             **kwargs (Any): Additional keyword arguments forwarded to :meth:`request`.
 
         Returns:
-            requests.Response: Return value.
+            requests.Response: The HTTP response from the server.
 
         """
         return self.request("POST", url, **kwargs)
@@ -298,14 +298,14 @@ class Session:
     def put(self: Session, url: str, **kwargs: Any) -> requests.Response:
         """Send a PUT request.
 
-        See: meth:`request`.
+        See :meth:`request`.
 
         Args:
             url (str): Absolute URL, or a path relative to :attr:`Config.base_url`.
             **kwargs (Any): Additional keyword arguments forwarded to :meth:`request`.
 
         Returns:
-            requests.Response: Return value.
+            requests.Response: The HTTP response from the server.
 
         """
         return self.request("PUT", url, **kwargs)
@@ -313,14 +313,14 @@ class Session:
     def patch(self: Session, url: str, **kwargs: Any) -> requests.Response:
         """Send a PATCH request.
 
-        See: meth:`request`.
+        See :meth:`request`.
 
         Args:
             url (str): Absolute URL, or a path relative to :attr:`Config.base_url`.
             **kwargs (Any): Additional keyword arguments forwarded to :meth:`request`.
 
         Returns:
-            requests.Response: Return value.
+            requests.Response: The HTTP response from the server.
 
         """
         return self.request("PATCH", url, **kwargs)
@@ -328,14 +328,14 @@ class Session:
     def delete(self: Session, url: str, **kwargs: Any) -> requests.Response:
         """Send a DELETE request.
 
-        See: meth:`request`.
+        See :meth:`request`.
 
         Args:
             url (str): Absolute URL, or a path relative to :attr:`Config.base_url`.
             **kwargs (Any): Additional keyword arguments forwarded to :meth:`request`.
 
         Returns:
-            requests.Response: Return value.
+            requests.Response: The HTTP response from the server.
 
         """
         return self.request("DELETE", url, **kwargs)

@@ -204,7 +204,7 @@ docs-pdf: ## Build PDF docs via LaTeX via uv run
 
 .PHONY: docs-lint
 docs-lint: ## sphinx-lint over docs/ + API freshness check via uv run
-	uv run --extra docs sphinx-lint docs
+	uv run --extra docs sphinx-lint -i docs/reference/_autosummary -i docs/_build -i docs/_autosummary docs
 	uv run python docs/check_api_freshness.py
 
 .PHONY: docs-api

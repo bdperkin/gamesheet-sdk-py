@@ -49,6 +49,7 @@ ci:
     - semgrep-ci
     - ty
     - unimport
+    - uv-lock
 
 categories:
   meta:
