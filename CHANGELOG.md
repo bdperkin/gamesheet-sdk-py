@@ -2,6 +2,27 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.29 (2026-08-16)
+
+### Bug Fixes
+
+- Gate types-\* stub additions and stop paths-ignore blocking PRs ([#222](https://github.com/bdperkin/gamesheet-sdk-py/pull/222),
+  [`c45c198`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c45c19876894f1b5595e2686e0962ea62c44a3a8))
+
+- **ci**: Drop paths-ignore from every pull_request trigger ([#222](https://github.com/bdperkin/gamesheet-sdk-py/pull/222),
+  [`c45c198`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c45c19876894f1b5595e2686e0962ea62c44a3a8))
+
+- **tools**: Gate types-\* stub additions on imports and py.typed ([#222](https://github.com/bdperkin/gamesheet-sdk-py/pull/222),
+  [`c45c198`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c45c19876894f1b5595e2686e0962ea62c44a3a8))
+
+### Chores
+
+- Sync types-pyyaml pin and reformat workflow YAML ([#222](https://github.com/bdperkin/gamesheet-sdk-py/pull/222),
+  [`c45c198`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c45c19876894f1b5595e2686e0962ea62c44a3a8))
+
+- **deps**: Re-lock uv.lock for 0.4.28 ([#222](https://github.com/bdperkin/gamesheet-sdk-py/pull/222),
+  [`c45c198`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c45c19876894f1b5595e2686e0962ea62c44a3a8))
+
 ## v0.4.28 (2026-08-16)
 
 ### Bug Fixes
