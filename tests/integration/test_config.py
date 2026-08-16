@@ -5,18 +5,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import pytest
+from pydantic import SecretStr
 
 from gamesheet_sdk import DEFAULT_BASE_URL, Config
 
 if TYPE_CHECKING:
-    # Imported for typing only, and referenced as a string in cast() below:
-    # literals, so CodeQL reports this as py/unused-import. Do not remove it.
     from pathlib import Path
-
-    from pydantic import SecretStr
 
 
 def test_defaults() -> None:
@@ -60,7 +57,7 @@ def test_init_kwargs_override_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_password_is_redacted_in_repr() -> None:
     """Test that password is redacted in Config repr output."""
-    cfg = Config(password=cast("SecretStr", "hunter2"))
+    cfg = Config(password=SecretStr("hunter2"))
     rendered = repr(cfg)
     assert "hunter2" not in rendered
     assert "SecretStr" in rendered or "**********" in rendered

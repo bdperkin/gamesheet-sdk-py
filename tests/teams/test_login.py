@@ -5,20 +5,16 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
+from pydantic import SecretStr
 
 from gamesheet_sdk import AuthenticationError, Config
 from gamesheet_sdk.common.exceptions import GameSheetError
 from gamesheet_sdk.teams.login import TeamsLoginFlow, refresh_access_token
 from tests.helpers import TEST_EMAIL_MINIMAL
-
-if TYPE_CHECKING:
-    # Imported for typing only, and referenced as a string in cast() below:
-    # literals, so CodeQL reports this as py/unused-import. Do not remove it.
-    from pydantic import SecretStr
 
 
 def _firebase_ok(id_token: str = "firebase-id-tok") -> MagicMock:  # noqa: S107
@@ -118,7 +114,7 @@ def test_teams_login_flow_reads_credentials_from_config() -> None:
     cfg = Config(
         base_url="https://test.example",
         username="bob@example.com",
-        password=cast("SecretStr", "s3cret"),
+        password=SecretStr("s3cret"),
     )
     with (
         patch(

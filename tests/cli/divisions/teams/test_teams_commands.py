@@ -10,13 +10,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING, cast
 from unittest.mock import MagicMock, patch
 
-if TYPE_CHECKING:
-    from collections.abc import Callable
-
 from click.testing import CliRunner
 
 from gamesheet_sdk.admin.cli.commands.divisions import divisions_group
 from tests.helpers import ASSOCIATION_ID, SEASON_ID
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def test_divisions_teams_get_coverage() -> None:
@@ -60,7 +60,7 @@ def test_divisions_teams_create_coverage() -> None:
     ) -> object:
         # Call the function to ensure it's covered
         if callable(func):
-            return cast("Callable[..., object]", func)(session)
+            return cast("Callable[[MagicMock], object]", func)(session)
 
         return func
 
@@ -150,7 +150,7 @@ def test_divisions_teams_update_coverage() -> None:
     ) -> object:
         # Call the function to ensure it's covered
         if callable(func):
-            return cast("Callable[..., object]", func)(session)
+            return cast("Callable[[MagicMock], object]", func)(session)
 
         return func
 

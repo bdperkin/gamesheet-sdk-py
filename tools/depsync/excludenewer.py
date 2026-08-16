@@ -26,7 +26,7 @@ import re
 from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 import tomlkit
 from shared.concurrency import PARALLEL_WORKERS
@@ -305,7 +305,7 @@ def current_entries(pyproject_path: Path) -> dict[str, str]:
     uv_table = _uv_table(_read_pyproject(pyproject_path))
     declared = (uv_table or {}).get(EXCLUDE_NEWER_PACKAGE_KEY) or {}
 
-    declared_map = cast("Mapping[Any, Any]", declared) if isinstance(declared, Mapping) else {}
+    declared_map = cast("Mapping[object, object]", declared) if isinstance(declared, Mapping) else {}
     return {_normalize_name(str(name)): str(value) for name, value in declared_map.items()}
 
 
