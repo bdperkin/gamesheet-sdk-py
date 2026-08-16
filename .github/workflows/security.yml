@@ -1,15 +1,21 @@
 ---
 # ==============================================================================
-# Documentation & Docstring Tools
+# Secret and Vulnerability Scans
 # ==============================================================================
-# Purpose: Validates docstring quality, spelling, and documentation completeness.
+# Purpose: Scans code for security vulnerabilities, insecure patterns, and
+# potential secrets using Semgrep static analysis.
 #
 # Triggers:
 #   - push to main branch (skip if only CHANGELOG/version changes)
 #   - pull_request (opened, reopened, synchronize)
 #   - Concurrency: Cancels previous runs for the same branch
+#
+# Jobs: 1 tool across Python 3.11-3.14 (4 total runs)
+#   - semgrep: Static analysis to find bugs and security vulnerabilities
+#
+# Each job runs: uv run --extra [tool] [tool]
 # ==============================================================================
-name: Documentation & Docstring Tools
+name: Secret and Vulnerability Scans
 
 on:
   pull_request:
@@ -32,8 +38,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
-  codespell:
-    name: codespell (py${{ matrix.python-version }})
+  semgrep:
+    name: semgrep (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -52,27 +58,5 @@ jobs:
         with:
           enable-cache: true
           python-version: ${{ matrix.python-version }}
-      - name: Run codespell via uv
-        run: uv run --extra codespell codespell $(git ls-files)
-  interrogate:
-    name: interrogate (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - '3.11'
-          - '3.12'
-          - '3.13'
-          - '3.14'
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
-        with:
-          enable-cache: true
-          python-version: ${{ matrix.python-version }}
-      - name: Run interrogate via uv
-        run: uv run --extra interrogate interrogate
+      - name: Run semgrep via uv
+        run: uv run --extra semgrep semgrep --config auto .

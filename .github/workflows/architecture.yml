@@ -1,16 +1,27 @@
 ---
 # ==============================================================================
-# Code Style & Formatting (Automated Fixers)
+# Dependencies and Complexity Metrics
 # ==============================================================================
-# Purpose: Enforces consistent code style, formatting, and modern Python syntax
-# across the codebase using Ruff.
+# Purpose: Analyzes codebase dependencies for unused, missing, or transitive
+# dependencies with deptry, and computes complexity / maintainability metrics
+# (Cyclomatic Complexity, Raw Metrics, Maintainability Index, Halstead) with Radon.
 #
 # Triggers:
 #   - push to main branch (skip if only CHANGELOG/version changes)
 #   - pull_request (opened, reopened, synchronize)
 #   - Concurrency: Cancels previous runs for the same branch
+#
+# Jobs:
+#   - deptry: Validates Python dependencies (4 Python versions)
+#   - radon: Computes 4 code metrics across 4 Python versions (16 runs):
+#     - cc: Cyclomatic complexity analysis
+#     - raw: Raw metrics (LOC, LLOC, SLOC, comments, blanks)
+#     - mi: Maintainability index calculation
+#     - hal: Halstead complexity metrics
+#
+# Each job runs: uv run --extra [tool] [tool]
 # ==============================================================================
-name: Code Style & Formatting (Automated Fixers)
+name: Dependencies and Complexity Metrics
 
 on:
   pull_request:
@@ -33,8 +44,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
 
 jobs:
-  ruff-check:
-    name: ruff check (py${{ matrix.python-version }})
+  deptry:
+    name: deptry (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -53,14 +64,19 @@ jobs:
         with:
           enable-cache: true
           python-version: ${{ matrix.python-version }}
-      - name: Run ruff check via uv
-        run: uv run --extra ruff ruff check
-  ruff-format:
-    name: ruff format (py${{ matrix.python-version }})
+      - name: Run deptry via uv
+        run: uv run --extra deptry deptry
+  radon:
+    name: radon ${{ matrix.analyzer }} analysis (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        analyzer:
+          - cc
+          - raw
+          - mi
+          - hal
         python-version:
           - '3.11'
           - '3.12'
@@ -75,5 +91,7 @@ jobs:
         with:
           enable-cache: true
           python-version: ${{ matrix.python-version }}
-      - name: Run ruff format via uv
-        run: uv run --extra ruff ruff format --check
+      - name: Run radon-${{ matrix.analyzer }} via uv
+        run: uv run --extra radon radon "$RADON_ANALYZER" .
+        env:
+          RADON_ANALYZER: ${{ matrix.analyzer }}

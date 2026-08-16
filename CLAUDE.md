@@ -284,13 +284,12 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
 
 - **CI workflow layout.** GitHub Actions is fanned out into per-category workflow files under `.github/workflows/`: a small `ci.yml` build/install sanity check,
   `tests.yml` (pytest matrix py3.11–3.14), `docs.yml` (HTML/EPUB/man/PDF/lint/linkcheck/doctest as parallel jobs + a Pages deploy gated on `push` to main),
-  `pre-commit.yml`, `codecov.yml` (per-PR pytest matrix with coverage + JUnit uploads to Codecov), plus one workflow per tool category: `type_checkers.yml`,
-  `code_quality_linters_-_static_analysis.yml`, `code_style_-_formatting_-automated_fixers-.yml`, `code_cleaners_-_dead_code_detectors.yml`,
-  `configuration_file_linters_-_formatters.yml`, `documentation_-_docstring_tools.yml`, `documentation_-_markdown_tools.yml`,
-  `security-_metrics_-_complexity.yml`, and `comprehensive-tests.yml` (nightly, multi-OS; also uploads to Codecov). Plus the GitHub-supplied `codeql.yml`,
-  `dependency-review.yml`, security scanning workflows (`gitguardian.yml`, `semgrep.yml`, `security-trivy.yml`, `security-trivy-image.yml`, `osv-scanner.yml`,
-  `workflow-linter.yml`), and `release.yml`. Each tool runs as its own matrixed job (py3.11–3.14) invoking `uv run --extra <extra> <tool>` directly, so the
-  extra is the only dependency declaration involved. Job display names are the bare tool name (e.g. `pytest (py3.12)`) so the Checks UI stays scannable.
+  `pre-commit.yml`, `codecov.yml` (per-PR pytest matrix with coverage + JUnit uploads to Codecov), plus one workflow per tool category: `types.yml`,
+  `format.yml`, `quality.yml`, `architecture.yml`, `configuration.yml`, `markdown.yml`, `security.yml`, and `comprehensive-tests.yml` (nightly, multi-OS; also
+  uploads to Codecov). Plus the GitHub-supplied `codeql.yml`, `dependency-review.yml`, security scanning workflows (`gitguardian.yml`, `semgrep.yml`,
+  `security-trivy.yml`, `security-trivy-image.yml`, `osv-scanner.yml`, `workflow-linter.yml`), and `release.yml`. Each tool runs as its own matrixed job
+  (py3.11–3.14) invoking `uv run --extra <extra> <tool>` directly, so the extra is the only dependency declaration involved. Job display names are the bare tool
+  name (e.g. `pytest (py3.12)`) so the Checks UI stays scannable.
 
   **Trigger layout (uniform across most workflows):** `push:` is scoped to `branches: [main]` — CI runs on main branch pushes and when PRs are opened/updated
   against main. `pull_request:` uses either `types: [opened, reopened, synchronize]` (default behavior, runs on every PR push) or `branches: [main]` depending
