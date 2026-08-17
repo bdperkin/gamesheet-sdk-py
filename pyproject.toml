@@ -549,8 +549,6 @@ ini_options.filterwarnings = [
 ini_options.console_output_style = "progress"
 
 [tool.coverage]
-run.branch = true
-run.parallel = false
 ## ## coverage - Test coverage measurement
 # Without this block, `pytest --cov` has no source path to instrument and emits an empty coverage.xml — which Codecov
 # registers as an upload but with no data, surfacing as "No report uploaded" on every flag and component. See
@@ -558,19 +556,21 @@ run.parallel = false
 run.source = [
   "src/gamesheet_sdk",
 ]
+run.branch = true
+run.parallel = false
 # Collapse coverage from the installed package onto the src layout so paths in coverage.xml match the component / flag
 # path filters in .codecov.yml.
 paths.source = [
   "src/gamesheet_sdk",
   "*/site-packages/gamesheet_sdk",
 ]
+report.fail_under = 100
 report.exclude_also = [
   "@overload",
   "if TYPE_CHECKING:",
   "pragma: no cover",
   "raise NotImplementedError",
 ]
-report.fail_under = 100
 report.show_missing = true
 
 [tool.semantic_release]
