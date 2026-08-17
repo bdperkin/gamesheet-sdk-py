@@ -691,9 +691,9 @@ wheels = [
 
 [[package]]
 name = "editorconfig-checker"
-version = "3.8.0"
+version = "3.11.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ab/c2/c339599dc6bdf9fdd3eb21789ddd979d7cf38b46925e358fe7868fb8e44b/editorconfig_checker-3.8.0.tar.gz", hash = "sha256:aad0e967cf9e72399ff862188e36b43dbfc480918c36e21d2751dd0e32b1e6fb", size = 4771, upload-time = "2026-08-02T14:25:47.861Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c3/2d/d19e303795e994d02864b1ecbeefcecc125ba3a04a3458b4478f597fd0eb/editorconfig_checker-3.11.1.tar.gz", hash = "sha256:043b5ae504bc2e6d4497ac4e3058f143339eb3cffd56abb7a215c44ebfd73a1b", size = 4763, upload-time = "2026-08-10T20:05:33.484Z" }
 
 [[package]]
 name = "exceptiongroup"
@@ -1051,7 +1051,7 @@ requires-dist = [
     { name = "colorlog", specifier = "==6.12.0" },
     { name = "deptry", marker = "extra == 'deptry'", specifier = "==0.25.1" },
     { name = "detect-secrets", marker = "extra == 'detect-secrets'", specifier = "==1.5.0" },
-    { name = "editorconfig-checker", marker = "extra == 'editorconfig-checker'", specifier = "==3.8.0" },
+    { name = "editorconfig-checker", marker = "extra == 'editorconfig-checker'", specifier = "==3.11.1" },
     { name = "format-json", marker = "extra == 'format-json'", specifier = "==0.1.2" },
     { name = "furo", marker = "extra == 'docs'", specifier = "==2025.12.19" },
     { name = "gamesheet-sdk-py", extras = ["absolufy-imports", "add-trailing-comma", "blank-line-after-blocks", "ruff", "ssort", "unimport"], marker = "extra == 'format'" },
@@ -1083,7 +1083,7 @@ requires-dist = [
     { name = "pyroma", marker = "extra == 'pyroma'", specifier = "==5.0.1" },
     { name = "pytest", marker = "extra == 'pytest'", specifier = "==9.1.1" },
     { name = "pytest-cov", marker = "extra == 'pytest'", specifier = "==7.1.0" },
-    { name = "pytest-playwright", marker = "extra == 'pytest'", specifier = "==0.8.0" },
+    { name = "pytest-playwright", marker = "extra == 'pytest'", specifier = "==0.9.0" },
     { name = "pytest-recording", marker = "extra == 'pytest'", specifier = "==0.13.4" },
     { name = "python-dateutil", specifier = "==2.9.0.post0" },
     { name = "python-semantic-release", marker = "extra == 'python-semantic-release'", specifier = "==10.6.1" },
@@ -2416,7 +2416,7 @@ wheels = [
 
 [[package]]
 name = "pytest-playwright"
-version = "0.8.0"
+version = "0.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "playwright" },
@@ -2424,9 +2424,9 @@ dependencies = [
     { name = "pytest-base-url" },
     { name = "python-slugify" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/58/ef/172eb8e23c80491fc72f1401c72f9305663873649351306a38b18406b0c9/pytest_playwright-0.8.0.tar.gz", hash = "sha256:7888d4a2443160c82e0c506c437076679f86b36d1910427250d90fbf1843a981", size = 17132, upload-time = "2026-05-18T10:16:15.919Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/26/c4/31cab1a9edfa35546950bb30c033dbfe4d4f3a216f4bafb0537a1469a70c/pytest_playwright-0.9.0.tar.gz", hash = "sha256:bd44daa852b0fb8b0e55a2f88b727507dedda0e350bea5d09420647252f2454b", size = 17899, upload-time = "2026-08-10T10:20:16.407Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fe/71/1c545fac6a9054b52b3771238fb2dc6e8f1d0ccec116e1c7786ec191887c/pytest_playwright-0.8.0-py3-none-any.whl", hash = "sha256:856aae6efd4bc055f2ef229c647768760bcaad5cd3a5983c314ac260a974a933", size = 17143, upload-time = "2026-05-18T10:16:18.226Z" },
+    { url = "https://files.pythonhosted.org/packages/ab/70/72ff5c3833f0faa9b5fb23f24c0a606f070ad33bb61b802ba38dfe125e7d/pytest_playwright-0.9.0-py3-none-any.whl", hash = "sha256:9d9dc74e335c647944cecfffa706cc9e6e4bf4c25e84592c128b584d494d4471", size = 17915, upload-time = "2026-08-10T10:20:18.253Z" },
 ]
 
 [[package]]

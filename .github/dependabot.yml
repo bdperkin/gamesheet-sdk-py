@@ -51,9 +51,6 @@ updates:
           - patch
     ignore:
       # Managed by syncdeps — do not edit manually
-      - dependency-name: editorconfig-checker
-        versions:
-          - '> 3.8.0'
       - dependency-name: mcp
         versions:
           - '> 1.29.0'
@@ -63,9 +60,6 @@ updates:
       - dependency-name: pyproject-fmt
         versions:
           - '> 2.27.0'
-      - dependency-name: pytest-playwright
-        versions:
-          - '> 0.8.0'
       - dependency-name: rich
         versions:
           - '> 14.3.4'
