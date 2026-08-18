@@ -211,6 +211,22 @@ def test_teams_login_flow_firebase_error_non_string_message(
     assert "HTTP 403" in str(exc_info.value)
 
 
+def test_teams_login_flow_firebase_error_non_dict_json(config: Config) -> None:
+    """Test Firebase error with non-dict JSON body falls back to HTTP status."""
+    mock_resp = MagicMock()
+    mock_resp.status_code = 400
+    mock_resp.json.return_value = "raw string response"
+    with patch(
+        "gamesheet_sdk.teams.login.requests.post",
+        return_value=mock_resp,
+    ):
+        flow = TeamsLoginFlow(config)
+        with pytest.raises(AuthenticationError) as exc_info:
+            flow.authenticate(email=TEST_EMAIL_MINIMAL, password="x")
+
+    assert "HTTP 400" in str(exc_info.value)
+
+
 # ---------- token exchange failures --------------------------------------
 
 
@@ -284,3 +300,101 @@ def test_teams_refresh_other_http_error() -> None:
         pytest.raises(GameSheetError, match="HTTP 500"),
     ):
         refresh_access_token("some-refresh")
+
+
+def test_teams_refresh_tokens_envelope() -> None:
+    """Test that refresh_access_token parses tokens nested under 'tokens'."""
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.json.return_value = {"tokens": {"access": "A-nested", "refresh": "R-nested"}}
+
+    with patch(
+        "gamesheet_sdk.teams.login.requests.post",
+        return_value=mock_resp,
+    ):
+        tokens = refresh_access_token("old-refresh")
+
+    assert tokens == {"access": "A-nested", "refresh": "R-nested"}
+
+
+def test_teams_refresh_data_tokens_envelope() -> None:
+    """Test that refresh_access_token parses tokens nested under data.tokens."""
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.json.return_value = {"data": {"tokens": {"access": "A-data", "refresh": "R-data"}}}
+
+    with patch(
+        "gamesheet_sdk.teams.login.requests.post",
+        return_value=mock_resp,
+    ):
+        tokens = refresh_access_token("old-refresh")
+
+    assert tokens == {"access": "A-data", "refresh": "R-data"}
+
+
+def test_teams_refresh_camel_case_keys() -> None:
+    """Test that refresh_access_token parses accessToken/refreshToken keys."""
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.json.return_value = {"accessToken": "A-camel", "refreshToken": "R-camel"}
+
+    with patch(
+        "gamesheet_sdk.teams.login.requests.post",
+        return_value=mock_resp,
+    ):
+        tokens = refresh_access_token("old-refresh")
+
+    assert tokens == {"access": "A-camel", "refresh": "R-camel"}
+
+
+def test_teams_refresh_invalid_format_non_dict() -> None:
+    """Test that refresh_access_token raises GameSheetError if body is non-dict."""
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.json.return_value = ["not", "a", "dict"]
+
+    with (
+        patch(
+            "gamesheet_sdk.teams.login.requests.post",
+            return_value=mock_resp,
+        ),
+        pytest.raises(GameSheetError, match="Unexpected token response format"),
+    ):
+        refresh_access_token("old-refresh")
+
+
+def test_teams_refresh_missing_tokens() -> None:
+    """Test that refresh_access_token raises GameSheetError if access/refresh are missing."""
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.json.return_value = {"other": "value"}
+
+    with (
+        patch(
+            "gamesheet_sdk.teams.login.requests.post",
+            return_value=mock_resp,
+        ),
+        pytest.raises(GameSheetError, match="missing access or refresh token"),
+    ):
+        refresh_access_token("old-refresh")
+
+
+def test_teams_exchange_missing_tokens_raises_auth_error(config: Config) -> None:
+    """Test that _exchange_id_token raises AuthenticationError if tokens are missing."""
+    mock_token_resp = MagicMock()
+    mock_token_resp.status_code = 200
+    mock_token_resp.json.return_value = {"bad": "payload"}
+
+    with (
+        patch(
+            "gamesheet_sdk.teams.login.requests.post",
+            return_value=_firebase_ok(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.login.requests.get",
+            return_value=mock_token_resp,
+        ),
+    ):
+        flow = TeamsLoginFlow(config)
+        with pytest.raises(AuthenticationError, match="missing access or refresh token"):
+            flow.authenticate(email=TEST_EMAIL_MINIMAL, password="x")

@@ -1,0 +1,126 @@
+# Copyright (c) 2026 bdperkin
+# SPDX-License-Identifier: MIT
+
+"""Teams command for the GameSheet teams dashboard."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+import rich_click as click
+from rich_click import Context
+
+from gamesheet_sdk.common.cli.core import ResourceGroup
+from gamesheet_sdk.common.cli.decorators import (
+    common_output_options,
+    get_fields_option,
+    list_columns_option,
+)
+from gamesheet_sdk.common.cli.rendering import (
+    render_get_command,
+    render_list_command,
+)
+from gamesheet_sdk.teams.cli.helpers import (
+    build_authenticated_session,
+    run_action_or_exit,
+)
+from gamesheet_sdk.teams.teams import (
+    get_team as _get_team_action,
+)
+from gamesheet_sdk.teams.teams import (
+    list_teams as _list_teams_action,
+)
+
+if TYPE_CHECKING:
+    from gamesheet_sdk.common.config import Config
+
+
+@click.group(
+    "teams",
+    cls=ResourceGroup,
+    default="list",
+    aliases={
+        "get": ("show", "view"),
+        "list": ("ls",),
+    },
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
+def teams_group() -> None:
+    """View teams from the teams API.
+
+    Invoking ``teams`` with no sub-command runs ``list`` by default.
+    """
+
+
+@teams_group.command("list")
+@common_output_options
+@list_columns_option
+@click.pass_context
+def teams_list_command(
+    ctx: Context,
+    output_format: str,
+    output_path: str | None,
+    columns_spec: str | None,
+) -> None:
+    r"""List all teams available to the authenticated user.
+
+    Focuses on member ID, team ID, relationship, status, onboarding completion timestamp, team name,
+    age category, club ID, joined timestamp, and stats year.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        columns_spec (str | None): Optional comma-separated list of columns to display.
+
+    """
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+    teams = run_action_or_exit(
+        session,
+        _list_teams_action,
+        timeout=config.timeout,
+    )
+    render_list_command(teams, output_format, output_path, columns_spec)
+
+
+@teams_group.command("get")
+@click.option(
+    "--team-id",
+    "-t",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID to retrieve details for.",
+)
+@common_output_options
+@get_fields_option
+@click.pass_context
+def teams_get_command(
+    ctx: Context,
+    team_id: str,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+) -> None:
+    r"""Get detailed metadata for a specific team.
+
+    Retrieves all attributes and configuration for the selected team.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        team_id (str): Team identifier.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        fields_spec (str | None): Optional comma-separated list of fields to display.
+
+    """
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+    team = run_action_or_exit(
+        session,
+        _get_team_action,
+        team_id,
+        timeout=config.timeout,
+    )
+    render_get_command(team, output_format, output_path, fields_spec)

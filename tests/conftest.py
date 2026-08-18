@@ -9,6 +9,7 @@ import os
 from typing import TYPE_CHECKING
 
 import pytest
+from click.testing import CliRunner
 
 from gamesheet_sdk import Config
 
@@ -97,3 +98,9 @@ def browser_type_launch_args() -> dict[str, object]:
 
     """
     return {"headless": True}
+
+
+@pytest.fixture
+def runner() -> CliRunner:
+    """Return a Click CLI test runner."""
+    return CliRunner()

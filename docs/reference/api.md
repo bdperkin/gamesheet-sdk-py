@@ -245,6 +245,7 @@ Teams domain models, auth, and CLI command implementations.
     _autosummary/gamesheet_sdk.teams.lookups
     _autosummary/gamesheet_sdk.teams.seasons
     _autosummary/gamesheet_sdk.teams.session
+    _autosummary/gamesheet_sdk.teams.teams
     _autosummary/gamesheet_sdk.teams.shared
     _autosummary/gamesheet_sdk.teams.shared.constants
     _autosummary/gamesheet_sdk.teams.cli
@@ -255,4 +256,5 @@ Teams domain models, auth, and CLI command implementations.
     _autosummary/gamesheet_sdk.teams.cli.commands.login
     _autosummary/gamesheet_sdk.teams.cli.commands.lookups
     _autosummary/gamesheet_sdk.teams.cli.commands.seasons
+    _autosummary/gamesheet_sdk.teams.cli.commands.teams
 ```

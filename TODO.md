@@ -103,7 +103,10 @@ For each resource, repeat this pattern: pydantic model(s), action functions, CLI
   commands: `list` (default, alias `ls`), `get` (aliases `show`, `view`), `penalty-codes` (aliases `penalty_codes`, `penalties`), and `teams`. Selected via
   `--season-id` or `GAMESHEET_SEASON_ID`. Shared CLI options, rendering, and action runner extracted into `common/cli/` (`decorators.py`, `rendering.py`,
   `helpers.py`).
-- [ ] **Teams** — Get team, list members, team settings (`/api/teams/{id}/*`)
+- [x] **Teams** — Bearer-authenticated endpoint (`GET /api/teams`), returns list of teams associated with user. Domain module (`teams/teams.py`) with models
+  (`TeamSummary`, `TeamDetail`) and actions (`list_teams`, `get_team`, `fetch_teams_raw`). CLI commands: `list` (default, alias `ls`, primary focus fields:
+  `memberId`, `teamId`, `relationship`, `status`, `onboardingCompletedAt`, `teamName`, `ageCategory`, `clubId`, `joinedAt`, `statsYear`) and `get` (aliases
+  `show`, `view`, selected via `--team-id` / `-t` or `GAMESHEET_TEAM_ID`).
 - [ ] **Roster — Players** — CRUD (`/api/roster/players/*`), 23 positions, player statuses/duties
 - [ ] **Roster — Coaches** — CRUD (`/api/roster/coaches/*`), 5 coach positions
 - [ ] **Games** — CRUD (`/api/schedule-game/*`), game status, 5 game types

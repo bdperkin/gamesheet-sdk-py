@@ -251,7 +251,7 @@ def test_get_season_without_optional_fields() -> None:
     assert result_none.leagueId == ""
 
     result_no_id = get_season(session, "", timeout=1.0)
-    assert result_no_id.id == ""
+    assert result_no_id.id is None
     assert result_no_id.title == "No ID Key Season"
 
 

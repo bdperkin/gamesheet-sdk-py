@@ -218,6 +218,7 @@ def test_teams_command_groups_configured() -> None:
     resources = next(g for g in command_groups if g.get("name") == "Resources")
     assert "lookups" in resources["commands"]
     assert "seasons" in resources["commands"]
+    assert "teams" in resources["commands"]
 
 
 def test_teams_cli_with_no_headless_flag(runner: CliRunner) -> None:

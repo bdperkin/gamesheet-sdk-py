@@ -10,12 +10,20 @@ from gamesheet_sdk.teams.seasons import (
     SeasonDetail,
     SeasonSummary,
     SeasonTeam,
+    fetch_seasons_raw,
     get_season,
     get_season_penalty_codes,
     get_season_teams,
     list_seasons,
 )
 from gamesheet_sdk.teams.session import TeamsAuthenticatedSession
+from gamesheet_sdk.teams.teams import (
+    TeamDetail,
+    TeamSummary,
+    fetch_teams_raw,
+    get_team,
+    list_teams,
+)
 
 __all__ = [
     "LookupValue",
@@ -23,12 +31,18 @@ __all__ = [
     "SeasonDetail",
     "SeasonSummary",
     "SeasonTeam",
+    "TeamDetail",
+    "TeamSummary",
     "TeamsAuthenticatedSession",
     "TeamsLoginFlow",
+    "fetch_seasons_raw",
+    "fetch_teams_raw",
     "get_season",
     "get_season_penalty_codes",
     "get_season_teams",
+    "get_team",
     "list_lookups",
     "list_seasons",
+    "list_teams",
     "refresh_access_token",
 ]

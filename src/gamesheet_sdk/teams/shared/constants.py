@@ -12,6 +12,7 @@ Attributes:
     TEAMS_REFRESH_PATH (str): Endpoint path for refreshing an expired access token.
     TEAMS_LOOKUPS_PATH (str): Endpoint path for fetching public lookup data (no auth required).
     TEAMS_SEASONS_PATH (str): Endpoint path for fetching seasons data.
+    TEAMS_TEAMS_PATH (str): Endpoint path for fetching teams data.
 
 Example:
     Building a token exchange URL:
@@ -37,3 +38,4 @@ TEAMS_TOKEN_EXCHANGE_PATH: Final[str] = "/api/auth/tokens"  # noqa: S105
 TEAMS_REFRESH_PATH: Final[str] = "/api/auth/refresh"
 TEAMS_LOOKUPS_PATH: Final[str] = "/api/lookups"
 TEAMS_SEASONS_PATH: Final[str] = "/api/seasons"
+TEAMS_TEAMS_PATH: Final[str] = "/api/teams"

@@ -53,19 +53,19 @@ class SeasonDetail(BaseModel):
     """Detailed season metadata with penaltyCodes and teams excluded.
 
     Attributes:
-        id (str): Season identifier.
-        title (str): Display name of the season.
-        stats_year (str): Statistics year label.
-        leagueId (str): Parent league identifier.
+        id (str | int | None): Season identifier.
+        title (str | None): Display name of the season.
+        stats_year (str | int | None): Statistics year label.
+        leagueId (str | int | None): Parent league identifier.
 
     """
 
     model_config = ConfigDict(extra="allow")
 
-    id: str = Field(default="", description="Season identifier.")
-    title: str = Field(default="", description="Display name of the season.")
-    stats_year: str = Field(default="", description="Statistics year label.")
-    leagueId: str = Field(default="", description="Parent league identifier.")  # noqa: N815
+    id: str | int | None = Field(default=None, description="Season identifier.")
+    title: str | None = Field(default=None, description="Display name of the season.")
+    stats_year: str | int | None = Field(default=None, description="Statistics year label.")
+    leagueId: str | int | None = Field(default=None, description="Parent league identifier.")  # noqa: N815
 
 
 class PenaltyCode(BaseModel):
