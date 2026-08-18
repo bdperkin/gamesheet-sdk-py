@@ -217,6 +217,10 @@ def test_teams_command_groups_configured() -> None:
     assert any(g.get("name") == "Utilities" for g in command_groups)
     resources = next(g for g in command_groups if g.get("name") == "Resources")
     assert "lookups" in resources["commands"]
+    assert "members" in resources["commands"]
+    assert "messages" in resources["commands"]
+    assert "roster" in resources["commands"]
+    assert "schedule" in resources["commands"]
     assert "seasons" in resources["commands"]
     assert "teams" in resources["commands"]
 

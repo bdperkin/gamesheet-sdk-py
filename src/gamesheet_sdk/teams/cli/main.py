@@ -26,6 +26,10 @@ from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.teams.cli.commands.completion import completion_command
 from gamesheet_sdk.teams.cli.commands.login import login_command
 from gamesheet_sdk.teams.cli.commands.lookups import lookups_group
+from gamesheet_sdk.teams.cli.commands.members import members_group
+from gamesheet_sdk.teams.cli.commands.messages import messages_command
+from gamesheet_sdk.teams.cli.commands.roster import roster_group
+from gamesheet_sdk.teams.cli.commands.schedule import schedule_group
 from gamesheet_sdk.teams.cli.commands.seasons import seasons_group
 from gamesheet_sdk.teams.cli.commands.teams import teams_group
 
@@ -51,7 +55,15 @@ click.rich_click.COMMAND_GROUPS["gamesheet-teams"] = [
     },
     {
         "name": "Resources",
-        "commands": ["lookups", "seasons", "teams"],
+        "commands": [
+            "lookups",
+            "members",
+            "messages",
+            "roster",
+            "schedule",
+            "seasons",
+            "teams",
+        ],
     },
 ]
 
@@ -112,6 +124,10 @@ def cli(
 cli.add_command(login_command)
 cli.add_command(completion_command)
 cli.add_command(lookups_group)
+cli.add_command(members_group)
+cli.add_command(messages_command)
+cli.add_command(roster_group)
+cli.add_command(schedule_group)
 cli.add_command(seasons_group)
 cli.add_command(teams_group)
 
