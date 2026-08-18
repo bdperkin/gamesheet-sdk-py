@@ -26,10 +26,13 @@ from gamesheet_sdk.teams.teams import (
     TeamSummary,
     _find_team,
     _parse_team_summary,
+    archive_team,
     fetch_team_raw,
     fetch_teams_raw,
     get_team,
     list_teams,
+    restore_team,
+    unarchive_team,
     update_team,
     upload_team_image,
 )
@@ -880,3 +883,163 @@ def test_update_team_with_neither_team_id_nor_id() -> None:
     )
     assert result.teamId is None
     assert result.teamName == "No ID Team"
+
+
+@responses.activate
+def test_archive_team_success() -> None:
+    """Test archive_team sends PATCH with isArchived=True and returns TeamDetail."""
+    team_id = "eb20a094-5c3c-47bc-918f-c8f69cfe0719"
+    patch_url = f"{_TEAMS_URL}/{team_id}"
+    responses.add(
+        responses.PATCH,
+        patch_url,
+        json={"success": True},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        patch_url,
+        json={
+            "team": {
+                "teamId": team_id,
+                "teamName": "Peterborough Petes 2",
+                "teamLogo": "https://imagedelivery.net/test/logo-123",
+                "skill": "rec",
+                "ageCategory": "U18",
+                "province": "VA",
+                "isArchived": True,
+            },
+        },
+        status=200,
+    )
+
+    session = _make_session()
+    result = archive_team(session, team_id, timeout=1.0)
+    assert result.teamId == team_id
+    assert result.teamName == "Peterborough Petes 2"
+    assert result.isArchived is True
+
+
+@responses.activate
+def test_archive_team_auth_error() -> None:
+    """Test archive_team raises AuthenticationError on 401."""
+    team_id = "eb20a094-5c3c-47bc-918f-c8f69cfe0719"
+    patch_url = f"{_TEAMS_URL}/{team_id}"
+    responses.add(responses.PATCH, patch_url, status=401)
+    responses.add(
+        responses.POST,
+        _REFRESH_URL,
+        json={"error": "invalid_grant"},
+        status=401,
+    )
+
+    session = _make_session()
+    with pytest.raises(AuthenticationError, match=r"Authentication required"):
+        archive_team(session, team_id, timeout=1.0)
+
+
+@responses.activate
+def test_archive_team_server_error() -> None:
+    """Test archive_team raises GameSheetError on non-2xx status."""
+    team_id = "eb20a094-5c3c-47bc-918f-c8f69cfe0719"
+    patch_url = f"{_TEAMS_URL}/{team_id}"
+    responses.add(responses.PATCH, patch_url, status=500, body="Server error")
+
+    session = _make_session()
+    with pytest.raises(GameSheetError, match=r"PATCH /api/teams/.* returned HTTP 500"):
+        archive_team(session, team_id, timeout=1.0)
+
+
+@responses.activate
+def test_restore_team_success() -> None:
+    """Test restore_team sends PATCH with isArchived=False and returns TeamDetail."""
+    team_id = "eb20a094-5c3c-47bc-918f-c8f69cfe0719"
+    patch_url = f"{_TEAMS_URL}/{team_id}"
+    responses.add(
+        responses.PATCH,
+        patch_url,
+        json={"success": True},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        patch_url,
+        json={
+            "team": {
+                "teamId": team_id,
+                "teamName": "Peterborough Petes 2",
+                "teamLogo": "https://imagedelivery.net/test/logo-123",
+                "skill": "rec",
+                "ageCategory": "U18",
+                "province": "VA",
+                "isArchived": False,
+            },
+        },
+        status=200,
+    )
+
+    session = _make_session()
+    result = restore_team(session, team_id, timeout=1.0)
+    assert result.teamId == team_id
+    assert result.teamName == "Peterborough Petes 2"
+    assert result.isArchived is False
+
+
+@responses.activate
+def test_unarchive_team_alias() -> None:
+    """Test unarchive_team alias functions identically to restore_team."""
+    team_id = "eb20a094-5c3c-47bc-918f-c8f69cfe0719"
+    patch_url = f"{_TEAMS_URL}/{team_id}"
+    responses.add(
+        responses.PATCH,
+        patch_url,
+        json={"success": True},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        patch_url,
+        json={
+            "team": {
+                "teamId": team_id,
+                "teamName": "Peterborough Petes 2",
+                "isArchived": False,
+            },
+        },
+        status=200,
+    )
+
+    session = _make_session()
+    result = unarchive_team(session, team_id, timeout=1.0)
+    assert result.teamId == team_id
+    assert result.isArchived is False
+
+
+@responses.activate
+def test_restore_team_auth_error() -> None:
+    """Test restore_team raises AuthenticationError on 401."""
+    team_id = "eb20a094-5c3c-47bc-918f-c8f69cfe0719"
+    patch_url = f"{_TEAMS_URL}/{team_id}"
+    responses.add(responses.PATCH, patch_url, status=401)
+    responses.add(
+        responses.POST,
+        _REFRESH_URL,
+        json={"error": "invalid_grant"},
+        status=401,
+    )
+
+    session = _make_session()
+    with pytest.raises(AuthenticationError, match=r"Authentication required"):
+        restore_team(session, team_id, timeout=1.0)
+
+
+@responses.activate
+def test_restore_team_server_error() -> None:
+    """Test restore_team raises GameSheetError on non-2xx status."""
+    team_id = "eb20a094-5c3c-47bc-918f-c8f69cfe0719"
+    patch_url = f"{_TEAMS_URL}/{team_id}"
+    responses.add(responses.PATCH, patch_url, status=500, body="Server error")
+
+    session = _make_session()
+    with pytest.raises(GameSheetError, match=r"PATCH /api/teams/.* returned HTTP 500"):
+        restore_team(session, team_id, timeout=1.0)

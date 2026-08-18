@@ -567,3 +567,353 @@ def test_teams_update_no_fields_error(runner: CliRunner) -> None:
     result = runner.invoke(cli, ["teams", "update", "--team-id", "t-201"])
     assert result.exit_code == 1
     assert "Error: At least one field must be provided for update" in result.output
+
+
+def test_teams_archive_success(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams archive -t <id>` archives team successfully."""
+    archived_mock = TeamDetail(
+        teamId="eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+        teamName="Peterborough Petes 2",
+        isArchived=True,
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+            return_value=archived_mock,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            ["teams", "archive", "-t", "eb20a094-5c3c-47bc-918f-c8f69cfe0719"],
+        )
+
+    assert result.exit_code == 0
+    assert "Peterborough Petes 2" in result.output
+
+
+def test_teams_archive_envvar(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams archive` picks up GAMESHEET_TEAM_ID envvar."""
+    archived_mock = TeamDetail(
+        teamId="eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+        teamName="Peterborough Petes 2",
+        isArchived=True,
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+            return_value=archived_mock,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            ["teams", "archive"],
+            env={"GAMESHEET_TEAM_ID": "eb20a094-5c3c-47bc-918f-c8f69cfe0719"},
+        )
+
+    assert result.exit_code == 0
+    assert "Peterborough Petes 2" in result.output
+
+
+def test_teams_archive_format_json(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams archive --format json` outputs valid JSON."""
+    archived_mock = TeamDetail(
+        teamId="eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+        teamName="Peterborough Petes 2",
+        isArchived=True,
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+            return_value=archived_mock,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "teams",
+                "archive",
+                "--team-id",
+                "eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+                "--format",
+                "json",
+            ],
+        )
+
+    assert result.exit_code == 0
+    assert '"teamId": "eb20a094-5c3c-47bc-918f-c8f69cfe0719"' in result.output
+    assert '"isArchived": true' in result.output
+
+
+def test_teams_archive_output_file(runner: CliRunner, tmp_path: Path) -> None:
+    """Test `gamesheet-teams teams archive -o <file>` writes output to file."""
+    out_file = tmp_path / "archive_out.txt"
+    archived_mock = TeamDetail(
+        teamId="eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+        teamName="Peterborough Petes 2",
+        isArchived=True,
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+            return_value=archived_mock,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "teams",
+                "archive",
+                "-t",
+                "eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+                "-o",
+                str(out_file),
+            ],
+        )
+
+    assert result.exit_code == 0
+    content = out_file.read_text(encoding="utf-8")
+    assert "Peterborough Petes 2" in content
+
+
+def test_teams_archive_fields_option(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams archive --fields` limits displayed fields."""
+    archived_mock = TeamDetail(
+        teamId="eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+        teamName="Peterborough Petes 2",
+        isArchived=True,
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+            return_value=archived_mock,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "teams",
+                "archive",
+                "-t",
+                "eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+                "--fields",
+                "teamName,isArchived",
+            ],
+        )
+
+    assert result.exit_code == 0
+    assert "Peterborough Petes 2" in result.output
+
+
+def test_teams_archive_missing_team_id(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams archive` errors when --team-id is omitted."""
+    result = runner.invoke(cli, ["teams", "archive"])
+    assert result.exit_code != 0
+    assert "Missing option '--team-id'" in result.output or "Missing option '-t'" in result.output
+
+
+def test_teams_restore_success(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams restore -t <id>` restores team successfully."""
+    restored_mock = TeamDetail(
+        teamId="eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+        teamName="Peterborough Petes 2",
+        isArchived=False,
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+            return_value=restored_mock,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            ["teams", "restore", "-t", "eb20a094-5c3c-47bc-918f-c8f69cfe0719"],
+        )
+
+    assert result.exit_code == 0
+    assert "Peterborough Petes 2" in result.output
+
+
+def test_teams_restore_alias_unarchive(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams unarchive -t <id>` functions via alias."""
+    restored_mock = TeamDetail(
+        teamId="eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+        teamName="Peterborough Petes 2",
+        isArchived=False,
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+            return_value=restored_mock,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            ["teams", "unarchive", "-t", "eb20a094-5c3c-47bc-918f-c8f69cfe0719"],
+        )
+
+    assert result.exit_code == 0
+    assert "Peterborough Petes 2" in result.output
+
+
+def test_teams_restore_envvar(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams restore` picks up GAMESHEET_TEAM_ID envvar."""
+    restored_mock = TeamDetail(
+        teamId="eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+        teamName="Peterborough Petes 2",
+        isArchived=False,
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+            return_value=restored_mock,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            ["teams", "restore"],
+            env={"GAMESHEET_TEAM_ID": "eb20a094-5c3c-47bc-918f-c8f69cfe0719"},
+        )
+
+    assert result.exit_code == 0
+    assert "Peterborough Petes 2" in result.output
+
+
+def test_teams_restore_format_json(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams restore --format json` outputs valid JSON."""
+    restored_mock = TeamDetail(
+        teamId="eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+        teamName="Peterborough Petes 2",
+        isArchived=False,
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+            return_value=restored_mock,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "teams",
+                "restore",
+                "--team-id",
+                "eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+                "--format",
+                "json",
+            ],
+        )
+
+    assert result.exit_code == 0
+    assert '"teamId": "eb20a094-5c3c-47bc-918f-c8f69cfe0719"' in result.output
+    assert '"isArchived": false' in result.output
+
+
+def test_teams_restore_output_file(runner: CliRunner, tmp_path: Path) -> None:
+    """Test `gamesheet-teams teams restore -o <file>` writes output to file."""
+    out_file = tmp_path / "restore_out.txt"
+    restored_mock = TeamDetail(
+        teamId="eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+        teamName="Peterborough Petes 2",
+        isArchived=False,
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+            return_value=restored_mock,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "teams",
+                "restore",
+                "-t",
+                "eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+                "-o",
+                str(out_file),
+            ],
+        )
+
+    assert result.exit_code == 0
+    content = out_file.read_text(encoding="utf-8")
+    assert "Peterborough Petes 2" in content
+
+
+def test_teams_restore_fields_option(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams restore --fields` limits displayed fields."""
+    restored_mock = TeamDetail(
+        teamId="eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+        teamName="Peterborough Petes 2",
+        isArchived=False,
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+            return_value=restored_mock,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "teams",
+                "restore",
+                "-t",
+                "eb20a094-5c3c-47bc-918f-c8f69cfe0719",
+                "--fields",
+                "teamName,isArchived",
+            ],
+        )
+
+    assert result.exit_code == 0
+    assert "Peterborough Petes 2" in result.output
+
+
+def test_teams_restore_missing_team_id(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams restore` errors when --team-id is omitted."""
+    result = runner.invoke(cli, ["teams", "restore"])
+    assert result.exit_code != 0
+    assert "Missing option '--team-id'" in result.output or "Missing option '-t'" in result.output

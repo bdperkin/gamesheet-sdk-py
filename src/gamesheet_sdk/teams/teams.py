@@ -488,3 +488,54 @@ def update_team(
 
     raw_team = fetch_team_raw(session, team_id, timeout=timeout)
     return TeamDetail(**_normalize_team_dict(raw_team))
+
+
+def archive_team(
+    session: BaseAuthenticatedSession,
+    team_id: str | int,
+    *,
+    timeout: float = DEFAULT_TIMEOUT_S,
+) -> TeamDetail:
+    """Archive a team to remove it from active lists while preserving data.
+
+    Args:
+        session (BaseAuthenticatedSession): Authenticated HTTP session.
+        team_id (str | int): Identifier of the team to archive.
+        timeout (float): Request timeout in seconds.
+
+    Returns:
+        TeamDetail: :class:`TeamDetail` representing the archived team.
+
+    Raises:
+        AuthenticationError: If the server returns a 401 Unauthorized status.
+        GameSheetError: If the server returns a non-2xx status code.
+
+    """
+    return update_team(session, team_id, isArchived=True, timeout=timeout)
+
+
+def restore_team(
+    session: BaseAuthenticatedSession,
+    team_id: str | int,
+    *,
+    timeout: float = DEFAULT_TIMEOUT_S,
+) -> TeamDetail:
+    """Restore an archived team back to active lists.
+
+    Args:
+        session (BaseAuthenticatedSession): Authenticated HTTP session.
+        team_id (str | int): Identifier of the team to restore.
+        timeout (float): Request timeout in seconds.
+
+    Returns:
+        TeamDetail: :class:`TeamDetail` representing the restored team.
+
+    Raises:
+        AuthenticationError: If the server returns a 401 Unauthorized status.
+        GameSheetError: If the server returns a non-2xx status code.
+
+    """
+    return update_team(session, team_id, isArchived=False, timeout=timeout)
+
+
+unarchive_team = restore_team

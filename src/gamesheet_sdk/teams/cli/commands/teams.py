@@ -26,10 +26,16 @@ from gamesheet_sdk.teams.cli.helpers import (
     run_action_or_exit,
 )
 from gamesheet_sdk.teams.teams import (
+    archive_team as _archive_team_action,
+)
+from gamesheet_sdk.teams.teams import (
     get_team as _get_team_action,
 )
 from gamesheet_sdk.teams.teams import (
     list_teams as _list_teams_action,
+)
+from gamesheet_sdk.teams.teams import (
+    restore_team as _restore_team_action,
 )
 from gamesheet_sdk.teams.teams import (
     update_team as _update_team_action,
@@ -46,6 +52,7 @@ if TYPE_CHECKING:
     aliases={
         "get": ("show", "view"),
         "list": ("ls",),
+        "restore": ("unarchive",),
         "update": ("set", "edit"),
     },
     context_settings={"help_option_names": ["-h", "--help"]},
@@ -225,6 +232,91 @@ def teams_update_command(
         team_logo=team_logo,
         age_category=age_category,
         province=province,
+        timeout=config.timeout,
+    )
+    render_get_command(team, output_format, output_path, fields_spec)
+
+
+@teams_group.command("archive")
+@click.option(
+    "--team-id",
+    "-t",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID to archive.",
+)
+@common_output_options
+@get_fields_option
+@click.pass_context
+def teams_archive_command(
+    ctx: Context,
+    team_id: str,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+) -> None:
+    r"""Archive a team.
+
+    Archiving a team will remove it from active lists and prevent members from interacting with it,
+    but all data will be preserved and it can be unarchived at any time.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        team_id (str): Team identifier to archive.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        fields_spec (str | None): Optional comma-separated list of fields to display.
+
+    """
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+    team = run_action_or_exit(
+        session,
+        _archive_team_action,
+        team_id,
+        timeout=config.timeout,
+    )
+    render_get_command(team, output_format, output_path, fields_spec)
+
+
+@teams_group.command("restore")
+@click.option(
+    "--team-id",
+    "-t",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID to restore.",
+)
+@common_output_options
+@get_fields_option
+@click.pass_context
+def teams_restore_command(
+    ctx: Context,
+    team_id: str,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+) -> None:
+    r"""Restore an archived team back to active lists.
+
+    Restoring a team will add it back to active lists and allow members to interact with it.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        team_id (str): Team identifier to restore.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        fields_spec (str | None): Optional comma-separated list of fields to display.
+
+    """
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+    team = run_action_or_exit(
+        session,
+        _restore_team_action,
+        team_id,
         timeout=config.timeout,
     )
     render_get_command(team, output_format, output_path, fields_spec)

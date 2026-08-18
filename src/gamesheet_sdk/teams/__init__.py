@@ -20,10 +20,13 @@ from gamesheet_sdk.teams.session import TeamsAuthenticatedSession
 from gamesheet_sdk.teams.teams import (
     TeamDetail,
     TeamSummary,
+    archive_team,
     fetch_team_raw,
     fetch_teams_raw,
     get_team,
     list_teams,
+    restore_team,
+    unarchive_team,
     update_team,
     upload_team_image,
 )
@@ -38,6 +41,7 @@ __all__ = [
     "TeamSummary",
     "TeamsAuthenticatedSession",
     "TeamsLoginFlow",
+    "archive_team",
     "fetch_seasons_raw",
     "fetch_team_raw",
     "fetch_teams_raw",
@@ -49,6 +53,8 @@ __all__ = [
     "list_seasons",
     "list_teams",
     "refresh_access_token",
+    "restore_team",
+    "unarchive_team",
     "update_team",
     "upload_team_image",
 ]
