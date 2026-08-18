@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.31 (2026-08-18)
+
+### Features
+
+- **teams**: Add schedule, roster, messages, and members CLI command stubs ([#226](https://github.com/bdperkin/gamesheet-sdk-py/pull/226),
+  [`9350954`](https://github.com/bdperkin/gamesheet-sdk-py/commit/9350954dc5bc744180746cc2cd8cc6dca6007016))
+
 ## v0.4.30 (2026-08-18)
 
 ### Chores
