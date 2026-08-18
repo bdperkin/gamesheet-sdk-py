@@ -850,6 +850,14 @@ vulnerabilities:
       dismissal; not individually re-triaged.
     expired_at: 2027-07-27
 
+  - id: CVE-2026-14456
+    statement: >-
+      HIGH: openssl, libssl3t64, openssl-provider-legacy — OpenSSL Denial of
+      Service via unbounded memory growth in QUIC server. Debian trixie:
+      affected, no fixed version. Not reachable: the SDK is an HTTP/HTTPS client
+      and does not run or expose an OpenSSL QUIC server.
+    expired_at: 2026-11-18
+
   # ----------------------------------------------------------------------------
   # systemd / udev libraries
   # ----------------------------------------------------------------------------
@@ -895,6 +903,21 @@ vulnerabilities:
       version. Migrated 2026-07-27 from a GitHub "won't fix" dismissal; not
       individually re-triaged.
     expired_at: 2027-07-27
+
+  - id: CVE-2026-15059
+    statement: >-
+      MEDIUM: libsystemd0, libudev1 — Local unprivileged users can terminate
+      arbitrary local processes via systemd/udev daemon. Debian trixie: affected,
+      no fixed version. Not reachable: the container runs no init system, no
+      systemd services, and no udev daemon in a single-user environment.
+    expired_at: 2027-02-18
+
+  - id: CVE-2026-16742
+    statement: >-
+      MEDIUM: libsystemd0, libudev1 — systemd-homed local privilege escalation
+      bug via arbitrary directory mounts. Debian trixie: affected, no fixed
+      version. Not reachable: systemd-homed is not installed, running, or used.
+    expired_at: 2027-02-18
 
   # ----------------------------------------------------------------------------
   # Mesa / OpenGL / X11 — headless Chromium rendering stack
@@ -1626,7 +1649,13 @@ vulnerabilities:
 #     CVE-2026-6791 (libc6/libc-bin), CVE-2026-72522 (libexpat1),
 #     CVE-2026-15534 (perl-base), CVE-2026-19487 (perl-base).
 #
-# Expiry tiers in force: 25 rules due 2026-10-27 or 2026-11-02,
-#                        78 due 2027-01-27 or 2027-02-16, 74 due 2027-07-27 or 2027-08-16.
+# Reviewed: 2026-08-18  —  180 rules total
+#   - Added 3 rules for base-image OS packages:
+#     CVE-2026-14456 (openssl/libssl3t64/openssl-provider-legacy),
+#     CVE-2026-15059 (libsystemd0/libudev1),
+#     CVE-2026-16742 (libsystemd0/libudev1).
+#
+# Expiry tiers in force: 26 rules due 2026-10-27, 2026-11-02, or 2026-11-18,
+#                        80 due 2027-01-27, 2027-02-16, or 2027-02-18, 74 due 2027-07-27 or 2027-08-16.
 # Next backstop review: 2026-10-27 (when the CRITICAL/HIGH tier expires)
 # ==============================================================================
