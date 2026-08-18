@@ -65,6 +65,7 @@ All Python modules are automatically discovered and documented. Click any module
     gamesheet_sdk.teams
     gamesheet_sdk.teams.login
     gamesheet_sdk.teams.lookups
+    gamesheet_sdk.teams.seasons
     gamesheet_sdk.teams.session
     gamesheet_sdk.teams.shared
     gamesheet_sdk.teams.cli
@@ -135,6 +136,9 @@ Shared CLI framework used by both admin and teams CLIs.
     _autosummary/gamesheet_sdk.common.cli
     _autosummary/gamesheet_sdk.common.cli.constants
     _autosummary/gamesheet_sdk.common.cli.core
+    _autosummary/gamesheet_sdk.common.cli.decorators
+    _autosummary/gamesheet_sdk.common.cli.helpers
+    _autosummary/gamesheet_sdk.common.cli.rendering
     _autosummary/gamesheet_sdk.common.cli.rich_config
 ```
 
@@ -239,13 +243,18 @@ Teams domain models, auth, and CLI command implementations.
     _autosummary/gamesheet_sdk.teams
     _autosummary/gamesheet_sdk.teams.login
     _autosummary/gamesheet_sdk.teams.lookups
+    _autosummary/gamesheet_sdk.teams.seasons
     _autosummary/gamesheet_sdk.teams.session
+    _autosummary/gamesheet_sdk.teams.teams
     _autosummary/gamesheet_sdk.teams.shared
     _autosummary/gamesheet_sdk.teams.shared.constants
     _autosummary/gamesheet_sdk.teams.cli
+    _autosummary/gamesheet_sdk.teams.cli.helpers
     _autosummary/gamesheet_sdk.teams.cli.main
     _autosummary/gamesheet_sdk.teams.cli.commands
     _autosummary/gamesheet_sdk.teams.cli.commands.completion
     _autosummary/gamesheet_sdk.teams.cli.commands.login
     _autosummary/gamesheet_sdk.teams.cli.commands.lookups
+    _autosummary/gamesheet_sdk.teams.cli.commands.seasons
+    _autosummary/gamesheet_sdk.teams.cli.commands.teams
 ```

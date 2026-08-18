@@ -17,8 +17,9 @@ subsequent CLI commands can authenticate without repeating the login flow.
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 from http import HTTPStatus
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import requests
 
@@ -54,11 +55,14 @@ def _firebase_error_message(response: requests.Response) -> str:
 
     """
     try:
-        body: dict[str, Any] = response.json()
+        body = response.json()
     except (ValueError, KeyError):
         return f"HTTP {response.status_code}"
 
-    return extract_firebase_error(body, response.status_code)
+    if isinstance(body, dict):
+        return extract_firebase_error(body, response.status_code)
+
+    return f"HTTP {response.status_code}"
 
 
 def _firebase_sign_in(email: str, password: str, *, timeout: float) -> str:
@@ -86,6 +90,56 @@ def _firebase_sign_in(email: str, password: str, *, timeout: float) -> str:
     return str(response.json()["idToken"])
 
 
+def _extract_tokens(body: object) -> dict[str, str]:
+    """Extract access and refresh tokens from response body.
+
+    Handles envelopes where tokens are nested under ``"tokens"``, ``"data"``, or at top level, with key names
+    ``"access"`` / ``"accessToken"`` and ``"refresh"`` / ``"refreshToken"``.
+
+    Args:
+        body (object): Parsed JSON response body.
+
+    Returns:
+        dict[str, str]: Dictionary containing ``"access"`` and ``"refresh"`` keys.
+
+    Raises:
+        GameSheetError: If the token payload does not contain required access and refresh keys.
+
+    """
+    if not isinstance(body, Mapping):
+        msg = f"Unexpected token response format: {body!r}"
+        raise GameSheetError(msg)
+
+    container = body
+    tokens_val = body.get("tokens")
+    if isinstance(tokens_val, Mapping):
+        container = tokens_val
+
+    data_val = container.get("data")
+    if isinstance(data_val, Mapping):
+        nested_tokens = data_val.get("tokens")
+        container = nested_tokens if isinstance(nested_tokens, Mapping) else data_val
+
+    access = (
+        container.get("access")
+        or container.get("accessToken")
+        or body.get("access")
+        or body.get("accessToken")
+    )
+    refresh = (
+        container.get("refresh")
+        or container.get("refreshToken")
+        or body.get("refresh")
+        or body.get("refreshToken")
+    )
+
+    if not access or not refresh:
+        msg = f"Response missing access or refresh token: {body!r}"
+        raise GameSheetError(msg)
+
+    return {"access": str(access), "refresh": str(refresh)}
+
+
 def _exchange_id_token(id_token: str, *, timeout: float) -> dict[str, str]:
     """Exchange a Firebase ID token for teams application tokens.
 
@@ -107,8 +161,10 @@ def _exchange_id_token(id_token: str, *, timeout: float) -> dict[str, str]:
         _err_msg = f"Teams token exchange failed (HTTP {response.status_code})."
         raise AuthenticationError(_err_msg)
 
-    tokens = response.json()["tokens"]
-    return {"access": tokens["access"], "refresh": tokens["refresh"]}
+    try:
+        return _extract_tokens(response.json())
+    except GameSheetError as exc:
+        raise AuthenticationError(str(exc)) from exc
 
 
 def refresh_access_token(
@@ -154,8 +210,7 @@ def refresh_access_token(
         _err_msg = f"Token refresh failed: HTTP {response.status_code}: {response.text[:200]!r}"
         raise GameSheetError(_err_msg)
 
-    body = response.json()
-    return {"access": body["access"], "refresh": body["refresh"]}
+    return _extract_tokens(response.json())
 
 
 class TeamsLoginFlow:

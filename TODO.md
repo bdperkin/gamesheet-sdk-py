@@ -98,8 +98,20 @@ For each resource, repeat this pattern: pydantic model(s), action functions, CLI
   with `LookupValue` model and `list_lookups()` action. CLI commands: `list` (default, summary or filtered by `--category`) and `get` (`--category` required).
   Aliases: `ls` for list, `show`/`view` for get. Committed `0957ac6` (domain + list), then added `get` subcommand, vulture `ignore_decorators` fix for
   `@lookups_group.command`.
-- [ ] **Teams** — Get team, list members, team settings (`/api/teams/{id}/*`)
-- [ ] **Seasons** — List by team (`GET /api/seasons/team/{id}`), scoring access keys
+- [x] **Seasons** — Bearer-authenticated endpoint (`GET /api/seasons`), returns list of seasons. Domain module (`teams/seasons.py`) with models
+  (`SeasonSummary`, `SeasonDetail`, `PenaltyCode`, `SeasonTeam`) and actions (`list_seasons`, `get_season`, `get_season_penalty_codes`, `get_season_teams`). CLI
+  commands: `list` (default, alias `ls`), `get` (aliases `show`, `view`), `penalty-codes` (aliases `penalty_codes`, `penalties`), and `teams`. Selected via
+  `--season-id` or `GAMESHEET_SEASON_ID`. Shared CLI options, rendering, and action runner extracted into `common/cli/` (`decorators.py`, `rendering.py`,
+  `helpers.py`).
+- [x] **Teams** — Bearer-authenticated endpoint (`GET /api/teams`), returns list of teams associated with user. Domain module (`teams/teams.py`) with models
+  (`TeamSummary`, `TeamDetail`) and actions (`list_teams`, `get_team`, `fetch_teams_raw`, `fetch_team_raw`, `upload_team_image`, `update_team`, `archive_team`,
+  `restore_team`, `delete_team`). CLI commands: `list` (default, alias `ls`, primary focus fields: `memberId`, `teamId`, `relationship`, `status`,
+  `onboardingCompletedAt`, `teamName`, `ageCategory`, `clubId`, `joinedAt`, `statsYear`), `get` (aliases `show`, `view`, selected via `--team-id` / `-t` or
+  `GAMESHEET_TEAM_ID`), `update` (aliases `set`, `edit`, supporting `--name`/`--team-name`, `--skill`, `--logo`/`--team-logo`, `--age-category`, `--province`,
+  with automatic image upload via `GET /api/images/upload-url` and direct Cloudflare POST), `archive` (selected via `--team-id` / `-t` or `GAMESHEET_TEAM_ID`,
+  setting `isArchived: true`), `restore` (alias `unarchive`, selected via `--team-id` / `-t` or `GAMESHEET_TEAM_ID`, setting `isArchived: false` via
+  `PATCH /api/teams/{team_id}`), and `delete` (aliases `rm`, `remove`, selected via `--team-id` / `-t` or `GAMESHEET_TEAM_ID`, with destructive confirmation and
+  `--force` / `-f` flag via `DELETE /api/teams/{team_id}`).
 - [ ] **Roster — Players** — CRUD (`/api/roster/players/*`), 23 positions, player statuses/duties
 - [ ] **Roster — Coaches** — CRUD (`/api/roster/coaches/*`), 5 coach positions
 - [ ] **Games** — CRUD (`/api/schedule-game/*`), game status, 5 game types
