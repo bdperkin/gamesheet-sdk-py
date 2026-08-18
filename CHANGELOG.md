@@ -2,6 +2,51 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.30 (2026-08-18)
+
+### Chores
+
+- **deps**: Update editorconfig-checker to 3.11.1 and pytest-playwright to 0.9.0 ([#224](https://github.com/bdperkin/gamesheet-sdk-py/pull/224),
+  [`6bbaa30`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6bbaa30e66aa6510ca18c8e3107f12e745ea9de3))
+
+- **deps**: Update pre-commit hooks ([#224](https://github.com/bdperkin/gamesheet-sdk-py/pull/224),
+  [`6bbaa30`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6bbaa30e66aa6510ca18c8e3107f12e745ea9de3))
+
+### Code Style
+
+- Auto-fixes from pre-commit.ci ([#224](https://github.com/bdperkin/gamesheet-sdk-py/pull/224),
+  [`6bbaa30`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6bbaa30e66aa6510ca18c8e3107f12e745ea9de3))
+
+### Features
+
+- **teams**: Add archive and restore subcommands for teams ([#225](https://github.com/bdperkin/gamesheet-sdk-py/pull/225),
+  [`a48c152`](https://github.com/bdperkin/gamesheet-sdk-py/commit/a48c15266e3ed99a7680bcc58000920500dea3f6))
+
+- **teams**: Add seasons and teams commands and SDK modules ([#225](https://github.com/bdperkin/gamesheet-sdk-py/pull/225),
+  [`a48c152`](https://github.com/bdperkin/gamesheet-sdk-py/commit/a48c15266e3ed99a7680bcc58000920500dea3f6))
+
+- **teams**: Add seasons command and extract shared cli helpers ([#225](https://github.com/bdperkin/gamesheet-sdk-py/pull/225),
+  [`a48c152`](https://github.com/bdperkin/gamesheet-sdk-py/commit/a48c15266e3ed99a7680bcc58000920500dea3f6))
+
+- **teams**: Add team delete subcommand with confirmation rules ([#225](https://github.com/bdperkin/gamesheet-sdk-py/pull/225),
+  [`a48c152`](https://github.com/bdperkin/gamesheet-sdk-py/commit/a48c15266e3ed99a7680bcc58000920500dea3f6))
+
+- **teams**: Add team update subcommand and upload image workflow ([#225](https://github.com/bdperkin/gamesheet-sdk-py/pull/225),
+  [`a48c152`](https://github.com/bdperkin/gamesheet-sdk-py/commit/a48c15266e3ed99a7680bcc58000920500dea3f6))
+
+- **teams**: Add teams command and fix token refresh with model validation ([#225](https://github.com/bdperkin/gamesheet-sdk-py/pull/225),
+  [`a48c152`](https://github.com/bdperkin/gamesheet-sdk-py/commit/a48c15266e3ed99a7680bcc58000920500dea3f6))
+
+### Refactoring
+
+- **ci**: Consolidate workflow files and gate docs-pdf on main push ([#223](https://github.com/bdperkin/gamesheet-sdk-py/pull/223),
+  [`a9946a6`](https://github.com/bdperkin/gamesheet-sdk-py/commit/a9946a6c6bdc83f941b7e2a9152fe65177bbb393))
+
+### Testing
+
+- **teams**: Make missing option assertions resilient to rich styling ([#225](https://github.com/bdperkin/gamesheet-sdk-py/pull/225),
+  [`a48c152`](https://github.com/bdperkin/gamesheet-sdk-py/commit/a48c15266e3ed99a7680bcc58000920500dea3f6))
+
 ## v0.4.29 (2026-08-16)
 
 ### Bug Fixes
