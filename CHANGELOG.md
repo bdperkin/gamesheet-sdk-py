@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.32 (2026-08-18)
+
+### Bug Fixes
+
+- **security**: Resolve CodeQL URL sanitization alert and document base-image CVE suppressions ([#227](https://github.com/bdperkin/gamesheet-sdk-py/pull/227),
+  [`aeaab1c`](https://github.com/bdperkin/gamesheet-sdk-py/commit/aeaab1c9d3ba74e9f43140d848930e23989be189))
+
 ## v0.4.31 (2026-08-18)
 
 ### Features
