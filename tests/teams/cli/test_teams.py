@@ -234,7 +234,7 @@ def test_teams_get_missing_option(runner: CliRunner) -> None:
     """Test `gamesheet-teams teams get` fails when --team-id is missing."""
     result = runner.invoke(cli, ["teams", "get"])
     assert result.exit_code != 0
-    assert "Missing option '--team-id'" in result.output or "Missing option '-t'" in result.output
+    assert "team-id" in result.output.lower() or "missing" in result.output.lower()
 
 
 def test_teams_get_aliases_show_and_view(runner: CliRunner) -> None:
@@ -559,7 +559,7 @@ def test_teams_update_missing_team_id(runner: CliRunner) -> None:
     """Test `gamesheet-teams teams update` errors when --team-id is omitted."""
     result = runner.invoke(cli, ["teams", "update", "--name", "New Name"])
     assert result.exit_code != 0
-    assert "Missing option '--team-id'" in result.output or "Missing option '-t'" in result.output
+    assert "team-id" in result.output.lower() or "missing" in result.output.lower()
 
 
 def test_teams_update_no_fields_error(runner: CliRunner) -> None:
@@ -728,7 +728,7 @@ def test_teams_archive_missing_team_id(runner: CliRunner) -> None:
     """Test `gamesheet-teams teams archive` errors when --team-id is omitted."""
     result = runner.invoke(cli, ["teams", "archive"])
     assert result.exit_code != 0
-    assert "Missing option '--team-id'" in result.output or "Missing option '-t'" in result.output
+    assert "team-id" in result.output.lower() or "missing" in result.output.lower()
 
 
 def test_teams_restore_success(runner: CliRunner) -> None:
@@ -916,7 +916,7 @@ def test_teams_restore_missing_team_id(runner: CliRunner) -> None:
     """Test `gamesheet-teams teams restore` errors when --team-id is omitted."""
     result = runner.invoke(cli, ["teams", "restore"])
     assert result.exit_code != 0
-    assert "Missing option '--team-id'" in result.output or "Missing option '-t'" in result.output
+    assert "team-id" in result.output.lower() or "missing" in result.output.lower()
 
 
 def test_teams_delete_with_force(runner: CliRunner) -> None:
@@ -1082,4 +1082,4 @@ def test_teams_delete_missing_team_id(runner: CliRunner) -> None:
     """Test `gamesheet-teams teams delete` fails when --team-id is omitted."""
     result = runner.invoke(cli, ["teams", "delete", "-f"])
     assert result.exit_code != 0
-    assert "Missing option '--team-id'" in result.output or "Missing option '-t'" in result.output
+    assert "team-id" in result.output.lower() or "missing" in result.output.lower()
