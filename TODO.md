@@ -105,12 +105,13 @@ For each resource, repeat this pattern: pydantic model(s), action functions, CLI
   `helpers.py`).
 - [x] **Teams** — Bearer-authenticated endpoint (`GET /api/teams`), returns list of teams associated with user. Domain module (`teams/teams.py`) with models
   (`TeamSummary`, `TeamDetail`) and actions (`list_teams`, `get_team`, `fetch_teams_raw`, `fetch_team_raw`, `upload_team_image`, `update_team`, `archive_team`,
-  `restore_team`). CLI commands: `list` (default, alias `ls`, primary focus fields: `memberId`, `teamId`, `relationship`, `status`, `onboardingCompletedAt`,
-  `teamName`, `ageCategory`, `clubId`, `joinedAt`, `statsYear`), `get` (aliases `show`, `view`, selected via `--team-id` / `-t` or `GAMESHEET_TEAM_ID`),
-  `update` (aliases `set`, `edit`, supporting `--name`/`--team-name`, `--skill`, `--logo`/`--team-logo`, `--age-category`, `--province`, with automatic image
-  upload via `GET /api/images/upload-url` and direct Cloudflare POST), `archive` (selected via `--team-id` / `-t` or `GAMESHEET_TEAM_ID`, setting
-  `isArchived: true`), and `restore` (alias `unarchive`, selected via `--team-id` / `-t` or `GAMESHEET_TEAM_ID`, setting `isArchived: false` via
-  `PATCH /api/teams/{team_id}`).
+  `restore_team`, `delete_team`). CLI commands: `list` (default, alias `ls`, primary focus fields: `memberId`, `teamId`, `relationship`, `status`,
+  `onboardingCompletedAt`, `teamName`, `ageCategory`, `clubId`, `joinedAt`, `statsYear`), `get` (aliases `show`, `view`, selected via `--team-id` / `-t` or
+  `GAMESHEET_TEAM_ID`), `update` (aliases `set`, `edit`, supporting `--name`/`--team-name`, `--skill`, `--logo`/`--team-logo`, `--age-category`, `--province`,
+  with automatic image upload via `GET /api/images/upload-url` and direct Cloudflare POST), `archive` (selected via `--team-id` / `-t` or `GAMESHEET_TEAM_ID`,
+  setting `isArchived: true`), `restore` (alias `unarchive`, selected via `--team-id` / `-t` or `GAMESHEET_TEAM_ID`, setting `isArchived: false` via
+  `PATCH /api/teams/{team_id}`), and `delete` (aliases `rm`, `remove`, selected via `--team-id` / `-t` or `GAMESHEET_TEAM_ID`, with destructive confirmation and
+  `--force` / `-f` flag via `DELETE /api/teams/{team_id}`).
 - [ ] **Roster — Players** — CRUD (`/api/roster/players/*`), 23 positions, player statuses/duties
 - [ ] **Roster — Coaches** — CRUD (`/api/roster/coaches/*`), 5 coach positions
 - [ ] **Games** — CRUD (`/api/schedule-game/*`), game status, 5 game types

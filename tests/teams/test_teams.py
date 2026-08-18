@@ -27,6 +27,7 @@ from gamesheet_sdk.teams.teams import (
     _find_team,
     _parse_team_summary,
     archive_team,
+    delete_team,
     fetch_team_raw,
     fetch_teams_raw,
     get_team,
@@ -1043,3 +1044,50 @@ def test_restore_team_server_error() -> None:
     session = _make_session()
     with pytest.raises(GameSheetError, match=r"PATCH /api/teams/.* returned HTTP 500"):
         restore_team(session, team_id, timeout=1.0)
+
+
+@responses.activate
+def test_delete_team_success() -> None:
+    """Test delete_team sends DELETE and succeeds on 200/204."""
+    team_id = "eb20a094-5c3c-47bc-918f-c8f69cfe0719"
+    delete_url = f"{_TEAMS_URL}/{team_id}"
+    responses.add(
+        responses.DELETE,
+        delete_url,
+        status=204,
+    )
+
+    session = _make_session()
+    delete_team(session, team_id, timeout=1.0)
+    assert len(responses.calls) == 1
+    assert responses.calls[0].request.method == "DELETE"
+
+
+@responses.activate
+def test_delete_team_auth_error() -> None:
+    """Test delete_team raises AuthenticationError on 401."""
+    team_id = "eb20a094-5c3c-47bc-918f-c8f69cfe0719"
+    delete_url = f"{_TEAMS_URL}/{team_id}"
+    responses.add(responses.DELETE, delete_url, status=401)
+    responses.add(
+        responses.POST,
+        _REFRESH_URL,
+        json={"error": "invalid_grant"},
+        status=401,
+    )
+
+    session = _make_session()
+    with pytest.raises(AuthenticationError, match=r"Authentication required"):
+        delete_team(session, team_id, timeout=1.0)
+
+
+@responses.activate
+def test_delete_team_server_error() -> None:
+    """Test delete_team raises GameSheetError on non-2xx status."""
+    team_id = "eb20a094-5c3c-47bc-918f-c8f69cfe0719"
+    delete_url = f"{_TEAMS_URL}/{team_id}"
+    responses.add(responses.DELETE, delete_url, status=500, body="Server error")
+
+    session = _make_session()
+    with pytest.raises(GameSheetError, match=r"DELETE /api/teams/.* returned HTTP 500"):
+        delete_team(session, team_id, timeout=1.0)

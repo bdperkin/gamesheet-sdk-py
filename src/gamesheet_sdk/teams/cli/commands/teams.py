@@ -11,7 +11,7 @@ import rich_click as click
 from click.exceptions import Exit
 from rich_click import Context
 
-from gamesheet_sdk.common.cli.core import ResourceGroup
+from gamesheet_sdk.common.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.common.cli.decorators import (
     common_output_options,
     get_fields_option,
@@ -27,6 +27,9 @@ from gamesheet_sdk.teams.cli.helpers import (
 )
 from gamesheet_sdk.teams.teams import (
     archive_team as _archive_team_action,
+)
+from gamesheet_sdk.teams.teams import (
+    delete_team as _delete_team_action,
 )
 from gamesheet_sdk.teams.teams import (
     get_team as _get_team_action,
@@ -50,6 +53,7 @@ if TYPE_CHECKING:
     cls=ResourceGroup,
     default="list",
     aliases={
+        "delete": ("rm", "remove"),
         "get": ("show", "view"),
         "list": ("ls",),
         "restore": ("unarchive",),
@@ -320,3 +324,38 @@ def teams_restore_command(
         timeout=config.timeout,
     )
     render_get_command(team, output_format, output_path, fields_spec)
+
+
+@teams_group.command("delete")
+@click.option(
+    "--team-id",
+    "-t",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID to delete.",
+)
+@confirm_destructive("team")
+@click.pass_context
+def teams_delete_command(
+    ctx: Context,
+    team_id: str,
+) -> None:
+    r"""Delete a team.
+
+    Permanently deletes a team.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        team_id (str): Team identifier to delete.
+
+    """
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+    run_action_or_exit(
+        session,
+        _delete_team_action,
+        team_id,
+        timeout=config.timeout,
+    )
+    click.secho(f"Team {team_id} deleted successfully.", fg="green")

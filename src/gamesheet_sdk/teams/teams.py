@@ -539,3 +539,32 @@ def restore_team(
 
 
 unarchive_team = restore_team
+
+
+def delete_team(
+    session: BaseAuthenticatedSession,
+    team_id: str | int,
+    *,
+    timeout: float = DEFAULT_TIMEOUT_S,
+) -> None:
+    """Delete a team.
+
+    Args:
+        session (BaseAuthenticatedSession): Authenticated HTTP session.
+        team_id (str | int): Identifier of the team to delete.
+        timeout (float): Request timeout in seconds.
+
+    Raises:
+        AuthenticationError: If the server returns a 401 Unauthorized status.
+        GameSheetError: If the server returns a non-2xx status code.
+
+    """
+    delete_url = f"{TEAMS_API_GATEWAY}{TEAMS_TEAMS_PATH}/{team_id}"
+    response = session.delete(delete_url, timeout=timeout)
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
+        msg = "Authentication required: token is invalid or expired. Run `gamesheet-teams login`."
+        raise AuthenticationError(msg)
+
+    if response.status_code >= HTTPStatus.BAD_REQUEST:
+        msg = f"DELETE {TEAMS_TEAMS_PATH}/{team_id} returned HTTP {response.status_code}: {response.text}"
+        raise GameSheetError(msg)
