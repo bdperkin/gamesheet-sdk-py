@@ -11,6 +11,7 @@ Attributes:
     TEAMS_TOKEN_EXCHANGE_PATH (str): Endpoint path for exchanging a Firebase ID token for app tokens.
     TEAMS_REFRESH_PATH (str): Endpoint path for refreshing an expired access token.
     TEAMS_LOOKUPS_PATH (str): Endpoint path for fetching public lookup data (no auth required).
+    TEAMS_SEASONS_PATH (str): Endpoint path for fetching seasons data.
 
 Example:
     Building a token exchange URL:
@@ -35,3 +36,4 @@ FIREBASE_API_KEY: Final[str] = "AIzaSyCk5pKBFxvCMuwPchzXgvvz4XmmscJTvs8"  # nots
 TEAMS_TOKEN_EXCHANGE_PATH: Final[str] = "/api/auth/tokens"  # noqa: S105
 TEAMS_REFRESH_PATH: Final[str] = "/api/auth/refresh"
 TEAMS_LOOKUPS_PATH: Final[str] = "/api/lookups"
+TEAMS_SEASONS_PATH: Final[str] = "/api/seasons"

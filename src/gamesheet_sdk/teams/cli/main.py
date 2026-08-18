@@ -26,6 +26,7 @@ from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.teams.cli.commands.completion import completion_command
 from gamesheet_sdk.teams.cli.commands.login import login_command
 from gamesheet_sdk.teams.cli.commands.lookups import lookups_group
+from gamesheet_sdk.teams.cli.commands.seasons import seasons_group
 
 apply_rich_click_defaults()
 click.rich_click.OPTION_GROUPS["gamesheet-teams"] = [
@@ -49,7 +50,7 @@ click.rich_click.COMMAND_GROUPS["gamesheet-teams"] = [
     },
     {
         "name": "Resources",
-        "commands": ["lookups"],
+        "commands": ["lookups", "seasons"],
     },
 ]
 
@@ -110,6 +111,7 @@ def cli(
 cli.add_command(login_command)
 cli.add_command(completion_command)
 cli.add_command(lookups_group)
+cli.add_command(seasons_group)
 
 
 def main(argv: list[str] | None = None) -> int:

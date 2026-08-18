@@ -98,8 +98,12 @@ For each resource, repeat this pattern: pydantic model(s), action functions, CLI
   with `LookupValue` model and `list_lookups()` action. CLI commands: `list` (default, summary or filtered by `--category`) and `get` (`--category` required).
   Aliases: `ls` for list, `show`/`view` for get. Committed `0957ac6` (domain + list), then added `get` subcommand, vulture `ignore_decorators` fix for
   `@lookups_group.command`.
+- [x] **Seasons** — Bearer-authenticated endpoint (`GET /api/seasons`), returns list of seasons. Domain module (`teams/seasons.py`) with models
+  (`SeasonSummary`, `SeasonDetail`, `PenaltyCode`, `SeasonTeam`) and actions (`list_seasons`, `get_season`, `get_season_penalty_codes`, `get_season_teams`). CLI
+  commands: `list` (default, alias `ls`), `get` (aliases `show`, `view`), `penalty-codes` (aliases `penalty_codes`, `penalties`), and `teams`. Selected via
+  `--season-id` or `GAMESHEET_SEASON_ID`. Shared CLI options, rendering, and action runner extracted into `common/cli/` (`decorators.py`, `rendering.py`,
+  `helpers.py`).
 - [ ] **Teams** — Get team, list members, team settings (`/api/teams/{id}/*`)
-- [ ] **Seasons** — List by team (`GET /api/seasons/team/{id}`), scoring access keys
 - [ ] **Roster — Players** — CRUD (`/api/roster/players/*`), 23 positions, player statuses/duties
 - [ ] **Roster — Coaches** — CRUD (`/api/roster/coaches/*`), 5 coach positions
 - [ ] **Games** — CRUD (`/api/schedule-game/*`), game status, 5 game types
