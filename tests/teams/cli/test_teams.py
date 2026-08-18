@@ -447,7 +447,7 @@ def test_teams_update_with_logo(runner: CliRunner) -> None:
         )
 
     assert result.exit_code == 0
-    assert "https://imagedelivery.net" in result.output
+    assert "img-123" in result.output
 
 
 def test_teams_update_format_json(runner: CliRunner) -> None:

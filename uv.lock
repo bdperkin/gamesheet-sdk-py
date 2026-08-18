@@ -762,7 +762,7 @@ wheels = [
 
 [[package]]
 name = "gamesheet-sdk-py"
-version = "0.4.29"
+version = "0.4.30"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
