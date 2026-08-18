@@ -8,6 +8,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import rich_click as click
+from click.exceptions import Exit
 from rich_click import Context
 
 from gamesheet_sdk.common.cli.core import ResourceGroup
@@ -30,6 +31,9 @@ from gamesheet_sdk.teams.teams import (
 from gamesheet_sdk.teams.teams import (
     list_teams as _list_teams_action,
 )
+from gamesheet_sdk.teams.teams import (
+    update_team as _update_team_action,
+)
 
 if TYPE_CHECKING:
     from gamesheet_sdk.common.config import Config
@@ -42,11 +46,12 @@ if TYPE_CHECKING:
     aliases={
         "get": ("show", "view"),
         "list": ("ls",),
+        "update": ("set", "edit"),
     },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def teams_group() -> None:
-    """View teams from the teams API.
+    """View and update teams from the teams API.
 
     Invoking ``teams`` with no sub-command runs ``list`` by default.
     """
@@ -121,6 +126,105 @@ def teams_get_command(
         session,
         _get_team_action,
         team_id,
+        timeout=config.timeout,
+    )
+    render_get_command(team, output_format, output_path, fields_spec)
+
+
+@teams_group.command("update")
+@click.option(
+    "--team-id",
+    "-t",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID to update.",
+)
+@click.option(
+    "--team-name",
+    "--name",
+    type=str,
+    default=None,
+    help="New name for the team.",
+)
+@click.option(
+    "--skill",
+    type=str,
+    default=None,
+    help="Skill level of the team (e.g., rec, AAA).",
+)
+@click.option(
+    "--team-logo",
+    "--logo",
+    type=str,
+    default=None,
+    help="Path to a local image file or URL for the team logo.",
+)
+@click.option(
+    "--age-category",
+    type=str,
+    default=None,
+    help="Age category of the team (e.g., U18, 12U).",
+)
+@click.option(
+    "--province",
+    type=str,
+    default=None,
+    help="Province or state code (e.g., VA, ON).",
+)
+@common_output_options
+@get_fields_option
+@click.pass_context
+def teams_update_command(
+    ctx: Context,
+    team_id: str,
+    team_name: str | None,
+    skill: str | None,
+    team_logo: str | None,
+    age_category: str | None,
+    province: str | None,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+) -> None:
+    r"""Update an existing team's metadata.
+
+    Requires authentication (run 'gamesheet-teams login' first). At least one field must be provided for
+    update.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        team_id (str): Team identifier to update.
+        team_name (str | None): Optional new team name.
+        skill (str | None): Optional new skill level.
+        team_logo (str | None): Optional local image path or logo URL.
+        age_category (str | None): Optional new age category.
+        province (str | None): Optional new province/state code.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        fields_spec (str | None): Optional comma-separated list of fields to display.
+
+    """
+    if all(v is None for v in (team_name, skill, team_logo, age_category, province)):
+        click.secho(
+            "Error: At least one field must be provided for update. "
+            "Use --name/--team-name, --skill, --logo/--team-logo, --age-category, or --province.",
+            fg="red",
+            err=True,
+        )
+        raise Exit(1)
+
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+    team = run_action_or_exit(
+        session,
+        _update_team_action,
+        team_id,
+        team_name=team_name,
+        skill=skill,
+        team_logo=team_logo,
+        age_category=age_category,
+        province=province,
         timeout=config.timeout,
     )
     render_get_command(team, output_format, output_path, fields_spec)

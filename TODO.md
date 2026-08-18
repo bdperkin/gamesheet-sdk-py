@@ -104,9 +104,11 @@ For each resource, repeat this pattern: pydantic model(s), action functions, CLI
   `--season-id` or `GAMESHEET_SEASON_ID`. Shared CLI options, rendering, and action runner extracted into `common/cli/` (`decorators.py`, `rendering.py`,
   `helpers.py`).
 - [x] **Teams** — Bearer-authenticated endpoint (`GET /api/teams`), returns list of teams associated with user. Domain module (`teams/teams.py`) with models
-  (`TeamSummary`, `TeamDetail`) and actions (`list_teams`, `get_team`, `fetch_teams_raw`). CLI commands: `list` (default, alias `ls`, primary focus fields:
-  `memberId`, `teamId`, `relationship`, `status`, `onboardingCompletedAt`, `teamName`, `ageCategory`, `clubId`, `joinedAt`, `statsYear`) and `get` (aliases
-  `show`, `view`, selected via `--team-id` / `-t` or `GAMESHEET_TEAM_ID`).
+  (`TeamSummary`, `TeamDetail`) and actions (`list_teams`, `get_team`, `fetch_teams_raw`, `fetch_team_raw`, `upload_team_image`, `update_team`). CLI commands:
+  `list` (default, alias `ls`, primary focus fields: `memberId`, `teamId`, `relationship`, `status`, `onboardingCompletedAt`, `teamName`, `ageCategory`,
+  `clubId`, `joinedAt`, `statsYear`), `get` (aliases `show`, `view`, selected via `--team-id` / `-t` or `GAMESHEET_TEAM_ID`), and `update` (aliases `set`,
+  `edit`, supporting `--name`/`--team-name`, `--skill`, `--logo`/`--team-logo`, `--age-category`, `--province`, with automatic image upload via
+  `GET /api/images/upload-url` and direct Cloudflare POST).
 - [ ] **Roster — Players** — CRUD (`/api/roster/players/*`), 23 positions, player statuses/duties
 - [ ] **Roster — Coaches** — CRUD (`/api/roster/coaches/*`), 5 coach positions
 - [ ] **Games** — CRUD (`/api/schedule-game/*`), game status, 5 game types

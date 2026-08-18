@@ -66,9 +66,10 @@ def test_teams_group_help(runner: CliRunner) -> None:
     """Test `gamesheet-teams teams --help` displays command options and subcommands."""
     result = runner.invoke(cli, ["teams", "--help"])
     assert result.exit_code == 0
-    assert "View teams from the teams API." in result.output
+    assert "View and update teams from the teams API." in result.output
     assert "list" in result.output
     assert "get" in result.output
+    assert "update" in result.output
 
 
 def test_teams_default_invokes_list(runner: CliRunner) -> None:
@@ -353,3 +354,216 @@ def test_teams_group_direct_invocation(runner: CliRunner) -> None:
 
     assert result.exit_code == 0
     assert "Hawks 12U" in result.output
+
+
+def test_teams_update_success(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams update` modifies team fields and renders result."""
+    updated_mock = TeamDetail(
+        teamId="t-201",
+        teamName="Updated Hawks",
+        skill="rec",
+        ageCategory="12U",
+        province="VA",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+            return_value=updated_mock,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "teams",
+                "update",
+                "--team-id",
+                "t-201",
+                "--name",
+                "Updated Hawks",
+                "--skill",
+                "rec",
+                "--age-category",
+                "12U",
+                "--province",
+                "VA",
+            ],
+        )
+
+    assert result.exit_code == 0
+    assert "Updated Hawks" in result.output
+    assert "rec" in result.output
+    mock_action.assert_called_once()
+
+
+def test_teams_update_aliases(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams set` and `gamesheet-teams teams edit` work as aliases for update."""
+    updated_mock = TeamDetail(
+        teamId="t-201",
+        teamName="Updated Hawks",
+    )
+    for alias in ("set", "edit"):
+        with (
+            patch(
+                "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+                return_value=MagicMock(),
+            ),
+            patch(
+                "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+                return_value=updated_mock,
+            ),
+        ):
+            result = runner.invoke(
+                cli,
+                ["teams", alias, "--team-id", "t-201", "--team-name", "Updated Hawks"],
+            )
+
+        assert result.exit_code == 0
+        assert "Updated Hawks" in result.output
+
+
+def test_teams_update_with_logo(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams update` accepts --team-logo and --logo options."""
+    updated_mock = TeamDetail(
+        teamId="t-201",
+        teamLogo="https://imagedelivery.net/ErrQpIaCOWR-Tz51PhN1zA/img-123",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+            return_value=updated_mock,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            ["teams", "update", "-t", "t-201", "--logo", "logo.png"],
+        )
+
+    assert result.exit_code == 0
+    assert "https://imagedelivery.net" in result.output
+
+
+def test_teams_update_format_json(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams update --format json` produces valid JSON output."""
+    updated_mock = TeamDetail(
+        teamId="t-201",
+        teamName="Updated Hawks",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+            return_value=updated_mock,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "teams",
+                "update",
+                "--team-id",
+                "t-201",
+                "--name",
+                "Updated Hawks",
+                "--format",
+                "json",
+            ],
+        )
+
+    assert result.exit_code == 0
+    assert '"teamName": "Updated Hawks"' in result.output
+
+
+def test_teams_update_fields_option(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams update --fields` filters displayed fields."""
+    updated_mock = TeamDetail(
+        teamId="t-201",
+        teamName="Updated Hawks",
+        skill="rec",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+            return_value=updated_mock,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "teams",
+                "update",
+                "-t",
+                "t-201",
+                "--name",
+                "Updated Hawks",
+                "--fields",
+                "teamName",
+            ],
+        )
+
+    assert result.exit_code == 0
+    assert "Updated Hawks" in result.output
+
+
+def test_teams_update_output_file(runner: CliRunner, tmp_path: Path) -> None:
+    """Test `gamesheet-teams teams update -o <file>` writes output to file."""
+    out_file = tmp_path / "update_out.txt"
+    updated_mock = TeamDetail(
+        teamId="t-201",
+        teamName="Updated Hawks",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.teams.run_action_or_exit",
+            return_value=updated_mock,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "teams",
+                "update",
+                "-t",
+                "t-201",
+                "--name",
+                "Updated Hawks",
+                "-o",
+                str(out_file),
+            ],
+        )
+
+    assert result.exit_code == 0
+    content = out_file.read_text(encoding="utf-8")
+    assert "Updated Hawks" in content
+
+
+def test_teams_update_missing_team_id(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams update` errors when --team-id is omitted."""
+    result = runner.invoke(cli, ["teams", "update", "--name", "New Name"])
+    assert result.exit_code != 0
+    assert "Missing option '--team-id'" in result.output or "Missing option '-t'" in result.output
+
+
+def test_teams_update_no_fields_error(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams update` exits with error when no update fields are passed."""
+    result = runner.invoke(cli, ["teams", "update", "--team-id", "t-201"])
+    assert result.exit_code == 1
+    assert "Error: At least one field must be provided for update" in result.output
