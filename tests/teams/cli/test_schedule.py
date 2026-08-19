@@ -2827,8 +2827,8 @@ def test_events_update_mutually_exclusive_scope(runner: CliRunner) -> None:
             "--single",
         ],
     )
-    assert result.exit_code != 0
-    assert "Cannot specify both --future and --single" in result.output
+    assert result.exit_code == 2
+    assert "Cannot specify both" in result.output
 
 
 def test_events_update_datetime_resolution(runner: CliRunner) -> None:
@@ -2990,8 +2990,8 @@ def test_practices_update_mutually_exclusive(runner: CliRunner) -> None:
             "--single",
         ],
     )
-    assert result.exit_code != 0
-    assert "Cannot specify both --future and --single" in result.output
+    assert result.exit_code == 2
+    assert "Cannot specify both" in result.output
 
 
 def test_practices_update_default_single(runner: CliRunner) -> None:
@@ -3295,8 +3295,8 @@ def test_schedule_update_event_mutually_exclusive(runner: CliRunner) -> None:
             "--single",
         ],
     )
-    assert result.exit_code != 0
-    assert "Cannot specify both --future and --single" in result.output
+    assert result.exit_code == 2
+    assert "Cannot specify both" in result.output
 
 
 def test_schedule_update_event_future_flag(runner: CliRunner) -> None:
