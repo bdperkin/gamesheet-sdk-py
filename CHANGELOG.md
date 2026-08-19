@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.33 (2026-08-19)
+
+### Features
+
+- **teams**: Implement schedule and calendar list commands ([#228](https://github.com/bdperkin/gamesheet-sdk-py/pull/228),
+  [`dd99477`](https://github.com/bdperkin/gamesheet-sdk-py/commit/dd99477872452ed69183708d4d4c54e4a79172da))
+
 ## v0.4.32 (2026-08-18)
 
 ### Bug Fixes
