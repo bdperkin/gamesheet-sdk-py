@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.35 (2026-08-19)
+
+### Features
+
+- **teams**: Implement schedule subscribe command for calendar feed URLs ([#230](https://github.com/bdperkin/gamesheet-sdk-py/pull/230),
+  [`ddac9f6`](https://github.com/bdperkin/gamesheet-sdk-py/commit/ddac9f6baff63408bb2ef238f58febe806430971))
+
 ## v0.4.34 (2026-08-19)
 
 ### Features
