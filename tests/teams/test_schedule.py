@@ -14,9 +14,17 @@ import responses
 from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.teams.schedule import (
+    CalendarEventCreated,
     CalendarSubscription,
+    CreatedGameResult,
     ScheduleEvent,
     ScheduleEventDetail,
+    build_rrule,
+    create_calendar_event_raw,
+    create_event,
+    create_game,
+    create_practice,
+    create_schedule_game_raw,
     fetch_availability_raw,
     fetch_calendar_raw,
     fetch_event_occurrence_raw,
@@ -30,11 +38,13 @@ from gamesheet_sdk.teams.schedule import (
     list_games,
     list_practices,
     list_schedule,
+    validate_game_type,
 )
 from gamesheet_sdk.teams.session import TeamsAuthenticatedSession
 from gamesheet_sdk.teams.shared.constants import (
     TEAMS_API_GATEWAY,
     TEAMS_AVAILABILITY_BATCH_PATH,
+    TEAMS_CALENDAR_EVENTS_PATH,
     TEAMS_CALENDAR_OCCURRENCES_PATH,
     TEAMS_CALENDAR_PATH,
     TEAMS_REFRESH_PATH,
@@ -42,6 +52,7 @@ from gamesheet_sdk.teams.shared.constants import (
 )
 
 _CALENDAR_URL = f"{TEAMS_API_GATEWAY}{TEAMS_CALENDAR_PATH}"
+_CALENDAR_EVENTS_URL = f"{TEAMS_API_GATEWAY}{TEAMS_CALENDAR_EVENTS_PATH}"
 _OCCURRENCE_URL = f"{TEAMS_API_GATEWAY}{TEAMS_CALENDAR_OCCURRENCES_PATH}"
 _SCHEDULE_GAME_URL = f"{TEAMS_API_GATEWAY}{TEAMS_SCHEDULE_GAME_PATH}"
 _AVAILABILITY_URL = f"{TEAMS_API_GATEWAY}{TEAMS_AVAILABILITY_BATCH_PATH}"
@@ -1234,3 +1245,524 @@ def test_get_calendar_subscription_explicit_timestamp() -> None:
     assert dump["appleCalendar"] == expected_feed
     assert dump["googleCalendar"] == expected_google
     assert dump["calendarUrl"] == expected_feed
+
+
+def test_calendar_event_created_model() -> None:
+    """Test CalendarEventCreated model instantiation."""
+    model = CalendarEventCreated(
+        id="a1e62678-4d11-4968-bc95-ad2c047b6727",
+        team_id=525015,
+        prototeam_id="18d94244-2c6b-48ed-aa05-af47819e1825",
+        title="Non-repeating Event Title",
+        type="event",
+        notes="Notes here",
+        location_name="Polar Ice",
+        location_address="123 Main St",
+        location_surface="Rink 1",
+        timezone_name="America/New_York",
+        all_day=False,
+        rrule="DTSTART=20260821T133000;FREQ=DAILY;COUNT=1",
+        start_time="13:30:00",
+        end_time="14:30:00",
+        created_by_user_id=10417,
+        created_at="2026-08-19T12:30:20Z",
+        updated_at="2026-08-19T12:30:20Z",
+        deleted_at=None,
+    )
+    assert model.id == "a1e62678-4d11-4968-bc95-ad2c047b6727"
+    assert model.team_id == 525015
+    assert model.prototeam_id == "18d94244-2c6b-48ed-aa05-af47819e1825"
+    assert model.title == "Non-repeating Event Title"
+    assert model.type == "event"
+    assert model.notes == "Notes here"
+    assert model.location_name == "Polar Ice"
+    assert model.location_address == "123 Main St"
+    assert model.location_surface == "Rink 1"
+    assert model.timezone_name == "America/New_York"
+    assert model.all_day is False
+    assert model.rrule == "DTSTART=20260821T133000;FREQ=DAILY;COUNT=1"
+    assert model.start_time == "13:30:00"
+    assert model.end_time == "14:30:00"
+    assert model.created_by_user_id == 10417
+    assert model.created_at == "2026-08-19T12:30:20Z"
+    assert model.updated_at == "2026-08-19T12:30:20Z"
+    assert model.deleted_at is None
+
+
+def test_created_game_result_model() -> None:
+    """Test CreatedGameResult model instantiation."""
+    res = CreatedGameResult(
+        success=True,
+        game_number="TEST-123",
+        date_time="2026-08-20T12:00",
+        end_time="13:15",
+        game_type="regular_season",
+        location="Polar Ice",
+        team_id=525015,
+        opposing_team_id=523675,
+        season_id=15020,
+        association_id=38,
+        league_id=1148580,
+        division_id=81419,
+        home_flag=True,
+    )
+    assert res.success is True
+    assert res.game_number == "TEST-123"
+    assert res.team_id == 525015
+    assert res.home_flag is True
+
+
+def test_validate_game_type_valid() -> None:
+    """Test validate_game_type with valid game types."""
+    for gt in ["regular_season", "playoff", "exhibition", "tournament"]:
+        validate_game_type(gt)
+
+
+def test_validate_game_type_invalid() -> None:
+    """Test validate_game_type with invalid game type raises GameSheetError."""
+    with pytest.raises(GameSheetError, match="Invalid game type 'invalid_type'"):
+        validate_game_type("invalid_type")
+
+
+def test_build_rrule() -> None:
+    """Test build_rrule helper function with various parameters."""
+    assert build_rrule(None) is None
+    assert build_rrule("") is None
+    assert build_rrule("FREQ=WEEKLY;INTERVAL=1;BYDAY=TU,TH") == "FREQ=WEEKLY;INTERVAL=1;BYDAY=TU,TH"
+
+    # Daily
+    assert build_rrule("daily") == "FREQ=DAILY;INTERVAL=1"
+    assert build_rrule("DAILY", interval=3) == "FREQ=DAILY;INTERVAL=3"
+
+    # Weekly
+    assert build_rrule("weekly") == "FREQ=WEEKLY;INTERVAL=1"
+    assert build_rrule("weekly", interval=2, by_day="TU,TH") == "FREQ=WEEKLY;INTERVAL=2;BYDAY=TU,TH"
+    assert build_rrule("weekly", by_day=["tuesday", "thursday"]) == "FREQ=WEEKLY;INTERVAL=1;BYDAY=TU,TH"
+    assert build_rrule("weekly", by_day="mon, wed, fri") == "FREQ=WEEKLY;INTERVAL=1;BYDAY=MO,WE,FR"
+    assert build_rrule("weekly", by_day=", ") == "FREQ=WEEKLY;INTERVAL=1"
+    assert build_rrule("weekly", by_day=["", " "]) == "FREQ=WEEKLY;INTERVAL=1"
+
+    # Monthly
+    assert build_rrule("monthly") == "FREQ=MONTHLY;INTERVAL=1"
+    assert build_rrule("monthly", interval=2) == "FREQ=MONTHLY;INTERVAL=2"
+
+    # Invalid frequency
+    with pytest.raises(GameSheetError, match="Invalid repeat frequency 'yearly'"):
+        build_rrule("yearly")
+
+
+@responses.activate
+def test_create_calendar_event_raw_success() -> None:
+    """Test create_calendar_event_raw HTTP success."""
+    responses.add(
+        responses.POST,
+        _CALENDAR_EVENTS_URL,
+        json={"success": True, "data": {"id": "evt-new-1", "title": "Test Event"}},
+        status=200,
+    )
+    session = _make_session()
+    result = create_calendar_event_raw(session, {"title": "Test Event"})
+    assert result["success"] is True
+    assert result["data"]["id"] == "evt-new-1"
+
+
+@responses.activate
+def test_create_calendar_event_raw_unauthorized() -> None:
+    """Test create_calendar_event_raw returns 401 raises AuthenticationError."""
+    responses.add(
+        responses.POST,
+        _CALENDAR_EVENTS_URL,
+        json={"error": "unauthorized"},
+        status=401,
+    )
+    responses.add(
+        responses.POST,
+        _REFRESH_URL,
+        json={"error": "invalid refresh token"},
+        status=401,
+    )
+    session = _make_session()
+    with pytest.raises(AuthenticationError, match="Authentication required"):
+        create_calendar_event_raw(session, {"title": "Test"})
+
+
+@responses.activate
+def test_create_calendar_event_raw_error() -> None:
+    """Test create_calendar_event_raw returns 400 raises GameSheetError."""
+    responses.add(
+        responses.POST,
+        _CALENDAR_EVENTS_URL,
+        body="Validation failed",
+        status=400,
+    )
+    session = _make_session()
+    with pytest.raises(GameSheetError, match="POST /api/calendar/events returned HTTP 400"):
+        create_calendar_event_raw(session, {"title": "Test"})
+
+
+@responses.activate
+def test_create_calendar_event_raw_invalid_json() -> None:
+    """Test create_calendar_event_raw invalid JSON response raises GameSheetError."""
+    responses.add(
+        responses.POST,
+        _CALENDAR_EVENTS_URL,
+        body="Not json",
+        status=200,
+    )
+    session = _make_session()
+    with pytest.raises(GameSheetError, match="Failed to parse calendar event creation JSON response"):
+        create_calendar_event_raw(session, {"title": "Test"})
+
+
+@responses.activate
+def test_create_calendar_event_raw_non_dict() -> None:
+    """Test create_calendar_event_raw non-dict response raises GameSheetError."""
+    responses.add(
+        responses.POST,
+        _CALENDAR_EVENTS_URL,
+        json=["item1"],
+        status=200,
+    )
+    session = _make_session()
+    with pytest.raises(GameSheetError, match="Unexpected response format from calendar event creation API"):
+        create_calendar_event_raw(session, {"title": "Test"})
+
+
+@responses.activate
+def test_create_event_non_repeating() -> None:
+    """Test create_event for non-repeating event."""
+    team_id = "18d94244-2c6b-48ed-aa05-af47819e1825"
+    responses.add(
+        responses.POST,
+        _CALENDAR_EVENTS_URL,
+        json={
+            "success": True,
+            "data": {
+                "id": "a1e62678-4d11-4968-bc95-ad2c047b6727",
+                "team_id": 525015,
+                "prototeam_id": team_id,
+                "title": "Non-repeating Event Title",
+                "type": "event",
+                "notes": "Non repeating event notes.",
+                "location_name": "Polar Ice Wake Forest",
+                "timezone_name": "America/New_York",
+                "all_day": False,
+                "start_time": "13:30:00",
+                "end_time": "14:30:00",
+            },
+        },
+        status=200,
+    )
+    session = _make_session()
+    evt = create_event(
+        session,
+        team_id,
+        "Non-repeating Event Title",
+        "2026-08-21T13:30",
+        "14:30",
+        location="Polar Ice Wake Forest",
+        notes="Non repeating event notes.",
+        timezone="America/New_York",
+    )
+    assert isinstance(evt, CalendarEventCreated)
+    assert evt.id == "a1e62678-4d11-4968-bc95-ad2c047b6727"
+    assert evt.title == "Non-repeating Event Title"
+    assert evt.type == "event"
+    assert evt.notes == "Non repeating event notes."
+
+
+@responses.activate
+def test_create_event_repeating_weekly() -> None:
+    """Test create_event for weekly repeating event with rrule and repeat_until."""
+    team_id = "18d94244-2c6b-48ed-aa05-af47819e1825"
+    responses.add(
+        responses.POST,
+        _CALENDAR_EVENTS_URL,
+        json={
+            "success": True,
+            "data": {
+                "id": "b8ca65a0-9626-4673-a46b-b9f3f831151a",
+                "team_id": 525015,
+                "prototeam_id": team_id,
+                "title": "Weekly Event",
+                "type": "event",
+                "notes": "Weekly Event Notes",
+                "location_name": "Extreme Ice Center",
+                "timezone_name": "America/New_York",
+                "all_day": False,
+                "rrule": "DTSTART=20260825T113000;FREQ=WEEKLY;INTERVAL=1;BYDAY=TU,TH;UNTIL=20270322T235959Z",
+                "start_time": "11:30:00",
+                "end_time": "12:30:00",
+            },
+        },
+        status=200,
+    )
+    session = _make_session()
+    evt = create_event(
+        session,
+        team_id,
+        "Weekly Event",
+        "2026-08-22T11:30",
+        "12:30",
+        location="Extreme Ice Center",
+        notes="Weekly Event Notes",
+        timezone="America/New_York",
+        rrule="FREQ=WEEKLY;INTERVAL=1;BYDAY=TU,TH",
+        repeat_until="2027-03-22",
+    )
+    assert evt.id == "b8ca65a0-9626-4673-a46b-b9f3f831151a"
+    assert evt.type == "event"
+    assert "FREQ=WEEKLY" in (evt.rrule or "")
+
+
+@responses.activate
+def test_create_event_malformed_response() -> None:
+    """Test create_event with malformed response raises GameSheetError."""
+    team_id = "18d94244-2c6b-48ed-aa05-af47819e1825"
+    responses.add(
+        responses.POST,
+        _CALENDAR_EVENTS_URL,
+        json={"data": "not a dict"},
+        status=200,
+    )
+    session = _make_session()
+    with pytest.raises(GameSheetError, match="expected dict data for created calendar event"):
+        create_event(session, team_id, "Title", "2026-08-21T13:30", "14:30")
+
+
+@responses.activate
+def test_create_practice_non_repeating() -> None:
+    """Test create_practice for non-repeating practice."""
+    team_id = "18d94244-2c6b-48ed-aa05-af47819e1825"
+    responses.add(
+        responses.POST,
+        _CALENDAR_EVENTS_URL,
+        json={
+            "success": True,
+            "data": {
+                "id": "d257e1ae-89cc-477f-b9db-79a02292ab4c",
+                "team_id": 525015,
+                "prototeam_id": team_id,
+                "title": "Practice",
+                "type": "practice",
+                "notes": "Non-repeating practice",
+                "location_name": "Polar Ice Wake Forest",
+                "timezone_name": "America/New_York",
+                "all_day": False,
+                "start_time": "13:30:00",
+                "end_time": "14:30:00",
+            },
+        },
+        status=200,
+    )
+    session = _make_session()
+    prac = create_practice(
+        session,
+        team_id,
+        "2026-08-30T13:30",
+        "14:30",
+        notes="Non-repeating practice",
+        location="Polar Ice Wake Forest",
+        timezone="America/New_York",
+    )
+    assert prac.id == "d257e1ae-89cc-477f-b9db-79a02292ab4c"
+    assert prac.type == "practice"
+    assert prac.title == "Practice"
+
+
+@responses.activate
+def test_create_practice_repeating_monthly() -> None:
+    """Test create_practice for repeating monthly practice."""
+    team_id = "18d94244-2c6b-48ed-aa05-af47819e1825"
+    responses.add(
+        responses.POST,
+        _CALENDAR_EVENTS_URL,
+        json={
+            "success": True,
+            "data": {
+                "id": "561efea6-f016-4a63-8b93-60729c957d11",
+                "team_id": 525015,
+                "prototeam_id": team_id,
+                "title": "Monthly Practice",
+                "type": "practice",
+                "notes": "Repeating practice",
+                "location_name": "Polar Ice Wake Forest",
+                "timezone_name": "America/New_York",
+                "all_day": False,
+                "rrule": "DTSTART=20260831T153000;FREQ=MONTHLY;INTERVAL=1;UNTIL=20270319T235959Z",
+                "start_time": "15:30:00",
+                "end_time": "16:30:00",
+            },
+        },
+        status=200,
+    )
+    session = _make_session()
+    prac = create_practice(
+        session,
+        team_id,
+        "2026-08-31T15:30",
+        "16:30",
+        title="Monthly Practice",
+        rrule="FREQ=MONTHLY;INTERVAL=1",
+        repeat_until="2027-03-19",
+    )
+    assert prac.id == "561efea6-f016-4a63-8b93-60729c957d11"
+    assert prac.type == "practice"
+
+
+@responses.activate
+def test_create_schedule_game_raw_success() -> None:
+    """Test create_schedule_game_raw HTTP success."""
+    responses.add(
+        responses.POST,
+        _SCHEDULE_GAME_URL,
+        json={"success": True},
+        status=200,
+    )
+    session = _make_session()
+    res = create_schedule_game_raw(session, {"game_number": "123"})
+    assert res == {"success": True}
+
+
+@responses.activate
+def test_create_schedule_game_raw_unauthorized() -> None:
+    """Test create_schedule_game_raw returns 401 raises AuthenticationError."""
+    responses.add(
+        responses.POST,
+        _SCHEDULE_GAME_URL,
+        json={"error": "unauthorized"},
+        status=401,
+    )
+    responses.add(
+        responses.POST,
+        _REFRESH_URL,
+        json={"error": "invalid refresh token"},
+        status=401,
+    )
+    session = _make_session()
+    with pytest.raises(AuthenticationError, match="Authentication required"):
+        create_schedule_game_raw(session, {"game_number": "123"})
+
+
+@responses.activate
+def test_create_schedule_game_raw_error() -> None:
+    """Test create_schedule_game_raw returns 400 raises GameSheetError."""
+    responses.add(
+        responses.POST,
+        _SCHEDULE_GAME_URL,
+        body="Bad Request",
+        status=400,
+    )
+    session = _make_session()
+    with pytest.raises(GameSheetError, match="POST /api/schedule-game returned HTTP 400"):
+        create_schedule_game_raw(session, {"game_number": "123"})
+
+
+@responses.activate
+def test_create_schedule_game_raw_invalid_json() -> None:
+    """Test create_schedule_game_raw invalid JSON response raises GameSheetError."""
+    responses.add(
+        responses.POST,
+        _SCHEDULE_GAME_URL,
+        body="Not json",
+        status=200,
+    )
+    session = _make_session()
+    with pytest.raises(GameSheetError, match="Failed to parse schedule-game creation JSON response"):
+        create_schedule_game_raw(session, {"game_number": "123"})
+
+
+@responses.activate
+def test_create_schedule_game_raw_non_dict() -> None:
+    """Test create_schedule_game_raw non-dict response raises GameSheetError."""
+    responses.add(
+        responses.POST,
+        _SCHEDULE_GAME_URL,
+        json=["unexpected"],
+        status=200,
+    )
+    session = _make_session()
+    with pytest.raises(GameSheetError, match="Unexpected response format from schedule-game API"):
+        create_schedule_game_raw(session, {"game_number": "123"})
+
+
+@responses.activate
+def test_create_game_success_home() -> None:
+    """Test create_game as home team with full payload."""
+    responses.add(
+        responses.POST,
+        _SCHEDULE_GAME_URL,
+        json={"success": True},
+        status=200,
+    )
+    session = _make_session()
+    game = create_game(
+        session,
+        team_id=525015,
+        season_id=15020,
+        division_id=81419,
+        opposing_team_id=523675,
+        date_time="2026-08-20T12:00",
+        end_time="13:15",
+        home_flag=True,
+        opposing_division=81419,
+        association_id=38,
+        league_id=1148580,
+        game_number="TEST-123",
+        game_type="regular_season",
+        location="Polar Ice Wake Forest Forest",
+        scorekeeper_name="Scorekeeper Name",
+        scorekeeper_phone="Scorekeeper Phone",
+        broadcast_provider="LIVEBARN",
+        time_zone_name="America/New_York",
+        time_zone_offset=-240,
+    )
+    assert isinstance(game, CreatedGameResult)
+    assert game.success is True
+    assert game.game_number == "TEST-123"
+    assert game.team_id == 525015
+    assert game.opposing_team_id == 523675
+    assert game.home_flag is True
+    assert game.location == "Polar Ice Wake Forest Forest"
+
+
+@responses.activate
+def test_create_game_visitor_defaults() -> None:
+    """Test create_game as visitor with defaults for optional values."""
+    responses.add(
+        responses.POST,
+        _SCHEDULE_GAME_URL,
+        json={"success": True},
+        status=200,
+    )
+    session = _make_session()
+    game = create_game(
+        session,
+        team_id="525015",
+        season_id="15020",
+        division_id="81419",
+        opposing_team_id="523675",
+        date_time="2026-08-20T12:00",
+        end_time="13:15",
+        home_flag=False,
+    )
+    assert game.success is True
+    assert game.home_flag is False
+    assert game.opposing_division == 81419  # Defaults to division_id
+    assert game.game_type == "regular_season"
+
+
+def test_create_game_invalid_type() -> None:
+    """Test create_game with invalid game_type raises GameSheetError."""
+    session = _make_session()
+    with pytest.raises(GameSheetError, match="Invalid game type 'invalid_game_type'"):
+        create_game(
+            session,
+            team_id=525015,
+            season_id=15020,
+            division_id=81419,
+            opposing_team_id=523675,
+            date_time="2026-08-20T12:00",
+            end_time="13:15",
+            game_type="invalid_game_type",
+        )

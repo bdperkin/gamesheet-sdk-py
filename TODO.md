@@ -145,7 +145,13 @@ For each resource, repeat this pattern: pydantic model(s), action functions, CLI
 - [x] **Schedule & Calendar (subscribe)** — Calendar subscription URL generation (`CalendarSubscription` model, `get_calendar_subscription` in
   `teams/schedule.py`) for Apple Calendar, Google Calendar, and generic calendar feed (`webcal`). CLI command: `schedule subscribe` (alias `sub`), with support
   for `--team-id` / `-t` / `GAMESHEET_TEAM_ID` and URL column filtering via `--apple`, `--google`, `--webcal`, or `--columns`.
-- [ ] **Calendar events/practices (CRUD)** — CRUD with recurring support (`/api/calendar/events/*`, `/api/calendar/occurrences/*`)
+- [x] **Schedule & Calendar (create: events, games, practices)** — Create events and practices via `POST /api/calendar/events` and games via
+  `POST /api/schedule-game` in domain module (`teams/schedule.py`) with `CalendarEventCreated` and `CreatedGameResult` models, `build_rrule`,
+  `validate_game_type`, `create_calendar_event_raw`, `create_schedule_game_raw`, `create_event`, `create_practice`, and `create_game`. CLI commands:
+  `schedule events create`, `schedule practices create`, and `schedule games create` with aliases `add` and `new`, supporting flexible datetime parsing,
+  start/end/duration resolution, all-day flag, recurrence rules (daily, weekly with `--by-day`, monthly), and game metadata (scorekeeper, broadcaster, timezone
+  offset).
+- [ ] **Calendar events/practices (update/delete)** — Update and delete with recurring support (`/api/calendar/events/*`, `/api/calendar/occurrences/*`)
 - [ ] **Availability RSVP** — Game/event/practice RSVP (`/api/availability/*`)
 - [ ] **Lineups** — View/set lineup, sign & publish (`/api/lineups/*`)
 - [ ] **Members/Invitations** — List members, invite staff + parents/players, accept/remove (`/api/teams/{id}/members/*`, `/api/invitations/*`)

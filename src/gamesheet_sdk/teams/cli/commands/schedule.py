@@ -12,6 +12,12 @@ from click.exceptions import Exit
 from rich_click import Context
 
 from gamesheet_sdk.common.cli.core import ResourceGroup, parse_columns_spec
+from gamesheet_sdk.common.cli.datetime_helpers import (
+    parse_flexible_datetime,
+    resolve_create_times,
+    resolve_datetime_input,
+    validate_no_input_conflict,
+)
 from gamesheet_sdk.common.cli.decorators import (
     common_output_options,
     get_fields_option,
@@ -24,6 +30,18 @@ from gamesheet_sdk.common.cli.rendering import (
 from gamesheet_sdk.teams.cli.helpers import (
     build_authenticated_session,
     run_action_or_exit,
+)
+from gamesheet_sdk.teams.schedule import (
+    build_rrule as _build_rrule_action,
+)
+from gamesheet_sdk.teams.schedule import (
+    create_event as _create_event_action,
+)
+from gamesheet_sdk.teams.schedule import (
+    create_game as _create_game_action,
+)
+from gamesheet_sdk.teams.schedule import (
+    create_practice as _create_practice_action,
 )
 from gamesheet_sdk.teams.schedule import (
     get_calendar_subscription as _get_calendar_subscription_action,
@@ -212,6 +230,7 @@ def schedule_get_command(
     cls=ResourceGroup,
     default="list",
     aliases={
+        "create": ("add", "new"),
         "get": ("show", "view"),
         "list": ("ls",),
     },
@@ -222,6 +241,244 @@ def events_group() -> None:
 
     Invoking ``events`` with no sub-command runs ``list`` by default.
     """
+
+
+@events_group.command(
+    "create",
+    aliases=("add", "new"),
+)
+@click.option(
+    "--team-id",
+    "-t",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID for the event.",
+)
+@click.option(
+    "--title",
+    type=str,
+    required=True,
+    help="Event title.",
+)
+@click.option(
+    "--start-datetime",
+    type=str,
+    default=None,
+    help="Start date and time. Mutually exclusive with --start-date/--start-time.",
+)
+@click.option(
+    "--end-datetime",
+    type=str,
+    default=None,
+    help="End date and time. Mutually exclusive with --end-date/--end-time.",
+)
+@click.option(
+    "--start-date",
+    type=str,
+    default=None,
+    help="Start date (YYYY-MM-DD). Use with --start-time.",
+)
+@click.option(
+    "--start-time",
+    "start_time_str",
+    type=str,
+    default=None,
+    help="Start time (HH:MM or HH:MM:SS, 24h). Use with --start-date.",
+)
+@click.option(
+    "--end-date",
+    type=str,
+    default=None,
+    help="End date (YYYY-MM-DD). Use with --end-time.",
+)
+@click.option(
+    "--end-time",
+    "end_time_str",
+    type=str,
+    default=None,
+    help="End time (HH:MM or HH:MM:SS, 24h). Use with --end-date.",
+)
+@click.option(
+    "--duration",
+    type=int,
+    default=None,
+    help="Event duration in minutes. Used to calculate end time from start time.",
+)
+@click.option(
+    "--all-day",
+    is_flag=True,
+    default=False,
+    help="Mark event as all-day.",
+)
+@click.option(
+    "--location",
+    type=str,
+    default="",
+    help="Event location / venue / address.",
+)
+@click.option(
+    "--notes",
+    "--description",
+    "notes",
+    type=str,
+    default="",
+    help="Event notes / description.",
+)
+@click.option(
+    "--timezone",
+    "--time-zone-name",
+    "timezone",
+    type=str,
+    default=None,
+    help="Timezone name. Defaults to system timezone.",
+)
+@click.option(
+    "--repeat",
+    "--freq",
+    "--frequency",
+    "frequency",
+    type=click.Choice(["daily", "weekly", "monthly"], case_sensitive=False),
+    default=None,
+    help="Recurrence frequency for repeating events.",
+)
+@click.option(
+    "--interval",
+    type=int,
+    default=1,
+    show_default=True,
+    help="Recurrence interval (e.g. every 2 weeks).",
+)
+@click.option(
+    "--by-day",
+    "--byday",
+    "--days",
+    "by_day",
+    type=str,
+    default=None,
+    help="Days of the week for weekly recurrence (e.g. 'TU,TH', 'mon,wed').",
+)
+@click.option(
+    "--repeat-until",
+    "--until",
+    "repeat_until",
+    type=str,
+    default=None,
+    help="Recurrence end date (YYYY-MM-DD).",
+)
+@click.option(
+    "--rrule",
+    type=str,
+    default=None,
+    help="Explicit RRULE string (e.g. 'FREQ=WEEKLY;INTERVAL=1;BYDAY=TU,TH').",
+)
+@common_output_options
+@get_fields_option
+@click.pass_context
+def events_create_command(
+    ctx: Context,
+    team_id: str,
+    title: str,
+    start_datetime: str | None,
+    end_datetime: str | None,
+    start_date: str | None,
+    start_time_str: str | None,
+    end_date: str | None,
+    end_time_str: str | None,
+    duration: int | None,
+    *,
+    all_day: bool = False,
+    location: str = "",
+    notes: str = "",
+    timezone: str | None = None,
+    frequency: str | None = None,
+    interval: int = 1,
+    by_day: str | None = None,
+    repeat_until: str | None = None,
+    rrule: str | None = None,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+) -> None:
+    r"""Create a new calendar event.
+
+    Provide any two of ``--start-datetime`` (or ``--start-date`` + ``--start-time``),
+    ``--end-datetime`` (or ``--end-date`` + ``--end-time``), and ``--duration`` to
+    automatically calculate the third. For all-day events, use ``--all-day`` and provide
+    ``--start-date`` or ``--start-datetime``.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        team_id (str): Team identifier.
+        title (str): Event title.
+        start_datetime (str | None): Start date and time.
+        end_datetime (str | None): End date and time.
+        start_date (str | None): Start date component.
+        start_time_str (str | None): Start time component.
+        end_date (str | None): End date component.
+        end_time_str (str | None): End time component.
+        duration (int | None): Event duration in minutes.
+        all_day (bool): Whether event is all day (default: False).
+        location (str): Event location / venue.
+        notes (str): Event notes / description.
+        timezone (str | None): Timezone name (defaults to system timezone).
+        frequency (str | None): Recurrence frequency ('daily', 'weekly', 'monthly').
+        interval (int): Recurrence interval (default: 1).
+        by_day (str | None): Days of the week for weekly recurrence.
+        repeat_until (str | None): Recurrence end date (YYYY-MM-DD).
+        rrule (str | None): Direct RRULE string.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        fields_spec (str | None): Optional comma-separated list of fields to display.
+
+    """
+    if all_day:
+        if start_datetime and start_date:
+            msg = "Cannot combine --start-datetime with --start-date/--start-time."
+            raise click.UsageError(msg)
+
+        start_raw = start_datetime or start_date
+        if not start_raw:
+            msg = "--start-datetime or --start-date is required for all-day events."
+            raise click.UsageError(msg)
+
+        start_dt = parse_flexible_datetime(start_raw)
+        formatted_start = start_dt.strftime("%Y-%m-%d")
+        formatted_end = ""
+    else:
+        validate_no_input_conflict(start_datetime, start_date, start_time_str, "start")
+        validate_no_input_conflict(end_datetime, end_date, end_time_str, "end")
+
+        start_raw = resolve_datetime_input(start_datetime, start_date, start_time_str, "start")
+        end_raw = resolve_datetime_input(end_datetime, end_date, end_time_str, "end")
+
+        scheduled_start, scheduled_end = resolve_create_times(start_raw, end_raw, duration)
+        start_dt = parse_flexible_datetime(scheduled_start)
+        end_dt = parse_flexible_datetime(scheduled_end)
+        formatted_start = start_dt.strftime("%Y-%m-%dT%H:%M")
+        formatted_end = end_dt.strftime("%H:%M")
+
+    effective_rrule = rrule or _build_rrule_action(frequency, interval=interval, by_day=by_day)
+
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+    event = run_action_or_exit(
+        session,
+        _create_event_action,
+        team_id,
+        title,
+        formatted_start,
+        formatted_end,
+        event_type="event",
+        timezone=timezone,
+        location=location,
+        notes=notes,
+        all_day=all_day,
+        rrule=effective_rrule,
+        repeat_until=repeat_until,
+        timeout=config.timeout,
+    )
+    render_get_command(event, output_format, output_path, fields_spec)
 
 
 @events_group.command("list")
@@ -361,6 +618,7 @@ def events_get_command(
     cls=ResourceGroup,
     default="list",
     aliases={
+        "create": ("add", "new"),
         "get": ("show", "view"),
         "list": ("ls",),
     },
@@ -371,6 +629,282 @@ def games_group() -> None:
 
     Invoking ``games`` with no sub-command runs ``list`` by default.
     """
+
+
+@games_group.command(
+    "create",
+    aliases=("add", "new"),
+)
+@click.option(
+    "--team-id",
+    "-t",
+    "--home-team-id",
+    "team_id",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team identifier.",
+)
+@click.option(
+    "--opposing-team-id",
+    "--visitor-team-id",
+    "--opponent-id",
+    "opposing_team_id",
+    type=str,
+    required=True,
+    help="Opposing team identifier.",
+)
+@click.option(
+    "--season-id",
+    type=str,
+    envvar="GAMESHEET_SEASON_ID",
+    required=True,
+    help="Season identifier.",
+)
+@click.option(
+    "--division-id",
+    "--home-division-id",
+    "division_id",
+    type=str,
+    required=True,
+    help="Division identifier.",
+)
+@click.option(
+    "--opposing-division-id",
+    "--opposing-division",
+    "--visitor-division-id",
+    "opposing_division",
+    type=str,
+    default=None,
+    help="Opposing team division identifier (defaults to --division-id).",
+)
+@click.option(
+    "--association-id",
+    type=str,
+    default="0",
+    help="Association identifier (optional).",
+)
+@click.option(
+    "--league-id",
+    type=str,
+    default="0",
+    help="League identifier (optional).",
+)
+@click.option(
+    "--home/--visitor",
+    "--home-flag/--away",
+    "home_flag",
+    default=True,
+    show_default=True,
+    help="Specify whether the team is the home or visitor/away team.",
+)
+@click.option(
+    "--number",
+    "-n",
+    "--game-number",
+    "number",
+    type=str,
+    required=True,
+    help="Game number.",
+)
+@click.option(
+    "--game-type",
+    type=str,
+    default="regular_season",
+    show_default=True,
+    help="Game type (regular_season, playoff, exhibition, tournament).",
+)
+@click.option(
+    "--start-datetime",
+    type=str,
+    default=None,
+    help="Start date and time. Mutually exclusive with --start-date/--start-time.",
+)
+@click.option(
+    "--end-datetime",
+    type=str,
+    default=None,
+    help="End date and time. Mutually exclusive with --end-date/--end-time.",
+)
+@click.option(
+    "--start-date",
+    type=str,
+    default=None,
+    help="Start date (YYYY-MM-DD). Use with --start-time.",
+)
+@click.option(
+    "--start-time",
+    "start_time_str",
+    type=str,
+    default=None,
+    help="Start time (HH:MM or HH:MM:SS, 24h). Use with --start-date.",
+)
+@click.option(
+    "--end-date",
+    type=str,
+    default=None,
+    help="End date (YYYY-MM-DD). Use with --end-time.",
+)
+@click.option(
+    "--end-time",
+    "end_time_str",
+    type=str,
+    default=None,
+    help="End time (HH:MM or HH:MM:SS, 24h). Use with --end-date.",
+)
+@click.option(
+    "--duration",
+    type=int,
+    default=None,
+    help="Game duration in minutes. Used to calculate end time from start time.",
+)
+@click.option(
+    "--location",
+    type=str,
+    default="",
+    help="Game venue / location name.",
+)
+@click.option(
+    "--scorekeeper-name",
+    type=str,
+    default="",
+    help="Scorekeeper full name (optional).",
+)
+@click.option(
+    "--scorekeeper-phone",
+    type=str,
+    default="",
+    help="Scorekeeper phone number (optional).",
+)
+@click.option(
+    "--broadcaster",
+    "--broadcast-provider",
+    "broadcast_provider",
+    type=str,
+    default="",
+    help="Broadcast provider (e.g. LIVEBARN).",
+)
+@click.option(
+    "--time-zone-name",
+    "--timezone",
+    "time_zone_name",
+    type=str,
+    default=None,
+    help="IANA timezone name. Defaults to system timezone.",
+)
+@click.option(
+    "--time-zone-offset",
+    type=int,
+    default=None,
+    help="Timezone offset in minutes. Defaults to system timezone offset.",
+)
+@common_output_options
+@get_fields_option
+@click.pass_context
+def games_create_command(  # noqa: PLR0913
+    ctx: Context,
+    team_id: str,
+    opposing_team_id: str,
+    season_id: str,
+    division_id: str,
+    opposing_division: str | None,
+    association_id: str,
+    league_id: str,
+    number: str,
+    game_type: str,
+    start_datetime: str | None,
+    end_datetime: str | None,
+    start_date: str | None,
+    start_time_str: str | None,
+    end_date: str | None,
+    end_time_str: str | None,
+    duration: int | None,
+    *,
+    home_flag: bool = True,
+    location: str = "",
+    scorekeeper_name: str = "",
+    scorekeeper_phone: str = "",
+    broadcast_provider: str = "",
+    time_zone_name: str | None = None,
+    time_zone_offset: int | None = None,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+) -> None:
+    r"""Create a new scheduled game.
+
+    Provide any two of ``--start-datetime`` (or ``--start-date`` + ``--start-time``),
+    ``--end-datetime`` (or ``--end-date`` + ``--end-time``), and ``--duration`` to
+    automatically calculate the third.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        team_id (str): Team identifier.
+        opposing_team_id (str): Opposing team identifier.
+        season_id (str): Season identifier.
+        division_id (str): Division identifier.
+        opposing_division (str | None): Opposing team division identifier.
+        association_id (str): Association identifier.
+        league_id (str): League identifier.
+        number (str): Game number.
+        game_type (str): Game type (regular_season, playoff, exhibition, tournament).
+        start_datetime (str | None): Start date and time.
+        end_datetime (str | None): End date and time.
+        start_date (str | None): Start date component.
+        start_time_str (str | None): Start time component.
+        end_date (str | None): End date component.
+        end_time_str (str | None): End time component.
+        duration (int | None): Game duration in minutes.
+        home_flag (bool): Whether home team (default: True).
+        location (str): Game venue / location name.
+        scorekeeper_name (str): Scorekeeper full name.
+        scorekeeper_phone (str): Scorekeeper phone number.
+        broadcast_provider (str): Broadcast provider name.
+        time_zone_name (str | None): Timezone name (defaults to system timezone).
+        time_zone_offset (int | None): Timezone offset in minutes (defaults to system offset).
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        fields_spec (str | None): Optional comma-separated list of fields to display.
+
+    """
+    validate_no_input_conflict(start_datetime, start_date, start_time_str, "start")
+    validate_no_input_conflict(end_datetime, end_date, end_time_str, "end")
+
+    start_raw = resolve_datetime_input(start_datetime, start_date, start_time_str, "start")
+    end_raw = resolve_datetime_input(end_datetime, end_date, end_time_str, "end")
+
+    scheduled_start, scheduled_end = resolve_create_times(start_raw, end_raw, duration)
+    start_dt = parse_flexible_datetime(scheduled_start)
+    end_dt = parse_flexible_datetime(scheduled_end)
+    formatted_start = start_dt.strftime("%Y-%m-%dT%H:%M")
+    formatted_end = end_dt.strftime("%H:%M")
+
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+    game = run_action_or_exit(
+        session,
+        _create_game_action,
+        team_id,
+        season_id,
+        division_id,
+        opposing_team_id,
+        formatted_start,
+        formatted_end,
+        home_flag=home_flag,
+        opposing_division=opposing_division,
+        association_id=association_id,
+        league_id=league_id,
+        game_number=number,
+        game_type=game_type,
+        location=location,
+        scorekeeper_name=scorekeeper_name,
+        scorekeeper_phone=scorekeeper_phone,
+        broadcast_provider=broadcast_provider,
+        time_zone_name=time_zone_name,
+        time_zone_offset=time_zone_offset,
+        timeout=config.timeout,
+    )
+    render_get_command(game, output_format, output_path, fields_spec)
 
 
 @games_group.command("list")
@@ -511,6 +1045,7 @@ def games_get_command(
     cls=ResourceGroup,
     default="list",
     aliases={
+        "create": ("add", "new"),
         "get": ("show", "view"),
         "list": ("ls",),
     },
@@ -521,6 +1056,244 @@ def practices_group() -> None:
 
     Invoking ``practices`` with no sub-command runs ``list`` by default.
     """
+
+
+@practices_group.command(
+    "create",
+    aliases=("add", "new"),
+)
+@click.option(
+    "--team-id",
+    "-t",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID for the practice.",
+)
+@click.option(
+    "--title",
+    type=str,
+    default="Practice",
+    show_default=True,
+    help="Practice title.",
+)
+@click.option(
+    "--start-datetime",
+    type=str,
+    default=None,
+    help="Start date and time. Mutually exclusive with --start-date/--start-time.",
+)
+@click.option(
+    "--end-datetime",
+    type=str,
+    default=None,
+    help="End date and time. Mutually exclusive with --end-date/--end-time.",
+)
+@click.option(
+    "--start-date",
+    type=str,
+    default=None,
+    help="Start date (YYYY-MM-DD). Use with --start-time.",
+)
+@click.option(
+    "--start-time",
+    "start_time_str",
+    type=str,
+    default=None,
+    help="Start time (HH:MM or HH:MM:SS, 24h). Use with --start-date.",
+)
+@click.option(
+    "--end-date",
+    type=str,
+    default=None,
+    help="End date (YYYY-MM-DD). Use with --end-time.",
+)
+@click.option(
+    "--end-time",
+    "end_time_str",
+    type=str,
+    default=None,
+    help="End time (HH:MM or HH:MM:SS, 24h). Use with --end-date.",
+)
+@click.option(
+    "--duration",
+    type=int,
+    default=None,
+    help="Practice duration in minutes. Used to calculate end time from start time.",
+)
+@click.option(
+    "--all-day",
+    is_flag=True,
+    default=False,
+    help="Mark practice as all-day.",
+)
+@click.option(
+    "--location",
+    type=str,
+    default="",
+    help="Practice location / venue / address.",
+)
+@click.option(
+    "--notes",
+    "--description",
+    "notes",
+    type=str,
+    default="",
+    help="Practice notes / description.",
+)
+@click.option(
+    "--timezone",
+    "--time-zone-name",
+    "timezone",
+    type=str,
+    default=None,
+    help="Timezone name. Defaults to system timezone.",
+)
+@click.option(
+    "--repeat",
+    "--freq",
+    "--frequency",
+    "frequency",
+    type=click.Choice(["daily", "weekly", "monthly"], case_sensitive=False),
+    default=None,
+    help="Recurrence frequency for repeating practices.",
+)
+@click.option(
+    "--interval",
+    type=int,
+    default=1,
+    show_default=True,
+    help="Recurrence interval (e.g. every 2 weeks).",
+)
+@click.option(
+    "--by-day",
+    "--byday",
+    "--days",
+    "by_day",
+    type=str,
+    default=None,
+    help="Days of the week for weekly recurrence (e.g. 'TU,TH', 'mon,wed').",
+)
+@click.option(
+    "--repeat-until",
+    "--until",
+    "repeat_until",
+    type=str,
+    default=None,
+    help="Recurrence end date (YYYY-MM-DD).",
+)
+@click.option(
+    "--rrule",
+    type=str,
+    default=None,
+    help="Explicit RRULE string (e.g. 'FREQ=WEEKLY;INTERVAL=1;BYDAY=TU,TH').",
+)
+@common_output_options
+@get_fields_option
+@click.pass_context
+def practices_create_command(
+    ctx: Context,
+    team_id: str,
+    title: str,
+    start_datetime: str | None,
+    end_datetime: str | None,
+    start_date: str | None,
+    start_time_str: str | None,
+    end_date: str | None,
+    end_time_str: str | None,
+    duration: int | None,
+    *,
+    all_day: bool = False,
+    location: str = "",
+    notes: str = "",
+    timezone: str | None = None,
+    frequency: str | None = None,
+    interval: int = 1,
+    by_day: str | None = None,
+    repeat_until: str | None = None,
+    rrule: str | None = None,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+) -> None:
+    r"""Create a new team practice.
+
+    Provide any two of ``--start-datetime`` (or ``--start-date`` + ``--start-time``),
+    ``--end-datetime`` (or ``--end-date`` + ``--end-time``), and ``--duration`` to
+    automatically calculate the third. For all-day practices, use ``--all-day`` and provide
+    ``--start-date`` or ``--start-datetime``.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        team_id (str): Team identifier.
+        title (str): Practice title (default: 'Practice').
+        start_datetime (str | None): Start date and time.
+        end_datetime (str | None): End date and time.
+        start_date (str | None): Start date component.
+        start_time_str (str | None): Start time component.
+        end_date (str | None): End date component.
+        end_time_str (str | None): End time component.
+        duration (int | None): Practice duration in minutes.
+        all_day (bool): Whether practice is all day (default: False).
+        location (str): Practice location / venue.
+        notes (str): Practice notes / description.
+        timezone (str | None): Timezone name (defaults to system timezone).
+        frequency (str | None): Recurrence frequency ('daily', 'weekly', 'monthly').
+        interval (int): Recurrence interval (default: 1).
+        by_day (str | None): Days of the week for weekly recurrence.
+        repeat_until (str | None): Recurrence end date (YYYY-MM-DD).
+        rrule (str | None): Direct RRULE string.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        fields_spec (str | None): Optional comma-separated list of fields to display.
+
+    """
+    if all_day:
+        if start_datetime and start_date:
+            msg = "Cannot combine --start-datetime with --start-date/--start-time."
+            raise click.UsageError(msg)
+
+        start_raw = start_datetime or start_date
+        if not start_raw:
+            msg = "--start-datetime or --start-date is required for all-day practices."
+            raise click.UsageError(msg)
+
+        start_dt = parse_flexible_datetime(start_raw)
+        formatted_start = start_dt.strftime("%Y-%m-%d")
+        formatted_end = ""
+    else:
+        validate_no_input_conflict(start_datetime, start_date, start_time_str, "start")
+        validate_no_input_conflict(end_datetime, end_date, end_time_str, "end")
+
+        start_raw = resolve_datetime_input(start_datetime, start_date, start_time_str, "start")
+        end_raw = resolve_datetime_input(end_datetime, end_date, end_time_str, "end")
+
+        scheduled_start, scheduled_end = resolve_create_times(start_raw, end_raw, duration)
+        start_dt = parse_flexible_datetime(scheduled_start)
+        end_dt = parse_flexible_datetime(scheduled_end)
+        formatted_start = start_dt.strftime("%Y-%m-%dT%H:%M")
+        formatted_end = end_dt.strftime("%H:%M")
+
+    effective_rrule = rrule or _build_rrule_action(frequency, interval=interval, by_day=by_day)
+
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+    practice = run_action_or_exit(
+        session,
+        _create_practice_action,
+        team_id,
+        formatted_start,
+        formatted_end,
+        title=title,
+        timezone=timezone,
+        location=location,
+        notes=notes,
+        all_day=all_day,
+        rrule=effective_rrule,
+        repeat_until=repeat_until,
+        timeout=config.timeout,
+    )
+    render_get_command(practice, output_format, output_path, fields_spec)
 
 
 @practices_group.command("list")
