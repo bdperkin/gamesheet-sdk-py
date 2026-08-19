@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.37 (2026-08-19)
+
+### Features
+
+- **teams**: Implement schedule delete commands for events, games, and practices ([#232](https://github.com/bdperkin/gamesheet-sdk-py/pull/232),
+  [`7e16241`](https://github.com/bdperkin/gamesheet-sdk-py/commit/7e162415641b774f34b82ee477e21a4c45a54e65))
+
 ## v0.4.36 (2026-08-19)
 
 ### Features
