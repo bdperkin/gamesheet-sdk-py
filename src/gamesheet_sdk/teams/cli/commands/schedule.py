@@ -11,7 +11,7 @@ import rich_click as click
 from click.exceptions import Exit
 from rich_click import Context
 
-from gamesheet_sdk.common.cli.core import ResourceGroup
+from gamesheet_sdk.common.cli.core import ResourceGroup, parse_columns_spec
 from gamesheet_sdk.common.cli.decorators import (
     common_output_options,
     get_fields_option,
@@ -24,6 +24,9 @@ from gamesheet_sdk.common.cli.rendering import (
 from gamesheet_sdk.teams.cli.helpers import (
     build_authenticated_session,
     run_action_or_exit,
+)
+from gamesheet_sdk.teams.schedule import (
+    get_calendar_subscription as _get_calendar_subscription_action,
 )
 from gamesheet_sdk.teams.schedule import (
     get_event as _get_event_action,
@@ -61,6 +64,7 @@ if TYPE_CHECKING:
     aliases={
         "get": ("show", "view"),
         "list": ("ls",),
+        "subscribe": ("sub",),
     },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
@@ -673,25 +677,90 @@ def schedule_export_command() -> None:
     raise Exit(1)
 
 
-@schedule_group.command("subscribe")
-def schedule_subscribe_command() -> None:
-    r"""Subscribe to team calendar.
+@schedule_group.command(
+    "subscribe",
+    aliases=("sub",),
+)
+@click.option(
+    "--team-id",
+    "-t",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=True,
+    help="Team ID to generate calendar subscription URLs for.",
+)
+@click.option(
+    "--apple",
+    "--apple-calendar",
+    "apple_calendar",
+    is_flag=True,
+    default=False,
+    help="Include Apple Calendar subscription URL.",
+)
+@click.option(
+    "--google",
+    "--google-calendar",
+    "google_calendar",
+    is_flag=True,
+    default=False,
+    help="Include Google Calendar subscription URL.",
+)
+@click.option(
+    "--webcal",
+    "--calendar-url",
+    "calendar_url",
+    is_flag=True,
+    default=False,
+    help="Include generic calendar subscription feed URL.",
+)
+@common_output_options
+@list_columns_option
+def schedule_subscribe_command(
+    team_id: str,
+    *,
+    apple_calendar: bool,
+    google_calendar: bool,
+    calendar_url: bool,
+    output_format: str,
+    output_path: str | None,
+    columns_spec: str | None,
+) -> None:
+    """Generate calendar subscription feed URLs for a team.
 
-    Generate calendar subscription feed URL.\f
-
-    NOT YET IMPLEMENTED - Calendar subscription support is planned for a future release.
-
-    Raises:
-        Exit: Always raised (exit code 1) because this command is not yet implemented.
-
+    Provides subscription URLs for Apple Calendar, Google Calendar, and generic calendar feeds (webcal).
     """
-    click.secho(
-        "Error: schedule subscribe is not yet implemented. "
-        "Calendar subscription support is planned for a future release.",
-        fg="red",
-        err=True,
-    )
-    raise Exit(1)
+    selected_columns: list[str] = []
+    parsed_columns = parse_columns_spec(columns_spec)
+    if parsed_columns is not None:
+        alias_map = {
+            "apple": "appleCalendar",
+            "apple calendar": "appleCalendar",
+            "apple_calendar": "appleCalendar",
+            "applecalendar": "appleCalendar",
+            "calendar url": "calendarUrl",
+            "calendar_url": "calendarUrl",
+            "calendarurl": "calendarUrl",
+            "google": "googleCalendar",
+            "google calendar": "googleCalendar",
+            "google_calendar": "googleCalendar",
+            "googlecalendar": "googleCalendar",
+            "url": "calendarUrl",
+            "webcal": "calendarUrl",
+        }
+        selected_columns = [alias_map.get(c.lower(), c) for c in parsed_columns]
+    else:
+        if apple_calendar:
+            selected_columns.append("appleCalendar")
+
+        if google_calendar:
+            selected_columns.append("googleCalendar")
+
+        if calendar_url:
+            selected_columns.append("calendarUrl")
+
+    effective_columns_spec = ",".join(selected_columns) if selected_columns else None
+    subscription = _get_calendar_subscription_action(team_id)
+    render_list_command([subscription], output_format, output_path, effective_columns_spec)
 
 
 schedule_group.add_command(events_group)

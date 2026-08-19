@@ -11,8 +11,10 @@ The ``GET /api/availability/batch`` endpoint returns player/coach availability f
 from __future__ import annotations
 
 import json
+import time
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Any
+from urllib.parse import quote
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -23,6 +25,7 @@ from gamesheet_sdk.teams.shared.constants import (
     TEAMS_AVAILABILITY_BATCH_PATH,
     TEAMS_CALENDAR_OCCURRENCES_PATH,
     TEAMS_CALENDAR_PATH,
+    TEAMS_PUBLIC_CALENDAR_SERVICE,
     TEAMS_SCHEDULE_GAME_PATH,
 )
 
@@ -81,6 +84,32 @@ class ScheduleEventDetail(BaseModel):
         description="Detailed event payload.",
     )
     availability: Any = Field(default=None, description="Optional availability data.")
+
+
+class CalendarSubscription(BaseModel):
+    """Calendar subscription URLs for Apple Calendar, Google Calendar, and webcal.
+
+    Attributes:
+        appleCalendar (str): Apple Calendar subscription URL (webcal protocol).
+        googleCalendar (str): Google Calendar subscription URL.
+        calendarUrl (str): Generic calendar subscription feed URL (webcal protocol).
+
+    """
+
+    model_config = ConfigDict(extra="allow")
+
+    appleCalendar: str = Field(  # noqa: N815
+        default="",
+        description="Apple Calendar subscription URL (webcal protocol).",
+    )
+    googleCalendar: str = Field(  # noqa: N815
+        default="",
+        description="Google Calendar subscription URL.",
+    )
+    calendarUrl: str = Field(  # noqa: N815
+        default="",
+        description="Generic calendar subscription feed URL (webcal protocol).",
+    )
 
 
 def fetch_calendar_raw(
@@ -716,4 +745,37 @@ def get_practice(
         include_availability=include_availability,
         team_id=team_id,
         timeout=timeout,
+    )
+
+
+def get_calendar_subscription(
+    team_id: str,
+    *,
+    timestamp_hours: int | None = None,
+) -> CalendarSubscription:
+    """Generate calendar subscription URLs for a team.
+
+    Calculates subscription URLs for Apple Calendar (webcal), Google Calendar, and generic calendar feed.
+
+    Args:
+        team_id (str): Team identifier (prototeamId UUID or team ID).
+        timestamp_hours (int | None): Optional hours timestamp since Unix epoch for cache busting
+            (defaults to current UTC hour).
+
+    Returns:
+        CalendarSubscription: Pydantic model with appleCalendar, googleCalendar, and calendarUrl.
+
+    """
+    if timestamp_hours is None:
+        timestamp_hours = int(time.time() // 3600)
+
+    feed_resource = f"{TEAMS_PUBLIC_CALENDAR_SERVICE}/teams/{team_id}/calendar.ics#v{timestamp_hours}"
+    apple_cal = f"webcal://{feed_resource}"
+    google_cal = f"https://calendar.google.com/calendar/r?cid={quote(apple_cal, safe='')}"
+    cal_url = f"webcal://{feed_resource}"
+
+    return CalendarSubscription(
+        appleCalendar=apple_cal,
+        googleCalendar=google_cal,
+        calendarUrl=cal_url,
     )

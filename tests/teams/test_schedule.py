@@ -14,12 +14,14 @@ import responses
 from gamesheet_sdk.common.config import Config
 from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
 from gamesheet_sdk.teams.schedule import (
+    CalendarSubscription,
     ScheduleEvent,
     ScheduleEventDetail,
     fetch_availability_raw,
     fetch_calendar_raw,
     fetch_event_occurrence_raw,
     fetch_scheduled_game_raw,
+    get_calendar_subscription,
     get_event,
     get_game,
     get_practice,
@@ -1193,3 +1195,42 @@ def test_get_game_with_integer_id() -> None:
     assert game.type == "game"
     assert game.eventDate == "2027-02-28"
     assert game.eventTitle == "RR-145"
+
+
+def test_get_calendar_subscription_default_timestamp() -> None:
+    """Test get_calendar_subscription with default timestamp."""
+    team_id = "248d959c-279e-4492-805d-eb1a3e717323"
+    sub = get_calendar_subscription(team_id)
+    assert isinstance(sub, CalendarSubscription)
+    expected_apple_prefix = (
+        f"webcal://api.teams.gamesheet.app/api/public/calendar/teams/{team_id}/calendar.ics#v"
+    )
+    assert sub.appleCalendar.startswith(expected_apple_prefix)
+    expected_google_prefix = (
+        "https://calendar.google.com/calendar/r?cid="
+        "webcal%3A%2F%2Fapi.teams.gamesheet.app%2Fapi%2Fpublic%2Fcalendar%2Fteams%2F"
+    )
+    assert sub.googleCalendar.startswith(expected_google_prefix)
+    assert sub.calendarUrl == sub.appleCalendar
+
+
+def test_get_calendar_subscription_explicit_timestamp() -> None:
+    """Test get_calendar_subscription with explicit timestamp."""
+    team_id = "test-team-uuid"
+    timestamp_hours = 496427
+    sub = get_calendar_subscription(team_id, timestamp_hours=timestamp_hours)
+    expected_feed = (
+        f"webcal://api.teams.gamesheet.app/api/public/calendar/teams/{team_id}/"
+        f"calendar.ics#v{timestamp_hours}"
+    )
+    expected_google = (
+        f"https://calendar.google.com/calendar/r?cid=webcal%3A%2F%2Fapi.teams.gamesheet.app%2Fapi%2Fpublic%2F"
+        f"calendar%2Fteams%2F{team_id}%2Fcalendar.ics%23v{timestamp_hours}"
+    )
+    assert sub.appleCalendar == expected_feed
+    assert sub.googleCalendar == expected_google
+    assert sub.calendarUrl == expected_feed
+    dump = sub.model_dump(mode="json")
+    assert dump["appleCalendar"] == expected_feed
+    assert dump["googleCalendar"] == expected_google
+    assert dump["calendarUrl"] == expected_feed
