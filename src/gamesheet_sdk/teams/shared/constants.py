@@ -14,6 +14,9 @@ Attributes:
     TEAMS_SEASONS_PATH (str): Endpoint path for fetching seasons data.
     TEAMS_TEAMS_PATH (str): Endpoint path for fetching teams data.
     TEAMS_CALENDAR_PATH (str): Endpoint path for fetching team calendar and schedule data.
+    TEAMS_CALENDAR_OCCURRENCES_PATH (str): Endpoint path for fetching individual calendar event occurrences.
+    TEAMS_SCHEDULE_GAME_PATH (str): Endpoint path for fetching and managing scheduled game details.
+    TEAMS_AVAILABILITY_BATCH_PATH (str): Endpoint path for fetching batch availability data.
     TEAMS_IMAGES_UPLOAD_URL_PATH (str): Endpoint path for requesting direct image upload URLs.
 
 Example:
@@ -42,4 +45,7 @@ TEAMS_LOOKUPS_PATH: Final[str] = "/api/lookups"
 TEAMS_SEASONS_PATH: Final[str] = "/api/seasons"
 TEAMS_TEAMS_PATH: Final[str] = "/api/teams"
 TEAMS_CALENDAR_PATH: Final[str] = "/api/calendar"
+TEAMS_CALENDAR_OCCURRENCES_PATH: Final[str] = "/api/calendar/occurrences"
+TEAMS_SCHEDULE_GAME_PATH: Final[str] = "/api/schedule-game"
+TEAMS_AVAILABILITY_BATCH_PATH: Final[str] = "/api/availability/batch"
 TEAMS_IMAGES_UPLOAD_URL_PATH: Final[str] = "/api/images/upload-url"
