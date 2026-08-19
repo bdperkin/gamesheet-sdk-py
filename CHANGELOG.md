@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.34 (2026-08-19)
+
+### Features
+
+- **teams**: Implement schedule get and availability commands ([#229](https://github.com/bdperkin/gamesheet-sdk-py/pull/229),
+  [`faaf53a`](https://github.com/bdperkin/gamesheet-sdk-py/commit/faaf53a2c847fd9f2dd2cc0f3b2e95b110faa7dc))
+
 ## v0.4.33 (2026-08-19)
 
 ### Features
