@@ -137,8 +137,13 @@ For each resource, repeat this pattern: pydantic model(s), action functions, CLI
   model and action functions (`fetch_calendar_raw`, `list_schedule`, `list_events`, `list_games`, `list_practices`). CLI commands: `schedule list` (default,
   alias `ls`), `schedule events list` (default, alias `ls`), `schedule games list` (default, alias `ls`), `schedule practices list` (default, alias `ls`),
   focusing on `eventDate`, `eventLocation`, `eventTime`, `eventTitle`, `id`, and `type`. Stubs for `export` and `subscribe`.
+- [x] **Schedule & Calendar (get) & Availability (batch)** — `GET /api/calendar/occurrences/{id}`, `GET /api/schedule-game/{game_id}`, and
+  `GET /api/availability/batch` in domain module (`teams/schedule.py`) with `ScheduleEventDetail` model and action functions (`fetch_event_occurrence_raw`,
+  `fetch_scheduled_game_raw`, `fetch_availability_raw`, `get_schedule_event`, `get_event`, `get_game`, `get_practice`). CLI commands: `schedule get` (aliases
+  `show`, `view`), `schedule events get` (aliases `show`, `view`), `schedule games get` (aliases `show`, `view`), `schedule practices get` (aliases `show`,
+  `view`), with optional `--availability` / `--include-availability` switch.
 - [ ] **Calendar events/practices (CRUD)** — CRUD with recurring support (`/api/calendar/events/*`, `/api/calendar/occurrences/*`)
-- [ ] **Availability** — Game/event/practice RSVP (`/api/availability/*`), batch view
+- [ ] **Availability RSVP** — Game/event/practice RSVP (`/api/availability/*`)
 - [ ] **Lineups** — View/set lineup, sign & publish (`/api/lineups/*`)
 - [ ] **Members/Invitations** — List members, invite staff + parents/players, accept/remove (`/api/teams/{id}/members/*`, `/api/invitations/*`)
 - [ ] **Scoresheets** — Download PDF, bulk export (`/api/scoresheets/*`)

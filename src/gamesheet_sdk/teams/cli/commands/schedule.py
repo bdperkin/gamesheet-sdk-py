@@ -14,12 +14,28 @@ from rich_click import Context
 from gamesheet_sdk.common.cli.core import ResourceGroup
 from gamesheet_sdk.common.cli.decorators import (
     common_output_options,
+    get_fields_option,
     list_columns_option,
 )
-from gamesheet_sdk.common.cli.rendering import render_list_command
+from gamesheet_sdk.common.cli.rendering import (
+    render_get_command,
+    render_list_command,
+)
 from gamesheet_sdk.teams.cli.helpers import (
     build_authenticated_session,
     run_action_or_exit,
+)
+from gamesheet_sdk.teams.schedule import (
+    get_event as _get_event_action,
+)
+from gamesheet_sdk.teams.schedule import (
+    get_game as _get_game_action,
+)
+from gamesheet_sdk.teams.schedule import (
+    get_practice as _get_practice_action,
+)
+from gamesheet_sdk.teams.schedule import (
+    get_schedule_event as _get_schedule_event_action,
 )
 from gamesheet_sdk.teams.schedule import (
     list_events as _list_events_action,
@@ -43,6 +59,7 @@ if TYPE_CHECKING:
     cls=ResourceGroup,
     default="list",
     aliases={
+        "get": ("show", "view"),
         "list": ("ls",),
     },
     context_settings={"help_option_names": ["-h", "--help"]},
@@ -118,11 +135,80 @@ def schedule_list_command(
     render_list_command(events, output_format, output_path, columns_spec)
 
 
+@schedule_group.command("get")
+@click.option(
+    "--event-id",
+    "--id",
+    "-e",
+    "event_id",
+    type=str,
+    envvar="GAMESHEET_EVENT_ID",
+    required=True,
+    help="Event occurrence ID to retrieve details for.",
+)
+@click.option(
+    "--team-id",
+    "-t",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=False,
+    default=None,
+    help="Team ID (used for fetching availability if requested).",
+)
+@click.option(
+    "--availability",
+    "--include-availability",
+    "include_availability",
+    is_flag=True,
+    default=False,
+    help="Include availability information in the output.",
+)
+@common_output_options
+@get_fields_option
+@click.pass_context
+def schedule_get_command(
+    ctx: Context,
+    event_id: str,
+    team_id: str | None,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+    *,
+    include_availability: bool = False,
+) -> None:
+    r"""Get detailed metadata for a schedule event occurrence.
+
+    Retrieves all attributes and data for the selected calendar event.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        event_id (str): Event occurrence identifier.
+        team_id (str | None): Optional team identifier for availability.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        fields_spec (str | None): Optional comma-separated list of fields to display.
+        include_availability (bool): Whether to include availability (default: False).
+
+    """
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+    event = run_action_or_exit(
+        session,
+        _get_schedule_event_action,
+        event_id,
+        team_id=team_id,
+        include_availability=include_availability,
+        timeout=config.timeout,
+    )
+    render_get_command(event, output_format, output_path, fields_spec)
+
+
 @click.group(
     "events",
     cls=ResourceGroup,
     default="list",
     aliases={
+        "get": ("show", "view"),
         "list": ("ls",),
     },
     context_settings={"help_option_names": ["-h", "--help"]},
@@ -198,11 +284,80 @@ def events_list_command(
     render_list_command(events, output_format, output_path, columns_spec)
 
 
+@events_group.command("get")
+@click.option(
+    "--event-id",
+    "--id",
+    "-e",
+    "event_id",
+    type=str,
+    envvar="GAMESHEET_EVENT_ID",
+    required=True,
+    help="Event occurrence ID to retrieve details for.",
+)
+@click.option(
+    "--team-id",
+    "-t",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=False,
+    default=None,
+    help="Team ID (used for fetching availability if requested).",
+)
+@click.option(
+    "--availability",
+    "--include-availability",
+    "include_availability",
+    is_flag=True,
+    default=False,
+    help="Include availability information in the output.",
+)
+@common_output_options
+@get_fields_option
+@click.pass_context
+def events_get_command(
+    ctx: Context,
+    event_id: str,
+    team_id: str | None,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+    *,
+    include_availability: bool = False,
+) -> None:
+    r"""Get detailed metadata for a calendar event occurrence.
+
+    Retrieves all attributes and data for the selected event.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        event_id (str): Event occurrence identifier.
+        team_id (str | None): Optional team identifier for availability.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        fields_spec (str | None): Optional comma-separated list of fields to display.
+        include_availability (bool): Whether to include availability (default: False).
+
+    """
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+    event = run_action_or_exit(
+        session,
+        _get_event_action,
+        event_id,
+        team_id=team_id,
+        include_availability=include_availability,
+        timeout=config.timeout,
+    )
+    render_get_command(event, output_format, output_path, fields_spec)
+
+
 @click.group(
     "games",
     cls=ResourceGroup,
     default="list",
     aliases={
+        "get": ("show", "view"),
         "list": ("ls",),
     },
     context_settings={"help_option_names": ["-h", "--help"]},
@@ -278,11 +433,81 @@ def games_list_command(
     render_list_command(events, output_format, output_path, columns_spec)
 
 
+@games_group.command("get")
+@click.option(
+    "--game-id",
+    "--event-id",
+    "--id",
+    "-e",
+    "event_id",
+    type=str,
+    envvar="GAMESHEET_GAME_ID",
+    required=True,
+    help="Game occurrence ID to retrieve details for.",
+)
+@click.option(
+    "--team-id",
+    "-t",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=False,
+    default=None,
+    help="Team ID (used for fetching availability if requested).",
+)
+@click.option(
+    "--availability",
+    "--include-availability",
+    "include_availability",
+    is_flag=True,
+    default=False,
+    help="Include availability information in the output.",
+)
+@common_output_options
+@get_fields_option
+@click.pass_context
+def games_get_command(
+    ctx: Context,
+    event_id: str,
+    team_id: str | None,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+    *,
+    include_availability: bool = False,
+) -> None:
+    r"""Get detailed metadata for a game occurrence.
+
+    Retrieves all attributes and data for the selected game.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        event_id (str): Game occurrence identifier.
+        team_id (str | None): Optional team identifier for availability.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        fields_spec (str | None): Optional comma-separated list of fields to display.
+        include_availability (bool): Whether to include availability (default: False).
+
+    """
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+    game = run_action_or_exit(
+        session,
+        _get_game_action,
+        event_id,
+        team_id=team_id,
+        include_availability=include_availability,
+        timeout=config.timeout,
+    )
+    render_get_command(game, output_format, output_path, fields_spec)
+
+
 @click.group(
     "practices",
     cls=ResourceGroup,
     default="list",
     aliases={
+        "get": ("show", "view"),
         "list": ("ls",),
     },
     context_settings={"help_option_names": ["-h", "--help"]},
@@ -356,6 +581,75 @@ def practices_list_command(
         timeout=config.timeout,
     )
     render_list_command(events, output_format, output_path, columns_spec)
+
+
+@practices_group.command("get")
+@click.option(
+    "--practice-id",
+    "--event-id",
+    "--id",
+    "-e",
+    "event_id",
+    type=str,
+    envvar="GAMESHEET_PRACTICE_ID",
+    required=True,
+    help="Practice occurrence ID to retrieve details for.",
+)
+@click.option(
+    "--team-id",
+    "-t",
+    type=str,
+    envvar="GAMESHEET_TEAM_ID",
+    required=False,
+    default=None,
+    help="Team ID (used for fetching availability if requested).",
+)
+@click.option(
+    "--availability",
+    "--include-availability",
+    "include_availability",
+    is_flag=True,
+    default=False,
+    help="Include availability information in the output.",
+)
+@common_output_options
+@get_fields_option
+@click.pass_context
+def practices_get_command(
+    ctx: Context,
+    event_id: str,
+    team_id: str | None,
+    output_format: str,
+    output_path: str | None,
+    fields_spec: str | None,
+    *,
+    include_availability: bool = False,
+) -> None:
+    r"""Get detailed metadata for a practice occurrence.
+
+    Retrieves all attributes and data for the selected practice.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        event_id (str): Practice occurrence identifier.
+        team_id (str | None): Optional team identifier for availability.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        fields_spec (str | None): Optional comma-separated list of fields to display.
+        include_availability (bool): Whether to include availability (default: False).
+
+    """
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+    practice = run_action_or_exit(
+        session,
+        _get_practice_action,
+        event_id,
+        team_id=team_id,
+        include_availability=include_availability,
+        timeout=config.timeout,
+    )
+    render_get_command(practice, output_format, output_path, fields_spec)
 
 
 @schedule_group.command("export")
