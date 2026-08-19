@@ -5,6 +5,14 @@
 
 from gamesheet_sdk.teams.login import TeamsLoginFlow, refresh_access_token
 from gamesheet_sdk.teams.lookups import LookupValue, list_lookups
+from gamesheet_sdk.teams.schedule import (
+    ScheduleEvent,
+    fetch_calendar_raw,
+    list_events,
+    list_games,
+    list_practices,
+    list_schedule,
+)
 from gamesheet_sdk.teams.seasons import (
     PenaltyCode,
     SeasonDetail,
@@ -35,6 +43,7 @@ from gamesheet_sdk.teams.teams import (
 __all__ = [
     "LookupValue",
     "PenaltyCode",
+    "ScheduleEvent",
     "SeasonDetail",
     "SeasonSummary",
     "SeasonTeam",
@@ -44,6 +53,7 @@ __all__ = [
     "TeamsLoginFlow",
     "archive_team",
     "delete_team",
+    "fetch_calendar_raw",
     "fetch_seasons_raw",
     "fetch_team_raw",
     "fetch_teams_raw",
@@ -51,7 +61,11 @@ __all__ = [
     "get_season_penalty_codes",
     "get_season_teams",
     "get_team",
+    "list_events",
+    "list_games",
     "list_lookups",
+    "list_practices",
+    "list_schedule",
     "list_seasons",
     "list_teams",
     "refresh_access_token",
