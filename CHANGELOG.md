@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.36 (2026-08-19)
+
+### Features
+
+- **teams**: Implement schedule create commands for events, games, and practices ([#231](https://github.com/bdperkin/gamesheet-sdk-py/pull/231),
+  [`3f5eeba`](https://github.com/bdperkin/gamesheet-sdk-py/commit/3f5eebaa4656266222f6fd0a2231739d227ba760))
+
+### Testing
+
+- **teams**: Use resilient error substring matching in schedule create CLI tests ([#231](https://github.com/bdperkin/gamesheet-sdk-py/pull/231),
+  [`3f5eeba`](https://github.com/bdperkin/gamesheet-sdk-py/commit/3f5eebaa4656266222f6fd0a2231739d227ba760))
+
 ## v0.4.35 (2026-08-19)
 
 ### Features
