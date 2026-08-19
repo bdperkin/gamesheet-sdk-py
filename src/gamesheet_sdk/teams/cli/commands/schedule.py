@@ -11,7 +11,11 @@ import rich_click as click
 from click.exceptions import Exit
 from rich_click import Context
 
-from gamesheet_sdk.common.cli.core import ResourceGroup, parse_columns_spec
+from gamesheet_sdk.common.cli.core import (
+    ResourceGroup,
+    confirm_destructive,
+    parse_columns_spec,
+)
 from gamesheet_sdk.common.cli.datetime_helpers import (
     parse_flexible_datetime,
     resolve_create_times,
@@ -42,6 +46,15 @@ from gamesheet_sdk.teams.schedule import (
 )
 from gamesheet_sdk.teams.schedule import (
     create_practice as _create_practice_action,
+)
+from gamesheet_sdk.teams.schedule import (
+    delete_event as _delete_event_action,
+)
+from gamesheet_sdk.teams.schedule import (
+    delete_game as _delete_game_action,
+)
+from gamesheet_sdk.teams.schedule import (
+    delete_practice as _delete_practice_action,
 )
 from gamesheet_sdk.teams.schedule import (
     get_calendar_subscription as _get_calendar_subscription_action,
@@ -80,6 +93,7 @@ if TYPE_CHECKING:
     cls=ResourceGroup,
     default="list",
     aliases={
+        "delete": ("del", "rm", "remove"),
         "get": ("show", "view"),
         "list": ("ls",),
         "subscribe": ("sub",),
@@ -225,12 +239,128 @@ def schedule_get_command(
     render_get_command(event, output_format, output_path, fields_spec)
 
 
+@schedule_group.command(
+    "delete",
+    aliases=("del", "rm", "remove"),
+)
+@click.option(
+    "--event-id",
+    "--game-id",
+    "--id",
+    "-e",
+    "-g",
+    "event_id",
+    type=str,
+    envvar="GAMESHEET_EVENT_ID",
+    required=True,
+    help="Schedule item ID (game ID or calendar event/occurrence ID) to delete.",
+)
+@click.option(
+    "--future",
+    "--all-future",
+    "delete_future",
+    is_flag=True,
+    default=False,
+    help="Delete this occurrence and all future occurrences in the repeating series.",
+)
+@click.option(
+    "--all",
+    "--all-occurrences",
+    "all_occurrences",
+    is_flag=True,
+    default=False,
+    help="Delete the entire calendar series and all occurrences.",
+)
+@click.option(
+    "--single",
+    "--only-this",
+    "single_occurrence",
+    is_flag=True,
+    default=False,
+    help="Delete only this specific occurrence.",
+)
+@confirm_destructive("this schedule item")
+@common_output_options
+@click.pass_context
+def schedule_delete_command(
+    ctx: Context,
+    event_id: str,
+    output_format: str,
+    output_path: str | None,
+    *,
+    delete_future: bool = False,
+    all_occurrences: bool = False,
+    single_occurrence: bool = False,
+) -> None:
+    r"""Delete a schedule item (game, event, or practice).
+
+    Requires authentication (run 'gamesheet-teams login' first). This operation is destructive and requires
+    confirmation unless --force is specified.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        event_id (str): Identifier of the game or calendar event/occurrence.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        delete_future (bool): Whether to delete this and future occurrences.
+        all_occurrences (bool): Whether to delete all occurrences in series.
+        single_occurrence (bool): Whether to delete only this occurrence.
+
+    """
+    if all_occurrences and single_occurrence:
+        msg = "Cannot combine --all with --single."
+        raise click.UsageError(msg)
+
+    if all_occurrences and delete_future:
+        msg = "Cannot combine --all with --future."
+        raise click.UsageError(msg)
+
+    if delete_future and single_occurrence:
+        msg = "Cannot combine --future with --single."
+        raise click.UsageError(msg)
+
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+
+    if event_id.isdigit():
+        result = run_action_or_exit(
+            session,
+            _delete_game_action,
+            event_id,
+            timeout=config.timeout,
+        )
+        if output_format in ("json", "yaml"):
+            render_get_command(result, output_format, output_path)
+        else:
+            click.secho(f"Successfully deleted game {event_id}: {result.message}", fg="green")
+    else:
+        is_force = ctx.params.get("force", False)
+        if not is_force and not (delete_future or all_occurrences or single_occurrence):
+            prompt_msg = "Delete this and all future occurrences of this repeating event?"
+            if click.confirm(prompt_msg, default=False):
+                delete_future = True
+
+        result = run_action_or_exit(
+            session,
+            _delete_event_action,
+            event_id,
+            delete_future=delete_future,
+            all_occurrences=all_occurrences,
+            timeout=config.timeout,
+        )
+        if output_format in ("json", "yaml"):
+            render_get_command(result, output_format, output_path)
+        else:
+            click.secho(f"Successfully deleted event {event_id}: {result.message}", fg="green")
+
+
 @click.group(
     "events",
     cls=ResourceGroup,
     default="list",
     aliases={
         "create": ("add", "new"),
+        "delete": ("del", "rm", "remove"),
         "get": ("show", "view"),
         "list": ("ls",),
     },
@@ -613,12 +743,113 @@ def events_get_command(
     render_get_command(event, output_format, output_path, fields_spec)
 
 
+@events_group.command(
+    "delete",
+    aliases=("del", "rm", "remove"),
+)
+@click.option(
+    "--event-id",
+    "--id",
+    "-e",
+    "event_id",
+    type=str,
+    envvar="GAMESHEET_EVENT_ID",
+    required=True,
+    help="Event occurrence or series ID to delete.",
+)
+@click.option(
+    "--future",
+    "--all-future",
+    "delete_future",
+    is_flag=True,
+    default=False,
+    help="Delete this occurrence and all future occurrences in the repeating series.",
+)
+@click.option(
+    "--all",
+    "--all-occurrences",
+    "all_occurrences",
+    is_flag=True,
+    default=False,
+    help="Delete the entire calendar event series and all occurrences.",
+)
+@click.option(
+    "--single",
+    "--only-this",
+    "single_occurrence",
+    is_flag=True,
+    default=False,
+    help="Delete only this specific occurrence.",
+)
+@confirm_destructive("this calendar event")
+@common_output_options
+@click.pass_context
+def events_delete_command(
+    ctx: Context,
+    event_id: str,
+    output_format: str,
+    output_path: str | None,
+    *,
+    delete_future: bool = False,
+    all_occurrences: bool = False,
+    single_occurrence: bool = False,
+) -> None:
+    r"""Delete a calendar event or occurrence.
+
+    Requires authentication (run 'gamesheet-teams login' first). This operation is destructive and requires
+    confirmation unless --force is specified.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        event_id (str): Event occurrence or series identifier.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        delete_future (bool): Whether to delete this and future occurrences.
+        all_occurrences (bool): Whether to delete all occurrences in series.
+        single_occurrence (bool): Whether to delete only this occurrence.
+
+    """
+    if all_occurrences and single_occurrence:
+        msg = "Cannot combine --all with --single."
+        raise click.UsageError(msg)
+
+    if all_occurrences and delete_future:
+        msg = "Cannot combine --all with --future."
+        raise click.UsageError(msg)
+
+    if delete_future and single_occurrence:
+        msg = "Cannot combine --future with --single."
+        raise click.UsageError(msg)
+
+    is_force = ctx.params.get("force", False)
+    if not is_force and not (delete_future or all_occurrences or single_occurrence):
+        prompt_msg = "Delete this and all future occurrences of this repeating event?"
+        if click.confirm(prompt_msg, default=False):
+            delete_future = True
+
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+    result = run_action_or_exit(
+        session,
+        _delete_event_action,
+        event_id,
+        delete_future=delete_future,
+        all_occurrences=all_occurrences,
+        timeout=config.timeout,
+    )
+    if output_format in ("json", "yaml"):
+        render_get_command(result, output_format, output_path)
+    else:
+        click.secho(f"Successfully deleted event {event_id}: {result.message}", fg="green")
+
+
 @click.group(
     "games",
     cls=ResourceGroup,
     default="list",
     aliases={
         "create": ("add", "new"),
+        "delete": ("del", "rm", "remove"),
         "get": ("show", "view"),
         "list": ("ls",),
     },
@@ -1040,19 +1271,71 @@ def games_get_command(
     render_get_command(game, output_format, output_path, fields_spec)
 
 
+@games_group.command(
+    "delete",
+    aliases=("del", "rm", "remove"),
+)
+@click.option(
+    "--game-id",
+    "--event-id",
+    "--id",
+    "-g",
+    "-e",
+    "game_id",
+    type=str,
+    envvar="GAMESHEET_GAME_ID",
+    required=True,
+    help="Game ID to delete.",
+)
+@confirm_destructive("this scheduled game")
+@common_output_options
+@click.pass_context
+def games_delete_command(
+    ctx: Context,
+    game_id: str,
+    output_format: str,
+    output_path: str | None,
+) -> None:
+    r"""Delete a scheduled game.
+
+    Requires authentication (run 'gamesheet-teams login' first). This operation is destructive and requires
+    confirmation unless --force is specified.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        game_id (str): Game identifier.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+
+    """
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+    result = run_action_or_exit(
+        session,
+        _delete_game_action,
+        game_id,
+        timeout=config.timeout,
+    )
+    if output_format in ("json", "yaml"):
+        render_get_command(result, output_format, output_path)
+    else:
+        click.secho(f"Successfully deleted game {game_id}: {result.message}", fg="green")
+
+
 @click.group(
     "practices",
     cls=ResourceGroup,
     default="list",
     aliases={
         "create": ("add", "new"),
+        "delete": ("del", "rm", "remove"),
         "get": ("show", "view"),
         "list": ("ls",),
     },
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def practices_group() -> None:
-    """Manage team practices.
+    """Manage team practice events.
 
     Invoking ``practices`` with no sub-command runs ``list`` by default.
     """
@@ -1427,6 +1710,108 @@ def practices_get_command(
         timeout=config.timeout,
     )
     render_get_command(practice, output_format, output_path, fields_spec)
+
+
+@practices_group.command(
+    "delete",
+    aliases=("del", "rm", "remove"),
+)
+@click.option(
+    "--practice-id",
+    "--event-id",
+    "--id",
+    "-p",
+    "-e",
+    "practice_id",
+    type=str,
+    envvar="GAMESHEET_EVENT_ID",
+    required=True,
+    help="Practice occurrence or series ID to delete.",
+)
+@click.option(
+    "--future",
+    "--all-future",
+    "delete_future",
+    is_flag=True,
+    default=False,
+    help="Delete this occurrence and all future occurrences in the repeating series.",
+)
+@click.option(
+    "--all",
+    "--all-occurrences",
+    "all_occurrences",
+    is_flag=True,
+    default=False,
+    help="Delete the entire practice series and all occurrences.",
+)
+@click.option(
+    "--single",
+    "--only-this",
+    "single_occurrence",
+    is_flag=True,
+    default=False,
+    help="Delete only this specific practice occurrence.",
+)
+@confirm_destructive("this practice")
+@common_output_options
+@click.pass_context
+def practices_delete_command(
+    ctx: Context,
+    practice_id: str,
+    output_format: str,
+    output_path: str | None,
+    *,
+    delete_future: bool = False,
+    all_occurrences: bool = False,
+    single_occurrence: bool = False,
+) -> None:
+    r"""Delete a practice calendar event or occurrence.
+
+    Requires authentication (run 'gamesheet-teams login' first). This operation is destructive and requires
+    confirmation unless --force is specified.\f
+
+    Args:
+        ctx (Context): Click context object containing config.
+        practice_id (str): Practice occurrence or series identifier.
+        output_format (str): Output format for rendering.
+        output_path (str | None): Optional output file path.
+        delete_future (bool): Whether to delete this and future occurrences.
+        all_occurrences (bool): Whether to delete all occurrences in series.
+        single_occurrence (bool): Whether to delete only this occurrence.
+
+    """
+    if all_occurrences and single_occurrence:
+        msg = "Cannot combine --all with --single."
+        raise click.UsageError(msg)
+
+    if all_occurrences and delete_future:
+        msg = "Cannot combine --all with --future."
+        raise click.UsageError(msg)
+
+    if delete_future and single_occurrence:
+        msg = "Cannot combine --future with --single."
+        raise click.UsageError(msg)
+
+    is_force = ctx.params.get("force", False)
+    if not is_force and not (delete_future or all_occurrences or single_occurrence):
+        prompt_msg = "Delete this and all future occurrences of this repeating practice?"
+        if click.confirm(prompt_msg, default=False):
+            delete_future = True
+
+    config: Config = ctx.obj
+    session = build_authenticated_session(config)
+    result = run_action_or_exit(
+        session,
+        _delete_practice_action,
+        practice_id,
+        delete_future=delete_future,
+        all_occurrences=all_occurrences,
+        timeout=config.timeout,
+    )
+    if output_format in ("json", "yaml"):
+        render_get_command(result, output_format, output_path)
+    else:
+        click.secho(f"Successfully deleted practice {practice_id}: {result.message}", fg="green")
 
 
 @schedule_group.command("export")
