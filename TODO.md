@@ -157,7 +157,12 @@ For each resource, repeat this pattern: pydantic model(s), action functions, CLI
   `delete_calendar_occurrence_raw`, `delete_calendar_occurrence`, `delete_event`, and `delete_practice`. CLI commands: `schedule delete`,
   `schedule events delete`, `schedule games delete`, and `schedule practices delete` with aliases `del`, `rm`, and `remove`, supporting destructive confirmation
   (`--force` / `-f`), repeating event occurrence scope (`--future`, `--all`, `--single`), and interactive prompting.
-- [ ] **Calendar events/practices (update)** — Update with recurring support (`/api/calendar/events/*`, `/api/calendar/occurrences/*`)
+- [x] **Schedule & Calendar (update: events, games, practices)** — Update events and practices via
+  `PUT /api/calendar/occurrences/{occurrence_id}?updateFuture={true|false}` and games via `PUT /api/schedule-game/{game_id}` in domain module
+  (`teams/schedule.py`) with `UpdatedGameResult` model, `update_schedule_game_raw`, `update_game`, `update_calendar_occurrence_raw`,
+  `update_calendar_occurrence`, `update_event`, and `update_practice`. CLI commands: `schedule update`, `schedule events update`, `schedule games update`, and
+  `schedule practices update` with aliases `set` and `edit`, supporting flexible datetime resolution (`resolve_update_times`), start/end/duration, repeating
+  event occurrence scope (`--future`, `--single`), and game metadata.
 - [ ] **Availability RSVP** — Game/event/practice RSVP (`/api/availability/*`)
 - [ ] **Lineups** — View/set lineup, sign & publish (`/api/lineups/*`)
 - [ ] **Members/Invitations** — List members, invite staff + parents/players, accept/remove (`/api/teams/{id}/members/*`, `/api/invitations/*`)

@@ -18,6 +18,7 @@ from gamesheet_sdk.teams.schedule import (
     ScheduleDeleteResult,
     ScheduleEvent,
     ScheduleEventDetail,
+    UpdatedGameResult,
 )
 
 if TYPE_CHECKING:
@@ -2710,3 +2711,925 @@ def test_practices_delete_prompt_no(runner: CliRunner) -> None:
         assert "Successfully deleted practice prac-101" in result.output
         kwargs = mock_action.call_args[1]
         assert kwargs["delete_future"] is False
+
+
+def test_events_update_basic(runner: CliRunner) -> None:
+    """Test `schedule events update` updates title, location, notes."""
+    mock_occ = {
+        "id": "occ-101",
+        "title": "Old Title",
+        "type": "event",
+        "notes": "Old notes",
+        "location_name": "Old Rink",
+        "start_date": "2026-08-20T14:00:00Z",
+        "end_date": "2026-08-20T15:00:00Z",
+    }
+    mock_updated = CalendarEventCreated(
+        id="occ-101",
+        title="New Title",
+        type="event",
+        notes="New notes",
+        location_name="New Rink",
+        start_date="2026-08-20T14:00:00Z",
+        end_date="2026-08-20T15:00:00Z",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_occ, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "update",
+                "-e",
+                "occ-101",
+                "--title",
+                "New Title",
+                "--notes",
+                "New notes",
+                "--location",
+                "New Rink",
+                "--single",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "New Title" in result.output
+        assert mock_action.call_count == 2
+        payload_sent = mock_action.call_args_list[1][0][3]
+        assert payload_sent["title"] == "New Title"
+        assert payload_sent["notes"] == "New notes"
+        assert payload_sent["location_name"] == "New Rink"
+
+
+def test_events_update_future_flag(runner: CliRunner) -> None:
+    """Test `schedule events update` with --future flag."""
+    mock_occ = {
+        "id": "occ-102",
+        "title": "Repeating Title",
+        "type": "event",
+        "start_date": "2026-08-20T14:00:00Z",
+        "end_date": "2026-08-20T15:00:00Z",
+        "rrule": "FREQ=WEEKLY;INTERVAL=1",
+    }
+    mock_updated = CalendarEventCreated(
+        id="occ-102",
+        title="Updated Repeating Title",
+        type="event",
+        rrule="FREQ=WEEKLY;INTERVAL=1",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_occ, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "update",
+                "-e",
+                "occ-102",
+                "--title",
+                "Updated Repeating Title",
+                "--future",
+            ],
+        )
+        assert result.exit_code == 0
+        kwargs = mock_action.call_args_list[1][1]
+        assert kwargs["update_future"] is True
+
+
+def test_events_update_mutually_exclusive_scope(runner: CliRunner) -> None:
+    """Test `schedule events update` errors when combining --future and --single."""
+    result = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "events",
+            "update",
+            "-e",
+            "occ-103",
+            "--future",
+            "--single",
+        ],
+    )
+    assert result.exit_code == 2
+    assert "Cannot specify both" in result.output
+
+
+def test_events_update_datetime_resolution(runner: CliRunner) -> None:
+    """Test `schedule events update` with date and time changes."""
+    mock_occ = {
+        "id": "occ-105",
+        "title": "Title",
+        "type": "event",
+        "start_date": "2026-08-20T14:00:00+00:00",
+        "end_date": "2026-08-20T15:00:00+00:00",
+    }
+    mock_updated = CalendarEventCreated(
+        id="occ-105",
+        title="Title",
+        type="event",
+        start_date="2026-08-21T16:00:00+00:00",
+        end_date="2026-08-21T17:30:00+00:00",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_occ, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "update",
+                "-e",
+                "occ-105",
+                "--start-datetime",
+                "2026-08-21 16:00",
+                "--duration",
+                "90",
+                "--single",
+            ],
+        )
+        assert result.exit_code == 0
+        payload_sent = mock_action.call_args_list[1][0][3]
+        assert payload_sent["start_date"] == "2026-08-21T16:00:00Z"
+        assert payload_sent["end_date"] == "2026-08-21T17:30:00Z"
+
+
+def test_events_update_json_output(runner: CliRunner) -> None:
+    """Test `schedule events update` with json output format."""
+    mock_occ = {
+        "id": "occ-106",
+        "title": "Title",
+        "type": "event",
+        "start_date": "2026-08-20T14:00:00Z",
+        "end_date": "2026-08-20T15:00:00Z",
+    }
+    mock_updated = CalendarEventCreated(id="occ-106", title="New Title", type="event")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_occ, mock_updated],
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "update",
+                "-e",
+                "occ-106",
+                "--title",
+                "New Title",
+                "--single",
+                "-F",
+                "json",
+            ],
+        )
+        assert result.exit_code == 0
+        data = json.loads(result.output)
+        assert data[0]["id"] == "occ-106"
+        assert data[0]["title"] == "New Title"
+
+
+def test_practices_update_basic(runner: CliRunner) -> None:
+    """Test `schedule practices update` updates practice details."""
+    mock_occ = {
+        "id": "prac-201",
+        "title": "Practice",
+        "type": "practice",
+        "notes": "Old note",
+        "location_name": "Old Rink",
+        "start_date": "2026-08-20T06:00:00Z",
+        "end_date": "2026-08-20T07:00:00Z",
+    }
+    mock_updated = CalendarEventCreated(
+        id="prac-201",
+        title="Updated Practice",
+        type="practice",
+        notes="New note",
+        location_name="New Rink",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_occ, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "practices",
+                "update",
+                "-p",
+                "prac-201",
+                "--title",
+                "Updated Practice",
+                "--notes",
+                "New note",
+                "--location",
+                "New Rink",
+                "--repeat",
+                "daily",
+                "--interval",
+                "1",
+                "--repeat-until",
+                "2026-11-28",
+                "--future",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Updated Practice" in result.output
+        payload_sent = mock_action.call_args_list[1][0][3]
+        assert payload_sent["rrule"] == "FREQ=DAILY;INTERVAL=1;UNTIL=20261128T235959Z"
+
+
+def test_practices_update_mutually_exclusive(runner: CliRunner) -> None:
+    """Test `schedule practices update` error on --future and --single."""
+    result = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "practices",
+            "update",
+            "-p",
+            "prac-202",
+            "--future",
+            "--single",
+        ],
+    )
+    assert result.exit_code == 2
+    assert "Cannot specify both" in result.output
+
+
+def test_practices_update_default_single(runner: CliRunner) -> None:
+    """Test `schedule practices update` defaults to update_future=False without prompt."""
+    mock_occ = {
+        "id": "prac-203",
+        "title": "Practice",
+        "type": "practice",
+        "start_date": "2026-08-20T06:00:00Z",
+        "end_date": "2026-08-20T07:00:00Z",
+    }
+    mock_updated = CalendarEventCreated(id="prac-203", title="Practice Edit", type="practice")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_occ, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "practices",
+                "update",
+                "-p",
+                "prac-203",
+                "--title",
+                "Practice Edit",
+            ],
+        )
+        assert result.exit_code == 0
+        kwargs = mock_action.call_args_list[1][1]
+        assert kwargs["update_future"] is False
+
+
+def test_games_update_basic(runner: CliRunner) -> None:
+    """Test `schedule games update` updates location, number, scorekeeper."""
+    mock_game = {
+        "id": 2962945,
+        "team_id": 525015,
+        "opposing_team_id": 523675,
+        "season_id": 15020,
+        "division_id": 81419,
+        "opposing_division": 81419,
+        "association_id": 38,
+        "league_id": 1148580,
+        "home_flag": True,
+        "game_number": "OLD-1",
+        "game_type": "regular_season",
+        "date_time": "2026-08-24T15:00",
+        "end_time": "16:15",
+        "location": "Old Rink",
+        "scorekeeper_name": "Old SK",
+        "scorekeeper_phone": "555-0000",
+        "broadcast_provider": "LIVEBARN",
+    }
+    mock_updated = UpdatedGameResult(
+        success=True,
+        id=2962945,
+        game_number="NEW-100",
+        location="New Arena",
+        scorekeeper_name="New SK",
+        date_time="2026-08-24T15:00",
+        end_time="16:15",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_game, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "games",
+                "update",
+                "-g",
+                "2962945",
+                "--number",
+                "NEW-100",
+                "--location",
+                "New Arena",
+                "--scorekeeper-name",
+                "New SK",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "NEW-100" in result.output
+        kwargs = mock_action.call_args_list[1][1]
+        assert kwargs["game_number"] == "NEW-100"
+        assert kwargs["location"] == "New Arena"
+        assert kwargs["scorekeeper_name"] == "New SK"
+        assert kwargs["team_id"] == 525015
+
+
+def test_games_update_datetime_resolution(runner: CliRunner) -> None:
+    """Test `schedule games update` with datetime calculation using duration."""
+    mock_game = {
+        "id": 2962946,
+        "team_id": 525015,
+        "opposing_team_id": 523675,
+        "season_id": 15020,
+        "division_id": 81419,
+        "date_time": "2026-08-24T15:00",
+        "end_time": "16:15",
+    }
+    mock_updated = UpdatedGameResult(
+        success=True,
+        id=2962946,
+        date_time="2026-08-25T18:00",
+        end_time="19:30",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_game, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "games",
+                "update",
+                "-g",
+                "2962946",
+                "--start-datetime",
+                "2026-08-25 18:00",
+                "--duration",
+                "90",
+            ],
+        )
+        assert result.exit_code == 0
+        kwargs = mock_action.call_args_list[1][1]
+        assert kwargs["date_time"] == "2026-08-25T18:00"
+        assert kwargs["end_time"] == "19:30"
+
+
+def test_games_update_aliases(runner: CliRunner) -> None:
+    """Test `schedule games set` and `schedule games edit` aliases."""
+    mock_game = {
+        "id": 2962947,
+        "team_id": 525015,
+        "date_time": "2026-08-24T15:00",
+        "end_time": "16:15",
+    }
+    mock_updated = UpdatedGameResult(success=True, id=2962947)
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_game, mock_updated, mock_game, mock_updated],
+        ),
+    ):
+        res1 = runner.invoke(cli, ["schedule", "games", "set", "-g", "2962947"])
+        assert res1.exit_code == 0
+        res2 = runner.invoke(cli, ["schedule", "games", "edit", "-g", "2962947"])
+        assert res2.exit_code == 0
+
+
+def test_schedule_update_routing_game(runner: CliRunner) -> None:
+    """Test top-level `schedule update` with numeric ID routes to game update."""
+    mock_game = {
+        "id": 2962948,
+        "team_id": 525015,
+        "date_time": "2026-08-24T15:00",
+        "end_time": "16:15",
+    }
+    mock_updated = UpdatedGameResult(success=True, id=2962948, game_number="ROUTED-1")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_game, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "update",
+                "-e",
+                "2962948",
+                "--number",
+                "ROUTED-1",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "ROUTED-1" in result.output
+        kwargs = mock_action.call_args_list[1][1]
+        assert kwargs["game_number"] == "ROUTED-1"
+
+
+def test_schedule_update_routing_event(runner: CliRunner) -> None:
+    """Test top-level `schedule update` with UUID routes to calendar occurrence update."""
+    mock_occ = {
+        "id": "uuid-event-123",
+        "title": "Old Event",
+        "start_date": "2026-08-20T14:00:00Z",
+        "end_date": "2026-08-20T15:00:00Z",
+    }
+    mock_updated = CalendarEventCreated(
+        id="uuid-event-123",
+        title="Updated Routed Event",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_occ, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "update",
+                "-e",
+                "uuid-event-123",
+                "--title",
+                "Updated Routed Event",
+                "--single",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Updated Routed Event" in result.output
+        payload_sent = mock_action.call_args_list[1][0][3]
+        assert payload_sent["title"] == "Updated Routed Event"
+
+
+def test_schedule_update_game_datetime_resolution(runner: CliRunner) -> None:
+    """Test `schedule update` on game with datetime resolution."""
+    mock_game = {
+        "id": 2962949,
+        "team_id": 525015,
+        "date_time": "2026-08-24T15:00",
+        "end_time": "16:15",
+    }
+    mock_updated = UpdatedGameResult(success=True, id=2962949)
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_game, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "update",
+                "-e",
+                "2962949",
+                "--start-datetime",
+                "2026-08-25 18:00",
+                "--duration",
+                "90",
+            ],
+        )
+        assert result.exit_code == 0
+        kwargs = mock_action.call_args_list[1][1]
+        assert kwargs["date_time"] == "2026-08-25T18:00"
+        assert kwargs["end_time"] == "19:30"
+
+
+def test_schedule_update_event_mutually_exclusive(runner: CliRunner) -> None:
+    """Test `schedule update` with UUID fails on --future and --single."""
+    result = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "update",
+            "-e",
+            "uuid-evt-err",
+            "--future",
+            "--single",
+        ],
+    )
+    assert result.exit_code == 2
+    assert "Cannot specify both" in result.output
+
+
+def test_schedule_update_event_future_flag(runner: CliRunner) -> None:
+    """Test `schedule update` with UUID and --future flag."""
+    mock_occ = {
+        "id": "uuid-evt-prompt",
+        "title": "Old Event",
+        "start_date": "2026-08-20T14:00:00Z",
+        "end_date": "2026-08-20T15:00:00Z",
+    }
+    mock_updated = CalendarEventCreated(id="uuid-evt-prompt", title="Updated")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_occ, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "update",
+                "-e",
+                "uuid-evt-prompt",
+                "--title",
+                "Updated",
+                "--future",
+            ],
+        )
+        assert result.exit_code == 0
+        kwargs = mock_action.call_args_list[1][1]
+        assert kwargs["update_future"] is True
+
+
+def test_schedule_update_event_datetime_resolution(runner: CliRunner) -> None:
+    """Test `schedule update` on UUID with datetime resolution and repeat."""
+    mock_occ = {
+        "id": "uuid-evt-dt",
+        "title": "Event",
+        "start_date": "2026-08-20T14:00:00Z",
+        "end_date": "2026-08-20T15:00:00Z",
+    }
+    mock_updated = CalendarEventCreated(id="uuid-evt-dt", title="Event")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_occ, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "update",
+                "-e",
+                "uuid-evt-dt",
+                "--start-datetime",
+                "2026-08-21 16:00",
+                "--duration",
+                "90",
+                "--repeat",
+                "weekly",
+                "--interval",
+                "2",
+                "--by-day",
+                "mo,we",
+                "--repeat-until",
+                "2026-11-28",
+                "--single",
+            ],
+        )
+        assert result.exit_code == 0
+        payload_sent = mock_action.call_args_list[1][0][3]
+        assert payload_sent["start_date"] == "2026-08-21T16:00:00Z"
+        assert payload_sent["end_date"] == "2026-08-21T17:30:00Z"
+        assert payload_sent["rrule"] == "FREQ=WEEKLY;INTERVAL=2;UNTIL=20261128T235959Z;BYDAY=MO,WE"
+
+
+def test_events_update_recurrence(runner: CliRunner) -> None:
+    """Test `schedule events update` with recurrence options."""
+    mock_occ = {
+        "id": "occ-rec-1",
+        "title": "Rec Event",
+        "type": "event",
+        "start_date": "2026-08-20T14:00:00Z",
+        "end_date": "2026-08-20T15:00:00Z",
+    }
+    mock_updated = CalendarEventCreated(id="occ-rec-1", title="Rec Event")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_occ, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "update",
+                "-e",
+                "occ-rec-1",
+                "--repeat",
+                "daily",
+                "--interval",
+                "1",
+                "--repeat-until",
+                "2026-11-28",
+                "--single",
+            ],
+        )
+        assert result.exit_code == 0
+        payload_sent = mock_action.call_args_list[1][0][3]
+        assert payload_sent["rrule"] == "FREQ=DAILY;INTERVAL=1;UNTIL=20261128T235959Z"
+
+
+def test_games_update_no_t_in_date_time(runner: CliRunner) -> None:
+    """Test `schedule games update` when current game date_time has no T."""
+    mock_game = {
+        "id": 2962950,
+        "team_id": 525015,
+        "date_time": "2026-08-24",
+        "end_time": "16:15",
+    }
+    mock_updated = UpdatedGameResult(success=True, id=2962950)
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_game, mock_updated],
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "games",
+                "update",
+                "-g",
+                "2962950",
+            ],
+        )
+        assert result.exit_code == 0
+
+
+def test_practices_update_future_flag(runner: CliRunner) -> None:
+    """Test `schedule practices update` with --future flag."""
+    mock_occ = {
+        "id": "prac-prompt-yes",
+        "title": "Practice",
+        "type": "practice",
+        "start_date": "2026-08-20T06:00:00Z",
+        "end_date": "2026-08-20T07:00:00Z",
+    }
+    mock_updated = CalendarEventCreated(id="prac-prompt-yes", title="Practice Edit", type="practice")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_occ, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "practices",
+                "update",
+                "-p",
+                "prac-prompt-yes",
+                "--title",
+                "Practice Edit",
+                "--future",
+            ],
+        )
+        assert result.exit_code == 0
+        kwargs = mock_action.call_args_list[1][1]
+        assert kwargs["update_future"] is True
+
+
+def test_practices_update_datetime_resolution(runner: CliRunner) -> None:
+    """Test `schedule practices update` with datetime resolution."""
+    mock_occ = {
+        "id": "prac-dt-res",
+        "title": "Practice",
+        "type": "practice",
+        "start_date": "2026-08-20T06:00:00Z",
+        "end_date": "2026-08-20T07:00:00Z",
+    }
+    mock_updated = CalendarEventCreated(id="prac-dt-res", title="Practice")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_occ, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "practices",
+                "update",
+                "-p",
+                "prac-dt-res",
+                "--start-datetime",
+                "2026-08-21 07:00",
+                "--duration",
+                "60",
+                "--single",
+            ],
+        )
+        assert result.exit_code == 0
+        payload_sent = mock_action.call_args_list[1][0][3]
+        assert payload_sent["start_date"] == "2026-08-21T07:00:00Z"
+        assert payload_sent["end_date"] == "2026-08-21T08:00:00Z"
+
+
+def test_schedule_update_game_no_t_in_date(runner: CliRunner) -> None:
+    """Test `schedule update` on game when date_time has no T."""
+    mock_game = {
+        "id": 2962951,
+        "team_id": 525015,
+        "date_time": "2026-08-24",
+        "end_time": "16:15",
+    }
+    mock_updated = UpdatedGameResult(success=True, id=2962951)
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_game, mock_updated],
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "update",
+                "-e",
+                "2962951",
+            ],
+        )
+        assert result.exit_code == 0
+
+
+def test_schedule_update_event_default_single(runner: CliRunner) -> None:
+    """Test `schedule update` on UUID defaults to update_future=False without prompt."""
+    mock_occ = {
+        "id": "uuid-evt-prompt-no",
+        "title": "Old Event",
+        "start_date": "2026-08-20T14:00:00Z",
+        "end_date": "2026-08-20T15:00:00Z",
+    }
+    mock_updated = CalendarEventCreated(id="uuid-evt-prompt-no", title="Old Event")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_occ, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "update",
+                "-e",
+                "uuid-evt-prompt-no",
+            ],
+        )
+        assert result.exit_code == 0
+        kwargs = mock_action.call_args_list[1][1]
+        assert kwargs["update_future"] is False
+
+
+def test_events_update_default_single(runner: CliRunner) -> None:
+    """Test `schedule events update` defaults to update_future=False without prompt."""
+    mock_occ = {
+        "id": "occ-prompt-no",
+        "title": "Old Event",
+        "type": "event",
+        "start_date": "2026-08-20T14:00:00Z",
+        "end_date": "2026-08-20T15:00:00Z",
+    }
+    mock_updated = CalendarEventCreated(id="occ-prompt-no", title="Old Event", type="event")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            side_effect=[mock_occ, mock_updated],
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "update",
+                "-e",
+                "occ-prompt-no",
+            ],
+        )
+        assert result.exit_code == 0
+        kwargs = mock_action.call_args_list[1][1]
+        assert kwargs["update_future"] is False
