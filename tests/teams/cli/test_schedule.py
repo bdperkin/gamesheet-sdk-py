@@ -15,6 +15,7 @@ from gamesheet_sdk.teams.cli.main import cli
 from gamesheet_sdk.teams.schedule import (
     CalendarEventCreated,
     CreatedGameResult,
+    ScheduleDeleteResult,
     ScheduleEvent,
     ScheduleEventDetail,
 )
@@ -1912,3 +1913,800 @@ def test_games_create_json_format(runner: CliRunner) -> None:
         data = json.loads(result.output)
         assert data[0]["success"] is True
         assert data[0]["game_number"] == "TEST-123"
+
+
+def test_schedule_delete_game_force(runner: CliRunner) -> None:
+    """Test `schedule delete` with numeric game ID and --force."""
+    mock_res = ScheduleDeleteResult(success=True, message="Game deleted successfully", id="2962920")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "delete",
+                "-e",
+                "2962920",
+                "--force",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Successfully deleted game 2962920" in result.output
+        mock_action.assert_called_once()
+
+
+def test_schedule_delete_event_force(runner: CliRunner) -> None:
+    """Test `schedule delete` with UUID event ID and --force."""
+    mock_res = ScheduleDeleteResult(success=True, message="Occurrence deleted successfully", id="evt-uuid-1")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "delete",
+                "-e",
+                "evt-uuid-1",
+                "--force",
+                "--single",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Successfully deleted event evt-uuid-1" in result.output
+        mock_action.assert_called_once()
+
+
+def test_schedule_delete_prompt_confirm(runner: CliRunner) -> None:
+    """Test `schedule delete` interactive prompt confirmation."""
+    mock_res = ScheduleDeleteResult(success=True, message="Game deleted successfully", id="2962920")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "delete",
+                "-e",
+                "2962920",
+            ],
+            input="y\n",
+        )
+        assert result.exit_code == 0
+        assert "Successfully deleted game 2962920" in result.output
+
+
+def test_schedule_delete_prompt_abort(runner: CliRunner) -> None:
+    """Test `schedule delete` interactive prompt abort."""
+    result = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "delete",
+            "-e",
+            "2962920",
+        ],
+        input="n\n",
+    )
+    assert result.exit_code == 1
+    assert "Aborted" in result.output
+
+
+def test_schedule_delete_event_repeating_prompt(runner: CliRunner) -> None:
+    """Test `schedule delete` event with prompt answering yes to repeating future."""
+    mock_res = ScheduleDeleteResult(
+        success=True,
+        message="Occurrence and all future occurrences deleted successfully",
+        id="evt-uuid-1",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "delete",
+                "-e",
+                "evt-uuid-1",
+            ],
+            input="y\ny\n",
+        )
+        assert result.exit_code == 0
+        assert "Successfully deleted event evt-uuid-1" in result.output
+        kwargs = mock_action.call_args[1]
+        assert kwargs["delete_future"] is True
+
+
+def test_schedule_delete_conflicting_flags(runner: CliRunner) -> None:
+    """Test `schedule delete` with conflicting flags raises UsageError."""
+    result = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "delete",
+            "-e",
+            "evt-1",
+            "--force",
+            "--all",
+            "--single",
+        ],
+    )
+    assert result.exit_code == 2
+    assert "Cannot combine" in result.output
+
+    result2 = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "delete",
+            "-e",
+            "evt-1",
+            "--force",
+            "--all",
+            "--future",
+        ],
+    )
+    assert result2.exit_code == 2
+    assert "Cannot combine" in result2.output
+
+    result3 = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "delete",
+            "-e",
+            "evt-1",
+            "--force",
+            "--future",
+            "--single",
+        ],
+    )
+    assert result3.exit_code == 2
+    assert "Cannot combine" in result3.output
+
+
+def test_schedule_delete_json_output(runner: CliRunner) -> None:
+    """Test `schedule delete -F json`."""
+    mock_res = ScheduleDeleteResult(success=True, message="Game deleted successfully", id="2962920")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "delete",
+                "-e",
+                "2962920",
+                "--force",
+                "-F",
+                "json",
+            ],
+        )
+        assert result.exit_code == 0
+        data = json.loads(result.output)
+        assert data[0]["success"] is True
+        assert data[0]["id"] == "2962920"
+
+
+def test_events_delete_force(runner: CliRunner) -> None:
+    """Test `schedule events delete --force`."""
+    mock_res = ScheduleDeleteResult(success=True, message="Occurrence deleted successfully", id="evt-101")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "delete",
+                "-e",
+                "evt-101",
+                "--force",
+                "--future",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Successfully deleted event evt-101" in result.output
+        kwargs = mock_action.call_args[1]
+        assert kwargs["delete_future"] is True
+        assert kwargs["all_occurrences"] is False
+
+
+def test_events_delete_all(runner: CliRunner) -> None:
+    """Test `schedule events delete --force --all`."""
+    mock_res = ScheduleDeleteResult(
+        success=True,
+        message="Calendar event and all occurrences deleted successfully",
+        id="evt-series",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "delete",
+                "-e",
+                "evt-series",
+                "--force",
+                "--all",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Successfully deleted event evt-series" in result.output
+        kwargs = mock_action.call_args[1]
+        assert kwargs["all_occurrences"] is True
+
+
+def test_events_delete_prompt(runner: CliRunner) -> None:
+    """Test `schedule events delete` interactive prompt."""
+    mock_res = ScheduleDeleteResult(success=True, message="Occurrence deleted successfully", id="evt-101")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "delete",
+                "-e",
+                "evt-101",
+            ],
+            input="y\nn\n",
+        )
+        assert result.exit_code == 0
+        assert "Successfully deleted event evt-101" in result.output
+        kwargs = mock_action.call_args[1]
+        assert kwargs["delete_future"] is False
+
+
+def test_events_delete_conflicts(runner: CliRunner) -> None:
+    """Test `schedule events delete` with conflicting options."""
+    result = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "events",
+            "delete",
+            "-e",
+            "evt-101",
+            "--force",
+            "--all",
+            "--single",
+        ],
+    )
+    assert result.exit_code == 2
+    assert "Cannot combine" in result.output
+
+    result2 = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "events",
+            "delete",
+            "-e",
+            "evt-101",
+            "--force",
+            "--all",
+            "--future",
+        ],
+    )
+    assert result2.exit_code == 2
+    assert "Cannot combine" in result2.output
+
+    result3 = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "events",
+            "delete",
+            "-e",
+            "evt-101",
+            "--force",
+            "--future",
+            "--single",
+        ],
+    )
+    assert result3.exit_code == 2
+    assert "Cannot combine" in result3.output
+
+
+def test_events_delete_json_and_aliases(runner: CliRunner) -> None:
+    """Test `schedule events del/rm/remove` aliases and json formatting."""
+    mock_res = ScheduleDeleteResult(success=True, message="Deleted", id="evt-101")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ),
+    ):
+        for alias in ("del", "rm", "remove"):
+            result = runner.invoke(
+                cli,
+                [
+                    "schedule",
+                    "events",
+                    alias,
+                    "-e",
+                    "evt-101",
+                    "--force",
+                    "-F",
+                    "json",
+                ],
+            )
+            assert result.exit_code == 0
+            data = json.loads(result.output)
+            assert data[0]["success"] is True
+
+
+def test_games_delete_force(runner: CliRunner) -> None:
+    """Test `schedule games delete --force`."""
+    mock_res = ScheduleDeleteResult(success=True, message="Game deleted successfully", id="2962920")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "games",
+                "delete",
+                "-g",
+                "2962920",
+                "--force",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Successfully deleted game 2962920" in result.output
+        mock_action.assert_called_once()
+
+
+def test_games_delete_prompt_confirm_and_abort(runner: CliRunner) -> None:
+    """Test `schedule games delete` interactive confirmation and abortion."""
+    mock_res = ScheduleDeleteResult(success=True, message="Game deleted successfully", id="2962920")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ),
+    ):
+        # Confirm
+        res1 = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "games",
+                "delete",
+                "-g",
+                "2962920",
+            ],
+            input="y\n",
+        )
+        assert res1.exit_code == 0
+        assert "Successfully deleted game 2962920" in res1.output
+
+        # Abort
+        res2 = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "games",
+                "delete",
+                "-g",
+                "2962920",
+            ],
+            input="n\n",
+        )
+        assert res2.exit_code == 1
+        assert "Aborted" in res2.output
+
+
+def test_games_delete_json_and_aliases(runner: CliRunner) -> None:
+    """Test `schedule games del/rm/remove` aliases and json formatting."""
+    mock_res = ScheduleDeleteResult(success=True, message="Game deleted successfully", id="2962920")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ),
+    ):
+        for alias in ("del", "rm", "remove"):
+            result = runner.invoke(
+                cli,
+                [
+                    "schedule",
+                    "games",
+                    alias,
+                    "-g",
+                    "2962920",
+                    "--force",
+                    "-F",
+                    "json",
+                ],
+            )
+            assert result.exit_code == 0
+            data = json.loads(result.output)
+            assert data[0]["success"] is True
+
+
+def test_practices_delete_force(runner: CliRunner) -> None:
+    """Test `schedule practices delete --force`."""
+    mock_res = ScheduleDeleteResult(success=True, message="Occurrence deleted successfully", id="prac-101")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "practices",
+                "delete",
+                "-p",
+                "prac-101",
+                "--force",
+                "--future",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Successfully deleted practice prac-101" in result.output
+        kwargs = mock_action.call_args[1]
+        assert kwargs["delete_future"] is True
+        assert kwargs["all_occurrences"] is False
+
+
+def test_practices_delete_all(runner: CliRunner) -> None:
+    """Test `schedule practices delete --force --all`."""
+    mock_res = ScheduleDeleteResult(
+        success=True,
+        message="Calendar event and all occurrences deleted successfully",
+        id="prac-series",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "practices",
+                "delete",
+                "-p",
+                "prac-series",
+                "--force",
+                "--all",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Successfully deleted practice prac-series" in result.output
+        kwargs = mock_action.call_args[1]
+        assert kwargs["all_occurrences"] is True
+
+
+def test_practices_delete_prompt(runner: CliRunner) -> None:
+    """Test `schedule practices delete` interactive prompt."""
+    mock_res = ScheduleDeleteResult(success=True, message="Occurrence deleted successfully", id="prac-101")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "practices",
+                "delete",
+                "-p",
+                "prac-101",
+            ],
+            input="y\ny\n",
+        )
+        assert result.exit_code == 0
+        assert "Successfully deleted practice prac-101" in result.output
+        kwargs = mock_action.call_args[1]
+        assert kwargs["delete_future"] is True
+
+
+def test_practices_delete_conflicts(runner: CliRunner) -> None:
+    """Test `schedule practices delete` with conflicting options."""
+    result = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "practices",
+            "delete",
+            "-p",
+            "prac-101",
+            "--force",
+            "--all",
+            "--single",
+        ],
+    )
+    assert result.exit_code == 2
+    assert "Cannot combine" in result.output
+
+    result2 = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "practices",
+            "delete",
+            "-p",
+            "prac-101",
+            "--force",
+            "--all",
+            "--future",
+        ],
+    )
+    assert result2.exit_code == 2
+    assert "Cannot combine" in result2.output
+
+    result3 = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "practices",
+            "delete",
+            "-p",
+            "prac-101",
+            "--force",
+            "--future",
+            "--single",
+        ],
+    )
+    assert result3.exit_code == 2
+    assert "Cannot combine" in result3.output
+
+
+def test_practices_delete_json_and_aliases(runner: CliRunner) -> None:
+    """Test `schedule practices del/rm/remove` aliases and json formatting."""
+    mock_res = ScheduleDeleteResult(success=True, message="Deleted", id="prac-101")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ),
+    ):
+        for alias in ("del", "rm", "remove"):
+            result = runner.invoke(
+                cli,
+                [
+                    "schedule",
+                    "practices",
+                    alias,
+                    "-p",
+                    "prac-101",
+                    "--force",
+                    "-F",
+                    "json",
+                ],
+            )
+            assert result.exit_code == 0
+            data = json.loads(result.output)
+            assert data[0]["success"] is True
+
+
+def test_schedule_delete_event_repeating_prompt_no(runner: CliRunner) -> None:
+    """Test `schedule delete` event with prompt answering no to repeating future."""
+    mock_res = ScheduleDeleteResult(success=True, message="Occurrence deleted successfully", id="evt-uuid-1")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "delete",
+                "-e",
+                "evt-uuid-1",
+            ],
+            input="y\nn\n",
+        )
+        assert result.exit_code == 0
+        assert "Successfully deleted event evt-uuid-1" in result.output
+        kwargs = mock_action.call_args[1]
+        assert kwargs["delete_future"] is False
+
+
+def test_schedule_delete_event_json_output(runner: CliRunner) -> None:
+    """Test `schedule delete` on event with -F json."""
+    mock_res = ScheduleDeleteResult(success=True, message="Occurrence deleted successfully", id="evt-uuid-1")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "delete",
+                "-e",
+                "evt-uuid-1",
+                "--force",
+                "-F",
+                "json",
+            ],
+        )
+        assert result.exit_code == 0
+        data = json.loads(result.output)
+        assert data[0]["success"] is True
+        assert data[0]["id"] == "evt-uuid-1"
+
+
+def test_events_delete_prompt_yes(runner: CliRunner) -> None:
+    """Test `schedule events delete` prompt answering yes to repeating future."""
+    mock_res = ScheduleDeleteResult(success=True, message="Deleted", id="evt-101")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "delete",
+                "-e",
+                "evt-101",
+            ],
+            input="y\ny\n",
+        )
+        assert result.exit_code == 0
+        assert "Successfully deleted event evt-101" in result.output
+        kwargs = mock_action.call_args[1]
+        assert kwargs["delete_future"] is True
+
+
+def test_practices_delete_prompt_no(runner: CliRunner) -> None:
+    """Test `schedule practices delete` prompt answering no to repeating future."""
+    mock_res = ScheduleDeleteResult(success=True, message="Deleted", id="prac-101")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_res,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "practices",
+                "delete",
+                "-p",
+                "prac-101",
+            ],
+            input="y\nn\n",
+        )
+        assert result.exit_code == 0
+        assert "Successfully deleted practice prac-101" in result.output
+        kwargs = mock_action.call_args[1]
+        assert kwargs["delete_future"] is False
