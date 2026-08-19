@@ -133,7 +133,11 @@ For each resource, repeat this pattern: pydantic model(s), action functions, CLI
 
 ### 4.3. Phase 4b — Teams-unique features
 
-- [ ] **Calendar events/practices** — CRUD with recurring support (`/api/calendar/events/*`, `/api/calendar/occurrences/*`)
+- [x] **Schedule & Calendar (list)** — `GET /api/calendar?teamId={id}&month=all` endpoint support in domain module (`teams/schedule.py`) with `ScheduleEvent`
+  model and action functions (`fetch_calendar_raw`, `list_schedule`, `list_events`, `list_games`, `list_practices`). CLI commands: `schedule list` (default,
+  alias `ls`), `schedule events list` (default, alias `ls`), `schedule games list` (default, alias `ls`), `schedule practices list` (default, alias `ls`),
+  focusing on `eventDate`, `eventLocation`, `eventTime`, `eventTitle`, `id`, and `type`. Stubs for `export` and `subscribe`.
+- [ ] **Calendar events/practices (CRUD)** — CRUD with recurring support (`/api/calendar/events/*`, `/api/calendar/occurrences/*`)
 - [ ] **Availability** — Game/event/practice RSVP (`/api/availability/*`), batch view
 - [ ] **Lineups** — View/set lineup, sign & publish (`/api/lineups/*`)
 - [ ] **Members/Invitations** — List members, invite staff + parents/players, accept/remove (`/api/teams/{id}/members/*`, `/api/invitations/*`)
