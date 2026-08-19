@@ -18,6 +18,8 @@ Attributes:
     TEAMS_SCHEDULE_GAME_PATH (str): Endpoint path for fetching and managing scheduled game details.
     TEAMS_AVAILABILITY_BATCH_PATH (str): Endpoint path for fetching batch availability data.
     TEAMS_IMAGES_UPLOAD_URL_PATH (str): Endpoint path for requesting direct image upload URLs.
+    TEAMS_PUBLIC_CALENDAR_SERVICE (str): Host and path prefix for the public calendar subscription feed
+        service.
 
 Example:
     Building a token exchange URL:
@@ -49,3 +51,4 @@ TEAMS_CALENDAR_OCCURRENCES_PATH: Final[str] = "/api/calendar/occurrences"
 TEAMS_SCHEDULE_GAME_PATH: Final[str] = "/api/schedule-game"
 TEAMS_AVAILABILITY_BATCH_PATH: Final[str] = "/api/availability/batch"
 TEAMS_IMAGES_UPLOAD_URL_PATH: Final[str] = "/api/images/upload-url"
+TEAMS_PUBLIC_CALENDAR_SERVICE: Final[str] = "api.teams.gamesheet.app/api/public/calendar"

@@ -12,7 +12,10 @@ from unittest.mock import MagicMock, patch
 from click.exceptions import Exit
 
 from gamesheet_sdk.teams.cli.main import cli
-from gamesheet_sdk.teams.schedule import ScheduleEvent, ScheduleEventDetail
+from gamesheet_sdk.teams.schedule import (
+    ScheduleEvent,
+    ScheduleEventDetail,
+)
 
 if TYPE_CHECKING:
     from click.testing import CliRunner
@@ -405,13 +408,6 @@ def test_schedule_export_stub(runner: CliRunner) -> None:
     assert "schedule export is not yet implemented" in result.output
 
 
-def test_schedule_subscribe_stub(runner: CliRunner) -> None:
-    """Test `gamesheet-teams schedule subscribe` exits 1 with not yet implemented message."""
-    result = runner.invoke(cli, ["schedule", "subscribe"])
-    assert result.exit_code == 1
-    assert "schedule subscribe is not yet implemented" in result.output
-
-
 def test_schedule_list_event_data_flag(runner: CliRunner) -> None:
     """Test `gamesheet-teams schedule list` passes include_event_data=True."""
     with (
@@ -790,3 +786,127 @@ def test_schedule_practices_get_missing_id(runner: CliRunner) -> None:
     result = runner.invoke(cli, ["schedule", "practices", "get"])
     assert result.exit_code == 2
     assert "Missing option" in result.output
+
+
+def test_schedule_subscribe_help(runner: CliRunner) -> None:
+    """Test `gamesheet-teams schedule subscribe --help`."""
+    result = runner.invoke(cli, ["schedule", "subscribe", "--help"])
+    assert result.exit_code == 0
+    assert "--team-id" in result.output
+    assert "--apple" in result.output
+    assert "--google" in result.output
+    assert "--webcal" in result.output
+    assert "--columns" in result.output
+
+
+def test_schedule_subscribe_default_output(runner: CliRunner) -> None:
+    """Test `gamesheet-teams schedule subscribe` with default options."""
+    team_id = "248d959c-279e-4492-805d-eb1a3e717323"
+    result = runner.invoke(cli, ["schedule", "subscribe", "--team-id", team_id])
+    assert result.exit_code == 0
+    assert "appleCalendar" in result.output
+    assert "googleCalendar" in result.output
+    assert "calendarUrl" in result.output
+    expected_feed_prefix = (
+        f"webcal://api.teams.gamesheet.app/api/public/calendar/teams/{team_id}/calendar.ics#v"
+    )
+    assert expected_feed_prefix in result.output
+    assert "https://calendar.google.com/calendar/r?cid=" in result.output
+
+
+def test_schedule_subscribe_alias_sub(runner: CliRunner) -> None:
+    """Test `gamesheet-teams schedule sub` alias."""
+    team_id = "248d959c-279e-4492-805d-eb1a3e717323"
+    result = runner.invoke(cli, ["schedule", "sub", "-t", team_id])
+    assert result.exit_code == 0
+    assert "appleCalendar" in result.output
+
+
+def test_schedule_subscribe_apple_flag(runner: CliRunner) -> None:
+    """Test `gamesheet-teams schedule subscribe --apple` and `--apple-calendar`."""
+    team_id = "248d959c-279e-4492-805d-eb1a3e717323"
+    result = runner.invoke(cli, ["schedule", "subscribe", "-t", team_id, "--apple"])
+    assert result.exit_code == 0
+    assert "appleCalendar" in result.output
+    assert "googleCalendar" not in result.output
+
+    result_long = runner.invoke(cli, ["schedule", "subscribe", "-t", team_id, "--apple-calendar"])
+    assert result_long.exit_code == 0
+    assert "appleCalendar" in result_long.output
+    assert "googleCalendar" not in result_long.output
+
+
+def test_schedule_subscribe_google_flag(runner: CliRunner) -> None:
+    """Test `gamesheet-teams schedule subscribe --google` and `--google-calendar`."""
+    team_id = "248d959c-279e-4492-805d-eb1a3e717323"
+    result = runner.invoke(cli, ["schedule", "subscribe", "-t", team_id, "--google"])
+    assert result.exit_code == 0
+    assert "googleCalendar" in result.output
+    assert "appleCalendar" not in result.output
+
+    result_long = runner.invoke(cli, ["schedule", "subscribe", "-t", team_id, "--google-calendar"])
+    assert result_long.exit_code == 0
+    assert "googleCalendar" in result_long.output
+    assert "appleCalendar" not in result_long.output
+
+
+def test_schedule_subscribe_webcal_flag(runner: CliRunner) -> None:
+    """Test `gamesheet-teams schedule subscribe --webcal` and `--calendar-url`."""
+    team_id = "248d959c-279e-4492-805d-eb1a3e717323"
+    result = runner.invoke(cli, ["schedule", "subscribe", "-t", team_id, "--webcal"])
+    assert result.exit_code == 0
+    assert "calendarUrl" in result.output
+    assert "googleCalendar" not in result.output
+
+    result_long = runner.invoke(cli, ["schedule", "subscribe", "-t", team_id, "--calendar-url"])
+    assert result_long.exit_code == 0
+    assert "calendarUrl" in result_long.output
+    assert "googleCalendar" not in result_long.output
+
+
+def test_schedule_subscribe_columns_flag(runner: CliRunner) -> None:
+    """Test `gamesheet-teams schedule subscribe --columns` with exact and alias names."""
+    team_id = "248d959c-279e-4492-805d-eb1a3e717323"
+    result = runner.invoke(cli, ["schedule", "subscribe", "-t", team_id, "-c", "appleCalendar,calendarUrl"])
+    assert result.exit_code == 0
+    assert "appleCalendar" in result.output
+    assert "calendarUrl" in result.output
+    assert "googleCalendar" not in result.output
+
+    result_aliases = runner.invoke(cli, ["schedule", "subscribe", "-t", team_id, "-c", "google,url"])
+    assert result_aliases.exit_code == 0
+    assert "googleCalendar" in result_aliases.output
+    assert "calendarUrl" in result_aliases.output
+    assert "appleCalendar" not in result_aliases.output
+
+
+def test_schedule_subscribe_json_format(runner: CliRunner) -> None:
+    """Test `gamesheet-teams schedule subscribe -F json`."""
+    team_id = "248d959c-279e-4492-805d-eb1a3e717323"
+    result = runner.invoke(cli, ["schedule", "subscribe", "-t", team_id, "-F", "json"])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert isinstance(data, list)
+    assert len(data) == 1
+    assert "appleCalendar" in data[0]
+    assert "googleCalendar" in data[0]
+    assert "calendarUrl" in data[0]
+
+
+def test_schedule_subscribe_missing_team_id(runner: CliRunner) -> None:
+    """Test `gamesheet-teams schedule subscribe` missing required team ID."""
+    result = runner.invoke(cli, ["schedule", "subscribe"])
+    assert result.exit_code == 2
+    assert "Missing option" in result.output
+
+
+def test_schedule_subscribe_envvar(runner: CliRunner) -> None:
+    """Test `gamesheet-teams schedule subscribe` using GAMESHEET_TEAM_ID env var."""
+    team_id = "248d959c-279e-4492-805d-eb1a3e717323"
+    result = runner.invoke(
+        cli,
+        ["schedule", "subscribe"],
+        env={"GAMESHEET_TEAM_ID": team_id},
+    )
+    assert result.exit_code == 0
+    assert "appleCalendar" in result.output

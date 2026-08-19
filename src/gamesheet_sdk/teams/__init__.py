@@ -6,12 +6,14 @@
 from gamesheet_sdk.teams.login import TeamsLoginFlow, refresh_access_token
 from gamesheet_sdk.teams.lookups import LookupValue, list_lookups
 from gamesheet_sdk.teams.schedule import (
+    CalendarSubscription,
     ScheduleEvent,
     ScheduleEventDetail,
     fetch_availability_raw,
     fetch_calendar_raw,
     fetch_event_occurrence_raw,
     fetch_scheduled_game_raw,
+    get_calendar_subscription,
     get_event,
     get_game,
     get_practice,
@@ -49,6 +51,7 @@ from gamesheet_sdk.teams.teams import (
 )
 
 __all__ = [
+    "CalendarSubscription",
     "LookupValue",
     "PenaltyCode",
     "ScheduleEvent",
@@ -69,6 +72,7 @@ __all__ = [
     "fetch_seasons_raw",
     "fetch_team_raw",
     "fetch_teams_raw",
+    "get_calendar_subscription",
     "get_event",
     "get_game",
     "get_practice",
