@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.38 (2026-08-19)
+
+### Features
+
+- **teams**: Implement schedule update commands for events, games, and practices ([#233](https://github.com/bdperkin/gamesheet-sdk-py/pull/233),
+  [`211bb7a`](https://github.com/bdperkin/gamesheet-sdk-py/commit/211bb7a9539fb30d1cbb1143d2eaf16750bd6474))
+
+### Testing
+
+- **teams**: Make mutually exclusive error message assertions resilient to terminal wrapping ([#233](https://github.com/bdperkin/gamesheet-sdk-py/pull/233),
+  [`211bb7a`](https://github.com/bdperkin/gamesheet-sdk-py/commit/211bb7a9539fb30d1cbb1143d2eaf16750bd6474))
+
 ## v0.4.37 (2026-08-19)
 
 ### Features
