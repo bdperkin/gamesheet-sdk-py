@@ -13,6 +13,8 @@ from click.exceptions import Exit
 
 from gamesheet_sdk.teams.cli.main import cli
 from gamesheet_sdk.teams.schedule import (
+    CalendarEventCreated,
+    CreatedGameResult,
     ScheduleEvent,
     ScheduleEventDetail,
 )
@@ -910,3 +912,1003 @@ def test_schedule_subscribe_envvar(runner: CliRunner) -> None:
     )
     assert result.exit_code == 0
     assert "appleCalendar" in result.output
+
+
+# ---------------------------------------------------------------------------
+# events create tests
+# ---------------------------------------------------------------------------
+
+
+def test_events_create_help(runner: CliRunner) -> None:
+    """Test `gamesheet-teams schedule events create --help`."""
+    result = runner.invoke(cli, ["schedule", "events", "create", "--help"])
+    assert result.exit_code == 0
+    assert "create" in result.output.lower()
+    assert "--start-datetime" in result.output
+    assert "--duration" in result.output
+    assert "--repeat" in result.output
+    assert "--all-day" in result.output
+
+
+def test_practices_create_help(runner: CliRunner) -> None:
+    """Test `gamesheet-teams schedule practices create --help`."""
+    result = runner.invoke(cli, ["schedule", "practices", "create", "--help"])
+    assert result.exit_code == 0
+    assert "practice" in result.output.lower()
+    assert "--start-datetime" in result.output
+
+
+def test_games_create_help(runner: CliRunner) -> None:
+    """Test `gamesheet-teams schedule games create --help`."""
+    result = runner.invoke(cli, ["schedule", "games", "create", "--help"])
+    assert result.exit_code == 0
+    assert "game" in result.output.lower()
+    assert "--opposing-team-id" in result.output
+    assert "--home" in result.output
+    assert "--number" in result.output
+
+
+def test_events_create_datetime_and_aliases(runner: CliRunner) -> None:
+    """Test `schedule events create`, `add`, `new` with start and end datetime."""
+    mock_created = CalendarEventCreated(
+        id="evt-created-1",
+        title="Team Pizza Party",
+        type="event",
+        start_time="13:30:00",
+        end_time="14:30:00",
+    )
+    for subcmd in ["create", "add", "new"]:
+        with (
+            patch(
+                "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+                return_value=MagicMock(),
+            ),
+            patch(
+                "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+                return_value=mock_created,
+            ) as mock_action,
+        ):
+            result = runner.invoke(
+                cli,
+                [
+                    "schedule",
+                    "events",
+                    subcmd,
+                    "-t",
+                    "team-uuid",
+                    "--title",
+                    "Team Pizza Party",
+                    "--start-datetime",
+                    "2026-08-21 13:30",
+                    "--end-datetime",
+                    "2026-08-21 14:30",
+                ],
+            )
+            assert result.exit_code == 0
+            assert "Team Pizza Party" in result.output
+            mock_action.assert_called_once()
+            args = mock_action.call_args[0]
+            assert args[2] == "team-uuid"
+            assert args[3] == "Team Pizza Party"
+            assert args[4] == "2026-08-21T13:30"
+            assert args[5] == "14:30"
+
+
+def test_events_create_split_datetime(runner: CliRunner) -> None:
+    """Test `schedule events create` with split --start-date/--start-time and --end-date/--end-time."""
+    mock_created = CalendarEventCreated(
+        id="evt-created-2",
+        title="Team Dinner",
+        type="event",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_created,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "create",
+                "-t",
+                "team-uuid",
+                "--title",
+                "Team Dinner",
+                "--start-date",
+                "2026-08-21",
+                "--start-time",
+                "18:00",
+                "--end-date",
+                "2026-08-21",
+                "--end-time",
+                "20:00",
+                "--location",
+                "Italian Restaurant",
+                "--notes",
+                "Bring family",
+            ],
+        )
+        assert result.exit_code == 0
+        kwargs = mock_action.call_args[1]
+        assert kwargs["location"] == "Italian Restaurant"
+        assert kwargs["notes"] == "Bring family"
+
+
+def test_events_create_duration(runner: CliRunner) -> None:
+    """Test `schedule events create` with start datetime and duration."""
+    mock_created = CalendarEventCreated(id="evt-created-3", title="Meeting")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_created,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "create",
+                "-t",
+                "team-uuid",
+                "--title",
+                "Meeting",
+                "--start-datetime",
+                "2026-08-21 10:00",
+                "--duration",
+                "90",
+            ],
+        )
+        assert result.exit_code == 0
+        args = mock_action.call_args[0]
+        assert args[4] == "2026-08-21T10:00"
+        assert args[5] == "11:30"
+
+
+def test_events_create_end_datetime_and_duration(runner: CliRunner) -> None:
+    """Test `schedule events create` with end datetime and duration."""
+    mock_created = CalendarEventCreated(id="evt-created-4", title="Wrapup")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_created,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "create",
+                "-t",
+                "team-uuid",
+                "--title",
+                "Wrapup",
+                "--end-datetime",
+                "2026-08-21 12:00",
+                "--duration",
+                "60",
+            ],
+        )
+        assert result.exit_code == 0
+        args = mock_action.call_args[0]
+        assert args[4] == "2026-08-21T11:00"
+        assert args[5] == "12:00"
+
+
+def test_events_create_all_day(runner: CliRunner) -> None:
+    """Test `schedule events create --all-day`."""
+    mock_created = CalendarEventCreated(id="evt-created-5", title="Tournament Day", all_day=True)
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_created,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "create",
+                "-t",
+                "team-uuid",
+                "--title",
+                "Tournament Day",
+                "--all-day",
+                "--start-date",
+                "2026-08-25",
+            ],
+        )
+        assert result.exit_code == 0
+        args = mock_action.call_args[0]
+        kwargs = mock_action.call_args[1]
+        assert args[4] == "2026-08-25"
+        assert args[5] == ""
+        assert kwargs["all_day"] is True
+
+
+def test_events_create_all_day_conflict(runner: CliRunner) -> None:
+    """Test `schedule events create --all-day` with conflicting start-datetime and start-date."""
+    result = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "events",
+            "create",
+            "-t",
+            "team-uuid",
+            "--title",
+            "Tournament Day",
+            "--all-day",
+            "--start-datetime",
+            "2026-08-25",
+            "--start-date",
+            "2026-08-25",
+        ],
+    )
+    assert result.exit_code == 2
+    assert "Cannot combine --start-datetime with --start-date/--start-time" in result.output
+
+
+def test_events_create_all_day_missing_start(runner: CliRunner) -> None:
+    """Test `schedule events create --all-day` without start date raises UsageError."""
+    result = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "events",
+            "create",
+            "-t",
+            "team-uuid",
+            "--title",
+            "Tournament Day",
+            "--all-day",
+        ],
+    )
+    assert result.exit_code == 2
+    assert "required for all-day events" in result.output
+
+
+def test_events_create_conflicting_inputs(runner: CliRunner) -> None:
+    """Test `schedule events create` with conflicting start-datetime and start-date."""
+    result = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "events",
+            "create",
+            "-t",
+            "team-uuid",
+            "--title",
+            "Test",
+            "--start-datetime",
+            "2026-08-21 10:00",
+            "--start-date",
+            "2026-08-21",
+        ],
+    )
+    assert result.exit_code == 2
+    assert "Cannot combine --start-datetime with --start-date/--start-time" in result.output
+
+
+def test_events_create_insufficient_inputs(runner: CliRunner) -> None:
+    """Test `schedule events create` with only start datetime and no duration/end raises UsageError."""
+    result = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "events",
+            "create",
+            "-t",
+            "team-uuid",
+            "--title",
+            "Test",
+            "--start-datetime",
+            "2026-08-21 10:00",
+        ],
+    )
+    assert result.exit_code == 2
+    assert "At least 2 of --start-datetime, --end-datetime, --duration are required" in result.output
+
+
+def test_events_create_repeating_weekly(runner: CliRunner) -> None:
+    """Test `schedule events create` with weekly recurrence flags."""
+    mock_created = CalendarEventCreated(id="evt-created-6", title="Weekly Workout")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_created,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "create",
+                "-t",
+                "team-uuid",
+                "--title",
+                "Weekly Workout",
+                "--start-datetime",
+                "2026-08-22 11:30",
+                "--duration",
+                "60",
+                "--repeat",
+                "weekly",
+                "--interval",
+                "1",
+                "--by-day",
+                "TU,TH",
+                "--repeat-until",
+                "2027-03-22",
+            ],
+        )
+        assert result.exit_code == 0
+        kwargs = mock_action.call_args[1]
+        assert kwargs["rrule"] == "FREQ=WEEKLY;INTERVAL=1;BYDAY=TU,TH"
+        assert kwargs["repeat_until"] == "2027-03-22"
+
+
+def test_events_create_direct_rrule(runner: CliRunner) -> None:
+    """Test `schedule events create` with direct --rrule flag."""
+    mock_created = CalendarEventCreated(id="evt-created-7", title="Custom RRULE")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_created,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "create",
+                "-t",
+                "team-uuid",
+                "--title",
+                "Custom RRULE",
+                "--start-datetime",
+                "2026-08-22 11:30",
+                "--duration",
+                "60",
+                "--rrule",
+                "FREQ=MONTHLY;INTERVAL=1",
+            ],
+        )
+        assert result.exit_code == 0
+        kwargs = mock_action.call_args[1]
+        assert kwargs["rrule"] == "FREQ=MONTHLY;INTERVAL=1"
+
+
+def test_events_create_missing_required(runner: CliRunner) -> None:
+    """Test `schedule events create` missing team ID or title."""
+    res1 = runner.invoke(cli, ["schedule", "events", "create", "--title", "Missing Team"])
+    assert res1.exit_code == 2
+
+    res2 = runner.invoke(cli, ["schedule", "events", "create", "-t", "team-123"])
+    assert res2.exit_code == 2
+
+
+def test_events_create_envvar(runner: CliRunner) -> None:
+    """Test `schedule events create` with GAMESHEET_TEAM_ID envvar."""
+    mock_created = CalendarEventCreated(id="evt-created-8", title="Env Team")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_created,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "create",
+                "--title",
+                "Env Team",
+                "--start-datetime",
+                "2026-08-21 10:00",
+                "--duration",
+                "60",
+            ],
+            env={"GAMESHEET_TEAM_ID": "env-team-id"},
+        )
+        assert result.exit_code == 0
+        args = mock_action.call_args[0]
+        assert args[2] == "env-team-id"
+
+
+def test_events_create_json_format(runner: CliRunner) -> None:
+    """Test `schedule events create -F json`."""
+    mock_created = CalendarEventCreated(
+        id="evt-created-9",
+        title="JSON Event",
+        type="event",
+        start_time="10:00:00",
+        end_time="11:00:00",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_created,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "events",
+                "create",
+                "-t",
+                "team-123",
+                "--title",
+                "JSON Event",
+                "--start-datetime",
+                "2026-08-21 10:00",
+                "--duration",
+                "60",
+                "-F",
+                "json",
+            ],
+        )
+        assert result.exit_code == 0
+        data = json.loads(result.output)
+        assert data[0]["id"] == "evt-created-9"
+        assert data[0]["title"] == "JSON Event"
+
+
+# ---------------------------------------------------------------------------
+# practices create tests
+# ---------------------------------------------------------------------------
+
+
+def test_practices_create_default_title(runner: CliRunner) -> None:
+    """Test `schedule practices create` uses default title 'Practice'."""
+    mock_created = CalendarEventCreated(
+        id="prac-created-1",
+        title="Practice",
+        type="practice",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_created,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "practices",
+                "create",
+                "-t",
+                "team-123",
+                "--start-datetime",
+                "2026-08-30 13:30",
+                "--end-datetime",
+                "2026-08-30 14:30",
+                "--location",
+                "Polar Ice Wake Forest",
+                "--notes",
+                "Non-repeating practice",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Practice" in result.output
+        kwargs = mock_action.call_args[1]
+        assert kwargs["title"] == "Practice"
+        assert kwargs["location"] == "Polar Ice Wake Forest"
+        assert kwargs["notes"] == "Non-repeating practice"
+
+
+def test_practices_create_custom_title_and_aliases(runner: CliRunner) -> None:
+    """Test `schedule practices add` and `new` with custom title."""
+    mock_created = CalendarEventCreated(id="prac-created-2", title="Power Skating", type="practice")
+    for subcmd in ["add", "new"]:
+        with (
+            patch(
+                "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+                return_value=MagicMock(),
+            ),
+            patch(
+                "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+                return_value=mock_created,
+            ) as mock_action,
+        ):
+            result = runner.invoke(
+                cli,
+                [
+                    "schedule",
+                    "practices",
+                    subcmd,
+                    "-t",
+                    "team-123",
+                    "--title",
+                    "Power Skating",
+                    "--start-datetime",
+                    "2026-08-30 15:00",
+                    "--duration",
+                    "60",
+                ],
+            )
+            assert result.exit_code == 0
+            kwargs = mock_action.call_args[1]
+            assert kwargs["title"] == "Power Skating"
+
+
+def test_practices_create_all_day(runner: CliRunner) -> None:
+    """Test `schedule practices create --all-day`."""
+    mock_created = CalendarEventCreated(id="prac-created-3", title="Camp Day", all_day=True)
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_created,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "practices",
+                "create",
+                "-t",
+                "team-123",
+                "--all-day",
+                "--start-date",
+                "2026-08-30",
+            ],
+        )
+        assert result.exit_code == 0
+        args = mock_action.call_args[0]
+        kwargs = mock_action.call_args[1]
+        assert args[3] == "2026-08-30"
+        assert args[4] == ""
+        assert kwargs["all_day"] is True
+
+
+def test_practices_create_all_day_conflict(runner: CliRunner) -> None:
+    """Test `schedule practices create --all-day` with conflicting start-datetime and start-date."""
+    result = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "practices",
+            "create",
+            "-t",
+            "team-123",
+            "--all-day",
+            "--start-datetime",
+            "2026-08-30",
+            "--start-date",
+            "2026-08-30",
+        ],
+    )
+    assert result.exit_code == 2
+    assert "Cannot combine --start-datetime with --start-date/--start-time" in result.output
+
+
+def test_practices_create_all_day_missing_start(runner: CliRunner) -> None:
+    """Test `schedule practices create --all-day` without start date raises UsageError."""
+    result = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "practices",
+            "create",
+            "-t",
+            "team-123",
+            "--all-day",
+        ],
+    )
+    assert result.exit_code == 2
+    assert "required for all-day practices" in result.output
+
+
+def test_practices_create_repeating(runner: CliRunner) -> None:
+    """Test `schedule practices create` with monthly recurrence."""
+    mock_created = CalendarEventCreated(id="prac-created-4", title="Monthly Practice")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_created,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "practices",
+                "create",
+                "-t",
+                "team-123",
+                "--start-datetime",
+                "2026-08-31 15:30",
+                "--duration",
+                "60",
+                "--repeat",
+                "monthly",
+                "--interval",
+                "1",
+                "--repeat-until",
+                "2027-03-19",
+            ],
+        )
+        assert result.exit_code == 0
+        kwargs = mock_action.call_args[1]
+        assert kwargs["rrule"] == "FREQ=MONTHLY;INTERVAL=1"
+        assert kwargs["repeat_until"] == "2027-03-19"
+
+
+def test_practices_create_envvar(runner: CliRunner) -> None:
+    """Test `schedule practices create` using GAMESHEET_TEAM_ID envvar."""
+    mock_created = CalendarEventCreated(id="prac-created-5", title="Practice")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_created,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "practices",
+                "create",
+                "--start-datetime",
+                "2026-08-30 10:00",
+                "--duration",
+                "60",
+            ],
+            env={"GAMESHEET_TEAM_ID": "env-team-uuid"},
+        )
+        assert result.exit_code == 0
+        args = mock_action.call_args[0]
+        assert args[2] == "env-team-uuid"
+
+
+# ---------------------------------------------------------------------------
+# games create tests
+# ---------------------------------------------------------------------------
+
+
+def test_games_create_home_and_aliases(runner: CliRunner) -> None:
+    """Test `schedule games create`, `add`, `new` as home team."""
+    mock_created = CreatedGameResult(
+        success=True,
+        game_number="TEST-123",
+        team_id=525015,
+        opposing_team_id=523675,
+        home_flag=True,
+    )
+    for subcmd in ["create", "add", "new"]:
+        with (
+            patch(
+                "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+                return_value=MagicMock(),
+            ),
+            patch(
+                "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+                return_value=mock_created,
+            ) as mock_action,
+        ):
+            result = runner.invoke(
+                cli,
+                [
+                    "schedule",
+                    "games",
+                    subcmd,
+                    "-t",
+                    "525015",
+                    "--opposing-team-id",
+                    "523675",
+                    "--season-id",
+                    "15020",
+                    "--division-id",
+                    "81419",
+                    "--number",
+                    "TEST-123",
+                    "--home",
+                    "--start-datetime",
+                    "2026-08-20 12:00",
+                    "--end-datetime",
+                    "2026-08-20 13:15",
+                ],
+            )
+            assert result.exit_code == 0
+            assert "TEST-123" in result.output
+            args = mock_action.call_args[0]
+            kwargs = mock_action.call_args[1]
+            assert args[2] == "525015"
+            assert args[3] == "15020"
+            assert args[4] == "81419"
+            assert args[5] == "523675"
+            assert args[6] == "2026-08-20T12:00"
+            assert args[7] == "13:15"
+            assert kwargs["home_flag"] is True
+            assert kwargs["game_number"] == "TEST-123"
+
+
+def test_games_create_visitor(runner: CliRunner) -> None:
+    """Test `schedule games create --visitor`."""
+    mock_created = CreatedGameResult(
+        success=True,
+        game_number="TEST-123",
+        team_id=525015,
+        opposing_team_id=523675,
+        home_flag=False,
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_created,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "games",
+                "create",
+                "-t",
+                "525015",
+                "--opposing-team-id",
+                "523675",
+                "--season-id",
+                "15020",
+                "--division-id",
+                "81419",
+                "--number",
+                "TEST-123",
+                "--visitor",
+                "--start-datetime",
+                "2026-08-20 12:00",
+                "--duration",
+                "75",
+            ],
+        )
+        assert result.exit_code == 0
+        kwargs = mock_action.call_args[1]
+        assert kwargs["home_flag"] is False
+
+
+def test_games_create_all_options(runner: CliRunner) -> None:
+    """Test `schedule games create` with all options provided."""
+    mock_created = CreatedGameResult(
+        success=True,
+        game_number="TEST-123",
+        location="Polar Ice",
+        broadcast_provider="LIVEBARN",
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_created,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "games",
+                "create",
+                "-t",
+                "525015",
+                "--opposing-team-id",
+                "523675",
+                "--season-id",
+                "15020",
+                "--division-id",
+                "81419",
+                "--opposing-division-id",
+                "81420",
+                "--association-id",
+                "38",
+                "--league-id",
+                "1148580",
+                "--number",
+                "TEST-123",
+                "--game-type",
+                "playoff",
+                "--location",
+                "Polar Ice",
+                "--scorekeeper-name",
+                "Jane Doe",
+                "--scorekeeper-phone",
+                "555-1234",
+                "--broadcaster",
+                "LIVEBARN",
+                "--time-zone-name",
+                "America/New_York",
+                "--time-zone-offset",
+                "-240",
+                "--start-date",
+                "2026-08-20",
+                "--start-time",
+                "12:00",
+                "--end-date",
+                "2026-08-20",
+                "--end-time",
+                "13:15",
+            ],
+        )
+        assert result.exit_code == 0
+        kwargs = mock_action.call_args[1]
+        assert kwargs["opposing_division"] == "81420"
+        assert kwargs["association_id"] == "38"
+        assert kwargs["league_id"] == "1148580"
+        assert kwargs["game_type"] == "playoff"
+        assert kwargs["location"] == "Polar Ice"
+        assert kwargs["scorekeeper_name"] == "Jane Doe"
+        assert kwargs["scorekeeper_phone"] == "555-1234"
+        assert kwargs["broadcast_provider"] == "LIVEBARN"
+        assert kwargs["time_zone_name"] == "America/New_York"
+        assert kwargs["time_zone_offset"] == -240
+
+
+def test_games_create_missing_required(runner: CliRunner) -> None:
+    """Test `schedule games create` missing required options."""
+    res = runner.invoke(
+        cli,
+        [
+            "schedule",
+            "games",
+            "create",
+            "-t",
+            "525015",
+            "--season-id",
+            "15020",
+        ],
+    )
+    assert res.exit_code == 2
+    assert "Missing option" in res.output
+
+
+def test_games_create_envvars(runner: CliRunner) -> None:
+    """Test `schedule games create` with GAMESHEET_TEAM_ID and GAMESHEET_SEASON_ID envvars."""
+    mock_created = CreatedGameResult(success=True, game_number="TEST-123")
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_created,
+        ) as mock_action,
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "games",
+                "create",
+                "--opposing-team-id",
+                "523675",
+                "--division-id",
+                "81419",
+                "--number",
+                "TEST-123",
+                "--start-datetime",
+                "2026-08-20 12:00",
+                "--duration",
+                "75",
+            ],
+            env={
+                "GAMESHEET_TEAM_ID": "525015",
+                "GAMESHEET_SEASON_ID": "15020",
+            },
+        )
+        assert result.exit_code == 0
+        args = mock_action.call_args[0]
+        assert args[2] == "525015"
+        assert args[3] == "15020"
+
+
+def test_games_create_json_format(runner: CliRunner) -> None:
+    """Test `schedule games create -F json`."""
+    mock_created = CreatedGameResult(
+        success=True,
+        game_number="TEST-123",
+        team_id=525015,
+        opposing_team_id=523675,
+    )
+    with (
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.build_authenticated_session",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "gamesheet_sdk.teams.cli.commands.schedule.run_action_or_exit",
+            return_value=mock_created,
+        ),
+    ):
+        result = runner.invoke(
+            cli,
+            [
+                "schedule",
+                "games",
+                "create",
+                "-t",
+                "525015",
+                "--opposing-team-id",
+                "523675",
+                "--season-id",
+                "15020",
+                "--division-id",
+                "81419",
+                "--number",
+                "TEST-123",
+                "--start-datetime",
+                "2026-08-20 12:00",
+                "--duration",
+                "75",
+                "-F",
+                "json",
+            ],
+        )
+        assert result.exit_code == 0
+        data = json.loads(result.output)
+        assert data[0]["success"] is True
+        assert data[0]["game_number"] == "TEST-123"

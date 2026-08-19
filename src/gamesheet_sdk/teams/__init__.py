@@ -6,9 +6,17 @@
 from gamesheet_sdk.teams.login import TeamsLoginFlow, refresh_access_token
 from gamesheet_sdk.teams.lookups import LookupValue, list_lookups
 from gamesheet_sdk.teams.schedule import (
+    CalendarEventCreated,
     CalendarSubscription,
+    CreatedGameResult,
     ScheduleEvent,
     ScheduleEventDetail,
+    build_rrule,
+    create_calendar_event_raw,
+    create_event,
+    create_game,
+    create_practice,
+    create_schedule_game_raw,
     fetch_availability_raw,
     fetch_calendar_raw,
     fetch_event_occurrence_raw,
@@ -22,6 +30,7 @@ from gamesheet_sdk.teams.schedule import (
     list_games,
     list_practices,
     list_schedule,
+    validate_game_type,
 )
 from gamesheet_sdk.teams.seasons import (
     PenaltyCode,
@@ -51,7 +60,9 @@ from gamesheet_sdk.teams.teams import (
 )
 
 __all__ = [
+    "CalendarEventCreated",
     "CalendarSubscription",
+    "CreatedGameResult",
     "LookupValue",
     "PenaltyCode",
     "ScheduleEvent",
@@ -64,6 +75,12 @@ __all__ = [
     "TeamsAuthenticatedSession",
     "TeamsLoginFlow",
     "archive_team",
+    "build_rrule",
+    "create_calendar_event_raw",
+    "create_event",
+    "create_game",
+    "create_practice",
+    "create_schedule_game_raw",
     "delete_team",
     "fetch_availability_raw",
     "fetch_calendar_raw",
@@ -93,4 +110,5 @@ __all__ = [
     "unarchive_team",
     "update_team",
     "upload_team_image",
+    "validate_game_type",
 ]
