@@ -68,6 +68,40 @@ def list_columns_option(func: F) -> F:
     )(func)
 
 
+def fields_option(*, short: bool) -> Callable[[F], F]:
+    """Build the --fields decorator, optionally without its ``-f`` short flag.
+
+    Delete commands pass ``short=False`` so that ``-f`` unambiguously means ``--force`` there, as it does for
+    every other destructive command in both CLIs.
+
+    Args:
+        short (bool): Whether to also bind ``-f``.
+
+    Returns:
+        Callable[[F], F]: The option decorator.
+
+    """
+    names = ["--fields", "-f", "fields_spec"] if short else ["--fields", "fields_spec"]
+
+    def decorator(func: F) -> F:
+        """Apply the --fields option to ``func``.
+
+        Args:
+            func (F): The Click command function to decorate.
+
+        Returns:
+            F: The decorated function.
+
+        """
+        return click.option(
+            *names,
+            default=None,
+            help="Comma-separated list of field names to include (default: all fields the API returns).",
+        )(func)
+
+    return decorator
+
+
 def get_fields_option(func: F) -> F:
     """Add --fields option for get commands.
 
@@ -78,10 +112,4 @@ def get_fields_option(func: F) -> F:
         F: The decorated function with --fields option
 
     """
-    return click.option(
-        "--fields",
-        "-f",
-        "fields_spec",
-        default=None,
-        help="Comma-separated list of field names to include (default: all fields the API returns).",
-    )(func)
+    return fields_option(short=True)(func)

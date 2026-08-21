@@ -8,8 +8,8 @@ from __future__ import annotations
 import pytest
 import rich_click as click
 
+from gamesheet_sdk.common.cli.game_times import extract_date_prefix as _extract_date_prefix
 from gamesheet_sdk.teams.cli.commands.schedule.helpers import (
-    _extract_date_prefix,
     resolve_game_update_times,
     resolve_occurrence_update_times,
     resolve_schedule_create_times,

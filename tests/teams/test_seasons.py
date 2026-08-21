@@ -19,6 +19,7 @@ from gamesheet_sdk.teams.seasons import (
     SeasonTeam,
     fetch_seasons_raw,
     get_season,
+    get_season_ownership,
     get_season_penalty_codes,
     get_season_teams,
     list_seasons,
@@ -567,3 +568,55 @@ def test_fetch_seasons_raw_primitive_json() -> None:
     result = fetch_seasons_raw(session, timeout=1.0)
 
     assert result == []
+
+
+@responses.activate
+def test_get_season_ownership_reads_the_nested_objects() -> None:
+    """The association and league identifiers come from the season's nested objects."""
+    responses.add(responses.GET, _SEASONS_URL, json={"seasons": _sample_seasons_data()}, status=200)
+
+    ownership = get_season_ownership(_make_session(), 101, timeout=1.0)
+
+    assert ownership.association_id == "301"
+    assert ownership.league_id == "201"
+
+
+@responses.activate
+def test_get_season_ownership_falls_back_to_league_id_and_zero() -> None:
+    """A season with no association object reports ``'0'``; the flat leagueId still resolves."""
+    responses.add(
+        responses.GET,
+        _SEASONS_URL,
+        json={"seasons": [{"id": 900, "title": "Bare", "leagueId": 77}]},
+        status=200,
+    )
+
+    ownership = get_season_ownership(_make_session(), 900, timeout=1.0)
+
+    assert ownership.association_id == "0"
+    assert ownership.league_id == "77"
+
+
+@responses.activate
+def test_get_season_ownership_defaults_both_to_zero() -> None:
+    """A season naming neither owner falls back to the identifiers the gateway accepts as "none"."""
+    responses.add(
+        responses.GET,
+        _SEASONS_URL,
+        json={"seasons": [{"id": 901, "title": "Orphan", "association": "not-a-dict"}]},
+        status=200,
+    )
+
+    ownership = get_season_ownership(_make_session(), 901, timeout=1.0)
+
+    assert ownership.association_id == "0"
+    assert ownership.league_id == "0"
+
+
+@responses.activate
+def test_get_season_ownership_rejects_an_unknown_season() -> None:
+    """An unknown season is an error, not a silent pair of zeroes."""
+    responses.add(responses.GET, _SEASONS_URL, json={"seasons": _sample_seasons_data()}, status=200)
+
+    with pytest.raises(GameSheetError, match="not found"):
+        get_season_ownership(_make_session(), 999, timeout=1.0)

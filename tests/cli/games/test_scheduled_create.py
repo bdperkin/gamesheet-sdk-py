@@ -24,11 +24,11 @@ if TYPE_CHECKING:
     from click.testing import CliRunner
 
 _CREATE_MOCKS = (
-    "gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session",
-    "gamesheet_sdk.admin.cli.commands.games_scheduled.run_action_or_exit",
-    "gamesheet_sdk.admin.cli.commands.games_scheduled.get_local_timezone_name",
-    "gamesheet_sdk.admin.cli.commands.games_scheduled.get_local_timezone_offset",
-    "gamesheet_sdk.admin.cli.commands.games_scheduled.render_get_command",
+    "gamesheet_sdk.admin.cli.shared.game_runner.build_authenticated_session",
+    "gamesheet_sdk.admin.cli.shared.game_runner.run_action_or_exit",
+    "gamesheet_sdk.common.cli.game_times.get_local_timezone_name",
+    "gamesheet_sdk.common.cli.game_times.get_local_timezone_offset",
+    "gamesheet_sdk.admin.cli.shared.game_runner.render_get_command",
     "gamesheet_sdk.admin.cli.helpers.load_refresh_token",
     "gamesheet_sdk.admin.cli.helpers.load_access_token",
 )

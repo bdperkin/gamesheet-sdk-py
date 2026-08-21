@@ -245,6 +245,70 @@ def get_season(
     return SeasonDetail(**filtered)
 
 
+class SeasonOwnership(BaseModel):
+    """The association and league a season belongs to.
+
+    ``POST /api/schedule-game`` wants ``association_id`` and ``league_id`` alongside ``season_id``, but they
+    are wholly determined by the season, so the games commands derive them from ``GET /api/seasons`` rather
+    than asking for them on the command line.
+
+    Attributes:
+        association_id (str): Parent association identifier, or ``'0'`` when the season does not name one.
+        league_id (str): Parent league identifier, or ``'0'`` when the season does not name one.
+
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    association_id: str = Field(default="0", description="Parent association identifier.")
+    league_id: str = Field(default="0", description="Parent league identifier.")
+
+
+def _nested_id(season: dict[str, Any], key: str) -> str:
+    """Read ``season[key]['id']`` defensively.
+
+    Args:
+        season (dict[str, Any]): Raw season dictionary.
+        key (str): Nested object key, ``'association'`` or ``'league'``.
+
+    Returns:
+        str: The identifier as a string, or ``''`` when absent.
+
+    """
+    nested = season.get(key)
+    if not isinstance(nested, dict):
+        return ""
+
+    ident = nested.get("id")
+    return str(ident) if ident else ""
+
+
+def get_season_ownership(
+    session: BaseAuthenticatedSession,
+    season_id: str | int,
+    *,
+    timeout: float = DEFAULT_TIMEOUT_S,
+) -> SeasonOwnership:
+    """Derive a season's association and league identifiers.
+
+    Args:
+        session (BaseAuthenticatedSession): Authenticated HTTP session.
+        season_id (str | int): Identifier of the season.
+        timeout (float): HTTP request timeout in seconds.
+
+    Returns:
+        SeasonOwnership: The association and league the season belongs to.
+
+    """
+    raw_seasons = fetch_seasons_raw(session, timeout=timeout)
+    season = _find_season(raw_seasons, season_id)
+    league_id = _nested_id(season, "league") or str(season.get("leagueId") or "")
+    return SeasonOwnership(
+        association_id=_nested_id(season, "association") or "0",
+        league_id=league_id or "0",
+    )
+
+
 def get_season_penalty_codes(
     session: BaseAuthenticatedSession,
     season_id: str | int,

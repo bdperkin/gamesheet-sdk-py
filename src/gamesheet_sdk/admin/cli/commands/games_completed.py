@@ -22,6 +22,7 @@ from gamesheet_sdk.admin.cli.shared import (
     render_get_command,
     render_list_command,
 )
+from gamesheet_sdk.admin.cli.shared.game_runner import resolve_season_id
 from gamesheet_sdk.admin.games import (
     Game,
 )
@@ -92,7 +93,7 @@ def completed_get_command(
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
-    season_id: str = ctx_data["season_id"]
+    season_id = resolve_season_id(ctx, None)
     session = build_authenticated_session(config)
     game = run_action_or_exit(session, _get_completed_game_action, season_id, game_id)
     render_get_command(game, output_format, output_path, fields_spec)
@@ -122,7 +123,7 @@ def completed_list_command(
     # Extract config and season_id from context (set by games_group)
     # ctx.obj is always a dict set by games_group with "config" and "season_id" keys
     config: Config = ctx.obj["config"]
-    season_id: str = ctx.obj["season_id"]
+    season_id = resolve_season_id(ctx, None)
     session = build_authenticated_session(config)
     games = run_action_or_exit(session, _list_completed_action, season_id)
     render_list_command(games, output_format, output_path, columns_spec)
@@ -209,7 +210,7 @@ def completed_download_command(
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
-    season_id: str = ctx_data["season_id"]
+    season_id = resolve_season_id(ctx, None)
     session = build_authenticated_session(config)
 
     # If no output path specified, generate one from game details
