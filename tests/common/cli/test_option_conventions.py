@@ -18,6 +18,7 @@ from gamesheet_sdk.teams.cli.main import cli as teams_cli
 RESERVED_SHORT_FLAGS = {
     "-c": "columns_spec",
     "-f": "force",
+    "-t": "team_id",
     "-F": "output_format",
     "-o": "output_path",
 }

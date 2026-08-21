@@ -489,14 +489,16 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   everywhere else) and `-c` on `gamesheet-teams lookups get` / `lookups list`, where it meant `--category`. `--category` now has no short flag, because `-c`
   belongs to `--columns`.
 
-  `RESERVED_SHORT_FLAGS` in `tests/common/cli/test_option_conventions.py` pins the invariants by walking both shipped click trees: `-c` is always `--columns`,
-  `-f` always `--force`, `-F` always `--format`, `-o` always `--output`, `--force` and `--columns` always offer their short flag, and neither `--fields` nor
-  `--output-path` comes back. Add to that table when you reserve a flag or retire a spelling.
+  `-t` was likewise taken off `--timeout` on the two `login` commands, where it was the odd one out against `--team-id` on 28.
 
-  **Known exceptions, all confined to the two `login` commands:** `-e` is `--email` there but `--event-id` on six `schedule` commands; `-p` is `--password`
-  there but `--practice-id` on three; `-t` is `--timeout` there but `--team-id` on 28. Nothing is ambiguous *within* a command — `login` has no
-  team/event/practice options — so these are muscle-memory conflicts rather than parsing ones, and `-e`/`-p` for email/password on a login prompt are strong
-  conventions in their own right. Left as-is deliberately.
+  `RESERVED_SHORT_FLAGS` in `tests/common/cli/test_option_conventions.py` pins the invariants by walking both shipped click trees: `-c` is always `--columns`,
+  `-f` always `--force`, `-t` always `--team-id`, `-F` always `--format`, `-o` always `--output`, `--force` and `--columns` always offer their short flag, and
+  neither `--fields` nor `--output-path` comes back. Add to that table when you reserve a flag or retire a spelling.
+
+  **Two known exceptions, both confined to the two `login` commands:** `-e` is `--email` there but `--event-id` on six `schedule` commands, and `-p` is
+  `--password` there but `--practice-id` on three. Nothing is ambiguous *within* a command — `login` has no event or practice options — so these are
+  muscle-memory conflicts rather than parsing ones, and `-e`/`-p` for email/password at a login prompt are strong conventions in their own right. Left as-is
+  deliberately; if they ever go, `--email` and `--password` should give the flags up rather than be reassigned, as `--category` and `--timeout` did.
 
   **Tab-completion.** `gamesheet-admin completion {bash,zsh,fish}` (and `gamesheet-teams completion {bash,zsh,fish}`) prints a sourceable script (uses click's
   built-in `shell_completion` via the `_GAMESHEET_ADMIN_COMPLETE` / `_GAMESHEET_TEAMS_COMPLETE` env var; no third-party dep). `ResourceGroup.shell_complete` (in

@@ -34,7 +34,6 @@ if TYPE_CHECKING:
 )
 @click.option(
     "--timeout",
-    "-t",
     type=int,
     default=30000,
     help="Page-load timeout in milliseconds.",
