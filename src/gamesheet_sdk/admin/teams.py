@@ -26,7 +26,11 @@ from gamesheet_sdk.admin.shared import (
 from gamesheet_sdk.common import errors
 from gamesheet_sdk.common.constants import BFF_API_BASE_URL
 from gamesheet_sdk.common.exceptions import AuthenticationError, GameSheetError
-from gamesheet_sdk.common.shared import JSONAPI_CONTENT_TYPE, JSONAPI_HEADERS
+from gamesheet_sdk.common.shared import (
+    JSONAPI_CONTENT_TYPE,
+    JSONAPI_HEADERS,
+    upload_image,
+)
 from gamesheet_sdk.common.shared.constants import FIELD_DESC_PARENT_SEASON_ID
 from gamesheet_sdk.common.shared.gamesheet_http import handle_season_scoped_response
 
@@ -201,11 +205,11 @@ def get_team(session: Session, season_id: str, team_id: str) -> Team:
         if team.id == team_id:
             return team
     # Team not found
-    _err_msg = (
+    err_msg = (
         f"Team '{team_id}' not found in season '{season_id}'. "
         f"Make sure you're using a valid team ID and season ID."
     )
-    raise GameSheetError(_err_msg)
+    raise GameSheetError(err_msg)
 
 
 def _upload_logo(session: Session, logo_path: str) -> str:
@@ -218,13 +222,7 @@ def _upload_logo(session: Session, logo_path: str) -> str:
     Returns:
         str: The Cloudflare CDN URL for the uploaded logo.
 
-    Raises:
-        GameSheetError: If the file is not found, is not a valid image, or the upload fails.
-        AuthenticationError: If the server returns 401.
-
     """
-    from gamesheet_sdk.common.shared import upload_image  # noqa: PLC0415
-
     return upload_image(session, logo_path, "logo")
 
 
@@ -251,20 +249,20 @@ def _handle_team_response_errors(
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
     if response.status_code == HTTPStatus.NOT_FOUND:
-        _err_msg = errors.ERROR_MSG_404_TEAM.format(
+        err_msg = errors.ERROR_MSG_404_TEAM.format(
             team_id=team_id,
             season_id=season_id,
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     if response.status_code >= HTTPStatus.BAD_REQUEST:
-        _err_msg = errors.ERROR_MSG_GENERIC_HTTP.format(
+        err_msg = errors.ERROR_MSG_GENERIC_HTTP.format(
             context="",
             endpoint=endpoint,
             status_code=response.status_code,
             text=repr(response.text[:200]),
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
 
 def update_team(
@@ -383,12 +381,12 @@ def update_team(
             headers=JSONAPI_HEADERS,
         )
         if delete_response.status_code >= HTTPStatus.BAD_REQUEST:
-            _err_msg = errors.ERROR_MSG_HTTP_DELETE.format(
+            err_msg = errors.ERROR_MSG_HTTP_DELETE.format(
                 endpoint=delete_logo_endpoint,
                 status_code=delete_response.status_code,
                 text=repr(delete_response.text[:200]),
             )
-            raise GameSheetError(_err_msg)
+            raise GameSheetError(err_msg)
 
     body: dict[str, Any] = update_response.json()
     return _parse(body["data"])
@@ -446,17 +444,17 @@ def create_team(
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
     if create_response.status_code >= HTTPStatus.BAD_REQUEST:
-        _err_msg = errors.ERROR_MSG_HTTP_POST.format(
+        err_msg = errors.ERROR_MSG_HTTP_POST.format(
             endpoint=create_endpoint,
             status_code=create_response.status_code,
             text=repr(create_response.text[:200]),
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     result: dict[str, Any] = create_response.json()
     if result.get("status") != "success":
-        _err_msg = f"Failed to create team: {result}"
-        raise GameSheetError(_err_msg)
+        err_msg = f"Failed to create team: {result}"
+        raise GameSheetError(err_msg)
 
     data: dict[str, Any] = result["data"]
     return data
@@ -492,16 +490,16 @@ def delete_team(
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
     if response.status_code == HTTPStatus.NOT_FOUND:
-        _err_msg = errors.ERROR_MSG_404_TEAM.format(
+        err_msg = errors.ERROR_MSG_404_TEAM.format(
             team_id=team_id,
             season_id=season_id,
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     if response.status_code >= HTTPStatus.BAD_REQUEST:
-        _err_msg = errors.ERROR_MSG_HTTP_DELETE.format(
+        err_msg = errors.ERROR_MSG_HTTP_DELETE.format(
             endpoint=endpoint,
             status_code=response.status_code,
             text=repr(response.text[:200]),
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)

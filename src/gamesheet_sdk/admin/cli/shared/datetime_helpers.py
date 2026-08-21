@@ -21,6 +21,32 @@ _LOGGER = logging.getLogger(__name__)
 MIN_REQUIRED_INPUTS = 2
 
 
+def _detect_timezone() -> str | None:
+    """Attempt to detect the local timezone name from tzlocal or /etc/localtime.
+
+    Returns:
+        str | None: The detected timezone name if found, else None.
+
+    """
+    try:
+        import tzlocal  # noqa: PLC0415
+
+        tz = tzlocal.get_localzone()
+    except (ImportError, AttributeError):
+        pass
+    else:
+        return str(tz.key) if hasattr(tz, "key") else str(tz)
+
+    if os.name != "nt":
+        localtime = Path("/etc/localtime")
+        if localtime.is_symlink():
+            target = str(localtime.readlink())
+            if "zoneinfo/" in target:
+                return target.split("zoneinfo/", 1)[1]
+
+    return None
+
+
 def get_local_timezone_name() -> str:
     """Get the local system timezone name (IANA format).
 
@@ -31,21 +57,9 @@ def get_local_timezone_name() -> str:
 
     """
     try:
-        try:
-            import tzlocal  # noqa: PLC0415
-
-            tz = tzlocal.get_localzone()
-        except (ImportError, AttributeError):
-            pass
-        else:
-            return str(tz.key) if hasattr(tz, "key") else str(tz)
-
-        if os.name != "nt":
-            localtime = Path("/etc/localtime")
-            if localtime.is_symlink():
-                target = str(localtime.readlink())
-                if "zoneinfo/" in target:
-                    return target.split("zoneinfo/", 1)[1]
+        tz = _detect_timezone()
+        if tz:
+            return tz
     except (OSError, ValueError, IndexError) as exc:
         _LOGGER.debug(
             "Failed to detect timezone, falling back to %s: %s",
@@ -85,7 +99,7 @@ def parse_flexible_datetime(raw: str) -> datetime.datetime:
         datetime.datetime: A timezone-naive datetime.datetime with the face-value time
 
     Raises:
-        click.UsageError: If the string cannot be parsed
+        UsageError: If the string cannot be parsed
 
     """
     try:
@@ -128,7 +142,7 @@ def validate_no_input_conflict(
         label (str): ``"start"`` or ``"end"``, for error messages
 
     Raises:
-        click.UsageError: If combined and any split input coexist
+        UsageError: If combined and any split input coexist
 
     """
     if combined and (date_part or time_part):
@@ -154,7 +168,7 @@ def resolve_datetime_input(
         str | None: A merged datetime string or None
 
     Raises:
-        click.UsageError: If only one of date/time is provided
+        UsageError: If only one of date/time is provided
 
     """
     if combined:
@@ -178,7 +192,7 @@ def validate_end_after_start(start_dt: datetime.datetime, end_dt: datetime.datet
         end_dt (datetime.datetime): End datetime.datetime (UTC)
 
     Raises:
-        click.UsageError: If end <= start
+        UsageError: If end <= start
 
     """
     if end_dt <= start_dt:
@@ -202,7 +216,7 @@ def _resolve_all_three(
         tuple[str, str]: ``(start_utc_iso, end_utc_iso)`` tuple
 
     Raises:
-        click.UsageError: If start + duration != end (within 59s tolerance)
+        UsageError: If start + duration != end (within 59s tolerance)
 
     """
     start_dt = parse_flexible_datetime(start_raw)
@@ -289,6 +303,9 @@ def _resolve_with_all_inputs(
     Returns:
         tuple[str, str]: ``(start_utc_iso, end_utc_iso)`` tuple
 
+    Raises:
+        UsageError: If fewer than 2 of 3 inputs are provided.
+
     """
     if start_raw and end_raw and duration is not None:
         return _resolve_all_three(start_raw, end_raw, duration)
@@ -322,7 +339,7 @@ def resolve_create_times(
         tuple[str, str]: ``(start_utc_iso, end_utc_iso)`` tuple
 
     Raises:
-        click.UsageError: If fewer than 2 of 3 are provided, or if all 3 are inconsistent, or end <= start
+        UsageError: If fewer than 2 of 3 are provided, or if all 3 are inconsistent, or end <= start
 
     """
     given = (start_raw is not None) + (end_raw is not None) + (duration is not None)
@@ -351,6 +368,9 @@ def _resolve_single_update(
 
     Returns:
         tuple[str, str]: ``(start_utc_iso, end_utc_iso)`` tuple
+
+    Raises:
+        UsageError: If duration is missing when neither start nor end is provided.
 
     """
     if start_raw:

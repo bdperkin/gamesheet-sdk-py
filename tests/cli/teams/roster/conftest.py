@@ -19,7 +19,12 @@ if TYPE_CHECKING:
 
 @pytest.fixture
 def mock_session() -> MagicMock:
-    """Provide a mock session for testing."""
+    """Provide a mock session for testing.
+
+    Returns:
+        MagicMock: Mocked session instance.
+
+    """
     session = MagicMock()
     session.__enter__ = MagicMock(return_value=session)
     session.__exit__ = MagicMock(return_value=False)
@@ -28,7 +33,12 @@ def mock_session() -> MagicMock:
 
 @pytest.fixture
 def mock_config() -> Config:
-    """Provide a mock config for testing."""
+    """Provide a mock config for testing.
+
+    Returns:
+        Config: Test configuration instance.
+
+    """
     return Config(base_url="https://test.example")
 
 

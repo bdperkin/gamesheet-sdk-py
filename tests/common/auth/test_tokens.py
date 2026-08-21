@@ -168,7 +168,7 @@ def test_refresh_access_token_happy_path() -> None:
     assert sent.headers["Authorization"] == "Bearer OLD-REFRESH"
     assert sent.headers["Content-Type"] == "application/json"
     assert sent.headers["User-Agent"] == "ua/1.0"
-    assert sent.body in (b"{}", "{}")
+    assert sent.body in {b"{}", "{}"}
 
 
 @responses.activate

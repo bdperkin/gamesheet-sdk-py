@@ -19,8 +19,13 @@ class _ConformingFlow:
         *,
         timeout: float | None = None,
     ) -> dict[str, str]:
-        """Return stub tokens."""
-        _ = (email, password, timeout)
+        """Return stub tokens.
+
+        Returns:
+            dict[str, str]: Stub token dictionary.
+
+        """
+        _ = (self, email, password, timeout)
         return {"access": "a", "refresh": "r"}
 
 

@@ -21,17 +21,17 @@ from tests.helpers import (
 @responses.activate
 def test_delete_referee_success(config: Config) -> None:
     """Test successful referee deletion."""
-    _referee_id = "1146197"
-    _delete_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    referee_id = "1146197"
+    delete_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
     responses.add(
         responses.DELETE,
-        _delete_endpoint,
+        delete_endpoint,
         status=204,
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
         # Should not raise
-        delete_referee(session, SEASON_ID, _referee_id)
+        delete_referee(session, SEASON_ID, referee_id)
 
     assert len(responses.calls) == 1
     req = responses.calls[0].request
@@ -41,16 +41,16 @@ def test_delete_referee_success(config: Config) -> None:
 @responses.activate
 def test_delete_referee_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     """Test that delete_referee sends correct Authorization and Accept headers."""
-    _referee_id = "101"
-    _delete_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    referee_id = "101"
+    delete_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
     responses.add(
         responses.DELETE,
-        _delete_endpoint,
+        delete_endpoint,
         status=204,
     )
     with Session(config) as session:
         session.set_bearer_token("test-token")
-        delete_referee(session, SEASON_ID, _referee_id)
+        delete_referee(session, SEASON_ID, referee_id)
 
     assert len(responses.calls) == 1
     req = responses.calls[0].request
@@ -61,18 +61,18 @@ def test_delete_referee_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 @responses.activate
 def test_delete_referee_401_raises_authentication_error(config: Config) -> None:
     """Test that 401 response raises AuthenticationError."""
-    _referee_id = "101"
-    _delete_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    referee_id = "101"
+    delete_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
     responses.add(
         responses.DELETE,
-        _delete_endpoint,
+        delete_endpoint,
         json={"errors": [{"detail": "Token expired"}]},
         status=401,
     )
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            delete_referee(session, SEASON_ID, _referee_id)
+            delete_referee(session, SEASON_ID, referee_id)
 
 
 @responses.activate
@@ -80,16 +80,16 @@ def test_delete_referee_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
     """Test that 404 response raises GameSheetError with helpful message."""
-    _referee_id = "nonexistent"
-    _delete_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
-    responses.add(responses.DELETE, _delete_endpoint, status=404, body="Not found")
+    referee_id = "nonexistent"
+    delete_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
+    responses.add(responses.DELETE, delete_endpoint, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(
             GameSheetError,
             match=r"Referee '.*' not found.*valid referee ID and season ID",
         ):
-            delete_referee(session, SEASON_ID, _referee_id)
+            delete_referee(session, SEASON_ID, referee_id)
 
 
 @responses.activate
@@ -97,10 +97,10 @@ def test_delete_referee_other_failure_raises_gamesheet_error(
     config: Config,
 ) -> None:
     """Test that other HTTP errors raise GameSheetError."""
-    _referee_id = "101"
-    _delete_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
-    responses.add(responses.DELETE, _delete_endpoint, status=500, body="boom")
+    referee_id = "101"
+    delete_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
+    responses.add(responses.DELETE, delete_endpoint, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            delete_referee(session, SEASON_ID, _referee_id)
+            delete_referee(session, SEASON_ID, referee_id)

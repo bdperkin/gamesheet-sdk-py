@@ -94,7 +94,15 @@ class SeasonDetail(BaseModel):
 
 
 def _parse(item: dict[str, Any]) -> Season:
-    """Flatten a JSON:API resource object into a :class:`Season`."""
+    """Flatten a JSON:API resource object into a :class:`Season`.
+
+    Args:
+        item (dict[str, Any]): Raw JSON:API resource dictionary.
+
+    Returns:
+        Season: Parsed Season model instance.
+
+    """
     attrs = item.get("attributes", {})
     # Extract league_id from relationships
     league_id = item.get("relationships", {}).get("league", {}).get("data", {}).get("id", "")
@@ -106,7 +114,15 @@ def _parse(item: dict[str, Any]) -> Season:
 
 
 def _parse_detail(data: dict[str, Any]) -> SeasonDetail:
-    """Flatten a detailed JSON:API resource object into a :class:`SeasonDetail`."""
+    """Flatten a detailed JSON:API resource object into a :class:`SeasonDetail`.
+
+    Args:
+        data (dict[str, Any]): Raw JSON:API resource dictionary.
+
+    Returns:
+        SeasonDetail: Parsed SeasonDetail model instance.
+
+    """
     attrs = data.get("attributes", {})
     relationships = data.get("relationships", {})
     # Extract IDs from relationships
@@ -124,6 +140,14 @@ def _parse_bff_season(item: dict[str, Any], league_id: str) -> Season:
     """Parse a season from the BFF API response.
 
     Note: The BFF API does not return created_at/updated_at, so we use the current time.
+
+    Args:
+        item (dict[str, Any]): Raw BFF season dictionary.
+        league_id (str): League identifier.
+
+    Returns:
+        Season: Parsed Season model instance.
+
     """
     now = datetime.now(tz=UTC)
     return Season(
@@ -145,7 +169,25 @@ def _list_seasons_bff(
     stats_year: str | None,
     title: str | None,
 ) -> list[Season]:
-    """List seasons using the BFF API with filters."""
+    """List seasons using the BFF API with filters.
+
+    Args:
+        session (Session): Authenticated HTTP session.
+        league_id (str): League identifier.
+        starts_after (str | None): Optional start date filter.
+        ends_before (str | None): Optional end date filter.
+        status (str | None): Optional status filter.
+        stats_year (str | None): Optional stats year filter.
+        title (str | None): Optional title filter.
+
+    Returns:
+        list[Season]: List of parsed Season objects.
+
+    Raises:
+        AuthenticationError: If the session token is expired or unauthorized.
+        GameSheetError: If the league is not found or the request fails.
+
+    """
     params: dict[str, str] = {
         "page[number]": "1",
         "page[size]": "1000",
@@ -172,22 +214,22 @@ def _list_seasons_bff(
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
     if response.status_code == HTTPStatus.NOT_FOUND:
-        _err_msg = errors.ERROR_MSG_404_LEAGUE.format(league_id=league_id)
-        raise GameSheetError(_err_msg)
+        err_msg = errors.ERROR_MSG_404_LEAGUE.format(league_id=league_id)
+        raise GameSheetError(err_msg)
 
     if response.status_code >= HTTPStatus.BAD_REQUEST:
-        _err_msg = errors.ERROR_MSG_HTTP_GET.format(
+        err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=url,
             status_code=response.status_code,
             text=repr(response.text[:200]),
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     body: dict[str, Any] = response.json()
     if body.get("status") != "success":
         status = body.get("status")
-        _err_msg = errors.ERROR_MSG_BFF_NON_SUCCESS_SIMPLE.format(status=status)
-        raise GameSheetError(_err_msg)
+        err_msg = errors.ERROR_MSG_BFF_NON_SUCCESS_SIMPLE.format(status=status)
+        raise GameSheetError(err_msg)
 
     data = body.get("data", [])
     items = data.get("items", []) if isinstance(data, dict) else data
@@ -253,12 +295,12 @@ def list_seasons(
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
     if response.status_code >= HTTPStatus.BAD_REQUEST:
-        _err_msg = errors.ERROR_MSG_HTTP_GET.format(
+        err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=_ENDPOINT,
             status_code=response.status_code,
             text=repr(response.text[:200]),
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     body: dict[str, Any] = response.json()
     # Parse all seasons and filter to only those belonging to the requested league
@@ -294,16 +336,16 @@ def get_season(session: Session, season_id: str) -> SeasonDetail:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
     if response.status_code == HTTPStatus.NOT_FOUND:
-        _err_msg = errors.ERROR_MSG_404_SEASON.format(season_id=season_id)
-        raise GameSheetError(_err_msg)
+        err_msg = errors.ERROR_MSG_404_SEASON.format(season_id=season_id)
+        raise GameSheetError(err_msg)
 
     if response.status_code >= HTTPStatus.BAD_REQUEST:
-        _err_msg = errors.ERROR_MSG_HTTP_GET.format(
+        err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=endpoint,
             status_code=response.status_code,
             text=repr(response.text[:200]),
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     body: dict[str, Any] = response.json()
     return _parse_detail(body["data"])

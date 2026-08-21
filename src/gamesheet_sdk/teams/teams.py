@@ -119,7 +119,15 @@ class TeamDetail(BaseModel):
 
 
 def _parse_team_summary(raw: dict[str, Any]) -> TeamSummary:
-    """Parse raw team dictionary into a :class:`TeamSummary`."""
+    """Parse raw team dictionary into a :class:`TeamSummary`.
+
+    Args:
+        raw (dict[str, Any]): Raw team dictionary.
+
+    Returns:
+        TeamSummary: Parsed team summary model instance.
+
+    """
     member_id = raw.get("memberId") if raw.get("memberId") is not None else raw.get("member_id", "")
     team_id = raw.get("teamId") if raw.get("teamId") is not None else raw.get("team_id", raw.get("id", ""))
     relationship = raw.get("relationship", "")
@@ -142,14 +150,14 @@ def _parse_team_summary(raw: dict[str, Any]) -> TeamSummary:
     stats_year = raw.get("statsYear") if raw.get("statsYear") is not None else raw.get("stats_year", "")
 
     return TeamSummary(
-        memberId=str(member_id) if member_id is not None and member_id != "" else "",
-        teamId=str(team_id) if team_id is not None and team_id != "" else "",
+        memberId=str(member_id) if member_id is not None and member_id else "",
+        teamId=str(team_id) if team_id is not None and team_id else "",
         relationship=str(relationship) if relationship is not None else "",
         status=str(status) if status is not None else "",
         onboardingCompletedAt=str(onboarding) if onboarding is not None else "",
         teamName=str(team_name) if team_name is not None else "",
         ageCategory=str(age_category) if age_category is not None else "",
-        clubId=str(club_id) if club_id is not None and club_id != "" else "",
+        clubId=str(club_id) if club_id is not None and club_id else "",
         joinedAt=str(joined_at) if joined_at is not None else "",
         statsYear=str(stats_year) if stats_year is not None else "",
     )
@@ -284,7 +292,19 @@ def fetch_teams_raw(
 
 
 def _find_team(teams: list[dict[str, Any]], team_id: str | int) -> dict[str, Any]:
-    """Find a team by ID within the teams list."""
+    """Find a team by ID within the teams list.
+
+    Args:
+        teams (list[dict[str, Any]]): List of team dicts.
+        team_id (str | int): Team identifier to match.
+
+    Returns:
+        dict[str, Any]: Matching team dictionary.
+
+    Raises:
+        GameSheetError: If the team is not found.
+
+    """
     target_id = str(team_id)
     for t in teams:
         candidate_id = str(t.get("teamId") or t.get("team_id") or t.get("id") or "")
@@ -354,17 +374,21 @@ def list_teams(
     Returns:
         list[TeamSummary]: List of :class:`TeamSummary` objects.
 
-    Raises:
-        AuthenticationError: If the server returns a 401 Unauthorized status.
-        GameSheetError: If the server returns a non-2xx status code.
-
     """
     raw_teams = fetch_teams_raw(session, timeout=timeout)
     return [_parse_team_summary(item) for item in raw_teams]
 
 
 def _normalize_team_dict(team: dict[str, Any]) -> dict[str, Any]:
-    """Ensure team dictionary has string teamId if present or id is available."""
+    """Ensure team dictionary has string teamId if present or id is available.
+
+    Args:
+        team (dict[str, Any]): Raw team dictionary.
+
+    Returns:
+        dict[str, Any]: Normalized team dictionary with string teamId.
+
+    """
     team_copy = dict(team)
     if "teamId" in team_copy and team_copy["teamId"] is not None:
         team_copy["teamId"] = str(team_copy["teamId"])
@@ -383,7 +407,20 @@ def _build_team_update_payload(
     province: str | None,
     extra_fields: dict[str, Any],
 ) -> dict[str, Any]:
-    """Construct PATCH payload for team updates, omitting None values."""
+    """Construct PATCH payload for team updates, omitting None values.
+
+    Args:
+        team_name (str | None): Optional team name.
+        skill (str | None): Optional skill level.
+        logo_url (str | None): Optional logo URL.
+        age_category (str | None): Optional age category.
+        province (str | None): Optional province/state code.
+        extra_fields (dict[str, Any]): Additional extra payload fields.
+
+    Returns:
+        dict[str, Any]: Filtered update payload dictionary.
+
+    """
     fields: dict[str, Any] = {
         "teamName": team_name,
         "skill": skill,
@@ -410,10 +447,6 @@ def get_team(
 
     Returns:
         TeamDetail: :class:`TeamDetail` with team attributes.
-
-    Raises:
-        AuthenticationError: If the server returns a 401 Unauthorized status.
-        GameSheetError: If the team is not found or the server returns an error.
 
     """
     raw_teams = fetch_teams_raw(session, timeout=timeout)
@@ -506,10 +539,6 @@ def archive_team(
     Returns:
         TeamDetail: :class:`TeamDetail` representing the archived team.
 
-    Raises:
-        AuthenticationError: If the server returns a 401 Unauthorized status.
-        GameSheetError: If the server returns a non-2xx status code.
-
     """
     return update_team(session, team_id, isArchived=True, timeout=timeout)
 
@@ -529,10 +558,6 @@ def restore_team(
 
     Returns:
         TeamDetail: :class:`TeamDetail` representing the restored team.
-
-    Raises:
-        AuthenticationError: If the server returns a 401 Unauthorized status.
-        GameSheetError: If the server returns a non-2xx status code.
 
     """
     return update_team(session, team_id, isArchived=False, timeout=timeout)

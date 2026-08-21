@@ -37,7 +37,12 @@ _UPDATE_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams-v2/{_TEAM_ID}
 
 
 def _mock_get_team() -> dict[str, Any]:
-    """Return a sample GET response for the current team."""
+    """Return a sample GET response for the current team.
+
+    Returns:
+        dict[str, Any]: Sample GET team response dictionary.
+
+    """
     return {
         "data": {
             "type": "teams",
@@ -60,7 +65,12 @@ def _mock_get_team() -> dict[str, Any]:
 
 
 def _mock_update_response(**updates: str | None) -> dict[str, Any]:
-    """Return a sample POST response with updated attributes."""
+    """Return a sample POST response with updated attributes.
+
+    Returns:
+        dict[str, Any]: Sample update response dictionary.
+
+    """
     attrs = {
         "title": updates.get("title", "Old Team Name"),
         "external_id": updates.get("external_id", "old-ext-id"),

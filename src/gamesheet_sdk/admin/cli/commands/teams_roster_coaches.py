@@ -11,6 +11,7 @@ import rich_click as click
 from click.exceptions import Exit
 from rich_click import Context
 
+from gamesheet_sdk.admin import roster
 from gamesheet_sdk.admin.cli.constants import (
     COACH_POSITIONS,
     HELP_COACH_FIRST_NAME,
@@ -23,7 +24,9 @@ from gamesheet_sdk.admin.cli.helpers import (
     build_authenticated_session,
     run_action_or_exit,
     run_roster_assign_with_output,
+    run_roster_delete,
     run_roster_unassign,
+    run_roster_update_with_output,
 )
 from gamesheet_sdk.admin.cli.shared import (
     common_output_options,
@@ -283,14 +286,7 @@ def teams_roster_coaches_update_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
 
-    Raises:
-        Exit: Always raised (exit code 1) because this command is not yet implemented.
-
     """
-    from gamesheet_sdk.admin.cli.helpers import (  # noqa: PLC0415
-        run_roster_update_with_output,
-    )
-
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
     team_id: str = ctx.obj["team_id"]
@@ -332,23 +328,22 @@ def teams_roster_coaches_delete_command(ctx: Context, coach_id: str) -> None:
         ctx (Context): Click context object containing config
         coach_id (str): The coach identifier to delete
 
-    Raises:
-        Exit: On authentication or API errors.
-
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
     team_id: str = ctx_data["team_id"]
     session = build_authenticated_session(config)
-    try:
-        with session:
-            _delete_team_coach_action(session, season_id, team_id, coach_id)
-    except Exception as exc:
-        click.secho(f"Error deleting coach: {exc}", fg="red", err=True)
-        raise Exit(1) from exc
-
-    click.secho(f"Coach {coach_id} deleted successfully.", fg="green")
+    run_roster_delete(
+        _delete_team_coach_action,
+        session,
+        "coach",
+        coach_id,
+        session,
+        season_id,
+        team_id,
+        coach_id,
+    )
 
 
 @teams_roster_coaches_group.command("penalty-report")
@@ -382,11 +377,7 @@ def teams_roster_coaches_penalty_report_command(
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
     with build_authenticated_session(config) as session:
-        from gamesheet_sdk.admin.roster import (  # noqa: PLC0415
-            get_coach_penalty_report,
-        )
-
-        report = get_coach_penalty_report(session, season_id, coach_id)
+        report = roster.get_coach_penalty_report(session, season_id, coach_id)
         render_penalty_report(report, output_format, output_path)
 
 

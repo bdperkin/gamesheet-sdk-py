@@ -39,10 +39,6 @@ def get_completed_game(
     Returns:
         dict[str, Any]: The full game data as a dictionary (JSON:API format with data/included/relationships).
 
-    Raises:
-        AuthenticationError: If the server returns 401.
-        GameSheetError: For any other non-2xx response, including 404 if the game is not found.
-
     """
     url = f"{DEFAULT_BASE_URL}{API_SEASONS_GAMES.format(season_id=season_id, game_id=game_id)}"
     params = {"include": "players,coaches,referees,teams,season,association,league"}
@@ -66,10 +62,6 @@ def download_completed_game_pdf(
         session (Session): An authenticated :class:`Session`.
         game_id (str): The game identifier.
         output_path (str): File path where the PDF will be saved.
-
-    Raises:
-        AuthenticationError: If the server returns 401.
-        GameSheetError: For any other non-2xx response, including 404 if the game is not found.
 
     """
     url = f"{SCORESHEET_SERVICE_BASE_URL}{SCORESHEET_SERVICE_GAME.format(game_id=game_id)}"

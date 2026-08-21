@@ -24,16 +24,16 @@ _BFF_BASE = BFF_API_BASE_URL
 @responses.activate
 def test_get_game_returns_single_game(config: Config) -> None:
     """Test that get_game returns a single game."""
-    _game_id = 12345
-    _endpoint = f"{_BFF_BASE}/games-list/v1"
+    game_id = 12345
+    endpoint = f"{_BFF_BASE}/games-list/v1"
     responses.add(
         responses.GET,
-        _endpoint,
+        endpoint,
         json={
             "status": "success",
             "data": [
                 {
-                    "id": _game_id,
+                    "id": game_id,
                     "status": "completed",
                     "date": "2024-06-15",
                     "time": "19:00",
@@ -49,9 +49,9 @@ def test_get_game_returns_single_game(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_game(session, SEASON_ID, _game_id)
+        result = get_game(session, SEASON_ID, game_id)
 
-    assert result.id == _game_id
+    assert result.id == game_id
     assert result.status == "completed"
     assert result.visitor.title == "Team A"
     assert result.home.title == "Team B"
@@ -60,11 +60,11 @@ def test_get_game_returns_single_game(config: Config) -> None:
 @responses.activate
 def test_get_game_finds_game_in_list(config: Config) -> None:
     """Test that get_game finds the correct game when multiple games are returned."""
-    _game_id = 12346
-    _endpoint = f"{_BFF_BASE}/games-list/v1"
+    game_id = 12346
+    endpoint = f"{_BFF_BASE}/games-list/v1"
     responses.add(
         responses.GET,
-        _endpoint,
+        endpoint,
         json={
             "status": "success",
             "data": [
@@ -80,7 +80,7 @@ def test_get_game_finds_game_in_list(config: Config) -> None:
                     "homeScore": 2,
                 },
                 {
-                    "id": _game_id,
+                    "id": game_id,
                     "status": "completed",
                     "date": "2024-06-15",
                     "time": "19:00",
@@ -96,20 +96,20 @@ def test_get_game_finds_game_in_list(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_game(session, SEASON_ID, _game_id)
+        result = get_game(session, SEASON_ID, game_id)
 
-    assert result.id == _game_id
+    assert result.id == game_id
     assert result.visitor.title == "Team A"
 
 
 @responses.activate
 def test_get_game_404_when_game_not_found(config: Config) -> None:
     """Test that get_game raises GameSheetError when game is not found."""
-    _game_id = 99999
-    _endpoint = f"{_BFF_BASE}/games-list/v1"
+    game_id = 99999
+    endpoint = f"{_BFF_BASE}/games-list/v1"
     responses.add(
         responses.GET,
-        _endpoint,
+        endpoint,
         json={"status": "success", "data": []},
         status=200,
     )
@@ -119,33 +119,33 @@ def test_get_game_404_when_game_not_found(config: Config) -> None:
             GameSheetError,
             match=r"Game '.*' not found.*valid game ID and season ID",
         ):
-            get_game(session, SEASON_ID, _game_id)
+            get_game(session, SEASON_ID, game_id)
 
 
 @responses.activate
 def test_get_game_401_raises_authentication_error(config: Config) -> None:
     """Test that HTTP 401 raises AuthenticationError."""
-    _game_id = 12345
-    _endpoint = f"{_BFF_BASE}/games-list/v1"
+    game_id = 12345
+    endpoint = f"{_BFF_BASE}/games-list/v1"
     responses.add(
         responses.GET,
-        _endpoint,
+        endpoint,
         json={"errors": [{"detail": "Token expired"}]},
         status=401,
     )
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            get_game(session, SEASON_ID, _game_id)
+            get_game(session, SEASON_ID, game_id)
 
 
 @responses.activate
 def test_get_game_other_failure_raises_gamesheet_error(config: Config) -> None:
     """Test that other HTTP errors raise GameSheetError."""
-    _game_id = 12345
-    _endpoint = f"{_BFF_BASE}/games-list/v1"
-    responses.add(responses.GET, _endpoint, status=500, body="boom")
+    game_id = 12345
+    endpoint = f"{_BFF_BASE}/games-list/v1"
+    responses.add(responses.GET, endpoint, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            get_game(session, SEASON_ID, _game_id)
+            get_game(session, SEASON_ID, game_id)

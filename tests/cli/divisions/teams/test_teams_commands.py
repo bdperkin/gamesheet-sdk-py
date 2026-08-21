@@ -19,14 +19,14 @@ def test_divisions_teams_get_coverage() -> None:
     """Ensure divisions teams get command body is covered."""
     runner = CliRunner()
     with (
-        patch("gamesheet_sdk.admin.cli.commands.divisions.build_authenticated_session"),
+        patch("gamesheet_sdk.admin.cli.commands.teams.build_authenticated_session"),
         patch(
-            "gamesheet_sdk.admin.cli.commands.divisions.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.commands.teams.run_action_or_exit",
             return_value=MagicMock(
                 model_dump=lambda **__kw: {"id": "1", "title": "Team 1"},
             ),
         ),
-        patch("gamesheet_sdk.admin.cli.commands.divisions.render_list_command"),
+        patch("gamesheet_sdk.admin.cli.commands.teams.render_get_command"),
     ):
         # Test JSON format
         result = runner.invoke(
@@ -162,7 +162,7 @@ def test_divisions_teams_update_coverage() -> None:
 def test_divisions_teams_delete_coverage() -> None:
     """Ensure divisions teams delete command body is covered."""
     runner = CliRunner()
-    with patch("gamesheet_sdk.admin.cli.commands.divisions.run_team_delete"):
+    with patch("gamesheet_sdk.admin.cli.commands.teams.run_team_delete"):
         result = runner.invoke(
             divisions_group,
             ["teams", "delete", "--season-id", "100", "--team-id", "1", "--force"],

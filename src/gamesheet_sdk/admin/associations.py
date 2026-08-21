@@ -97,10 +97,6 @@ def get_association(session: Session, association_id: str) -> Association:
     Returns:
         Association: The requested Association model instance.
 
-    Raises:
-        AuthenticationError: If the server returns 401 (bearer missing or expired).
-        GameSheetError: For any other non-2xx response (including 404 if not found).
-
     """
     endpoint = f"{_ENDPOINT}/{association_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)

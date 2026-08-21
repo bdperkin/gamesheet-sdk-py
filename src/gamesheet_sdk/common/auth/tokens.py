@@ -269,12 +269,12 @@ def refresh_access_token(
 
     response = requests.post(REFRESH_URL, json={}, headers=headers, timeout=timeout)
     if response.status_code == HTTPStatus.UNAUTHORIZED:
-        _err_msg = "Refresh token rejected. Run `gamesheet-admin login` to re-authenticate."
-        raise AuthenticationError(_err_msg)
+        err_msg = "Refresh token rejected. Run `gamesheet-admin login` to re-authenticate."
+        raise AuthenticationError(err_msg)
 
     if response.status_code >= HTTPStatus.BAD_REQUEST:
-        _err_msg = f"Token refresh failed: HTTP {response.status_code}: {response.text[:200]!r}"
-        raise GameSheetError(_err_msg)
+        err_msg = f"Token refresh failed: HTTP {response.status_code}: {response.text[:200]!r}"
+        raise GameSheetError(err_msg)
 
     body = response.json()
     return {

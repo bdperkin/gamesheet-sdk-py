@@ -51,10 +51,6 @@ def list_brackets(session: Session, season_id: str) -> list[Game]:
         list[Game]: A list of :class:`Game`, in the order the server returned them. The list may be empty if
             the season has no bracket games.
 
-    Raises:
-        AuthenticationError: If the server returns 401.
-        GameSheetError: For any other non-2xx response.
-
     """
     # Try filter[brackets]=true first, fallback to gameType=playoff if needed
     return _make_request(session, season_id, brackets=True)
@@ -85,8 +81,8 @@ def get_game(session: Session, season_id: str, game_id: int) -> Game:
         if game.id == game_id:
             return game
     # Game not found
-    _err_msg = (
+    err_msg = (
         f"Game '{game_id}' not found in season '{season_id}'. "
         f"Make sure you're using a valid game ID and season ID."
     )
-    raise GameSheetError(_err_msg)
+    raise GameSheetError(err_msg)

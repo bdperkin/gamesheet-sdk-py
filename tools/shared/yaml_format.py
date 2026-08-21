@@ -26,9 +26,6 @@ def _load_yamlfix_config() -> YamlfixConfig:
     Returns:
         YamlfixConfig: Formatter configuration for :func:`yamlfix.fix_code`.
 
-    Raises:
-        ToolError: If pyproject.toml cannot be read or parsed.
-
     """
     fields = frozenset(YamlfixConfig.model_fields)
     table = load_toml(PYPROJECT_PATH).get("tool", {}).get("yamlfix", {})
@@ -83,9 +80,6 @@ def format_yaml(text: str) -> str:
 
     Returns:
         str: Formatted YAML, ready to write.
-
-    Raises:
-        SystemExit: If yamlfix cannot format the text.
 
     """
     return _postprocess(_apply_yamlfix(text))

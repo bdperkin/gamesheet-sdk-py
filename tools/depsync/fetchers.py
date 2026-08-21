@@ -405,9 +405,6 @@ def fetch_pypi_versions(
     Returns:
         dict[str, str | None]: Dict mapping version string to requires_python (or None).
 
-    Raises:
-        FetchError: If all fetch attempts fail.
-
     """
     if index_url:
         versions = _fetch_simple_versions(

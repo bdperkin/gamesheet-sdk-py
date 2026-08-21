@@ -34,6 +34,7 @@ def setup_photo_upload_mocks(
 
     """
     with tempfile.NamedTemporaryFile(
+        encoding="utf-8",
         mode="w",
         suffix=".jpg",
         delete=False,

@@ -23,16 +23,16 @@ from tests.helpers import (
 @responses.activate
 def test_get_team_returns_single_team(config: Config) -> None:
     """Test that get_team returns a single team."""
-    _team_id = "401"
-    _list_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
+    team_id = "401"
+    list_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
     responses.add(
         responses.GET,
-        _list_endpoint,
+        list_endpoint,
         json={
             "data": [
                 {
                     "type": "teams",
-                    "id": _team_id,
+                    "id": team_id,
                     "attributes": {
                         "title": DEFAULT_TEAM_NAME,
                         "logo_url": "https://example.com/logo.png",
@@ -50,9 +50,9 @@ def test_get_team_returns_single_team(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_team(session, SEASON_ID, _team_id)
+        result = get_team(session, SEASON_ID, team_id)
 
-    assert result.id == _team_id
+    assert result.id == team_id
     assert result.season_id == SEASON_ID
     assert result.title == DEFAULT_TEAM_NAME
 
@@ -60,16 +60,16 @@ def test_get_team_returns_single_team(config: Config) -> None:
 @responses.activate
 def test_get_team_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     """Test that get_team sends correct authorization and accept headers."""
-    _team_id = "401"
-    _list_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
+    team_id = "401"
+    list_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
     responses.add(
         responses.GET,
-        _list_endpoint,
+        list_endpoint,
         json={
             "data": [
                 {
                     "type": "teams",
-                    "id": _team_id,
+                    "id": team_id,
                     "attributes": {
                         "title": "Test",
                         "logo_url": "",
@@ -87,7 +87,7 @@ def test_get_team_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("test-token")
-        get_team(session, SEASON_ID, _team_id)
+        get_team(session, SEASON_ID, team_id)
 
     assert len(responses.calls) == 1
     req = responses.calls[0].request
@@ -98,18 +98,18 @@ def test_get_team_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 @responses.activate
 def test_get_team_401_raises_authentication_error(config: Config) -> None:
     """Test that HTTP 401 raises AuthenticationError."""
-    _team_id = "401"
-    _list_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
+    team_id = "401"
+    list_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
     responses.add(
         responses.GET,
-        _list_endpoint,
+        list_endpoint,
         json={"errors": [{"detail": "Token expired"}]},
         status=401,
     )
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            get_team(session, SEASON_ID, _team_id)
+            get_team(session, SEASON_ID, team_id)
 
 
 @responses.activate
@@ -117,11 +117,11 @@ def test_get_team_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
     """Test that team not found raises GameSheetError with helpful message."""
-    _team_id = "nonexistent"
-    _list_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
+    team_id = "nonexistent"
+    list_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
     responses.add(
         responses.GET,
-        _list_endpoint,
+        list_endpoint,
         json={
             "data": [
                 {
@@ -148,35 +148,35 @@ def test_get_team_404_raises_gamesheet_error_with_helpful_message(
             GameSheetError,
             match=r"Team '.*' not found.*valid team ID and season ID",
         ):
-            get_team(session, SEASON_ID, _team_id)
+            get_team(session, SEASON_ID, team_id)
 
 
 @responses.activate
 def test_get_team_other_failure_raises_gamesheet_error(config: Config) -> None:
     """Test that other HTTP errors raise GameSheetError."""
-    _team_id = "401"
-    _list_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
-    responses.add(responses.GET, _list_endpoint, status=500, body="boom")
+    team_id = "401"
+    list_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
+    responses.add(responses.GET, list_endpoint, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            get_team(session, SEASON_ID, _team_id)
+            get_team(session, SEASON_ID, team_id)
 
 
 @responses.activate
 def test_get_team_with_invitation_code(config: Config) -> None:
     """Test that get_team extracts invitation code from included resources."""
-    _team_id = "401"
-    _invitation_code = "ABC123"
-    _list_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
+    team_id = "401"
+    invitation_code = "ABC123"
+    list_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
     responses.add(
         responses.GET,
-        _list_endpoint,
+        list_endpoint,
         json={
             "data": [
                 {
                     "type": "teams",
-                    "id": _team_id,
+                    "id": team_id,
                     "attributes": {
                         "title": DEFAULT_TEAM_NAME,
                         "logo_url": "",
@@ -197,7 +197,7 @@ def test_get_team_with_invitation_code(config: Config) -> None:
                     "type": "invitations",
                     "id": "inv-1",
                     "attributes": {
-                        "code": _invitation_code,
+                        "code": invitation_code,
                     },
                 },
             ],
@@ -206,27 +206,27 @@ def test_get_team_with_invitation_code(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_team(session, SEASON_ID, _team_id)
+        result = get_team(session, SEASON_ID, team_id)
 
-    assert result.id == _team_id
+    assert result.id == team_id
     assert result.season_id == SEASON_ID
     assert result.title == DEFAULT_TEAM_NAME
-    assert result.invitation_code == _invitation_code
+    assert result.invitation_code == invitation_code
 
 
 @responses.activate
 def test_get_team_without_invitation_code(config: Config) -> None:
     """Test that get_team handles missing invitation code gracefully."""
-    _team_id = "402"
-    _list_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
+    team_id = "402"
+    list_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/teams"
     responses.add(
         responses.GET,
-        _list_endpoint,
+        list_endpoint,
         json={
             "data": [
                 {
                     "type": "teams",
-                    "id": _team_id,
+                    "id": team_id,
                     "attributes": {
                         "title": "Test Team Without Code",
                         "logo_url": "",
@@ -245,9 +245,9 @@ def test_get_team_without_invitation_code(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_team(session, SEASON_ID, _team_id)
+        result = get_team(session, SEASON_ID, team_id)
 
-    assert result.id == _team_id
+    assert result.id == team_id
     assert result.season_id == SEASON_ID
     assert result.title == "Test Team Without Code"
     assert result.invitation_code is None

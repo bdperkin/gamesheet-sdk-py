@@ -18,7 +18,15 @@ _LOOKUPS_URL = f"{TEAMS_API_GATEWAY}{TEAMS_LOOKUPS_PATH}"
 
 
 def _lookups_payload(data: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
-    """Wrap category data in the standard teams API envelope."""
+    """Wrap category data in the standard teams API envelope.
+
+    Args:
+        data (dict[str, list[dict[str, Any]]]): Category data dictionary.
+
+    Returns:
+        dict[str, Any]: Envelope response dictionary.
+
+    """
     return {"success": True, "data": data}
 
 

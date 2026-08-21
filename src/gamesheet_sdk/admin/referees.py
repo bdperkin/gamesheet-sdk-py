@@ -134,19 +134,19 @@ def get_referee(session: Session, season_id: str, referee_id: str) -> Referee:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
     if response.status_code == HTTPStatus.NOT_FOUND:
-        _err_msg = errors.ERROR_MSG_404_REFEREE_IN_SEASON.format(
+        err_msg = errors.ERROR_MSG_404_REFEREE_IN_SEASON.format(
             referee_id=referee_id,
             season_id=season_id,
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     if response.status_code >= HTTPStatus.BAD_REQUEST:
-        _err_msg = errors.ERROR_MSG_HTTP_GET.format(
+        err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=endpoint,
             status_code=response.status_code,
             text=repr(response.text[:200]),
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     body: dict[str, Any] = response.json()
     return _parse(body["data"])
@@ -181,11 +181,11 @@ def get_referee_report(
     # First, get the referee to obtain the external_id
     referee = get_referee(session, season_id, referee_id)
     if not referee.external_id:
-        _err_msg = (
+        err_msg = (
             f"Referee '{referee_id}' does not have an external_id set. "
             f"Cannot fetch report without external_id."
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
     # Now fetch the report using the external_id
     endpoint = f"/api/reports/referees/{referee.external_id}"
     response = session.get(endpoint)
@@ -193,18 +193,18 @@ def get_referee_report(
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
     if response.status_code == HTTPStatus.NOT_FOUND:
-        _err_msg = errors.ERROR_MSG_404_REFEREE_REPORT.format(
+        err_msg = errors.ERROR_MSG_404_REFEREE_REPORT.format(
             external_id=referee.external_id,
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     if response.status_code >= HTTPStatus.BAD_REQUEST:
-        _err_msg = errors.ERROR_MSG_HTTP_GET.format(
+        err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=endpoint,
             status_code=response.status_code,
             text=repr(response.text[:200]),
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     body: dict[str, Any] = response.json()
     # Parse the report response
@@ -322,19 +322,19 @@ def update_referee(  # noqa: C901
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
     if get_response.status_code == HTTPStatus.NOT_FOUND:
-        _err_msg = errors.ERROR_MSG_404_REFEREE_IN_SEASON.format(
+        err_msg = errors.ERROR_MSG_404_REFEREE_IN_SEASON.format(
             referee_id=referee_id,
             season_id=season_id,
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     if get_response.status_code >= HTTPStatus.BAD_REQUEST:
-        _err_msg = errors.ERROR_MSG_HTTP_GET.format(
+        err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=get_endpoint,
             status_code=get_response.status_code,
             text=repr(get_response.text[:200]),
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     current_attrs = get_response.json().get("data", {}).get("attributes", {})
     # Build updated attributes, preserving current values for unchanged fields
@@ -373,19 +373,19 @@ def update_referee(  # noqa: C901
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
     if response.status_code == HTTPStatus.NOT_FOUND:
-        _err_msg = errors.ERROR_MSG_404_REFEREE_IN_SEASON.format(
+        err_msg = errors.ERROR_MSG_404_REFEREE_IN_SEASON.format(
             referee_id=referee_id,
             season_id=season_id,
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     if response.status_code >= HTTPStatus.BAD_REQUEST:
-        _err_msg = errors.ERROR_MSG_HTTP_PATCH.format(
+        err_msg = errors.ERROR_MSG_HTTP_PATCH.format(
             endpoint=patch_endpoint,
             status_code=response.status_code,
             text=repr(response.text[:200]),
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     body: dict[str, Any] = response.json()
     return _parse(body["data"])
@@ -421,19 +421,19 @@ def delete_referee(
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
     if response.status_code == HTTPStatus.NOT_FOUND:
-        _err_msg = (
+        err_msg = (
             f"Referee '{referee_id}' not found in season '{season_id}' (HTTP 404). "
             f"Make sure you're using a valid referee ID and season ID."
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     if response.status_code >= HTTPStatus.BAD_REQUEST:
-        _err_msg = errors.ERROR_MSG_HTTP_DELETE.format(
+        err_msg = errors.ERROR_MSG_HTTP_DELETE.format(
             endpoint=endpoint,
             status_code=response.status_code,
             text=repr(response.text[:200]),
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
 
 def list_referees(session: Session, season_id: str) -> list[Referee]:

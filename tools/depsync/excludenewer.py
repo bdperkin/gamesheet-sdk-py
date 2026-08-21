@@ -272,9 +272,6 @@ def parse_policy(pyproject_path: Path) -> ExcludeNewerPolicy | None:
         ExcludeNewerPolicy | None: The declared policy, or None when no cutoff is declared or its value cannot
             be interpreted. Both cases mean there is nothing to manage, so neither is an error.
 
-    Raises:
-        ParseError: If ``pyproject.toml`` cannot be read.
-
     """
     uv_table = _uv_table(_read_pyproject(pyproject_path))
     raw = (uv_table or {}).get(EXCLUDE_NEWER_KEY)
@@ -298,9 +295,6 @@ def current_entries(pyproject_path: Path) -> dict[str, str]:
     Returns:
         dict[str, str]: Mapping of normalized package name to the value as written.
 
-    Raises:
-        ParseError: If ``pyproject.toml`` cannot be read.
-
     """
     uv_table = _uv_table(_read_pyproject(pyproject_path))
     declared = (uv_table or {}).get(EXCLUDE_NEWER_PACKAGE_KEY) or {}
@@ -317,9 +311,6 @@ def _pyproject_pins(pyproject_path: Path) -> dict[str, str]:
 
     Returns:
         dict[str, str]: Mapping of package name to pinned version, for dependencies written as ``name==ver``.
-
-    Raises:
-        ParseError: If ``pyproject.toml`` cannot be read.
 
     """
     return {
@@ -390,9 +381,6 @@ def collect_versions(
         dict[str, str | None]: Package name to the version to judge it against. A None value marks an entry
             whose package has left the dependency graph entirely. Packages omitted from the mapping are left
             untouched.
-
-    Raises:
-        ParseError: If ``pyproject.toml`` cannot be read.
 
     """
     versions: dict[str, str | None] = {}

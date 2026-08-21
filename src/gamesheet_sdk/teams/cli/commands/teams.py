@@ -215,6 +215,9 @@ def teams_update_command(
         output_path (str | None): Optional output file path.
         fields_spec (str | None): Optional comma-separated list of fields to display.
 
+    Raises:
+        Exit: If no fields are provided for update.
+
     """
     if all(v is None for v in (team_name, skill, team_logo, age_category, province)):
         click.secho(

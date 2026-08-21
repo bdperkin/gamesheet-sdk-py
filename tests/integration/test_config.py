@@ -22,7 +22,7 @@ def test_defaults() -> None:
     assert cfg.base_url == DEFAULT_BASE_URL
     assert cfg.username is None
     assert cfg.password is None
-    assert cfg.timeout == 30.0
+    assert cfg.timeout == pytest.approx(30.0)
     assert cfg.request_retries == 3
     assert cfg.verify_ssl
     assert cfg.user_agent is None
@@ -32,7 +32,7 @@ def test_init_kwargs_override_defaults() -> None:
     """Test that __init__ keyword arguments override default values."""
     cfg = Config(base_url="https://example.test", timeout=5.0, request_retries=0)
     assert cfg.base_url == "https://example.test"
-    assert cfg.timeout == 5.0
+    assert cfg.timeout == pytest.approx(5.0)
     assert not cfg.request_retries
 
 
@@ -45,7 +45,7 @@ def test_env_vars_are_picked_up(monkeypatch: pytest.MonkeyPatch) -> None:
     assert cfg.username == "alice"
     assert cfg.password is not None
     assert cfg.password.get_secret_value() == "hunter2"
-    assert cfg.timeout == 10.0
+    assert cfg.timeout == pytest.approx(10.0)
 
 
 def test_init_kwargs_override_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:

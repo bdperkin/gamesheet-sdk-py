@@ -58,6 +58,9 @@ def login_command(
         password (str | None): Password for login, or ``None`` to prompt interactively.
         timeout (int): Page-load timeout in milliseconds.
 
+    Raises:
+        Exit: If authentication fails.
+
     """
     config: Config = ctx.obj
     try:

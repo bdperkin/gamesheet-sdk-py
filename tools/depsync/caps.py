@@ -37,7 +37,6 @@ from depsync.fetchers import fetch_pypi_versions, resolve_latest_version
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
 
-    from packaging.version import Version as VersionType
     from shared.pip_config import PipConfig
 
 logger = logging.getLogger(__name__)
@@ -72,7 +71,7 @@ def detect_capped_pins(
     index_url: str | None = None,
     extra_index_urls: Sequence[str] = (),
     pip_config: PipConfig | None = None,
-    min_python: VersionType | None = None,
+    min_python: Version | None = None,
 ) -> dict[str, str]:
     """Find pins that ``uv`` resolved below the newest release available.
 
@@ -82,7 +81,7 @@ def detect_capped_pins(
         index_url (str | None): Optional PEP 503 index URL to query first.
         extra_index_urls (Sequence[str]): Additional PEP 503 index URLs.
         pip_config (PipConfig | None): Pip configuration for SSL settings.
-        min_python (VersionType | None): Minimum Python version, so a release that dropped support for it is
+        min_python (Version | None): Minimum Python version, so a release that dropped support for it is
             not mistaken for an available upgrade.
 
     Returns:

@@ -301,7 +301,7 @@ def referees_update_command(
         output_path (str | None): Optional output file path
 
     Raises:
-        click.UsageError: If no fields are provided for update
+        UsageError: If no fields are provided for update
 
     """
     # Validate that at least one field is provided

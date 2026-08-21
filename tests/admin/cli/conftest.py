@@ -11,5 +11,10 @@ from click.testing import CliRunner
 
 @pytest.fixture
 def runner() -> CliRunner:
-    """Return a Click CLI test runner."""
+    """Return a Click CLI test runner.
+
+    Returns:
+        CliRunner: Click CLI test runner instance.
+
+    """
     return CliRunner()

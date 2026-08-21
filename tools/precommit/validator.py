@@ -88,9 +88,7 @@ def _run_pre_commit(
         if detail:
             msg = f"{msg}:\n{detail}"
 
-        err = PreCommitValidationError(msg)
-        err.exit_code = result.returncode or 1
-        raise err
+        raise PreCommitValidationError(msg)
 
 
 def _clear_backup(backup_path: Path) -> None:

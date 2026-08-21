@@ -46,7 +46,18 @@ def _render_category(
     output_format: str,
     output_path: str | None,
 ) -> None:
-    """Render values for a single category."""
+    """Render values for a single category.
+
+    Args:
+        lookups (dict[str, list[LookupValue]]): Parsed lookups mapping.
+        category (str): Target lookup category name.
+        output_format (str): Desired output format.
+        output_path (str | None): Optional output file path.
+
+    Raises:
+        Exit: If the requested category does not exist in lookups.
+
+    """
     if category not in lookups:
         available = ", ".join(sorted(lookups))
         click.secho(
@@ -67,7 +78,7 @@ def _render_summary(
     output_path: str | None,
 ) -> None:
     """Render a summary of all categories."""
-    if output_format in ("json", "yaml"):
+    if output_format in {"json", "yaml"}:
         full = {cat: [v.model_dump(mode="json") for v in vals] for cat, vals in lookups.items()}
         rendered = render([full], fmt=output_format)
     else:
@@ -117,6 +128,9 @@ def get_command(
         category (str): Category name to retrieve.
         output_format (str): Output format (json, yaml, csv, tsv, or tabulate format).
         output_path (str | None): Optional file path to write output to.
+
+    Raises:
+        Exit: If fetching lookups fails.
 
     """
     config: Config = ctx.obj
@@ -170,6 +184,9 @@ def list_command(
         category (str | None): Optional category name to filter to.
         output_format (str): Output format (json, yaml, csv, tsv, or tabulate format).
         output_path (str | None): Optional file path to write output to.
+
+    Raises:
+        Exit: If fetching lookups fails.
 
     """
     config: Config = ctx.obj

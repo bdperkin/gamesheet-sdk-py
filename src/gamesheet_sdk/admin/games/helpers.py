@@ -41,9 +41,6 @@ def _make_request(
     Returns:
         list[Game]: A list of :class:`Game` objects.
 
-    Raises:
-        GameSheetError: For any non-2xx response.
-
     """
     params: dict[str, Any] = {
         "filter[seasons]": season_id,

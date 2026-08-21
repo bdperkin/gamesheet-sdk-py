@@ -214,6 +214,7 @@ def teams_create_command(
 @click.option(
     "--team-id",
     type=str,
+    envvar="GAMESHEET_TEAM_ID",
     required=True,
     help="Team ID to update.",
 )
@@ -276,6 +277,7 @@ def teams_update_command(
 @click.option(
     "--team-id",
     type=str,
+    envvar="GAMESHEET_TEAM_ID",
     required=True,
     help="Team ID to delete.",
 )

@@ -20,7 +20,12 @@ __all__ = ["_FIREBASE_URL", "_TOKEN_URL", "_make_response", "fake_browser_sessio
 
 
 def _make_response(url: str, status: int, body: object = None) -> MagicMock:
-    """Build a MagicMock that quacks like a playwright Response."""
+    """Build a MagicMock that quacks like a playwright Response.
+
+    Returns:
+        MagicMock: Mocked Playwright response object.
+
+    """
     r = MagicMock(name=f"response[{url}]")
     r.url = url
     r.status = status
@@ -42,6 +47,10 @@ def fake_browser_session(config: Config) -> MagicMock:
 
     The page's ``click`` is wired to fire whatever responses the test has staged via the ``staged_responses``
     attribute; the test sets that list to control what arrives after submit.
+
+    Returns:
+        MagicMock: Mocked BrowserSession instance.
+
     """
     sess = MagicMock(spec=BrowserSession)
     sess.config = config

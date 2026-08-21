@@ -18,7 +18,12 @@ from tests.helpers import TEST_EMAIL_MINIMAL
 
 
 def _firebase_ok(id_token: str = "firebase-id-tok") -> MagicMock:  # noqa: S107
-    """Build a mock response for a successful Firebase sign-in."""
+    """Build a mock response for a successful Firebase sign-in.
+
+    Returns:
+        MagicMock: Mock response object.
+
+    """
     resp = MagicMock()
     resp.status_code = 200
     resp.json.return_value = {"idToken": id_token}
@@ -29,7 +34,12 @@ def _firebase_error(
     status: int,
     body: dict[str, Any] | None = None,
 ) -> MagicMock:
-    """Build a mock response for a failed Firebase sign-in."""
+    """Build a mock response for a failed Firebase sign-in.
+
+    Returns:
+        MagicMock: Mock response object.
+
+    """
     resp = MagicMock()
     resp.status_code = status
     if body is not None:
@@ -44,7 +54,12 @@ def _token_exchange_ok(
     access: str = "access-tok",
     refresh: str = "refresh-tok",
 ) -> MagicMock:
-    """Build a mock response for a successful token exchange."""
+    """Build a mock response for a successful token exchange.
+
+    Returns:
+        MagicMock: Mock response object.
+
+    """
     resp = MagicMock()
     resp.status_code = 200
     resp.json.return_value = {
@@ -55,7 +70,12 @@ def _token_exchange_ok(
 
 
 def _token_exchange_error(status: int) -> MagicMock:
-    """Build a mock response for a failed token exchange."""
+    """Build a mock response for a failed token exchange.
+
+    Returns:
+        MagicMock: Mock response object.
+
+    """
     resp = MagicMock()
     resp.status_code = status
     return resp

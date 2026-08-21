@@ -38,7 +38,7 @@ def render_get_command(
         if fields:
             data_dict = {k: v for k, v in data_dict.items() if k in fields}
     # Render as key-value rows for tabular formats
-    if output_format not in ("json", "yaml"):
+    if output_format not in {"json", "yaml"}:
         rows = [{"field": k, "value": v} for k, v in data_dict.items()]
         rendered = render(rows, fmt=output_format, columns=None)
     else:
