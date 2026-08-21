@@ -91,6 +91,25 @@ def test_session_path_default_uses_xdg_cache_home(
     assert cfg.session_path == tmp_path / "gamesheet-sdk-py" / "session.json"
 
 
+def test_default_paths_fall_back_to_home_cache(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """Test that unsetting XDG_CACHE_HOME falls back to ``~/.cache``.
+
+    The autouse ``_isolate_sdk_cache`` fixture always sets ``XDG_CACHE_HOME``, so this is the only test
+    that exercises the fallback arm of that lookup.
+    """
+    monkeypatch.delenv("XDG_CACHE_HOME", raising=False)
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
+
+    cfg = Config()
+
+    assert cfg.session_path == tmp_path / ".cache" / "gamesheet-sdk-py" / "session.json"
+    assert cfg.browser_state_path == tmp_path / ".cache" / "gamesheet-sdk-py" / "browser-state.json"
+
+
 def test_session_path_explicit_override(tmp_path: Path) -> None:
     """Test that session_path can be explicitly overridden."""
     p = tmp_path / "custom" / "session.json"

@@ -25,6 +25,22 @@ def _clear_gamesheet_env(monkeypatch: pytest.MonkeyPatch) -> None:
             monkeypatch.delenv(key, raising=False)
 
 
+@pytest.fixture(autouse=True)
+def _isolate_sdk_cache(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """Point the SDK's cache directory at a per-test tmp dir.
+
+    :class:`~gamesheet_sdk.common.config.Config` resolves ``session_path`` and ``browser_state_path``
+    from ``XDG_CACHE_HOME`` (falling back to ``~/.cache``) each time it is constructed, so a test that
+    builds a bare ``Config()`` otherwise reads whatever the developer running it happens to have logged
+    in. That makes the suite pass locally down a logged-in code path CI never takes, which is how the
+    pre-auth regression fixed in #234 stayed invisible until it hit CI.
+
+    Redirecting the whole cache directory covers both paths and any future state the SDK persists there,
+    and keeps the state writable for tests that exercise saving a session.
+    """
+    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path / "xdg-cache"))
+
+
 @pytest.fixture
 def config(tmp_path: Path) -> Config:
     """Build a Config that keeps all on-disk state inside a per-test tmp dir.
