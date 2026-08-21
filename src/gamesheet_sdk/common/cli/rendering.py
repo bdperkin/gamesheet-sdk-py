@@ -19,7 +19,7 @@ def render_get_command(
     data: dict[str, Any] | BaseModel,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None = None,
+    columns_spec: str | None = None,
 ) -> None:
     """Render get command output (single object as key-value pairs).
 
@@ -27,14 +27,14 @@ def render_get_command(
         data (dict[str, Any] | BaseModel): The object to render (dict or pydantic model)
         output_format (str): Output format (json, yaml, csv, tsv, or tabulate format)
         output_path (str | None): Optional file path to write output to
-        fields_spec (str | None): Optional comma-separated field names to include
+        columns_spec (str | None): Optional comma-separated column names to include
 
     """
     # Convert pydantic model to dict if needed
     data_dict = data.model_dump(mode="json") if isinstance(data, BaseModel) else data
     # Filter fields if specified
-    if fields_spec:
-        fields = parse_columns_spec(fields_spec)
+    if columns_spec:
+        fields = parse_columns_spec(columns_spec)
         if fields:
             data_dict = {k: v for k, v in data_dict.items() if k in fields}
     # Render as key-value rows for tabular formats

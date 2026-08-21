@@ -13,9 +13,8 @@ from rich_click import Context
 
 from gamesheet_sdk.common.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.common.cli.decorators import (
+    columns_option,
     common_output_options,
-    get_fields_option,
-    list_columns_option,
 )
 from gamesheet_sdk.common.cli.rendering import (
     render_get_command,
@@ -70,7 +69,7 @@ def teams_group() -> None:
 
 @teams_group.command("list")
 @common_output_options
-@list_columns_option
+@columns_option
 @click.pass_context
 def teams_list_command(
     ctx: Context,
@@ -110,14 +109,14 @@ def teams_list_command(
     help="Team ID to retrieve details for.",
 )
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def teams_get_command(
     ctx: Context,
     team_id: str,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
 ) -> None:
     r"""Get detailed metadata for a specific team.
 
@@ -128,7 +127,7 @@ def teams_get_command(
         team_id (str): Team identifier.
         output_format (str): Output format for rendering.
         output_path (str | None): Optional output file path.
-        fields_spec (str | None): Optional comma-separated list of fields to display.
+        columns_spec (str | None): Optional comma-separated list of columns to display.
 
     """
     config: Config = ctx.obj
@@ -139,7 +138,7 @@ def teams_get_command(
         team_id,
         timeout=config.timeout,
     )
-    render_get_command(team, output_format, output_path, fields_spec)
+    render_get_command(team, output_format, output_path, columns_spec)
 
 
 @teams_group.command("update")
@@ -184,7 +183,7 @@ def teams_get_command(
     help="Province or state code (e.g., VA, ON).",
 )
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def teams_update_command(
     ctx: Context,
@@ -196,7 +195,7 @@ def teams_update_command(
     province: str | None,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
 ) -> None:
     r"""Update an existing team's metadata.
 
@@ -213,7 +212,7 @@ def teams_update_command(
         province (str | None): Optional new province/state code.
         output_format (str): Output format for rendering.
         output_path (str | None): Optional output file path.
-        fields_spec (str | None): Optional comma-separated list of fields to display.
+        columns_spec (str | None): Optional comma-separated list of columns to display.
 
     Raises:
         Exit: If no fields are provided for update.
@@ -241,7 +240,7 @@ def teams_update_command(
         province=province,
         timeout=config.timeout,
     )
-    render_get_command(team, output_format, output_path, fields_spec)
+    render_get_command(team, output_format, output_path, columns_spec)
 
 
 @teams_group.command("archive")
@@ -254,14 +253,14 @@ def teams_update_command(
     help="Team ID to archive.",
 )
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def teams_archive_command(
     ctx: Context,
     team_id: str,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
 ) -> None:
     r"""Archive a team.
 
@@ -273,7 +272,7 @@ def teams_archive_command(
         team_id (str): Team identifier to archive.
         output_format (str): Output format for rendering.
         output_path (str | None): Optional output file path.
-        fields_spec (str | None): Optional comma-separated list of fields to display.
+        columns_spec (str | None): Optional comma-separated list of columns to display.
 
     """
     config: Config = ctx.obj
@@ -284,7 +283,7 @@ def teams_archive_command(
         team_id,
         timeout=config.timeout,
     )
-    render_get_command(team, output_format, output_path, fields_spec)
+    render_get_command(team, output_format, output_path, columns_spec)
 
 
 @teams_group.command("restore")
@@ -297,14 +296,14 @@ def teams_archive_command(
     help="Team ID to restore.",
 )
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def teams_restore_command(
     ctx: Context,
     team_id: str,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
 ) -> None:
     r"""Restore an archived team back to active lists.
 
@@ -315,7 +314,7 @@ def teams_restore_command(
         team_id (str): Team identifier to restore.
         output_format (str): Output format for rendering.
         output_path (str | None): Optional output file path.
-        fields_spec (str | None): Optional comma-separated list of fields to display.
+        columns_spec (str | None): Optional comma-separated list of columns to display.
 
     """
     config: Config = ctx.obj
@@ -326,7 +325,7 @@ def teams_restore_command(
         team_id,
         timeout=config.timeout,
     )
-    render_get_command(team, output_format, output_path, fields_spec)
+    render_get_command(team, output_format, output_path, columns_spec)
 
 
 @teams_group.command("delete")

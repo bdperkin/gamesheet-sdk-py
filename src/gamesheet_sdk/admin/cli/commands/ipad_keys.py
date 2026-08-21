@@ -33,8 +33,8 @@ from gamesheet_sdk.admin.cli.helpers import (
     run_action_or_exit,
 )
 from gamesheet_sdk.admin.cli.shared import (
+    columns_option,
     common_output_options,
-    list_columns_option,
     render_list_command,
 )
 from gamesheet_sdk.admin.ipad_keys import list_ipad_keys as _list_ipad_keys_action
@@ -75,7 +75,7 @@ def ipad_keys_group() -> None:
     help="Season ID to retrieve iPad keys for.",
 )
 @common_output_options
-@list_columns_option
+@columns_option
 @click.pass_context
 def ipad_keys_get_command(
     ctx: Context,

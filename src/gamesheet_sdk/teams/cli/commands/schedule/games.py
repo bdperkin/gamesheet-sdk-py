@@ -17,10 +17,8 @@ from rich_click import Context
 
 from gamesheet_sdk.common.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.common.cli.decorators import (
+    columns_option,
     common_output_options,
-    fields_option,
-    get_fields_option,
-    list_columns_option,
 )
 from gamesheet_sdk.common.cli.game_options import (
     game_detail_options,
@@ -65,7 +63,7 @@ def games_group() -> None:
 @game_side_options
 @game_detail_options(required=True)
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def games_create_command(ctx: Context, **params: Any) -> None:
     r"""Create a new scheduled game.
@@ -86,7 +84,7 @@ def games_create_command(ctx: Context, **params: Any) -> None:
 @list_filter_options(team_required=True)
 @season_id_option(required=False)
 @common_output_options
-@list_columns_option
+@columns_option
 @click.pass_context
 def games_list_command(ctx: Context, **params: Any) -> None:
     r"""List scheduled games for a team.
@@ -106,7 +104,7 @@ def games_list_command(ctx: Context, **params: Any) -> None:
 @season_id_option(required=False)
 @availability_options()
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def games_get_command(ctx: Context, **params: Any) -> None:
     r"""Show details for a scheduled game.
@@ -128,7 +126,7 @@ def games_get_command(ctx: Context, **params: Any) -> None:
 @game_id_option
 @season_id_option(required=False)
 @common_output_options
-@fields_option(short=False)
+@columns_option
 @confirm_destructive("this scheduled game")
 @click.pass_context
 def games_delete_command(ctx: Context, **params: Any) -> None:
@@ -155,7 +153,7 @@ def games_delete_command(ctx: Context, **params: Any) -> None:
 @game_side_options
 @game_detail_options(required=False)
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def games_update_command(ctx: Context, **params: Any) -> None:
     r"""Update a scheduled game.

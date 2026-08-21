@@ -539,7 +539,7 @@ def test_schedule_get_help(runner: CliRunner) -> None:
     assert "--event-id" in result.output
     assert "--type" in result.output
     assert "--availability" in result.output
-    assert "--fields" in result.output
+    assert "--columns" in result.output
 
 
 def test_schedule_get_command(runner: CliRunner) -> None:
@@ -605,7 +605,7 @@ def test_schedule_get_json_and_yaml(runner: CliRunner) -> None:
 
 
 def test_schedule_get_fields_and_availability(runner: CliRunner) -> None:
-    """Test `schedule get -e evt-101 --fields ... --availability`."""
+    """Test `schedule get -e evt-101 --columns ... --availability`."""
     with (
         patch(
             "gamesheet_sdk.teams.cli.commands.schedule.main.build_authenticated_session",
@@ -623,7 +623,7 @@ def test_schedule_get_fields_and_availability(runner: CliRunner) -> None:
                 "get",
                 "-e",
                 "evt-101",
-                "--fields",
+                "--columns",
                 "eventTitle,eventLocation",
                 "--availability",
                 "-t",

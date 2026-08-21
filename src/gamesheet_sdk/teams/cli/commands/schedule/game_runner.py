@@ -162,7 +162,7 @@ def run_create(ctx: Context, params: dict[str, Any]) -> None:
         time_zone_offset=tz_offset,
         timeout=config.timeout,
     )
-    render_get_command(created, args.output_format, args.output_path, args.fields_spec)
+    render_get_command(created, args.output_format, args.output_path, args.columns_spec)
 
 
 def _current_game(
@@ -350,7 +350,7 @@ def run_update(ctx: Context, params: dict[str, Any]) -> None:
         time_zone_offset=tz_offset,
         timeout=config.timeout,
     )
-    render_get_command(result, args.output_format, args.output_path, args.fields_spec)
+    render_get_command(result, args.output_format, args.output_path, args.columns_spec)
 
 
 def run_get(ctx: Context, params: dict[str, Any]) -> None:
@@ -372,7 +372,7 @@ def run_get(ctx: Context, params: dict[str, Any]) -> None:
         team_id=params.get("team_id"),
         timeout=config.timeout,
     )
-    render_get_command(game_detail, args.output_format, args.output_path, args.fields_spec)
+    render_get_command(game_detail, args.output_format, args.output_path, args.columns_spec)
 
 
 def run_list(ctx: Context, params: dict[str, Any]) -> None:
@@ -416,7 +416,7 @@ def run_delete(ctx: Context, params: dict[str, Any]) -> None:
         timeout=config.timeout,
     )
     if args.output_format in {"json", "yaml"}:
-        render_get_command(result, args.output_format, args.output_path, args.fields_spec)
+        render_get_command(result, args.output_format, args.output_path, args.columns_spec)
     else:
         click.echo(f"Successfully deleted game {game_id}")
 

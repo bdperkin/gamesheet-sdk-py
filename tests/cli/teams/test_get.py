@@ -41,7 +41,7 @@ def test_teams_get(runner: CliRunner) -> None:
 
 
 def test_teams_get_with_fields(runner: CliRunner) -> None:
-    """The teams get command should support --fields and JSON format."""
+    """The teams get command should support --columns and JSON format."""
     with (
         patch("gamesheet_sdk.admin.cli.commands.teams._get_team_action") as mock_action,
         patch("gamesheet_sdk.admin.cli.helpers.load_refresh_token", return_value="tok"),
@@ -63,7 +63,7 @@ def test_teams_get_with_fields(runner: CliRunner) -> None:
                 SEASON_ID,
                 "--team-id",
                 "401",
-                "--fields",
+                "--columns",
                 "id",
                 "--format",
                 "json",
@@ -96,7 +96,7 @@ def test_teams_get_empty_fields(runner: CliRunner) -> None:
                 SEASON_ID,
                 "--team-id",
                 "401",
-                "--fields",
+                "--columns",
                 ",",
             ],
         )

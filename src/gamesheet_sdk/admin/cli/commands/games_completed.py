@@ -16,9 +16,8 @@ from gamesheet_sdk.admin.cli.helpers import (
     run_action_or_exit,
 )
 from gamesheet_sdk.admin.cli.shared import (
+    columns_option,
     common_output_options,
-    get_fields_option,
-    list_columns_option,
     render_get_command,
     render_list_command,
 )
@@ -70,14 +69,14 @@ def completed_group() -> None:
     help="Game ID to retrieve.",
 )
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def completed_get_command(
     ctx: Context,
     game_id: str,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
 ) -> None:
     r"""Get detailed information about a completed game.
 
@@ -88,7 +87,7 @@ def completed_get_command(
         game_id (str): The game identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        fields_spec (str | None): Optional comma-separated list of fields to display
+        columns_spec (str | None): Optional comma-separated list of columns to display
 
     """
     ctx_data = ctx.obj
@@ -96,12 +95,12 @@ def completed_get_command(
     season_id = resolve_season_id(ctx, None)
     session = build_authenticated_session(config)
     game = run_action_or_exit(session, _get_completed_game_action, season_id, game_id)
-    render_get_command(game, output_format, output_path, fields_spec)
+    render_get_command(game, output_format, output_path, columns_spec)
 
 
 @completed_group.command("list")
 @common_output_options
-@list_columns_option
+@columns_option
 @click.pass_context
 def completed_list_command(
     ctx: Context,

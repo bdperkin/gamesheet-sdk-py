@@ -438,7 +438,6 @@ class GameArgs:
         visitor_label (str | None): ``--visitor-label``; admin-only.
         output_format (str): ``--format`` / ``-F``.
         output_path (str | None): ``--output`` / ``-o``.
-        fields_spec (str | None): ``--fields``.
         columns_spec (str | None): ``--columns`` / ``-c``.
 
     """
@@ -459,7 +458,6 @@ class GameArgs:
     visitor_label: str | None
     output_format: str
     output_path: str | None
-    fields_spec: str | None
     columns_spec: str | None
 
 
@@ -537,7 +535,6 @@ def parse_game_args(params: Mapping[str, Any]) -> GameArgs:
         visitor_label=params.get("visitor_label"),
         output_format=params.get("output_format", "simple"),
         output_path=params.get("output_path"),
-        fields_spec=params.get("fields_spec"),
         columns_spec=params.get("columns_spec"),
     )
 

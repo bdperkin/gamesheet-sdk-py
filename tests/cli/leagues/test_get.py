@@ -43,7 +43,7 @@ def test_leagues_get(runner: CliRunner) -> None:
 
 
 def test_leagues_get_with_fields(runner: CliRunner) -> None:
-    """The leagues get command should support --fields and JSON format."""
+    """The leagues get command should support --columns and JSON format."""
     with (
         patch(
             "gamesheet_sdk.admin.cli.commands.leagues._get_league_action",
@@ -67,7 +67,7 @@ def test_leagues_get_with_fields(runner: CliRunner) -> None:
                 "1001",
                 "--league-id",
                 "201",
-                "--fields",
+                "--columns",
                 "id",
                 "--format",
                 "json",
@@ -102,7 +102,7 @@ def test_leagues_get_empty_fields(runner: CliRunner) -> None:
                 "1001",
                 "--league-id",
                 "201",
-                "--fields",
+                "--columns",
                 ",",
             ],
         )

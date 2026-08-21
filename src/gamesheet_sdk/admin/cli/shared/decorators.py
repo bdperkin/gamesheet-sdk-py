@@ -17,17 +17,15 @@ from gamesheet_sdk.admin.cli.constants import (
     HELP_UPDATED_LAST_NAME,
 )
 from gamesheet_sdk.common.cli.decorators import (
+    columns_option,
     common_output_options,
-    get_fields_option,
-    list_columns_option,
 )
 
 F = TypeVar("F", bound=Callable[..., object])
 
 __all__ = [
+    "columns_option",
     "common_output_options",
-    "get_fields_option",
-    "list_columns_option",
     "player_update_options",
     "team_create_options",
     "team_update_options",

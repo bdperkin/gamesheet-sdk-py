@@ -12,9 +12,8 @@ import rich_click as click
 from pydantic import BaseModel
 
 from gamesheet_sdk.admin.cli.shared import (
+    columns_option,
     common_output_options,
-    get_fields_option,
-    list_columns_option,
     render_get_command,
     render_list_command,
 )
@@ -42,10 +41,10 @@ def test_common_output_options_decorator() -> None:
     assert "output_path" in params
 
 
-def test_list_columns_option_decorator() -> None:
-    """Test that list_columns_option adds --columns option."""
+def test_columns_option_decorator() -> None:
+    """Test that columns_option adds --columns option."""
 
-    @list_columns_option
+    @columns_option
     @click.command()
     def dummy_command(columns_spec: str | None) -> None:
         _ = columns_spec
@@ -53,19 +52,6 @@ def test_list_columns_option_decorator() -> None:
     # Check that the command has the columns_spec parameter
     params = {p.name for p in dummy_command.params}
     assert "columns_spec" in params
-
-
-def test_get_fields_option_decorator() -> None:
-    """Test that get_fields_option adds --fields option."""
-
-    @get_fields_option
-    @click.command()
-    def dummy_command(fields_spec: str | None) -> None:
-        _ = fields_spec
-
-    # Check that the command has the fields_spec parameter
-    params = {p.name for p in dummy_command.params}
-    assert "fields_spec" in params
 
 
 def test_render_get_command_with_dict() -> None:
@@ -78,8 +64,8 @@ def test_render_get_command_with_dict() -> None:
     assert "Test" in content
 
 
-def test_render_get_command_with_fields_filter() -> None:
-    """Test render_get_command with fields filter."""
+def test_render_get_command_with_columns_filter() -> None:
+    """Test render_get_command with columns filter."""
     output_file = Path(tempfile.gettempdir()) / "output.json"
     data = {"id": ASSOCIATION_ID, "name": "Test", "extra": "Should be filtered"}
     render_get_command(data, "json", str(output_file), "id,name")
@@ -151,11 +137,11 @@ def test_render_list_command_with_pydantic_models() -> None:
     assert "Model Two" in content
 
 
-def test_render_get_command_with_whitespace_fields_spec() -> None:
-    """Test render_get_command with whitespace-only fields_spec (no filtering)."""
+def test_render_get_command_with_whitespace_columns_spec() -> None:
+    """Test render_get_command with whitespace-only columns_spec (no filtering)."""
     output_file = Path(tempfile.gettempdir()) / "output.json"
     data = {"id": "999", "name": "Test", "extra": "Should appear"}
-    # Whitespace-only fields_spec should not filter (parse_columns_spec returns None)
+    # Whitespace-only columns_spec should not filter (parse_columns_spec returns None)
     render_get_command(data, "json", str(output_file), "   ")
     content = output_file.read_text()
     assert "999" in content

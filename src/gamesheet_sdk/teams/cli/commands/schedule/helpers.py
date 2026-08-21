@@ -546,7 +546,7 @@ def handle_occurrence_delete(
     delete_action: Callable[..., Any],
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
     *,
     force: bool,
     scope_flags: list[bool] | None,
@@ -565,7 +565,7 @@ def handle_occurrence_delete(
         delete_action (Callable[..., Any]): Delete API action callable.
         output_format (str): Output format string ('plain', 'json', 'yaml').
         output_path (str | None): Optional output file path.
-        fields_spec (str | None): Optional fields spec string.
+        columns_spec (str | None): Optional columns spec string.
         force (bool): Bypass confirmation prompt.
         scope_flags (bool): Whether scope flags were supplied.
         all_occurrences (bool): Delete all occurrences flag.
@@ -595,7 +595,7 @@ def handle_occurrence_delete(
         timeout=timeout,
     )
     if output_format in {"json", "yaml"}:
-        render_get_command(result, output_format, output_path, fields_spec)
+        render_get_command(result, output_format, output_path, columns_spec)
     elif use_result_message and result and hasattr(result, "message") and result.message:
         click.echo(result.message)
     else:
@@ -731,7 +731,7 @@ def run_occurrence_update(
     event_type: str | None,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
     *,
     title: str | None = None,
     notes: str | None = None,
@@ -761,7 +761,7 @@ def run_occurrence_update(
         event_type (str | None): Event type ('event', 'practice', etc.).
         output_format (str): Output format string ('plain', 'json', 'yaml').
         output_path (str | None): Optional output file path.
-        fields_spec (str | None): Optional fields spec string.
+        columns_spec (str | None): Optional columns spec string.
         title (str | None): Optional updated title.
         notes (str | None): Optional updated notes.
         location_name (str | None): Optional updated location name.
@@ -806,4 +806,4 @@ def run_occurrence_update(
         update_single=update_single,
         timeout=timeout,
     )
-    render_get_command(updated_occ, output_format, output_path, fields_spec)
+    render_get_command(updated_occ, output_format, output_path, columns_spec)

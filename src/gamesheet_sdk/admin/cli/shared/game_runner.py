@@ -237,7 +237,7 @@ def run_create(ctx: Context, params: dict[str, Any]) -> None:
         _text(args.home_label),
         _text(args.visitor_label),
     )
-    render_get_command(game, args.output_format, args.output_path, args.fields_spec)
+    render_get_command(game, args.output_format, args.output_path, args.columns_spec)
 
 
 def _current_game(
@@ -376,7 +376,7 @@ def run_update(ctx: Context, params: dict[str, Any]) -> None:
         _pick(args.home_label, attrs.data.home_label),
         _pick(args.visitor_label, attrs.data.visitor_label),
     )
-    render_get_command(updated, args.output_format, args.output_path, args.fields_spec)
+    render_get_command(updated, args.output_format, args.output_path, args.columns_spec)
 
 
 def run_get(ctx: Context, params: dict[str, Any]) -> None:
@@ -396,7 +396,7 @@ def run_get(ctx: Context, params: dict[str, Any]) -> None:
         season_id,
         str(args.game_id),
     )
-    render_get_command(game, args.output_format, args.output_path, args.fields_spec)
+    render_get_command(game, args.output_format, args.output_path, args.columns_spec)
 
 
 def run_list(ctx: Context, params: dict[str, Any]) -> None:
@@ -437,7 +437,7 @@ def run_delete(ctx: Context, params: dict[str, Any]) -> None:
     )
     if args.output_format in {"json", "yaml"}:
         result = {"success": True, "id": game_id, "message": f"Successfully deleted game {game_id}"}
-        render_get_command(result, args.output_format, args.output_path, args.fields_spec)
+        render_get_command(result, args.output_format, args.output_path, args.columns_spec)
     else:
         click.secho(f"Successfully deleted scheduled game {game_id}", fg="green")
 

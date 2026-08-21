@@ -23,8 +23,8 @@ from gamesheet_sdk.admin.cli.helpers import (
     run_action_or_exit,
 )
 from gamesheet_sdk.admin.cli.shared import (
+    columns_option,
     common_output_options,
-    list_columns_option,
     render_list_command,
 )
 from gamesheet_sdk.admin.referees import (
@@ -373,7 +373,7 @@ def referees_delete_command(
     help="Season ID to list referees for.",
 )
 @common_output_options
-@list_columns_option
+@columns_option
 @click.pass_context
 def referees_list_command(
     ctx: Context,

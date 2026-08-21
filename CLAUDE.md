@@ -467,8 +467,6 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   - **`--season-id` is accepted in two positions on admin.** The `games` group option is now optional and `resolve_season_id` falls back to it, so both
     `games --season-id 1 create` and `games create --season-id 1` work. The `scheduled` verbs are also promoted onto the group, so
     `gamesheet-admin games create` lines up with `gamesheet-teams schedule games create`.
-  - **`-f` means `--force` on `games delete`, on both CLIs.** `--fields` keeps `-f` everywhere else; `fields_option(short=False)` drops it just for `delete`,
-    where `confirm_destructive` owns the flag.
   - The two remaining asymmetries are genuine backend requirements, and both are "teams needs more": teams `create` requires `--season-id` (admin can inherit it
     from the group) and teams `list` requires `--team-id` (admin lists a whole season). A command line that satisfies teams therefore satisfies admin.
 
@@ -480,6 +478,19 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   **Layering note:** the real datetime helpers live in `common/cli/datetime_helpers.py` and `admin/cli/shared/datetime_helpers.py` re-exports them. It used to
   be the other way round; that inversion meant importing anything under `common.cli` from the teams CLI blew up with a circular import as soon as a second
   `common.cli` module depended on the helpers. Keep the implementation in `common`.
+
+  **One name per concept, one meaning per short flag.** Output subsetting is spelled `--columns` / `-c` on *every* command in both CLIs, whether the output is a
+  table (`list`) or a single object (`get`, `create`, `update`, `delete -F json`) — they are all "show me only these keys", and `common/cli/decorators.py` has a
+  single `columns_option` for it. There used to be a second spelling, `--fields` / `-f`, applied to the single-object commands; it did exactly the same thing
+  (both route through `parse_columns_spec`) and it took `-f`, so `-f` meant `--fields` on 37 commands and `--force` on 12. `--fields` is gone with no
+  deprecation alias.
+
+  `RESERVED_SHORT_FLAGS` in `tests/common/cli/test_option_conventions.py` pins the invariants by walking both shipped click trees: `-f` is always `--force`,
+  `-F` always `--format`, `-o` always `--output`, `--force` and `--columns` always offer their short flag, and `--fields` never comes back. Add a short flag to
+  that table when you reserve one.
+
+  **Known exception:** `gamesheet-teams lookups get` / `lookups list` bind `-c` to `--category`. Neither command has `--columns` today, so nothing collides, but
+  the mnemonic conflicts with the convention above.
 
   **Tab-completion.** `gamesheet-admin completion {bash,zsh,fish}` (and `gamesheet-teams completion {bash,zsh,fish}`) prints a sourceable script (uses click's
   built-in `shell_completion` via the `_GAMESHEET_ADMIN_COMPLETE` / `_GAMESHEET_TEAMS_COMPLETE` env var; no third-party dep). `ResourceGroup.shell_complete` (in

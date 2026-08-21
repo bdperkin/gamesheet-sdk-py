@@ -166,8 +166,8 @@ def test_seasons_get_yaml_output(runner: CliRunner) -> None:
         assert "Test Season" in result.output
 
 
-def test_seasons_get_fields_filter(runner: CliRunner) -> None:
-    """The --fields option should filter output fields for seasons get."""
+def test_seasons_get_columns_filter(runner: CliRunner) -> None:
+    """The --columns option should filter output columns for seasons get."""
     with (
         patch(
             "gamesheet_sdk.admin.cli.commands.seasons._get_season_action",
@@ -196,7 +196,7 @@ def test_seasons_get_fields_filter(runner: CliRunner) -> None:
         )
         result = runner.invoke(
             cli,
-            ["seasons", "get", "--season-id", SEASON_ID, "--fields", "id,title,sport"],
+            ["seasons", "get", "--season-id", SEASON_ID, "--columns", "id,title,sport"],
         )
         assert not result.exit_code
         assert SEASON_ID in result.output

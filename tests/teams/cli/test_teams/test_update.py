@@ -145,8 +145,8 @@ def test_teams_update_format_json(runner: CliRunner) -> None:
     assert '"teamName": "Updated Hawks"' in result.output
 
 
-def test_teams_update_fields_option(runner: CliRunner) -> None:
-    """Test `gamesheet-teams teams update --fields` filters displayed fields."""
+def test_teams_update_columns_option(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams update --columns` filters displayed columns."""
     updated_mock = TeamDetail(
         teamId="t-201",
         teamName="Updated Hawks",
@@ -171,7 +171,7 @@ def test_teams_update_fields_option(runner: CliRunner) -> None:
                 "t-201",
                 "--name",
                 "Updated Hawks",
-                "--fields",
+                "--columns",
                 "teamName",
             ],
         )

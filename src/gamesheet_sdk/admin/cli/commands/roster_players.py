@@ -30,9 +30,8 @@ from gamesheet_sdk.admin.cli.helpers import (
     run_roster_update_with_output,
 )
 from gamesheet_sdk.admin.cli.shared import (
+    columns_option,
     common_output_options,
-    get_fields_option,
-    list_columns_option,
     player_update_options,
     render_get_command,
     render_list_command,
@@ -93,14 +92,14 @@ def players_group() -> None:
     help="Player ID to retrieve details for.",
 )
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def players_get_command(
     ctx: Context,
     player_id: str,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
 ) -> None:
     r"""Get detailed information about a specific player.
 
@@ -113,7 +112,7 @@ def players_get_command(
         player_id (str): The player identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        fields_spec (str | None): Optional comma-separated list of fields to display
+        columns_spec (str | None): Optional comma-separated list of columns to display
 
     """
     ctx_data = ctx.obj
@@ -121,12 +120,12 @@ def players_get_command(
     season_id: str = ctx_data["season_id"]
     session = build_authenticated_session(config)
     player = run_action_or_exit(session, _get_player_action, season_id, player_id)
-    render_get_command(player, output_format, output_path, fields_spec)
+    render_get_command(player, output_format, output_path, columns_spec)
 
 
 @players_group.command("list")
 @common_output_options
-@list_columns_option
+@columns_option
 @click.pass_context
 def players_list_command(
     ctx: Context,

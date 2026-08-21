@@ -35,9 +35,8 @@ from gamesheet_sdk.admin.cli.helpers import (
     run_action_or_exit,
 )
 from gamesheet_sdk.admin.cli.shared import (
+    columns_option,
     common_output_options,
-    get_fields_option,
-    list_columns_option,
     render_get_command,
     render_list_command,
 )
@@ -90,7 +89,7 @@ def leagues_group() -> None:
     help="League ID to retrieve details for.",
 )
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def leagues_get_command(
     ctx: Context,
@@ -98,7 +97,7 @@ def leagues_get_command(
     league_id: str,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
 ) -> None:
     r"""Get detailed information about a specific league.
 
@@ -112,13 +111,13 @@ def leagues_get_command(
         league_id (str): The league identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        fields_spec (str | None): Optional comma-separated list of fields to display
+        columns_spec (str | None): Optional comma-separated list of columns to display
 
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
     league = run_action_or_exit(session, _get_league_action, association_id, league_id)
-    render_get_command(league, output_format, output_path, fields_spec)
+    render_get_command(league, output_format, output_path, columns_spec)
 
 
 @leagues_group.command("list")
@@ -130,7 +129,7 @@ def leagues_get_command(
     help="Association ID to list leagues for.",
 )
 @common_output_options
-@list_columns_option
+@columns_option
 @click.pass_context
 def leagues_list_command(
     ctx: Context,

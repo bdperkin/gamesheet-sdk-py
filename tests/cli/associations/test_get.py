@@ -40,7 +40,7 @@ def test_associations_get(runner: CliRunner) -> None:
 
 
 def test_associations_get_with_fields(runner: CliRunner) -> None:
-    """The associations get command should support --fields option."""
+    """The associations get command should support --columns option."""
     with (
         patch(
             "gamesheet_sdk.admin.cli.commands.associations._get_association_action",
@@ -57,7 +57,7 @@ def test_associations_get_with_fields(runner: CliRunner) -> None:
         )
         result = runner.invoke(
             cli,
-            ["associations", "get", "--association-id", "101", "--fields", "id,title"],
+            ["associations", "get", "--association-id", "101", "--columns", "id,title"],
         )
         assert not result.exit_code
         assert result.output
@@ -105,7 +105,7 @@ def test_associations_get_empty_fields(runner: CliRunner) -> None:
         )
         result = runner.invoke(
             cli,
-            ["associations", "get", "--association-id", "101", "--fields", ","],
+            ["associations", "get", "--association-id", "101", "--columns", ","],
         )
         assert not result.exit_code
         assert result.output

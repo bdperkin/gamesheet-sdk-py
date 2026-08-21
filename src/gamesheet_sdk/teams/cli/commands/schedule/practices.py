@@ -14,9 +14,8 @@ from gamesheet_sdk.common.cli.core import (
     ResourceGroup,
 )
 from gamesheet_sdk.common.cli.decorators import (
+    columns_option,
     common_output_options,
-    get_fields_option,
-    list_columns_option,
 )
 from gamesheet_sdk.common.cli.rendering import (
     render_get_command,
@@ -192,7 +191,7 @@ def practices_group() -> None:
     help="Raw RRULE recurrence string (overrides --repeat flags).",
 )
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def practices_create_command(
     ctx: Context,
@@ -214,7 +213,7 @@ def practices_create_command(
     rrule: str | None,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
     *,
     all_day: bool = False,
 ) -> None:
@@ -259,7 +258,7 @@ def practices_create_command(
         repeat_until=repeat_until,
         timeout=config.timeout,
     )
-    render_get_command(created, output_format, output_path, fields_spec)
+    render_get_command(created, output_format, output_path, columns_spec)
 
 
 @practices_group.command("list")
@@ -287,7 +286,7 @@ def practices_create_command(
     help="Include detailed eventData in the output.",
 )
 @common_output_options
-@list_columns_option
+@columns_option
 @click.pass_context
 def practices_list_command(
     ctx: Context,
@@ -349,14 +348,14 @@ def practices_list_command(
     help="Team ID (required when fetching availability if not present in practice).",
 )
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def practices_get_command(
     ctx: Context,
     practice_id: str,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
     *,
     include_availability: bool,
     team_id: str | None,
@@ -375,7 +374,7 @@ def practices_get_command(
         team_id=team_id,
         timeout=config.timeout,
     )
-    render_get_command(practice_detail, output_format, output_path, fields_spec)
+    render_get_command(practice_detail, output_format, output_path, columns_spec)
 
 
 @practices_group.command(
@@ -394,6 +393,7 @@ def practices_get_command(
 )
 @click.option(
     "--force",
+    "-f",
     is_flag=True,
     default=False,
     help="Skip interactive confirmation prompts.",
@@ -420,14 +420,14 @@ def practices_get_command(
     help="Delete only this single occurrence.",
 )
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def practices_delete_command(
     ctx: Context,
     practice_id: str,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
     *,
     force: bool = False,
     all_occurrences: bool = False,
@@ -459,7 +459,7 @@ def practices_delete_command(
         _delete_practice_action,
         output_format,
         output_path,
-        fields_spec,
+        columns_spec,
         force=force,
         scope_flags=scope_flags,
         all_occurrences=all_occurrences,
@@ -485,14 +485,14 @@ def practices_delete_command(
 )
 @occurrence_update_options
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def practices_update_command(
     ctx: Context,
     practice_id: str,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
     **update_kwargs: Any,
 ) -> None:
     """Update a practice occurrence.
@@ -513,7 +513,7 @@ def practices_update_command(
         "practice",
         output_format,
         output_path,
-        fields_spec,
+        columns_spec,
         timeout=config.timeout,
         **update_kwargs,
     )

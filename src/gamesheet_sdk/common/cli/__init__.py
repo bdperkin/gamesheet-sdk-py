@@ -24,9 +24,8 @@ from gamesheet_sdk.common.cli.datetime_helpers import (
     validate_no_input_conflict,
 )
 from gamesheet_sdk.common.cli.decorators import (
+    columns_option,
     common_output_options,
-    get_fields_option,
-    list_columns_option,
 )
 from gamesheet_sdk.common.cli.helpers import run_action_or_exit
 from gamesheet_sdk.common.cli.rendering import (
@@ -40,12 +39,11 @@ __all__ = [
     "ResourceGroup",
     "_configure_logging",
     "_should_color",
+    "columns_option",
     "common_output_options",
     "confirm_destructive",
-    "get_fields_option",
     "get_local_timezone_name",
     "get_local_timezone_offset",
-    "list_columns_option",
     "parse_columns_spec",
     "parse_flexible_datetime",
     "render_get_command",

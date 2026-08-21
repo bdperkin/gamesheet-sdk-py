@@ -44,7 +44,7 @@ def test_coaches_get(runner: CliRunner) -> None:
 
 
 def test_coaches_get_with_fields(runner: CliRunner) -> None:
-    """The coaches get command should support --fields and JSON format."""
+    """The coaches get command should support --columns and JSON format."""
     with (
         patch(
             "gamesheet_sdk.admin.cli.commands.roster_coaches._get_coach_action",
@@ -70,7 +70,7 @@ def test_coaches_get_with_fields(runner: CliRunner) -> None:
                 "get",
                 "--coach-id",
                 "601",
-                "--fields",
+                "--columns",
                 "id",
                 "--format",
                 "json",
@@ -107,7 +107,7 @@ def test_coaches_get_empty_fields(runner: CliRunner) -> None:
                 "get",
                 "--coach-id",
                 "601",
-                "--fields",
+                "--columns",
                 ",",
             ],
         )

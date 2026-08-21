@@ -49,14 +49,18 @@ def common_output_options(func: F) -> F:
     )(func)
 
 
-def list_columns_option(func: F) -> F:
-    """Add --columns option for list commands.
+def columns_option(func: F) -> F:
+    """Add the --columns option that restricts output to a subset of keys.
+
+    One option covers both shapes of output: on a ``list`` it selects table columns, and on a ``get`` /
+    ``create`` / ``update`` it selects fields of the single rendered object. Both are "show me only these
+    keys", so there is one name for it, and ``-f`` is left to mean ``--force`` everywhere.
 
     Args:
-        func (F): The Click command function to decorate
+        func (F): The Click command function to decorate.
 
     Returns:
-        F: The decorated function with --columns option
+        F: The decorated function with the --columns option.
 
     """
     return click.option(
@@ -66,50 +70,3 @@ def list_columns_option(func: F) -> F:
         default=None,
         help="Comma-separated list of column names to include (default: all columns the API returns).",
     )(func)
-
-
-def fields_option(*, short: bool) -> Callable[[F], F]:
-    """Build the --fields decorator, optionally without its ``-f`` short flag.
-
-    Delete commands pass ``short=False`` so that ``-f`` unambiguously means ``--force`` there, as it does for
-    every other destructive command in both CLIs.
-
-    Args:
-        short (bool): Whether to also bind ``-f``.
-
-    Returns:
-        Callable[[F], F]: The option decorator.
-
-    """
-    names = ["--fields", "-f", "fields_spec"] if short else ["--fields", "fields_spec"]
-
-    def decorator(func: F) -> F:
-        """Apply the --fields option to ``func``.
-
-        Args:
-            func (F): The Click command function to decorate.
-
-        Returns:
-            F: The decorated function.
-
-        """
-        return click.option(
-            *names,
-            default=None,
-            help="Comma-separated list of field names to include (default: all fields the API returns).",
-        )(func)
-
-    return decorator
-
-
-def get_fields_option(func: F) -> F:
-    """Add --fields option for get commands.
-
-    Args:
-        func (F): The Click command function to decorate
-
-    Returns:
-        F: The decorated function with --fields option
-
-    """
-    return fields_option(short=True)(func)

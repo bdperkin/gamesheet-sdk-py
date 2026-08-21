@@ -18,10 +18,8 @@ from rich_click import Context
 from gamesheet_sdk.admin.cli.shared import game_runner
 from gamesheet_sdk.common.cli.core import ResourceGroup, confirm_destructive
 from gamesheet_sdk.common.cli.decorators import (
+    columns_option,
     common_output_options,
-    fields_option,
-    get_fields_option,
-    list_columns_option,
 )
 from gamesheet_sdk.common.cli.game_options import (
     game_detail_options,
@@ -61,7 +59,7 @@ def scheduled_group() -> None:
 @season_id_option(required=False)
 @availability_options(ignored=True)
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def scheduled_get_command(ctx: Context, **params: Any) -> None:
     r"""Get detailed information about a scheduled game.
@@ -80,7 +78,7 @@ def scheduled_get_command(ctx: Context, **params: Any) -> None:
 @season_id_option(required=False)
 @list_filter_options(team_required=False, ignored=True)
 @common_output_options
-@list_columns_option
+@columns_option
 @click.pass_context
 def scheduled_list_command(ctx: Context, **params: Any) -> None:
     r"""List all scheduled games in the specified season.
@@ -101,7 +99,7 @@ def scheduled_list_command(ctx: Context, **params: Any) -> None:
 @game_side_options
 @game_detail_options(required=True)
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def scheduled_create_command(ctx: Context, **params: Any) -> None:
     r"""Create a new scheduled game.
@@ -126,7 +124,7 @@ def scheduled_create_command(ctx: Context, **params: Any) -> None:
 @game_side_options
 @game_detail_options(required=False)
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def scheduled_update_command(ctx: Context, **params: Any) -> None:
     r"""Update a scheduled game.
@@ -148,7 +146,7 @@ def scheduled_update_command(ctx: Context, **params: Any) -> None:
 @game_id_option
 @season_id_option(required=False)
 @common_output_options
-@fields_option(short=False)
+@columns_option
 @confirm_destructive("this scheduled game")
 @click.pass_context
 def scheduled_delete_command(ctx: Context, **params: Any) -> None:
