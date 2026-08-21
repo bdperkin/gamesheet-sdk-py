@@ -186,7 +186,7 @@ def test_completed_download_with_explicit_filename(runner: CliRunner) -> None:
                 "download",
                 "--game-id",
                 "888",
-                "--output-path",
+                "--output",
                 output_path,
             ],
         )

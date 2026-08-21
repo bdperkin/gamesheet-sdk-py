@@ -485,12 +485,18 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   (both route through `parse_columns_spec`) and it took `-f`, so `-f` meant `--fields` on 37 commands and `--force` on 12. `--fields` is gone with no
   deprecation alias.
 
-  `RESERVED_SHORT_FLAGS` in `tests/common/cli/test_option_conventions.py` pins the invariants by walking both shipped click trees: `-f` is always `--force`,
-  `-F` always `--format`, `-o` always `--output`, `--force` and `--columns` always offer their short flag, and `--fields` never comes back. Add a short flag to
-  that table when you reserve one.
+  Two more second-spellings were removed with it: `--output-path` on `gamesheet-admin games completed download` (the same `output_path` dest as `--output`
+  everywhere else) and `-c` on `gamesheet-teams lookups get` / `lookups list`, where it meant `--category`. `--category` now has no short flag, because `-c`
+  belongs to `--columns`.
 
-  **Known exception:** `gamesheet-teams lookups get` / `lookups list` bind `-c` to `--category`. Neither command has `--columns` today, so nothing collides, but
-  the mnemonic conflicts with the convention above.
+  `RESERVED_SHORT_FLAGS` in `tests/common/cli/test_option_conventions.py` pins the invariants by walking both shipped click trees: `-c` is always `--columns`,
+  `-f` always `--force`, `-F` always `--format`, `-o` always `--output`, `--force` and `--columns` always offer their short flag, and neither `--fields` nor
+  `--output-path` comes back. Add to that table when you reserve a flag or retire a spelling.
+
+  **Known exceptions, all confined to the two `login` commands:** `-e` is `--email` there but `--event-id` on six `schedule` commands; `-p` is `--password`
+  there but `--practice-id` on three; `-t` is `--timeout` there but `--team-id` on 28. Nothing is ambiguous *within* a command — `login` has no
+  team/event/practice options — so these are muscle-memory conflicts rather than parsing ones, and `-e`/`-p` for email/password on a login prompt are strong
+  conventions in their own right. Left as-is deliberately.
 
   **Tab-completion.** `gamesheet-admin completion {bash,zsh,fish}` (and `gamesheet-teams completion {bash,zsh,fish}`) prints a sourceable script (uses click's
   built-in `shell_completion` via the `_GAMESHEET_ADMIN_COMPLETE` / `_GAMESHEET_TEAMS_COMPLETE` env var; no third-party dep). `ResourceGroup.shell_complete` (in

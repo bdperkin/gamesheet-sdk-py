@@ -181,8 +181,9 @@ def _build_scoresheet_filename(game: Game) -> str:
     help="Game ID to download scoresheet for.",
 )
 @click.option(
-    "--output-path",
+    "--output",
     "-o",
+    "output_path",
     type=str,
     help=(
         "File path where the PDF scoresheet will be saved. "
@@ -197,7 +198,7 @@ def completed_download_command(
 ) -> None:
     r"""Download the PDF scoresheet for a completed game.
 
-    Requires authentication (run 'gamesheet-admin login' first). If --output-path is not specified, the
+    Requires authentication (run 'gamesheet-admin login' first). If --output is not specified, the
     filename is automatically generated from game details in the format:
     {date}-scoresheet-{id}-{visitor}-vs-{home}-{game_number}.pdf\f
 

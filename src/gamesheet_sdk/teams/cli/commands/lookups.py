@@ -91,7 +91,6 @@ def _render_summary(
 @lookups_group.command("get")
 @click.option(
     "--category",
-    "-c",
     required=True,
     help="Category to retrieve values for.",
 )
@@ -146,7 +145,6 @@ def get_command(
 @lookups_group.command("list")
 @click.option(
     "--category",
-    "-c",
     default=None,
     help="Show values for a specific category only.",
 )

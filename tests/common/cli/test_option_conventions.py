@@ -16,13 +16,14 @@ from gamesheet_sdk.teams.cli.main import cli as teams_cli
 
 #: Short flags whose meaning is fixed across every command in both CLIs, as ``option -> parameter dest``.
 RESERVED_SHORT_FLAGS = {
+    "-c": "columns_spec",
     "-f": "force",
     "-F": "output_format",
     "-o": "output_path",
 }
 
-#: Option names that must never come back; each duplicated something that already existed.
-BANNED_OPTIONS = ("--fields",)
+#: Option names that must never come back; each was a second spelling of something that already existed.
+BANNED_OPTIONS = ("--fields", "--output-path")
 
 
 def _leaf_commands() -> list[tuple[str, click.Command]]:
