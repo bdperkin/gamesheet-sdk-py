@@ -31,6 +31,7 @@ def test_upload_photo_invalid_mime_type(config: Config) -> None:
 
     # Create a temporary non-image file
     with tempfile.NamedTemporaryFile(
+        encoding="utf-8",
         mode="w",
         suffix=".txt",
         delete=False,
@@ -53,6 +54,7 @@ def test_upload_photo_auth_error(config: Config) -> None:
 
     # Create a temporary image file
     with tempfile.NamedTemporaryFile(
+        encoding="utf-8",
         mode="w",
         suffix=".jpg",
         delete=False,
@@ -81,6 +83,7 @@ def test_upload_photo_server_error(config: Config) -> None:
 
     # Create a temporary image file
     with tempfile.NamedTemporaryFile(
+        encoding="utf-8",
         mode="w",
         suffix=".jpg",
         delete=False,
@@ -109,6 +112,7 @@ def test_upload_photo_failed_status(config: Config) -> None:
 
     # Create a temporary image file
     with tempfile.NamedTemporaryFile(
+        encoding="utf-8",
         mode="w",
         suffix=".jpg",
         delete=False,

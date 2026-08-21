@@ -11,6 +11,8 @@ import rich_click as click
 from click.exceptions import Exit
 from rich_click import Context
 
+from gamesheet_sdk.admin import teams
+from gamesheet_sdk.admin.cli import shared
 from gamesheet_sdk.common import errors
 from gamesheet_sdk.common.auth.session import AuthenticatedSession
 from gamesheet_sdk.common.auth.tokens import (
@@ -91,15 +93,7 @@ def run_team_update(
     Raises:
         Exit: If no fields are provided for update.
 
-    Returns:
-        None: None
-
     """
-    from gamesheet_sdk.admin.teams import Team  # noqa: PLC0415
-    from gamesheet_sdk.admin.teams import (  # noqa: PLC0415
-        update_team as _update_team_action,
-    )
-
     # Validate that at least one field is provided for update
     if all(v is None or v is False for v in (title, division_id, external_id, logo_path, remove_logo)):
         click.secho(
@@ -113,8 +107,8 @@ def run_team_update(
     config: Config = ctx.obj
     session = build_authenticated_session(config)
 
-    def _update_with_kwargs(sess: AuthenticatedSession) -> Team:
-        return _update_team_action(
+    def _update_with_kwargs(sess: AuthenticatedSession) -> teams.Team:
+        return teams.update_team(
             sess,
             season_id,
             team_id,
@@ -126,9 +120,7 @@ def run_team_update(
         )
 
     team = run_action_or_exit(session, _update_with_kwargs)
-    from gamesheet_sdk.admin.cli.shared import render_list_command  # noqa: PLC0415
-
-    render_list_command([team], output_format, output_path)
+    shared.render_list_command([team], output_format, output_path)
 
 
 def run_team_create(
@@ -155,19 +147,12 @@ def run_team_create(
         output_format (str): Output format for rendering.
         output_path (str | None): Optional output file path.
 
-    Returns:
-        None: None
-
     """
-    from gamesheet_sdk.admin.teams import (  # noqa: PLC0415
-        create_team as _create_team_action,
-    )
-
     config: Config = ctx.obj
     session = build_authenticated_session(config)
 
     def _create_with_kwargs(sess: AuthenticatedSession) -> object:
-        return _create_team_action(
+        return teams.create_team(
             sess,
             season_id,
             title,
@@ -177,9 +162,7 @@ def run_team_create(
         )
 
     result: Any = run_action_or_exit(session, _create_with_kwargs)
-    from gamesheet_sdk.admin.cli.shared import render_get_command  # noqa: PLC0415
-
-    render_get_command(result, output_format, output_path)
+    shared.render_get_command(result, output_format, output_path)
     # Show success message when output goes to stdout
     if output_path is None:
         team_title = result.get("prototeam", {}).get("title", title)
@@ -201,13 +184,9 @@ def run_team_delete(ctx: Context, season_id: str, team_id: str) -> None:
         team_id (str): Team ID to delete.
 
     """
-    from gamesheet_sdk.admin.teams import (  # noqa: PLC0415
-        delete_team as _delete_team_action,
-    )
-
     config: Config = ctx.obj
     session = build_authenticated_session(config)
-    run_action_or_exit(session, _delete_team_action, season_id, team_id)
+    run_action_or_exit(session, teams.delete_team, season_id, team_id)
     click.secho(f"Team {team_id} deleted successfully.", fg="green")
 
 
@@ -239,8 +218,6 @@ def run_roster_assign_with_output(
         Exit: If the action raises an exception.
 
     """
-    from gamesheet_sdk.admin.cli.shared import render_get_command  # noqa: PLC0415
-
     try:
         with session:
             result = action(*args, **kwargs)
@@ -248,7 +225,7 @@ def run_roster_assign_with_output(
         click.secho(f"Error assigning {resource_type}: {exc}", fg="red", err=True)
         raise Exit(1) from exc
 
-    render_get_command(result, output_format, output_path, None)
+    shared.render_get_command(result, output_format, output_path, None)
     click.secho(
         f"{resource_type.capitalize()} {resource_id} assigned to team {target_id} successfully.",
         fg="green",
@@ -314,8 +291,6 @@ def run_roster_update_with_output(
         Exit: If the action raises an exception.
 
     """
-    from gamesheet_sdk.admin.cli.shared import render_get_command  # noqa: PLC0415
-
     try:
         with session:
             result = action(*args, **kwargs)
@@ -326,7 +301,7 @@ def run_roster_update_with_output(
         click.secho(f"Error updating {resource_type}: {exc}", fg="red", err=True)
         raise Exit(1) from exc
 
-    render_get_command(result, output_format, output_path, None)
+    shared.render_get_command(result, output_format, output_path, None)
     click.secho(
         f"{resource_type.capitalize()} {result.id} updated successfully.",
         fg="green",
@@ -360,8 +335,6 @@ def run_roster_create_with_output(
         Exit: If the action raises an exception.
 
     """
-    from gamesheet_sdk.admin.cli.shared import render_get_command  # noqa: PLC0415
-
     try:
         with session:
             result = action(*args, **kwargs)
@@ -369,7 +342,7 @@ def run_roster_create_with_output(
         click.secho(f"Error creating {resource_type}: {exc}", fg="red", err=True)
         raise Exit(1) from exc
 
-    render_get_command(result, output_format, output_path, None)
+    shared.render_get_command(result, output_format, output_path, None)
     if success_message:
         message = success_message.format(id=result.id) if "{id}" in success_message else success_message
         click.secho(message, fg="green")
@@ -378,3 +351,33 @@ def run_roster_create_with_output(
             f"{resource_type.capitalize()} {result.id} created successfully.",
             fg="green",
         )
+
+
+def run_roster_delete(
+    action: Callable[..., Any],
+    session: AuthenticatedSession,
+    resource_type: str,
+    resource_id: str,
+    *args: object,
+) -> None:
+    """Run roster delete action with error handling.
+
+    Args:
+        action (Callable[..., Any]): The delete action function to call.
+        session (AuthenticatedSession): Authenticated session.
+        resource_type (str): Type of resource being deleted (player/coach).
+        resource_id (str): ID of the resource being deleted.
+        *args (object): Positional arguments forwarded to ``action``.
+
+    Raises:
+        Exit: If the action raises an exception.
+
+    """
+    try:
+        with session:
+            action(*args)
+    except Exception as exc:
+        click.secho(f"Error deleting {resource_type}: {exc}", fg="red", err=True)
+        raise Exit(1) from exc
+
+    click.secho(f"{resource_type.capitalize()} {resource_id} deleted successfully.", fg="green")

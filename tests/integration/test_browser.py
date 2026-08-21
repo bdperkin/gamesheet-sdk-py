@@ -140,7 +140,13 @@ def test_save_creates_parent_dirs(config: Config) -> None:
 
 # ---------- full lifecycle, with Playwright mocked end-to-end ------------
 def _mock_playwright_chain() -> tuple[MagicMock, MagicMock, MagicMock, MagicMock]:
-    """Build a sync_playwright() chain whose intermediate mocks we can assert on."""
+    """Build a sync_playwright() chain whose intermediate mocks we can assert on.
+
+    Returns:
+        tuple[MagicMock, MagicMock, MagicMock, MagicMock]: Tuple of
+            (pw_factory, pw_runtime, browser, context).
+
+    """
     pw_factory = MagicMock(name="sync_playwright_factory")
     pw_runtime = MagicMock(name="playwright_runtime")
     browser = MagicMock(name="browser")

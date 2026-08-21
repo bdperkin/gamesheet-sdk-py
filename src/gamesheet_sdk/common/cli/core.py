@@ -194,11 +194,10 @@ class ResourceGroup(click.RichGroup):
         """Yield ``(label, short_help)`` for each non-hidden canonical command.
 
         Args:
-            ctx (Context): The click context for resolving commands. Yields: Iterable[tuple[str, str]]: Tuples
-                of (label, short_help) for visible commands. :returns: Return value.
+            ctx (Context): The click context for resolving commands.
 
-        Returns:
-            Iterable[tuple[str, str]]
+        Yields:
+            tuple[str, str]: Tuples of ``(label, short_help)`` for visible commands.
 
         """
         for name in self.list_commands(ctx):
@@ -404,9 +403,6 @@ def _configure_logging(verbose: int) -> None:
 
     Args:
         verbose (int): 0 = WARNING, 1 = INFO, 2+ = DEBUG.
-
-    Returns:
-        None
 
     """
     if not verbose:

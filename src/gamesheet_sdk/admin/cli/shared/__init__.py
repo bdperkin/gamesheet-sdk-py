@@ -19,6 +19,7 @@ from gamesheet_sdk.admin.cli.shared.decorators import (
     common_output_options,
     get_fields_option,
     list_columns_option,
+    player_update_options,
     team_create_options,
     team_update_options,
 )
@@ -35,6 +36,7 @@ __all__ = [
     "get_local_timezone_offset",
     "list_columns_option",
     "parse_flexible_datetime",
+    "player_update_options",
     "render_get_command",
     "render_list_command",
     "render_penalty_report",

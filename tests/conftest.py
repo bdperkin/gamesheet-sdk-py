@@ -19,12 +19,7 @@ if TYPE_CHECKING:
 
 @pytest.fixture(autouse=True)
 def _clear_gamesheet_env(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Strip any ambient ``GAMESHEET_*`` env vars so every test sees defaults.
-
-    Returns:
-        None: None
-
-    """
+    """Strip any ambient ``GAMESHEET_*`` env vars so every test sees defaults."""
     for key in list(os.environ):
         if key.startswith("GAMESHEET_"):
             monkeypatch.delenv(key, raising=False)
@@ -102,5 +97,10 @@ def browser_type_launch_args() -> dict[str, object]:
 
 @pytest.fixture
 def runner() -> CliRunner:
-    """Return a Click CLI test runner."""
+    """Return a Click CLI test runner.
+
+    Returns:
+        CliRunner: Click CLI test runner instance.
+
+    """
     return CliRunner()

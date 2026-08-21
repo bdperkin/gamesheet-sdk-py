@@ -96,7 +96,12 @@ class BaseAuthenticatedSession(Session, ABC):
             _LOGGER.warning("on_refresh callback failed to persist: %s", exc)
 
     def _try_refresh(self: BaseAuthenticatedSession) -> bool:
-        """Run a single refresh round-trip; return whether the retry should happen."""
+        """Run a single refresh round-trip; return whether the retry should happen.
+
+        Returns:
+            bool: True if refresh succeeded and request should be retried, False otherwise.
+
+        """
         try:
             new_tokens = self._do_refresh()
         except GameSheetError as exc:
@@ -135,7 +140,7 @@ class BaseAuthenticatedSession(Session, ABC):
 
         """
         response = super().request(method, url, timeout=timeout, **kwargs)
-        if response.status_code not in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
+        if response.status_code not in {HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN}:
             return response
 
         if not self._try_refresh():
@@ -178,7 +183,12 @@ class AuthenticatedSession(BaseAuthenticatedSession):
     """
 
     def _do_refresh(self: AuthenticatedSession) -> dict[str, str]:
-        """Refresh via the admin token endpoint, forwarding the session User-Agent."""
+        """Refresh via the admin token endpoint, forwarding the session User-Agent.
+
+        Returns:
+            dict[str, str]: Refreshed token dictionary containing new access token.
+
+        """
         return refresh_access_token(
             self._refresh_token,
             user_agent=str(self._http.headers.get("User-Agent", "")) or None,

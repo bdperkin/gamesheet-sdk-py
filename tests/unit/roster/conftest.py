@@ -14,7 +14,12 @@ from gamesheet_sdk.common.session import Session
 
 @pytest.fixture
 def mock_session() -> MagicMock:
-    """Create a mock session."""
+    """Create a mock session.
+
+    Returns:
+        MagicMock: Mocked session instance.
+
+    """
     session = MagicMock(spec=Session)
     mock_response = MagicMock()
     mock_response.status_code = 204

@@ -23,17 +23,17 @@ from tests.unit.referees.conftest import SEASON_ID, TEST_BASE_URL, referee_respo
 @responses.activate
 def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None:
     """Test that update_referee sends correct payload when updating all fields."""
-    _referee_id = "1146196"
-    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
-    _patch_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    referee_id = "1146196"
+    get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
+    patch_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
     # Mock GET request to fetch current data
     responses.add(
         responses.GET,
-        _get_endpoint,
+        get_endpoint,
         json={
             "data": {
                 "type": "referees",
-                "id": _referee_id,
+                "id": referee_id,
                 "attributes": {
                     "external_id": "OLD-EXTERNAL-ID",
                     "first_name": "Wes",
@@ -52,11 +52,11 @@ def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None
     # Mock PATCH request with updated data
     responses.add(
         responses.PATCH,
-        _patch_endpoint,
+        patch_endpoint,
         json={
             "data": {
                 "type": "referees",
-                "id": _referee_id,
+                "id": referee_id,
                 "attributes": {
                     "external_id": REFEREE_EXTERNAL_ID_SECONDARY,
                     "first_name": "WES",
@@ -77,14 +77,14 @@ def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None
         result = update_referee(
             session,
             SEASON_ID,
-            _referee_id,
+            referee_id,
             first_name="WES",
             last_name="MCCAULEY",
             email_address="McCauley.Wes@example.com",
             external_id=REFEREE_EXTERNAL_ID_SECONDARY,
         )
 
-    assert result.id == _referee_id
+    assert result.id == referee_id
     assert result.first_name == "WES"
     assert result.last_name == "MCCAULEY"
     assert result.email == "McCauley.Wes@example.com"
@@ -98,7 +98,7 @@ def test_update_referee_sends_correct_payload_all_fields(config: Config) -> None
     # Verify the PATCH request payload includes all fields
     assert patch_req.body is not None
     payload = json.loads(patch_req.body)
-    assert payload["data"]["id"] == _referee_id
+    assert payload["data"]["id"] == referee_id
     assert payload["data"]["type"] == "referees"
     assert payload["data"]["attributes"]["first_name"] == "WES"
     assert payload["data"]["attributes"]["last_name"] == "MCCAULEY"
@@ -111,17 +111,17 @@ def test_update_referee_sends_correct_payload_partial_fields(
     config: Config,
 ) -> None:
     """Test that update_referee preserves unmodified fields when partially updating."""
-    _referee_id = "1146197"
-    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
-    _patch_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    referee_id = "1146197"
+    get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
+    patch_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
     # Mock GET request to fetch current data
     responses.add(
         responses.GET,
-        _get_endpoint,
+        get_endpoint,
         json={
             "data": {
                 "type": "referees",
-                "id": _referee_id,
+                "id": referee_id,
                 "attributes": {
                     "first_name": "Original",
                     "last_name": "Name",
@@ -139,11 +139,11 @@ def test_update_referee_sends_correct_payload_partial_fields(
     # Mock PATCH request
     responses.add(
         responses.PATCH,
-        _patch_endpoint,
+        patch_endpoint,
         json={
             "data": {
                 "type": "referees",
-                "id": _referee_id,
+                "id": referee_id,
                 "attributes": {
                     "first_name": "Updated",
                     "last_name": "Name",
@@ -163,11 +163,11 @@ def test_update_referee_sends_correct_payload_partial_fields(
         result = update_referee(
             session,
             SEASON_ID,
-            _referee_id,
+            referee_id,
             first_name="Updated",
         )
 
-    assert result.id == _referee_id
+    assert result.id == referee_id
     assert result.first_name == "Updated"
     assert result.last_name == "Name"
     assert result.email == "original@example.com"
@@ -185,17 +185,17 @@ def test_update_referee_sends_correct_payload_partial_fields(
 @responses.activate
 def test_update_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None:
     """Test that update_referee sends correct Authorization and JSON:API headers."""
-    _referee_id = "101"
-    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
-    _patch_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    referee_id = "101"
+    get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
+    patch_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
     # Mock GET request
     responses.add(
         responses.GET,
-        _get_endpoint,
+        get_endpoint,
         json={
             "data": {
                 "type": "referees",
-                "id": _referee_id,
+                "id": referee_id,
                 "attributes": {
                     "first_name": "Old",
                     "last_name": "Ref",
@@ -212,13 +212,13 @@ def test_update_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
     # Mock PATCH request
     responses.add(
         responses.PATCH,
-        _patch_endpoint,
-        json=referee_response_data(_referee_id),
+        patch_endpoint,
+        json=referee_response_data(referee_id),
         status=200,
     )
     with Session(config) as session:
         session.set_bearer_token("test-token")
-        update_referee(session, SEASON_ID, _referee_id, first_name="Test")
+        update_referee(session, SEASON_ID, referee_id, first_name="Test")
 
     assert len(responses.calls) == 2
     get_req = responses.calls[0].request
@@ -235,19 +235,19 @@ def test_update_referee_sends_bearer_and_jsonapi_headers(config: Config) -> None
 @responses.activate
 def test_update_referee_401_raises_authentication_error(config: Config) -> None:
     """Test that 401 response raises AuthenticationError."""
-    _referee_id = "101"
-    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    referee_id = "101"
+    get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
     # The GET request fails with 401
     responses.add(
         responses.GET,
-        _get_endpoint,
+        get_endpoint,
         json={"errors": [{"detail": "Token expired"}]},
         status=401,
     )
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            update_referee(session, SEASON_ID, _referee_id, first_name="Test")
+            update_referee(session, SEASON_ID, referee_id, first_name="Test")
 
 
 @responses.activate
@@ -255,17 +255,17 @@ def test_update_referee_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
     """Test that 404 response raises GameSheetError with helpful message."""
-    _referee_id = "nonexistent"
-    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    referee_id = "nonexistent"
+    get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
     # The GET request fails with 404
-    responses.add(responses.GET, _get_endpoint, status=404, body="Not found")
+    responses.add(responses.GET, get_endpoint, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(
             GameSheetError,
             match=r"Referee '.*' not found.*valid referee ID and season ID",
         ):
-            update_referee(session, SEASON_ID, _referee_id, first_name="Test")
+            update_referee(session, SEASON_ID, referee_id, first_name="Test")
 
 
 @responses.activate
@@ -273,36 +273,36 @@ def test_update_referee_other_failure_raises_gamesheet_error(
     config: Config,
 ) -> None:
     """Test that other HTTP errors raise GameSheetError."""
-    _referee_id = "101"
-    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    referee_id = "101"
+    get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
     # The GET request fails with 500
-    responses.add(responses.GET, _get_endpoint, status=500, body="boom")
+    responses.add(responses.GET, get_endpoint, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            update_referee(session, SEASON_ID, _referee_id, first_name="Test")
+            update_referee(session, SEASON_ID, referee_id, first_name="Test")
 
 
 @responses.activate
 def test_update_referee_preserves_existing_external_id(config: Config) -> None:
     """Test that update_referee preserves external_id from current attributes when not provided."""
-    _referee_id = "1146300"
-    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
-    _patch_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
-    _existing_external_id = "EXISTING-EXT-ID-123"
+    referee_id = "1146300"
+    get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
+    patch_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
+    existing_external_id = "EXISTING-EXT-ID-123"
     # Mock the GET request (fetch current data)
     responses.add(
         responses.GET,
-        _get_endpoint,
+        get_endpoint,
         json={
             "data": {
                 "type": "referees",
-                "id": _referee_id,
+                "id": referee_id,
                 "attributes": {
                     "first_name": "Old",
                     "last_name": "Name",
                     "email_address": "old@example.com",
-                    "external_id": _existing_external_id,  # Has existing external_id
+                    "external_id": existing_external_id,  # Has existing external_id
                     "created_at": "2026-06-15T12:00:00Z",
                     "updated_at": "2026-06-15T12:00:00Z",
                 },
@@ -316,16 +316,16 @@ def test_update_referee_preserves_existing_external_id(config: Config) -> None:
     # Mock the PATCH request
     responses.add(
         responses.PATCH,
-        _patch_endpoint,
+        patch_endpoint,
         json={
             "data": {
                 "type": "referees",
-                "id": _referee_id,
+                "id": referee_id,
                 "attributes": {
                     "first_name": "New",
                     "last_name": "Name",
                     "email_address": "old@example.com",
-                    "external_id": _existing_external_id,
+                    "external_id": existing_external_id,
                     "created_at": "2026-06-15T12:00:00Z",
                     "updated_at": "2026-06-15T13:00:00Z",
                 },
@@ -339,7 +339,7 @@ def test_update_referee_preserves_existing_external_id(config: Config) -> None:
     with Session(config) as session:
         session.set_bearer_token("abc")
         # Update only first name, should preserve existing external_id
-        result = update_referee(session, SEASON_ID, _referee_id, first_name="New")
+        result = update_referee(session, SEASON_ID, referee_id, first_name="New")
 
     assert result.first_name == "New"
     assert result.last_name == "Name"
@@ -348,23 +348,23 @@ def test_update_referee_preserves_existing_external_id(config: Config) -> None:
     patch_req = responses.calls[1].request
     assert patch_req.body is not None
     payload = json.loads(patch_req.body)
-    assert payload["data"]["attributes"]["external_id"] == _existing_external_id
+    assert payload["data"]["attributes"]["external_id"] == existing_external_id
 
 
 @responses.activate
 def test_update_referee_patch_401_raises_authentication_error(config: Config) -> None:
     """Test that HTTP 401 on PATCH request raises AuthenticationError."""
-    _referee_id = "1146301"
-    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
-    _patch_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    referee_id = "1146301"
+    get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
+    patch_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
     # Mock the GET request (succeeds)
     responses.add(
         responses.GET,
-        _get_endpoint,
+        get_endpoint,
         json={
             "data": {
                 "type": "referees",
-                "id": _referee_id,
+                "id": referee_id,
                 "attributes": {
                     "first_name": "Test",
                     "last_name": "Ref",
@@ -381,14 +381,14 @@ def test_update_referee_patch_401_raises_authentication_error(config: Config) ->
     # Mock the PATCH request with 401
     responses.add(
         responses.PATCH,
-        _patch_endpoint,
+        patch_endpoint,
         json={"errors": [{"detail": "Token expired"}]},
         status=401,
     )
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            update_referee(session, SEASON_ID, _referee_id, first_name="Updated")
+            update_referee(session, SEASON_ID, referee_id, first_name="Updated")
 
 
 @responses.activate
@@ -396,17 +396,17 @@ def test_update_referee_patch_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
     """Test that HTTP 404 on PATCH request raises GameSheetError with helpful message."""
-    _referee_id = "nonexistent"
-    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
-    _patch_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    referee_id = "nonexistent"
+    get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
+    patch_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
     # Mock the GET request (succeeds)
     responses.add(
         responses.GET,
-        _get_endpoint,
+        get_endpoint,
         json={
             "data": {
                 "type": "referees",
-                "id": _referee_id,
+                "id": referee_id,
                 "attributes": {
                     "first_name": "Test",
                     "last_name": "Ref",
@@ -421,14 +421,14 @@ def test_update_referee_patch_404_raises_gamesheet_error_with_helpful_message(
         status=200,
     )
     # Mock the PATCH request with 404
-    responses.add(responses.PATCH, _patch_endpoint, status=404, body="Not found")
+    responses.add(responses.PATCH, patch_endpoint, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(
             GameSheetError,
             match=r"Referee '.*' not found.*valid referee ID and season ID",
         ):
-            update_referee(session, SEASON_ID, _referee_id, first_name="Updated")
+            update_referee(session, SEASON_ID, referee_id, first_name="Updated")
 
 
 @responses.activate
@@ -436,17 +436,17 @@ def test_update_referee_patch_other_failure_raises_gamesheet_error(
     config: Config,
 ) -> None:
     """Test that other HTTP errors on PATCH request raise GameSheetError."""
-    _referee_id = "1146302"
-    _get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
-    _patch_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{_referee_id}"
+    referee_id = "1146302"
+    get_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
+    patch_endpoint = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}/referees/{referee_id}"
     # Mock the GET request (succeeds)
     responses.add(
         responses.GET,
-        _get_endpoint,
+        get_endpoint,
         json={
             "data": {
                 "type": "referees",
-                "id": _referee_id,
+                "id": referee_id,
                 "attributes": {
                     "first_name": "Test",
                     "last_name": "Ref",
@@ -461,8 +461,8 @@ def test_update_referee_patch_other_failure_raises_gamesheet_error(
         status=200,
     )
     # Mock the PATCH request with 500
-    responses.add(responses.PATCH, _patch_endpoint, status=500, body="boom")
+    responses.add(responses.PATCH, patch_endpoint, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            update_referee(session, SEASON_ID, _referee_id, first_name="Updated")
+            update_referee(session, SEASON_ID, referee_id, first_name="Updated")

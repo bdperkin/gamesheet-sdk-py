@@ -34,19 +34,21 @@ from gamesheet_sdk.admin.roster.coaches import (
 from gamesheet_sdk.admin.roster.models import Coach, Player
 from gamesheet_sdk.admin.roster.players import (
     assign_player,
-    assign_team_player,
     create_player,
-    create_team_player,
     delete_player,
-    delete_team_player,
     get_player,
     get_player_penalty_report,
-    get_team_player,
     list_players,
-    list_team_players,
     unassign_player,
-    unassign_team_player,
     update_player,
+)
+from gamesheet_sdk.admin.roster.team_players import (
+    assign_team_player,
+    create_team_player,
+    delete_team_player,
+    get_team_player,
+    list_team_players,
+    unassign_team_player,
     update_team_player,
 )
 

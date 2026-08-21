@@ -267,7 +267,7 @@ def test_converge_leaves_an_old_release_alone() -> None:
     policy = parse_cutoff("7 days")
     assert policy is not None
 
-    assert converge_exclude_newer(policy, {}, {"requests": "2.32.5"}, {"requests": _ago(days=90)}, NOW) == []
+    assert not converge_exclude_newer(policy, {}, {"requests": "2.32.5"}, {"requests": _ago(days=90)}, NOW)
 
 
 def test_converge_retires_an_entry_once_its_release_ages_out() -> None:
@@ -308,15 +308,12 @@ def test_converge_keeps_a_sufficient_existing_value() -> None:
     policy = parse_cutoff("7 days")
     assert policy is not None
 
-    assert (
-        converge_exclude_newer(
-            policy,
-            {"semgrep": "1 days"},
-            {"semgrep": "1.172.0"},
-            {"semgrep": _ago(days=4)},
-            NOW,
-        )
-        == []
+    assert not converge_exclude_newer(
+        policy,
+        {"semgrep": "1 days"},
+        {"semgrep": "1.172.0"},
+        {"semgrep": _ago(days=4)},
+        NOW,
     )
 
 
@@ -341,7 +338,7 @@ def test_converge_leaves_a_package_alone_when_its_release_date_is_unknown() -> N
     policy = parse_cutoff("7 days")
     assert policy is not None
 
-    assert converge_exclude_newer(policy, {"semgrep": "1 days"}, {"semgrep": "1.172.0"}, {}, NOW) == []
+    assert not converge_exclude_newer(policy, {"semgrep": "1 days"}, {"semgrep": "1.172.0"}, {}, NOW)
 
 
 def test_converge_under_an_absolute_cutoff_writes_a_timestamp() -> None:

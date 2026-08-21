@@ -86,7 +86,7 @@ def read_state_file(path: Path) -> dict[str, Any] | None:
         return None
 
     try:
-        loaded: dict[str, Any] = json.loads(path.read_text())
+        loaded: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         _LOGGER.warning("Failed to read browser storage state from %s.", path)
         return None
@@ -186,7 +186,7 @@ def read_state_or_empty(path: Path) -> dict[str, Any]:
         return empty
 
     try:
-        loaded: dict[str, Any] = json.loads(path.read_text())
+        loaded: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         return empty
 

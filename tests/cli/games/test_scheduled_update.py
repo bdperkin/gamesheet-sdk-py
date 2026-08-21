@@ -15,7 +15,12 @@ if TYPE_CHECKING:
 
 
 def _mock_current_game() -> MagicMock:
-    """Create a mock for the current game state (returned by get)."""
+    """Create a mock for the current game state (returned by get).
+
+    Returns:
+        MagicMock: Mocked game object.
+
+    """
     return MagicMock(
         data=MagicMock(
             id="game-update",
@@ -46,7 +51,12 @@ def _mock_current_game() -> MagicMock:
 
 
 def _mock_updated_game() -> MagicMock:
-    """Create a mock for the updated game result."""
+    """Create a mock for the updated game result.
+
+    Returns:
+        MagicMock: Mocked updated game result.
+
+    """
     return MagicMock(
         model_dump=lambda **_kw: {"id": "game-update", "status": "scheduled"},
     )

@@ -12,14 +12,14 @@ import pytest
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from pydantic import SecretStr
 
-if TYPE_CHECKING:
-    from collections.abc import Callable
-
 from gamesheet_sdk import AuthenticationError, Config, login
 from gamesheet_sdk.common.auth.constants import LOGIN_PATH, POST_LOGIN_PATH
 from gamesheet_sdk.common.auth.login import AdminLoginFlow
 from tests.common.auth.conftest import _FIREBASE_URL, _TOKEN_URL, _make_response
 from tests.helpers import TEST_EMAIL_MINIMAL
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 # ---------- credential validation ----------------------------------------
 
@@ -178,8 +178,8 @@ def test_login_post_login_navigation_timeout_is_swallowed(
         # The post-login navigation is the one that asks for networkidle;
         # the initial form-load navigation uses wait_until="load".
         if kwargs.get("wait_until") == "networkidle":
-            _err_msg = "networkidle never fired"
-            raise PlaywrightTimeoutError(_err_msg)
+            err_msg = "networkidle never fired"
+            raise PlaywrightTimeoutError(err_msg)
 
         del path
         return page

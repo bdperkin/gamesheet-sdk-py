@@ -13,6 +13,7 @@ import yaml
 from click.exceptions import Exit
 from rich_click import Context
 
+from gamesheet_sdk.admin import roster
 from gamesheet_sdk.admin.cli.constants import (
     COACH_POSITIONS,
     HELP_COACH_FIRST_NAME,
@@ -25,7 +26,9 @@ from gamesheet_sdk.admin.cli.helpers import (
     build_authenticated_session,
     run_action_or_exit,
     run_roster_assign_with_output,
+    run_roster_delete,
     run_roster_unassign,
+    run_roster_update_with_output,
 )
 from gamesheet_sdk.admin.cli.shared import (
     common_output_options,
@@ -56,6 +59,7 @@ from gamesheet_sdk.admin.roster import (
     update_coach as _update_coach_action,
 )
 from gamesheet_sdk.common.cli.core import ResourceGroup, confirm_destructive
+from gamesheet_sdk.common.output import write_output
 
 if TYPE_CHECKING:
     from gamesheet_sdk.common.config import Config
@@ -286,14 +290,7 @@ def coaches_update_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
 
-    Raises:
-        Exit: Always raised (exit code 1) because this command is not yet implemented.
-
     """
-    from gamesheet_sdk.admin.cli.helpers import (  # noqa: PLC0415
-        run_roster_update_with_output,
-    )
-
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
@@ -334,22 +331,20 @@ def coaches_delete_command(ctx: Context, coach_id: str) -> None:
         ctx (Context): Click context object containing config
         coach_id (str): The coach identifier to delete
 
-    Raises:
-        Exit: On authentication or API errors.
-
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
     session = build_authenticated_session(config)
-    try:
-        with session:
-            _delete_coach_action(session, season_id, coach_id)
-    except Exception as exc:
-        click.secho(f"Error deleting coach: {exc}", fg="red", err=True)
-        raise Exit(1) from exc
-
-    click.secho(f"Coach {coach_id} deleted successfully.", fg="green")
+    run_roster_delete(
+        _delete_coach_action,
+        session,
+        "coach",
+        coach_id,
+        session,
+        season_id,
+        coach_id,
+    )
 
 
 @coaches_group.command("penalty-report")
@@ -382,19 +377,13 @@ def coaches_penalty_report_command(
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
     with build_authenticated_session(config) as session:
-        from gamesheet_sdk.admin.roster import (  # noqa: PLC0415
-            get_coach_penalty_report,
-        )
-
-        report = get_coach_penalty_report(session, season_id, coach_id)
+        report = roster.get_coach_penalty_report(session, season_id, coach_id)
         if output_format == "json":
             output_text = json.dumps(report, indent=2)
         elif output_format == "yaml":
             output_text = yaml.dump(report, default_flow_style=False)
         else:
             output_text = json.dumps(report, indent=2)
-
-        from gamesheet_sdk.common.output import write_output  # noqa: PLC0415
 
         write_output(output_text, output_path, fmt=output_format)
 

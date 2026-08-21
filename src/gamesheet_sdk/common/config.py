@@ -26,13 +26,23 @@ from gamesheet_sdk.common.constants import DEFAULT_BASE_URL
 
 
 def _default_session_path() -> Path:
-    """Return the XDG-compliant default path for persisted session state."""
+    """Return the XDG-compliant default path for persisted session state.
+
+    Returns:
+        Path: Default session file path.
+
+    """
     xdg = os.environ.get("XDG_CACHE_HOME") or "~/.cache"
     return Path(xdg).expanduser() / "gamesheet-sdk-py" / "session.json"
 
 
 def _default_browser_state_path() -> Path:
-    """Return the XDG-compliant default path for Playwright storage state."""
+    """Return the XDG-compliant default path for Playwright storage state.
+
+    Returns:
+        Path: Default browser state file path.
+
+    """
     xdg = os.environ.get("XDG_CACHE_HOME") or "~/.cache"
     return Path(xdg).expanduser() / "gamesheet-sdk-py" / "browser-state.json"
 

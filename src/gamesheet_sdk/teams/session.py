@@ -37,7 +37,12 @@ class TeamsAuthenticatedSession(BaseAuthenticatedSession):
     """
 
     def _do_refresh(self: TeamsAuthenticatedSession) -> dict[str, str]:
-        """Refresh via the teams API gateway token endpoint."""
+        """Refresh via the teams API gateway token endpoint.
+
+        Returns:
+            dict[str, str]: Refreshed token dictionary containing new access token.
+
+        """
         return refresh_access_token(
             self._refresh_token,
             timeout=self.config.timeout,

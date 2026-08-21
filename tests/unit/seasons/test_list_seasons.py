@@ -194,7 +194,12 @@ _SEASON_ENDPOINT = f"{TEST_BASE_URL}/api/seasons/{SEASON_ID}"
 
 
 def _detailjsonapi_payload(data: dict[str, object]) -> dict[str, object]:
-    """Build a JSON:API ``{"data": {...}}`` body for a single resource."""
+    """Build a JSON:API ``{"data": {...}}`` body for a single resource.
+
+    Returns:
+        dict[str, object]: JSON:API payload dictionary.
+
+    """
     return {"data": data}
 
 
@@ -354,7 +359,12 @@ def test_get_season_other_failure_raises_gamesheet_error(config: Config) -> None
 
 # Tests for BFF API filtering
 def _bffjsonapi_payload(items: list[dict[str, object]]) -> dict[str, object]:
-    """Build a BFF API response body."""
+    """Build a BFF API response body.
+
+    Returns:
+        dict[str, object]: BFF API payload dictionary.
+
+    """
     return {
         "status": "success",
         "data": items,

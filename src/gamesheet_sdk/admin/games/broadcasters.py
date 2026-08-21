@@ -28,10 +28,6 @@ def list_broadcasters(session: Session) -> list[Broadcaster]:
     Returns:
         list[Broadcaster]: A list of :class:`Broadcaster` objects.
 
-    Raises:
-        AuthenticationError: If the server returns 401 or 403.
-        GameSheetError: For any other non-2xx response.
-
     """
     url = f"{BFF_API_BASE_URL}{BFF_BROADCASTERS}"
     response = session.get(url)

@@ -8,15 +8,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import rich_click as click
-from click.exceptions import Exit
 from rich_click import Context
 
+from gamesheet_sdk.admin import roster
 from gamesheet_sdk.admin.cli.constants import (
     HELP_PLAYER_FIRST_NAME,
     HELP_PLAYER_LAST_NAME,
-    HELP_UPDATED_EXTERNAL_ID,
-    HELP_UPDATED_FIRST_NAME,
-    HELP_UPDATED_LAST_NAME,
     PLAYER_DESIGNATION,
     PLAYER_POSITIONS,
     PLAYER_STATUS,
@@ -25,12 +22,16 @@ from gamesheet_sdk.admin.cli.helpers import (
     build_authenticated_session,
     run_action_or_exit,
     run_roster_assign_with_output,
+    run_roster_create_with_output,
+    run_roster_delete,
     run_roster_unassign,
+    run_roster_update_with_output,
 )
 from gamesheet_sdk.admin.cli.shared import (
     common_output_options,
     get_fields_option,
     list_columns_option,
+    player_update_options,
     render_get_command,
     render_list_command,
     render_penalty_report,
@@ -302,14 +303,7 @@ def teams_roster_players_create_command(
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
 
-    Raises:
-        Exit: On authentication or API errors.
-
     """
-    from gamesheet_sdk.admin.cli.helpers import (  # noqa: PLC0415
-        run_roster_create_with_output,
-    )
-
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
     team_id: str = ctx.obj["team_id"]
@@ -353,106 +347,15 @@ def teams_roster_players_create_command(
     required=True,
     help="Player ID to update.",
 )
-@click.option(
-    "--first-name",
-    type=str,
-    help=HELP_UPDATED_FIRST_NAME,
-)
-@click.option(
-    "--last-name",
-    type=str,
-    help=HELP_UPDATED_LAST_NAME,
-)
-@click.option(
-    "--external-id",
-    type=str,
-    help=HELP_UPDATED_EXTERNAL_ID,
-)
-@click.option(
-    "--biography",
-    type=str,
-    help="Updated biography text.",
-)
-@click.option(
-    "--height",
-    type=str,
-    help="Updated height (e.g., 6'2\").",
-)
-@click.option(
-    "--weight",
-    type=str,
-    help="Updated weight (e.g., 185).",
-)
-@click.option(
-    "--shot-hand",
-    type=click.Choice(["left", "right"], case_sensitive=False),
-    help="Updated shooting hand.",
-)
-@click.option(
-    "--birthdate",
-    type=str,
-    help="Updated birthdate (ISO format: YYYY-MM-DD).",
-)
-@click.option(
-    "--hometown",
-    type=str,
-    help="Updated hometown.",
-)
-@click.option(
-    "--country",
-    type=str,
-    help="Updated country code (e.g., US, CA).",
-)
-@click.option(
-    "--province",
-    type=str,
-    help="Updated province/state.",
-)
-@click.option(
-    "--drafted-by",
-    type=str,
-    help="Updated drafted by team name.",
-)
-@click.option(
-    "--committed-to",
-    type=str,
-    help="Updated committed to institution.",
-)
-@click.option(
-    "--photo",
-    "photo_path",
-    type=click.Path(exists=True, dir_okay=False),
-    help="Path to a new photo image file.",
-)
-@click.option(
-    "--remove-photo",
-    is_flag=True,
-    default=False,
-    help="Remove the player's photo.",
-)
+@player_update_options
 @common_output_options
 @click.pass_context
 def teams_roster_players_update_command(
     ctx: Context,
     player_id: str,
-    first_name: str | None,
-    last_name: str | None,
-    external_id: str | None,
-    biography: str | None,
-    height: str | None,
-    weight: str | None,
-    shot_hand: str | None,
-    birthdate: str | None,
-    hometown: str | None,
-    country: str | None,
-    province: str | None,
-    drafted_by: str | None,
-    committed_to: str | None,
-    photo_path: str | None,
-    *,
-    remove_photo: bool,
     output_format: str,
     output_path: str | None,
+    **player_kwargs: Any,
 ) -> None:
     r"""Update a player on this team.
 
@@ -462,32 +365,11 @@ def teams_roster_players_update_command(
     Args:
         ctx (Context): Click context object containing config
         player_id (str): The player identifier
-        first_name (str | None): Optional updated first name
-        last_name (str | None): Optional updated last name
-        external_id (str | None): Optional updated external identifier
-        biography (str | None): Optional updated biography
-        height (str | None): Optional updated height
-        weight (str | None): Optional updated weight
-        shot_hand (str | None): Optional updated shooting hand
-        birthdate (str | None): Optional updated birthdate
-        hometown (str | None): Optional updated hometown
-        country (str | None): Optional updated country
-        province (str | None): Optional updated province/state
-        drafted_by (str | None): Optional updated drafted by team
-        committed_to (str | None): Optional updated committed to team
-        photo_path (str | None): Optional updated path to photo
-        remove_photo (bool): Remove the photo
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-
-    Raises:
-        Exit: On authentication or API errors.
+        **player_kwargs (Any): Player attributes to update
 
     """
-    from gamesheet_sdk.admin.cli.helpers import (  # noqa: PLC0415
-        run_roster_update_with_output,
-    )
-
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
     team_id: str = ctx.obj["team_id"]
@@ -502,21 +384,7 @@ def teams_roster_players_update_command(
         season_id,
         team_id,
         player_id,
-        first_name=first_name,
-        last_name=last_name,
-        external_id=external_id,
-        biography=biography,
-        height=height,
-        weight=weight,
-        shot_hand=shot_hand,
-        birthdate=birthdate,
-        hometown=hometown,
-        country=country,
-        province=province,
-        drafted_by=drafted_by,
-        committed_to=committed_to,
-        photo_path=photo_path,
-        remove_photo=remove_photo,
+        **player_kwargs,
     )
 
 
@@ -540,23 +408,22 @@ def teams_roster_players_delete_command(ctx: Context, player_id: str) -> None:
         ctx (Context): Click context object containing config
         player_id (str): The player identifier to delete
 
-    Raises:
-        Exit: On authentication or API errors.
-
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
     team_id: str = ctx_data["team_id"]
     session = build_authenticated_session(config)
-    try:
-        with session:
-            _delete_team_player_action(session, season_id, team_id, player_id)
-    except Exception as exc:
-        click.secho(f"Error deleting player: {exc}", fg="red", err=True)
-        raise Exit(1) from exc
-
-    click.secho(f"Player {player_id} deleted successfully.", fg="green")
+    run_roster_delete(
+        _delete_team_player_action,
+        session,
+        "player",
+        player_id,
+        session,
+        season_id,
+        team_id,
+        player_id,
+    )
 
 
 @teams_roster_players_group.command("penalty-report")
@@ -590,11 +457,7 @@ def teams_roster_players_penalty_report_command(
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
     with build_authenticated_session(config) as session:
-        from gamesheet_sdk.admin.roster import (  # noqa: PLC0415
-            get_player_penalty_report,
-        )
-
-        report = get_player_penalty_report(session, season_id, player_id)
+        report = roster.get_player_penalty_report(session, season_id, player_id)
         render_penalty_report(report, output_format, output_path)
 
 

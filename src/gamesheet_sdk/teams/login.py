@@ -84,8 +84,8 @@ def _firebase_sign_in(email: str, password: str, *, timeout: float) -> str:
     payload = {"email": email, "password": password, "returnSecureToken": True}
     response = requests.post(url, json=payload, timeout=timeout)
     if response.status_code != HTTPStatus.OK:
-        _err_msg = f"Login rejected by Firebase: {_firebase_error_message(response)}"
-        raise AuthenticationError(_err_msg)
+        err_msg = f"Login rejected by Firebase: {_firebase_error_message(response)}"
+        raise AuthenticationError(err_msg)
 
     return str(response.json()["idToken"])
 
@@ -158,8 +158,8 @@ def _exchange_id_token(id_token: str, *, timeout: float) -> dict[str, str]:
     headers = {"Authorization": f"Bearer {id_token}"}
     response = requests.get(url, headers=headers, timeout=timeout)
     if response.status_code != HTTPStatus.OK:
-        _err_msg = f"Teams token exchange failed (HTTP {response.status_code})."
-        raise AuthenticationError(_err_msg)
+        err_msg = f"Teams token exchange failed (HTTP {response.status_code})."
+        raise AuthenticationError(err_msg)
 
     try:
         return _extract_tokens(response.json())
@@ -203,12 +203,12 @@ def refresh_access_token(
     }
     response = requests.post(url, json={}, headers=headers, timeout=timeout)
     if response.status_code == HTTPStatus.UNAUTHORIZED:
-        _err_msg = "Refresh token rejected. Run `gamesheet-teams login` to re-authenticate."
-        raise AuthenticationError(_err_msg)
+        err_msg = "Refresh token rejected. Run `gamesheet-teams login` to re-authenticate."
+        raise AuthenticationError(err_msg)
 
     if response.status_code >= HTTPStatus.BAD_REQUEST:
-        _err_msg = f"Token refresh failed: HTTP {response.status_code}: {response.text[:200]!r}"
-        raise GameSheetError(_err_msg)
+        err_msg = f"Token refresh failed: HTTP {response.status_code}: {response.text[:200]!r}"
+        raise GameSheetError(err_msg)
 
     return _extract_tokens(response.json())
 
@@ -265,10 +265,6 @@ class TeamsLoginFlow:
 
         Returns:
             dict[str, str]: Token bundle with ``"access"`` and ``"refresh"`` keys.
-
-        Raises:
-            ~gamesheet_sdk.common.exceptions.AuthenticationError: If credentials are missing, Firebase rejects
-                them, or the token exchange fails.
 
         """
         resolved_email = resolve_email(self._config, email)

@@ -267,6 +267,7 @@ target-version = "py311"
 line-length = 110
 indent-width = 4
 respect-gitignore = true
+format.preview = true
 format.indent-style = "space"
 format.quote-style = "double"
 format.line-ending = "auto"
@@ -281,14 +282,22 @@ lint.ignore = [
   "D203",
   "D213",
   "ISC001",
+  "RUF105",
+  "RUF201",
 ]
 lint.per-file-ignores."docs/*" = [
+  "PLC2701",
   "RUF001",
+  "S404",
+]
+lint.per-file-ignores."src/gamesheet_sdk/__init__.py" = [
+  "RUF067",
 ]
 lint.per-file-ignores."tests/*" = [
   "DTZ001",
   "FBT001",
   "PLC0415",
+  "PLC2701",
   "PLR2004",
   "S101",
   "S106",
@@ -296,6 +305,11 @@ lint.per-file-ignores."tests/*" = [
 ]
 lint.per-file-ignores."tests/tools/*" = [
   "E402",
+  "S404",
+]
+lint.per-file-ignores."tools/*" = [
+  "PLC2701",
+  "S404",
 ]
 lint.fixable = [
   "ALL",
@@ -316,6 +330,7 @@ lint.pylint.max-public-methods = 30
 lint.pylint.max-returns = 10
 lint.pylint.max-statements = 75
 lint.pylint.max-statements-in-try = 10
+lint.preview = true
 
 [tool.codespell]
 builtin = "clear,rare,informal,usage,code,names,en-GB_to_en-US"

@@ -143,7 +143,15 @@ def _build_scoresheet_filename(game: Game) -> str:
     """
 
     def sanitize(text: str | None) -> str:
-        """Convert text to lowercase and replace spaces/special chars with underscores."""
+        """Convert text to lowercase and replace spaces/special chars with underscores.
+
+        Args:
+            text (str | None): Input text.
+
+        Returns:
+            str: Sanitized string.
+
+        """
         if not text:
             return "unknown"
         # Convert to lowercase, replace spaces/special chars with underscores,

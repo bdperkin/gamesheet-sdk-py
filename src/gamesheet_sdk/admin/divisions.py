@@ -25,10 +25,11 @@ from gamesheet_sdk.admin.shared import (
     get_invitation_code_from_relationship,
     parse_jsonapi_resource,
 )
+from gamesheet_sdk.admin.teams import Team
+from gamesheet_sdk.admin.teams import _parse as parse_team
 from gamesheet_sdk.common.shared import JSONAPI_HEADERS, handle_response
 
 if TYPE_CHECKING:
-    from gamesheet_sdk.admin.teams import Team
     from gamesheet_sdk.common.session import Session
 
 _ENDPOINT = "/api/divisions"
@@ -98,8 +99,6 @@ def list_division_teams(session: Session, division_id: str) -> list[Team]:
             the division has no teams.
 
     """
-    from gamesheet_sdk.admin.teams import _parse as parse_team  # noqa: PLC0415
-
     endpoint = f"/api/divisions/{division_id}/teams"
     # Request sparse fieldset including logo_url and roster (for player/coach counts)
     # Include invitations relationship to get invitation codes
@@ -147,10 +146,6 @@ def get_division(
     Returns:
         Division: The requested Division model instance.
 
-    Raises:
-        AuthenticationError: If the server returns 401.
-        GameSheetError: For any other non-2xx response.
-
     """
     endpoint = f"{_ENDPOINT}/{division_id}"
     response = session.get(endpoint, headers=JSONAPI_HEADERS)
@@ -190,10 +185,6 @@ def list_divisions(
         list[Division]: A list of :class:`Division`, in the order the server returned them. The list may be
             empty if the season has no divisions.
 
-    Raises:
-        AuthenticationError: If the server returns 401.
-        GameSheetError: For any other non-2xx response.
-
     """
     response = session.get(_ENDPOINT, headers=JSONAPI_HEADERS)
     handle_response(response, _ENDPOINT, "GET divisions")
@@ -231,10 +222,6 @@ def create_division(
 
     Returns:
         Division: The newly created Division model instance.
-
-    Raises:
-        AuthenticationError: If the server returns 401.
-        GameSheetError: For any other non-2xx response.
 
     """
     endpoint = f"/api/seasons/{season_id}/divisions"

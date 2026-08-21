@@ -68,10 +68,6 @@ class LoginFlow(Protocol):
         Returns:
             dict[str, str]: Token bundle with at least ``"access"`` and ``"refresh"`` keys.
 
-        Raises:
-            ~gamesheet_sdk.common.exceptions.AuthenticationError: If credentials are missing or the auth
-                backend rejects them.
-
         """
-        _ = (email, password, timeout)
+        _ = (self, email, password, timeout)
         return {}

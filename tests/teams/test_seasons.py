@@ -35,7 +35,12 @@ _REFRESH_URL = f"{TEAMS_API_GATEWAY}{TEAMS_REFRESH_PATH}"
 
 
 def _make_session() -> TeamsAuthenticatedSession:
-    """Create a test TeamsAuthenticatedSession."""
+    """Create a test TeamsAuthenticatedSession.
+
+    Returns:
+        TeamsAuthenticatedSession: Test authenticated session instance.
+
+    """
     config = Config()
     return TeamsAuthenticatedSession(
         config,
@@ -45,7 +50,12 @@ def _make_session() -> TeamsAuthenticatedSession:
 
 
 def _sample_seasons_data() -> list[dict[str, Any]]:
-    """Return sample seasons data list."""
+    """Return sample seasons data list.
+
+    Returns:
+        list[dict[str, Any]]: List of sample season data dictionaries.
+
+    """
     return [
         {
             "id": 101,
@@ -131,8 +141,8 @@ def test_list_seasons_parses_response() -> None:
 
     s2 = result[1]
     assert s2.id == "102"
-    assert s2.association_id == ""
-    assert s2.association_title == ""
+    assert not s2.association_id
+    assert not s2.association_title
 
 
 @responses.activate
@@ -247,8 +257,8 @@ def test_get_season_without_optional_fields() -> None:
     assert result.title == "Minimal Season"
 
     result_none = get_season(session, "None", timeout=1.0)
-    assert result_none.id == ""
-    assert result_none.leagueId == ""
+    assert not result_none.id
+    assert not result_none.leagueId
 
     result_no_id = get_season(session, "", timeout=1.0)
     assert result_no_id.id is None
@@ -304,7 +314,7 @@ def test_get_season_penalty_codes_empty() -> None:
     session = _make_session()
     result = get_season_penalty_codes(session, "102", timeout=1.0)
 
-    assert result == []
+    assert not result
 
 
 @responses.activate
@@ -320,7 +330,7 @@ def test_get_season_penalty_codes_not_a_list() -> None:
     session = _make_session()
     result = get_season_penalty_codes(session, "104", timeout=1.0)
 
-    assert result == []
+    assert not result
 
 
 @responses.activate
@@ -415,7 +425,7 @@ def test_get_season_teams_empty() -> None:
     session = _make_session()
     result = get_season_teams(session, "102", timeout=1.0)
 
-    assert result == []
+    assert not result
 
 
 @responses.activate
@@ -431,7 +441,7 @@ def test_get_season_teams_not_a_list() -> None:
     session = _make_session()
     result = get_season_teams(session, "104", timeout=1.0)
 
-    assert result == []
+    assert not result
 
 
 @responses.activate

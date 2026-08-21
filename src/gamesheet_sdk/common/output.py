@@ -285,9 +285,9 @@ def render(
 
     """
     if fmt not in ALL_FORMATS:
-        _fmt_list = ", ".join(ALL_FORMATS)
-        _err_msg = f"Unknown format: {fmt!r}. Expected one of {_fmt_list}."
-        raise ValueError(_err_msg)
+        fmt_list = ", ".join(ALL_FORMATS)
+        err_msg = f"Unknown format: {fmt!r}. Expected one of {fmt_list}."
+        raise ValueError(err_msg)
 
     effective_columns = columns if columns is not None else _derive_columns(rows)
     renderer = _DATA_RENDERERS.get(fmt)
@@ -335,13 +335,11 @@ def write_output(
 
     **TTY stdout example** (JSON/YAML only)::
 
-        >>> from gamesheet_sdk.common.output import write_output  # noqa: PLC0415
         >>> write_output(text, None, fmt="json")
         # Syntax-highlighted output to terminal if stdout is a TTY
 
     **Non-TTY / other formats**::
 
-        >>> from gamesheet_sdk.common.output import write_output  # noqa: PLC0415
         >>> write_output(text, None, fmt="csv")
         # Plain text to stdout with trailing newline
 
@@ -357,7 +355,7 @@ def write_output(
         Path(path).write_text(_ensure_trailing_newline(text), encoding=ENCODING_UTF8)
         return
 
-    if sys.stdout.isatty() and fmt in ("json", "yaml"):
+    if sys.stdout.isatty() and fmt in {"json", "yaml"}:
         Console().print(
             Syntax(
                 text,

@@ -226,7 +226,7 @@ def list_team_coaches(session: Session, season_id: str, team_id: str) -> list[Co
         str(c["id"]): c
         for c in body.get("data", {}).get("attributes", {}).get("roster", {}).get("coaches", [])
     }
-    coaches = []
+    team_coaches = []
     for coach_id, coach_data in included_coaches.items():
         coach = parse_coach(coach_data)
         if coach_id in roster_metadata:
@@ -235,9 +235,9 @@ def list_team_coaches(session: Session, season_id: str, team_id: str) -> list[Co
             coach.status = metadata.get("status")
             coach.signature = metadata.get("signature")
 
-        coaches.append(coach)
+        team_coaches.append(coach)
 
-    return coaches
+    return team_coaches
 
 
 def get_team_coach(
@@ -266,8 +266,8 @@ def get_team_coach(
         GameSheetError: If the coach is not found on the team's roster.
 
     """
-    coaches = list_team_coaches(session, season_id, team_id)
-    for coach in coaches:
+    team_coaches = list_team_coaches(session, season_id, team_id)
+    for coach in team_coaches:
         if coach.id == coach_id:
             return coach
 
@@ -684,6 +684,9 @@ def get_coach_penalty_report(
     Returns:
         dict[str, Any]: Penalty report data including coach_games, coach_penalties, rostered_coaches, and
             season_coaches.
+
+    Raises:
+        GameSheetError: If the penalty report API returns a non-success status.
 
     """
     coach = get_coach(session, season_id, coach_id)

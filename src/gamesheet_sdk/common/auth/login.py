@@ -48,9 +48,6 @@ def _resolve_email(cfg: Config, email: str | None) -> str:
     Returns:
         str: The resolved email address.
 
-    Raises:
-        AuthenticationError: If no email is available from any source.
-
     """
     return resolve_email(cfg, email)
 
@@ -66,9 +63,6 @@ def _resolve_password(cfg: Config, password: str | None) -> str:
 
     Returns:
         str: The resolved password string.
-
-    Raises:
-        AuthenticationError: If no password is available from any source.
 
     """
     return resolve_password(cfg, password)
@@ -162,10 +156,6 @@ def _submit_login_form(page: Page, email: str, password: str) -> None:
         email (str): Email address to enter into the ``#email`` input.
         password (str): Password to enter into the ``#password`` input.
 
-    Returns:
-        None: None. The form submission triggers background network calls captured by
-            :func:`_attach_response_capture`.
-
     """
     page.fill("#email", email)
     page.fill("#password", password)
@@ -199,17 +189,14 @@ def _raise_for_firebase_error(response: Response) -> None:
     Args:
         response (Response): Playwright Response object from the Firebase signInWithPassword call.
 
-    Returns:
-        None: None on success (HTTP 200).
-
     Raises:
         AuthenticationError: If the response status is not 200. The exception message includes the Firebase
             error code extracted by :func:`_firebase_error_message`.
 
     """
     if response.status != HTTPStatus.OK:
-        _err_msg = f"Login rejected by Firebase: {_firebase_error_message(response)}"
-        raise AuthenticationError(_err_msg)
+        err_msg = f"Login rejected by Firebase: {_firebase_error_message(response)}"
+        raise AuthenticationError(err_msg)
 
 
 def _raise_for_token_error(response: Response) -> None:
@@ -218,16 +205,13 @@ def _raise_for_token_error(response: Response) -> None:
     Args:
         response (Response): Playwright Response object from the /api/token exchange call.
 
-    Returns:
-        None: None on success (HTTP 200).
-
     Raises:
         AuthenticationError: If the response status is not 200.
 
     """
     if response.status != HTTPStatus.OK:
-        _err_msg = f"GameSheet token exchange failed (HTTP {response.status})."
-        raise AuthenticationError(_err_msg)
+        err_msg = f"GameSheet token exchange failed (HTTP {response.status})."
+        raise AuthenticationError(err_msg)
 
 
 def _auth_round_trip_complete(captured: dict[str, Response | None], email: str) -> bool:
@@ -240,10 +224,6 @@ def _auth_round_trip_complete(captured: dict[str, Response | None], email: str) 
 
     Returns:
         bool: Boolean result.
-
-    Raises:
-        AuthenticationError: If Firebase Auth or token exchange responses indicate failure (via
-            :func:`_raise_for_firebase_error` or :func:`_raise_for_token_error`).
 
     """
     fb = captured["firebase"]
@@ -282,9 +262,6 @@ def _await_auth_outcome(
             logging.
         timeout_s (float): Total timeout in seconds, used only in the timeout error message.
 
-    Returns:
-        None: None on success (both responses landed with HTTP 200).
-
     Raises:
         AuthenticationError: If auth responses indicate failure (via :func:`_auth_round_trip_complete`), or if
             the deadline passes with no responses.
@@ -296,11 +273,11 @@ def _await_auth_outcome(
 
         page.wait_for_timeout(POLL_INTERVAL_MS)
 
-    _err_msg = (
+    err_msg = (
         f"Login flow did not complete within {timeout_s:.0f}s. "
         "Auth backend returned no response. Try `--no-headless -vv` to debug."
     )
-    raise AuthenticationError(_err_msg)
+    raise AuthenticationError(err_msg)
 
 
 def _settle_post_login(session: BrowserSession, path: str) -> None:
@@ -318,9 +295,6 @@ def _settle_post_login(session: BrowserSession, path: str) -> None:
     Args:
         session (BrowserSession): Active browser session to navigate.
         path (str): Destination path to navigate to for SPA settlement.
-
-    Returns:
-        None: None
 
     """
     try:
@@ -367,10 +341,6 @@ def login(
             afterwards captures a fully-settled session (cookies + any SPA-cached state) rather than just the
             bare auth cookie. Pass ``None`` to skip the post-login navigation entirely. Default is
             :data:`POST_LOGIN_PATH`.
-
-    Raises:
-        AuthenticationError: If authentication fails (missing credentials, Firebase rejection, token exchange
-            failure, or timeout).
 
     """
     email = _resolve_email(session.config, email)
@@ -453,8 +423,8 @@ class AdminLoginFlow:
             dict[str, str]: Token bundle with ``"access"`` and ``"refresh"`` keys.
 
         Raises:
-            ~gamesheet_sdk.common.exceptions.AuthenticationError: If credentials are missing, the auth backend
-                rejects them, or tokens are not found in the saved state after login.
+            AuthenticationError: If credentials are missing, the auth backend rejects them, or tokens are not
+                found in the saved state after login.
 
         """
         with BrowserSession(self._config) as session:
@@ -463,7 +433,7 @@ class AdminLoginFlow:
         access = load_access_token(self._config)
         refresh = load_refresh_token(self._config)
         if access is None or refresh is None:
-            _err_msg = "Login completed but tokens were not found in saved state."
-            raise AuthenticationError(_err_msg)
+            err_msg = "Login completed but tokens were not found in saved state."
+            raise AuthenticationError(err_msg)
 
         return {"access": access, "refresh": refresh}

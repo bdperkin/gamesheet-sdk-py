@@ -41,7 +41,12 @@ def _create_team_data(
     coach_count: int,
     **kwargs: Any,
 ) -> dict[str, Any]:
-    """Create test team data."""
+    """Create test team data.
+
+    Returns:
+        dict[str, Any]: Team resource data dictionary.
+
+    """
     data: dict[str, Any] = {
         "type": "teams",
         "id": team_id,

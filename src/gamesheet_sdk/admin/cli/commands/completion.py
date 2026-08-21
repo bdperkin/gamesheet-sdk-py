@@ -27,6 +27,9 @@ def completion_command(shell: str) -> None:
     Args:
         shell (str): Target shell (bash, zsh, or fish).
 
+    Raises:
+        Exit: If the specified shell is unsupported.
+
     """
     from click import get_current_context  # noqa: PLC0415
     from click.shell_completion import get_completion_class  # noqa: PLC0415 # type: ignore[unresolved-import]

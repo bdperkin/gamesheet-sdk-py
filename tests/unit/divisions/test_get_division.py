@@ -24,15 +24,15 @@ from tests.helpers import (
 @responses.activate
 def test_get_division_returns_single_division(config: Config) -> None:
     """Test that get_division returns a single division."""
-    _division_id = "301"
-    _get_endpoint = f"{TEST_BASE_URL}/api/divisions/{_division_id}"
+    division_id = "301"
+    get_endpoint = f"{TEST_BASE_URL}/api/divisions/{division_id}"
     responses.add(
         responses.GET,
-        _get_endpoint,
+        get_endpoint,
         json={
             "data": {
                 "type": "divisions",
-                "id": _division_id,
+                "id": division_id,
                 "attributes": {
                     "title": DEFAULT_DIVISION_NAME,
                     "created_at": TIMESTAMP_2024_01_01,
@@ -47,9 +47,9 @@ def test_get_division_returns_single_division(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_division(session, _division_id, include_team_count=False)
+        result = get_division(session, division_id, include_team_count=False)
 
-    assert result.id == _division_id
+    assert result.id == division_id
     assert result.season_id == SEASON_ID
     assert result.title == DEFAULT_DIVISION_NAME
 
@@ -57,15 +57,15 @@ def test_get_division_returns_single_division(config: Config) -> None:
 @responses.activate
 def test_get_division_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     """Test that get_division sends correct authorization and accept headers."""
-    _division_id = "301"
-    _get_endpoint = f"{TEST_BASE_URL}/api/divisions/{_division_id}"
+    division_id = "301"
+    get_endpoint = f"{TEST_BASE_URL}/api/divisions/{division_id}"
     responses.add(
         responses.GET,
-        _get_endpoint,
+        get_endpoint,
         json={
             "data": {
                 "type": "divisions",
-                "id": _division_id,
+                "id": division_id,
                 "attributes": {
                     "title": "Test",
                     "created_at": TIMESTAMP_2024_01_01,
@@ -80,7 +80,7 @@ def test_get_division_sends_bearer_and_jsonapi_accept(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("test-token")
-        get_division(session, _division_id, include_team_count=False)
+        get_division(session, division_id, include_team_count=False)
 
     assert len(responses.calls) == 1
     req = responses.calls[0].request
@@ -91,18 +91,18 @@ def test_get_division_sends_bearer_and_jsonapi_accept(config: Config) -> None:
 @responses.activate
 def test_get_division_401_raises_authentication_error(config: Config) -> None:
     """Test that HTTP 401 raises AuthenticationError."""
-    _division_id = "301"
-    _get_endpoint = f"{TEST_BASE_URL}/api/divisions/{_division_id}"
+    division_id = "301"
+    get_endpoint = f"{TEST_BASE_URL}/api/divisions/{division_id}"
     responses.add(
         responses.GET,
-        _get_endpoint,
+        get_endpoint,
         json={"errors": [{"detail": "Token expired"}]},
         status=401,
     )
     with Session(config) as session:
         session.set_bearer_token("stale")
         with pytest.raises(AuthenticationError, match="HTTP 401"):
-            get_division(session, _division_id, include_team_count=False)
+            get_division(session, division_id, include_team_count=False)
 
 
 @responses.activate
@@ -110,43 +110,43 @@ def test_get_division_404_raises_gamesheet_error_with_helpful_message(
     config: Config,
 ) -> None:
     """Test that HTTP 404 raises GameSheetError with helpful message."""
-    _division_id = "nonexistent"
-    _get_endpoint = f"{TEST_BASE_URL}/api/divisions/{_division_id}"
-    responses.add(responses.GET, _get_endpoint, status=404, body="Not found")
+    division_id = "nonexistent"
+    get_endpoint = f"{TEST_BASE_URL}/api/divisions/{division_id}"
+    responses.add(responses.GET, get_endpoint, status=404, body="Not found")
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(
             GameSheetError,
             match=TEST_ERROR_PATTERN_404_RESOURCE,
         ):
-            get_division(session, _division_id, include_team_count=False)
+            get_division(session, division_id, include_team_count=False)
 
 
 @responses.activate
 def test_get_division_other_failure_raises_gamesheet_error(config: Config) -> None:
     """Test that other HTTP errors raise GameSheetError."""
-    _division_id = "301"
-    _get_endpoint = f"{TEST_BASE_URL}/api/divisions/{_division_id}"
-    responses.add(responses.GET, _get_endpoint, status=500, body="boom")
+    division_id = "301"
+    get_endpoint = f"{TEST_BASE_URL}/api/divisions/{division_id}"
+    responses.add(responses.GET, get_endpoint, status=500, body="boom")
     with Session(config) as session:
         session.set_bearer_token("abc")
         with pytest.raises(GameSheetError, match="HTTP 500"):
-            get_division(session, _division_id, include_team_count=False)
+            get_division(session, division_id, include_team_count=False)
 
 
 @responses.activate
 def test_get_division_with_team_count(config: Config) -> None:
     """Test that get_division can fetch team count."""
-    _division_id = "301"
-    _get_endpoint = f"{TEST_BASE_URL}/api/divisions/{_division_id}"
-    _teams_endpoint = f"{TEST_BASE_URL}/api/divisions/{_division_id}/teams"
+    division_id = "301"
+    get_endpoint = f"{TEST_BASE_URL}/api/divisions/{division_id}"
+    teams_endpoint = f"{TEST_BASE_URL}/api/divisions/{division_id}/teams"
     responses.add(
         responses.GET,
-        _get_endpoint,
+        get_endpoint,
         json={
             "data": {
                 "type": "divisions",
-                "id": _division_id,
+                "id": division_id,
                 "attributes": {
                     "title": DEFAULT_DIVISION_NAME,
                     "created_at": TIMESTAMP_2024_01_01,
@@ -161,7 +161,7 @@ def test_get_division_with_team_count(config: Config) -> None:
     )
     responses.add(
         responses.GET,
-        _teams_endpoint,
+        teams_endpoint,
         json={
             "data": [
                 {
@@ -196,9 +196,9 @@ def test_get_division_with_team_count(config: Config) -> None:
     )
     with Session(config) as session:
         session.set_bearer_token("abc")
-        result = get_division(session, _division_id, include_team_count=True)
+        result = get_division(session, division_id, include_team_count=True)
 
-    assert result.id == _division_id
+    assert result.id == division_id
     assert result.season_id == SEASON_ID
     assert result.title == DEFAULT_DIVISION_NAME
     assert result.team_count == 2

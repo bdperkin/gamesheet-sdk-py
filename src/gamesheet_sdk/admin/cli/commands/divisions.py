@@ -11,16 +11,18 @@ import rich_click as click
 from click.exceptions import Exit
 from rich_click import Context
 
+from gamesheet_sdk.admin.cli.commands.teams import (
+    teams_create_command,
+    teams_delete_command,
+    teams_get_command,
+    teams_update_command,
+)
 from gamesheet_sdk.admin.cli.constants import (
     HELP_SEASON_ID_FOR_DIVISION,
-    HELP_SEASON_ID_FOR_TEAM,
 )
 from gamesheet_sdk.admin.cli.helpers import (
     build_authenticated_session,
     run_action_or_exit,
-    run_team_create,
-    run_team_delete,
-    run_team_update,
 )
 from gamesheet_sdk.admin.cli.shared import (
     common_output_options,
@@ -28,8 +30,6 @@ from gamesheet_sdk.admin.cli.shared import (
     list_columns_option,
     render_get_command,
     render_list_command,
-    team_create_options,
-    team_update_options,
 )
 from gamesheet_sdk.admin.divisions import (
     Division,
@@ -352,212 +352,14 @@ def divisions_teams_list_command(
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
-    teams = run_action_or_exit(session, _list_division_teams_action, division_id)
-    render_list_command(teams, output_format, output_path, columns_spec)
+    division_teams = run_action_or_exit(session, _list_division_teams_action, division_id)
+    render_list_command(division_teams, output_format, output_path, columns_spec)
 
 
-@divisions_teams_group.command("get")
-@click.option(
-    "--season-id",
-    type=str,
-    envvar="GAMESHEET_SEASON_ID",
-    required=True,
-    help=HELP_SEASON_ID_FOR_TEAM,
-)
-@click.option(
-    "--team-id",
-    type=str,
-    envvar="GAMESHEET_TEAM_ID",
-    required=True,
-    help="Team ID to retrieve.",
-)
-@common_output_options
-@click.pass_context
-def divisions_teams_get_command(
-    ctx: Context,
-    season_id: str,
-    team_id: str,
-    output_format: str,
-    output_path: str | None,
-) -> None:
-    r"""Get detailed information about a specific team.
-
-    Delegates to teams get functionality.\f
-
-    Args:
-        ctx (Context): Click context object containing config
-        season_id (str): The season identifier
-        team_id (str): The team identifier
-        output_format (str): Output format for rendering
-        output_path (str | None): Optional output file path
-
-    """
-    from gamesheet_sdk.admin.teams import (  # noqa: PLC0415
-        get_team as _get_team_action,
-    )
-
-    config: Config = ctx.obj
-    session = build_authenticated_session(config)
-    item = run_action_or_exit(session, _get_team_action, season_id, team_id)
-    render_get_command(item, output_format, output_path)
-
-
-@divisions_teams_group.command("create")
-@click.option(
-    "--season-id",
-    type=str,
-    envvar="GAMESHEET_SEASON_ID",
-    required=True,
-    help="Season ID to create the team in.",
-)
-@click.option(
-    "--division-id",
-    type=str,
-    envvar="GAMESHEET_DIVISION_ID",
-    required=True,
-    help="Division ID the team belongs to.",
-)
-@click.option(
-    "--title",
-    type=str,
-    required=True,
-    help="Team name/title.",
-)
-@team_create_options
-@common_output_options
-@click.pass_context
-def divisions_teams_create_command(
-    ctx: Context,
-    season_id: str,
-    division_id: str,
-    title: str,
-    external_id: str | None,
-    logo_path: str | None,
-    output_format: str,
-    output_path: str | None,
-) -> None:
-    r"""Create a new team in the specified division.
-
-    Delegates to teams create functionality.\f
-
-    Args:
-        ctx (Context): Click context object containing config
-        season_id (str): The season identifier
-        division_id (str): Division ID the team belongs to
-        title (str): Team name/title
-        external_id (str | None): Optional external identifier
-        logo_path (str | None): Optional path to a logo image file
-        output_format (str): Output format for rendering
-        output_path (str | None): Optional output file path
-
-    """
-    run_team_create(
-        ctx,
-        season_id,
-        title,
-        division_id,
-        external_id,
-        logo_path,
-        output_format,
-        output_path,
-    )
-
-
-@divisions_teams_group.command("update")
-@click.option(
-    "--season-id",
-    type=str,
-    envvar="GAMESHEET_SEASON_ID",
-    required=True,
-    help=HELP_SEASON_ID_FOR_TEAM,
-)
-@click.option(
-    "--team-id",
-    type=str,
-    envvar="GAMESHEET_TEAM_ID",
-    required=True,
-    help="Team ID to update.",
-)
-@team_update_options
-@common_output_options
-@click.pass_context
-def divisions_teams_update_command(
-    ctx: Context,
-    season_id: str,
-    team_id: str,
-    title: str | None,
-    division_id: str | None,
-    external_id: str | None,
-    logo_path: str | None,
-    *,
-    remove_logo: bool,
-    output_format: str,
-    output_path: str | None,
-) -> None:
-    r"""Update an existing team.
-
-    Delegates to teams update functionality.\f
-
-    Args:
-        ctx (Context): Click context object containing config
-        season_id (str): The season identifier
-        team_id (str): The team identifier to update
-        title (str | None): Optional new team name/title
-        division_id (str | None): Optional new division ID
-        external_id (str | None): Optional new external identifier
-        logo_path (str | None): Optional path to a new logo image file
-        remove_logo (bool): Remove the team's logo
-        output_format (str): Output format for rendering
-        output_path (str | None): Optional output file path
-
-    """
-    run_team_update(
-        ctx,
-        season_id,
-        team_id,
-        title,
-        division_id,
-        external_id,
-        logo_path,
-        remove_logo=remove_logo,
-        output_format=output_format,
-        output_path=output_path,
-    )
-
-
-@divisions_teams_group.command("delete")
-@click.option(
-    "--season-id",
-    type=str,
-    envvar="GAMESHEET_SEASON_ID",
-    required=True,
-    help=HELP_SEASON_ID_FOR_TEAM,
-)
-@click.option(
-    "--team-id",
-    type=str,
-    envvar="GAMESHEET_TEAM_ID",
-    required=True,
-    help="Team ID to delete.",
-)
-@confirm_destructive("team")
-@click.pass_context
-def divisions_teams_delete_command(
-    ctx: Context,
-    season_id: str,
-    team_id: str,
-) -> None:
-    r"""Delete a team.
-
-    Delegates to teams delete functionality.\f
-
-    Args:
-        ctx (Context): Click context object containing config
-        season_id (str): The season identifier
-        team_id (str): The team identifier to delete
-
-    """
-    run_team_delete(ctx, season_id, team_id)
+divisions_teams_group.add_command(teams_get_command, name="get")
+divisions_teams_group.add_command(teams_create_command, name="create")
+divisions_teams_group.add_command(teams_update_command, name="update")
+divisions_teams_group.add_command(teams_delete_command, name="delete")
 
 
 @divisions_group.command("delete")

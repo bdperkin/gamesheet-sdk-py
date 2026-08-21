@@ -124,9 +124,6 @@ class Session:
         and continues. This method is called automatically during :meth:``__init__`` to restore session state
         from a previous run.
 
-        Returns:
-            None: None
-
         """
         # Load from browser state file first (from login flow)
         browser_state_path = self.config.browser_state_path
@@ -390,9 +387,6 @@ class Session:
 
         Called automatically at the end of a ``with`` block. Delegates to :meth:`close` to save state and
         release resources.
-
-        Returns:
-            None: None
 
         """
         self.close()

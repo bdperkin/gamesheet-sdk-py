@@ -135,7 +135,7 @@ def test_current_overrides_reads_exact_pins_only(tmp_path: Path) -> None:
 
 def test_current_overrides_absent_section_is_empty(tmp_path: Path) -> None:
     """Test that a pyproject with no override list yields no pins."""
-    assert current_overrides(_write(tmp_path / "pyproject.toml", "[project]\nname = 'x'\n")) == {}
+    assert not current_overrides(_write(tmp_path / "pyproject.toml", "[project]\nname = 'x'\n"))
 
 
 def test_converge_overrides_targets_bounded_resolution() -> None:
@@ -169,7 +169,7 @@ def test_converge_overrides_flags_retirement_at_floor() -> None:
 
 def test_converge_overrides_skips_unresolved_package() -> None:
     """Test that a package uv did not resolve is skipped rather than guessed at."""
-    assert converge_overrides([_policy()], {}, {}, {}) == []
+    assert not converge_overrides([_policy()], {}, {}, {})
 
 
 def test_converge_overrides_unparsable_unpinned_version_is_not_retirable() -> None:

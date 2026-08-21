@@ -101,12 +101,7 @@ class BrowserSession:
 
     # -- internals --------------------------------------------------------
     def _start(self: BrowserSession) -> None:
-        """Launch Playwright + Chromium + a context, possibly restoring state.
-
-        Returns:
-            None: None
-
-        """
+        """Launch Playwright + Chromium + a context, possibly restoring state."""
         self._playwright = sync_playwright().start()
         self._browser = self._playwright.chromium.launch(
             headless=self.config.browser_headless,
@@ -138,16 +133,16 @@ class BrowserSession:
 
         """
         if self._closed:
-            _err_msg = "BrowserSession has been closed"
-            raise RuntimeError(_err_msg)
+            err_msg = "BrowserSession has been closed"
+            raise RuntimeError(err_msg)
 
         if self._context is None:
             self._start()
 
         if self._context is None:
             # Defensive check: _start() either succeeds (sets _context) or raises
-            _err_msg = "BrowserSession did not start"
-            raise ValueError(_err_msg)
+            err_msg = "BrowserSession did not start"
+            raise ValueError(err_msg)
 
         return self._context
 
@@ -235,9 +230,6 @@ class BrowserSession:
         Closes the browser context, browser instance, and stops the Playwright driver in that order. Resets
         all internal references to ``None``. Safe to call when some or all handles are already ``None``.
 
-        Returns:
-            None: None
-
         """
         if self._context is not None:
             self._context.close()
@@ -282,9 +274,6 @@ class BrowserSession:
         """Exit the context manager and close the session.
 
         Persists storage state and shuts down Playwright resources.
-
-        Returns:
-            None: None
 
         """
         self.close()

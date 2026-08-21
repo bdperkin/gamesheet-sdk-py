@@ -187,9 +187,6 @@ def update_pyproject(
     Returns:
         int: Number of dependencies updated.
 
-    Raises:
-        WriteError: If the file cannot be read or written.
-
     """
     pyproject_results = [
         r
@@ -285,9 +282,6 @@ def update_genprecommit_additional_deps(
     Returns:
         int: Number of additional_dependencies updated.
 
-    Raises:
-        WriteError: If the file cannot be read or written.
-
     """
     ad_results = [
         r
@@ -337,9 +331,6 @@ def update_precommit_config(
     Returns:
         int: Number of entries updated.
 
-    Raises:
-        WriteError: If the file cannot be read or written.
-
     """
     rev_results = {r.repo_url: r for r in results if r.needs_regeneration and r.rev_tag}
     ad_results = {
@@ -358,22 +349,29 @@ def update_precommit_config(
 
     for repo_entry in data.get("repos", []):
         url = repo_entry.get("repo", "")
+        if not url:
+            continue
 
-        if url in rev_results:
-            repo_entry["rev"] = rev_results[url].rev_tag
-            updated_count += 1
-            logger.debug("  Updated rev for %s", url)
+        rev_res = rev_results.get(url)
+        if rev_res and rev_res.rev_tag:
+            current_rev = repo_entry.get("rev", "")
+            if current_rev != rev_res.rev_tag:
+                repo_entry["rev"] = rev_res.rev_tag
+                updated_count += 1
 
-        if ad_results:
-            for hook_entry in repo_entry.get("hooks", []):
-                ad_list = hook_entry.get("additional_dependencies")
-                if ad_list:
-                    updated_count += _update_additional_dep_list(ad_list, ad_results)
+        for hook in repo_entry.get("hooks", []):
+            ad_list = hook.get("additional_dependencies")
+            if ad_list:
+                updated_count += _update_additional_dep_list(ad_list, ad_results)
 
     if updated_count > 0:
         _write_yaml_file(path, yml, data)
 
-    logger.info("Updated %d entries in %s", updated_count, path)
+    logger.info(
+        "Updated %d entries in %s",
+        updated_count,
+        path,
+    )
     return updated_count
 
 
@@ -539,9 +537,6 @@ def apply_types_sync(
 
     Returns:
         int: Total number of changes applied.
-
-    Raises:
-        WriteError: If the file cannot be read or written.
 
     """
     if not to_add and not to_remove and not to_update:

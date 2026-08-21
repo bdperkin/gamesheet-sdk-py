@@ -52,7 +52,15 @@ class IPadKey(BaseModel):
 
 
 def _parse(item: dict[str, Any]) -> IPadKey:
-    """Flatten a JSON:API resource object into an :class:`IPadKey`."""
+    """Flatten a JSON:API resource object into an :class:`IPadKey`.
+
+    Args:
+        item (dict[str, Any]): Raw JSON:API resource dictionary.
+
+    Returns:
+        IPadKey: Parsed IPadKey model instance.
+
+    """
     attrs = item.get("attributes", {})
     return IPadKey(
         id=item["id"],
@@ -89,16 +97,16 @@ def list_ipad_keys(session: Session, season_id: str) -> list[IPadKey]:
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
     if response.status_code == HTTPStatus.NOT_FOUND:
-        _err_msg = errors.ERROR_MSG_404_IPAD_KEYS.format(season_id=season_id)
-        raise GameSheetError(_err_msg)
+        err_msg = errors.ERROR_MSG_404_IPAD_KEYS.format(season_id=season_id)
+        raise GameSheetError(err_msg)
 
     if response.status_code >= HTTPStatus.BAD_REQUEST:
-        _err_msg = errors.ERROR_MSG_HTTP_GET.format(
+        err_msg = errors.ERROR_MSG_HTTP_GET.format(
             endpoint=_ENDPOINT,
             status_code=response.status_code,
             text=repr(response.text[:200]),
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     body: dict[str, Any] = response.json()
     return [_parse(item) for item in body.get("data", [])]

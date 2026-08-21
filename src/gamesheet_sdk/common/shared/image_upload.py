@@ -40,13 +40,13 @@ def upload_image(session: Session, image_path: str, image_type: str = "image") -
     """
     image_file_path = Path(image_path)
     if not image_file_path.exists():
-        _err_msg = f"{image_type.capitalize()} file not found: {image_path}"
-        raise GameSheetError(_err_msg)
+        err_msg = f"{image_type.capitalize()} file not found: {image_path}"
+        raise GameSheetError(err_msg)
 
     mime_type, _ = mimetypes.guess_type(image_path)
     if not mime_type or not mime_type.startswith("image/"):
-        _err_msg = f"Invalid image file: {image_path}"
-        raise GameSheetError(_err_msg)
+        err_msg = f"Invalid image file: {image_path}"
+        raise GameSheetError(err_msg)
 
     upload_url_endpoint = f"{BFF_API_BASE_URL}{BFF_ASSETS_UPLOAD_URL}"
     upload_url_response = session.post(upload_url_endpoint)
@@ -54,17 +54,17 @@ def upload_image(session: Session, image_path: str, image_type: str = "image") -
         raise AuthenticationError(errors.ERROR_MSG_401_EXPIRED)
 
     if upload_url_response.status_code >= HTTPStatus.BAD_REQUEST:
-        _err_msg = errors.ERROR_MSG_HTTP_POST.format(
+        err_msg = errors.ERROR_MSG_HTTP_POST.format(
             endpoint=upload_url_endpoint,
             status_code=upload_url_response.status_code,
             text=repr(upload_url_response.text[:200]),
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     upload_data: dict[str, Any] = upload_url_response.json()
     if upload_data.get("status") != "success":
-        _err_msg = f"Failed to get upload URL: {upload_data}"
-        raise GameSheetError(_err_msg)
+        err_msg = f"Failed to get upload URL: {upload_data}"
+        raise GameSheetError(err_msg)
 
     upload_url: str = upload_data["data"]["uploadURL"]
     image_id: str = upload_data["data"]["id"]
@@ -75,16 +75,16 @@ def upload_image(session: Session, image_path: str, image_type: str = "image") -
         )
 
     if upload_response.status_code >= HTTPStatus.BAD_REQUEST:
-        _err_msg = errors.ERROR_MSG_HTTP_POST.format(
+        err_msg = errors.ERROR_MSG_HTTP_POST.format(
             endpoint=upload_url,
             status_code=upload_response.status_code,
             text=repr(upload_response.text[:200]),
         )
-        raise GameSheetError(_err_msg)
+        raise GameSheetError(err_msg)
 
     upload_result: dict[str, Any] = upload_response.json()
     if not upload_result.get("success"):
-        _err_msg = f"Failed to upload {image_type}: {upload_result}"
-        raise GameSheetError(_err_msg)
+        err_msg = f"Failed to upload {image_type}: {upload_result}"
+        raise GameSheetError(err_msg)
 
     return f"{CLOUDFLARE_IMAGE_DELIVERY_BASE}/{image_id}"

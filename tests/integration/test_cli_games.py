@@ -20,7 +20,15 @@ _ENDPOINT = f"{_BFF_BASE}/games-list/v1"
 
 
 def _bff_response(games: list[dict[str, object]]) -> dict[str, object]:
-    """Build a BFF API response."""
+    """Build a BFF API response.
+
+    Args:
+        games (list[dict[str, object]]): List of game dicts.
+
+    Returns:
+        dict[str, object]: BFF API response payload.
+
+    """
     return {"status": "success", "data": games}
 
 

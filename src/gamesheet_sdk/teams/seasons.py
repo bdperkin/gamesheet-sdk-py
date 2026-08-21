@@ -99,7 +99,15 @@ class SeasonTeam(BaseModel):
 
 
 def _parse_season_summary(raw: dict[str, Any]) -> SeasonSummary:
-    """Parse raw season dictionary into a :class:`SeasonSummary`."""
+    """Parse raw season dictionary into a :class:`SeasonSummary`.
+
+    Args:
+        raw (dict[str, Any]): Raw season dictionary.
+
+    Returns:
+        SeasonSummary: Parsed season summary model instance.
+
+    """
     assoc = raw.get("association") or {}
     league = raw.get("league") or {}
     assoc_id = assoc.get("id") if isinstance(assoc, dict) else ""
@@ -109,12 +117,12 @@ def _parse_season_summary(raw: dict[str, Any]) -> SeasonSummary:
     league_id_attr = raw.get("leagueId")
 
     return SeasonSummary(
-        association_id=str(assoc_id) if assoc_id is not None and assoc_id != "" else "",
+        association_id=str(assoc_id) if assoc_id is not None and assoc_id else "",
         association_title=str(assoc_title) if assoc_title is not None else "",
         id=str(raw.get("id", "")),
-        league_id=str(league_id) if league_id is not None and league_id != "" else "",
+        league_id=str(league_id) if league_id is not None and league_id else "",
         league_title=str(league_title) if league_title is not None else "",
-        leagueId=str(league_id_attr) if league_id_attr is not None and league_id_attr != "" else "",
+        leagueId=str(league_id_attr) if league_id_attr is not None and league_id_attr else "",
         stats_year=str(raw.get("stats_year", "") or ""),
         title=str(raw.get("title", "") or ""),
     )
@@ -167,7 +175,19 @@ def fetch_seasons_raw(
 
 
 def _find_season(seasons: list[dict[str, Any]], season_id: str | int) -> dict[str, Any]:
-    """Find a season by ID within the seasons list."""
+    """Find a season by ID within the seasons list.
+
+    Args:
+        seasons (list[dict[str, Any]]): List of season dicts.
+        season_id (str | int): Season identifier to match.
+
+    Returns:
+        dict[str, Any]: Matching season dictionary.
+
+    Raises:
+        GameSheetError: If the season is not found.
+
+    """
     target_id = str(season_id)
     for s in seasons:
         if str(s.get("id", "")) == target_id:
@@ -191,10 +211,6 @@ def list_seasons(
     Returns:
         list[SeasonSummary]: List of :class:`SeasonSummary` objects.
 
-    Raises:
-        AuthenticationError: If the server returns a 401 Unauthorized status.
-        GameSheetError: If the server returns a non-2xx status code.
-
     """
     raw_seasons = fetch_seasons_raw(session, timeout=timeout)
     return [_parse_season_summary(item) for item in raw_seasons]
@@ -216,14 +232,10 @@ def get_season(
     Returns:
         SeasonDetail: :class:`SeasonDetail` with season attributes (excluding penaltyCodes and teams).
 
-    Raises:
-        AuthenticationError: If the server returns a 401 Unauthorized status.
-        GameSheetError: If the season is not found or the server returns an error.
-
     """
     raw_seasons = fetch_seasons_raw(session, timeout=timeout)
     season = _find_season(raw_seasons, season_id)
-    filtered = {k: v for k, v in season.items() if k not in ("penaltyCodes", "teams")}
+    filtered = {k: v for k, v in season.items() if k not in {"penaltyCodes", "teams"}}
     if "id" in filtered:
         filtered["id"] = str(filtered["id"]) if filtered["id"] is not None else ""
 
@@ -248,10 +260,6 @@ def get_season_penalty_codes(
 
     Returns:
         list[PenaltyCode]: List of :class:`PenaltyCode` objects for the season.
-
-    Raises:
-        AuthenticationError: If the server returns a 401 Unauthorized status.
-        GameSheetError: If the season is not found or the server returns an error.
 
     """
     raw_seasons = fetch_seasons_raw(session, timeout=timeout)
@@ -289,10 +297,6 @@ def get_season_teams(
 
     Returns:
         list[SeasonTeam]: List of :class:`SeasonTeam` objects for the season.
-
-    Raises:
-        AuthenticationError: If the server returns a 401 Unauthorized status.
-        GameSheetError: If the season is not found or the server returns an error.
 
     """
     raw_seasons = fetch_seasons_raw(session, timeout=timeout)
