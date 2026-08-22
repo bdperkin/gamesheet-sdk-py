@@ -2,6 +2,30 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.0 (2026-08-22)
+
+### Features
+
+- **cli**: Unify game options across both CLIs and make short flags consistent ([#236](https://github.com/bdperkin/gamesheet-sdk-py/pull/236),
+  [`f02ffde`](https://github.com/bdperkin/gamesheet-sdk-py/commit/f02ffdef5ae7108580ea78d3372b0f87c0a24cfe))
+
+### Refactoring
+
+- Split oversized modules, deduplicate CLI commands, and complete docstrings ([#234](https://github.com/bdperkin/gamesheet-sdk-py/pull/234),
+  [`d332f7a`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d332f7a31bd38f4ee80f8b98e4c2b323bbc350b4))
+
+### Testing
+
+- Isolate the SDK cache directory so tests cannot read a real session ([#235](https://github.com/bdperkin/gamesheet-sdk-py/pull/235),
+  [`32bcb5c`](https://github.com/bdperkin/gamesheet-sdk-py/commit/32bcb5cc61297ab10bf6cf9fa78d941fc1bcdc83))
+
+### Breaking Changes
+
+- **cli**: `--fields` is removed; use `--columns` / `-c`. `-f` now means `--force` on every command, so on a delete it skips the confirmation prompt instead of
+  selecting output fields. `gamesheet-teams lookups get|list -c` is now `--category`, `gamesheet-admin games completed download --output-path` is now
+  `--output`, and `login -t` is now `--timeout`. `gamesheet-teams schedule games create` requires `--game-type`, `--game-number` and the opposing division, and
+  no longer accepts `--association-id` / `--league-id`.
+
 ## v0.4.38 (2026-08-19)
 
 ### Features
