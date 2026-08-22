@@ -216,8 +216,8 @@ def test_teams_get_aliases_show_and_view(runner: CliRunner) -> None:
         assert '"teamName": "Hawks 12U"' in result.output
 
 
-def test_teams_get_fields_filter(runner: CliRunner) -> None:
-    """Test `gamesheet-teams teams get -f teamName,relationship`."""
+def test_teams_get_columns_filter(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams get -c teamName,relationship`."""
     with (
         patch(
             "gamesheet_sdk.teams.cli.commands.teams.build_authenticated_session",
@@ -230,7 +230,7 @@ def test_teams_get_fields_filter(runner: CliRunner) -> None:
     ):
         result = runner.invoke(
             cli,
-            ["teams", "get", "-t", "t-201", "-f", "teamName,relationship", "--format", "json"],
+            ["teams", "get", "-t", "t-201", "-c", "teamName,relationship", "--format", "json"],
         )
 
     assert result.exit_code == 0

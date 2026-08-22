@@ -437,6 +437,69 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   while preserving the other; two or more trigger recalculation. Mixing `--start-datetime` with `--start-date`/`--start-time` (or the end equivalents) raises a
   validation error.
 
+  **Unified game option set.** `gamesheet-admin games <verb>` and `gamesheet-teams schedule games <verb>` do the same job against different backends — a
+  season-schedule JSON:API for admin, the teams gateway's `/api/schedule-game` for teams — and expose **one option vocabulary**, so a command line written for
+  either runs unchanged on the other. All five verbs (`create`, `update`, `get`, `list`, `delete`) expose byte-identical option names and short flags; a test
+  (`tests/cli/games/test_unified_options.py`) and its teams counterpart pin the pieces. The set is declared once in `common/cli/`:
+
+  - `game_options.py` — the option decorators (`game_time_options`, `game_side_options`, `game_detail_options`, `season_id_option`, `game_id_option`), the
+    `GameArgs`/`GameSides` typed view over a command's `**params`, and `resolve_game_sides`.
+  - `game_times.py` — start/end/duration resolution (`resolve_game_window`, `resolve_game_window_update`), `parse_duration_minutes`, `resolve_time_zone`.
+  - `teams_lookup_options.py` — the read-side options that originate with the teams gateway (`--team-id`, `--month`, `--event-data`, `--availability`).
+  - `game_constants.py` — help strings. Duplicated from `admin/cli/constants.py` on purpose so `common` takes no dependency on `admin`.
+
+  Execution stays per-pillar in `admin/cli/shared/game_runner.py` and `teams/cli/commands/schedule/game_runner.py`; the command modules are thin, take
+  `**params`, and delegate. Design decisions worth knowing:
+
+  - **Two team-naming spellings, both accepted everywhere.** admin names the sides absolutely (`--home-team-id`/`--visitor-team-id`); teams names them relative
+    to "my" team (`--team-id`/`--opposing-team-id` plus `--home`/`--visitor`, spelled `--away` on `update`). `resolve_game_sides` translates whichever was given
+    into `GameSides`, which holds the absolute pair plus `home_flag` and derives the relative view. Naming the same slot twice with different values is a usage
+    error. On teams `update` the default side comes from the game's *current* `home_flag`, not a blanket "home" — otherwise `--home-team-id` would silently mean
+    the wrong team on an away game.
+  - **`--association-id`/`--league-id` were removed, not aliased.** They are wholly determined by `--season-id`, so the teams runner derives them via
+    `teams.seasons.get_season_ownership` (one extra `GET /api/seasons` per create). This costs a round trip but removes two options admin has no equivalent for.
+  - **Options only one backend can send are warned about, not rejected.** `--home-label`/`--visitor-label` are admin-only; `--team-id`/`--month`/`--event-data`/
+    `--availability` on `list`/`get` are teams-only. The receiving CLI prints a `Warning: … is not supported by …` line on stderr and continues with exit 0
+    (`warn_unsupported_options`). This keeps command lines portable; silently dropping them would hide real data loss.
+  - **`--start`/`--end` accept a bare time of day.** They alias `--start-datetime`/`--end-datetime`, but `--date 2026-08-20 --start 12:00 --end 13:15` is
+    long-standing teams idiom, so `is_bare_time` reclassifies a time-only value into the split time slot instead of colliding with `--date`. Two *times* for the
+    same end of the window (`--start 12:00 --start-time 13:00`) is still a usage error.
+  - **`--season-id` is accepted in two positions on admin.** The `games` group option is now optional and `resolve_season_id` falls back to it, so both
+    `games --season-id 1 create` and `games create --season-id 1` work. The `scheduled` verbs are also promoted onto the group, so
+    `gamesheet-admin games create` lines up with `gamesheet-teams schedule games create`.
+  - The two remaining asymmetries are genuine backend requirements, and both are "teams needs more": teams `create` requires `--season-id` (admin can inherit it
+    from the group) and teams `list` requires `--team-id` (admin lists a whole season). A command line that satisfies teams therefore satisfies admin.
+
+  **click gotcha worth preserving:** in click 8.4.2, passing `default=None` explicitly *cancels* `required=True` — the option arrives as `None` and the command
+  body runs, with no error and no warning. Passing no `default` at all is not the same as passing `default=None`, even though click's implicit default *is*
+  `None`. This silently disabled `--game-type`, `--number`, `--season-id` and `--team-id` when they were first made required. Build the keyword pair with
+  `game_options.requiredness(required=...)` rather than writing `required=..., default=None` by hand.
+
+  **Layering note:** the real datetime helpers live in `common/cli/datetime_helpers.py` and `admin/cli/shared/datetime_helpers.py` re-exports them. It used to
+  be the other way round; that inversion meant importing anything under `common.cli` from the teams CLI blew up with a circular import as soon as a second
+  `common.cli` module depended on the helpers. Keep the implementation in `common`.
+
+  **One name per concept, one meaning per short flag.** Output subsetting is spelled `--columns` / `-c` on *every* command in both CLIs, whether the output is a
+  table (`list`) or a single object (`get`, `create`, `update`, `delete -F json`) — they are all "show me only these keys", and `common/cli/decorators.py` has a
+  single `columns_option` for it. There used to be a second spelling, `--fields` / `-f`, applied to the single-object commands; it did exactly the same thing
+  (both route through `parse_columns_spec`) and it took `-f`, so `-f` meant `--fields` on 37 commands and `--force` on 12. `--fields` is gone with no
+  deprecation alias.
+
+  Two more second-spellings were removed with it: `--output-path` on `gamesheet-admin games completed download` (the same `output_path` dest as `--output`
+  everywhere else) and `-c` on `gamesheet-teams lookups get` / `lookups list`, where it meant `--category`. `--category` now has no short flag, because `-c`
+  belongs to `--columns`.
+
+  `-t` was likewise taken off `--timeout` on the two `login` commands, where it was the odd one out against `--team-id` on 28.
+
+  `RESERVED_SHORT_FLAGS` in `tests/common/cli/test_option_conventions.py` pins the invariants by walking both shipped click trees: `-c` is always `--columns`,
+  `-f` always `--force`, `-t` always `--team-id`, `-F` always `--format`, `-o` always `--output`, `--force` and `--columns` always offer their short flag, and
+  neither `--fields` nor `--output-path` comes back. Add to that table when you reserve a flag or retire a spelling.
+
+  **Two known exceptions, both confined to the two `login` commands:** `-e` is `--email` there but `--event-id` on six `schedule` commands, and `-p` is
+  `--password` there but `--practice-id` on three. Nothing is ambiguous *within* a command — `login` has no event or practice options — so these are
+  muscle-memory conflicts rather than parsing ones, and `-e`/`-p` for email/password at a login prompt are strong conventions in their own right. Left as-is
+  deliberately; if they ever go, `--email` and `--password` should give the flags up rather than be reassigned, as `--category` and `--timeout` did.
+
   **Tab-completion.** `gamesheet-admin completion {bash,zsh,fish}` (and `gamesheet-teams completion {bash,zsh,fish}`) prints a sourceable script (uses click's
   built-in `shell_completion` via the `_GAMESHEET_ADMIN_COMPLETE` / `_GAMESHEET_TEAMS_COMPLETE` env var; no third-party dep). `ResourceGroup.shell_complete` (in
   `common/cli/core.py`) overrides click's default to also enumerate aliases (`ls`, `rm`, …) so tab-completion stays in sync with the verb table. **Gotcha worth

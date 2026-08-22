@@ -52,7 +52,7 @@ def test_players_get(runner: CliRunner) -> None:
 
 
 def test_players_get_with_fields(runner: CliRunner) -> None:
-    """The players get command should support --fields and JSON format."""
+    """The players get command should support --columns and JSON format."""
     with (
         patch(
             "gamesheet_sdk.admin.cli.commands.roster_players._get_player_action",
@@ -78,7 +78,7 @@ def test_players_get_with_fields(runner: CliRunner) -> None:
                 "get",
                 "--player-id",
                 CLI_TEST_SEASON_ID,
-                "--fields",
+                "--columns",
                 "id",
                 "--format",
                 "json",
@@ -115,7 +115,7 @@ def test_players_get_empty_fields(runner: CliRunner) -> None:
                 "get",
                 "--player-id",
                 CLI_TEST_SEASON_ID,
-                "--fields",
+                "--columns",
                 ",",
             ],
         )

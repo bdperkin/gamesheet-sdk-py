@@ -72,7 +72,7 @@ def test_timezone_name_etc_localtime_symlink() -> None:
     with (
         patch.dict(sys.modules, {"tzlocal": None}),
         patch("os.name", "posix"),
-        patch("gamesheet_sdk.admin.cli.shared.datetime_helpers.Path", return_value=mock_path),
+        patch("gamesheet_sdk.common.cli.datetime_helpers.Path", return_value=mock_path),
     ):
         result = get_local_timezone_name()
         assert result == "America/Los_Angeles"
@@ -106,7 +106,7 @@ def test_timezone_name_etc_localtime_not_symlink() -> None:
     with (
         patch.dict(sys.modules, {"tzlocal": None}),
         patch("os.name", "posix"),
-        patch("gamesheet_sdk.admin.cli.shared.datetime_helpers.Path", return_value=mock_path),
+        patch("gamesheet_sdk.common.cli.datetime_helpers.Path", return_value=mock_path),
     ):
         result = get_local_timezone_name()
         assert result == "UTC"
@@ -120,7 +120,7 @@ def test_timezone_name_etc_localtime_no_zoneinfo() -> None:
     with (
         patch.dict(sys.modules, {"tzlocal": None}),
         patch("os.name", "posix"),
-        patch("gamesheet_sdk.admin.cli.shared.datetime_helpers.Path", return_value=mock_path),
+        patch("gamesheet_sdk.common.cli.datetime_helpers.Path", return_value=mock_path),
         patch("os.readlink", return_value="/some/other/path"),
     ):
         result = get_local_timezone_name()

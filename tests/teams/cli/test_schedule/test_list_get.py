@@ -246,11 +246,11 @@ def test_schedule_games_list(runner: CliRunner) -> None:
     games = [e for e in get_sample_events() if e.type == "game"]
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
             return_value=games,
         ),
     ):
@@ -266,11 +266,11 @@ def test_schedule_games_ls_and_default(runner: CliRunner) -> None:
     games = [e for e in get_sample_events() if e.type == "game"]
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
             return_value=games,
         ),
     ):
@@ -437,11 +437,11 @@ def test_schedule_games_list_event_data_flag(runner: CliRunner) -> None:
     """Test `schedule games list --include-event-data` flag."""
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
             return_value=[],
         ) as mock_action,
     ):
@@ -539,7 +539,7 @@ def test_schedule_get_help(runner: CliRunner) -> None:
     assert "--event-id" in result.output
     assert "--type" in result.output
     assert "--availability" in result.output
-    assert "--fields" in result.output
+    assert "--columns" in result.output
 
 
 def test_schedule_get_command(runner: CliRunner) -> None:
@@ -605,7 +605,7 @@ def test_schedule_get_json_and_yaml(runner: CliRunner) -> None:
 
 
 def test_schedule_get_fields_and_availability(runner: CliRunner) -> None:
-    """Test `schedule get -e evt-101 --fields ... --availability`."""
+    """Test `schedule get -e evt-101 --columns ... --availability`."""
     with (
         patch(
             "gamesheet_sdk.teams.cli.commands.schedule.main.build_authenticated_session",
@@ -623,7 +623,7 @@ def test_schedule_get_fields_and_availability(runner: CliRunner) -> None:
                 "get",
                 "-e",
                 "evt-101",
-                "--fields",
+                "--columns",
                 "eventTitle,eventLocation",
                 "--availability",
                 "-t",
@@ -695,11 +695,11 @@ def test_schedule_games_get_command(runner: CliRunner) -> None:
     """Test `schedule games get -g 202` command."""
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
             return_value=_sample_game_detail(),
         ) as mock_action,
     ):
@@ -714,11 +714,11 @@ def test_schedule_games_get_aliases(runner: CliRunner) -> None:
     """Test `schedule games show` and `schedule games view` aliases."""
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
             return_value=_sample_game_detail(),
         ),
     ):

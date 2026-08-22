@@ -37,7 +37,6 @@ if TYPE_CHECKING:
 )
 @click.option(
     "--timeout",
-    "-t",
     type=float,
     default=15.0,
     help="HTTP request timeout in seconds.",

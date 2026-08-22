@@ -8,7 +8,7 @@ from __future__ import annotations
 import rich_click as click
 from click.exceptions import Exit
 
-from gamesheet_sdk.admin.cli.shared import common_output_options, list_columns_option
+from gamesheet_sdk.admin.cli.shared import columns_option, common_output_options
 from gamesheet_sdk.common.cli.core import ResourceGroup
 
 
@@ -26,7 +26,7 @@ def brackets_group() -> None:
 
 
 @brackets_group.command("list", aliases=["ls"])
-@list_columns_option
+@columns_option
 @common_output_options
 def brackets_list_command(
     output_format: str,

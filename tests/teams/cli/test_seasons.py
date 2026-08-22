@@ -254,7 +254,7 @@ def test_seasons_get_format_json(runner: CliRunner) -> None:
 
 
 def test_seasons_get_fields_filter(runner: CliRunner) -> None:
-    """Seasons get --fields filters included fields."""
+    """Seasons get --columns filters included fields."""
     mock_session = MagicMock()
     with (
         patch(_SESSION_PATCH, return_value=mock_session),
@@ -262,7 +262,7 @@ def test_seasons_get_fields_filter(runner: CliRunner) -> None:
     ):
         result = runner.invoke(
             cli,
-            ["seasons", "get", "--season-id", "101", "--format", "json", "--fields", "id,title"],
+            ["seasons", "get", "--season-id", "101", "--format", "json", "--columns", "id,title"],
         )
 
     assert not result.exit_code

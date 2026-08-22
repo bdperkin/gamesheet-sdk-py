@@ -16,12 +16,12 @@ from gamesheet_sdk.admin.cli.helpers import (
     run_action_or_exit,
 )
 from gamesheet_sdk.admin.cli.shared import (
+    columns_option,
     common_output_options,
-    get_fields_option,
-    list_columns_option,
     render_get_command,
     render_list_command,
 )
+from gamesheet_sdk.admin.cli.shared.game_runner import resolve_season_id
 from gamesheet_sdk.admin.games import (
     Game,
 )
@@ -69,14 +69,14 @@ def completed_group() -> None:
     help="Game ID to retrieve.",
 )
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def completed_get_command(
     ctx: Context,
     game_id: str,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
 ) -> None:
     r"""Get detailed information about a completed game.
 
@@ -87,20 +87,20 @@ def completed_get_command(
         game_id (str): The game identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        fields_spec (str | None): Optional comma-separated list of fields to display
+        columns_spec (str | None): Optional comma-separated list of columns to display
 
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
-    season_id: str = ctx_data["season_id"]
+    season_id = resolve_season_id(ctx, None)
     session = build_authenticated_session(config)
     game = run_action_or_exit(session, _get_completed_game_action, season_id, game_id)
-    render_get_command(game, output_format, output_path, fields_spec)
+    render_get_command(game, output_format, output_path, columns_spec)
 
 
 @completed_group.command("list")
 @common_output_options
-@list_columns_option
+@columns_option
 @click.pass_context
 def completed_list_command(
     ctx: Context,
@@ -122,7 +122,7 @@ def completed_list_command(
     # Extract config and season_id from context (set by games_group)
     # ctx.obj is always a dict set by games_group with "config" and "season_id" keys
     config: Config = ctx.obj["config"]
-    season_id: str = ctx.obj["season_id"]
+    season_id = resolve_season_id(ctx, None)
     session = build_authenticated_session(config)
     games = run_action_or_exit(session, _list_completed_action, season_id)
     render_list_command(games, output_format, output_path, columns_spec)
@@ -181,8 +181,9 @@ def _build_scoresheet_filename(game: Game) -> str:
     help="Game ID to download scoresheet for.",
 )
 @click.option(
-    "--output-path",
+    "--output",
     "-o",
+    "output_path",
     type=str,
     help=(
         "File path where the PDF scoresheet will be saved. "
@@ -197,7 +198,7 @@ def completed_download_command(
 ) -> None:
     r"""Download the PDF scoresheet for a completed game.
 
-    Requires authentication (run 'gamesheet-admin login' first). If --output-path is not specified, the
+    Requires authentication (run 'gamesheet-admin login' first). If --output is not specified, the
     filename is automatically generated from game details in the format:
     {date}-scoresheet-{id}-{visitor}-vs-{home}-{game_number}.pdf\f
 
@@ -209,7 +210,7 @@ def completed_download_command(
     """
     ctx_data = ctx.obj
     config: Config = ctx_data["config"]
-    season_id: str = ctx_data["season_id"]
+    season_id = resolve_season_id(ctx, None)
     session = build_authenticated_session(config)
 
     # If no output path specified, generate one from game details

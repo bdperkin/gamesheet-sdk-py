@@ -54,8 +54,8 @@ def test_games_get(runner: CliRunner) -> None:
         assert mock_action.called
 
 
-def test_games_get_with_fields(runner: CliRunner) -> None:
-    """The games completed get command should support --fields and JSON format."""
+def test_games_get_with_columns(runner: CliRunner) -> None:
+    """The games completed get command should support --columns and JSON format."""
     with (
         patch(
             "gamesheet_sdk.admin.cli.commands.games_completed._get_completed_game_action",
@@ -85,7 +85,7 @@ def test_games_get_with_fields(runner: CliRunner) -> None:
             [
                 "--game-id",
                 TEAM_ID,
-                "--fields",
+                "--columns",
                 "id",
                 "--format",
                 "json",
@@ -96,8 +96,8 @@ def test_games_get_with_fields(runner: CliRunner) -> None:
         assert result.output
 
 
-def test_games_get_empty_fields(runner: CliRunner) -> None:
-    """The games completed get command should handle empty fields spec."""
+def test_games_get_empty_columns(runner: CliRunner) -> None:
+    """The games completed get command should handle empty columns spec."""
     with (
         patch(
             "gamesheet_sdk.admin.cli.commands.games_completed._get_completed_game_action",
@@ -124,7 +124,7 @@ def test_games_get_empty_fields(runner: CliRunner) -> None:
         ctx_obj = {"config": config, "season_id": SEASON_ID}
         result = runner.invoke(
             completed_get_command,
-            ["--game-id", TEAM_ID, "--fields", ","],
+            ["--game-id", TEAM_ID, "--columns", ","],
             obj=ctx_obj,
         )
         assert not result.exit_code

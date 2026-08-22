@@ -15,6 +15,11 @@ from gamesheet_sdk.teams.schedule import (
     ScheduleDeleteResult,
     UpdatedGameResult,
 )
+from gamesheet_sdk.teams.seasons import SeasonOwnership
+
+#: ``schedule games create`` derives --association-id / --league-id from the season, so every create makes
+#: one lookup call before the create call itself.
+OWNERSHIP = SeasonOwnership(association_id="38", league_id="1148580")
 
 if TYPE_CHECKING:
     from click.testing import CliRunner
@@ -22,7 +27,11 @@ if TYPE_CHECKING:
 
 def test_games_create_help(runner: CliRunner) -> None:
     """Test `gamesheet-teams schedule games create --help`."""
-    result = runner.invoke(cli, ["schedule", "games", "create", "--help"])
+    result = runner.invoke(
+        cli,
+        ["schedule", "games", "create", "--help"],
+        env={"COLUMNS": "200"},
+    )
     assert result.exit_code == 0
     assert "game" in result.output.lower()
     assert "--opposing-team-id" in result.output
@@ -42,12 +51,12 @@ def test_games_create_home_and_aliases(runner: CliRunner) -> None:
     for subcmd in ["create", "add", "new"]:
         with (
             patch(
-                "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+                "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
                 return_value=MagicMock(),
             ),
             patch(
-                "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
-                return_value=mock_created,
+                "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
+                side_effect=[OWNERSHIP, mock_created],
             ) as mock_action,
         ):
             result = runner.invoke(
@@ -64,8 +73,12 @@ def test_games_create_home_and_aliases(runner: CliRunner) -> None:
                     "15020",
                     "--division-id",
                     "81419",
+                    "--opposing-division-id",
+                    "81419",
                     "--game-number",
                     "TEST-123",
+                    "--game-type",
+                    "regular_season",
                     "--home",
                     "--start",
                     "2026-08-20 12:00",
@@ -98,12 +111,12 @@ def test_games_create_visitor(runner: CliRunner) -> None:
     )
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
-            return_value=mock_created,
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
+            side_effect=[OWNERSHIP, mock_created],
         ) as mock_action,
     ):
         result = runner.invoke(
@@ -120,8 +133,12 @@ def test_games_create_visitor(runner: CliRunner) -> None:
                 "15020",
                 "--division-id",
                 "81419",
+                "--opposing-division-id",
+                "81419",
                 "--game-number",
                 "TEST-123",
+                "--game-type",
+                "regular_season",
                 "--visitor",
                 "--start",
                 "2026-08-20 12:00",
@@ -144,12 +161,12 @@ def test_games_create_all_options(runner: CliRunner) -> None:
     )
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
-            return_value=mock_created,
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
+            side_effect=[OWNERSHIP, mock_created],
         ) as mock_action,
     ):
         result = runner.invoke(
@@ -168,10 +185,6 @@ def test_games_create_all_options(runner: CliRunner) -> None:
                 "81419",
                 "--opposing-division-id",
                 "81420",
-                "--association-id",
-                "38",
-                "--league-id",
-                "1148580",
                 "--game-number",
                 "TEST-123",
                 "--game-type",
@@ -233,12 +246,12 @@ def test_games_create_envvars(runner: CliRunner) -> None:
     mock_created = CreatedGameResult(success=True, game_number="TEST-123")
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
-            return_value=mock_created,
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
+            side_effect=[OWNERSHIP, mock_created],
         ) as mock_action,
     ):
         result = runner.invoke(
@@ -251,8 +264,12 @@ def test_games_create_envvars(runner: CliRunner) -> None:
                 "523675",
                 "--division-id",
                 "81419",
+                "--opposing-division-id",
+                "81419",
                 "--game-number",
                 "TEST-123",
+                "--game-type",
+                "regular_season",
                 "--start",
                 "2026-08-20 12:00",
                 "--duration",
@@ -279,12 +296,12 @@ def test_games_create_json_format(runner: CliRunner) -> None:
     )
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
-            return_value=mock_created,
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
+            side_effect=[OWNERSHIP, mock_created],
         ),
     ):
         result = runner.invoke(
@@ -301,8 +318,12 @@ def test_games_create_json_format(runner: CliRunner) -> None:
                 "15020",
                 "--division-id",
                 "81419",
+                "--opposing-division-id",
+                "81419",
                 "--game-number",
                 "TEST-123",
+                "--game-type",
+                "regular_season",
                 "--start",
                 "2026-08-20 12:00",
                 "--duration",
@@ -322,11 +343,11 @@ def test_games_delete_force(runner: CliRunner) -> None:
     mock_res = ScheduleDeleteResult(success=True, message="Game deleted successfully", id="2962920")
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
             return_value=mock_res,
         ) as mock_action,
     ):
@@ -351,11 +372,11 @@ def test_games_delete_prompt_confirm_and_abort(runner: CliRunner) -> None:
     mock_res = ScheduleDeleteResult(success=True, message="Game deleted successfully", id="2962920")
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
             return_value=mock_res,
         ),
     ):
@@ -395,11 +416,11 @@ def test_games_delete_json_and_aliases(runner: CliRunner) -> None:
     mock_res = ScheduleDeleteResult(success=True, message="Game deleted successfully", id="2962920")
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
             return_value=mock_res,
         ),
     ):
@@ -454,11 +475,11 @@ def test_games_update_basic(runner: CliRunner) -> None:
     )
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
             side_effect=[mock_game, mock_updated],
         ) as mock_action,
     ):
@@ -484,7 +505,7 @@ def test_games_update_basic(runner: CliRunner) -> None:
         assert kwargs["game_number"] == "NEW-100"
         assert kwargs["location"] == "New Arena"
         assert kwargs["scorekeeper_name"] == "New SK"
-        assert kwargs["team_id"] == 525015
+        assert kwargs["team_id"] == "525015"
 
 
 def test_games_update_datetime_resolution(runner: CliRunner) -> None:
@@ -506,11 +527,11 @@ def test_games_update_datetime_resolution(runner: CliRunner) -> None:
     )
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
             side_effect=[mock_game, mock_updated],
         ) as mock_action,
     ):
@@ -545,11 +566,11 @@ def test_games_update_aliases(runner: CliRunner) -> None:
     mock_updated = UpdatedGameResult(success=True, id=2962947)
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
             side_effect=[mock_game, mock_updated, mock_game, mock_updated],
         ),
     ):
@@ -570,11 +591,11 @@ def test_games_update_game_type(runner: CliRunner) -> None:
     mock_updated = UpdatedGameResult(success=True, id=2962948)
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
             side_effect=[mock_game, mock_updated],
         ) as mock_action,
     ):
@@ -605,11 +626,11 @@ def test_games_update_no_t_in_date_time(runner: CliRunner) -> None:
     mock_updated = UpdatedGameResult(success=True, id=2962950)
     with (
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.build_authenticated_session",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.build_authenticated_session",
             return_value=MagicMock(),
         ),
         patch(
-            "gamesheet_sdk.teams.cli.commands.schedule.games.run_action_or_exit",
+            "gamesheet_sdk.teams.cli.commands.schedule.game_runner.run_action_or_exit",
             side_effect=[mock_game, mock_updated],
         ),
     ):

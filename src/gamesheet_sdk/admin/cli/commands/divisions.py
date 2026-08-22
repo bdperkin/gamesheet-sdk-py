@@ -25,9 +25,8 @@ from gamesheet_sdk.admin.cli.helpers import (
     run_action_or_exit,
 )
 from gamesheet_sdk.admin.cli.shared import (
+    columns_option,
     common_output_options,
-    get_fields_option,
-    list_columns_option,
     render_get_command,
     render_list_command,
 )
@@ -88,14 +87,14 @@ def divisions_group() -> None:
     help="Division ID to retrieve details for.",
 )
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def divisions_get_command(
     ctx: Context,
     division_id: str,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
 ) -> None:
     r"""Get detailed information about a specific division.
 
@@ -108,13 +107,13 @@ def divisions_get_command(
         division_id (str): The division identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        fields_spec (str | None): Optional comma-separated list of fields to display
+        columns_spec (str | None): Optional comma-separated list of columns to display
 
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
     division = run_action_or_exit(session, _get_division_action, division_id)
-    render_get_command(division, output_format, output_path, fields_spec)
+    render_get_command(division, output_format, output_path, columns_spec)
 
 
 @divisions_group.command("list")
@@ -126,7 +125,7 @@ def divisions_get_command(
     help="Season ID to list divisions for.",
 )
 @common_output_options
-@list_columns_option
+@columns_option
 @click.pass_context
 def divisions_list_command(
     ctx: Context,
@@ -329,7 +328,7 @@ def divisions_teams_group() -> None:
     help="Division ID to list teams for.",
 )
 @common_output_options
-@list_columns_option
+@columns_option
 @click.pass_context
 def divisions_teams_list_command(
     ctx: Context,

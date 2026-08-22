@@ -20,13 +20,13 @@ def test_games_scheduled_list_coverage() -> None:
     runner = CliRunner()
     with (
         patch(
-            "gamesheet_sdk.admin.cli.commands.games_scheduled.build_authenticated_session",
+            "gamesheet_sdk.admin.cli.shared.game_runner.build_authenticated_session",
         ),
         patch(
-            "gamesheet_sdk.admin.cli.commands.games_scheduled.run_action_or_exit",
+            "gamesheet_sdk.admin.cli.shared.game_runner.run_action_or_exit",
             return_value=[],
         ),
-        patch("gamesheet_sdk.admin.cli.commands.games_scheduled.render_list_command"),
+        patch("gamesheet_sdk.admin.cli.shared.game_runner.render_list_command"),
     ):
         result = runner.invoke(
             scheduled_group,

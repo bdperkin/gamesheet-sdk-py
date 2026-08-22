@@ -39,8 +39,8 @@ def test_divisions_get(runner: CliRunner) -> None:
         assert mock_action.called
 
 
-def test_divisions_get_with_fields(runner: CliRunner) -> None:
-    """The divisions get command should support --fields and JSON format."""
+def test_divisions_get_with_columns(runner: CliRunner) -> None:
+    """The divisions get command should support --columns and JSON format."""
     with (
         patch(
             "gamesheet_sdk.admin.cli.commands.divisions._get_division_action",
@@ -62,7 +62,7 @@ def test_divisions_get_with_fields(runner: CliRunner) -> None:
                 "get",
                 "--division-id",
                 "301",
-                "--fields",
+                "--columns",
                 "id",
                 "--format",
                 "json",
@@ -72,8 +72,8 @@ def test_divisions_get_with_fields(runner: CliRunner) -> None:
         assert result.output
 
 
-def test_divisions_get_empty_fields(runner: CliRunner) -> None:
-    """The divisions get command should handle empty fields spec."""
+def test_divisions_get_empty_columns(runner: CliRunner) -> None:
+    """The divisions get command should handle empty columns spec."""
     with (
         patch(
             "gamesheet_sdk.admin.cli.commands.divisions._get_division_action",
@@ -90,7 +90,7 @@ def test_divisions_get_empty_fields(runner: CliRunner) -> None:
         )
         result = runner.invoke(
             cli,
-            ["divisions", "get", "--division-id", "301", "--fields", ","],
+            ["divisions", "get", "--division-id", "301", "--columns", ","],
         )
         assert not result.exit_code
         assert result.output

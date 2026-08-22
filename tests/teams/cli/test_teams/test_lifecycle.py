@@ -139,8 +139,8 @@ def test_teams_archive_output_file(runner: CliRunner, tmp_path: Path) -> None:
     assert "Peterborough Petes 2" in content
 
 
-def test_teams_archive_fields_option(runner: CliRunner) -> None:
-    """Test `gamesheet-teams teams archive --fields` limits displayed fields."""
+def test_teams_archive_columns_option(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams archive --columns` limits displayed columns."""
     archived_mock = TeamDetail(
         teamId="eb20a094-5c3c-47bc-918f-c8f69cfe0719",
         teamName="Peterborough Petes 2",
@@ -163,7 +163,7 @@ def test_teams_archive_fields_option(runner: CliRunner) -> None:
                 "archive",
                 "-t",
                 "eb20a094-5c3c-47bc-918f-c8f69cfe0719",
-                "--fields",
+                "--columns",
                 "teamName,isArchived",
             ],
         )
@@ -327,8 +327,8 @@ def test_teams_restore_output_file(runner: CliRunner, tmp_path: Path) -> None:
     assert "Peterborough Petes 2" in content
 
 
-def test_teams_restore_fields_option(runner: CliRunner) -> None:
-    """Test `gamesheet-teams teams restore --fields` limits displayed fields."""
+def test_teams_restore_columns_option(runner: CliRunner) -> None:
+    """Test `gamesheet-teams teams restore --columns` limits displayed columns."""
     restored_mock = TeamDetail(
         teamId="eb20a094-5c3c-47bc-918f-c8f69cfe0719",
         teamName="Peterborough Petes 2",
@@ -351,7 +351,7 @@ def test_teams_restore_fields_option(runner: CliRunner) -> None:
                 "restore",
                 "-t",
                 "eb20a094-5c3c-47bc-918f-c8f69cfe0719",
-                "--fields",
+                "--columns",
                 "teamName,isArchived",
             ],
         )

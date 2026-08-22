@@ -9,14 +9,15 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, TypeVar
 
 import rich_click as click
-from click.exceptions import ClickException, Exit
+from click.exceptions import Exit
 
 from gamesheet_sdk.common.cli.datetime_helpers import (
     get_local_timezone_offset,
     parse_flexible_datetime,
-    resolve_create_times,
-    resolve_update_times,
-    validate_no_input_conflict,
+)
+from gamesheet_sdk.common.cli.game_times import (
+    resolve_game_window,
+    resolve_game_window_update,
 )
 from gamesheet_sdk.common.cli.rendering import render_get_command
 from gamesheet_sdk.teams.schedule import (
@@ -43,69 +44,55 @@ F = TypeVar("F", bound=Callable[..., object])
 ISO_MINUTE_STR_LEN = 16
 
 
-def _extract_date_prefix(raw: str | None) -> str | None:
-    if not raw:
-        return None
+def format_teams_window(start_iso: str, end_iso: str) -> tuple[str, str]:
+    """Reshape an ISO 8601 start/end pair into the teams gateway's split representation.
 
-    try:
-        dt = parse_flexible_datetime(raw)
-        return dt.strftime("%Y-%m-%d")
-    except (ValueError, TypeError, ClickException):
-        if "T" in raw:
-            return raw.split("T", maxsplit=1)[0]
+    Args:
+        start_iso (str): Start datetime, ISO 8601.
+        end_iso (str): End datetime, ISO 8601.
 
-        if " " in raw:
-            return raw.split(" ", maxsplit=1)[0]
+    Returns:
+        tuple[str, str]: ``(start, end)`` as ``YYYY-MM-DDTHH:MM`` and ``HH:MM``.
 
-        return None
-
-
-def _build_raw_start(
-    date_time: str | None,
-    date: str | None,
-    time: str | None,
-    fallback_date: str | None = None,
-) -> str | None:
-    if date_time:
-        return date_time
-
-    if date and time:
-        return f"{date} {time}"
-
-    if time and (" " in time or "T" in time):
-        return time
-
-    if date:
-        return date
-
-    if time:
-        return f"{fallback_date} {time}" if fallback_date else time
-
-    return None
+    """
+    start_dt = parse_flexible_datetime(start_iso)
+    end_dt = parse_flexible_datetime(end_iso)
+    return start_dt.strftime("%Y-%m-%dT%H:%M"), end_dt.strftime("%H:%M")
 
 
-def _build_raw_end(
-    date_time: str | None,
-    date: str | None,
-    time: str | None,
-    date_prefix: str | None,
-) -> str | None:
-    if date_time:
-        return date_time
+def _all_day_window(
+    start_date_time: str | None,
+    start_date: str | None,
+    start_time: str | None,
+    *,
+    is_practice: bool,
+) -> tuple[str, str]:
+    """Resolve the degenerate all-day window, which carries a date and no times.
 
-    if date and time:
-        return f"{date} {time}"
+    Args:
+        start_date_time (str | None): Combined start value, which all-day events may not use.
+        start_date (str | None): Start date string.
+        start_time (str | None): Start time string, accepted as a date for all-day events.
+        is_practice (bool): Whether the event is a practice, for the error message.
 
-    if time and (" " in time or "T" in time):
-        return time
+    Returns:
+        tuple[str, str]: The date and an empty end time.
 
-    if date:
-        return date
+    Raises:
+        UsageError: If ``--all-day`` is combined with a start datetime, or no date was given.
 
-    if time:
-        return f"{date_prefix} {time}" if date_prefix else time
+    """
+    if start_date_time:
+        msg = "Cannot combine --all-day with --start-datetime."
+        raise click.UsageError(msg)
 
-    return None
+    start_date_str = start_date or start_time
+    if not start_date_str:
+        entity = "practices" if is_practice else "events"
+        msg = f"--date/--start-date is required for all-day {entity}."
+        raise click.UsageError(msg)
+
+    return start_date_str, ""
 
 
 def resolve_schedule_create_times(
@@ -136,37 +123,20 @@ def resolve_schedule_create_times(
     Returns:
         tuple[str, str]: Formatted start and end ISO strings.
 
-    Raises:
-        UsageError: If invalid combinations of date and time arguments are provided.
-
     """
     if all_day:
-        if start_date_time:
-            msg = "Cannot combine --all-day with --start-datetime."
-            raise click.UsageError(msg)
+        return _all_day_window(start_date_time, start_date, start_time, is_practice=is_practice)
 
-        start_date_str = start_date or start_time
-        if not start_date_str:
-            entity = "practices" if is_practice else "events"
-            msg = f"--date/--start-date is required for all-day {entity}."
-            raise click.UsageError(msg)
-
-        return start_date_str, ""
-
-    validate_no_input_conflict(start_date_time, start_date, start_time, "start")
-    validate_no_input_conflict(end_date_time, end_date, end_time, "end")
-
-    start_raw = _build_raw_start(start_date_time, start_date, start_time)
-    date_prefix = _extract_date_prefix(start_raw) or start_date
-    end_raw = _build_raw_end(end_date_time, end_date, end_time, date_prefix)
-
-    duration_int = int(duration) if duration is not None else None
-
-    start_iso, end_iso = resolve_create_times(start_raw, end_raw, duration_int)
-    start_dt = parse_flexible_datetime(start_iso)
-    end_dt = parse_flexible_datetime(end_iso)
-
-    return start_dt.strftime("%Y-%m-%dT%H:%M"), end_dt.strftime("%H:%M")
+    start_iso, end_iso = resolve_game_window(
+        start_date_time,
+        start_date,
+        start_time,
+        end_date_time,
+        end_date,
+        end_time,
+        duration,
+    )
+    return format_teams_window(start_iso, end_iso)
 
 
 def resolve_occurrence_update_times(
@@ -186,25 +156,17 @@ def resolve_occurrence_update_times(
         tuple[str | None, str | None]: Resolved (start_iso, end_iso) datetime strings.
 
     """
-    validate_no_input_conflict(start_date_time, start_date, start_time, "start")
-    validate_no_input_conflict(end_date_time, end_date, end_time, "end")
-
-    start_prefix = _extract_date_prefix(current_start)
-    start_raw = _build_raw_start(start_date_time, start_date, start_time, start_prefix)
-
-    end_prefix = (
-        _extract_date_prefix(start_raw)
-        or _extract_date_prefix(current_end)
-        or _extract_date_prefix(current_start)
+    return resolve_game_window_update(
+        start_date_time,
+        start_date,
+        start_time,
+        end_date_time,
+        end_date,
+        end_time,
+        duration,
+        current_start,
+        current_end,
     )
-    end_raw = _build_raw_end(end_date_time, end_date, end_time, end_prefix)
-
-    duration_int = int(duration) if duration is not None else None
-
-    if not start_raw and not end_raw and duration_int is None:
-        return None, None
-
-    return resolve_update_times(start_raw, end_raw, duration_int, current_start, current_end)
 
 
 def _normalize_game_iso(
@@ -246,31 +208,23 @@ def resolve_game_update_times(
         tuple[str | None, str | None]: Resolved (start_iso, end_time_iso) strings.
 
     """
-    validate_no_input_conflict(start_date_time, start_date, start_time, "start")
-    validate_no_input_conflict(end_date_time, end_date, end_time, "end")
+    iso_start, iso_end = _normalize_game_iso(current_date_time or "", current_end_time or "")
 
-    raw_start = current_date_time or ""
-    raw_end = current_end_time or ""
-    iso_start, iso_end = _normalize_game_iso(raw_start, raw_end)
-
-    start_prefix = _extract_date_prefix(raw_start)
-    start_raw = _build_raw_start(start_date_time, start_date, start_time, start_prefix)
-
-    end_prefix = (
-        _extract_date_prefix(start_raw) or _extract_date_prefix(raw_end) or _extract_date_prefix(raw_start)
+    start_iso, end_iso = resolve_game_window_update(
+        start_date_time,
+        start_date,
+        start_time,
+        end_date_time,
+        end_date,
+        end_time,
+        duration,
+        iso_start,
+        iso_end,
     )
-    end_raw = _build_raw_end(end_date_time, end_date, end_time, end_prefix)
-
-    duration_int = int(duration) if duration is not None else None
-
-    if not start_raw and not end_raw and duration_int is None:
+    if start_iso is None or end_iso is None:
         return None, None
 
-    start_iso, end_iso = resolve_update_times(start_raw, end_raw, duration_int, iso_start, iso_end)
-    start_dt = parse_flexible_datetime(start_iso)
-    end_dt = parse_flexible_datetime(end_iso)
-
-    return start_dt.strftime("%Y-%m-%dT%H:%M"), end_dt.strftime("%H:%M")
+    return format_teams_window(start_iso, end_iso)
 
 
 def validate_update_scope(*, update_future: bool, update_single: bool) -> None:
@@ -592,7 +546,7 @@ def handle_occurrence_delete(
     delete_action: Callable[..., Any],
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
     *,
     force: bool,
     scope_flags: list[bool] | None,
@@ -611,7 +565,7 @@ def handle_occurrence_delete(
         delete_action (Callable[..., Any]): Delete API action callable.
         output_format (str): Output format string ('plain', 'json', 'yaml').
         output_path (str | None): Optional output file path.
-        fields_spec (str | None): Optional fields spec string.
+        columns_spec (str | None): Optional columns spec string.
         force (bool): Bypass confirmation prompt.
         scope_flags (bool): Whether scope flags were supplied.
         all_occurrences (bool): Delete all occurrences flag.
@@ -641,7 +595,7 @@ def handle_occurrence_delete(
         timeout=timeout,
     )
     if output_format in {"json", "yaml"}:
-        render_get_command(result, output_format, output_path, fields_spec)
+        render_get_command(result, output_format, output_path, columns_spec)
     elif use_result_message and result and hasattr(result, "message") and result.message:
         click.echo(result.message)
     else:
@@ -777,7 +731,7 @@ def run_occurrence_update(
     event_type: str | None,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
     *,
     title: str | None = None,
     notes: str | None = None,
@@ -807,7 +761,7 @@ def run_occurrence_update(
         event_type (str | None): Event type ('event', 'practice', etc.).
         output_format (str): Output format string ('plain', 'json', 'yaml').
         output_path (str | None): Optional output file path.
-        fields_spec (str | None): Optional fields spec string.
+        columns_spec (str | None): Optional columns spec string.
         title (str | None): Optional updated title.
         notes (str | None): Optional updated notes.
         location_name (str | None): Optional updated location name.
@@ -852,4 +806,4 @@ def run_occurrence_update(
         update_single=update_single,
         timeout=timeout,
     )
-    render_get_command(updated_occ, output_format, output_path, fields_spec)
+    render_get_command(updated_occ, output_format, output_path, columns_spec)

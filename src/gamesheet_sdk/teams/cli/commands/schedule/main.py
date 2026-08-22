@@ -15,9 +15,8 @@ from gamesheet_sdk.common.cli.core import (
     parse_columns_spec,
 )
 from gamesheet_sdk.common.cli.decorators import (
+    columns_option,
     common_output_options,
-    get_fields_option,
-    list_columns_option,
 )
 from gamesheet_sdk.common.cli.rendering import (
     render_get_command,
@@ -103,7 +102,7 @@ def schedule_group() -> None:
     help="Include detailed eventData in the output.",
 )
 @common_output_options
-@list_columns_option
+@columns_option
 @click.pass_context
 def schedule_list_command(
     ctx: Context,
@@ -172,7 +171,7 @@ def schedule_list_command(
     help="Team ID (required when fetching availability if not present in event).",
 )
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def schedule_get_command(
     ctx: Context,
@@ -180,7 +179,7 @@ def schedule_get_command(
     event_type: str | None,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
     *,
     include_availability: bool,
     team_id: str | None,
@@ -200,7 +199,7 @@ def schedule_get_command(
         team_id=team_id,
         timeout=config.timeout,
     )
-    render_get_command(event_detail, output_format, output_path, fields_spec)
+    render_get_command(event_detail, output_format, output_path, columns_spec)
 
 
 def _handle_game_delete(
@@ -208,7 +207,7 @@ def _handle_game_delete(
     event_id: str,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
     timeout: float | None,
 ) -> None:
     result = run_action_or_exit(
@@ -218,7 +217,7 @@ def _handle_game_delete(
         timeout=timeout,
     )
     if output_format in {"json", "yaml"}:
-        render_get_command(result, output_format, output_path, fields_spec)
+        render_get_command(result, output_format, output_path, columns_spec)
     elif result and hasattr(result, "message") and result.message:
         click.echo(result.message)
     else:
@@ -248,6 +247,7 @@ def _handle_game_delete(
 )
 @click.option(
     "--force",
+    "-f",
     is_flag=True,
     default=False,
     help="Skip interactive confirmation prompts.",
@@ -274,14 +274,14 @@ def _handle_game_delete(
     help="Delete only this single occurrence.",
 )
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def schedule_delete_command(
     ctx: Context,
     event_id: str,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
     *,
     event_type: str | None = None,
     force: bool = False,
@@ -317,7 +317,7 @@ def schedule_delete_command(
             event_id,
             output_format,
             output_path,
-            fields_spec,
+            columns_spec,
             config.timeout,
         )
         return
@@ -330,7 +330,7 @@ def schedule_delete_command(
         _delete_event_action,
         output_format,
         output_path,
-        fields_spec,
+        columns_spec,
         force=force,
         scope_flags=scope_flags,
         all_occurrences=all_occurrences,
@@ -571,14 +571,14 @@ def schedule_delete_command(
     help="Update only this single occurrence (events/practices only).",
 )
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def schedule_update_command(  # noqa: PLR0913
     ctx: Context,
     event_id: str,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
     *,
     event_type: str | None = None,
     title: str | None = None,
@@ -654,7 +654,7 @@ def schedule_update_command(  # noqa: PLR0913
             timezone=timezone,
             timeout=config.timeout,
         )
-        render_get_command(result, output_format, output_path, fields_spec)
+        render_get_command(result, output_format, output_path, columns_spec)
         return
 
     run_occurrence_update(
@@ -664,7 +664,7 @@ def schedule_update_command(  # noqa: PLR0913
         event_type,
         output_format,
         output_path,
-        fields_spec,
+        columns_spec,
         title=title,
         notes=notes,
         location_name=location_name,
@@ -702,7 +702,7 @@ def schedule_update_command(  # noqa: PLR0913
     help="Month filter for calendar events (e.g. 'all', '2026-08').",
 )
 @common_output_options
-@list_columns_option
+@columns_option
 @click.pass_context
 def schedule_export_command(
     ctx: Context,
@@ -772,7 +772,7 @@ def schedule_export_command(
     help="Output only the generic calendar feed URL.",
 )
 @common_output_options
-@list_columns_option
+@columns_option
 @click.pass_context
 def schedule_subscribe_command(
     _ctx: Context,

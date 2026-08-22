@@ -15,9 +15,8 @@ from gamesheet_sdk.admin.cli.helpers import (
     run_action_or_exit,
 )
 from gamesheet_sdk.admin.cli.shared import (
+    columns_option,
     common_output_options,
-    get_fields_option,
-    list_columns_option,
     render_get_command,
     render_list_command,
 )
@@ -47,7 +46,7 @@ def locations_group() -> None:
 
 
 @locations_group.command("list", aliases=["ls"])
-@list_columns_option
+@columns_option
 @common_output_options
 @click.pass_context
 def locations_list_command(
@@ -83,7 +82,7 @@ def locations_list_command(
     required=True,
     help="Location UUID to retrieve.",
 )
-@get_fields_option
+@columns_option
 @common_output_options
 @click.pass_context
 def locations_get_command(
@@ -91,7 +90,7 @@ def locations_get_command(
     location_id: str,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
 ) -> None:
     r"""Get a specific location by ID.
 
@@ -105,10 +104,10 @@ def locations_get_command(
         location_id (str): The location UUID
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        fields_spec (str | None): Comma-separated list of fields to display
+        columns_spec (str | None): Comma-separated list of columns to display
 
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
     location = run_action_or_exit(session, _get_location_action, location_id)
-    render_get_command(location, output_format, output_path, fields_spec)
+    render_get_command(location, output_format, output_path, columns_spec)

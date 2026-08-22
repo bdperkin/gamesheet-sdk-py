@@ -16,9 +16,8 @@ from gamesheet_sdk.admin.cli.helpers import (
     run_action_or_exit,
 )
 from gamesheet_sdk.admin.cli.shared import (
+    columns_option,
     common_output_options,
-    get_fields_option,
-    list_columns_option,
     render_get_command,
     render_list_command,
 )
@@ -93,7 +92,7 @@ def seasons_group() -> None:
     help="Filter by season title (free-form text search).",
 )
 @common_output_options
-@list_columns_option
+@columns_option
 @click.pass_context
 def seasons_list_command(
     ctx: Context,
@@ -156,14 +155,14 @@ def seasons_list_command(
     help="Season ID to retrieve details for.",
 )
 @common_output_options
-@get_fields_option
+@columns_option
 @click.pass_context
 def seasons_get_command(
     ctx: Context,
     season_id: str,
     output_format: str,
     output_path: str | None,
-    fields_spec: str | None,
+    columns_spec: str | None,
 ) -> None:
     r"""Get detailed information about a specific season.
 
@@ -178,10 +177,10 @@ def seasons_get_command(
         season_id (str): The season identifier
         output_format (str): Output format for rendering
         output_path (str | None): Optional output file path
-        fields_spec (str | None): Optional comma-separated list of fields to display
+        columns_spec (str | None): Optional comma-separated list of columns to display
 
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
     season = run_action_or_exit(session, _get_season_action, season_id)
-    render_get_command(season, output_format, output_path, fields_spec)
+    render_get_command(season, output_format, output_path, columns_spec)
