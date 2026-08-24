@@ -209,7 +209,8 @@ The project uses a `src/` layout organized into a clean three-pillar architectur
     - `shared/` - JSON:API parser and admin-specific utilities
     - Domain modules (`associations.py`, `divisions.py`, `ipad_keys.py`, `leagues.py`, `referees.py`, `seasons.py`, `teams.py`)
   - `teams/` - Teams dashboard domain logic and CLI (`gamesheet-teams`)
-    - `cli/` - Teams Click command tree (`login`, `lookups`, `completion`)
+    - `cli/` - Teams Click command tree (`completion`, `login`, `lookups`, `members`, `messages`, `roster`, `schedule`, `seasons`, `teams`)
+    - `schedule/` - Events, games, and practices schedule domain logic
     - `shared/` - Teams-specific constants (`TEAMS_API_GATEWAY`, endpoints)
     - `login.py` - HTTP-only Firebase + Teams token exchange auth flow
     - `lookups.py` - Public lookup domain models and client
@@ -255,6 +256,7 @@ make format
 The project uses comprehensive linting:
 
 - **ruff** with ALL rule groups enabled (Google docstring style, PEP 8, complexity, etc.)
+- **pylint** for code duplication analysis and secondary lint checks (CI-only, runnable via `make pylint`)
 - **blocklint** for inclusive language
 - **codespell** for spell checking
 - **interrogate** for 100% docstring coverage enforcement
@@ -523,6 +525,7 @@ docs: add CONTRIBUTING.md with comprehensive guidelines
    - Pre-commit hooks
    - Type checker (ty)
    - Linters (ruff, blocklint)
+   - Code quality and duplicate code checks (pylint)
    - Security scans (CodeQL, Semgrep, Trivy, OSV-Scanner)
    - Documentation build
    - Codecov upload and coverage enforcement
@@ -627,6 +630,7 @@ Run specific tools in isolated environments with `uv run`:
 ```bash
 uv run --extra ty ty check
 uv run --extra ruff ruff check .
+uv run --extra pylint pylint .
 ```
 
 ## 13. Getting Help

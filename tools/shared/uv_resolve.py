@@ -154,7 +154,7 @@ def _relax_dep_list(
         dep_list[i] = relaxed
 
 
-def _ensure_uv_table(doc: TOMLDocument) -> Table:
+def ensure_uv_table(doc: TOMLDocument) -> Table:
     """Return the ``[tool.uv]`` table, creating it and its parent if absent.
 
     Args:
@@ -190,7 +190,7 @@ def _apply_overrides(doc: TOMLDocument, overrides: Sequence[str] | None) -> None
     if overrides is None:
         return
 
-    uv_table = _ensure_uv_table(doc)
+    uv_table = ensure_uv_table(doc)
     if overrides:
         uv_table["override-dependencies"] = list(overrides)
     else:

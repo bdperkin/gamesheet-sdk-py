@@ -65,6 +65,7 @@ from gamesheet_sdk.teams.schedule.update import (
     update_schedule_game_raw,
 )
 
+# pylint: disable=duplicate-code
 __all__ = [
     "DAY_NAME_MAP",
     "CalendarEventCreated",
@@ -113,3 +114,4 @@ __all__ = [
     "update_schedule_game_raw",
     "validate_game_type",
 ]
+# pylint: enable=duplicate-code

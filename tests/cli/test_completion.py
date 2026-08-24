@@ -9,6 +9,10 @@ from typing import TYPE_CHECKING
 
 from gamesheet_sdk.admin.cli.commands import completion_command
 from gamesheet_sdk.admin.cli.main import cli
+from gamesheet_sdk.teams.cli.commands.completion import (
+    completion_command as teams_completion_command,
+)
+from gamesheet_sdk.teams.cli.main import cli as teams_cli
 
 if TYPE_CHECKING:
     from click.testing import CliRunner
@@ -45,6 +49,13 @@ def test_completion_fish(runner: CliRunner) -> None:
     assert "complete" in result.output or "_GAMESHEET_SDK_PY_COMPLETE" in result.output
 
 
+def test_teams_completion_bash(runner: CliRunner) -> None:
+    """The 'gamesheet-teams completion bash' should generate bash completion script."""
+    result = runner.invoke(teams_cli, ["completion", "bash"])
+    assert not result.exit_code
+    assert "complete" in result.output or "_GAMESHEET_TEAMS_COMPLETE" in result.output
+
+
 # Error path tests
 def test_completion_command_without_parent_context(runner: CliRunner) -> None:
     """The completion command invoked without parent context should exit cleanly."""
@@ -54,4 +65,11 @@ def test_completion_command_without_parent_context(runner: CliRunner) -> None:
     # When there's no parent context, the command exits without output
     assert not result.exit_code
     # Should not produce completion output since there's no parent CLI to complete
+    assert not result.output
+
+
+def test_teams_completion_command_without_parent_context(runner: CliRunner) -> None:
+    """The teams completion command invoked without parent context should exit cleanly."""
+    result = runner.invoke(teams_completion_command, ["bash"])
+    assert not result.exit_code
     assert not result.output

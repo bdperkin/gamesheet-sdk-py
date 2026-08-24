@@ -1,10 +1,11 @@
 ---
 # ==============================================================================
-# Dependencies and Complexity Metrics
+# Dependencies, Complexity Metrics, and Code Quality
 # ==============================================================================
 # Purpose: Analyzes codebase dependencies for unused, missing, or transitive
-# dependencies with deptry, and computes complexity / maintainability metrics
-# (Cyclomatic Complexity, Raw Metrics, Maintainability Index, Halstead) with Radon.
+# dependencies with deptry, checks code quality and duplication with pylint,
+# and computes complexity / maintainability metrics (Cyclomatic Complexity,
+# Raw Metrics, Maintainability Index, Halstead) with Radon.
 #
 # Triggers:
 #   - push to main branch (skip if only CHANGELOG/version changes)
@@ -13,6 +14,7 @@
 #
 # Jobs:
 #   - deptry: Validates Python dependencies (4 Python versions)
+#   - pylint: Validates code quality and duplicate code (4 Python versions)
 #   - radon: Computes 4 code metrics across 4 Python versions (16 runs):
 #     - cc: Cyclomatic complexity analysis
 #     - raw: Raw metrics (LOC, LLOC, SLOC, comments, blanks)
@@ -66,6 +68,28 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run deptry via uv
         run: uv run --extra deptry deptry
+  pylint:
+    name: pylint (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+      - name: Run pylint via uv
+        run: uv run --extra pylint pylint .
   radon:
     name: radon ${{ matrix.analyzer }} analysis (py${{ matrix.python-version }})
     runs-on: ubuntu-latest

@@ -199,9 +199,11 @@ def _current_window(game_dict: dict[str, Any]) -> tuple[str | None, str | None]:
         tuple[str | None, str | None]: The current ``(start, end)`` pair as the gateway reports it.
 
     """
+    start = game_dict.get("date_time") or game_dict.get("startDate")
+    end = game_dict.get("end_time") or game_dict.get("endTime")
     return (
-        game_dict.get("date_time") or game_dict.get("startDate"),
-        game_dict.get("end_time") or game_dict.get("endTime"),
+        str(start) if start is not None else None,
+        str(end) if end is not None else None,
     )
 
 

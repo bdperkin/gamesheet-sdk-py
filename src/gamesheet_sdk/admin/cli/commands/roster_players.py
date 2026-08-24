@@ -311,6 +311,7 @@ def players_create_command(
     config: Config = ctx_data["config"]
     season_id: str = ctx_data["season_id"]
     session = build_authenticated_session(config)
+    # pylint: disable=duplicate-code
     run_roster_create_with_output(
         _create_player_action,
         session,
@@ -339,6 +340,7 @@ def players_create_command(
         committed_to=committed_to,
         photo_path=photo_path,
     )
+    # pylint: enable=duplicate-code
 
 
 @players_group.command("update")
@@ -454,6 +456,7 @@ def players_penalty_report_command(
     """
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
+    # pylint: disable=duplicate-code
     with build_authenticated_session(config) as session:
         report = roster.get_player_penalty_report(session, season_id, player_id)
         if output_format == "json":
@@ -556,6 +559,7 @@ def players_assign_command(
         status=status,
         designation=designation,
     )
+    # pylint: enable=duplicate-code
 
 
 @players_group.command("unassign")

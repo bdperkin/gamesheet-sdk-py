@@ -316,6 +316,7 @@ def update_team_player(
         Player: The updated :class:`Player`.
 
     """
+    # pylint: disable=duplicate-code
     photo_url = _prepare_player_update(
         session,
         first_name,
@@ -334,11 +335,13 @@ def update_team_player(
         photo_path=photo_path,
         remove_photo=remove_photo,
     )
+    # pylint: enable=duplicate-code
 
     # Fetch current player to get all fields
     current_player = get_team_player(session, season_id, team_id, player_id)
 
     # Build payload with updated values (without "type" field for team context)
+    # pylint: disable=duplicate-code
     payload = _build_player_update_payload(
         player_id,
         current_player,
@@ -359,6 +362,7 @@ def update_team_player(
         remove_photo=remove_photo,
         include_type=False,
     )
+    # pylint: enable=duplicate-code
     data = _patch_player_record(session, season_id, player_id, payload, "PATCH team player")
     player = parse_player(data)
 

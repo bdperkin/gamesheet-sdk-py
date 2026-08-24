@@ -185,6 +185,12 @@ metrics: ## Radon complexity analysis via uv run
 	@printf "\n$(CYAN)→$(RESET) running radon maintainability index\n"
 	uv run --extra radon radon mi --show .
 
+.PHONY: pylint
+pylint: ## Pylint code quality and duplicate code checks via uv run
+	@printf "$(CYAN)→$(RESET) running pylint analysis\n"
+	uv run --extra pylint pylint .
+
+
 # =============================================================================
 # Documentation (Sphinx + Furo theme)
 # =============================================================================

@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 import rich_click as click
 from click.exceptions import Exit
@@ -413,29 +413,32 @@ def handle_game_update(
     tz_name = timezone
     tz_offset = get_local_timezone_offset() if timezone is not None else None
 
-    return run_action(
-        session,
-        _update_game_action,
-        event_id,
-        team_id=team_id,
-        season_id=season_id,
-        division_id=division_id,
-        opposing_team_id=opposing_team_id,
-        opposing_division=opposing_division,
-        association_id=association_id,
-        league_id=league_id,
-        home_flag=home_flag,
-        date_time=resolved_start_dt,
-        end_time=resolved_end_time,
-        game_number=game_number,
-        game_type=game_type,
-        location=location_name,
-        scorekeeper_name=scorekeeper_name,
-        scorekeeper_phone=scorekeeper_phone,
-        broadcast_provider=broadcast_provider,
-        time_zone_name=tz_name,
-        time_zone_offset=tz_offset,
-        timeout=timeout,
+    return cast(
+        "UpdatedGameResult",
+        run_action(
+            session,
+            _update_game_action,
+            event_id,
+            team_id=team_id,
+            season_id=season_id,
+            division_id=division_id,
+            opposing_team_id=opposing_team_id,
+            opposing_division=opposing_division,
+            association_id=association_id,
+            league_id=league_id,
+            home_flag=home_flag,
+            date_time=resolved_start_dt,
+            end_time=resolved_end_time,
+            game_number=game_number,
+            game_type=game_type,
+            location=location_name,
+            scorekeeper_name=scorekeeper_name,
+            scorekeeper_phone=scorekeeper_phone,
+            broadcast_provider=broadcast_provider,
+            time_zone_name=tz_name,
+            time_zone_offset=tz_offset,
+            timeout=timeout,
+        ),
     )
 
 
@@ -528,13 +531,16 @@ def handle_occurrence_update(
     if effective_rrule is not None:
         payload["rrule"] = effective_rrule
 
-    return run_action(
-        session,
-        _update_calendar_occurrence_action,
-        event_id,
-        payload,
-        update_future=effective_future,
-        timeout=timeout,
+    return cast(
+        "CalendarEventCreated",
+        run_action(
+            session,
+            _update_calendar_occurrence_action,
+            event_id,
+            payload,
+            update_future=effective_future,
+            timeout=timeout,
+        ),
     )
 
 
@@ -783,6 +789,7 @@ def run_occurrence_update(
     """
     validate_update_scope(update_future=update_future, update_single=update_single)
 
+    # pylint: disable=duplicate-code
     updated_occ = handle_occurrence_update(
         run_action,
         session,
@@ -806,4 +813,5 @@ def run_occurrence_update(
         update_single=update_single,
         timeout=timeout,
     )
+    # pylint: enable=duplicate-code
     render_get_command(updated_occ, output_format, output_path, columns_spec)

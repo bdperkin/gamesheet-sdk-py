@@ -51,36 +51,30 @@ updates:
           - patch
     ignore:
       # Managed by syncdeps — do not edit manually
-      - dependency-name: mcp
-        versions:
-          - '> 1.29.0'
-      - dependency-name: pre-commit
-        versions:
-          - '> 4.6.1'
       - dependency-name: pyproject-fmt
         versions:
-          - '> 2.27.0'
+          - '> 2.28.0'
       - dependency-name: rich
         versions:
           - '> 14.3.4'
       - dependency-name: ruff
         versions:
-          - '> 0.16.2'
+          - '> 0.16.3'
       - dependency-name: semgrep
         versions:
-          - '> 1.172.0'
+          - '> 1.173.0'
       - dependency-name: tomlkit
         versions:
           - '> 0.13.3'
       - dependency-name: ty
         versions:
-          - '> 0.0.69'
+          - '> 0.0.72'
       - dependency-name: unimport
         versions:
           - '> 0.11.1'
-      - dependency-name: uv
+      - dependency-name: validate-pyproject
         versions:
-          - '> 0.12.3'
+          - '> 0.25'
     cooldown:
       default-days: 7
 

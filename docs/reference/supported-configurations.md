@@ -107,7 +107,7 @@ The package declares many extras via `[project.optional-dependencies]`. The two 
 Each linter, formatter, type checker, and quality tool is isolated to its own extra. Examples include:
 
 - **Formatters**: `ruff`
-- **Linters**: `blocklint`, `vulture`, `deptry`, `semgrep`
+- **Linters**: `blocklint`, `vulture`, `deptry`, `semgrep`, `pylint`
 - **Doc tools**: `codespell`, `interrogate`, `pymarkdown`, `mdformat`
 - **Config file tools**: `yamllint`, `yamlfix`, `pyproject-fmt`, `validate-pyproject`, `editorconfig-checker`, `pyroma`
 - **Metrics**: `radon`

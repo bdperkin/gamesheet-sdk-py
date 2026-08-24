@@ -160,6 +160,7 @@ def update_game(
     raw = update_schedule_game_raw(session, game_id, payload, timeout=timeout)
     msg = str(raw.get("message") or "Game updated successfully")
 
+    # pylint: disable=duplicate-code
     return UpdatedGameResult(
         success=bool(raw.get("success", True)),
         id=_to_int_or_val(game_id),
@@ -183,6 +184,7 @@ def update_game(
         scorekeeper_phone=scorekeeper_phone,
         broadcast_provider=broadcast_provider,
     )
+    # pylint: enable=duplicate-code
 
 
 def update_calendar_occurrence_raw(

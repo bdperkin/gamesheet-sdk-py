@@ -72,12 +72,13 @@ The package is alpha. It uses a **three-pillar layout** under `src/gamesheet_sdk
     - `referees.py` — `Referee`, `RefereeReport` models + CRUD + `get_referee_report()`
     - `roster/` — roster management (`models.py`, `players.py`, `coaches.py`, `helpers.py`)
     - `seasons.py` — `Season` and `SeasonDetail` models + `list_seasons()`, `get_season()`
-    - `teams.py` — `Team` model + `list_teams()`, `create_team()`, `update_team()`, `delete_team()`
 - `teams/` — teams dashboard (`gamesheet-teams` CLI)
   - `cli/` — teams CLI package
     - `main.py` — teams CLI entry point (`cli` group and `main()` function)
-    - `commands/` — command modules (completion, login stub)
-  - `shared/` — teams-specific utilities (currently empty)
+    - `commands/` — command modules (`completion`, `login`, `lookups`, `members`, `messages`, `roster`, `schedule`, `seasons`, `teams`)
+  - `schedule/` — events, games, and practices schedule domain logic (`create.py`, `delete.py`, `query.py`, `update.py`, `models.py`)
+  - `shared/` — teams-specific constants (`TEAMS_API_GATEWAY`, endpoints)
+  - Domain modules: `login.py`, `lookups.py`, `seasons.py`, `teams.py`, `session.py`
 
 Future domain modules attach the same way: a thin action function in a domain module, a pydantic model, and a corresponding command module in the pillar's
 `cli/commands/`.
@@ -126,6 +127,7 @@ make test          # full pytest suite
 make test-fast     # pytest -m "not browser"
 make test-cov      # pytest --cov
 make metrics       # radon complexity + maintainability report
+make pylint        # pylint code quality + duplication report
 make docs          # Sphinx HTML build (two-pass strict)
 make docs-serve    # live-reload preview
 make docs-pdf      # PDF docs (needs LaTeX on PATH)
@@ -154,8 +156,9 @@ workflow in two places — `format-json` and `yamlfix` are pre-commit-only, with
 `semgrep --disable-version-check --quiet --skip-unknown-extensions` where the workflow job runs `semgrep --config auto .`. For a faithful reproduction of a CI
 job, copy the `run:` line out of the workflow (see [§2.2](#22-running-a-single-tool-with-uv)).
 
-There is no aggregate target; use `pre-commit run --all-files`. Two categories have no target either: `commits` is inherently per-commit
-(`conventional-pre-commit`), and `architecture` is split between `make metrics` (radon) and `pre-commit run xenon --all-files` (the complexity gate).
+There is no aggregate target; use `pre-commit run --all-files`. Two categories have no single target either: `commits` is inherently per-commit
+(`conventional-pre-commit`), and `architecture` is split between `make metrics` (radon), `make pylint` (pylint), and `pre-commit run xenon --all-files` (the
+complexity gate).
 
 ### 2.2. Running a single tool with uv
 
@@ -335,19 +338,30 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   have no dedicated jobs yet, so in CI they are covered only by the `pre-commit` job. Categories, in hook order:
 
   - **meta** (Hook Management): pre-commit's own `check-hooks-apply` / `check-useless-excludes` / `identity`, sync-pre-commit-deps.
+
   - **dependencies** (Lockfile Synchronization): uv — `uv-lock` on every run; `uv-export` and `uv-audit` are `manual`-stage, `uv-sync` is
     post-checkout/merge/rewrite.
+
   - **checks** (Low-level Checks): pre-commit-hooks, pygrep-hooks, editorconfig-checker.
+
   - **configuration** (Configuration Validation): format-json, yamlfix, yamllint, pyproject-fmt, validate-pyproject, pyroma.
+
   - **markdown** (Markdown Formatting): mdformat (+ mdformat-gfm), markdown-heading-numbering, markdown-toc-creator, pymarkdown.
+
   - **security** (Secret and Vulnerability Scans): detect-secrets, semgrep (`semgrep ci --dry-run --baseline-commit HEAD`; the plain `semgrep` id is
     blacklisted, and the full `--config auto .` scan runs as a workflow job).
+
   - **format** (Python Formatting): unimport (`--remove`), absolufy-imports, ssort, add-trailing-comma, blank-line-after-blocks, ruff (`ruff-check --fix` +
     `ruff-format`, line length 110).
+
   - **quality** (Code Quality): vulture, interrogate, codespell, blocklint.
-  - **architecture** (Dependencies and Complexity Metrics): deptry, xenon (complexity gate — see below). radon is *not* a hook; it runs as workflow jobs (cc /
-    raw / mi / hal) and via `make metrics`.
+
+  - **architecture** (Dependencies, Complexity Metrics, and Code Quality): deptry, xenon (complexity gate — see below). radon is *not* a hook; it runs as
+    workflow jobs (cc / raw / mi / hal) and via `make metrics`. pylint is *not* a pre-commit hook (to avoid slowing down local commits); it runs in CI under
+    `architecture.yml` and locally via `make pylint` / `uv run --extra pylint pylint .` for duplicate-code checking and secondary linting.
+
   - **types** (Static Type Checks): ty (`[tool.ty]`, `--fix --extra ty`).
+
   - **commits** (Commit Standards): conventional-pre-commit, pre-commit-ci-config.
 
   Hooks needing the project's runtime deps or tool plugins inside their isolated venv use a single `gamesheet-sdk-py[<extras>]` self-reference, so
