@@ -247,7 +247,8 @@ def explicit_side_flag(params: Mapping[str, Any]) -> bool | None:
     if params.get("away_flag"):
         return False
 
-    return params.get("home_flag")
+    home_flag = params.get("home_flag")
+    return bool(home_flag) if home_flag is not None else None
 
 
 def _merge_slot(

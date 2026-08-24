@@ -27,7 +27,10 @@ from gamesheet_sdk.common.cli.decorators import (
     columns_option,
     common_output_options,
 )
-from gamesheet_sdk.common.cli.helpers import run_action_or_exit
+from gamesheet_sdk.common.cli.helpers import (
+    emit_shell_completion,
+    run_action_or_exit,
+)
 from gamesheet_sdk.common.cli.rendering import (
     render_get_command,
     render_list_command,
@@ -42,6 +45,7 @@ __all__ = [
     "columns_option",
     "common_output_options",
     "confirm_destructive",
+    "emit_shell_completion",
     "get_local_timezone_name",
     "get_local_timezone_offset",
     "parse_columns_spec",

@@ -49,6 +49,7 @@ from gamesheet_sdk.teams.schedule import (
     list_practices as _list_practices_action,
 )
 
+# pylint: disable=duplicate-code
 if TYPE_CHECKING:
     from gamesheet_sdk.common.config import Config
 
@@ -258,6 +259,7 @@ def practices_create_command(
         repeat_until=repeat_until,
         timeout=config.timeout,
     )
+    # pylint: enable=duplicate-code
     render_get_command(created, output_format, output_path, columns_spec)
 
 

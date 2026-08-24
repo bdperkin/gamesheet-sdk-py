@@ -120,6 +120,7 @@ def schedule_list_command(
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
+    # pylint: disable=duplicate-code
     events = run_action_or_exit(
         session,
         _list_schedule_action,
@@ -199,6 +200,7 @@ def schedule_get_command(
         team_id=team_id,
         timeout=config.timeout,
     )
+    # pylint: enable=duplicate-code
     render_get_command(event_detail, output_format, output_path, columns_spec)
 
 
@@ -657,6 +659,7 @@ def schedule_update_command(  # noqa: PLR0913
         render_get_command(result, output_format, output_path, columns_spec)
         return
 
+    # pylint: disable=duplicate-code
     run_occurrence_update(
         run_action_or_exit,
         session,
@@ -683,6 +686,7 @@ def schedule_update_command(  # noqa: PLR0913
         update_single=update_single,
         timeout=config.timeout,
     )
+    # pylint: enable=duplicate-code
 
 
 @schedule_group.command("export")

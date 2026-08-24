@@ -138,6 +138,11 @@ uv run --extra ty ty check
 # Run all linters via pre-commit
 uv run pre-commit run --all-files
 
+# Run code quality and duplicate code checks via pylint (matches CI job)
+uv run --extra pylint pylint .
+# or use the Makefile shortcut:
+make pylint
+
 # Individual linters
 uv run --extra semgrep semgrep scan --config auto --error
 ```
@@ -146,10 +151,11 @@ uv run --extra semgrep semgrep scan --config auto --error
 
 ```bash
 # Auto-fix with make
-make fix
+make format
 
 # Or run formatters individually via uv
-uv run --extra ruff ruff src/ tests/
+uv run --extra ruff ruff check --fix
+uv run --extra ruff ruff format
 uv run --extra mdformat mdformat docs/ *.md
 ```
 
@@ -231,6 +237,7 @@ make quality       # dead code, docstring, spelling, and language checks
 make types         # uv run --extra ty ty check
 make checks        # run all pre-commit hooks
 make metrics       # radon complexity analysis
+make pylint        # uv run --extra pylint pylint .
 make docs          # build HTML docs
 make docs-serve    # live-reload docs
 make docs-lint     # lint documentation files

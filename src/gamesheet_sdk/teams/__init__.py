@@ -75,6 +75,7 @@ from gamesheet_sdk.teams.teams import (
     upload_team_image,
 )
 
+# pylint: disable=duplicate-code
 __all__ = [
     "CalendarEventCreated",
     "CalendarSubscription",
@@ -144,3 +145,4 @@ __all__ = [
     "upload_team_image",
     "validate_game_type",
 ]
+# pylint: enable=duplicate-code

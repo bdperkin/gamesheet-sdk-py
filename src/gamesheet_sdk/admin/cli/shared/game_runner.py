@@ -10,7 +10,7 @@ into the season-schedule JSON:API calls in :mod:`gamesheet_sdk.admin.games`.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import rich_click as click
 from rich_click import Context
@@ -69,7 +69,7 @@ def _config(ctx: Context) -> Config:
 
     """
     obj: Any = ctx.obj
-    return obj["config"] if isinstance(obj, dict) else obj
+    return cast("Config", obj["config"] if isinstance(obj, dict) else obj)
 
 
 def resolve_season_id(ctx: Context, season_id: str | None) -> str:

@@ -226,6 +226,7 @@ def update_player(
         Player: The updated :class:`Player`.
 
     """
+    # pylint: disable=duplicate-code
     photo_url = _prepare_player_update(
         session,
         first_name,
@@ -244,8 +245,10 @@ def update_player(
         photo_path=photo_path,
         remove_photo=remove_photo,
     )
+    # pylint: enable=duplicate-code
 
     current_player = get_player(session, season_id, player_id)
+    # pylint: disable=duplicate-code
     payload = _build_player_update_payload(
         player_id,
         current_player,
@@ -266,6 +269,7 @@ def update_player(
         remove_photo=remove_photo,
         include_type=True,
     )
+    # pylint: enable=duplicate-code
     data = _patch_player_record(session, season_id, player_id, payload, "PATCH player")
     return parse_player(data)
 

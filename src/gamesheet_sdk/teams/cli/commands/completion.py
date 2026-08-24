@@ -6,10 +6,10 @@
 from __future__ import annotations
 
 import rich_click as click
-from click.exceptions import Exit
 from rich_click import Choice
 
 from gamesheet_sdk.common.cli.constants import SHELL_TYPES
+from gamesheet_sdk.common.cli.helpers import emit_shell_completion
 
 
 @click.command("completion")
@@ -27,24 +27,9 @@ def completion_command(shell: str) -> None:
     Args:
         shell (str): Target shell (bash, zsh, or fish).
 
-    Raises:
-        Exit: If the specified shell is unsupported.
-
     """
-    from click import get_current_context  # noqa: PLC0415
-    from click.shell_completion import get_completion_class  # noqa: PLC0415 # type: ignore[unresolved-import]
-
-    cls = get_completion_class(shell)
-    if cls is None:  # pragma: no cover
-        click.secho(f"Unsupported shell: {shell}", fg="red", err=True)
-        raise Exit(1)
-
-    ctx = get_current_context()
-    if ctx.parent:
-        comp = cls(
-            ctx.parent.command,
-            ctx_args={},
-            prog_name="gamesheet-teams",
-            complete_var="_GAMESHEET_TEAMS_COMPLETE",
-        )
-        click.echo(comp.source())
+    emit_shell_completion(
+        shell,
+        prog_name="gamesheet-teams",
+        complete_var="_GAMESHEET_TEAMS_COMPLETE",
+    )

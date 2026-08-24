@@ -307,6 +307,7 @@ def teams_roster_players_create_command(
     season_id: str = ctx.obj["season_id"]
     team_id: str = ctx.obj["team_id"]
     session = build_authenticated_session(config)
+    # pylint: disable=duplicate-code
     run_roster_create_with_output(
         _create_team_player_action,
         session,
@@ -336,6 +337,7 @@ def teams_roster_players_create_command(
         photo_path=photo_path,
         success_message=f"Player {{id}} added to team {team_id} successfully.",
     )
+    # pylint: enable=duplicate-code
 
 
 @teams_roster_players_group.command("update")

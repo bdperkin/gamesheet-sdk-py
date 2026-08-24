@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 import time
 from http import HTTPStatus
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import quote
 
 from gamesheet_sdk.common.auth.constants import DEFAULT_TIMEOUT_S
@@ -392,7 +392,8 @@ def _resolve_availability_event_id(
     raw_event_data = event_dict.get("eventData")
     event_data_dict: dict[str, Any] = raw_event_data if isinstance(raw_event_data, dict) else {}
     if resolved_type.lower() == "game":
-        game_id: str | int = (
+        return cast(
+            "str | int",
             event_dict.get("gameId")
             or event_dict.get("game_id")
             or event_data_dict.get("gameId")
@@ -407,18 +408,18 @@ def _resolve_availability_event_id(
                 if (isinstance(event_dict.get("id"), int) or str(event_dict.get("id", "")).isdigit())
                 else None
             )
-            or fallback_event_id
+            or fallback_event_id,
         )
-        return game_id
 
-    return (
+    return cast(
+        "str | int",
         event_dict.get("eventId")
         or event_dict.get("event_id")
         or event_data_dict.get("eventId")
         or event_data_dict.get("event_id")
         or event_dict.get("id")
         or event_data_dict.get("id")
-        or fallback_event_id
+        or fallback_event_id,
     )
 
 
@@ -441,7 +442,8 @@ def _resolve_effective_team_id(
 
     raw_event_data = event_dict.get("eventData")
     event_data_dict = raw_event_data if isinstance(raw_event_data, dict) else {}
-    return (
+    return cast(
+        "str | int | None",
         event_dict.get("teamId")
         or event_dict.get("team_id")
         or event_dict.get("home_prototeam_id")
@@ -455,7 +457,7 @@ def _resolve_effective_team_id(
         or event_data_dict.get("homeTeamId")
         or event_data_dict.get("home_team_id")
         or event_data_dict.get("awayTeamId")
-        or event_data_dict.get("away_team_id")
+        or event_data_dict.get("away_team_id"),
     )
 
 

@@ -309,7 +309,7 @@ def app(
     log_level: str,
     *,
     dry_run: bool,
-    do_sync_types: bool,
+    sync_types: bool,
     sync_exclude_newer: bool,
     no_uv_resolve: bool,
     backup: bool,
@@ -330,7 +330,7 @@ def app(
         uv_lock (str): Path to uv.lock.
         log_level (str): Logging level string.
         dry_run (bool): If True, report changes without writing files.
-        do_sync_types (bool): If True, synchronize types-* stub packages.
+        sync_types (bool): If True, synchronize types-* stub packages.
         sync_exclude_newer (bool): If True, keep [tool.uv] exclude-newer-package in step with the pins.
         no_uv_resolve (bool): If True, skip uv resolution and use the latest index release per package.
         backup (bool): If True, create backup files before writing.
@@ -352,7 +352,7 @@ def app(
         uv_lock_path=Path(uv_lock),
         log_level=log_level,
         dry_run=dry_run,
-        sync_types=do_sync_types,
+        sync_types=sync_types,
         sync_exclude_newer=sync_exclude_newer,
         no_uv_resolve=no_uv_resolve,
         backup=backup,

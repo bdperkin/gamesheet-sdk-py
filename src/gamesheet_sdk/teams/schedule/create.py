@@ -397,6 +397,7 @@ def create_game(
 
     create_schedule_game_raw(session, payload, timeout=timeout)
 
+    # pylint: disable=duplicate-code
     return CreatedGameResult(
         success=True,
         game_number=game_number,
@@ -418,6 +419,7 @@ def create_game(
         scorekeeper_phone=scorekeeper_phone,
         broadcast_provider=broadcast_provider,
     )
+    # pylint: enable=duplicate-code
 
 
 __all__ = [

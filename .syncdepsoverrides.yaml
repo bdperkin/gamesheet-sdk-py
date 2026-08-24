@@ -42,17 +42,3 @@
 #              reintroduce the vulnerability it exists to fix.
 # ==============================================================================
 overrides:
-  - package: mcp
-    pinned_by: semgrep
-    floor: '>=1.28.1'
-    ceiling: <2
-    reason: >-
-      semgrep hard-pins mcp==1.23.3 — every release published to date does,
-      including the latest — and that version carries three HIGH advisories:
-      CVE-2026-52869, CVE-2026-52870 and CVE-2026-59950. Bumping semgrep cannot
-      move mcp, so the requirement is overridden outright. The ceiling is not
-      cosmetic: mcp 2.x removes mcp.server.fastmcp, and semgrep/cli.py imports
-      semgrep.commands.mcp unconditionally, so an unbounded floor resolves to
-      2.0.0 and the semgrep binary fails to start at all.
-    verify: uv run --extra semgrep --no-dev python -c "import semgrep.cli"
-    review: 2026-11-09

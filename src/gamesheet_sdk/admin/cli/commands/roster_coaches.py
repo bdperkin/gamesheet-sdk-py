@@ -375,6 +375,7 @@ def coaches_penalty_report_command(
     """
     config: Config = ctx.obj["config"]
     season_id: str = ctx.obj["season_id"]
+    # pylint: disable=duplicate-code
     with build_authenticated_session(config) as session:
         report = roster.get_coach_penalty_report(session, season_id, coach_id)
         if output_format == "json":
@@ -446,6 +447,7 @@ def coaches_assign_command(
         team_id,
         position=position,
     )
+    # pylint: enable=duplicate-code
 
 
 @coaches_group.command("unassign")

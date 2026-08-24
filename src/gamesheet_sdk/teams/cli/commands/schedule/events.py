@@ -49,6 +49,7 @@ from gamesheet_sdk.teams.schedule import (
     list_events as _list_events_action,
 )
 
+# pylint: disable=duplicate-code
 if TYPE_CHECKING:
     from gamesheet_sdk.common.config import Config
 
@@ -258,6 +259,7 @@ def events_create_command(
         repeat_until=repeat_until,
         timeout=config.timeout,
     )
+    # pylint: enable=duplicate-code
     render_get_command(created, output_format, output_path, columns_spec)
 
 
@@ -304,6 +306,7 @@ def events_list_command(
     """
     config: Config = ctx.obj
     session = build_authenticated_session(config)
+    # pylint: disable=duplicate-code
     events = run_action_or_exit(
         session,
         _list_events_action,
@@ -374,6 +377,7 @@ def events_get_command(
         team_id=team_id,
         timeout=config.timeout,
     )
+    # pylint: enable=duplicate-code
     render_get_command(event_detail, output_format, output_path, columns_spec)
 
 

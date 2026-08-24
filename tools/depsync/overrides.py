@@ -26,6 +26,7 @@ from packaging.version import InvalidVersion, Version
 from pydantic import ValidationError
 from ruamel.yaml import YAML
 from ruamel.yaml.error import YAMLError
+from shared.uv_resolve import ensure_uv_table
 from tomlkit.exceptions import TOMLKitError
 
 from depsync.exceptions import ParseError, VerifyError, WriteError
@@ -253,15 +254,7 @@ def _override_array(doc: TOMLDocument) -> Array:
         Array: The override array, ready to mutate.
 
     """
-    tool = doc.get("tool")
-    if tool is None:
-        tool = tomlkit.table()
-        doc["tool"] = tool
-
-    uv_table = tool.get("uv")
-    if uv_table is None:
-        uv_table = tomlkit.table()
-        tool["uv"] = uv_table
+    uv_table = ensure_uv_table(doc)
 
     declared = uv_table.get("override-dependencies")
     if declared is None:
