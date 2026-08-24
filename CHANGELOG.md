@@ -2,6 +2,46 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.1 (2026-08-24)
+
+### Bug Fixes
+
+- **security**: Suppress unfixed upstream base OS CVEs in trivy configuration ([#241](https://github.com/bdperkin/gamesheet-sdk-py/pull/241),
+  [`59fd2c7`](https://github.com/bdperkin/gamesheet-sdk-py/commit/59fd2c7279aa39411d14add1ebb9eaccc1fa96e8))
+
+### Chores
+
+- **deps**: Align pre-commit hook versions with package release cutoff ([#239](https://github.com/bdperkin/gamesheet-sdk-py/pull/239),
+  [`0617a6e`](https://github.com/bdperkin/gamesheet-sdk-py/commit/0617a6e81d1f148b8a8c22b1b30cc8dfab28038e))
+
+- **deps**: Update pre-commit hooks ([#239](https://github.com/bdperkin/gamesheet-sdk-py/pull/239),
+  [`0617a6e`](https://github.com/bdperkin/gamesheet-sdk-py/commit/0617a6e81d1f148b8a8c22b1b30cc8dfab28038e))
+
+- **deps)(deps**: Bump astral-sh/setup-uv from 9.0.0 to 10.0.1 ([#239](https://github.com/bdperkin/gamesheet-sdk-py/pull/239),
+  [`0617a6e`](https://github.com/bdperkin/gamesheet-sdk-py/commit/0617a6e81d1f148b8a8c22b1b30cc8dfab28038e))
+
+- **deps)(deps**: Bump astral-sh/setup-uv from 9.0.0 to 10.0.1 ([#238](https://github.com/bdperkin/gamesheet-sdk-py/pull/238),
+  [`a908304`](https://github.com/bdperkin/gamesheet-sdk-py/commit/a908304d81c2687522a461705786fecbdf1a9681))
+
+- **deps)(deps**: Bump the actions group across 1 directory with 4 updates ([#239](https://github.com/bdperkin/gamesheet-sdk-py/pull/239),
+  [`0617a6e`](https://github.com/bdperkin/gamesheet-sdk-py/commit/0617a6e81d1f148b8a8c22b1b30cc8dfab28038e))
+
+- **deps)(deps**: Bump the actions group across 1 directory with 4 updates ([#237](https://github.com/bdperkin/gamesheet-sdk-py/pull/237),
+  [`a63a6b0`](https://github.com/bdperkin/gamesheet-sdk-py/commit/a63a6b0a03c84993710e729e29d59ef47ef169e5))
+
+### Code Style
+
+- Auto-fixes from pre-commit.ci ([#239](https://github.com/bdperkin/gamesheet-sdk-py/pull/239),
+  [`0617a6e`](https://github.com/bdperkin/gamesheet-sdk-py/commit/0617a6e81d1f148b8a8c22b1b30cc8dfab28038e))
+
+### Refactoring
+
+- Deduplicate CLI logic, add CI pylint check, and fix ty diagnostics ([#239](https://github.com/bdperkin/gamesheet-sdk-py/pull/239),
+  [`0617a6e`](https://github.com/bdperkin/gamesheet-sdk-py/commit/0617a6e81d1f148b8a8c22b1b30cc8dfab28038e))
+
+- Deduplicate CLI logic, add CI pylint check, and fix ty diagnostics ([#240](https://github.com/bdperkin/gamesheet-sdk-py/pull/240),
+  [`d9e0184`](https://github.com/bdperkin/gamesheet-sdk-py/commit/d9e0184b1eff7a8e3a8785cb7126ab417243d0eb))
+
 ## v0.5.0 (2026-08-22)
 
 ### Features
