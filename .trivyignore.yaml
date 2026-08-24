@@ -150,6 +150,27 @@ vulnerabilities:
       the SDK never parses XML.
     expired_at: 2027-02-16
 
+  - id: CVE-2026-66046
+    statement: >-
+      UNKNOWN: libexpat1 — Denial of Service caused by quadratic complexity in
+      storeAtts() during attribute processing. No fixed version in Debian trixie.
+      Not reachable: the SDK never parses XML.
+    expired_at: 2027-02-24
+
+  - id: CVE-2026-76956
+    statement: >-
+      UNKNOWN: libexpat1 — Denial of Service via hash flooding due to insufficient
+      entropy from misinterpretation of getentropy return code. No fixed version in
+      Debian trixie. Not reachable: the SDK never parses XML.
+    expired_at: 2027-02-24
+
+  - id: CVE-2026-76957
+    statement: >-
+      UNKNOWN: libexpat1 — use-after-free due to lack of handler call depth
+      tracking with custom encoding callbacks. No fixed version in Debian trixie.
+      Not reachable: the SDK never parses XML.
+    expired_at: 2027-02-24
+
   # ----------------------------------------------------------------------------
   # libasound2 — ALSA audio library (not used by this project)
   # ----------------------------------------------------------------------------
@@ -599,6 +620,13 @@ vulnerabilities:
       expansion on untrusted input.
     expired_at: 2027-02-16
 
+  - id: CVE-2026-19542
+    statement: >-
+      UNKNOWN: libc-bin, libc6 — glibc: Out-of-bounds stack array access in
+      tdelete function. No fixed version in Debian trixie. Not reachable: the SDK
+      is in Python and never invokes glibc tdelete.
+    expired_at: 2027-02-24
+
   - id: CVE-2026-18477
     statement: >-
       UNKNOWN: tar — tar: TOCTOU race in incremental dumpdir "X" rename
@@ -857,6 +885,15 @@ vulnerabilities:
       affected, no fixed version. Not reachable: the SDK is an HTTP/HTTPS client
       and does not run or expose an OpenSSL QUIC server.
     expired_at: 2026-11-18
+
+  - id: CVE-2026-75803
+    statement: >-
+      UNKNOWN: openssl, libssl3t64, openssl-provider-legacy — OpenSSL AEAD
+      forgeries with empty ciphertext when using EVP_Cipher() with Poly1305 and
+      OCB AEADs. No fixed version in Debian trixie. Not reachable: the SDK uses
+      standard TLS via requests/urllib3/playwright and does not perform manual
+      EVP_Cipher() AEAD operations.
+    expired_at: 2027-02-24
 
   # ----------------------------------------------------------------------------
   # systemd / udev libraries
@@ -1655,7 +1692,15 @@ vulnerabilities:
 #     CVE-2026-15059 (libsystemd0/libudev1),
 #     CVE-2026-16742 (libsystemd0/libudev1).
 #
-# Expiry tiers in force: 26 rules due 2026-10-27, 2026-11-02, or 2026-11-18,
-#                        80 due 2027-01-27, 2027-02-16, or 2027-02-18, 74 due 2027-07-27 or 2027-08-16.
+# Reviewed: 2026-08-24  —  185 rules total
+#   - Added 5 rules for base-image OS packages (8 code scanning alerts):
+#     CVE-2026-66046 (libexpat1), CVE-2026-76956 (libexpat1),
+#     CVE-2026-76957 (libexpat1), CVE-2026-19542 (libc6/libc-bin),
+#     CVE-2026-75803 (openssl/libssl3t64/openssl-provider-legacy).
+#
+# Expiry tiers in force: 25 rules due 2026-10-27, 2026-11-02, or 2026-11-18,
+#                        87 due 2027-01-27, 2027-02-02, 2027-02-09, 2027-02-16,
+#                        2027-02-18, or 2027-02-24,
+#                        73 due 2027-07-27 or 2027-08-16.
 # Next backstop review: 2026-10-27 (when the CRITICAL/HIGH tier expires)
 # ==============================================================================
