@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.2 (2026-08-25)
+
+### Bug Fixes
+
+- **tools**: Handle dynamic versioning and marker-based resolution in uv-resolve ([#242](https://github.com/bdperkin/gamesheet-sdk-py/pull/242),
+  [`14b76d1`](https://github.com/bdperkin/gamesheet-sdk-py/commit/14b76d14da513be27f385f80244ab2a02fbb3c54))
+
 ## v0.5.1 (2026-08-24)
 
 ### Bug Fixes
