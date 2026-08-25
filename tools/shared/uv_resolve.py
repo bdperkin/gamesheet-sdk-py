@@ -12,6 +12,7 @@ requirements may cap a sibling below its newest release. Rather than reimplement
 from __future__ import annotations
 
 import logging
+import os
 import re
 import shutil
 import subprocess
@@ -20,6 +21,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 import tomlkit
+from packaging.markers import InvalidMarker, Marker, UndefinedEnvironmentName
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
+from packaging.version import InvalidVersion, Version
 from tomlkit.exceptions import TOMLKitError
 
 from shared.exceptions import ToolError
@@ -68,11 +72,47 @@ def _normalize_name(name: str) -> str:
     return re.sub(r"[-_.]+", "-", name).lower()
 
 
-def versions_from_lock(lock_path: Path) -> dict[str, str]:
+def _matches_marker(marker_str: str, env: dict[str, str]) -> bool:
+    """Check if an environment matches a single marker string.
+
+    Args:
+        marker_str (str): PEP 508 marker string.
+        env (dict[str, str]): Environment dictionary for marker evaluation.
+
+    Returns:
+        bool: True if marker matches env, False otherwise.
+
+    """
+    try:
+        return Marker(marker_str).evaluate(env)
+    except (InvalidMarker, UndefinedEnvironmentName):
+        return False
+
+
+def _package_matches_env(markers: Sequence[str] | str, env: dict[str, str]) -> bool:
+    """Check if any resolution marker matches the environment.
+
+    Args:
+        markers (Sequence[str] | str): One or more marker strings.
+        env (dict[str, str]): Environment dictionary for marker evaluation.
+
+    Returns:
+        bool: True if any marker matches env, False otherwise.
+
+    """
+    if isinstance(markers, str):
+        return _matches_marker(markers, env)
+
+    return any(_matches_marker(m, env) for m in markers)
+
+
+def versions_from_lock(lock_path: Path, min_python: Version | None = None) -> dict[str, str]:
     """Read package name to version pairs from a ``uv`` lockfile.
 
     Args:
         lock_path (Path): Path to a ``uv.lock`` file.
+        min_python (Version | None): Optional minimum Python version to select the matching version
+            when a package has multiple split entries with resolution markers in the lockfile.
 
     Returns:
         dict[str, str]: Mapping of normalized package name to locked version. Entries without a version (such
@@ -87,12 +127,37 @@ def versions_from_lock(lock_path: Path) -> dict[str, str]:
     except ToolError as exc:
         raise UvResolveError(str(exc)) from exc
 
+    env: dict[str, str] | None = (
+        {
+            "python_full_version": f"{min_python.major}.{min_python.minor}.0",
+            "python_version": f"{min_python.major}.{min_python.minor}",
+        }
+        if min_python is not None
+        else None
+    )
+
     versions: dict[str, str] = {}
+    matched_flags: dict[str, bool] = {}
+
     for pkg in data.get("package", []):
         name = pkg.get("name", "")
         version = pkg.get("version")
-        if name and version:
-            versions[_normalize_name(name)] = str(version)
+        if not name or not version:
+            continue
+
+        norm_name = _normalize_name(name)
+
+        res_markers = pkg.get("resolution-markers")
+        if env and res_markers:
+            if _package_matches_env(res_markers, env):
+                versions[norm_name] = str(version)
+                matched_flags[norm_name] = True
+            elif norm_name not in versions or not matched_flags.get(norm_name):
+                versions[norm_name] = str(version)
+                matched_flags[norm_name] = False
+        elif norm_name not in versions or not matched_flags.get(norm_name):
+            versions[norm_name] = str(version)
+            matched_flags[norm_name] = True
 
     logger.debug("Read %d locked versions from %s", len(versions), lock_path)
     return versions
@@ -234,6 +299,17 @@ def _relaxed_pyproject(
     for group in (project.get("optional-dependencies") or {}).values():
         _relax_dep_list(group, pins, loosened)
 
+    # If version is dynamic (e.g. via setuptools-scm or VCS hooks), replace it with a static dummy version
+    # in the scratch copy so uv lock resolves dependencies without attempting to run VCS build hooks in an
+    # isolated scratch directory lacking a .git repository.
+    dynamic = project.get("dynamic")
+    if dynamic and "version" in dynamic:
+        dynamic.remove("version")
+        if not dynamic:
+            project.pop("dynamic", None)
+
+        project["version"] = "0.0.0"
+
     _apply_overrides(doc, overrides)
 
     return tomlkit.dumps(doc), loosened
@@ -257,14 +333,18 @@ def _run_uv_lock(directory: Path, timeout: int) -> str:
         msg = "'uv' is not on PATH; install uv or pass --no-uv-resolve"
         raise UvResolveError(msg)
 
+    env = dict(os.environ)
+    env.setdefault("SETUPTOOLS_SCM_PRETEND_VERSION", "0.0.0")
+
     try:
         result = subprocess.run(
-            ["uv", "lock"],  # noqa: S607
+            ["uv", "lock"],  # ruff: ignore[start-process-with-partial-path]
             capture_output=True,
             text=True,
             check=False,
             timeout=timeout,
             cwd=directory,
+            env=env,
         )
     except subprocess.TimeoutExpired as exc:
         msg = f"'uv lock' timed out after {timeout}s"
@@ -303,6 +383,36 @@ def _unrelaxable_pins(stderr: str, loosened: Mapping[str, str]) -> dict[str, str
                 restore[name] = original
 
     return restore
+
+
+def _parse_min_python(pyproject_path: Path) -> Version | None:
+    """Extract the minimum Python version from ``requires-python`` in pyproject.toml.
+
+    Args:
+        pyproject_path (Path): Path to pyproject.toml.
+
+    Returns:
+        Version | None: Minimum Python version, or None if not configured or unparsable.
+
+    """
+    try:
+        data = load_toml(pyproject_path)
+    except ToolError:
+        return None
+
+    spec_str = data.get("project", {}).get("requires-python")
+    if not spec_str:
+        return None
+
+    try:
+        spec_set = SpecifierSet(spec_str)
+        for spec in spec_set:
+            if spec.operator in {">=", "~="}:
+                return Version(spec.version)
+    except (InvalidSpecifier, InvalidVersion):
+        logger.debug("Could not parse requires-python '%s' as specifier", spec_str)
+
+    return None
 
 
 def _stage_pyproject(directory: Path, content: str) -> None:
@@ -354,6 +464,7 @@ def resolve_project_versions(
 
     """
     effective_pins = dict(pins or {})
+    min_python = _parse_min_python(pyproject_path)
 
     with tempfile.TemporaryDirectory(prefix="uv-resolve-") as tmp:
         tmp_dir = Path(tmp)
@@ -363,7 +474,7 @@ def resolve_project_versions(
 
             stderr = _run_uv_lock(tmp_dir, timeout)
             if not stderr:
-                versions = versions_from_lock(tmp_dir / "uv.lock")
+                versions = versions_from_lock(tmp_dir / "uv.lock", min_python=min_python)
                 logger.info("uv resolved %d packages", len(versions))
                 return versions
 

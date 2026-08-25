@@ -72,6 +72,9 @@ updates:
       - dependency-name: unimport
         versions:
           - '> 0.11.1'
+      - dependency-name: uv
+        versions:
+          - '> 0.12.5'
       - dependency-name: validate-pyproject
         versions:
           - '> 0.25'
