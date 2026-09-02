@@ -409,6 +409,40 @@ vulnerabilities:
     expired_at: 2027-01-27
 
   # ----------------------------------------------------------------------------
+  # libpcre2-8-0 — PCRE2 regular expression library (not used by this project)
+  # ----------------------------------------------------------------------------
+  # Python uses its built-in re engine; the SDK never calls the C PCRE2 library.
+  - id: TEMP-0000000-21C4F8
+    statement: >-
+      UNKNOWN: libpcre2-8-0 — PCRE2 out-of-bounds read with invalid UTF. No
+      fixed version in Debian trixie. Not reachable: Python uses internal re.
+    expired_at: 2027-03-02
+
+  - id: TEMP-0000000-64109B
+    statement: >-
+      UNKNOWN: libpcre2-8-0 — PCRE2 out-of-bounds write in pcre2_dfa_match. No
+      fixed version in Debian trixie. Not reachable: Python uses internal re.
+    expired_at: 2027-03-02
+
+  - id: TEMP-0000000-8188AC
+    statement: >-
+      UNKNOWN: libpcre2-8-0 — PCRE2 out-of-bounds read after JIT fallback. No
+      fixed version in Debian trixie. Not reachable: Python uses internal re.
+    expired_at: 2027-03-02
+
+  - id: TEMP-0000000-A5518C
+    statement: >-
+      UNKNOWN: libpcre2-8-0 — PCRE2 out-of-bounds write in pcre2_pattern_convert.
+      No fixed version in Debian trixie. Not reachable: Python uses internal re.
+    expired_at: 2027-03-02
+
+  - id: TEMP-0000000-B05303
+    statement: >-
+      UNKNOWN: libpcre2-8-0 — PCRE2 integer overflow in pcre2_compile_32. No
+      fixed version in Debian trixie. Not reachable: Python uses internal re.
+    expired_at: 2027-03-02
+
+  # ----------------------------------------------------------------------------
   # libsqlite3 — SQLite database library (not used by this project)
   # ----------------------------------------------------------------------------
   - id: CVE-2026-50812
@@ -423,6 +457,12 @@ vulnerabilities:
       MEDIUM: local issue in SQLite (pre Fossil check-in 869a51ae84df). No fixed
       version in Debian trixie. Not reachable: the SDK uses no SQLite.
     expired_at: 2027-01-27
+
+  - id: CVE-2026-39113
+    statement: >-
+      UNKNOWN: libsqlite3-0 — Buffer overflow in SQLite. No fixed version in
+      Debian trixie. Not reachable: the SDK uses no SQLite database operations.
+    expired_at: 2027-03-02
 
   # ----------------------------------------------------------------------------
   # coreutils — GNU core utilities (base image essential, never invoked)
@@ -626,6 +666,35 @@ vulnerabilities:
       tdelete function. No fixed version in Debian trixie. Not reachable: the SDK
       is in Python and never invokes glibc tdelete.
     expired_at: 2027-02-24
+
+  - id: CVE-2026-18374
+    statement: >-
+      UNKNOWN: libc-bin, libc6 — glibc: crash when passing empty string to ,ccs=
+      syntax extension of fopen. No fixed version in Debian trixie. Not
+      reachable: Python file I/O does not invoke glibc fopen ,ccs= syntax.
+    expired_at: 2027-03-02
+
+  - id: CVE-2026-19499
+    statement: >-
+      MEDIUM: libc-bin, libc6 — glibc: Buffer Overflow in strfmon
+      right-justification padding. No fixed version in Debian trixie. Not
+      reachable: the SDK does not invoke strfmon on untrusted format strings.
+    expired_at: 2027-03-02
+
+  - id: CVE-2026-77117
+    statement: >-
+      MEDIUM: libc-bin, libc6 — glibc: Non-progress DoS in SHIFT_JISX0213 ->
+      UCS-4 conversion. No fixed version in Debian trixie. Not reachable: the
+      SDK processes UTF-8 and never performs SHIFT_JISX0213 conversions.
+    expired_at: 2027-03-02
+
+  - id: CVE-2026-80489
+    statement: >-
+      UNKNOWN: libc-bin, libc6 — glibc: Non-progress DoS in EUC_JISX0213 /
+      SHIFT_JISX0213 -> UCS-4 conversion state. No fixed version in Debian
+      trixie. Not reachable: the SDK processes UTF-8 and does not perform
+      JISX0213 conversions.
+    expired_at: 2027-03-02
 
   - id: CVE-2026-18477
     statement: >-
@@ -1698,9 +1767,17 @@ vulnerabilities:
 #     CVE-2026-76957 (libexpat1), CVE-2026-19542 (libc6/libc-bin),
 #     CVE-2026-75803 (openssl/libssl3t64/openssl-provider-legacy).
 #
+# Reviewed: 2026-09-02  —  195 rules total
+#   - Added 10 rules for base-image OS packages:
+#     CVE-2026-39113 (libsqlite3-0), CVE-2026-18374 (libc6/libc-bin),
+#     CVE-2026-19499 (libc6/libc-bin), CVE-2026-77117 (libc6/libc-bin),
+#     CVE-2026-80489 (libc6/libc-bin), TEMP-0000000-21C4F8 (libpcre2-8-0),
+#     TEMP-0000000-64109B (libpcre2-8-0), TEMP-0000000-8188AC (libpcre2-8-0),
+#     TEMP-0000000-A5518C (libpcre2-8-0), TEMP-0000000-B05303 (libpcre2-8-0).
+#
 # Expiry tiers in force: 25 rules due 2026-10-27, 2026-11-02, or 2026-11-18,
-#                        87 due 2027-01-27, 2027-02-02, 2027-02-09, 2027-02-16,
-#                        2027-02-18, or 2027-02-24,
+#                        97 due 2027-01-27, 2027-02-02, 2027-02-09, 2027-02-16,
+#                        2027-02-18, 2027-02-24, or 2027-03-02,
 #                        73 due 2027-07-27 or 2027-08-16.
 # Next backstop review: 2026-10-27 (when the CRITICAL/HIGH tier expires)
 # ==============================================================================
