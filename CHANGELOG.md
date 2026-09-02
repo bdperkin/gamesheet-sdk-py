@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.3 (2026-09-02)
+
+### Bug Fixes
+
+- **security**: Suppress unfixed upstream base OS CVEs in trivy configuration ([#245](https://github.com/bdperkin/gamesheet-sdk-py/pull/245),
+  [`0474ed8`](https://github.com/bdperkin/gamesheet-sdk-py/commit/0474ed87ecfd4d7c738d0d789298d4b96d4b388d))
+
+### Chores
+
+- **deps)(deps**: Bump the actions group with 3 updates ([#243](https://github.com/bdperkin/gamesheet-sdk-py/pull/243),
+  [`c8f1199`](https://github.com/bdperkin/gamesheet-sdk-py/commit/c8f11993867a5e5a620af4db5acf39adb3364e83))
+
 ## v0.5.2 (2026-08-25)
 
 ### Bug Fixes
