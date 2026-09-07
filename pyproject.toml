@@ -165,10 +165,10 @@ optional-dependencies.pytest = [
   "pytest-cov==7.1.0",
   "pytest-playwright==0.9.0",
   "pytest-recording==0.13.4",
-  "responses==0.26.2",
+  "responses==0.26.3",
 ]
 optional-dependencies.python-semantic-release = [
-  "python-semantic-release==10.6.1",
+  "python-semantic-release==10.6.2",
 ]
 optional-dependencies.quality = [
   "gamesheet-sdk-py[blocklint,codespell,interrogate,vulture]",
