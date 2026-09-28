@@ -14,6 +14,8 @@ Attributes:
     FIREBASE_AUTH_URL (str): Full Firebase Authentication REST URL.
     TOKEN_EXCHANGE_PATH (str): GameSheet token exchange API endpoint.
     TOKEN_EXCHANGE_URL (str): Full URL for token exchange.
+    AUTH_SERVER_TOKENS_PATH (str): Auth server token exchange endpoint path.
+    AUTH_SERVER_TOKENS_URL (str): Full URL for auth server token exchange.
     REFRESH_URL (str): Full URL for refreshing access tokens.
     REFRESH_TIMEOUT_S (float): Timeout in seconds for token refresh operations.
     DEFAULT_TIMEOUT_S (float): Default timeout in seconds for HTTP requests.
@@ -89,11 +91,16 @@ FIREBASE_AUTH_PATH: Final[str] = ":signInWithPassword"
 # Consumed by gamesheet_sdk.teams.login and tests/common/auth/conftest.py; CodeQL
 # reports it as py/unused-global-variable because nothing in this module reads it.
 FIREBASE_AUTH_URL: Final[str] = f"https://{FIREBASE_AUTH_HOST}/v1/accounts{FIREBASE_AUTH_PATH}"
-# GameSheet token exchange endpoint
+# GameSheet token exchange endpoint (legacy)
 TOKEN_EXCHANGE_PATH: Final[str] = "/api/token"  # noqa: S105
 # Consumed by tests/common/auth/conftest.py; CodeQL reports it as
 # py/unused-global-variable because nothing in this module reads it.
 TOKEN_EXCHANGE_URL: Final[str] = f"{DEFAULT_BASE_URL}{TOKEN_EXCHANGE_PATH}"
+# Auth server token exchange endpoint (v4 gateway)
+AUTH_SERVER_TOKENS_PATH: Final[str] = "/auth/v4/tokens"
+# Consumed by tests/common/auth/conftest.py; CodeQL reports it as
+# py/unused-global-variable because nothing in this module reads it.
+AUTH_SERVER_TOKENS_URL: Final[str] = "https://gateway-authserver-awy26srzoa-nn.a.run.app/auth/v4/tokens"
 # Endpoint that mints a fresh access token from a valid refresh token.
 REFRESH_URL: Final[str] = "https://gateway-authserver-awy26srzoa-nn.a.run.app/auth/v4/refresh"
 # Timeouts

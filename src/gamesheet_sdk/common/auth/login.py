@@ -8,12 +8,13 @@ from __future__ import annotations
 import logging
 import time
 from http import HTTPStatus
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Final
 
 from playwright.sync_api import Page, Response
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from gamesheet_sdk.common.auth.constants import (
+    AUTH_SERVER_TOKENS_PATH,
     DEFAULT_TIMEOUT_S,
     FIREBASE_AUTH_HOST,
     FIREBASE_AUTH_PATH,
@@ -34,6 +35,7 @@ if TYPE_CHECKING:
     from gamesheet_sdk.common.config import Config
 
 _LOGGER = logging.getLogger(__name__)
+_MS_PER_SECOND: Final[float] = 1000.0
 
 
 def _resolve_email(cfg: Config, email: str | None) -> str:
@@ -112,6 +114,22 @@ def _is_firebase_signin(url: str) -> bool:
     return FIREBASE_AUTH_HOST in url and FIREBASE_AUTH_PATH in url
 
 
+def _is_token_exchange(url: str) -> bool:
+    """Check whether a URL is a GameSheet token exchange endpoint.
+
+    Matches the gateway auth endpoint (``/auth/v4/tokens``) or the legacy endpoint (``/api/token``).
+
+    Args:
+        url (str): The URL to test.
+
+    Returns:
+        bool: Boolean result.
+
+    """
+    path = url.split("?", 1)[0].rstrip("/")
+    return path.endswith((AUTH_SERVER_TOKENS_PATH, TOKEN_EXCHANGE_PATH))
+
+
 def _attach_response_capture(page: Page) -> dict[str, Response | None]:
     """Attach a Playwright response listener to capture Firebase and token exchange responses.
 
@@ -141,7 +159,7 @@ def _attach_response_capture(page: Page) -> dict[str, Response | None]:
         """
         if _is_firebase_signin(response.url) and captured["firebase"] is None:
             captured["firebase"] = response
-        elif response.url.endswith(TOKEN_EXCHANGE_PATH) and captured["token"] is None:
+        elif _is_token_exchange(response.url) and captured["token"] is None:
             captured["token"] = response
 
     page.on("response", on_response)
@@ -203,7 +221,7 @@ def _raise_for_token_error(response: Response) -> None:
     """Raise AuthenticationError if the GameSheet token exchange response indicates failure.
 
     Args:
-        response (Response): Playwright Response object from the /api/token exchange call.
+        response (Response): Playwright Response object from the token exchange call.
 
     Raises:
         AuthenticationError: If the response status is not 200.
@@ -312,6 +330,25 @@ def _settle_post_login(session: BrowserSession, path: str) -> None:
         )
 
 
+def _resolve_timeout(timeout: float | None) -> float:
+    """Resolve auth timeout in seconds, converting milliseconds if needed.
+
+    Args:
+        timeout (float | None): Explicit timeout in seconds or milliseconds, or None for default.
+
+    Returns:
+        float: Timeout in seconds.
+
+    """
+    if timeout is None:
+        return DEFAULT_TIMEOUT_S
+
+    if timeout >= _MS_PER_SECOND:
+        return timeout / _MS_PER_SECOND
+
+    return timeout
+
+
 def login(
     session: BrowserSession,
     email: str | None = None,
@@ -325,7 +362,7 @@ def login(
     Success is determined by:
 
     - HTTP 200 from the Firebase signInWithPassword call, **and**
-    - HTTP 200 from the subsequent ``/api/token`` exchange.
+    - HTTP 200 from the subsequent token exchange call (``/auth/v4/tokens`` or ``/api/token``).
 
     On failure the Firebase error.message (e.g. ``EMAIL_NOT_FOUND``, ``INVALID_LOGIN_CREDENTIALS``,
     ``TOO_MANY_ATTEMPTS_TRY_LATER``) is surfaced verbatim in the raised :exc:`AuthenticationError` so callers
@@ -345,7 +382,7 @@ def login(
     """
     email = _resolve_email(session.config, email)
     password = _resolve_password(session.config, password)
-    timeout_s = timeout if timeout is not None else DEFAULT_TIMEOUT_S
+    timeout_s = _resolve_timeout(timeout)
     page = session.goto(LOGIN_PATH, wait_until="load")
     if not _wait_for_login_form(page, session.config):
         # Saved storage state already authenticates; just settle and return.

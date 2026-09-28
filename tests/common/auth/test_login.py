@@ -14,8 +14,17 @@ from pydantic import SecretStr
 
 from gamesheet_sdk import AuthenticationError, Config, login
 from gamesheet_sdk.common.auth.constants import LOGIN_PATH, POST_LOGIN_PATH
-from gamesheet_sdk.common.auth.login import AdminLoginFlow
-from tests.common.auth.conftest import _FIREBASE_URL, _TOKEN_URL, _make_response
+from gamesheet_sdk.common.auth.login import (
+    AdminLoginFlow,
+    _is_token_exchange,
+    _resolve_timeout,
+)
+from tests.common.auth.conftest import (
+    _AUTH_SERVER_TOKENS_URL,
+    _FIREBASE_URL,
+    _TOKEN_URL,
+    _make_response,
+)
 from tests.helpers import TEST_EMAIL_MINIMAL
 
 if TYPE_CHECKING:
@@ -515,6 +524,77 @@ def test_admin_login_flow_raises_when_refresh_token_missing(
         flow = AdminLoginFlow(config)
         with pytest.raises(AuthenticationError, match="tokens were not found"):
             flow.authenticate()
+
+
+# ---------- auth server v4 token exchange & timeout resolution --------------
+
+
+def test_login_succeeds_when_auth_server_tokens_200(
+    fake_browser_session: MagicMock,
+) -> None:
+    """Test that login succeeds when auth server v4 tokens endpoint returns 200."""
+    page = fake_browser_session.goto.return_value
+    page.staged_responses = [
+        _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
+        _make_response(_AUTH_SERVER_TOKENS_URL, 200, {}),
+    ]
+    login(fake_browser_session, email=TEST_EMAIL_MINIMAL, password="x")
+    assert fake_browser_session.goto.call_count == 2
+    fake_browser_session.goto.assert_any_call(LOGIN_PATH, wait_until="load")
+    fake_browser_session.goto.assert_any_call(
+        POST_LOGIN_PATH,
+        wait_until="networkidle",
+        timeout=30_000,
+    )
+    page.click.assert_called_once_with("button[type=submit]")
+
+
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    [
+        ("https://gateway-authserver-awy26srzoa-nn.a.run.app/auth/v4/tokens", True),
+        ("https://gateway-authserver-awy26srzoa-nn.a.run.app/auth/v4/tokens?key=1", True),
+        ("https://gamesheet.app/api/token", True),
+        ("https://gamesheet.app/api/token?ref=web", True),
+        ("https://gamesheet.app/api/other", False),
+        ("https://gamesheet.app/auth/v4/refresh", False),
+    ],
+)
+def test_is_token_exchange(url: str, expected: bool) -> None:
+    """Test URL matching for GameSheet token exchange endpoints."""
+    assert _is_token_exchange(url) is expected
+
+
+@pytest.mark.parametrize(
+    ("timeout_input", "expected_seconds"),
+    [
+        (None, 15.0),
+        (30000, 30.0),
+        (60000, 60.0),
+        (15.0, 15.0),
+        (5, 5.0),
+        (0.01, 0.01),
+    ],
+)
+def test_resolve_timeout(timeout_input: float | None, expected_seconds: float) -> None:
+    """Test timeout resolution and millisecond-to-second conversion."""
+    assert _resolve_timeout(timeout_input) == expected_seconds
+
+
+def test_login_with_millisecond_timeout(fake_browser_session: MagicMock) -> None:
+    """Test that login correctly handles millisecond timeout values (>= 1000)."""
+    page = fake_browser_session.goto.return_value
+    page.staged_responses = [
+        _make_response(_FIREBASE_URL, 200, {"idToken": "tok"}),
+        _make_response(_AUTH_SERVER_TOKENS_URL, 200, {}),
+    ]
+    login(
+        fake_browser_session,
+        email=TEST_EMAIL_MINIMAL,
+        password="x",
+        timeout=30000,
+    )
+    assert fake_browser_session.goto.call_count == 2
 
 
 # ---------- _origin_entry_for with multiple origins (line 367->366) ---------
