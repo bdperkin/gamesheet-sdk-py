@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.4 (2026-09-28)
+
+### Bug Fixes
+
+- **auth**: Capture gateway v4 token exchange and normalize login timeout ([#256](https://github.com/bdperkin/gamesheet-sdk-py/pull/256),
+  [`171b352`](https://github.com/bdperkin/gamesheet-sdk-py/commit/171b35254295d4e4dd6825ea8a7bbd04d41fd8ec))
+
 ## v0.5.3 (2026-09-02)
 
 ### Bug Fixes
