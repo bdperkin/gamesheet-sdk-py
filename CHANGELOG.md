@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.5 (2026-09-28)
+
+### Bug Fixes
+
+- **deps**: Bump gitpython to 3.1.62 and drop deprecated min_supported_python ([#259](https://github.com/bdperkin/gamesheet-sdk-py/pull/259),
+  [`3cddbf0`](https://github.com/bdperkin/gamesheet-sdk-py/commit/3cddbf09c6c8c0f62d6bc80803fa5fed6203e38f))
+
+### Chores
+
+- **deps)(deps**: Bump the actions group across 1 directory with 10 updates ([#255](https://github.com/bdperkin/gamesheet-sdk-py/pull/255),
+  [`b6efc3c`](https://github.com/bdperkin/gamesheet-sdk-py/commit/b6efc3c289db1cf60ef6d909fb49473e82f7e34f))
+
 ## v0.5.4 (2026-09-28)
 
 ### Bug Fixes
