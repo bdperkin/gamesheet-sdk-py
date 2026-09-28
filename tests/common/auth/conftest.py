@@ -11,12 +11,22 @@ from unittest.mock import MagicMock
 import pytest
 
 from gamesheet_sdk import BrowserSession, Config
-from gamesheet_sdk.common.auth.constants import FIREBASE_AUTH_URL, TOKEN_EXCHANGE_URL
+from gamesheet_sdk.common.auth.constants import (
+    AUTH_SERVER_TOKENS_URL,
+    FIREBASE_AUTH_URL,
+    TOKEN_EXCHANGE_URL,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-__all__ = ["_FIREBASE_URL", "_TOKEN_URL", "_make_response", "fake_browser_session"]
+__all__ = [
+    "_AUTH_SERVER_TOKENS_URL",
+    "_FIREBASE_URL",
+    "_TOKEN_URL",
+    "_make_response",
+    "fake_browser_session",
+]
 
 
 def _make_response(url: str, status: int, body: object = None) -> MagicMock:
@@ -39,6 +49,7 @@ def _make_response(url: str, status: int, body: object = None) -> MagicMock:
 
 _FIREBASE_URL = f"{FIREBASE_AUTH_URL}?key=X"
 _TOKEN_URL = TOKEN_EXCHANGE_URL
+_AUTH_SERVER_TOKENS_URL = AUTH_SERVER_TOKENS_URL
 
 
 @pytest.fixture
