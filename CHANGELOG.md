@@ -477,7 +477,7 @@
 
 - Add format-json hook ([`6cd8566`](https://github.com/bdperkin/gamesheet-sdk-py/commit/6cd85669201b0642850f98122be21f7d5ac4c722))
 
-- Add pydoclint hooks, move __init__ docs to class docstrings
+- Add pydoclint hooks, move `__init__` docs to class docstrings
   ([`aa68bbb`](https://github.com/bdperkin/gamesheet-sdk-py/commit/aa68bbb85137d66f8d45bfaed512b07925e015c5))
 
 ### Documentation

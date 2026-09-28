@@ -413,8 +413,8 @@ The package installs two CLIs: `gamesheet-admin` (entry point: `gamesheet_sdk.ad
   - `check_api_freshness.py` — script to check if API docs are up-to-date
 
 - **Documentation organization — Diataxis.** Every doc page belongs to exactly one of four quadrants under `docs/`: `tutorials/` (learning-oriented), `how-to/`
-  (task-oriented), `reference/` (information-oriented), or `explanation/` (understanding-oriented). When adding a page, pick the quadrant by asking _what is the
-  reader's need?_, not _what is the topic?_ — a topic may have a page in more than one quadrant (e.g. an "auth" how-to _and_ an "auth" reference page). The
+  (task-oriented), `reference/` (information-oriented), or `explanation/` (understanding-oriented). When adding a page, pick the quadrant by asking *what is the
+  reader's need?*, not *what is the topic?* — a topic may have a page in more than one quadrant (e.g. an "auth" how-to *and* an "auth" reference page). The
   `docs/explanation/diataxis.md` page is the in-tree primer; the canonical source is [diataxis.fr](https://diataxis.fr/).
 
 - **CLI framework.** The package ships two CLIs, each with its own `cli/main.py` defining a root click group (`cli`) with a thin `main(argv) -> int` wrapper.
