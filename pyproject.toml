@@ -168,7 +168,7 @@ optional-dependencies.pytest = [
   "responses==0.26.3",
 ]
 optional-dependencies.python-semantic-release = [
-  "python-semantic-release==10.6.1",
+  "python-semantic-release==10.7.0",
 ]
 optional-dependencies.quality = [
   "gamesheet-sdk-py[blocklint,codespell,interrogate,vulture]",
