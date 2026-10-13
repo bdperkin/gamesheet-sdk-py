@@ -324,7 +324,7 @@ jobs:
           # every suppression in that file.
           trivyignores: .trivyignore.yaml
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@1c5b675653bb5c22dbe9b12b556ec555138e09fd  # v4.38.1
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2  # v4.38.2
         with:
           category: trivy-image
           sarif_file: trivy-results.sarif
@@ -333,7 +333,7 @@ jobs:
           # GitHub derive a per-workflow category (".github/workflows/<file>:<job>"),
           # which produces two parallel alert sets for the same image.
       - name: Generate SBOM
-        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26  # v0.24.2
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c  # v0.24.3
         with:
           format: spdx-json
           image: ghcr.io/bdperkin/gamesheet-sdk-py:${{ needs.version.outputs.version }}
