@@ -86,7 +86,7 @@ jobs:
           (github.event.pull_request.head.repo.full_name == github.repository &&
            github.actor != 'dependabot[bot]') ||
           github.event_name == 'push'
-        uses: GitGuardian/ggshield-action@7059aef1ffb7d2374ce27201144f5613beecefe0  # v1.54.0
+        uses: GitGuardian/ggshield-action@7f66d3be9c59a821dcf4f45ee5d929203a1a0b90  # v1.55.0
         with:
           args: --show-secrets --exit-zero --all-policies
         env:
@@ -97,7 +97,7 @@ jobs:
           GITHUB_PUSH_BEFORE_SHA: ${{ github.event.before }}
       - name: Upload scan results
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           if-no-files-found: ignore
           name: gitguardian-results
