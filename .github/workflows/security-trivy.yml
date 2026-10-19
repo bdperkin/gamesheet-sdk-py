@@ -99,7 +99,7 @@ jobs:
           trivyignores: .trivyignore.yaml
       - name: Upload Trivy results to GitHub Security
         if: always()
-        uses: github/codeql-action/upload-sarif@1c5b675653bb5c22dbe9b12b556ec555138e09fd  # v4.38.1
+        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d  # v4.38.3
         with:
           category: trivy-fs
           sarif_file: trivy-fs-results.sarif
@@ -135,7 +135,7 @@ jobs:
           scan-type: config
       - name: Upload Trivy config results to GitHub Security
         if: always()
-        uses: github/codeql-action/upload-sarif@1c5b675653bb5c22dbe9b12b556ec555138e09fd  # v4.38.1
+        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d  # v4.38.3
         with:
           category: trivy-config
           sarif_file: trivy-config-results.sarif
