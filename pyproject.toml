@@ -104,8 +104,8 @@ optional-dependencies.detect-secrets = [
   "detect-secrets==1.5.0",
 ]
 optional-dependencies.dev = [
-  "pre-commit==4.6.2",
-  "pre-commit-uv==4.3.0",
+  "pre-commit==4.7.0",
+  "pre-commit-uv==4.4.0",
   "uv==0.12.5",
 ]
 optional-dependencies.docs = [
@@ -151,7 +151,7 @@ optional-dependencies.pylint = [
   "pylint-pydantic==0.4.1",
 ]
 optional-dependencies.pymarkdown = [
-  "pymarkdownlnt==0.9.40",
+  "pymarkdownlnt==0.9.41",
 ]
 optional-dependencies.pyproject-fmt = [
   "pyproject-fmt==2.29.4",
@@ -163,12 +163,12 @@ optional-dependencies.pytest = [
   "gamesheet-sdk-py[tools]",
   "pytest==9.1.1",
   "pytest-cov==7.1.0",
-  "pytest-playwright==0.9.0",
-  "pytest-recording==0.13.4",
+  "pytest-playwright==0.10.0",
+  "pytest-recording==0.14.0",
   "responses==0.26.3",
 ]
 optional-dependencies.python-semantic-release = [
-  "python-semantic-release==10.6.1",
+  "python-semantic-release==10.7.0",
 ]
 optional-dependencies.quality = [
   "gamesheet-sdk-py[blocklint,codespell,interrogate,vulture]",
@@ -192,7 +192,7 @@ optional-dependencies.tools = [
   "gamesheet-sdk-py[dev,yamlfix]",
   "packaging==26.3",
   "ruamel-yaml==0.19.1",
-  "tomli==2.4.1",
+  "tomli==2.5.0",
   "tomlkit==0.13.3",
 ]
 optional-dependencies.ty = [
